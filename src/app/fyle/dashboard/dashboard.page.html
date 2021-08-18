@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-header mode="md" class="dashboard--header">
+<ion-header mode="md" class="dashboard--header" *ngIf="!(currentStateIndex === 1)">
   <ion-toolbar class="stats--toolbar">
     <ion-buttons slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>

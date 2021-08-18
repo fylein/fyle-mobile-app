@@ -169,6 +169,7 @@ $ccc-bank-name: #C4CAE8;
     line-height: 20px;
     color: $pure-white;
     padding-bottom: 0;
+    flex-flow: wrap;
   }
 
   &--ccc-stats {
@@ -211,7 +212,14 @@ $ccc-bank-name: #C4CAE8;
     padding: 0 4px;
     float: right;
     color: $ccc-bank-name;
-    margin-right: 10px;
+  }
+
+  &--ccc-container {
+    padding: 8px 4px 6px 12px;
+  }
+
+  &--ccc-block {
+    margin-bottom: 6px;
   }
 
   &--ccc-sync-detail {
@@ -219,7 +227,7 @@ $ccc-bank-name: #C4CAE8;
     font-size: 12px;
     letter-spacing: -0.005em;
     line-height: 14px;
-    padding: 0 12px 8px;
+    padding: 0 16px 8px;
   }
 
   &--ccc-created_dt {

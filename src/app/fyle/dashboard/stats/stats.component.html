@@ -120,10 +120,10 @@
       <ng-container>
         <div class="stats--ccc-card-details">
           <div class="stats--ccc-bank-name1">
-            <ion-grid>
-              <ion-row>
+            <ion-grid class="stats--ccc-container">
+              <ion-row class="stats--ccc-block">
                 <ion-col class="stats--ccc-bank-name" size="8">
-                  <div >
+                  <div>
                     {{ cardTransactionsAndDetails.ba_bank_name }}
                   </div>
                 </ion-col>
@@ -139,14 +139,14 @@
               </ion-row>
             </ion-grid>
           </div>
-          <div class="stats--ccc-sync-detail"> Last synced: {{ cardTransactionsAndDetails.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
+          <div class="stats--ccc-sync-detail" *ngIf="cardTransactionsAndDetails.ba_last_synced_at"> Last synced: {{ cardTransactionsAndDetails.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
           </div>
         </div>
         <div class="stats--ccc-stats">
           <div class="stats--ccc-created_dt"> Showing all transactions from {{ cardTransactionsAndDetails.ba_created_at | date: 'MMM d, y' }}
           </div>
           <div>
-            <div matRipple (click)="goToCCCPage('classified')">
+            <div (click)="goToCCCPage('classified')">
               <div class="stats--ccc-classified-stats">
                 <div class="stats--ccc-classified-count">
                   {{ cardTransactionsAndDetails.total_classified_count }}
@@ -160,7 +160,7 @@
               <div class="stats--ccc-stats-title"> Classified Transactions </div>
             </div>
             <hr class="stats--ccc-stats-divider">
-            <div matRipple (click)="goToCCCPage('unclassified')">
+            <div (click)="goToCCCPage('unclassified')">
               <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
                 <div class="stats--ccc-classified-count">
                   {{ cardTransactionsAndDetails.total_unclassified_count }}
