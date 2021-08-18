@@ -144,7 +144,7 @@ export class TransactionService {
         params: {
           offset: config.offset,
           limit: config.limit,
-          order: `${config.order || 'tx_txn_dt.desc'},tx_id.desc`,
+          order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
           tx_org_user_id: 'eq.' + eou.ou.id,
           ...config.queryParams
         }

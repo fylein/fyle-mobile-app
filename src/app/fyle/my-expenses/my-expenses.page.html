@@ -48,7 +48,7 @@
       </ng-container>
     </ng-container>
     <ion-buttons mode="md" slot="end">
-      <ion-button (click)="deleteSelectedExpenses()">
+      <ion-button (click)="deleteSelectedExpenses()" [disabled]="selectedElements?.length === 0">
         <ion-icon src="../../../assets/svg/fy-delete.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -126,6 +126,7 @@
           [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
+          [isOutboxExpense]="true"
           (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)">
       </app-expense-card>

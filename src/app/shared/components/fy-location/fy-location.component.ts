@@ -59,7 +59,6 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
-    console.log(this.recentLocations);
   }
 
   get value(): any {

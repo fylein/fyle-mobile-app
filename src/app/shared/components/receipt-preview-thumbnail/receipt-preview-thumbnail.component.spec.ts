@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { MyExpensesCardComponent } from './my-expenses-card.component';
+import { ReceiptPreviewThumbnailComponent } from './receipt-preview-thumbnail.component';
 
-describe('MyExpensesCardComponent', () => {
-  let component: MyExpensesCardComponent;
-  let fixture: ComponentFixture<MyExpensesCardComponent>;
+describe('FyReceiptPreviewThumbnailComponent', () => {
+  let component: ReceiptPreviewThumbnailComponent;
+  let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ MyExpensesCardComponent ],
+      declarations: [ ReceiptPreviewThumbnailComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MyExpensesCardComponent);
+    fixture = TestBed.createComponent(ReceiptPreviewThumbnailComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

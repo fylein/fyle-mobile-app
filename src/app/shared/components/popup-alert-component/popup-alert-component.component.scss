@@ -19,6 +19,9 @@ $small-screen: 700px;
   &--cta-container {
     display: flex;
     justify-content: space-between;
+    &__single-content {
+      justify-content: center;
+    }
   }
 
   &--cta-button {
