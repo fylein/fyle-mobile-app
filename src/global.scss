@@ -824,3 +824,13 @@ ion-modal.auto-height {
       }
   }
 }
+
+.expenses-search {
+  width: 100%;
+
+  .mat-form-field-appearance-outline .mat-form-field-infix {
+    padding-top: 10px !important;
+    padding-bottom: 6px !important;
+    border-top: 0 !important;
+  }
+}
