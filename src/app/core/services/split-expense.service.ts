@@ -83,6 +83,14 @@ export class SplitExpenseService {
     }
   }
 
+  private setUpSplitExpenseBillable(sourceTxn, splitExpense) {
+    return splitExpense.project_id ? splitExpense.billable : sourceTxn.billable;
+  }
+
+  private setUpSplitExpenseTax(sourceTxn, splitExpense) {
+    return splitExpense.tax ? splitExpense.tax : sourceTxn.tax;
+  }
+
   // TODO: Fix later. High impact
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, totalSplitExpensesCount) {
@@ -111,8 +119,8 @@ export class SplitExpenseService {
       transaction.project_id = splitExpense.project_id || sourceTxn.project_id;
       transaction.cost_center_id = splitExpense.cost_center_id || sourceTxn.cost_center_id;
       transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
-      transaction.billable = splitExpense.project_id ? splitExpense.billable : sourceTxn.billable;
-      transaction.tax = splitExpense.tax ? splitExpense.tax : sourceTxn.tax;
+      transaction.billable = this.setUpSplitExpenseBillable(sourceTxn, splitExpense);
+      transaction.tax = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
 
       this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
