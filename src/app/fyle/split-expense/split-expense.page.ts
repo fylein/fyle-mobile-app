@@ -152,14 +152,14 @@ export class SplitExpensePage implements OnInit {
     }
   }
 
-  private setUpSplitExpenseBillable(splitExpense) {
+  setUpSplitExpenseBillable(splitExpense) {
     if (splitExpense.project && this.txnFields && this.txnFields.billable) {
-      return this.txnFields.billable.default_value
+      return this.txnFields.billable.default_value;
     }
     return this.transaction.billable;
   }
 
-  private setUpSplitExpenseTax(splitExpense) {
+  setUpSplitExpenseTax(splitExpense) {
     return this.transaction.tax && this.transaction.amount ? ((this.transaction.tax * splitExpense.percentage)/100) : this.transaction.tax;
   }
 
