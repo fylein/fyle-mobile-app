@@ -12,7 +12,6 @@ import {
   finalize,
   map,
   shareReplay,
-  startWith,
   switchMap,
   take,
   takeUntil,
@@ -581,7 +580,6 @@ export class MyExpensesPage implements OnInit {
 
   syncOutboxExpenses() {
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-    console.log({pendingTransactions: this.pendingTransactions});
     if (this.pendingTransactions.length > 0) {
       this.syncing = true;
       from(this.pendingTransactions).pipe(
@@ -589,7 +587,6 @@ export class MyExpensesPage implements OnInit {
         finalize(() => {
           this.syncing = false;
           const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-          console.log('inside finalize',{ pendingTransactions });
           if (pendingTransactions.length === 0) {
             this.doRefresh();
           }
