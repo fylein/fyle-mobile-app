@@ -109,7 +109,8 @@
             </div>
 
             <div class="expenses-card--vendor"
-              [ngClass]="{'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'}">
+              [ngClass]="{'expenses-card--vendor__not-filled': !expense.vendorDetails,
+                'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'}">
               {{expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled'}}
             </div>
 
