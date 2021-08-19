@@ -48,6 +48,7 @@ import { SelectedFilters } from '../../shared/components/fy-filters/selected-fil
 import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
 import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 type Filters = Partial<{
   state: string[];
@@ -64,6 +65,7 @@ type Filters = Partial<{
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
+  providers: [Keyboard]
 })
 export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
@@ -148,6 +150,8 @@ export class MyExpensesPage implements OnInit {
 
   allExpensesCount: number;
 
+  isKeyboardShown = false;
+
   get HeaderState() {
     return HeaderState;
   }
@@ -174,7 +178,8 @@ export class MyExpensesPage implements OnInit {
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    public keyboard: Keyboard
   ) { }
 
   clearText() {
@@ -556,6 +561,16 @@ export class MyExpensesPage implements OnInit {
         (openReport.report_approvals && !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
       ))
     );
+
+    this.keyboard.onKeyboardWillShow().subscribe(()=>{
+      this.isKeyboardShown = true;
+      console.log('Keyboard is shown---------');
+    });
+
+    this.keyboard.onKeyboardWillHide().subscribe(()=>{
+      this.isKeyboardShown = false;
+      console.log('------------Keyboard is hidden');
+    });
   }
 
   setupNetworkWatcher() {
