@@ -152,6 +152,17 @@ export class SplitExpensePage implements OnInit {
     }
   }
 
+  private setUpSplitExpenseBillable(splitExpense) {
+    if (splitExpense.project && this.txnFields && this.txnFields.billable) {
+      return this.txnFields.billable.default_value
+    }
+    return this.transaction.billable;
+  }
+
+  private setUpSplitExpenseTax(splitExpense) {
+    return this.transaction.tax && this.transaction.amount ? ((this.transaction.tax * splitExpense.percentage)/100) : this.transaction.tax;
+  }
+
   generateSplitEtxnFromFg(splitExpenseValue) {
     // Fixing the date format here as the transaction object date is a string
     this.transaction.from_dt = this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
@@ -165,8 +176,8 @@ export class SplitExpensePage implements OnInit {
       currency: splitExpenseValue.currency,
       amount: splitExpenseValue.amount,
       source: 'MOBILE',
-      billable: splitExpenseValue.project ? this.txnFields && this.txnFields.billable && this.txnFields.billable.default_value : this.transaction.billable,
-      tax: (this.transaction.tax && this.transaction.amount) ? ((this.transaction.tax * splitExpenseValue.percentage)/100) : this.transaction.tax
+      billable: this.setUpSplitExpenseBillable(splitExpenseValue),
+      tax: this.setUpSplitExpenseTax(splitExpenseValue)
     };
   }
 
