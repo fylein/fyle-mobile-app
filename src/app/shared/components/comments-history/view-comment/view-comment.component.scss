@@ -145,12 +145,19 @@
     --overflow: hidden;
   }
 
-  &--zero-state-content {
-    color: $black-light;
-  }
-
   &--zero-state {
-    margin: 32% 0 0 38%;
-    height: 80px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+
+    &__img {
+      height: 80px;
+    }
+
+    &__content {
+      color: $black-light;
+    }
   }
 }

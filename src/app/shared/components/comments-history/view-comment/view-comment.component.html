@@ -78,19 +78,11 @@
 </ion-content>
 
 <ion-content (swipe)="swipeRightToHistory($event)" class="view-comment--zero-state-block" *ngIf="isCommentsView && (userComments && userComments.length === 0)">
-  <ion-grid>
-    <ion-row>
-      <ion-col size="12">
-        <img class="view-comment--zero-state" src="../../../assets/images/zero-states/comments.svg">
-      </ion-col>
-      <ion-col size="12">
-        <div class="text-center view-comment--zero-state-content">Need to clarify something?</div>
-      </ion-col>
-      <ion-col size="12">
-        <div class="text-center view-comment--zero-state-content">Post a comment.</div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <div class="view-comment--zero-state">
+    <img class="view-comment--zero-state__img" src="../../../assets/images/zero-states/comments.svg">
+    <div class="view-comment--zero-state__content">Need to clarify something?</div>
+    <div class="view-comment--zero-state__content">Post a comment.</div>
+  </div>
 </ion-content>
 
 <ion-content *ngIf="isCommentsView && !userComments">
