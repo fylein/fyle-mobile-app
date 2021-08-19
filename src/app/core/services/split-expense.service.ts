@@ -111,13 +111,8 @@ export class SplitExpenseService {
       transaction.project_id = splitExpense.project_id || sourceTxn.project_id;
       transaction.cost_center_id = splitExpense.cost_center_id || sourceTxn.cost_center_id;
       transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
-
-      if (splitExpense.project_id) {
-        transaction.billable = splitExpense.billable;
-      }
-      if (splitExpense.tax) {
-        transaction.tax = splitExpense.tax;
-      }
+      transaction.billable = splitExpense.project_id ? splitExpense.billable : sourceTxn.billable;
+      transaction.tax = splitExpense.tax ? splitExpense.tax : sourceTxn.tax;
 
       this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
