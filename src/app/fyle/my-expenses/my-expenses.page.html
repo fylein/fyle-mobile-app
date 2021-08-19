@@ -165,8 +165,8 @@
 </ion-content>
 
 
-<ion-footer>
-  <app-fy-footer *ngIf="!isKeyboardShown && !selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
+<ion-footer *ngIf="!isKeyboardShown">
+  <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
   <ng-container *ngIf="openReports$ | async as openReports">
     <ng-container *ngIf="selectionMode && !reviewMode">
       <div class="my-expenses--footer-conatiner">
