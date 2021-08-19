@@ -2,6 +2,6 @@
     "apps": [{
         "appId": "32316914",
         "root": "",
-        "webBuildCommand": "npm run build"
+        "webBuildCommand": "npm run appflow"
     }]
 }
