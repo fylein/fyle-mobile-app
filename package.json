@@ -6,7 +6,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "sh sentry.sh",
+    "build": "ng build",
+    "appflow": "sh build_appflow.sh",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
