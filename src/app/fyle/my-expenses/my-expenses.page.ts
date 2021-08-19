@@ -179,7 +179,7 @@ export class MyExpensesPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
     private toastController: ToastController,
-    public keyboard: Keyboard
+    private keyboard: Keyboard
   ) { }
 
   clearText() {
@@ -340,6 +340,14 @@ export class MyExpensesPage implements OnInit {
 
 
   ionViewWillEnter() {
+    this.keyboard.onKeyboardWillShow().subscribe(()=>{
+      this.isKeyboardShown = true;
+    });
+
+    this.keyboard.onKeyboardWillHide().subscribe(()=>{
+      this.isKeyboardShown = false;
+    });
+
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled)
     );
@@ -562,15 +570,6 @@ export class MyExpensesPage implements OnInit {
       ))
     );
 
-    this.keyboard.onKeyboardWillShow().subscribe(()=>{
-      this.isKeyboardShown = true;
-      console.log('Keyboard is shown---------');
-    });
-
-    this.keyboard.onKeyboardWillHide().subscribe(()=>{
-      this.isKeyboardShown = false;
-      console.log('------------Keyboard is hidden');
-    });
   }
 
   setupNetworkWatcher() {
