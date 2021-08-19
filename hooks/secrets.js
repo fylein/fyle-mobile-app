@@ -2,7 +2,9 @@ const dotenv = require('dotenv');
 dotenv.config();
 const NATIVE_CONFIG = JSON.parse(process.env.NATIVE_CONFIG);
 console.log(process.env);
-console.log(process.env.VERSION);
+console.log(process.env.CI_GIT_COMMIT_SHA);
+console.log(process.env.CI_GIT_COMMIT_SHA);
+console.log(process.env.CI_GIT_COMMIT_SHA);
 module.exports = {
     googleCredentialsAndroid: `
             {
