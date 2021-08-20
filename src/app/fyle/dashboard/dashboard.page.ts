@@ -4,13 +4,14 @@ import { concat, forkJoin, from, Observable, Subject } from 'rxjs';
 import { filter, shareReplay, takeUntil } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from 'src/app/core/services/storage.service';
-import { PopoverController } from '@ionic/angular';
+import { ActionSheetController, PopoverController } from '@ionic/angular';
 import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
 import {ActivatedRoute, Params, Router} from '@angular/router';
 import { FooterState } from '../../shared/components/footer/footer-state';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 enum DashboardState {
   home,
@@ -38,6 +39,8 @@ export class DashboardPage implements OnInit {
 
   currentStateIndex = 0;
 
+  actionSheetButtons = [];
+
   constructor(
     private offlineService: OfflineService,
     private transactionService: TransactionService,
@@ -45,7 +48,9 @@ export class DashboardPage implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private activatedRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private trackingService: TrackingService,
+    private actionSheetController: ActionSheetController
   ) { }
 
   ionViewWillLeave() {
@@ -107,6 +112,10 @@ export class DashboardPage implements OnInit {
   }
 
   ngOnInit() {
+    const that = this;
+    that.offlineService.getOrgSettings().subscribe(orgSettings => {
+      this.setupActionSheet(orgSettings);
+    });
   }
 
   get FooterState() {
@@ -135,5 +144,86 @@ export class DashboardPage implements OnInit {
       relativeTo: this.activatedRoute,
       queryParams
     });
+  }
+
+  setupActionSheet(orgSettings) {
+    const that = this;
+    const mileageEnabled = orgSettings.mileage.enabled;
+    const isPerDiemEnabled = orgSettings.per_diem.enabled;
+    that.actionSheetButtons = [{
+      text: 'Capture Receipt',
+      icon: 'assets/svg/fy-camera.svg',
+      cssClass: 'capture-receipt',
+      handler: () => {
+        that.trackingService.dashboardActionSheetButtonClicked({
+          Asset: 'Mobile',
+          Action: 'Capture Receipt'
+        });
+        that.router.navigate(['/', 'enterprise', 'camera_overlay', {
+          navigate_back: true
+        }]);
+      }
+    }, {
+      text: 'Add Manually',
+      icon: 'assets/svg/fy-expense.svg',
+      cssClass: 'capture-receipt',
+      handler: () => {
+        that.trackingService.dashboardActionSheetButtonClicked({
+          Asset: 'Mobile',
+          Action: 'Add Manually'
+        });
+        that.router.navigate(['/', 'enterprise', 'add_edit_expense',{
+          navigate_back: true
+        }]);
+      }
+    }];
+
+    if (mileageEnabled) {
+      this.actionSheetButtons.push({
+        text: 'Add Mileage',
+        icon: 'assets/svg/fy-mileage.svg',
+        cssClass: 'capture-receipt',
+        handler: () => {
+          that.trackingService.dashboardActionSheetButtonClicked({
+            Asset: 'Mobile',
+            Action: 'Add Mileage'
+          });
+          that.router.navigate(['/', 'enterprise', 'add_edit_mileage',{
+            navigate_back: true
+          }]);
+        }
+      });
+    }
+
+    if (isPerDiemEnabled) {
+      that.actionSheetButtons.push({
+        text: 'Add Per Diem',
+        icon: 'assets/svg/fy-calendar.svg',
+        cssClass: 'capture-receipt',
+        handler: () => {
+          that.trackingService.dashboardActionSheetButtonClicked({
+            Asset: 'Mobile',
+            Action: 'Add Per Diem'
+          });
+          that.router.navigate(['/', 'enterprise', 'add_edit_per_diem',{
+            navigate_back: true
+          }]);
+        }
+      });
+    }
+  }
+
+  async openAddExpenseActionSheet() {
+    const that = this;
+    that.trackingService.dashboardActionSheetOpened({
+      Asset: 'Mobile'
+    });
+    const actionSheet = await this.actionSheetController.create({
+      header: 'ADD EXPENSE',
+      mode: 'md',
+      cssClass: 'fy-action-sheet',
+      buttons: that.actionSheetButtons
+    });
+    await actionSheet.present();
   }
 }
