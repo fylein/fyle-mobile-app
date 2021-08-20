@@ -340,11 +340,11 @@ export class MyExpensesPage implements OnInit {
 
 
   ionViewWillEnter() {
-    this.keyboard.onKeyboardWillShow().subscribe(()=>{
+    this.keyboard.onKeyboardShow().subscribe(()=>{
       this.isKeyboardShown = true;
     });
 
-    this.keyboard.onKeyboardWillHide().subscribe(()=>{
+    this.keyboard.onKeyboardHide().subscribe(()=>{
       this.isKeyboardShown = false;
     });
 
