@@ -9,6 +9,15 @@
     }
   }
 
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
+  }
+
   &--header-button {
     --padding-start: 8px !important;
     --padding-end: 8px !important;
