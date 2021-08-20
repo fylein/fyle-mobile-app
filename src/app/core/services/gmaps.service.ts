@@ -1,0 +1,50 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { MapDirectionsService, MapGeocoder, MapGeocoderResponse } from '@angular/google-maps';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GmapsService {
+  constructor(
+    private geocoder: MapGeocoder,
+    private mapDirectionsService: MapDirectionsService
+  ) {
+  }
+
+  // isApiLoaded() {
+  //   return this.httpClient.jsonp('https://maps.googleapis.com/maps/api/js?key=AIzaSyCb7vB5EUfVz7WrxrRvFKk1W45IQV_bvXQ', 'callback')
+  //     .pipe(
+  //       map(() => true),
+  //       catchError(() => of(false)),
+  //     );
+  // }
+
+  getGeocode(latitude: number, longitude: number): Observable<MapGeocoderResponse> {
+    return this.geocoder.geocode({
+      location: {
+        lat: latitude,
+        lng: longitude
+      }
+    });
+  }
+
+
+  getDirections(
+    origin: google.maps.LatLngLiteral,
+    destination: google.maps.LatLngLiteral,
+    waypoints: google.maps.DirectionsWaypoint[]
+  ): Observable<google.maps.DirectionsResult> {
+    const request: google.maps.DirectionsRequest = {
+      destination,
+      origin,
+      waypoints,
+      travelMode: google.maps.TravelMode.DRIVING
+    };
+    return this.mapDirectionsService.route(request).pipe(map(response => response.result));
+  }
+
+
+}
