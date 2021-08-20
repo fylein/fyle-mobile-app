@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from '../../shared/shared.module';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   imports: [
@@ -19,7 +20,8 @@ import { MatButtonModule } from '@angular/material/button';
     MatFormFieldModule,
     MatInputModule,
     SharedModule,
-    MatButtonModule
+    MatButtonModule,
+    MatSnackBarModule
   ],
   declarations: [
     MyProfilePage,
