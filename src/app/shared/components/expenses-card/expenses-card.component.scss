@@ -152,7 +152,7 @@
   }
 
   &--project {
-    color: $black-light;
+    color: $blue-black;
     font-size: 14px;
     margin-top: 8px;
     white-space: nowrap;
@@ -160,6 +160,9 @@
     overflow-x: hidden;
     line-height: 1.2;
 
+    &__not-filled {
+      color: $black-light;
+    }
   }
 
   &--currency-amount-container {

@@ -113,7 +113,7 @@
               {{expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled'}}
             </div>
 
-            <div *ngIf="isProjectMandatory$ | async" class="expenses-card--project">
+            <div *ngIf="isProjectMandatory$ | async" class="expenses-card--project" [ngClass]="{'expenses-card--project__not-filled': !expense.tx_project_name}">
               {{expense.tx_project_name ? 'Project: ' + expense.tx_project_name : 'Project not filled'}}
             </div>
           </div>
