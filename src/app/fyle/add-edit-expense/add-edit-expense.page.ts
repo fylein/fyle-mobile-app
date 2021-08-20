@@ -358,7 +358,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
-    console.log("check the form controller -->", c);
     if (c.value && ((c.value.amount && c.value.currency) || (c.value.orig_amount && c.value.orig_currency))) {
       return null;
     }
