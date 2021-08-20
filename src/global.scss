@@ -79,34 +79,52 @@ input:focus, textarea:focus{
   border-radius: 16px 16px 0px 0px !important;
 }
 
-.mat-snack-bar-success {
-  background-color: $green-1;
+.msb-success {
   color: $pure-white;
-  border-radius: 16px !important;
-  margin-bottom: 133px !important;
-  margin-left: 16px !important;
-  margin-right: 16px !important;
+  background-color: $green;
+  border-radius: 8px !important;
+  margin: 0 16px 30px !important;
   padding: 12px 8px !important;
 }
 
-.mat-snack-bar-failure {
+.msb-failure {
+  color: $pure-white;
   background-color: $red;
-  color: $pure-white;
-  border-radius: 16px !important;
-  margin-bottom: 133px !important;
-  margin-left: 16px !important;
-  margin-right: 16px !important;
+  border-radius: 8px !important;
+  margin: 0 16px 30px !important;
   padding: 12px 8px !important;
 }
 
-.mat-snack-bar-info {
-  background-color: $black;
+.msb-success-with-camera-icon {
   color: $pure-white;
-  border-radius: 16px !important;
-  margin-bottom: 96px !important;
-  margin-left: 16px !important;
-  margin-right: 16px !important;
-  padding: 12px 16px !important;
+  background-color: $green;
+  border-radius: 8px !important;
+  margin: 0 16px 133px !important;
+  padding: 12px 8px !important;
+}
+
+.msb-failure-with-camera-icon {
+  color: $pure-white;
+  background-color: $red;
+  border-radius: 8px !important;
+  margin: 0 16px 133px !important;
+  padding: 12px 8px !important;
+}
+
+.msb-failure-with-report-btn {
+  color: $pure-white;
+  background-color: $red;
+  border-radius: 8px !important;
+  margin: 0 16px 96px !important;
+  padding: 12px 8px !important;
+}
+
+.icon--toast-danger {
+  color: $white !important;
+}
+
+.icon--alert-warning {
+  color: $dark-yellow !important;
 }
 
 .dialog-popover {
@@ -308,7 +326,6 @@ input:focus, textarea:focus{
 
 .ios .stats--background {
   min-height: calc(360px + constant(safe-area-inset-top)) !important;
-  min-height: calc(360px + env(safe-area-inset-top)) !important;
 }
 
 .ios .timeline--timeline-item__middle > .timeline--timeline-item-internal::before,
