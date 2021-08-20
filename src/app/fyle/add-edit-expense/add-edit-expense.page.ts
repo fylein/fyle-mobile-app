@@ -648,17 +648,20 @@ export class AddEditExpensePage implements OnInit {
   openSplitExpenseModal(splitType) {
     const customFields$ = this.getCustomFields();
 
-    combineLatest([this.generateEtxnFromFg(this.etxn$, customFields$), this.txnFields$])
-      .subscribe(([generatedEtxnFromFg, txnFields]) => {
-        this.router.navigate(['/', 'enterprise', 'split_expense', {
-          splitType,
-          txnFields: JSON.stringify(txnFields),
-          txn: JSON.stringify(generatedEtxnFromFg.tx),
-          currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
-          fileObjs: JSON.stringify(generatedEtxnFromFg.dataUrls),
-          selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
-        }]);
-      });
+    forkJoin({
+      generatedEtxnFromFg: this.generateEtxnFromFg(this.etxn$, customFields$),
+      txnFields: this.txnFields$
+    })
+    .subscribe(res => {
+      this.router.navigate(['/', 'enterprise', 'split_expense', {
+        splitType,
+        txnFields: JSON.stringify(res.txnFields),
+        txn: JSON.stringify(res.generatedEtxnFromFg.tx),
+        currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
+        fileObjs: JSON.stringify(res.generatedEtxnFromFg.dataUrls),
+        selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
+      }]);
+    });
   }
 
   async splitExpense() {
