@@ -101,11 +101,6 @@
                 </span>
               </div>
               <div>
-                <div class="add-edit-mileage--amount-value mb-0">
-                  {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
-                </div>
-              </div>
-              <div>
                 <div class="add-edit-mileage--rate-value mb-0 text-right">
                   {{rate$|async | currency: homeCurrency: 'symbol-narrow'}} /
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
@@ -117,6 +112,11 @@
                       <span>{{ mileageConfig.unit }}</span>
                     </ng-container>
                   </ng-template>
+                </div>
+              </div>
+              <div>
+                <div class="add-edit-mileage--amount-value mb-0">
+                  {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
                 </div>
               </div>
             </div>
@@ -384,25 +384,21 @@
               </ng-container>
             </ng-container>
 
-            <ng-container *ngIf="isExpandedView">
-              <ng-container *ngIf="isConnected$|async">
-                <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
-                <ng-container *ngIf="reports$|async as reports">
-                  <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                    <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
-                      <ng-container *ngIf="isExpandedView">
-                        <div class="add-edit-mileage--internal-block">
-                          <app-fy-add-to-report *ngIf="reports.length > 0"
-                            [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'" [options]="reports"
-                            formControlName="report"></app-fy-add-to-report>
-                          <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                            <span class="add-edit-mileage--text-label">
-                              Add to New Report
-                            </span>
-                          </mat-checkbox>
-                        </div>
-                      </ng-container>
-                    </ng-container>
+            <ng-container *ngIf="isConnected$|async">
+              <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
+              <ng-container *ngIf="reports$|async as reports">
+                <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
+                  <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
+                    <div class="add-edit-mileage--internal-block">
+                      <app-fy-add-to-report *ngIf="reports.length > 0"
+                        [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'" [options]="reports"
+                        formControlName="report"></app-fy-add-to-report>
+                      <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
+                        <span class="add-edit-mileage--text-label">
+                          Add to New Report
+                        </span>
+                      </mat-checkbox>
+                    </div>
                   </ng-container>
                 </ng-container>
               </ng-container>
@@ -491,16 +487,14 @@
       [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}">
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
-          <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid"
-            appFormButtonValidation [loading]="saveMileageLoader" [loadingText]="'Saving'"
-            [disabled]="saveMileageLoader || saveAndNewMileageLoader">
-            Save
-          </ion-button>
           <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add'"
             [disabled]="fg.controls.add_to_new_report.value || (saveMileageLoader || saveAndNewMileageLoader)"
-            class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid" appFormButtonValidation
-            [loading]="saveAndNewMileageLoader" [loadingText]="'Saving'">
+            class="btn-secondary" appFormButtonValidation [loading]="saveAndNewMileageLoader" [loadingText]="'Saving'">
             Save & New
+          </ion-button>
+          <ion-button (click)="saveExpense()" class="btn-primary" appFormButtonValidation
+            [loading]="saveMileageLoader" [loadingText]="'Saving'" [disabled]="saveMileageLoader || saveAndNewMileageLoader">
+            Save
           </ion-button>
         </ion-buttons>
       </div>
