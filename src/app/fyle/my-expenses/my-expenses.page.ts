@@ -180,7 +180,7 @@ export class MyExpensesPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
     private toastController: ToastController,
-    private keyboard: Keyboard
+    private keyboard: Keyboard,
     private snackbarProperties: SnackbarPropertiesService
   ) { }
 
