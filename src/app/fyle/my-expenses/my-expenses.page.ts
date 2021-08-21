@@ -48,7 +48,6 @@ import { SelectedFilters } from '../../shared/components/fy-filters/selected-fil
 import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
 import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
-import { Keyboard } from '@ionic-native/keyboard/ngx';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 
 type Filters = Partial<{
@@ -65,8 +64,7 @@ type Filters = Partial<{
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
-  styleUrls: ['./my-expenses.page.scss'],
-  providers: [Keyboard]
+  styleUrls: ['./my-expenses.page.scss']
 })
 export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
@@ -180,9 +178,16 @@ export class MyExpensesPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
     private toastController: ToastController,
-    private keyboard: Keyboard,
     private snackbarProperties: SnackbarPropertiesService
-  ) { }
+  ) {
+    window.addEventListener('keyboardWillShow', () => {
+      this.isKeyboardShown = true;
+    });
+
+    window.addEventListener('keyboardWillHide', () => {
+      this.isKeyboardShown = false;
+    });
+  }
 
   clearText() {
     this.simpleSearchText = '';
@@ -342,14 +347,6 @@ export class MyExpensesPage implements OnInit {
 
 
   ionViewWillEnter() {
-    this.keyboard.onKeyboardShow().subscribe(()=>{
-      this.isKeyboardShown = true;
-    });
-
-    this.keyboard.onKeyboardHide().subscribe(()=>{
-      this.isKeyboardShown = false;
-    });
-
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled)
     );
