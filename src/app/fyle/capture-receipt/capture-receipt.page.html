@@ -25,7 +25,7 @@
     </div>
   </div>
 
-  <div class="capture-receipt--single-bulk-gallery-container">
+  <div class="capture-receipt--single-bulk-gallery-container" [ngClass]="{'capture-receipt--single-bulk-gallery-container__offline': isOffline$|async}">
     <div class="capture-receipt--gallery-icon-block text-center">
       <mat-icon class="capture-receipt--gallery-icon" svgIcon="gallery" (click)="galleryUpload()"></mat-icon>
       <div class="text-center capture-receipt--footer-text capture-receipt--gallery-icon-text">Gallery</div>
