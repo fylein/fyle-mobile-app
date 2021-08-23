@@ -1,5 +1,5 @@
 <ion-header>
-  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <mat-icon *ngIf="!platform.is('android')" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar class="view-comment--toolbar fy-modal-toolbar">
     <ion-buttons slot="start" (click)="closeCommentModal()">
       <mat-icon class="fy-icon-close view-comment--btn-close" svgIcon="fy-close"></mat-icon>
