@@ -89,10 +89,10 @@
 
   &--state-pill {
     width: 47%;
-    border: 1px solid #0077ee;
+    border: 1px solid $blue;
     padding: 8px;
     text-align: center;
-    color: #0077ee;
+    color: $blue;
     white-space: nowrap;
     &__left {
       border-radius: 4px 0 0 4px;
@@ -103,14 +103,16 @@
     }
 
     &__selected {
-      background-color: #0077ee;
+      background-color: $blue;
       color: white;
     }
   }
 
   &--simple-search-container {
-    padding-left: 18px;
-    padding-right: 4px;
+    display: flex;
+    align-items: center;
+    height: 62px;
+    padding-left: 12px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
         color: $black-light !important;
@@ -124,7 +126,7 @@
 
     &-icon {
       font-size: 18px;
-      margin-right: 8px;
+      margin: auto 8px auto 0;
       color: $black-light;
       height: auto;
     }

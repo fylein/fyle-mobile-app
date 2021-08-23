@@ -1391,7 +1391,7 @@ export class MyExpensesPage implements OnInit {
       this.showNonReportableExpenseSelectedToast('You cannot add critical policy violated expenses to a report');
     } else if (noOfExpensesInDraftState === selectedElements.length) {
       this.showNonReportableExpenseSelectedToast('You cannot add draft expenses to a report');
-    } else if(noOfExpensesWithCriticalPolicyViolations + noOfExpensesInDraftState === selectedElements.length) {
+    } else if(!this.isReportableExpensesSelected) {
       this.showNonReportableExpenseSelectedToast('You cannot add draft expenses and critical policy violated expenses to a report');
     } else {
       this.trackingService.addToReport({ Asset: 'Mobile' });
