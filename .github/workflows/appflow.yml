@@ -3,13 +3,12 @@ name: Appflow
 on:
   pull_request:
     branches: [ master ]
-    
+
 jobs:
   build-app:
     runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, '--build')"
     steps:
-
+    
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
         with:
