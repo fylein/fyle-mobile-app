@@ -1,4 +1,4 @@
-name: manual
+name: manualtgr
 
 on: 
   workflow_dispatch:
