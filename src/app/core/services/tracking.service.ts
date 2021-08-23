@@ -374,6 +374,11 @@ export class TrackingService {
     this.eventTrack('Setup Complete', properties);
   }
 
+  // When toast message is displayed
+  showToastMessage(properties) {
+    this.eventTrack('Toast message displayed', properties);
+  }
+
   /*** Old events ***/
 
   // reset password event
@@ -734,6 +739,10 @@ export class TrackingService {
 
   dashboardOnReportPillClick(properties) {
     this.eventTrack('dashboard report pill clicked', properties);
+  }
+
+  dashboardOnCorporateCardClick(properties) {
+    this.eventTrack('dashboard corporate card clicked', properties);
   }
 
   // Footer

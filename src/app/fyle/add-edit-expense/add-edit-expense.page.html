@@ -685,23 +685,21 @@
       </ng-container>
 
       <!-- Hide in offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
-      <ng-container *ngIf="isExpandedView">
-        <ng-container *ngIf="isConnected$|async as isConnected">
-          <ng-container *ngIf="etxn$|async as etxn">
-            <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-              <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !isDraftExpense">
-                <ng-container *ngIf="reports$|async as reports">
-                  <div class="add-edit-expense--internal-block">
-                    <app-fy-add-to-report *ngIf="reports.length > 0"
-                      [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'" [options]="reports"
-                      formControlName="report"></app-fy-add-to-report>
-                    <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                      <span class="add-edit-expense--text-label">
-                        Add to New Report
-                      </span>
-                    </mat-checkbox>
-                  </div>
-                </ng-container>
+      <ng-container *ngIf="isConnected$|async as isConnected">
+        <ng-container *ngIf="etxn$|async as etxn">
+          <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
+            <ng-container *ngIf="etxn.tx.state !== 'DRAFT' && !isDraftExpense">
+              <ng-container *ngIf="reports$|async as reports">
+                <div class="add-edit-expense--internal-block">
+                  <app-fy-add-to-report *ngIf="reports.length > 0"
+                    [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'" [options]="reports"
+                    formControlName="report"></app-fy-add-to-report>
+                  <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
+                    <span class="add-edit-expense--text-label">
+                      Add to New Report
+                    </span>
+                  </mat-checkbox>
+                </div>
               </ng-container>
             </ng-container>
           </ng-container>

@@ -3,11 +3,12 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
-import { Observable, range} from 'rxjs';
+import { from, Observable, range} from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
+import { BankAccountsAssigned } from '../models/v2/bank-accounts-assigned.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,8 @@ export class CorporateCreditCardExpenseService {
   constructor(
     private apiService: ApiService,
     private apiV2Service: ApiV2Service,
-    private dataTransformService: DataTransformService
+    private dataTransformService: DataTransformService,
+    private authService: AuthService
   ) { }
 
   getPaginatedECorporateCreditCardExpenseStats(params) {
@@ -105,6 +107,17 @@ export class CorporateCreditCardExpenseService {
 
     return this.apiService.get('/extended_corporate_credit_card_expenses', data).pipe(
       map(res => (res && res.length && res.map(elem => this.dataTransformService.unflatten(elem))) || [])
+    );
+  }
+
+  getAssignedCards() {
+    return from(this.authService.getEou()).pipe(
+      switchMap(eou => this.apiV2Service.get('/bank_accounts_assigned', {
+        params: {
+          assigned_to_ou_id: 'eq.' + eou.ou.id
+        }
+      })),
+      map(res => res.data as BankAccountsAssigned[])
     );
   }
 }

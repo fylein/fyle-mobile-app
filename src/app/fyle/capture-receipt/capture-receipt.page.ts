@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {CameraPreviewOptions, CameraPreviewPictureOptions} from '@capacitor-community/camera-preview';
+import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor, Plugins } from '@capacitor/core';
 
 import '@capacitor-community/camera-preview';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -15,8 +15,10 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, finalize, reduce, switchMap } from 'rxjs/operators';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 
-const {CameraPreview} = Plugins;
+const { CameraPreview } = Plugins;
 
 type Image = Partial<{
   source: string;
@@ -56,10 +58,11 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     private transactionsOutboxService: TransactionsOutboxService,
     private imagePicker: ImagePicker,
     private networkService: NetworkService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private popoverController: PopoverController
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
     return from(base64ImagesWithSource).pipe(
@@ -77,7 +80,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
       accounts: this.offlineService.getAccounts(),
       orgSettings: this.offlineService.getOrgSettings()
     }).pipe(
-      switchMap(({isConnected, orgUserSettings, accounts, orgSettings}) => {
+      switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) => {
         const account = this.getAccount(orgSettings, accounts, orgUserSettings);
 
         if (!isConnected) {
@@ -145,7 +148,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
         nextActiveFlashMode = 'off';
       }
 
-      CameraPreview.setFlashMode({flashMode: nextActiveFlashMode});
+      CameraPreview.setFlashMode({ flashMode: nextActiveFlashMode });
       this.flashMode = nextActiveFlashMode;
 
       this.trackingService.flashModeSet({
@@ -159,7 +162,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
       CameraPreview.getSupportedFlashModes().then(flashModes => {
         if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
           this.flashMode = this.flashMode || 'off';
-          CameraPreview.setFlashMode({flashMode: this.flashMode});
+          CameraPreview.setFlashMode({ flashMode: this.flashMode });
         }
       });
     }
@@ -267,27 +270,47 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     this.setUpAndStartCamera();
   }
 
-  async onCapture() {
-    const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
-      quality: 85,
-    };
+  async showLimitMessage() {
+    const limitPopover = await this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title: 'Limit Reached',
+        message: 'You’ve added the maximum limit of 20 receipts. Please review and save these as expenses before adding more.',
+        primaryCta: {
+          text: 'Ok',
+        }
+      },
+      cssClass: 'pop-up-in-center'
+    });
 
-    const result = await CameraPreview.capture(cameraPreviewPictureOptions);
-    await this.stopCamera();
-    const base64PictureData = 'data:image/jpeg;base64,' + result.value;
-    this.lastImage = base64PictureData;
-    if (!this.isBulkMode) {
-      this.base64ImagesWithSource.push({
-        source: 'MOBILE_DASHCAM_SINGLE',
-        base64Image: base64PictureData
-      });
-      this.onSingleCapture();
+    await limitPopover.present();
+  }
+
+  async onCapture() {
+    if (this.captureCount >= 20) {
+      await this.showLimitMessage();
     } else {
-      this.base64ImagesWithSource.push({
-        source: 'MOBILE_DASHCAM_BULK',
-        base64Image: base64PictureData
-      });
-      this.onBulkCapture();
+      const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
+        quality: 85,
+      };
+
+      const result = await CameraPreview.capture(cameraPreviewPictureOptions);
+      await this.stopCamera();
+      const base64PictureData = 'data:image/jpeg;base64,' + result.value;
+      this.lastImage = base64PictureData;
+      if (!this.isBulkMode) {
+        this.base64ImagesWithSource.push({
+          source: 'MOBILE_DASHCAM_SINGLE',
+          base64Image: base64PictureData
+        });
+        this.onSingleCapture();
+      } else {
+        this.base64ImagesWithSource.push({
+          source: 'MOBILE_DASHCAM_BULK',
+          base64Image: base64PictureData
+        });
+        this.onBulkCapture();
+      }
     }
   }
 
