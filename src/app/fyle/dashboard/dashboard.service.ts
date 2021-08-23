@@ -3,12 +3,16 @@ import {ReportService} from '../../core/services/report.service';
 import { map } from 'rxjs/operators';
 import {StatsResponse} from '../../core/models/v2/stats-response.model';
 import {TransactionService} from '../../core/services/transaction.service';
+import { Observable } from 'rxjs';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 
 @Injectable()
 export class DashboardService {
   constructor(
       private reportService: ReportService,
-      private transactionService: TransactionService
+      private transactionService: TransactionService,
+      private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
   ) { }
 
   getUnreportedExpensesStats() {
@@ -18,14 +22,14 @@ export class DashboardService {
       or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
       tx_report_id: 'is.null'
     }).pipe(
-        map(rawStatsResponse => {
-          const countAggregate = rawStatsResponse[0].aggregates.find(aggregate => aggregate.function_name === 'count(tx_id)');
-          const amountAggregate = rawStatsResponse[0].aggregates.find(aggregate => aggregate.function_name === 'sum(tx_amount)');
-          return {
-            totalCount: countAggregate && countAggregate.function_value,
-            totalAmount: amountAggregate && amountAggregate.function_value
-          };
-        })
+      map(rawStatsResponse => {
+        const countAggregate = rawStatsResponse[0].aggregates.find(aggregate => aggregate.function_name === 'count(tx_id)');
+        const amountAggregate = rawStatsResponse[0].aggregates.find(aggregate => aggregate.function_name === 'sum(tx_amount)');
+        return {
+          totalCount: countAggregate && countAggregate.function_value,
+          totalAmount: amountAggregate && amountAggregate.function_value
+        };
+      })
     );
   }
 
@@ -35,9 +39,7 @@ export class DashboardService {
       dimension_1_1: 'rp_state',
       aggregates: 'sum(rp_amount),count(rp_id)'
     }).pipe(
-        map(statsResponse => {
-          return this.getReportAggregates(statsResponse);
-        })
+      map(statsResponse => this.getReportAggregates(statsResponse))
     );
   }
 
@@ -59,7 +61,7 @@ export class DashboardService {
         sum: curr.sum
       };
       return acc;
-    }, {} as { [key: string]: { count: number, sum: number } });
+    }, {} as { [key: string]: { count: number; sum: number } });
 
     const draftReportStats = stateWiseAggregatesMap.DRAFT || { sum: 0, count: 0 };
     const reportedReportStats = stateWiseAggregatesMap.APPROVER_PENDING || { sum: 0, count: 0 };
@@ -72,5 +74,9 @@ export class DashboardService {
       approved: approvedReportStats,
       paymentPending: paymentPendingReportStats
     };
+  }
+
+  getCCCDetails():  Observable<BankAccountsAssigned[]> {
+    return this.corporateCreditCardExpenseService.getAssignedCards();
   }
 }

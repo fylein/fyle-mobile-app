@@ -12,8 +12,9 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar class="selection-modal--form-field-container">
+  <ion-toolbar class="text-center">
     <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
+      <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
       <input #searchBar id="selection-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search" [(ngModel)]="value">
       <mat-icon *ngIf="isLoading" class="selection-modal--autocomplete-loader" svgIcon="fy-spinner-circle" matSuffix></mat-icon>
       <button mat-button *ngIf="!isLoading && value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
@@ -53,7 +54,7 @@
               </app-fy-highlight-text>
             </span>
           </div>
-          <mat-icon *ngIf="selected">
+          <mat-icon *ngIf="selected" class="selection-modal--check">
             check
           </mat-icon>
         </ng-template>
@@ -68,7 +69,7 @@
           [fullText]="filteredListItem.label"
           [queryText]="value">
         </app-fy-highlight-text>
-        <mat-icon *ngIf="filteredListItem.selected">check</mat-icon>
+        <mat-icon *ngIf="filteredListItem.selected" class="selection-modal--check">check</mat-icon>
       </div>
     </div>
 

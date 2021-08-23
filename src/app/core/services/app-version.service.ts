@@ -1,10 +1,10 @@
-import {Injectable} from '@angular/core';
-import {DeviceService} from './device.service';
-import {map, shareReplay, switchMap} from 'rxjs/operators';
-import {ApiService} from './api.service';
-import {forkJoin, noop, of} from 'rxjs';
-import {RouterApiService} from './router-api.service';
-import {AppVersion} from '../models/app_version.model';
+import { Injectable } from '@angular/core';
+import { DeviceService } from './device.service';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { ApiService } from './api.service';
+import { forkJoin, noop, of } from 'rxjs';
+import { RouterApiService } from './router-api.service';
+import { AppVersion } from '../models/app_version.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +17,9 @@ export class AppVersionService {
     private routerApiService: RouterApiService
   ) { }
 
+  // not fixing since copied from somewhere
+  // not human readable at the moment
+  // eslint-disable-next-line complexity
   isVersionLower(version1, version2) {
     // https://gist.github.com/alexey-bass/1115557#file-compare-js
     // someone should shoot this person for writing this
@@ -113,7 +116,7 @@ export class AppVersionService {
     return this.apiService.post('/version/app', data);
   }
 
-  codePushUpdates (data) {
+  codePushUpdates(data) {
     return this.apiService.post('/mobileapp/code_push_updates', data);
   }
 }

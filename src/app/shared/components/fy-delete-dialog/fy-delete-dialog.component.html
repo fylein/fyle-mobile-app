@@ -16,7 +16,7 @@
     </ion-row>
     <ion-row>
       <ion-col size="6">
-        <div class="fy-delete-dialog--cancel" (click)="cancel()">
+        <div [ngClass]="{'fy-delete-dialog--cancel__disabled': deleteCallInProgress}" class="fy-delete-dialog--cancel" (click)="cancel()">
           Cancel
         </div>
       </ion-col>

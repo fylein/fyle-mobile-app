@@ -1,20 +1,5 @@
 <div class="stats">
   <div class="stats--background">
-    <ion-header mode="md">
-      <ion-toolbar class="stats--toolbar">
-        <ion-buttons slot="start">
-          <app-fy-menu-icon></app-fy-menu-icon>
-        </ion-buttons>
-        <ion-title class="stats--title" mode="md">
-          Home
-        </ion-title>
-        <ion-buttons slot="end">
-          <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
-            <mat-icon svgIcon="fy-plus"></mat-icon>
-          </div>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
     <ion-grid class="stats--body">
       <ion-row class="stats--report-stats-row" *ngIf="isConnected$|async">
         <ion-col class="stats--report-stats-col">
@@ -122,6 +107,129 @@
       </ion-row>
     </ion-grid>
   </div>
+
+  <div *ngIf="(isConnected$|async) && cardTransactionsAndDetails" class="stats--ccc-cards-section">
+    <div>
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <div class="stats--header stats--ccc-cards-header"> CARD TRANSACTIONS </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <ng-container>
+        <div class="stats--ccc-card-details">
+          <div class="stats--ccc-bank-name1">
+            <ion-grid class="stats--ccc-container">
+              <ion-row class="stats--ccc-block">
+                <ion-col class="stats--ccc-bank-name" size="8">
+                  <div>
+                    {{ cardTransactionsAndDetails.ba_bank_name }}
+                  </div>
+                </ion-col>
+                <ion-col size="4">
+                  <div class="stats--ccc-card-info"> Corporate Card </div>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col class="stats--ccc-account-info">
+                  <span class="stats--ccc-account-info__type"> CREDIT </span>
+                  <span class="stats--ccc-account-info__mask">{{ ' xxxx ' + cardTransactionsAndDetails.ba_mask }}</span>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+          <div class="stats--ccc-sync-detail" *ngIf="cardTransactionsAndDetails.ba_last_synced_at"> Last synced: {{ cardTransactionsAndDetails.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
+          </div>
+        </div>
+        <div class="stats--ccc-stats">
+          <div class="stats--ccc-created_dt"> Showing all transactions from {{ cardTransactionsAndDetails.ba_created_at | date: 'MMM d, y' }}
+          </div>
+          <div>
+            <div (click)="goToCCCPage('classified')">
+              <div class="stats--ccc-classified-stats">
+                <div class="stats--ccc-classified-count">
+                  {{ cardTransactionsAndDetails.total_classified_count }}
+                </div>
+                <div class="stats--ccc-classified-amount">
+                  <span class="stats--expenses-amount-currency">
+                    {{currencySymbol$|async}}
+                  </span> {{ cardTransactionsAndDetails.total_classified_amount | humanizeCurrency: (homeCurrency$|async): 2: true}}
+                </div>
+              </div>
+              <div class="stats--ccc-stats-title"> Classified Transactions </div>
+            </div>
+            <hr class="stats--ccc-stats-divider">
+            <div (click)="goToCCCPage('unclassified')">
+              <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
+                <div class="stats--ccc-classified-count">
+                  {{ cardTransactionsAndDetails.total_unclassified_count }}
+                </div>
+                <div class="stats--ccc-classified-amount">
+                  <span class="stats--expenses-amount-currency">
+                    {{currencySymbol$|async}}
+                  </span> {{ cardTransactionsAndDetails.total_unclassified_amount | humanizeCurrency: (homeCurrency$|async): 2: true}}
+                </div>
+              </div>
+              <div class="stats--ccc-stats-title"> Unclassified Transactions </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #cccStatsLoading>
+        <div class="stats--ccc-card-details">
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-skeleton-text class="stats--ccc-skeleton-text stats--ccc-skeleton-text__height-small stats--ccc-skeleton-text__width-small" animated></ion-skeleton-text>
+                <ion-skeleton-text class="stats--ccc-skeleton-text stats--ccc-skeleton-text__height-small stats--ccc-skeleton-text__width-small" animated></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col>
+                <ion-skeleton-text class="stats--ccc-skeleton-text stats--ccc-skeleton-text__width-large" animated></ion-skeleton-text>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+        <div class="stats--ccc-stats">
+          <div>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-skeleton-text class="stats--expenses-skeleton-text stats--ccc-skeleton-text__width-large" animated></ion-skeleton-text>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small" animated></ion-skeleton-text>
+                  <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-medium" animated></ion-skeleton-text>
+                </ion-col>
+                <ion-col>
+                  <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right stats--ccc-skeleton-text__width-medium" animated></ion-skeleton-text>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+          <hr class="stats--ccc-stats-divider">
+          <div>
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small" animated></ion-skeleton-text>
+                  <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-medium" animated></ion-skeleton-text>
+                </ion-col>
+                <ion-col>
+                  <ion-skeleton-text class="stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right stats--ccc-skeleton-text__width-medium" animated></ion-skeleton-text>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
   <ng-template #offlineMessage>
     <div class="stats--zero-state">
       <app-fy-zero-state class="stats--zero-state" image="../../../../assets/images/no-internet.svg"

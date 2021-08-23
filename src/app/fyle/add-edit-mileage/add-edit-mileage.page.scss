@@ -1,4 +1,5 @@
 @import "../../../theme/colors.scss";
+@import "../../../theme/forms.scss";
 
 .add-edit-mileage {
   &--toolbar {
@@ -33,6 +34,12 @@
     }
   }
 
+  &--footer-toolbar {
+    &__offline {
+      padding-bottom: 36px;
+    }
+  }
+
   &--footer {
     display: flex;
     justify-content: space-around;
@@ -41,16 +48,6 @@
   &--cta-container {
     padding: 14px 16px 14px 16px;
     justify-content: space-between;
-  }
-
-  &--primary-cta, &--secondary-cta {
-    height: 48px;
-    font-size: 14px;
-    text-transform: inherit;
-    font-weight: 600;
-    --border-radius: 4px !important;
-    width: 100%;
-    margin: 0 4px;
   }
 
   &--receipt-currency {
@@ -85,7 +82,6 @@
 
   &--date {
     border-bottom: 1px solid $grey-lighter;
-    padding: 4px 0 !important;
   }
 
   &--date-label {
@@ -173,10 +169,14 @@
   }
 
   &--internal-block {
-    padding: 8px 0;
+    padding: 6px 0;
     background: #fff;
     line-height: 1;
     margin-bottom: 12px;
+
+    &__margin {
+      margin-right: 12px;
+    }
 
     &__invalid {
       border-color: $red;
@@ -283,11 +283,11 @@
 
   &--amount-value {
     font-size: 22px;
+    margin-right: 12px;
   }
 
   &--rate-value {
     font-size: 16px;
-    margin-right: 12px;
   }
 
   &--remove-stop {
@@ -405,19 +405,19 @@
   }
 
   &--payment-mode-header {
-    font-weight: 500;
-    font-size: 16px;
-    color: #4a4a4a;
-  }
-
-  &--payment-mode-purpose {
     font-size: 14px;
-    color: #4a4a4a;
+    color: $blue-black;
   }
 
-  &--payment-mode-type {
-    color: #ababab;
+  &--payment-mode-section {
     font-size: 12px;
+    color: $black-light;
+    margin-top: 4px;
+  }
+
+  &--check {
+    color: $primary;
+    font-size: 20px;
   }
 
   &--mandatory {
@@ -439,5 +439,10 @@
 
   &--location {
     flex-grow: 1;
+  }
+
+  &--grid {
+    --ion-grid-padding: 0;
+    --ion-grid-column-padding: 0;
   }
 }

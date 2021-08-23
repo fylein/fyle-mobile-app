@@ -3,10 +3,10 @@ export interface PopupConfig {
   message: string;
   showCancelButton?: boolean;
   primaryCta?: {
-    text: string
+    text: string;
   };
   secondaryCta?: {
-    text: string
+    text: string;
   };
   cssClass?: string;
 }

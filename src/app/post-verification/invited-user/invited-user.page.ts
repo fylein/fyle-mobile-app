@@ -10,6 +10,10 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { Router } from '@angular/router';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import {TrackingService} from '../../core/services/tracking.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { NullTemplateVisitor } from '@angular/compiler';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-invited-user',
@@ -19,13 +23,21 @@ import {TrackingService} from '../../core/services/tracking.service';
 export class InvitedUserPage implements OnInit {
 
   isConnected$: Observable<boolean>;
+
   fg: FormGroup;
+
   eou$: Observable<ExtendedOrgUser>;
+
   hide = true;
+
   lengthValidationDisplay$: Observable<boolean>;
+
   uppercaseValidationDisplay$: Observable<boolean>;
+
   numberValidationDisplay$: Observable<boolean>;
+
   specialCharValidationDisplay$: Observable<boolean>;
+
   lowercaseValidationDisplay$: Observable<boolean>;
 
   constructor(
@@ -36,7 +48,9 @@ export class InvitedUserPage implements OnInit {
     private loaderService: LoaderService,
     private authService: AuthService,
     private router: Router,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) { }
 
   ngOnInit() {
@@ -100,9 +114,7 @@ export class InvitedUserPage implements OnInit {
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.eou$;
-        }),
+        switchMap(() => this.eou$),
         switchMap((eou) => {
           const user = eou.us;
           user.full_name = this.fg.controls.fullName.value;
@@ -110,12 +122,8 @@ export class InvitedUserPage implements OnInit {
           return this.orgUserService.postUser(user);
         }),
         tap(() => this.trackingService.setupComplete({Asset: 'Mobile'})),
-        switchMap(() => {
-          return this.authService.refreshEou();
-        }),
-        switchMap(() => {
-          return this.orgUserService.markActive();
-        }),
+        switchMap(() => this.authService.refreshEou()),
+        switchMap(() => this.orgUserService.markActive()),
         tap(() => this.trackingService.activated({Asset: 'Mobile'})),
         finalize(async () => await this.loaderService.hideLoader())
       ).subscribe(() => {
@@ -123,13 +131,12 @@ export class InvitedUserPage implements OnInit {
         // return $state.go('enterprise.my_dashboard');
       });
     } else {
-      const toast = await this.toastController.create({
-        message: 'Please fill all required fields to proceed',
-        color: 'danger',
-        duration: 1200
+      const message = `Please enter a valid ${!this.fg.value.fullName.length ? 'name' : 'password'}`;
+      this.matSnackBar.openFromComponent( ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+        panelClass: ['msb-failure']
       });
-
-      await toast.present();
+      this.trackingService.showToastMessage({ToastContent: message});
     }
   }
 

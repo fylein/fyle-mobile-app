@@ -20,8 +20,11 @@ enum ResetPasswordPageState {
 export class ResetPasswordPage implements OnInit {
 
   fg: FormGroup;
+
   currentPageState: ResetPasswordPageState = ResetPasswordPageState.notSent;
+
   emailSet = false;
+
   resetLinkLoader = false;
 
   get pageStates() {

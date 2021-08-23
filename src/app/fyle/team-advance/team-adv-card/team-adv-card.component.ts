@@ -10,9 +10,11 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 export class TeamAdvCardComponent implements OnInit {
 
   @Input() advanceRequest: ExtendedAdvanceRequest;
+
   @Output() gotoAdvance: EventEmitter<ExtendedAdvanceRequest> = new EventEmitter();
 
-  internalState: { name: string, state: string };
+  internalState: { name: string; state: string };
+
   actionOpened = false;
 
   constructor(

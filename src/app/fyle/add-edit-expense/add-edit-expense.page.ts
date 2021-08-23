@@ -1,5 +1,7 @@
+// TODO: Very hard to fix this file without making massive changes
+/* eslint-disable complexity */
 import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
-import {combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, throwError} from 'rxjs';
+import {combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, Subject, throwError} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   catchError,
@@ -15,41 +17,44 @@ import {
   switchMap,
   take,
   tap,
-  timeout
+  timeout,
+  withLatestFrom
 } from 'rxjs/operators';
-import {AccountsService} from 'src/app/core/services/accounts.service';
-import {OfflineService} from 'src/app/core/services/offline.service';
-import {AuthService} from 'src/app/core/services/auth.service';
-import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators} from '@angular/forms';
-import {CategoriesService} from 'src/app/core/services/categories.service';
-import {ProjectsService} from 'src/app/core/services/projects.service';
-import {DateService} from 'src/app/core/services/date.service';
+import { AccountsService } from 'src/app/core/services/accounts.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { CategoriesService } from 'src/app/core/services/categories.service';
+import { ProjectsService } from 'src/app/core/services/projects.service';
+import { DateService } from 'src/app/core/services/date.service';
 import * as moment from 'moment';
-import {ReportService} from 'src/app/core/services/report.service';
-import {CustomInputsService} from 'src/app/core/services/custom-inputs.service';
-import {CustomFieldsService} from 'src/app/core/services/custom-fields.service';
-import {cloneDeep, isEqual, isNumber} from 'lodash';
-import {TransactionService} from 'src/app/core/services/transaction.service';
-import {DataTransformService} from 'src/app/core/services/data-transform.service';
-import {PolicyService} from 'src/app/core/services/policy.service';
-import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';
-import {LoaderService} from 'src/app/core/services/loader.service';
-import {DuplicateDetectionService} from 'src/app/core/services/duplicate-detection.service';
-import {ActionSheetController, ModalController, NavController, PopoverController} from '@ionic/angular';
-import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import {PolicyViolationComponent} from './policy-violation/policy-violation.component';
-import {StatusService} from 'src/app/core/services/status.service';
-import {FileService} from 'src/app/core/services/file.service';
-import {CameraOptionsPopupComponent} from './camera-options-popup/camera-options-popup.component';
-import {CurrencyService} from 'src/app/core/services/currency.service';
-import {NetworkService} from 'src/app/core/services/network.service';
-import {PopupService} from 'src/app/core/services/popup.service';
-import {CorporateCreditCardExpenseSuggestionsService} from '../../core/services/corporate-credit-card-expense-suggestions.service';
-import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
-import {MatchTransactionComponent} from './match-transaction/match-transaction.component';
-import {TrackingService} from '../../core/services/tracking.service';
-import {RecentLocalStorageItemsService} from 'src/app/core/services/recent-local-storage-items.service';
-import {TokenService} from 'src/app/core/services/token.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
+import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
+import { cloneDeep, isEqual, isNull, isNumber, mergeWith } from 'lodash';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { DataTransformService } from 'src/app/core/services/data-transform.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
+import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
+import {
+  FyCriticalPolicyViolationComponent
+} from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
+import { StatusService } from 'src/app/core/services/status.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { CorporateCreditCardExpenseSuggestionsService } from '../../core/services/corporate-credit-card-expense-suggestions.service';
+import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
+import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
+import { TrackingService } from '../../core/services/tracking.service';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { TokenService } from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
@@ -60,6 +65,8 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { Currency } from 'src/app/core/models/currency.model';
+import { DomSanitizer } from '@angular/platform-browser';
+import { FileObject } from 'src/app/core/models/file_obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
@@ -70,101 +77,200 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
   styleUrls: ['./add-edit-expense.page.scss'],
 })
 export class AddEditExpensePage implements OnInit {
+  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
+
+  @ViewChild('formContainer') formContainer: ElementRef;
+
+  @ViewChild('comments') commentsContainer: ElementRef;
+
   etxn$: Observable<any>;
+
   paymentModes$: Observable<any[]>;
+
   recentlyUsedValues$: Observable<RecentlyUsed>;
+
   isCreatedFromCCC = false;
+
   paymentAccount$: Observable<any>;
+
   isCCCAccountSelected$: Observable<boolean>;
+
   homeCurrency$: Observable<string>;
+
   mode: string;
+
   title: string;
+
   activeIndex: number;
+
   reviewList: string[];
+
   fg: FormGroup;
+
   filteredCategories$: Observable<any[]>;
+
   minDate: string;
+
   maxDate: string;
+
   txnFields$: Observable<any>;
+
   taxSettings$: Observable<any>;
+
   reports$: Observable<any>;
+
   isProjectsEnabled$: Observable<boolean>;
+
   flightJourneyTravelClassOptions$: Observable<any>;
+
   customInputs$: Observable<any>;
+
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
+
   selectedCCCTransaction;
+
   canChangeMatchingCCCTransaction = true;
+
   transactionInReport$: Observable<boolean>;
+
   transactionMandatoyFields$: Observable<any>;
+
   isCriticalPolicyViolated = false;
+
   showSelectedTransaction = false;
+
   isIndividualProjectsEnabled$: Observable<boolean>;
+
   individualProjectIds$: Observable<[]>;
+
   isNotReimbursable$: Observable<boolean>;
+
   costCenters$: Observable<any[]>;
+
   receiptsData: any;
+
   duplicates$: Observable<any>;
+
   duplicateBoxOpen = false;
+
   isAmountCapped$: Observable<boolean>;
+
   isAmountDisabled$: Observable<boolean>;
+
   isCriticalPolicyViolated$: Observable<boolean>;
+
   isSplitExpenseAllowed$: Observable<boolean>;
+
   attachmentUploadInProgress = false;
+
   attachedReceiptsCount = 0;
+
   instaFyleCancelled = false;
+
   newExpenseDataUrls = [];
+
+  loadAttachments$ = new Subject();
+
+  attachments$: Observable<FileObject[]>;
+
   focusState = false;
+
   isConnected$: Observable<boolean>;
+
   invalidPaymentMode = false;
+
   pointToDuplicates = false;
+
   isAdvancesEnabled$: Observable<boolean>;
+
   comments$: Observable<any>;
+
   isCCCPaymentModeSelected$: Observable<boolean>;
+
   isLoadingSuggestions = false;
+
   matchingCCCTransactions = [];
+
   matchedCCCTransaction;
+
   alreadyApprovedExpenses;
+
   isSplitExpensesPresent: boolean;
+
   canEditCCCMatchedSplitExpense: boolean;
+
   cardEndingDigits: string;
+
   selectedCCCTransactionInSuggestions: boolean;
+
   isCCCTransactionAutoSelected: boolean;
+
   isChangeCCCSuggestionClicked: boolean;
+
   isDraftExpenseEnabled: boolean;
+
   isDraftExpense: boolean;
+
   isProjectsVisible$: Observable<boolean>;
+
   saveExpenseLoader = false;
+
   saveAndNewExpenseLoader = false;
+
   saveAndNextExpenseLoader = false;
+
   saveAndPrevExpenseLoader = false;
+
   canAttachReceipts: boolean;
+
   duplicateDetectionReasons = [];
+
   tfcDefaultValues$: Observable<any>;
+
   expenseStartTime;
+
   navigateBack = false;
+
   isExpenseBankTxn = false;
+
   recentCategories: OrgCategoryListItem[];
+
   // Todo: Rename all `selected` to `isSelected`
   presetCategoryId: number;
+
   recentlyUsedCategories$: Observable<OrgCategoryListItem[]>;
+
   clusterDomain: string;
+
   orgUserSettings$: Observable<OrgUserSettings>;
-  recentProjects: { label: string, value: ExtendedProject, selected?: boolean }[];
+
+  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+
   recentCurrencies: Currency[];
+
   presetProjectId: number;
+
   recentlyUsedProjects$: Observable<ExtendedProject[]>;
+
   recentlyUsedCurrencies$: Observable<Currency[]>;
-  recentCostCenters: { label: string, value: CostCenter, selected?: boolean }[];
+
+  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+
   presetCostCenterId: number;
-  recentlyUsedCostCenters$: Observable<{ label: string, value: CostCenter, selected?: boolean }[]>;
+
+  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+
   presetCurrency: string;
+
   initialFetch;
+
   inpageExtractedData;
+
   actionSheetButtons = [];
 
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
-  @ViewChild('formContainer') formContainer: ElementRef;
-  @ViewChild('comments') commentsContainer: ElementRef;
+  isExpandedView = false;
+
+  billableDefaultValue: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -201,7 +307,9 @@ export class AddEditExpensePage implements OnInit {
     private tokenService: TokenService,
     private expenseFieldsService: ExpenseFieldsService,
     private modalProperties: ModalPropertiesService,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private sanitizer: DomSanitizer
+
   ) {
   }
 
@@ -237,7 +345,7 @@ export class AddEditExpensePage implements OnInit {
       }
     } else {
       if (this.activatedRoute.snapshot.params.id) {
-        this.trackingService.viewExpense({Asset: 'Mobile', Type: 'Receipt'});
+        this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Receipt' });
       }
 
       if (this.navigateBack) {
@@ -263,13 +371,13 @@ export class AddEditExpensePage implements OnInit {
 
   merchantValidator(c: FormControl): ValidationErrors {
     if (c.value && c.value.display_name) {
-      return c.value.display_name.length > 250 ? {merchantNameSize: 'Length is greater than 250'} : null;
+      return c.value.display_name.length > 250 ? { merchantNameSize: 'Length is greater than 250' } : null;
     }
     return null;
   }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
-    if (c.value && c.value.amount && c.value.currency) {
+    if (c.value && ((c.value.amount && c.value.currency) || (c.value.orig_amount && c.value.orig_currency))) {
       return null;
     }
     return {
@@ -316,9 +424,7 @@ export class AddEditExpensePage implements OnInit {
 
   getDuplicates() {
     return this.etxn$.pipe(
-      switchMap(etxn => {
-        return this.duplicateDetectionService.getDuplicates(etxn.tx.id);
-      })
+      switchMap(etxn => this.duplicateDetectionService.getDuplicates(etxn.tx.id))
     );
   }
 
@@ -380,6 +486,14 @@ export class AddEditExpensePage implements OnInit {
     this.isChangeCCCSuggestionClicked = true;
     this.isCCCTransactionAutoSelected = false;
     this.etxn$.subscribe(async (etxn) => {
+      const modalProperties = {
+        cssClass: 'auto-height',
+        showBackdrop: true,
+        swipeToClose: true,
+        backdropDismiss: true,
+        animated: true,
+      };
+
       const matchExpensesModal = await this.modalController.create({
         component: MatchTransactionComponent,
         componentProps: {
@@ -389,12 +503,12 @@ export class AddEditExpensePage implements OnInit {
         },
         mode: 'ios',
         presentingElement: await this.modalController.getTop(),
-        ...this.modalProperties.getModalDefaultProperties()
+        ...modalProperties
       });
 
       await matchExpensesModal.present();
 
-      const {data} = await matchExpensesModal.onWillDismiss();
+      const { data } = await matchExpensesModal.onWillDismiss();
 
       if (data) {
 
@@ -441,9 +555,9 @@ export class AddEditExpensePage implements OnInit {
             that.fg.controls.dateOfSpend.valueChanges
           ).pipe(
             map(() => ({
-                currencyObj: that.fg.controls.currencyObj.value,
-                txnDt: that.fg.controls.dateOfSpend.value
-              })
+              currencyObj: that.fg.controls.currencyObj.value,
+              txnDt: that.fg.controls.dateOfSpend.value
+            })
             ),
             startWith({
               currencyObj: that.fg.controls.currencyObj.value,
@@ -454,11 +568,11 @@ export class AddEditExpensePage implements OnInit {
           return EMPTY;
         }
       }),
-      filter(({currencyObj, txnDt}) => currencyObj && currencyObj.amount && txnDt),
-      switchMap(({currencyObj, txnDt}) => {
-          this.isLoadingSuggestions = true;
-          return that.corporateCreditCardExpenseSuggestionService.getSuggestions({amount: currencyObj.amount, txn_dt: txnDt});
-        }
+      filter(({ currencyObj, txnDt }) => currencyObj && currencyObj.amount && txnDt),
+      switchMap(({ currencyObj, txnDt }) => {
+        this.isLoadingSuggestions = true;
+        return that.corporateCreditCardExpenseSuggestionService.getSuggestions({ amount: currencyObj.amount, txn_dt: txnDt });
+      }
       )
     ).subscribe(matchingCCCTransactions => {
       this.isLoadingSuggestions = false;
@@ -523,9 +637,7 @@ export class AddEditExpensePage implements OnInit {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
       distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => {
-        return this.getPossibleDuplicates();
-      })
+      switchMap(() => this.getPossibleDuplicates())
     );
 
     this.duplicates$.pipe(
@@ -581,7 +693,7 @@ export class AddEditExpensePage implements OnInit {
         this.actionSheetButtons = [{
           text: 'Category',
           handler: () => {
-            this.openSplitExpenseModal('categories')
+            this.openSplitExpenseModal('categories');
           }
         }];
 
@@ -589,7 +701,7 @@ export class AddEditExpensePage implements OnInit {
           this.actionSheetButtons.push({
             text: 'Project',
             handler: () => {
-              this.openSplitExpenseModal('projects')
+              this.openSplitExpenseModal('projects');
             }
           });
         }
@@ -598,7 +710,7 @@ export class AddEditExpensePage implements OnInit {
           this.actionSheetButtons.push({
             text: 'Cost Center',
             handler: () => {
-              this.openSplitExpenseModal('cost centers')
+              this.openSplitExpenseModal('cost centers');
             }
           });
         }
@@ -645,63 +757,40 @@ export class AddEditExpensePage implements OnInit {
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$
     }).pipe(
-      switchMap(({orgSettings, orgUserSettings}) => {
+      switchMap(({ orgSettings, orgUserSettings }) => {
         if (orgSettings.cost_centers.enabled) {
           return this.offlineService.getAllowedCostCenters(orgUserSettings);
         } else {
           return of([]);
         }
       }),
-      map(costCenters => {
-        return costCenters.map(costCenter => ({
-          label: costCenter.name,
-          value: costCenter
-        }));
-      })
+      map(costCenters => costCenters.map(costCenter => ({
+        label: costCenter.name,
+        value: costCenter
+      })))
     );
   }
 
   setupTransactionMandatoryFields() {
     this.transactionMandatoyFields$ = this.isConnected$.pipe(
       filter(isConnected => !!isConnected),
-      switchMap(() => {
-        return this.offlineService.getOrgSettings();
-      }),
+      switchMap(() => this.offlineService.getOrgSettings()),
       map(orgSettings => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
     );
 
     this.transactionMandatoyFields$.pipe(
       filter(transactionMandatoyFields => !isEqual(transactionMandatoyFields, {})),
-      switchMap((transactionMandatoyFields) => {
-        return forkJoin({
-          individualProjectIds: this.individualProjectIds$,
-          isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-          orgSettings: this.offlineService.getOrgSettings()
-        }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled, orgSettings}) => {
-          return {
-            transactionMandatoyFields,
-            individualProjectIds,
-            isIndividualProjectsEnabled,
-            orgSettings
-          };
-        }));
-      })
-    )
-      .subscribe(({transactionMandatoyFields, individualProjectIds, isIndividualProjectsEnabled, orgSettings}) => {
-        if (orgSettings.projects.enabled) {
-          if (isIndividualProjectsEnabled) {
-            if (transactionMandatoyFields.project && individualProjectIds.length > 0) {
-              this.fg.controls.project.setValidators(Validators.required);
-              this.fg.controls.project.updateValueAndValidity();
-            }
-          } else {
-            if (transactionMandatoyFields.project) {
-              this.fg.controls.project.setValidators(Validators.required);
-              this.fg.controls.project.updateValueAndValidity();
-            }
-          }
-        }
-      });
+      switchMap((transactionMandatoyFields) => forkJoin({
+        individualProjectIds: this.individualProjectIds$,
+        isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+        orgSettings: this.offlineService.getOrgSettings()
+      }).pipe(map(({ individualProjectIds, isIndividualProjectsEnabled, orgSettings }) => ({
+        transactionMandatoyFields,
+        individualProjectIds,
+        isIndividualProjectsEnabled,
+        orgSettings
+      }))))
+    );
 
     combineLatest([
       this.isConnected$,
@@ -729,14 +818,12 @@ export class AddEditExpensePage implements OnInit {
       switchMap((paymentMode) => {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
           return accounts$.pipe(
-            map(accounts => {
-              return accounts
-                .filter(account => account
-                  && account.acc
-                  && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'
-                  && account.acc.tentative_balance_amount > 0
-                ).length > 0;
-            })
+            map(accounts => accounts
+              .filter(account => account
+                && account.acc
+                && account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'
+                && account.acc.tentative_balance_amount > 0
+              ).length > 0)
           );
         }
         return of(false);
@@ -762,7 +849,7 @@ export class AddEditExpensePage implements OnInit {
       accounts: accounts$,
       orgSettings: orgSettings$
     }).pipe(
-      map(({accounts, orgSettings}) => {
+      map(({ accounts, orgSettings }) => {
         const isAdvanceEnabled = (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
         const isMultipleAdvanceEnabled = orgSettings && orgSettings.advance_account_settings &&
@@ -770,7 +857,7 @@ export class AddEditExpensePage implements OnInit {
         const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
-      map(paymentModes => paymentModes.map((paymentMode: any) => ({label: paymentMode.acc.displayName, value: paymentMode})))
+      map(paymentModes => paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode })))
     );
   }
 
@@ -793,14 +880,12 @@ export class AddEditExpensePage implements OnInit {
             parsedResponse: parsedResponse.data,
             auditCallBackUrl: parsedResponse.callback_url
           })),
-          catchError((err) => {
-            return of({
-              error: true,
-              parsedResponse: {
-                source: 'MOBILE_INSTA'
-              }
-            });
-          }),
+          catchError((err) => of({
+            error: true,
+            parsedResponse: {
+              source: 'MOBILE_INSTA'
+            }
+          })),
           switchMap((extractedDetails: any) => {
             const instaFyleImageData = {
               thumbnail: this.activatedRoute.snapshot.params.dataUrl,
@@ -821,12 +906,10 @@ export class AddEditExpensePage implements OnInit {
                         new Date()
                     ).pipe(
                       catchError(err => of(null)),
-                      map(exchangeRate => {
-                        return {
-                          ...instaFyleImageData,
-                          exchangeRate
-                        };
-                      })
+                      map(exchangeRate => ({
+                        ...instaFyleImageData,
+                        exchangeRate
+                      }))
                     );
                   } else {
                     return of(instaFyleImageData);
@@ -899,7 +982,6 @@ export class AddEditExpensePage implements OnInit {
         if (!bankTxn) {
           etxn = {
             tx: {
-              billable: false,
               skip_reimbursement: false,
               source: 'MOBILE',
               txn_dt: new Date(),
@@ -920,8 +1002,15 @@ export class AddEditExpensePage implements OnInit {
             if (orgUserSettings.currency_settings.preferred_currency) {
               etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
             }
-          } else if (orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled
-                     && recentValue && recentValue.recent_currencies && recentValue.recent_currencies.length > 0) {
+          } else if (
+            orgSettings.org_expense_form_autofills &&
+            orgSettings.org_expense_form_autofills.allowed &&
+            orgSettings.org_expense_form_autofills.enabled &&
+            orgUserSettings.expense_form_autofills.allowed &&
+            orgUserSettings.expense_form_autofills.enabled &&
+            recentValue &&
+            recentValue.recent_currencies &&
+            recentValue.recent_currencies.length > 0) {
             etxn.tx.currency = recentValue.recent_currencies[0];
             this.presetCurrency = recentValue.recent_currencies[0];
           } else {
@@ -1044,7 +1133,7 @@ export class AddEditExpensePage implements OnInit {
             orgSettings: this.offlineService.getOrgSettings(),
             orgUserSettings: this.orgUserSettings$
           }).pipe(
-            map(({orgSettings, orgUserSettings}) => {
+            map(({ orgSettings, orgUserSettings }) => {
               if (orgSettings.projects.enabled) {
                 return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
               }
@@ -1060,80 +1149,78 @@ export class AddEditExpensePage implements OnInit {
         }
       }));
 
-    const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => {
-      return iif(() => etxn.tx.org_category_id,
-        allCategories$.pipe(
-          map(categories => categories
-            .filter(category => {
-              if (!category.fyle_category) {
-                return true;
-              } else {
-                return ['activity', 'mileage', 'per diem', 'unspecified'].indexOf(category.fyle_category.toLowerCase()) === -1;
-              }
-            })
-            .find(category => category.id === etxn.tx.org_category_id)
-          ),
-          ), of(null));
-    }));
-    const selectedReport$ = this.etxn$.pipe(switchMap(etxn => {
-      return iif(() => etxn.tx.report_id, this.reports$.pipe(
-        map(reportOptions => reportOptions
-          .map(res => res.value)
-          .find(reportOption => reportOption.rp.id === etxn.tx.report_id))),
-        of(null));
-    }));
-
-    const selectedPaymentMode$ = this.etxn$.pipe(switchMap(etxn => {
-      return iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
-        map(paymentModes => paymentModes
-          .map(res => res.value)
-          .find(paymentMode => {
-            if (paymentMode.acc.displayName === 'Paid by Me') {
-              return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
+    const selectedCategory$ = this.etxn$.pipe(switchMap(etxn => iif(() => etxn.tx.org_category_id,
+      allCategories$.pipe(
+        map(categories => categories
+          .filter(category => {
+            if (!category.fyle_category) {
+              return true;
             } else {
-              return paymentMode.acc.id === etxn.tx.source_account_id;
+              return ['activity', 'mileage', 'per diem', 'unspecified'].indexOf(category.fyle_category.toLowerCase()) === -1;
             }
-          }))
-      ), of(null));
-    }));
+          })
+          .find(category => category.id === etxn.tx.org_category_id)
+        ),
+      ), of(null))));
+    const selectedReport$ = this.etxn$.pipe(
+      switchMap(etxn => iif(() => etxn.tx.report_id,
+        this.reports$.pipe(
+          map(reportOptions => reportOptions
+            .map(res => res.value)
+            .find(reportOption => reportOption.rp.id === etxn.tx.report_id)
+          )
+        ),
+        of(null))));
+
+    const selectedPaymentMode$ = this.etxn$.pipe(switchMap(etxn => iif(() => etxn.tx.source_account_id, this.paymentModes$.pipe(
+      map(paymentModes => paymentModes
+        .map(res => res.value)
+        .find(paymentMode => {
+          if (paymentMode.acc.displayName === 'Paid by Me') {
+            return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
+          } else {
+            return paymentMode.acc.id === etxn.tx.source_account_id;
+          }
+        }))
+    ), of(null))));
 
     this.recentlyUsedCostCenters$ = forkJoin({
       costCenters: this.costCenters$,
       recentValue: this.recentlyUsedValues$
     }).pipe(
-      concatMap(({costCenters, recentValue}) => {
-        return this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue);
-      })
+      concatMap(({ costCenters, recentValue }) => this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue))
     );
 
     const defaultPaymentMode$ = forkJoin({
       orgUserSettings: this.orgUserSettings$,
       paymentModes: this.paymentModes$
     }).pipe(
-      map(({paymentModes, orgUserSettings}) => {
-          const hasCCCAccount = paymentModes.map(res => res.value).some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-          if (hasCCCAccount &&
-            orgUserSettings.preferences &&
-            orgUserSettings.preferences.default_payment_mode &&
-            orgUserSettings.preferences.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-          ) {
-            return paymentModes
-              .map(res => res.value)
-              .find(paymentMode => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-          } else if (orgUserSettings.preferences && orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT') {
-            return paymentModes
-              .map(res => res.value)
-              .find(paymentMode => paymentMode.acc.displayName === 'Paid by Company');
-          } else if (this.isCreatedFromCCC) {
-            return paymentModes
-              .map(res => res.value)
-              .find(paymentMode => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-          } else {
-            return paymentModes
-              .map(res => res.value)
-              .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me');
-          }
+      map(({ paymentModes, orgUserSettings }) => {
+        const hasCCCAccount = paymentModes
+          .map(res => res.value)
+          .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+        if (hasCCCAccount &&
+          orgUserSettings.preferences &&
+          orgUserSettings.preferences.default_payment_mode &&
+          orgUserSettings.preferences.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+        ) {
+          return paymentModes
+            .map(res => res.value)
+            .find(paymentMode => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+        } else if (orgUserSettings.preferences && orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT') {
+          return paymentModes
+            .map(res => res.value)
+            .find(paymentMode => paymentMode.acc.displayName === 'Paid by Company');
+        } else if (this.isCreatedFromCCC) {
+          return paymentModes
+            .map(res => res.value)
+            .find(paymentMode => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+        } else {
+          return paymentModes
+            .map(res => res.value)
+            .find(paymentMode => paymentMode.acc.displayName === 'Paid by Me');
         }
+      }
       )
     );
 
@@ -1141,7 +1228,7 @@ export class AddEditExpensePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou()
     }).pipe(
-      switchMap(({recentValues, eou}) => {
+      switchMap(({ recentValues, eou }) => {
         const categoryId = this.fg.controls.category.value && this.fg.controls.category.value.id;
         return this.recentlyUsedItemsService.getRecentlyUsedProjects({
           recentValues,
@@ -1155,12 +1242,10 @@ export class AddEditExpensePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       currencies: this.offlineService.getCurrencies()
     }).pipe(
-      switchMap(({recentValues, currencies}) => {
-        return this.recentlyUsedItemsService.getRecentCurrencies(
-          currencies,
-          recentValues
-        );
-      })
+      switchMap(({ recentValues, currencies }) => this.recentlyUsedItemsService.getRecentCurrencies(
+        currencies,
+        recentValues
+      ))
     );
 
     const selectedCostCenter$ = this.etxn$.pipe(
@@ -1172,7 +1257,7 @@ export class AddEditExpensePage implements OnInit {
             orgSettings: this.offlineService.getOrgSettings(),
             costCenters: this.costCenters$
           }).pipe(
-            map(({orgSettings, costCenters}) => {
+            map(({ orgSettings, costCenters }) => {
               if (orgSettings.cost_centers.enabled) {
                 if (costCenters.length === 1 && this.mode === 'add') {
                   return costCenters[0].value.id;
@@ -1193,36 +1278,55 @@ export class AddEditExpensePage implements OnInit {
     );
 
     const selectedCustomInputs$ = this.etxn$.pipe(
-      switchMap(etxn => {
-        return this.offlineService.getCustomInputs().pipe(map(customFields => {
-          return this.customFieldsService
-            .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id));
-        }));
-      })
+      switchMap(etxn => this.offlineService.getCustomInputs().pipe(map(customFields => this.customFieldsService
+        .standardizeCustomFields([], this.customInputsService.filterByCategory(customFields, etxn.tx.org_category_id)))))
+    );
+
+    const txnReceiptsCount$ = this.etxn$.pipe(
+      switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
+      map(fileObjs => (fileObjs && fileObjs.length) || 0)
     );
 
     from(this.loaderService.showLoader('Loading expense...', 15000)).pipe(
-      switchMap(() => {
-        return forkJoin({
-          etxn: this.etxn$,
-          paymentMode: selectedPaymentMode$,
-          project: selectedProject$,
-          category: selectedCategory$,
-          report: selectedReport$,
-          costCenter: selectedCostCenter$,
-          customInputs: selectedCustomInputs$,
-          homeCurrency: this.offlineService.getHomeCurrency(),
-          defaultPaymentMode: defaultPaymentMode$,
-          orgUserSettings: this.orgUserSettings$,
-          recentValue: this.recentlyUsedValues$,
-          recentProjects: this.recentlyUsedProjects$,
-          recentCurrencies: this.recentlyUsedCurrencies$,
-          recentCostCenters: this.recentlyUsedCostCenters$,
-          recentCategories: this.recentlyUsedCategories$
-        });
-      }),
+      switchMap(() => forkJoin({
+        etxn: this.etxn$,
+        paymentMode: selectedPaymentMode$,
+        project: selectedProject$,
+        category: selectedCategory$,
+        report: selectedReport$,
+        costCenter: selectedCostCenter$,
+        customInputs: selectedCustomInputs$,
+        txnReceiptsCount: txnReceiptsCount$,
+        homeCurrency: this.offlineService.getHomeCurrency(),
+        orgSettings: this.offlineService.getOrgSettings(),
+        defaultPaymentMode: defaultPaymentMode$,
+        orgUserSettings: this.orgUserSettings$,
+        recentValue: this.recentlyUsedValues$,
+        recentProjects: this.recentlyUsedProjects$,
+        recentCurrencies: this.recentlyUsedCurrencies$,
+        recentCostCenters: this.recentlyUsedCostCenters$,
+        recentCategories: this.recentlyUsedCategories$
+      })),
       finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(({etxn, paymentMode, project, category, report, costCenter, customInputs, homeCurrency, defaultPaymentMode, orgUserSettings, recentValue, recentCategories, recentProjects, recentCurrencies, recentCostCenters}) => {
+    ).subscribe(({
+      etxn,
+      paymentMode,
+      project,
+      category,
+      report,
+      costCenter,
+      customInputs,
+      txnReceiptsCount,
+      homeCurrency,
+      orgSettings,
+      defaultPaymentMode,
+      orgUserSettings,
+      recentValue,
+      recentCategories,
+      recentProjects,
+      recentCurrencies,
+      recentCostCenters
+    }) => {
       const customInputValues = customInputs
         .map(customInput => {
           const cpor = etxn.tx.custom_properties && etxn.tx.custom_properties.find(customProp => customProp.name === customInput.name);
@@ -1278,16 +1382,30 @@ export class AddEditExpensePage implements OnInit {
       }
 
       // Check if auto-fills is enabled
-      const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      const isAutofillsEnabled = orgSettings.org_expense_form_autofills &&
+        orgSettings.org_expense_form_autofills.allowed &&
+        orgSettings.org_expense_form_autofills.enabled &&
+        orgUserSettings.expense_form_autofills &&
+        orgUserSettings.expense_form_autofills.allowed &&
+        orgUserSettings.expense_form_autofills.enabled;
 
       // Check if recent categories exist
-      category = this.getAutofillCategory(isAutofillsEnabled, recentValue, recentCategories, etxn, category);
+      category = this.getAutofillCategory({
+        isAutofillsEnabled,
+        recentValue,
+        recentCategories,
+        etxn,
+        category
+      });
 
       // Check if recent projects exist
-      const doRecentProjectIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_project_ids && recentValue.recent_project_ids.length > 0;
+      const doRecentProjectIdsExist = isAutofillsEnabled &&
+        recentValue &&
+        recentValue.recent_project_ids &&
+        recentValue.recent_project_ids.length > 0;
 
       if (recentProjects && recentProjects.length > 0) {
-        this.recentProjects = recentProjects.map(item => ({label: item.project_name, value: item}));
+        this.recentProjects = recentProjects.map(item => ({ label: item.project_name, value: item }));
       }
 
       this.recentCurrencies = recentCurrencies;
@@ -1308,7 +1426,10 @@ export class AddEditExpensePage implements OnInit {
       }
 
       // Check if recent cost centers exist
-      const doRecentCostCenterIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_cost_center_ids && recentValue.recent_cost_center_ids.length > 0;
+      const doRecentCostCenterIdsExist = isAutofillsEnabled &&
+        recentValue &&
+        recentValue.recent_cost_center_ids &&
+        recentValue.recent_cost_center_ids.length > 0;
 
       if (recentCostCenters && recentCostCenters.length > 0) {
         this.recentCostCenters = recentCostCenters;
@@ -1366,9 +1487,10 @@ export class AddEditExpensePage implements OnInit {
         });
 
         this.fg.controls.custom_inputs.patchValue(customInputValues);
+        this.loadAttachments$.next();
       }, 600);
 
-      this.attachedReceiptsCount = etxn.tx.num_files;
+      this.attachedReceiptsCount = txnReceiptsCount;
       this.canAttachReceipts = this.attachedReceiptsCount === 0;
 
       if (etxn.dataUrls && etxn.dataUrls.length) {
@@ -1383,8 +1505,26 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  getAutofillCategory(isAutofillsEnabled: boolean, recentValue: RecentlyUsed, recentCategories: OrgCategoryListItem[], etxn: any, category: OrgCategory) {
-    const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue && recentValue.recent_org_category_ids && recentValue.recent_org_category_ids.length > 0;
+  getAutofillCategory(config: {
+    isAutofillsEnabled: boolean;
+    recentValue: RecentlyUsed;
+    recentCategories: OrgCategoryListItem[];
+    etxn: any;
+    category: OrgCategory;
+  }) {
+    const {
+      isAutofillsEnabled,
+      recentValue,
+      recentCategories,
+      etxn
+    } = config;
+
+    let category = config.category;
+
+    const doRecentOrgCategoryIdsExist = isAutofillsEnabled &&
+      recentValue &&
+      recentValue.recent_org_category_ids &&
+      recentValue.recent_org_category_ids.length > 0;
 
     if (recentCategories && recentCategories.length > 0) {
       this.recentCategories = recentCategories;
@@ -1397,10 +1537,16 @@ export class AddEditExpensePage implements OnInit {
      * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
      * 2. When there exists recently used category ids to auto-fill - mandatory
      * 3. During add expense - When category field is empty - optional
-     * 4. During edit expense - When the expense is in draft state and there is no category extracted or no category already added - optional
+     * 4. During edit expense - When the expense is in draft state and
+     * there is no category extracted or no category already added - optional
      */
     if (doRecentOrgCategoryIdsExist && !isCategoryExtracted && (!etxn.tx.id ||
-      (etxn.tx.id && etxn.tx.state === 'DRAFT' && (!etxn.tx.org_category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))))) {
+      (etxn.tx.id && etxn.tx.state === 'DRAFT' &&
+        (!etxn.tx.org_category_id ||
+          (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified')
+        )
+      )
+    )) {
       const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
 
       if (autoFillCategory) {
@@ -1419,25 +1565,42 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getCategoryOnEdit(category) {
-    return forkJoin ({
+    return forkJoin({
       orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgSettings: this.offlineService.getOrgSettings(),
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
       etxn: this.etxn$,
       categories: this.offlineService.getAllEnabledCategories()
     }).pipe(
-      map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
-        const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+      map(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn, categories }) => {
+        const isAutofillsEnabled = orgSettings.org_expense_form_autofills &&
+          orgSettings.org_expense_form_autofills.allowed &&
+          orgSettings.org_expense_form_autofills.enabled &&
+          orgUserSettings.expense_form_autofills &&
+          orgUserSettings.expense_form_autofills.allowed &&
+          orgUserSettings.expense_form_autofills.enabled;
         const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
         if (this.initialFetch) {
           if (etxn.tx.org_category_id) {
-            if (etxn.tx.state === 'DRAFT' && (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified')) {
-              return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, category);
+            if (etxn.tx.state === 'DRAFT' && (
+              etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified')
+            ) {
+              return this.getAutofillCategory({
+                isAutofillsEnabled,
+                recentValue: recentValues,
+                recentCategories,
+                etxn,
+                category
+              });
             } else {
               return categories.find(innerCategory => innerCategory.id === etxn.tx.org_category_id);
             }
-          } else if (etxn.tx.state === 'DRAFT' && !isCategoryExtracted && (!etxn.tx.org_category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))) {
-            return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, category);
+          } else if (etxn.tx.state === 'DRAFT' &&
+            !isCategoryExtracted &&
+            (!etxn.tx.org_category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))
+          ) {
+            return this.getAutofillCategory({ isAutofillsEnabled, recentValue: recentValues, recentCategories, etxn, category });
           } else {
             return null;
           }
@@ -1454,16 +1617,30 @@ export class AddEditExpensePage implements OnInit {
     } else {
       return forkJoin({
         orgUserSettings: this.offlineService.getOrgUserSettings(),
+        orgSettings: this.offlineService.getOrgSettings(),
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
         categories: this.offlineService.getAllEnabledCategories()
       }).pipe(
-        map(({orgUserSettings, recentValues, recentCategories, etxn, categories}) => {
-          const isAutofillsEnabled = orgUserSettings.expense_form_autofills && orgUserSettings.expense_form_autofills.allowed && orgUserSettings.expense_form_autofills.enabled;
+        map(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn, categories }) => {
+          const isAutofillsEnabled = orgSettings.org_expense_form_autofills &&
+            orgSettings.org_expense_form_autofills.allowed &&
+            orgSettings.org_expense_form_autofills.enabled &&
+            orgUserSettings.expense_form_autofills &&
+            orgUserSettings.expense_form_autofills.allowed &&
+            orgUserSettings.expense_form_autofills.enabled;
           const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
-          if (!isCategoryExtracted && (!etxn.tx.org_category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))) {
-            return this.getAutofillCategory(isAutofillsEnabled, recentValues, recentCategories, etxn, categories);
+          if (!isCategoryExtracted &&
+            (!etxn.tx.org_category_id || (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))
+          ) {
+            return this.getAutofillCategory({
+              isAutofillsEnabled,
+              recentValue: recentValues,
+              recentCategories,
+              etxn,
+              category: categories
+            });
           } else {
             return null;
           }
@@ -1477,53 +1654,45 @@ export class AddEditExpensePage implements OnInit {
     this.customInputs$ = this.fg.controls.category.valueChanges
       .pipe(
         startWith({}),
-        switchMap(category => {
-          return iif(() => this.mode === 'add', this.getCategoryOnAdd(category), this.getCategoryOnEdit(category));
-        }),
+        switchMap(category => iif(() => this.mode === 'add', this.getCategoryOnAdd(category), this.getCategoryOnEdit(category))),
         switchMap((category) => {
           const formValue = this.fg.value;
           return this.offlineService.getCustomInputs().pipe(
-            map(customFields => {
-              return this.customFieldsService
-                .standardizeCustomFields(
-                  formValue.custom_inputs || [],
-                  this.customInputsService.filterByCategory(customFields, category && category.id)
-                );
-            })
+            map(customFields => this.customFieldsService
+              .standardizeCustomFields(
+                formValue.custom_inputs || [],
+                this.customInputsService.filterByCategory(customFields, category && category.id)
+              ))
           );
         }),
-        map(customFields => {
-          return customFields.map(customField => {
-            if (customField.options) {
-              customField.options = customField.options.map(option => ({label: option, value: option}));
-            }
-            return customField;
-          });
-        }),
+        map(customFields => customFields.map(customField => {
+          if (customField.options) {
+            customField.options = customField.options.map(option => ({ label: option, value: option }));
+          }
+          return customField;
+        })),
 
-        switchMap((customFields: any[]) => {
-          return this.isConnected$.pipe(
-            take(1),
-            map(isConnected => {
-              const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
-              customFieldsFormArray.clear();
-              for (const customField of customFields) {
-                customFieldsFormArray.push(
-                  this.formBuilder.group({
-                    name: [customField.name],
-                    // Since in boolean, required validation is kinda unnecessary
-                    value: [
-                      customField.type !== 'DATE' ? customField.value : customField.value && moment(customField.value).format('y-MM-DD'),
-                      customField.type !== 'BOOLEAN' && customField.mandatory && isConnected && Validators.required
-                    ]
-                  })
-                );
-              }
-              customFieldsFormArray.updateValueAndValidity();
-              return customFields.map((customField, i) => ({...customField, control: customFieldsFormArray.at(i)}));
-            })
-          );
-        }),
+        switchMap((customFields: any[]) => this.isConnected$.pipe(
+          take(1),
+          map(isConnected => {
+            const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+            customFieldsFormArray.clear();
+            for (const customField of customFields) {
+              customFieldsFormArray.push(
+                this.formBuilder.group({
+                  name: [customField.name],
+                  // Since in boolean, required validation is kinda unnecessary
+                  value: [
+                    customField.type !== 'DATE' ? customField.value : customField.value && moment(customField.value).format('y-MM-DD'),
+                    customField.type !== 'BOOLEAN' && customField.mandatory && isConnected && Validators.required
+                  ]
+                })
+              );
+            }
+            customFieldsFormArray.updateValueAndValidity();
+            return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+          })
+        )),
         shareReplay(1)
       );
   }
@@ -1531,17 +1700,19 @@ export class AddEditExpensePage implements OnInit {
   setupTfc() {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
-      switchMap((formValue) => {
-        return this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
-          const fields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'from_dt', 'to_dt', 'location1', 'location2', 'distance', 'distance_unit', 'flight_journey_travel_class', 'flight_return_travel_class', 'train_travel_class', 'bus_travel_class'];
-          return this.expenseFieldsService
+      switchMap((formValue) => this.offlineService.getExpenseFieldsMap().pipe(switchMap(expenseFieldsMap => {
+        const fields = [
+          'purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'location1',
+          'location2', 'distance', 'distance_unit', 'flight_journey_travel_class',
+          'flight_return_travel_class', 'train_travel_class', 'bus_travel_class', 'billable'
+        ];
+        return this.expenseFieldsService
           .filterByOrgCategoryId(
-              expenseFieldsMap,
-              fields,
-              formValue.category
-            );
-        }));
-      })
+            expenseFieldsMap,
+            fields,
+            formValue.category
+          );
+      })))
     );
 
     this.txnFields$ = txnFieldsMap$.pipe(
@@ -1550,9 +1721,15 @@ export class AddEditExpensePage implements OnInit {
           for (const tfc of Object.keys(expenseFieldsMap)) {
             if (expenseFieldsMap[tfc].options && expenseFieldsMap[tfc].options.length > 0) {
               if (tfc === 'vendor_id') {
-                expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value: { display_name: value}}));
+                expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options
+                  .map(value => ({
+                    label: value,
+                    value: {
+                      display_name: value
+                    }
+                  }));
               } else {
-                expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({label: value, value}));
+                expenseFieldsMap[tfc].options = expenseFieldsMap[tfc].options.map(value => ({ label: value, value }));
               }
             }
           }
@@ -1564,17 +1741,19 @@ export class AddEditExpensePage implements OnInit {
 
     this.txnFields$.pipe(
       distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(txnFields => {
-        return forkJoin({isConnected: this.isConnected$.pipe(take(1)), orgSettings: this.offlineService.getOrgSettings(), costCenters: this.costCenters$}).pipe(
-          map(({isConnected, orgSettings, costCenters}) => ({
-            isConnected,
-            txnFields,
-            orgSettings,
-            costCenters
-          }))
-        );
-      })
-    ).subscribe(({isConnected, txnFields, orgSettings, costCenters}) => {
+      switchMap(txnFields => forkJoin({
+        isConnected: this.isConnected$.pipe(take(1)),
+        orgSettings: this.offlineService.getOrgSettings(),
+        costCenters: this.costCenters$
+      }).pipe(
+        map(({ isConnected, orgSettings, costCenters }) => ({
+          isConnected,
+          txnFields,
+          orgSettings,
+          costCenters
+        }))
+      ))
+    ).subscribe(({ isConnected, txnFields, orgSettings, costCenters }) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -1591,7 +1770,9 @@ export class AddEditExpensePage implements OnInit {
         flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
         flight_return_travel_class: this.fg.controls.flight_return_travel_class,
         train_travel_class: this.fg.controls.train_travel_class,
-        bus_travel_class: this.fg.controls.bus_travel_class
+        bus_travel_class: this.fg.controls.bus_travel_class,
+        project_id: this.fg.controls.project,
+        billable: this.fg.controls.billable
       };
       for (const control of Object.values(keyToControlMap)) {
         control.clearValidators();
@@ -1649,6 +1830,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap(() => txnFieldsMap$),
       map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields)),
     ).subscribe((defaultValues) => {
+      this.billableDefaultValue = defaultValues.billable;
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -1665,18 +1847,22 @@ export class AddEditExpensePage implements OnInit {
         flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
         flight_return_travel_class: this.fg.controls.flight_return_travel_class,
         train_travel_class: this.fg.controls.train_travel_class,
-        bus_travel_class: this.fg.controls.bus_travel_class
+        bus_travel_class: this.fg.controls.bus_travel_class,
+        billable: this.fg.controls.billable
       };
 
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (defaultValueColumn !== 'vendor_id' && !control.value && !control.touched) {
+          if (!(['vendor_id', 'billable'].includes(defaultValueColumn)) && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
             control.patchValue({
               display_name: defaultValues[defaultValueColumn]
             });
+          } else if (defaultValueColumn === 'billable' && this.fg.controls.project.value
+            && (control.value === null || control.value === undefined) && !control.touched) {
+            control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
       }
@@ -1689,19 +1875,22 @@ export class AddEditExpensePage implements OnInit {
         if (etxn.tx.project_id) {
           return this.projectService.getbyId(etxn.tx.project_id);
         } else {
-         return of(null);
+          return of(null);
         }
       }),
-      switchMap((initialProject) => {
-        return this.fg.controls.project.valueChanges.pipe(
-          startWith(initialProject),
-          concatMap(project => {
-            return activeCategories$.pipe(
-              map(activeCategories => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)));
-          }),
-          map(categories => categories.map(category => ({label: category.displayName, value: category})))
-        );
-      }),
+      switchMap((initialProject) => this.fg.controls.project.valueChanges.pipe(
+        tap(initialProject => {
+          if (!initialProject) {
+            this.fg.patchValue({billable: false});
+          } else {
+            this.fg.patchValue({billable: this.billableDefaultValue});
+          }
+        }),
+        startWith(initialProject),
+        concatMap(project => activeCategories$.pipe(
+          map(activeCategories => this.projectService.getAllowedOrgCategoryIds(project, activeCategories)))),
+        map(categories => categories.map(category => ({ label: category.displayName, value: category })))
+      )),
       shareReplay(1)
     );
 
@@ -1725,7 +1914,7 @@ export class AddEditExpensePage implements OnInit {
             instaFyleSettings: instaFyleSettings$,
             allCategories: this.offlineService.getAllEnabledCategories()
           }).pipe(
-            switchMap(({instaFyleSettings, allCategories}) => {
+            switchMap(({ instaFyleSettings, allCategories }) => {
               const shouldExtractAmount = instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1;
               const shouldExtractCurrency = instaFyleSettings.extract_fields.indexOf('CURRENCY') > -1;
               const shouldExtractDate = instaFyleSettings.extract_fields.indexOf('TXN_DT') > -1;
@@ -1748,14 +1937,15 @@ export class AddEditExpensePage implements OnInit {
                 etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.invoice_dt);
               }
 
-              if (shouldExtractMerchant && etxn.tx.extracted_data.vendor && etxn.tx.vendor) {
+              if (shouldExtractMerchant && etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
                 etxn.tx.vendor = etxn.tx.extracted_data.vendor;
               }
 
               if (shouldExtractCategory && etxn.tx.extracted_data.category
                 && etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified') {
                 const categoryName = etxn.tx.extracted_data.category || 'unspecified';
-                const category = allCategories.find(innerCategory => innerCategory.name && innerCategory.name.toLowerCase() === categoryName.toLowerCase());
+                const category = allCategories
+                  .find(innerCategory => innerCategory.name && innerCategory.name.toLowerCase() === categoryName.toLowerCase());
                 etxn.tx.org_category_id = category && category.id;
               }
               return of(etxn);
@@ -1789,6 +1979,7 @@ export class AddEditExpensePage implements OnInit {
   async showCannotEditActivityDialog() {
     const popupResult = await this.popupService.showPopup({
       header: 'Cannot Edit Activity Expense!',
+      // eslint-disable-next-line max-len
       message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.clusterDomain}">${this.clusterDomain}</a>`,
       primaryCta: {
         text: 'Close'
@@ -1875,8 +2066,8 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.duplicateDetectionReasons = [
-      {label: 'Different expense', value: 'Different expense'},
-      {label: 'Other', value: 'Other'}
+      { label: 'Different expense', value: 'Different expense' },
+      { label: 'Other', value: 'Other' }
     ];
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
@@ -1909,10 +2100,8 @@ export class AddEditExpensePage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
-    this.isAdvancesEnabled$ = orgSettings$.pipe(map(orgSettings => {
-      return (orgSettings.advances && orgSettings.advances.enabled) ||
-        (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
-    }));
+    this.isAdvancesEnabled$ = orgSettings$.pipe(map(orgSettings => (orgSettings.advances && orgSettings.advances.enabled) ||
+      (orgSettings.advance_requests && orgSettings.advance_requests.enabled)));
 
     orgSettings$.subscribe(orgSettings => {
       this.isDraftExpenseEnabled = orgSettings.ccc_draft_expense_settings &&
@@ -1949,19 +2138,21 @@ export class AddEditExpensePage implements OnInit {
     this.isProjectsVisible$ = forkJoin({
       individualProjectIds: this.individualProjectIds$,
       isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-      projectsCount : this.offlineService.getProjectCount()
-    }).pipe(map(({individualProjectIds, isIndividualProjectsEnabled, projectsCount}) => {
-        if (!isIndividualProjectsEnabled) {
-          return projectsCount > 0;
-        } else {
-          return individualProjectIds.length > 0;
-        }
-      })
+      projectsCount: this.offlineService.getProjectCount()
+    }).pipe(map(({ individualProjectIds, isIndividualProjectsEnabled, projectsCount }) => {
+      if (!isIndividualProjectsEnabled) {
+        return projectsCount > 0;
+      } else {
+        return individualProjectIds.length > 0;
+      }
+    })
     );
 
     this.setupCostCenters();
 
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
+
+    this.isExpandedView = this.mode !== 'add';
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList = this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
@@ -1977,9 +2168,7 @@ export class AddEditExpensePage implements OnInit {
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
     this.isSplitExpenseAllowed$ = orgSettings$.pipe(
-      map(orgSettings => {
-        return orgSettings.expense_settings.split_expense_settings.enabled;
-      })
+      map(orgSettings => orgSettings.expense_settings.split_expense_settings.enabled)
     );
 
     this.setupBalanceFlag();
@@ -2016,31 +2205,40 @@ export class AddEditExpensePage implements OnInit {
 
     const editExpensePipe$ = this.getEditExpenseObservable();
 
+    this.attachments$ = this.loadAttachments$.pipe(
+      switchMap(() => this.etxn$.pipe(
+        switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
+        switchMap(fileObjs => from(fileObjs)),
+        concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
+          map(downloadUrl => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        )),
+        reduce((acc, curr) => acc.concat(curr), [])
+      ))
+    );
+
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
       shareReplay(1)
     );
 
     orgSettings$.pipe(
       filter(orgSettings => orgSettings.corporate_credit_card_settings.enabled),
-      switchMap(() => {
-        return this.etxn$;
-      }),
+      switchMap(() => this.etxn$),
       filter(etxn => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
-      switchMap(etxn => {
-        return this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(map(splitExpenses => {
-          return {
-            etxn,
-            splitExpenses
-          };
-        }));
-      })
-    ).subscribe(({etxn, splitExpenses}) => {
+      switchMap(etxn => this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(map(splitExpenses => ({
+        etxn,
+        splitExpenses
+      }))))
+    ).subscribe(({ etxn, splitExpenses }) => {
       if (splitExpenses && splitExpenses.length > 0) {
         this.isSplitExpensesPresent = splitExpenses.length > 1;
         if (this.isSplitExpensesPresent) {
-          this.alreadyApprovedExpenses = splitExpenses.filter((txn) => {
-            return ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1;
-          });
+          this.alreadyApprovedExpenses = splitExpenses.filter((txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1);
 
           this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
         }
@@ -2049,8 +2247,8 @@ export class AddEditExpensePage implements OnInit {
       forkJoin({
         matchedExpense: this.corporateCreditCardExpenseService.getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id),
         matchingTransactions: this.corporateCreditCardExpenseSuggestionService
-          .getSuggestions({amount: etxn.tx.amount, txn_dt: etxn.tx.txn_dt})
-      }).subscribe(({matchedExpense, matchingTransactions}) => {
+          .getSuggestions({ amount: etxn.tx.amount, txn_dt: etxn.tx.txn_dt })
+      }).subscribe(({ matchedExpense, matchingTransactions }) => {
         this.matchedCCCTransaction = matchedExpense[0].ccce;
         this.matchingCCCTransactions = matchingTransactions;
         this.selectedCCCTransaction = this.matchedCCCTransaction;
@@ -2087,31 +2285,30 @@ export class AddEditExpensePage implements OnInit {
     this.setupTransactionMandatoryFields();
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
-      map(txnFields => {
-        return txnFields.flight_journey_travel_class && txnFields.flight_journey_travel_class.options.map(v => ({label: v, value: v}));
-      })
+      map(txnFields => txnFields.flight_journey_travel_class &&
+        txnFields.flight_journey_travel_class.options.map(v => ({ label: v, value: v })))
     );
 
     this.taxSettings$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.tax_settings),
       map(taxsSettings => ({
-          ...taxsSettings,
-          groups: taxsSettings.groups && taxsSettings.groups.map(tax => ({label: tax.name, value: tax}))
-        })
+        ...taxsSettings,
+        groups: taxsSettings.groups && taxsSettings.groups.map(tax => ({ label: tax.name, value: tax }))
+      })
       )
     );
 
-    this.reports$ = this.reportService.getFilteredPendingReports({state: 'edit'}).pipe(
-      map(reports => reports.map(report => ({label: report.rp.purpose, value: report})))
+    this.reports$ = this.reportService.getFilteredPendingReports({ state: 'edit' }).pipe(
+      map(reports => reports.map(report => ({ label: report.rp.purpose, value: report })))
     );
 
     this.recentlyUsedCategories$ = forkJoin({
       filteredCategories: this.filteredCategories$.pipe(take(1)),
       recentValues: this.recentlyUsedValues$
     }).pipe(
-      concatMap(({filteredCategories, recentValues}) => {
-        return this.recentlyUsedItemsService.getRecentCategories(filteredCategories, recentValues);
-      })
+      concatMap(({ filteredCategories, recentValues }) => this.recentlyUsedItemsService
+        .getRecentCategories(filteredCategories, recentValues)
+      )
     );
 
     this.setupCustomFields();
@@ -2146,20 +2343,16 @@ export class AddEditExpensePage implements OnInit {
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
     const editExpenseAttachments = etxn$.pipe(
       switchMap((etxn: any) => this.fileService.findByTransactionId(etxn.tx.id)),
-      switchMap((fileObjs: any) => {
-        return from(fileObjs);
-      }),
-      concatMap((fileObj: any) => {
-        return this.fileService.downloadUrl(fileObj.id).pipe(
-          map(downloadUrl => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        );
-      }),
+      switchMap((fileObjs: any) => from(fileObjs)),
+      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
+        map(downloadUrl => {
+          fileObj.url = downloadUrl;
+          const details = this.getReceiptDetails(fileObj);
+          fileObj.type = details.type;
+          fileObj.thumbnail = details.thumbnail;
+          return fileObj;
+        })
+      )),
       reduce((acc, curr) => acc.concat(curr), [])
     );
 
@@ -2304,29 +2497,23 @@ export class AddEditExpensePage implements OnInit {
           })
         );
       }),
-      switchMap((policyETxn) => {
-        return this.transactionService.testPolicy(policyETxn);
-      })
+      switchMap((policyETxn) => this.transactionService.testPolicy(policyETxn))
     );
   }
 
   getCustomFields() {
     return this.customInputs$.pipe(
       take(1),
-      map(customInputs => {
-        return customInputs.map((customInput, i) => {
-          return {
-            id: customInput.id,
-            mandatory: customInput.mandatory,
-            name: customInput.name,
-            options: customInput.options,
-            placeholder: customInput.placeholder,
-            prefix: customInput.prefix,
-            type: customInput.type,
-            value: this.fg.value.custom_inputs[i].value
-          };
-        });
-      })
+      map(customInputs => customInputs.map((customInput, i) => ({
+        id: customInput.id,
+        mandatory: customInput.mandatory,
+        name: customInput.name,
+        options: customInput.options,
+        placeholder: customInput.placeholder,
+        prefix: customInput.prefix,
+        type: customInput.type,
+        value: this.fg.value.custom_inputs[i].value
+      })))
     );
   }
 
@@ -2348,21 +2535,19 @@ export class AddEditExpensePage implements OnInit {
   // }
 
   async reloadCurrentRoute() {
-    await this.router.navigateByUrl('/enterprise/my_expenses', {skipLocationChange: true});
+    await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
     await this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
   }
 
   addToNewReport(txnId: string) {
     const that = this;
     from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.transactionService.getEtxn(txnId);
-      }),
+      switchMap(() => this.transactionService.getEtxn(txnId)),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(etxn => {
       const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
       if (!criticalPolicyViolated) {
-        that.router.navigate(['/', 'enterprise', 'my_create_report', {txn_ids: JSON.stringify([txnId])}]);
+        that.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify([txnId]) }]);
       } else {
         that.goBack();
       }
@@ -2418,7 +2603,7 @@ export class AddEditExpensePage implements OnInit {
 
   saveAndNewExpense() {
     const that = this;
-    this.trackingService.clickSaveAddNew({Asset: 'Mobile'});
+    this.trackingService.clickSaveAddNew({ Asset: 'Mobile' });
     that.checkIfInvalidPaymentMode().pipe(
       take(1)
     ).subscribe(invalidPaymentMode => {
@@ -2534,7 +2719,7 @@ export class AddEditExpensePage implements OnInit {
 
     await fyCriticalPolicyViolationPopOver.present();
 
-    const {data} = await fyCriticalPolicyViolationPopOver.onWillDismiss();
+    const { data } = await fyCriticalPolicyViolationPopOver.onWillDismiss();
     return !!data;
   }
 
@@ -2552,27 +2737,25 @@ export class AddEditExpensePage implements OnInit {
 
     await currencyModal.present();
 
-    const {data} = await currencyModal.onWillDismiss();
+    const { data } = await currencyModal.onWillDismiss();
     return data;
   }
 
   trackPolicyCorrections() {
     this.isCriticalPolicyViolated$.subscribe(isCriticalPolicyViolated => {
       if (isCriticalPolicyViolated && this.fg.dirty) {
-        this.trackingService.policyCorrection({Asset: 'Mobile', Violation: 'Critical', Mode: 'Edit Expense'});
+        this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Critical', Mode: 'Edit Expense' });
       }
     });
 
     this.comments$.pipe(
       map(
-        estatuses => estatuses.filter((estatus) => {
-          return estatus.st_org_user_id === 'POLICY';
-        })
+        estatuses => estatuses.filter((estatus) => estatus.st_org_user_id === 'POLICY')
       ),
       map(policyViolationComments => policyViolationComments.length > 0)
     ).subscribe(policyViolated => {
       if (policyViolated && this.fg.dirty) {
-        this.trackingService.policyCorrection({Asset: 'Mobile', Violation: 'Regular', Mode: 'Edit Expense'});
+        this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Regular', Mode: 'Edit Expense' });
       }
     });
   }
@@ -2581,7 +2764,7 @@ export class AddEditExpensePage implements OnInit {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
     this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
-    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE'; 
+    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
 
     this.trackPolicyCorrections();
 
@@ -2605,10 +2788,12 @@ export class AddEditExpensePage implements OnInit {
               }
             }),
             map((policyViolations: any) =>
-              [this.policyService.getPolicyRules(policyViolations),
+              [
+                this.policyService.getPolicyRules(policyViolations),
                 policyViolations &&
                 policyViolations.transaction_desired_state &&
-                policyViolations.transaction_desired_state.action_description]),
+                policyViolations.transaction_desired_state.action_description
+              ]),
             switchMap(([policyViolations, policyActionDescription]) => {
               if (policyViolations.length > 0) {
                 return throwError({
@@ -2633,17 +2818,13 @@ export class AddEditExpensePage implements OnInit {
           }
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithCriticalPolicyViolation(err.policyViolations);
-              }),
+              switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
-                      );
-                    })
+                    switchMap(() => this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                      map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
+                    ))
                   );
                 } else {
                   return throwError('unhandledError');
@@ -2652,17 +2833,13 @@ export class AddEditExpensePage implements OnInit {
             );
           } else if (err.type === 'policyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-              }),
+              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                      );
-                    })
+                    switchMap(() => this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                      map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+                    ))
                   );
                 } else {
                   return throwError('unhandledError');
@@ -2673,96 +2850,104 @@ export class AddEditExpensePage implements OnInit {
             return throwError(err);
           }
         }),
-        switchMap(({etxn, comment}: any) => {
-          return forkJoin({
-            eou: from(this.authService.getEou()),
-            txnCopy: this.etxn$
-          }).pipe(
-            switchMap(({eou, txnCopy}) => {
+        switchMap(({ etxn, comment }: any) => forkJoin({
+          eou: from(this.authService.getEou()),
+          txnCopy: this.etxn$
+        }).pipe(
+          switchMap(({ eou, txnCopy }) => {
 
-              if (!isEqual(etxn.tx, txnCopy)) {
-                // only if the form is edited
-                this.trackingService.editExpense({
-                  Asset: 'Mobile',
-                  Type: 'Receipt',
-                  Amount: etxn.tx.amount,
-                  Currency: etxn.tx.currency,
-                  Category: etxn.tx.org_category,
-                  Time_Spent: this.getTimeSpentOnPage() + ' secs',
-                  Used_Autofilled_Category: (etxn.tx.org_category_id && this.presetCategoryId && (etxn.tx.org_category_id === this.presetCategoryId)),
-                  Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
-                  Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
-                  Used_Autofilled_Currency: ((etxn.tx.currency || etxn.tx.orig_currency) && this.presetCurrency && ((etxn.tx.currency === this.presetCurrency) || (etxn.tx.orig_currency === this.presetCurrency)))
-                });
-              } else {
-                // tracking expense closed without editing
-                this.trackingService.viewExpense({Asset: 'Mobile', Type: 'Receipt'});
-              }
+            if (!isEqual(etxn.tx, txnCopy)) {
+              // only if the form is edited
+              this.trackingService.editExpense({
+                Asset: 'Mobile',
+                Type: 'Receipt',
+                Amount: etxn.tx.amount,
+                Currency: etxn.tx.currency,
+                Category: etxn.tx.org_category,
+                Time_Spent: this.getTimeSpentOnPage() + ' secs',
+                Used_Autofilled_Category: (
+                  etxn.tx.org_category_id &&
+                  this.presetCategoryId &&
+                  (etxn.tx.org_category_id === this.presetCategoryId)
+                ),
+                Used_Autofilled_Project: (etxn.tx.project_id &&
+                  this.presetProjectId &&
+                  (etxn.tx.project_id === this.presetProjectId)
+                ),
+                Used_Autofilled_CostCenter: (etxn.tx.cost_center_id &&
+                  this.presetCostCenterId &&
+                  (etxn.tx.cost_center_id === this.presetCostCenterId)
+                ),
+                Used_Autofilled_Currency: ((etxn.tx.currency || etxn.tx.orig_currency) &&
+                  this.presetCurrency &&
+                  ((etxn.tx.currency === this.presetCurrency) || (etxn.tx.orig_currency === this.presetCurrency)))
+              });
+            } else {
+              // tracking expense closed without editing
+              this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Receipt' });
+            }
 
-              // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
-              return this.transactionService.upsert(etxn.tx).pipe(
-                switchMap(txn => {
-                  return this.transactionService.getETxn(txn.id);
-                }),
-                map(savedEtxn => savedEtxn && savedEtxn.tx),
-                switchMap((tx) => {
-                  const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
-                  const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
-                  if (!criticalPolicyViolated) {
-                    if (!txnCopy.tx.report_id && selectedReportId) {
-                      return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
-                        tap(() => this.trackingService.addToExistingReportAddEditExpense({Asset: 'Mobile'})),
-                        map(() => tx)
-                      );
-                    }
-
-                    if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
-                      return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
-                        switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
-                        tap(() => this.trackingService.addToExistingReportAddEditExpense({Asset: 'Mobile'})),
-                        map(() => tx)
-                      );
-                    }
-
-                    if (txnCopy.tx.report_id && !selectedReportId) {
-                      return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
-                        tap(() => this.trackingService.removeFromExistingReportEditExpense({Asset: 'Mobile'})),
-                        map(() => tx)
-                      );
-                    }
+            // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
+            return this.transactionService.upsert(etxn.tx).pipe(
+              switchMap(txn => this.transactionService.getETxn(txn.id)),
+              map(savedEtxn => savedEtxn && savedEtxn.tx),
+              switchMap((tx) => {
+                const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
+                const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
+                if (!criticalPolicyViolated) {
+                  if (!txnCopy.tx.report_id && selectedReportId) {
+                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      map(() => tx)
+                    );
                   }
 
-                  return of(null).pipe(map(() => tx));
-                }),
-                switchMap(tx => {
-                  const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
-                  if (!criticalPolicyViolated && etxn.tx.user_review_needed) {
-                    return this.transactionService.review(tx.id).pipe(map(() => tx));
+                  if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      map(() => tx)
+                    );
                   }
 
-                  return of(null).pipe(map(() => tx));
+                  if (txnCopy.tx.report_id && !selectedReportId) {
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                      tap(() => this.trackingService.removeFromExistingReportEditExpense({ Asset: 'Mobile' })),
+                      map(() => tx)
+                    );
+                  }
+                }
+
+                return of(null).pipe(map(() => tx));
+              }),
+              switchMap(tx => {
+                const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && (etxn.tx_policy_amount < 0.0001);
+                if (!criticalPolicyViolated && etxn.tx.user_review_needed) {
+                  return this.transactionService.review(tx.id).pipe(map(() => tx));
+                }
+
+                return of(null).pipe(map(() => tx));
+              })
+            );
+          }),
+          switchMap((txn) => {
+            if (comment) {
+              return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+                switchMap((result) => {
+                  if (result !== comment) {
+                    return this.statusService.post('transactions', txn.id, { comment }, true).pipe(
+                      map(() => txn)
+                    );
+                  } else {
+                    return of(txn);
+                  }
                 })
               );
-            }),
-            switchMap((txn) => {
-              if (comment) {
-                return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
-                  switchMap((result) => {
-                    if (result !== comment) {
-                      return this.statusService.post('transactions', txn.id, {comment}, true).pipe(
-                        map(() => txn)
-                      );
-                    } else {
-                      return of(txn);
-                    }
-                  })
-                );
-              } else {
-                return of(txn);
-              }
-            }),
-          );
-        }),
+            } else {
+              return of(txn);
+            }
+          }),
+        )),
         switchMap((transaction) => {
           if (transaction.corporate_credit_card_expense_group_id && this.selectedCCCTransaction && this.selectedCCCTransaction.id) {
             if (transaction.corporate_credit_card_expense_group_id !== this.selectedCCCTransaction.id) {
@@ -2810,10 +2995,16 @@ export class AddEditExpensePage implements OnInit {
         Currency: etxn.tx.currency,
         Category: etxn.tx.org_category,
         Time_Spent: this.getTimeSpentOnPage() + ' secs',
-        Used_Autofilled_Category: (etxn.tx.org_category_id && this.presetCategoryId && (etxn.tx.org_category_id === this.presetCategoryId)),
+        Used_Autofilled_Category: (etxn.tx.org_category_id &&
+          this.presetCategoryId &&
+          (etxn.tx.org_category_id === this.presetCategoryId)),
         Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
-        Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
-        Used_Autofilled_Currency: ((etxn.tx.currency || etxn.tx.orig_currency) && this.presetCurrency && ((etxn.tx.currency === this.presetCurrency) || (etxn.tx.orig_currency === this.presetCurrency))),
+        Used_Autofilled_CostCenter: (etxn.tx.cost_center_id &&
+          this.presetCostCenterId &&
+          (etxn.tx.cost_center_id === this.presetCostCenterId)),
+        Used_Autofilled_Currency: ((etxn.tx.currency || etxn.tx.orig_currency) &&
+          this.presetCurrency &&
+          ((etxn.tx.currency === this.presetCurrency) || (etxn.tx.orig_currency === this.presetCurrency))),
         Instafyle: isInstaFyleExpense
       });
     });
@@ -2824,80 +3015,76 @@ export class AddEditExpensePage implements OnInit {
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
     this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
     this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
-    
+
     const customFields$ = this.getCustomFields();
 
     this.trackAddExpense();
 
     return this.generateEtxnFromFg(this.etxn$, customFields$, true)
       .pipe(
-        switchMap(etxn => {
-          return this.isConnected$.pipe(
-            take(1),
-            switchMap(isConnected => {
-              if (isConnected) {
-                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
-                return policyViolations$.pipe(
-                  map(this.policyService.getCriticalPolicyRules),
-                  switchMap(criticalPolicyViolations => {
-                    if (criticalPolicyViolations.length > 0) {
-                      return throwError({
-                        type: 'criticalPolicyViolations',
-                        policyViolations: criticalPolicyViolations,
-                        etxn
-                      });
-                    } else {
-                      return policyViolations$;
-                    }
-                  }),
-                  map((policyViolations: any) =>
-                    [this.policyService.getPolicyRules(policyViolations),
-                      policyViolations &&
-                      policyViolations.transaction_desired_state &&
-                      policyViolations.transaction_desired_state.action_description]
-                  ),
-                  switchMap(([policyViolations, policyActionDescription]) => {
-                    if (policyViolations.length > 0) {
-                      return throwError({
-                        type: 'policyViolations',
-                        policyViolations,
-                        policyActionDescription,
-                        etxn
-                      });
-                    } else {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
-                      );
-                    }
-                  })
-                );
-              } else {
-                return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                  map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
-                );
-              }
-            }));
-        }),
+        switchMap(etxn => this.isConnected$.pipe(
+          take(1),
+          switchMap(isConnected => {
+            if (isConnected) {
+              const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
+              return policyViolations$.pipe(
+                map(this.policyService.getCriticalPolicyRules),
+                switchMap(criticalPolicyViolations => {
+                  if (criticalPolicyViolations.length > 0) {
+                    return throwError({
+                      type: 'criticalPolicyViolations',
+                      policyViolations: criticalPolicyViolations,
+                      etxn
+                    });
+                  } else {
+                    return policyViolations$;
+                  }
+                }),
+                map((policyViolations: any) =>
+                  [
+                    this.policyService.getPolicyRules(policyViolations),
+                    policyViolations &&
+                    policyViolations.transaction_desired_state &&
+                    policyViolations.transaction_desired_state.action_description
+                  ]
+                ),
+                switchMap(([policyViolations, policyActionDescription]) => {
+                  if (policyViolations.length > 0) {
+                    return throwError({
+                      type: 'policyViolations',
+                      policyViolations,
+                      policyActionDescription,
+                      etxn
+                    });
+                  } else {
+                    return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                      map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
+                    );
+                  }
+                })
+              );
+            } else {
+              return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
+              );
+            }
+          }))),
         catchError(err => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-              map(etxn => ({etxn}))
+              map(etxn => ({ etxn }))
             );
           }
 
           if (err.type === 'criticalPolicyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => {
-                return this.continueWithCriticalPolicyViolation(err.policyViolations);
-              }),
+              switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
-                    switchMap(() => {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
-                      );
-                    })
+                    switchMap(() => this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                      map(innerEtxn => ({ etxn: innerEtxn, comment: null }))
+                    ))
                   );
                 } else {
                   return throwError('unhandledError');
@@ -2907,18 +3094,14 @@ export class AddEditExpensePage implements OnInit {
           } else if (err.type === 'policyViolations') {
             return from(this.loaderService.hideLoader())
               .pipe(
-                switchMap(() => {
-                  return this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription);
-                }),
+                switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
                 switchMap((continueWithTransaction) => {
                   if (continueWithTransaction) {
                     return from(this.loaderService.showLoader())
                       .pipe(
-                        switchMap(() => {
-                          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                            map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
-                          );
-                        })
+                        switchMap(() => this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                          map(innerEtxn => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+                        ))
                       );
                   } else {
                     return throwError('unhandledError');
@@ -2929,88 +3112,96 @@ export class AddEditExpensePage implements OnInit {
             return throwError(err);
           }
         }),
-        switchMap(({etxn, comment}: any) => {
-          return from(this.authService.getEou())
-            .pipe(
-              switchMap(eou => {
+        switchMap(({ etxn, comment }: any) => from(this.authService.getEou())
+          .pipe(
+            switchMap(eou => {
 
-                  const comments = [];
-                  const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
-                  this.trackingService.createExpense({
-                    Asset: 'Mobile',
-                    Type: 'Receipt',
-                    Amount: etxn.tx.amount,
-                    Currency: etxn.tx.currency,
-                    Category: etxn.tx.org_category,
-                    Time_Spent: this.getTimeSpentOnPage() + ' secs',
-                    Used_Autofilled_Category: (etxn.tx.org_category_id && this.presetCategoryId && (etxn.tx.org_category_id === this.presetCategoryId)),
-                    Used_Autofilled_Project: (etxn.tx.project_id && this.presetProjectId && (etxn.tx.project_id === this.presetProjectId)),
-                    Used_Autofilled_CostCenter: (etxn.tx.cost_center_id && this.presetCostCenterId && (etxn.tx.cost_center_id === this.presetCostCenterId)),
-                    Used_Autofilled_Currency: ((etxn.tx.currency || etxn.tx.orig_currency) && this.presetCurrency && ((etxn.tx.currency === this.presetCurrency) || (etxn.tx.orig_currency === this.presetCurrency))),
-                    Instafyle: isInstaFyleExpense
-                  });
+              const comments = [];
+              const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
+              this.trackingService.createExpense({
+                Asset: 'Mobile',
+                Type: 'Receipt',
+                Amount: etxn.tx.amount,
+                Currency: etxn.tx.currency,
+                Category: etxn.tx.org_category,
+                Time_Spent: this.getTimeSpentOnPage() + ' secs',
+                Used_Autofilled_Category: (etxn.tx.org_category_id &&
+                  this.presetCategoryId &&
+                  (etxn.tx.org_category_id === this.presetCategoryId)
+                ),
+                Used_Autofilled_Project: (etxn.tx.project_id &&
+                  this.presetProjectId &&
+                  (etxn.tx.project_id === this.presetProjectId)
+                ),
+                Used_Autofilled_CostCenter: (etxn.tx.cost_center_id &&
+                  this.presetCostCenterId &&
+                  (etxn.tx.cost_center_id === this.presetCostCenterId)),
+                Used_Autofilled_Currency: ((etxn.tx.currency || etxn.tx.orig_currency) &&
+                  this.presetCurrency &&
+                  ((etxn.tx.currency === this.presetCurrency) || (etxn.tx.orig_currency === this.presetCurrency))),
+                Instafyle: isInstaFyleExpense
+              });
 
-                  if (comment) {
-                    comments.push(comment);
-                  }
-                  if (this.selectedCCCTransaction) {
-                    etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
-                  }
+              if (comment) {
+                comments.push(comment);
+              }
+              if (this.selectedCCCTransaction) {
+                etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
+              }
 
-                  let reportId;
-                  if (this.fg.value.report
-                    && (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
-                    reportId = this.fg.value.report.rp.id;
-                  }
-                  let entry;
-                  if (this.fg.value.add_to_new_report) {
-                    entry = {
-                      comments,
-                      reportId
-                    };
-                  }
+              let reportId;
+              if (this.fg.value.report
+                && (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))) {
+                reportId = this.fg.value.report.rp.id;
+              }
+              let entry;
+              if (this.fg.value.add_to_new_report) {
+                entry = {
+                  comments,
+                  reportId
+                };
+              }
 
 
-                  etxn.dataUrls = etxn.dataUrls.map(data => {
+              etxn.dataUrls = etxn.dataUrls.map(data => {
 
-                    let attachmentType = 'image';
+                let attachmentType = 'image';
 
-                    if (data.type === 'application/pdf' || data.type === 'pdf') {
-                      attachmentType = 'pdf';
-                    }
-
-                    data.type = attachmentType;
-
-                    return data;
-                  });
-
-                  /**
-                   * NOTE: expense will be sync only if we are redirected to expense page, or else it will be in the outbox (storage service)
-                   * if (this.fg.value.add_to_new_report i.e entry) is present we will sync to the expense page list
-                   * else if (if the expense is created from ccc page) we need to sync expense than only
-                   *        the count on ccc page for classified and unclassified expense will be updated
-                   * else (this will be the case of normal expense) we are adding entry but not syncing as it will be
-                   *        redirected to expense page at the end and sync will take place
-                   */
-                  if (entry) {
-                    return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId));
-                  } else if (this.activatedRoute.snapshot.params.bankTxn) {
-                    return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId));
-                  } else {
-                    let receiptsData = null;
-                    if (this.receiptsData) {
-                      receiptsData = {
-                        linked_by: eou.ou.id,
-                        receipt_id: this.receiptsData.receiptId,
-                        fileId: this.receiptsData.fileId
-                      };
-                    }
-                    return of(this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData));
-                  }
+                if (data.type === 'application/pdf' || data.type === 'pdf') {
+                  attachmentType = 'pdf';
                 }
-              )
-            );
-        }),
+
+                data.type = attachmentType;
+
+                return data;
+              });
+
+              /**
+               * NOTE: expense will be sync only if we are redirected to expense page, or else it will be in the outbox (storage service)
+               * if (this.fg.value.add_to_new_report i.e entry) is present we will sync to the expense page list
+               * else if (if the expense is created from ccc page) we need to sync expense than only
+               *        the count on ccc page for classified and unclassified expense will be updated
+               * else (this will be the case of normal expense) we are adding entry but not syncing as it will be
+               *        redirected to expense page at the end and sync will take place
+               */
+              if (entry) {
+                return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId));
+              } else if (this.activatedRoute.snapshot.params.bankTxn) {
+                return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId));
+              } else {
+                let receiptsData = null;
+                if (this.receiptsData) {
+                  receiptsData = {
+                    linked_by: eou.ou.id,
+                    receipt_id: this.receiptsData.receiptId,
+                    fileId: this.receiptsData.fileId
+                  };
+                }
+                return of(this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData));
+              }
+            }
+            )
+          )),
         finalize(() => {
           this.saveExpenseLoader = false;
           this.saveAndNewExpenseLoader = false;
@@ -3054,14 +3245,12 @@ export class AddEditExpensePage implements OnInit {
 
     return instaFyleEnabled$.pipe(
       filter(instafyleEnabled => instafyleEnabled),
-      switchMap(() => {
-        return forkJoin({
-          imageData: from(this.getParsedReceipt(base64Image, fileType)),
-          filteredCategories: this.filteredCategories$.pipe(take(1)),
-          homeCurrency: this.offlineService.getHomeCurrency()
-        })
-      })
-    ).subscribe(({imageData, filteredCategories, homeCurrency}) => {
+      switchMap(() => forkJoin({
+        imageData: from(this.getParsedReceipt(base64Image, fileType)),
+        filteredCategories: this.filteredCategories$.pipe(take(1)),
+        homeCurrency: this.offlineService.getHomeCurrency()
+      }))
+    ).subscribe(({ imageData, filteredCategories, homeCurrency }) => {
       const extractedData = {
         amount: imageData && imageData.data && imageData.data.amount,
         currency: imageData && imageData.data && imageData.data.currency,
@@ -3071,7 +3260,16 @@ export class AddEditExpensePage implements OnInit {
         invoice_dt: imageData && imageData.data && imageData.data.invoice_dt || null
       };
 
-      this.inpageExtractedData = imageData.data;
+      if (!this.inpageExtractedData) {
+        this.inpageExtractedData = imageData.data;
+      } else {
+        this.inpageExtractedData = mergeWith(
+          {},
+          this.inpageExtractedData,
+          imageData.data,
+          (currentValue, newValue) => isNull(currentValue) ? newValue : currentValue
+        );
+      }
 
       if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
 
@@ -3104,7 +3302,7 @@ export class AddEditExpensePage implements OnInit {
 
       if (!this.fg.controls.vendor_id.value && extractedData.vendor) {
         this.fg.patchValue({
-          vendor_id:  {display_name: extractedData.vendor}
+          vendor_id: { display_name: extractedData.vendor }
         });
       }
 
@@ -3130,17 +3328,26 @@ export class AddEditExpensePage implements OnInit {
 
     await popup.present();
 
-    const {data} = await popup.onWillDismiss();
+    const { data } = await popup.onWillDismiss();
 
     if (data) {
+      const fileInfo = {
+        type: data.type,
+        url: data.dataUrl,
+        thumbnail: data.dataUrl
+      };
       if (this.mode === 'add') {
         const fileInfo = {
           type: data.type,
           url: data.dataUrl,
           thumbnail: data.dataUrl
         };
-
         this.newExpenseDataUrls.push(fileInfo);
+        this.sanitizer.bypassSecurityTrustUrl(fileInfo.url);
+        this.newExpenseDataUrls.forEach(fileObj => {
+          fileObj.type = (fileObj.type === 'application/pdf' || fileObj.type === 'pdf') ? 'pdf' : 'image';
+          return fileObj;
+        });
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(
           take(1)
@@ -3152,9 +3359,7 @@ export class AddEditExpensePage implements OnInit {
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
           switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
-          map(fileObjs => {
-            return (fileObjs && fileObjs.length) || 0;
-          })
+          map(fileObjs => (fileObjs && fileObjs.length) || 0)
         );
 
         this.attachmentUploadInProgress = true;
@@ -3168,14 +3373,22 @@ export class AddEditExpensePage implements OnInit {
             fileObj.transaction_id = this.activatedRoute.snapshot.params.id;
             return this.fileService.post(fileObj);
           }),
-          switchMap(() => {
-            return editExpenseAttachments$;
-          }),
+          switchMap(() => editExpenseAttachments$.pipe(
+            withLatestFrom(this.isConnected$),
+            map(([attachments, isConnected]) => ({
+              attachments,
+              isConnected
+            }))
+          )),
           finalize(() => {
+            this.loadAttachments$.next();
             this.attachmentUploadInProgress = false;
           })
-        ).subscribe((attachments) => {
+        ).subscribe(({ attachments, isConnected }) => {
           this.attachedReceiptsCount = attachments;
+          if (isConnected && this.attachedReceiptsCount === 1) {
+            this.parseFile(fileInfo);
+          }
         });
       }
     }
@@ -3217,20 +3430,16 @@ export class AddEditExpensePage implements OnInit {
   viewAttachments() {
     const editExpenseAttachments = this.etxn$.pipe(
       switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
-      switchMap(fileObjs => {
-        return from(fileObjs);
-      }),
-      concatMap((fileObj: any) => {
-        return this.fileService.downloadUrl(fileObj.id).pipe(
-          map(downloadUrl => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        );
-      }),
+      switchMap(fileObjs => from(fileObjs)),
+      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
+        map(downloadUrl => {
+          fileObj.url = downloadUrl;
+          const details = this.getReceiptDetails(fileObj);
+          fileObj.type = details.type;
+          fileObj.thumbnail = details.thumbnail;
+          return fileObj;
+        })
+      )),
       reduce((acc, curr) => acc.concat(curr), [])
     );
 
@@ -3242,9 +3451,7 @@ export class AddEditExpensePage implements OnInit {
     const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
 
     from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return attachements$;
-      }),
+      switchMap(() => attachements$),
       finalize(() => from(this.loaderService.hideLoader()))
     )
       .subscribe(async (attachments) => {
@@ -3261,7 +3468,7 @@ export class AddEditExpensePage implements OnInit {
 
         await attachmentsModal.present();
 
-        const {data} = await attachmentsModal.onWillDismiss();
+        const { data } = await attachmentsModal.onWillDismiss();
 
         if (this.mode === 'add') {
           if (data && data.attachments) {
@@ -3271,12 +3478,11 @@ export class AddEditExpensePage implements OnInit {
         } else {
           this.etxn$.pipe(
             switchMap(etxn => this.fileService.findByTransactionId(etxn.tx.id)),
-            map(fileObjs => {
-              return (fileObjs && fileObjs.length) || 0;
-            })
+            map(fileObjs => (fileObjs && fileObjs.length) || 0)
           ).subscribe((attachedReceipts) => {
+            this.loadAttachments$.next();
             if (this.attachedReceiptsCount === attachedReceipts) {
-              this.trackingService.viewAttachment({Asset: 'Mobile'});
+              this.trackingService.viewAttachment({ Asset: 'Mobile' });
             }
             this.attachedReceiptsCount = attachedReceipts;
           });
@@ -3333,9 +3539,9 @@ export class AddEditExpensePage implements OnInit {
     const { data } = await modal.onDidDismiss();
 
     if (data && data.updated) {
-      this.trackingService.addComment({Asset: 'Mobile'});
+      this.trackingService.addComment({ Asset: 'Mobile' });
     } else {
-      this.trackingService.viewComment({Asset: 'Mobile'});
+      this.trackingService.viewComment({ Asset: 'Mobile' });
     }
   }
 }
