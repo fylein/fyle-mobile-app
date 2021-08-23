@@ -165,7 +165,7 @@
 </ion-content>
 
 
-<ion-footer *ngIf="!isKeyboardShown">
+<ion-footer *ngIf="!keyboard.isVisible">
   <app-fy-footer *ngIf="!selectionMode" (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"></app-fy-footer>
   <ng-container *ngIf="openReports$ | async as openReports">
     <ng-container *ngIf="selectionMode && !reviewMode">

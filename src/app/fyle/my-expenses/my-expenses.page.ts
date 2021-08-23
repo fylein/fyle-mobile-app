@@ -181,12 +181,25 @@ export class MyExpensesPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {
     window.addEventListener('keyboardWillShow', () => {
+      console.log('Keyboard will show');
       this.isKeyboardShown = true;
     });
 
     window.addEventListener('keyboardWillHide', () => {
+      console.log('Keyboard will hide');
       this.isKeyboardShown = false;
     });
+
+    window.addEventListener('keyboardDidShow', () => {
+      console.log('Keyboard did show');
+      this.isKeyboardShown = true;
+    });
+
+    window.addEventListener('keyboardDidHide', () => {
+      console.log('Keyboard did hide');
+      this.isKeyboardShown = false;
+    });
+
   }
 
   clearText() {
