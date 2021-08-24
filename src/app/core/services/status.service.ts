@@ -103,7 +103,7 @@ export class StatusService {
       break;
     case lowerCaseComment.indexOf('un-approved') > -1:
       statusCategory = {
-        category: type + ' Un-approved',
+        category: type + ' Sent Back',
         icon: 'send-back'
       };
       break;
