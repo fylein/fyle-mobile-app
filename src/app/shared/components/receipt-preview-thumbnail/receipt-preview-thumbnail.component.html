@@ -18,10 +18,10 @@
 
   <ng-container *ngIf="attachments.length > 1">
     <div class="receipt-preview-thumbnail--controls">
-      <mat-icon class="receipt-preview-thumbnail--go-back" (click)="goToPrevSlide()">
+      <mat-icon *ngIf="activeIndex !== 0" class="receipt-preview-thumbnail--go-back" (click)="goToPrevSlide()">
         arrow_back_ios
       </mat-icon>
-      <mat-icon class="receipt-preview-thumbnail--go-forward" (click)="goToNextSlide()">
+      <mat-icon *ngIf="activeIndex !== attachments.length-1" class="receipt-preview-thumbnail--go-forward" (click)="goToNextSlide()">
         arrow_forward_ios
       </mat-icon>
     </div>

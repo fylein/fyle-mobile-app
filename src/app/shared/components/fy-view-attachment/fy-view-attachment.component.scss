@@ -15,8 +15,8 @@
   }
 
   &--go-back {
-    position: absolute;
-    top: 34vh;
+    position: fixed;
+    top: 46vh;
     left: 20px;
     background-color: rgba(0, 0, 0, 0.5);
     text-align: center;
@@ -29,8 +29,8 @@
   }
 
   &--go-forward {
-    position: absolute;
-    top: 34vh;
+    position: fixed;
+    top: 46vh;
     right: 20px;
     background-color: rgba(0, 0, 0, 0.5);
     text-align: center;
