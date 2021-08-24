@@ -5,18 +5,10 @@ on:
     branches: [ master ]
 
 jobs:
-  build-android:
+  build-app:
     runs-on: ubuntu-latest
     steps:
-
-      - name: Send Message to Slack
-        uses: archive/github-actions-slack@v2.0.1
-        id: notify
-        with:
-          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          slack-channel: C029QPGHSQL
-          slack-text: ${{github.event.pull_request.user.login}} created PR on "${{ github.repository }}" \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}``` Building Android Build for this branch
-
+    
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
         with:
@@ -36,22 +28,14 @@ jobs:
 
       - name: Rename file
         run: mv *.apk android.apk
+
+      - name: Upload apk to diawi Slack
+        uses: rnkdsh/action-upload-diawi@v1.2.0
+        id: diwaiAndroid
+        with:
+          token: ${{ secrets.DIAWI_TOKEN }}
+          file: android.apk
       
-      - name: Send Message to Slack
-        uses: archive/github-actions-slack@v2.0.1
-        id: notify2
-        with:
-          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          slack-channel: C029QPGHSQL
-          slack-text: Android build is successful for PR link ${{github.event.pull_request.html_url}} 
-
-      - name: Upload android.apk to slack
-        uses: adrey/slack-file-upload-action@master
-        with:
-          token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          path: android.apk
-          channel: C029QPGHSQL
-
       - name: Build iOS on Appflow
         uses: ionic-team/appflow-build@v1
         with:
@@ -72,19 +56,18 @@ jobs:
 
       - name: Rename file
         run: mv *.ipa ios.ipa
-      
+     
+      - name: Upload ipa to diawi Slack
+        uses: rnkdsh/action-upload-diawi@v1.2.0
+        id: diwaiIos
+        with:
+          token: ${{ secrets.DIAWI_TOKEN }}
+          file: ios.ipa
+
       - name: Send Message to Slack
         uses: archive/github-actions-slack@v2.0.1
-        id: notify3
+        id: notify
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C029QPGHSQL
-          slack-text: iOS build is successful for PR link ${{github.event.pull_request.html_url}} 
-
-      - name: Upload ios.app to slack 
-        uses: adrey/slack-file-upload-action@master
-        with:
-          token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          path: ios.ipa
-          channel: C029QPGHSQL         
-
+          slack-text: ${{github.event.pull_request.user.login}} created PR on "${{ github.repository }}" \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```  \r\n \r\n APK Link ${{steps.diwaiAndroid.outputs.url}} \r\n IPA link ${{steps.diwaiIos.outputs.url}}
