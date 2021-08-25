@@ -652,15 +652,15 @@ export class AddEditExpensePage implements OnInit {
       generatedEtxnFromFg: this.generateEtxnFromFg(this.etxn$, customFields$),
       txnFields: this.txnFields$.pipe(take(1))
     }).subscribe(res => {
-        this.router.navigate(['/', 'enterprise', 'split_expense', {
-          splitType,
-          txnFields: JSON.stringify(res.txnFields),
-          txn: JSON.stringify(res.generatedEtxnFromFg.tx),
-          currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
-          fileObjs: JSON.stringify(res.generatedEtxnFromFg.dataUrls),
-          selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
-        }]);
-      });
+      this.router.navigate(['/', 'enterprise', 'split_expense', {
+        splitType,
+        txnFields: JSON.stringify(res.txnFields),
+        txn: JSON.stringify(res.generatedEtxnFromFg.tx),
+        currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
+        fileObjs: JSON.stringify(res.generatedEtxnFromFg.dataUrls),
+        selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
+      }]);
+    });
   }
 
   async splitExpense() {
