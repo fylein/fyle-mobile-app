@@ -78,4 +78,5 @@ export interface ExpenseFieldsMap {
   txn_dt: ExpenseField[];
   vendor_id: ExpenseField[];
   billable: ExpenseField[];
+  tax_group_id: ExpenseField[];
 }

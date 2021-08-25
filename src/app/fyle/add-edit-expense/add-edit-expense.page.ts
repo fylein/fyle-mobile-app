@@ -68,6 +68,8 @@ import { Currency } from 'src/app/core/models/currency.model';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { TaxGroupService } from 'src/app/core/services/tax_group.service';
+import { TaxGroup } from 'src/app/core/models/tax_group.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -270,6 +272,10 @@ export class AddEditExpensePage implements OnInit {
 
   billableDefaultValue: boolean;
 
+  taxGroups$: Observable<TaxGroup[]>;
+
+  taxGroupsOptions$: Observable<{label: string; value: any}[]>;
+
   duplicates: any;
 
   constructor(
@@ -308,6 +314,7 @@ export class AddEditExpensePage implements OnInit {
     private expenseFieldsService: ExpenseFieldsService,
     private modalProperties: ModalPropertiesService,
     private actionSheetController: ActionSheetController,
+    private taxGroupsService: TaxGroupService,
     private sanitizer: DomSanitizer
 
   ) {
@@ -369,12 +376,14 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setUpTaxCalculations() {
-    combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax.valueChanges).subscribe(() => {
-      if (this.fg.controls.tax.value && this.fg.controls.tax.value.percentage && this.fg.controls.currencyObj.value) {
-        this.fg.controls.taxValue.setValue(
+    combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax_group.valueChanges).subscribe(() => {
+      if (this.fg.controls.tax_group.value && this.fg.controls.tax_group.value.percentage && this.fg.controls.currencyObj.value) {
+        this.fg.controls.tax_amount.setValue(
           (this.fg.controls.currencyObj.value.amount -
-            (this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax.value.percentage + 1))).toFixed(2)
+            (this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1))).toFixed(2)
         );
+      } else {
+        this.fg.controls.tax_amount.setValue(null);
       }
     });
   }
@@ -1292,7 +1301,8 @@ export class AddEditExpensePage implements OnInit {
         recentProjects: this.recentlyUsedProjects$,
         recentCurrencies: this.recentlyUsedCurrencies$,
         recentCostCenters: this.recentlyUsedCostCenters$,
-        recentCategories: this.recentlyUsedCategories$
+        recentCategories: this.recentlyUsedCategories$,
+        taxGroups: this.taxGroups$
       })),
       finalize(() => from(this.loaderService.hideLoader()))
     ).subscribe(({
@@ -1312,7 +1322,8 @@ export class AddEditExpensePage implements OnInit {
       recentCategories,
       recentProjects,
       recentCurrencies,
-      recentCostCenters
+      recentCostCenters,
+      taxGroups
     }) => {
       const customInputValues = customInputs
         .map(customInput => {
@@ -1365,6 +1376,13 @@ export class AddEditExpensePage implements OnInit {
             orig_amount: null,
             orig_currency: null
           }
+        });
+      }
+
+      if (etxn.tx.tax_group_id) {
+        const tg = taxGroups.find(tg => tg.id === etxn.tx.tax_group_id);
+        this.fg.patchValue({
+          tax_group: tg
         });
       }
 
@@ -1446,7 +1464,7 @@ export class AddEditExpensePage implements OnInit {
         } : null,
         purpose: etxn.tx.purpose,
         report,
-        taxValue: etxn.tx.tax,
+        tax_amount: etxn.tx.tax_amount,
         location_1: etxn.tx.locations[0],
         location_2: etxn.tx.locations[1],
         from_dt: etxn.tx.from_dt && moment(etxn.tx.from_dt).format('y-MM-DD'),
@@ -1691,7 +1709,7 @@ export class AddEditExpensePage implements OnInit {
         const fields = [
           'purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'location1',
           'location2', 'distance', 'distance_unit', 'flight_journey_travel_class',
-          'flight_return_travel_class', 'train_travel_class', 'bus_travel_class', 'billable'
+          'flight_return_travel_class', 'train_travel_class', 'bus_travel_class', 'billable', 'tax_group_id'
         ];
         return this.expenseFieldsService
           .filterByOrgCategoryId(
@@ -1731,16 +1749,18 @@ export class AddEditExpensePage implements OnInit {
       switchMap(txnFields => forkJoin({
         isConnected: this.isConnected$.pipe(take(1)),
         orgSettings: this.offlineService.getOrgSettings(),
-        costCenters: this.costCenters$
+        costCenters: this.costCenters$,
+        taxGroups: this.taxGroups$
       }).pipe(
-        map(({ isConnected, orgSettings, costCenters }) => ({
+        map(({ isConnected, orgSettings, costCenters, taxGroups }) => ({
           isConnected,
           txnFields,
           orgSettings,
-          costCenters
+          costCenters,
+          taxGroups
         }))
       ))
-    ).subscribe(({ isConnected, txnFields, orgSettings, costCenters }) => {
+    ).subscribe(({ isConnected, txnFields, orgSettings, costCenters, taxGroups }) => {
       const keyToControlMap: {
         [id: string]: AbstractControl;
       } = {
@@ -1759,7 +1779,8 @@ export class AddEditExpensePage implements OnInit {
         train_travel_class: this.fg.controls.train_travel_class,
         bus_travel_class: this.fg.controls.bus_travel_class,
         project_id: this.fg.controls.project,
-        billable: this.fg.controls.billable
+        billable: this.fg.controls.billable,
+        tax_group_id: this.fg.controls.tax_group
       };
       for (const control of Object.values(keyToControlMap)) {
         control.clearValidators();
@@ -1804,6 +1825,8 @@ export class AddEditExpensePage implements OnInit {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
           } else if (txnFieldKey === 'cost_center_id') {
             control.setValidators((isConnected && costCenters && costCenters.length > 0) ? Validators.required : null);
+          } else if (txnFieldKey === 'tax_group_id') {
+            control.setValidators((isConnected && taxGroups && taxGroups.length > 0) ? Validators.required : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
           }
@@ -1835,13 +1858,14 @@ export class AddEditExpensePage implements OnInit {
         flight_return_travel_class: this.fg.controls.flight_return_travel_class,
         train_travel_class: this.fg.controls.train_travel_class,
         bus_travel_class: this.fg.controls.bus_travel_class,
-        billable: this.fg.controls.billable
+        billable: this.fg.controls.billable,
+        tax_group_id: this.fg.controls.tax_group
       };
 
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (!(['vendor_id', 'billable'].includes(defaultValueColumn)) && !control.value && !control.touched) {
+          if (!(['vendor_id', 'billable', 'tax_group_id'].includes(defaultValueColumn)) && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
             control.patchValue({
@@ -1850,6 +1874,11 @@ export class AddEditExpensePage implements OnInit {
           } else if (defaultValueColumn === 'billable' && this.fg.controls.project.value
             && (control.value === null || control.value === undefined) && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
+          } else if (defaultValueColumn === 'tax_group_id' && !control.value && !control.touched && control.value !== '') {
+            this.taxGroups$.subscribe(taxGroups => {
+              const tg = taxGroups.find(tg => tg.name = defaultValues[defaultValueColumn]);
+              control.patchValue(tg);
+            });
           }
         }
       }
@@ -2032,8 +2061,8 @@ export class AddEditExpensePage implements OnInit {
       vendor_id: [, this.merchantValidator],
       purpose: [],
       report: [],
-      tax: [],
-      taxValue: [],
+      tax_group: [],
+      tax_amount: [],
       location_1: [],
       location_2: [],
       from_dt: [],
@@ -2094,6 +2123,16 @@ export class AddEditExpensePage implements OnInit {
       this.isDraftExpenseEnabled = orgSettings.ccc_draft_expense_settings &&
         orgSettings.ccc_draft_expense_settings.allowed &&
         orgSettings.ccc_draft_expense_settings.enabled;
+
+      if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
+        this.taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
+        this.taxGroupsOptions$ = this.taxGroups$.pipe(
+          map(taxGroupsOptions =>  taxGroupsOptions.map(tg => ({label: tg.name, value: tg})))
+        );
+      } else {
+        this.taxGroups$ = of(null);
+        this.taxGroupsOptions$ = of(null);
+      }
     });
 
     this.setupNetworkWatcher();
@@ -2278,9 +2317,9 @@ export class AddEditExpensePage implements OnInit {
 
     this.taxSettings$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.tax_settings),
-      map(taxsSettings => ({
-        ...taxsSettings,
-        groups: taxsSettings.groups && taxsSettings.groups.map(tax => ({ label: tax.name, value: tax }))
+      map(taxSettings => ({
+        ...taxSettings,
+        groups: taxSettings.groups && taxSettings.groups.map(tax => ({ label: tax.name, value: tax }))
       })
       )
     );
@@ -2409,7 +2448,8 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_currency,
             orig_amount: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_amount,
             project_id: this.fg.value.project && this.fg.value.project.project_id,
-            tax: this.fg.value.taxValue,
+            tax_amount: this.fg.value.tax_amount,
+            tax_group_id: this.fg.value.tax_group && this.fg.value.tax_group.id,
             org_category_id: this.fg.value.category && this.fg.value.category.id,
             fyle_category: this.fg.value.category && this.fg.value.category.fyle_category,
             policy_amount: null,

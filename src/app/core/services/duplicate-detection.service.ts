@@ -45,6 +45,10 @@ export class DuplicateDetectionService {
 
         const transactionCopy = cloneDeep(transaction);
 
+        if (transactionCopy.tax) {
+          delete transactionCopy.tax;
+        }
+
         transactionCopy.txn_dt.setHours(12);
         transactionCopy.txn_dt.setMinutes(0);
         transactionCopy.txn_dt.setSeconds(0);
