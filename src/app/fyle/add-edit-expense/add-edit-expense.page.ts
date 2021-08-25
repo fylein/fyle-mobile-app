@@ -3500,11 +3500,9 @@ export class AddEditExpensePage implements OnInit {
       componentProps: {
         header: 'Delete Expense',
         body: 'Are you sure you want to delete this expense?',
-        deleteMethod: () => {
-          return this.transactionService.delete(txnId);
-        }
+        deleteMethod: () => { return this.transactionService.delete(txnId); }
       }
-    })
+    });
 
     await deletePopover.present();
 
