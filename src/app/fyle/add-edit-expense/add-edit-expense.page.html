@@ -28,11 +28,11 @@
       </div>
     </ion-title>
 
-    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" slot="end">
-      <ion-button class="add-edit-expense--header-button" (click)="openCommentsModal()">
+    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" class="add-edit-expense--header-btn-container" slot="end">
+      <ion-button class="add-edit-expense--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
-      <ion-button class="add-edit-expense--header-button" (click)="deleteExpense()">
+      <ion-button class="add-edit-expense--header-btn-container__btn" (click)="deleteExpense()">
         <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
