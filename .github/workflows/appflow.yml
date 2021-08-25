@@ -72,5 +72,3 @@ jobs:
           slack-channel: C029QPGHSQL
           slack-text: ${{github.event.pull_request.user.login}} created PR on "${{ github.repository }}" \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```  \r\n \r\n APK Link ${{steps.diwaiAndroid.outputs.url}} \r\n IPA link ${{steps.diwaiIos.outputs.url}}
 
-      - name: Send Slack Message Result
-        run: echo "${{ steps.notify.outputs.slack-result }}"
