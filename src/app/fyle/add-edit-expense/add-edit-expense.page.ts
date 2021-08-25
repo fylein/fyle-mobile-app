@@ -381,7 +381,7 @@ export class AddEditExpensePage implements OnInit {
             (this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1))).toFixed(2)
         );
       } else {
-        this.fg.controls.tax_amount.setValue(0);
+        this.fg.controls.tax_amount.setValue(null);
       }
     });
   }
@@ -1777,7 +1777,7 @@ export class AddEditExpensePage implements OnInit {
         bus_travel_class: this.fg.controls.bus_travel_class,
         project_id: this.fg.controls.project,
         billable: this.fg.controls.billable,
-        tax_group: this.fg.controls.tax_group
+        tax_group_id: this.fg.controls.tax_group
       };
       for (const control of Object.values(keyToControlMap)) {
         control.clearValidators();
@@ -1856,7 +1856,7 @@ export class AddEditExpensePage implements OnInit {
         train_travel_class: this.fg.controls.train_travel_class,
         bus_travel_class: this.fg.controls.bus_travel_class,
         billable: this.fg.controls.billable,
-        tax_group: this.fg.controls.tax_group
+        tax_group_id: this.fg.controls.tax_group
       };
 
       for (const defaultValueColumn in defaultValues) {
