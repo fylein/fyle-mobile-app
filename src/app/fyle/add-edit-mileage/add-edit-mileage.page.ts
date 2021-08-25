@@ -2202,7 +2202,7 @@ export class AddEditMileagePage implements OnInit {
       componentProps: {
         header: 'Delete  Mileage',
         body: 'Are you sure you want to delete this mileage expense?',
-        deleteMethod: () => { return this.transactionService.delete(txnId); }
+        deleteMethod: () => this.transactionService.delete(txnId)
       }
     });
 
