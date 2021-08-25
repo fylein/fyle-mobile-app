@@ -270,6 +270,8 @@ export class AddEditExpensePage implements OnInit {
 
   billableDefaultValue: boolean;
 
+  duplicates: any;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -625,6 +627,7 @@ export class AddEditExpensePage implements OnInit {
       filter(duplicates => duplicates && duplicates.length),
       take(1)
     ).subscribe((res) => {
+      this.duplicates = res;
       this.pointToDuplicates = true;
       setTimeout(() => {
         this.pointToDuplicates = false;
