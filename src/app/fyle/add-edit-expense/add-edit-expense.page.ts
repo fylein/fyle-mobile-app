@@ -648,16 +648,19 @@ export class AddEditExpensePage implements OnInit {
   openSplitExpenseModal(splitType) {
     const customFields$ = this.getCustomFields();
 
-    this.generateEtxnFromFg(this.etxn$, customFields$).subscribe(res => {
+    forkJoin({
+      generatedEtxn: this.generateEtxnFromFg(this.etxn$, customFields$),
+      txnFields: this.txnFields$.pipe(take(1))
+    }).subscribe(res => {
       this.router.navigate(['/', 'enterprise', 'split_expense', {
         splitType,
-        txn: JSON.stringify(res.tx),
+        txnFields: JSON.stringify(res.txnFields),
+        txn: JSON.stringify(res.generatedEtxn.tx),
         currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
-        fileObjs: JSON.stringify(res.dataUrls),
+        fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
         selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null
       }]);
     });
-
   }
 
   async splitExpense() {
