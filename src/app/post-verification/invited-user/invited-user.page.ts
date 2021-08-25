@@ -120,7 +120,7 @@ export class InvitedUserPage implements OnInit {
         switchMap(() => this.eou$),
         switchMap((eou) => {
           const user = eou.us;
-          user.full_name = this.fg.controls.fullName.value.trim();
+          user.full_name = this.fg.controls.fullName.value;
           user.password = this.fg.controls.password.value;
           return this.orgUserService.postUser(user);
         }),
