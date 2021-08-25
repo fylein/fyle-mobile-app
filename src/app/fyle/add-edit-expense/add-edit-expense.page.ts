@@ -313,6 +313,19 @@ export class AddEditExpensePage implements OnInit {
   ) {
   }
 
+  goBack() {
+    const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
+    if (this.activatedRoute.snapshot.params.persist_filters) {
+      this.navController.back();
+    } else {
+      if (bankTxn) {
+        this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+    }
+  }
+
   async showClosePopup() {
     if (this.fg.touched) {
       const unsavedChangesPopOver = await this.popoverController.create({
@@ -352,19 +365,6 @@ export class AddEditExpensePage implements OnInit {
         this.navController.back();
       } else {
         this.goBack();
-      }
-    }
-  }
-
-  goBack() {
-    const bankTxn = this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
-    if (this.activatedRoute.snapshot.params.persist_filters) {
-      this.navController.back();
-    } else {
-      if (bankTxn) {
-        this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
-      } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
   }
@@ -3496,6 +3496,7 @@ export class AddEditExpensePage implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
         body: 'Are you sure you want to delete this expense?',

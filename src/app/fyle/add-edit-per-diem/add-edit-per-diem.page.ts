@@ -228,7 +228,7 @@ export class AddEditPerDiemPage implements OnInit {
       +this.activeIndex === (this.reviewList.length - 1);
   }
 
-  async showClosePopUp() {
+  async showClosePopup() {
     if (this.fg.touched) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
@@ -2031,6 +2031,7 @@ export class AddEditPerDiemPage implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
         header: 'Delete  Expense',
         body: 'Are you sure you want to delete this expense?',

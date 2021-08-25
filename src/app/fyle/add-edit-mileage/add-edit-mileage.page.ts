@@ -1354,7 +1354,7 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  async goBack() {
+  async showClosePopup() {
     if (this.fg.touched) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
@@ -2198,6 +2198,7 @@ export class AddEditMileagePage implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
         header: 'Delete  Mileage',
         body: 'Are you sure you want to delete this mileage expense?',
