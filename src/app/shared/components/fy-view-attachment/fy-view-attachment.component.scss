@@ -16,30 +16,36 @@
 
   &--go-back {
     position: fixed;
-    top: 46vh;
+    top: 43vh;
     left: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
-    text-align: center;
-    border-radius: 50%;
-    font-size: 18px;
-    padding: 12px;
-    height: 40px;
-    width: 40px;
-    color: white;
+    padding: 20px 20px 20px 0;
+    &__btn {
+      background-color: rgba(0, 0, 0, 0.5);
+      text-align: center;
+      border-radius: 50%;
+      font-size: 18px;
+      padding: 12px;
+      height: 40px;
+      width: 40px;
+      color: white;
+    }
   }
 
   &--go-forward {
     position: fixed;
-    top: 46vh;
+    top: 43vh;
     right: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
-    text-align: center;
-    border-radius: 50%;
-    font-size: 18px;
-    padding: 12px;
-    height: 40px;
-    width: 40px;
-    color: white;
+    padding: 20px 0px 20px 20px;
+    &__btn {
+      background-color: rgba(0, 0, 0, 0.5);
+      text-align: center;
+      border-radius: 50%;
+      font-size: 18px;
+      padding: 12px;
+      height: 40px;
+      width: 40px;
+      color: white;
+    }
   }
 
   &--cta-container {

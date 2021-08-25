@@ -70,37 +70,39 @@
     }
 
     &--go-back {
-        margin: auto;
         position: absolute;
-        top: 0;
-        bottom: 0;
+        top: 30%;
         left: 3%;
-        background-color: $translucent-black;
-        text-align: center;
-        border-radius: 50%;
-        font-size: 18px;
-        padding: 12px;
-        height: 40px;
-        width: 40px;
-        color: white;
+        padding: 20px 20px 20px 0;
         pointer-events: auto;
+        &__btn {
+            background-color: $translucent-black;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 18px;
+            padding: 12px;
+            height: 40px;
+            width: 40px;
+            color: white;
+        }
     }
 
     &--go-forward {
-        margin: auto;
         position: absolute;
-        top: 0;
-        bottom: 0;
+        top: 30%;
         right: 3%;
-        background-color: $translucent-black;
-        text-align: center;
-        border-radius: 50%;
-        font-size: 18px;
-        padding: 12px;
-        height: 40px;
-        width: 40px;
-        color: white;
+        padding: 20px 0 20px 20px;
         pointer-events: auto;
+        &__btn {
+            background-color: $translucent-black;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 18px;
+            padding: 12px;
+            height: 40px;
+            width: 40px;
+            color: white;
+        }
     }
 
     &--spinner-overlay {
