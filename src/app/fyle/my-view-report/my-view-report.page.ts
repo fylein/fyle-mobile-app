@@ -172,6 +172,7 @@ export class MyViewReportPage implements OnInit {
     const deleteReportPopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',

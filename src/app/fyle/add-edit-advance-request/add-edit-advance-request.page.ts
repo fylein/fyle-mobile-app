@@ -455,6 +455,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',
