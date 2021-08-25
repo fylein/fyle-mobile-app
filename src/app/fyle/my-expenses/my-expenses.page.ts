@@ -65,7 +65,8 @@ type Filters = Partial<{
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
-  styleUrls: ['./my-expenses.page.scss']
+  styleUrls: ['./my-expenses.page.scss'],
+  providers: [Keyboard]
 })
 export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
@@ -180,29 +181,8 @@ export class MyExpensesPage implements OnInit {
     private actionSheetController: ActionSheetController,
     private toastController: ToastController,
     private snackbarProperties: SnackbarPropertiesService,
-    public keyboard: Keyboard
-  ) {
-    window.addEventListener('keyboardWillShow', () => {
-      console.log('Keyboard will show');
-      this.isKeyboardShown = true;
-    });
-
-    window.addEventListener('keyboardWillHide', () => {
-      console.log('Keyboard will hide');
-      this.isKeyboardShown = false;
-    });
-
-    window.addEventListener('keyboardDidShow', () => {
-      console.log('Keyboard did show');
-      this.isKeyboardShown = true;
-    });
-
-    window.addEventListener('keyboardDidHide', () => {
-      console.log('Keyboard did hide');
-      this.isKeyboardShown = false;
-    });
-
-  }
+    private keyboard: Keyboard
+  ) {}
 
   clearText() {
     this.simpleSearchText = '';
@@ -362,6 +342,18 @@ export class MyExpensesPage implements OnInit {
 
 
   ionViewWillEnter() {
+    this.keyboard.onKeyboardWillShow().subscribe(() => {
+      if(!this.isKeyboardShown) {
+        this.isKeyboardShown = true;
+      }
+    });
+
+    this.keyboard.onKeyboardWillHide().subscribe(() => {
+      if(this.isKeyboardShown) {
+        this.isKeyboardShown = false;
+      }
+    });
+
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled)
     );

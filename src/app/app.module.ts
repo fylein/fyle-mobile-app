@@ -22,7 +22,6 @@ import {RouterAuthService} from './core/services/router-auth.service';
 import {TokenService} from './core/services/token.service';
 import {StorageService} from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
-import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -53,7 +52,6 @@ export class MyHammerConfig extends HammerGestureConfig {
     SplashScreen,
     GooglePlus,
     InAppBrowser,
-    Keyboard,
     ScreenOrientation,
     {
       provide: HAMMER_GESTURE_CONFIG, useClass: MyHammerConfig
