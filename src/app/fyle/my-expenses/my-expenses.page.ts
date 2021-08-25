@@ -49,6 +49,7 @@ import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.
 import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
+import { Keyboard } from '@ionic-native/keyboard/ngx';
 
 type Filters = Partial<{
   state: string[];
@@ -178,7 +179,8 @@ export class MyExpensesPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
     private toastController: ToastController,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    public keyboard: Keyboard
   ) {
     window.addEventListener('keyboardWillShow', () => {
       console.log('Keyboard will show');
