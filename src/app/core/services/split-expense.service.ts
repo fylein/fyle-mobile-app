@@ -112,7 +112,7 @@ export class SplitExpenseService {
       transaction.cost_center_id = splitExpense.cost_center_id || sourceTxn.cost_center_id;
       transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
       transaction.billable = this.setUpSplitExpenseBillable(sourceTxn, splitExpense);
-      transaction.tax = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
+      transaction.tax_amount = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
 
       this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
@@ -140,6 +140,6 @@ export class SplitExpenseService {
   }
 
   private setUpSplitExpenseTax(sourceTxn, splitExpense) {
-    return splitExpense.tax ? splitExpense.tax : sourceTxn.tax;
+    return splitExpense.tax_amount ? splitExpense.tax_amount : sourceTxn.tax_amount;
   }
 }

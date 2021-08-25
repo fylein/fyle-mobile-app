@@ -324,10 +324,10 @@
           <ng-container *ngIf="taxSettings$|async as taxSettings">
             <ng-container *ngIf="txnFields$|async as txnFields">
               <ng-container *ngIf="taxGroupsOptions$|async as taxGroups">
-                <div *ngIf="txnFields?.tax_group && taxGroups?.length > 0" class="add-edit-expense--primary-block">
+                <div *ngIf="txnFields?.tax_group_id && taxGroups?.length > 0" class="add-edit-expense--primary-block">
                   <div class="add-edit-expense--internal-block">
-                    <app-fy-select [label]="(txnFields.tax_group.field_name || 'Tax Group')" [options]="taxGroups" [mandatory]="txnFields.tax_group.is_mandatory" 
-                      [selectModalHeader]="'Select ' + (txnFields.tax_group.field_name || 'Tax Group')" formControlName="tax_group">
+                    <app-fy-select [label]="(txnFields.tax_group_id.field_name || 'Tax Group')" [options]="taxGroups" [mandatory]="txnFields.tax_group_id.is_mandatory" 
+                      [selectModalHeader]="'Select ' + (txnFields.tax_group_id.field_name || 'Tax Group')" formControlName="tax_group">
                     </app-fy-select>
                   </div>
                   <div *ngIf="fg.controls.tax_group.touched && !fg.controls.tax_group.valid"
@@ -342,7 +342,7 @@
                       formControlName="tax_amount" inputmode="decimal" type="number"
                       [placeholder]="'Enter Tax Amount'" />
                   </div>
-                  <div *ngIf="fg.controls.tax_group.touched && !fg.controls.tax_group.valid"
+                  <div *ngIf="fg.controls.tax_amount.touched && !fg.controls.tax_amount.valid"
                   class="add-edit-expense--error">
                     Please enter a valid tax amount.
                   </div>

@@ -160,7 +160,7 @@ export class SplitExpensePage implements OnInit {
   }
 
   setUpSplitExpenseTax(splitExpense) {
-    return this.transaction.tax && this.transaction.amount ? ((this.transaction.tax * splitExpense.percentage)/100) : this.transaction.tax;
+    return this.transaction.tax_amount && this.transaction.amount ? ((this.transaction.tax_amount * splitExpense.percentage)/100) : this.transaction.tax_amount;
   }
 
   generateSplitEtxnFromFg(splitExpenseValue) {

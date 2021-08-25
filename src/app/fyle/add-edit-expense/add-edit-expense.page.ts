@@ -1706,7 +1706,7 @@ export class AddEditExpensePage implements OnInit {
         const fields = [
           'purpose', 'txn_dt', 'vendor_id', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'location1',
           'location2', 'distance', 'distance_unit', 'flight_journey_travel_class',
-          'flight_return_travel_class', 'train_travel_class', 'bus_travel_class', 'billable', 'tax_group'
+          'flight_return_travel_class', 'train_travel_class', 'bus_travel_class', 'billable', 'tax_group_id'
         ];
         return this.expenseFieldsService
           .filterByOrgCategoryId(
@@ -1822,7 +1822,7 @@ export class AddEditExpensePage implements OnInit {
             control.setValidators(isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null);
           } else if (txnFieldKey === 'cost_center_id') {
             control.setValidators((isConnected && costCenters && costCenters.length > 0) ? Validators.required : null);
-          } else if (txnFieldKey === 'tax_group') {
+          } else if (txnFieldKey === 'tax_group_id') {
             control.setValidators((isConnected && taxGroups && taxGroups.length > 0) ? Validators.required : null);
           } else {
             control.setValidators(isConnected ? Validators.required : null);
@@ -1862,7 +1862,7 @@ export class AddEditExpensePage implements OnInit {
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (!(['vendor_id', 'billable', 'tax_group'].includes(defaultValueColumn)) && !control.value && !control.touched) {
+          if (!(['vendor_id', 'billable', 'tax_group_id'].includes(defaultValueColumn)) && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
           } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
             control.patchValue({
@@ -1871,7 +1871,7 @@ export class AddEditExpensePage implements OnInit {
           } else if (defaultValueColumn === 'billable' && this.fg.controls.project.value
             && (control.value === null || control.value === undefined) && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if (defaultValueColumn === 'tax_group' && !control.value && !control.touched && control.value !== '') {
+          } else if (defaultValueColumn === 'tax_group_id' && !control.value && !control.touched && control.value !== '') {
             this.taxGroups$.subscribe(taxGroups => {
               const tg = taxGroups.find(tg => tg.name = defaultValues[defaultValueColumn]);
               control.patchValue(tg);
@@ -2314,9 +2314,9 @@ export class AddEditExpensePage implements OnInit {
 
     this.taxSettings$ = orgSettings$.pipe(
       map(orgSettings => orgSettings.tax_settings),
-      map(taxsSettings => ({
-        ...taxsSettings,
-        groups: taxsSettings.groups && taxsSettings.groups.map(tax => ({ label: tax.name, value: tax }))
+      map(taxSettings => ({
+        ...taxSettings,
+        groups: taxSettings.groups && taxSettings.groups.map(tax => ({ label: tax.name, value: tax }))
       })
       )
     );
