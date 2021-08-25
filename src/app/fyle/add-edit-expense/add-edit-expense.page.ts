@@ -650,7 +650,7 @@ export class AddEditExpensePage implements OnInit {
 
     forkJoin({
       generatedEtxnFromFg: this.generateEtxnFromFg(this.etxn$, customFields$),
-      txnFields: this.txnFields$
+      txnFields: this.txnFields$.pipe(take(1))
     })
     .subscribe(res => {
       this.router.navigate(['/', 'enterprise', 'split_expense', {
