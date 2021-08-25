@@ -66,6 +66,9 @@
     border: 1px solid $grey-lighter;
     border-radius: 8px;
     padding: 8px;
+  }
+  
+  &--exchange-rate-container.expanded {
     margin: 20px 0 0 -29%;;
   }
 

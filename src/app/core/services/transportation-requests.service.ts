@@ -29,6 +29,8 @@ export class TransportationRequestsService {
     ];
   }
 
+  // TODO: Comlpex to break down. Do separately
+  // eslint-disable-next-line complexity
   setInternalStateAndDisplayName(transportationRequest) {
     if (transportationRequest.tr.need_booking) {
       if (!transportationRequest.tb.id) {

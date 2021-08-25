@@ -45,7 +45,6 @@ export class SetupAccountPage implements OnInit {
 
   lowercaseValidationDisplay$: Observable<boolean>;
 
-
   constructor(
     private networkService: NetworkService,
     private authService: AuthService,

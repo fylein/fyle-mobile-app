@@ -242,7 +242,7 @@ export class TripRequestsService {
   }
 
 
-  getTeamTripsCount(queryParams = {})  {
+  getTeamTripsCount(queryParams = {}) {
     return this.getTeamTrips({
       offset: 0,
       limit: 1,
@@ -260,41 +260,12 @@ export class TripRequestsService {
 
   setInternalStateAndDisplayName(tripRequest) {
     if (tripRequest.trp_state === 'DRAFT') {
-      if (!tripRequest.trp_is_pulled_back && !tripRequest.trp_is_sent_back) {
-        tripRequest.internalState = 'draft';
-        tripRequest.internalStateDisplayName = 'Draft';
-      } else if (tripRequest.trp_is_pulled_back) {
-        tripRequest.internalState = 'pulledBack';
-        tripRequest.internalStateDisplayName = 'Pulled Back';
-      } else if (tripRequest.trp_is_sent_back) {
-        tripRequest.internalState = 'inquiry';
-        tripRequest.internalStateDisplayName = 'Inquiry';
-      }
+      this.setNameForDraftTrips(tripRequest);
     } else if (tripRequest.trp_state === 'APPROVAL_PENDING') {
       tripRequest.internalState = 'pendingApproval';
       tripRequest.internalStateDisplayName = 'Pending Approval';
     } else if (tripRequest.trp_state === 'APPROVED') {
-      if (!tripRequest.trp_is_to_close) {
-        if (tripRequest.trp_is_booked === null && tripRequest.trp_is_requested_cancellation === null) {
-          tripRequest.internalState = 'approved';
-          tripRequest.internalStateDisplayName = 'Approved';
-        } else if (tripRequest.trp_is_booked === false && tripRequest.trp_is_requested_cancellation === null) {
-          tripRequest.internalState = 'pendingBooking';
-          tripRequest.internalStateDisplayName = 'Pending Booking';
-        } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === null) {
-          tripRequest.internalState = 'booked';
-          tripRequest.internalStateDisplayName = 'Booked';
-        } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === true) {
-          tripRequest.internalState = 'pendingCancellation';
-          tripRequest.internalStateDisplayName = 'Pending Cancellation';
-        } else if (tripRequest.trp_is_requested_cancellation === false) {
-          tripRequest.internalState = 'cancelled';
-          tripRequest.internalStateDisplayName = 'Cancelled';
-        }
-      } else {
-        tripRequest.internalState = 'pendingClosure';
-        tripRequest.internalStateDisplayName = 'Pending Closure';
-      }
+      this.setNameForApprovedTrips(tripRequest);
     } else if (tripRequest.trp_state === 'CLOSED') {
       tripRequest.internalState = 'closed';
       tripRequest.internalStateDisplayName = 'Closed';
@@ -303,6 +274,47 @@ export class TripRequestsService {
       tripRequest.internalStateDisplayName = 'Rejected';
     }
     return tripRequest;
+  }
+
+  setNameForApprovedTrips(tripRequest) {
+    if (!tripRequest.trp_is_to_close) {
+      this.setNameForApprovedTripsIsToClose(tripRequest);
+    } else {
+      tripRequest.internalState = 'pendingClosure';
+      tripRequest.internalStateDisplayName = 'Pending Closure';
+    }
+  }
+
+  setNameForApprovedTripsIsToClose(tripRequest) {
+    if (tripRequest.trp_is_booked === null && tripRequest.trp_is_requested_cancellation === null) {
+      tripRequest.internalState = 'approved';
+      tripRequest.internalStateDisplayName = 'Approved';
+    } else if (tripRequest.trp_is_booked === false && tripRequest.trp_is_requested_cancellation === null) {
+      tripRequest.internalState = 'pendingBooking';
+      tripRequest.internalStateDisplayName = 'Pending Booking';
+    } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === null) {
+      tripRequest.internalState = 'booked';
+      tripRequest.internalStateDisplayName = 'Booked';
+    } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === true) {
+      tripRequest.internalState = 'pendingCancellation';
+      tripRequest.internalStateDisplayName = 'Pending Cancellation';
+    } else if (tripRequest.trp_is_requested_cancellation === false) {
+      tripRequest.internalState = 'cancelled';
+      tripRequest.internalStateDisplayName = 'Cancelled';
+    }
+  }
+
+  setNameForDraftTrips(tripRequest: any) {
+    if (!tripRequest.trp_is_pulled_back && !tripRequest.trp_is_sent_back) {
+      tripRequest.internalState = 'draft';
+      tripRequest.internalStateDisplayName = 'Draft';
+    } else if (tripRequest.trp_is_pulled_back) {
+      tripRequest.internalState = 'pulledBack';
+      tripRequest.internalStateDisplayName = 'Pulled Back';
+    } else if (tripRequest.trp_is_sent_back) {
+      tripRequest.internalState = 'inquiry';
+      tripRequest.internalStateDisplayName = 'Inquiry';
+    }
   }
 
   fixDates(datum: ExtendedTripRequest) {
@@ -333,73 +345,91 @@ export class TripRequestsService {
   }
 
   getInternalStateAndDisplayName(tripRequest: ExtendedTripRequest): { state: string; name: string } {
+    let state: { state: string; name: string };
     if (tripRequest.trp_state === 'DRAFT') {
-      if (!tripRequest.trp_is_pulled_back && !tripRequest.trp_is_sent_back) {
-        return {
-          state: 'draft',
-          name: 'Draft'
-        };
-      } else if (tripRequest.trp_is_pulled_back) {
-        return {
-          state: 'pulledBack',
-          name: 'Pulled Back'
-        };
-      } else if (tripRequest.trp_is_sent_back) {
-        return {
-          state: 'inquiry',
-          name: 'Inquiry'
-        };
-      }
+      state = this.setStateNameForDraftTrips(tripRequest, state);
     } else if (tripRequest.trp_state === 'APPROVAL_PENDING') {
-      return {
+      state = {
         state: 'pendingApproval',
         name: 'Pending Approval'
       };
     } else if (tripRequest.trp_state === 'APPROVED') {
-      if (!tripRequest.trp_is_to_close) {
-        if (tripRequest.trp_is_booked === null && tripRequest.trp_is_requested_cancellation === null) {
-          return {
-            state: 'approved',
-            name: 'Approved'
-          };
-        } else if (tripRequest.trp_is_booked === false && tripRequest.trp_is_requested_cancellation === null) {
-          return {
-            state: 'pendingBooking',
-            name: 'Pending Booking'
-          };
-        } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === null) {
-          return {
-            state: 'booked',
-            name: 'Booked'
-          };
-        } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === true) {
-          return {
-            state: 'pendingCancellation',
-            name: 'Pending Cancellation'
-          };
-        } else if (tripRequest.trp_is_requested_cancellation === false) {
-          return {
-            state: 'cancelled',
-            name: 'Cancelled'
-          };
-        }
-      } else {
-        return {
-          state: 'pendingClosure',
-          name: 'Pending Closure'
-        };
-      }
+      state = this.setStateNameForApprovedTrips(tripRequest, state);
     } else if (tripRequest.trp_state === 'CLOSED') {
-      return {
+      state = {
         state: 'closed',
         name: 'Closed'
       };
     } else if (tripRequest.trp_state === 'REJECTED') {
-      return {
+      state = {
         state: 'rejected',
         name: 'Rejected'
       };
     }
+
+    return state;
+  }
+
+  setStateNameForApprovedTrips(tripRequest: ExtendedTripRequest, state: { state: string; name: string }) {
+    if (!tripRequest.trp_is_to_close) {
+      state = this.setStateNameForTripsToClose(tripRequest, state);
+    } else {
+      state = {
+        state: 'pendingClosure',
+        name: 'Pending Closure'
+      };
+    }
+    return state;
+  }
+
+  setStateNameForTripsToClose(tripRequest: ExtendedTripRequest, state: { state: string; name: string }) {
+    if (tripRequest.trp_is_booked === null && tripRequest.trp_is_requested_cancellation === null) {
+      state = {
+        state: 'approved',
+        name: 'Approved'
+      };
+    } else if (tripRequest.trp_is_booked === false && tripRequest.trp_is_requested_cancellation === null) {
+      state = {
+        state: 'pendingBooking',
+        name: 'Pending Booking'
+      };
+    } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === null) {
+      state = {
+        state: 'booked',
+        name: 'Booked'
+      };
+    } else if (tripRequest.trp_is_booked === true && tripRequest.trp_is_requested_cancellation === true) {
+      state = {
+        state: 'pendingCancellation',
+        name: 'Pending Cancellation'
+      };
+    } else if (tripRequest.trp_is_requested_cancellation === false) {
+      state = {
+        state: 'cancelled',
+        name: 'Cancelled'
+      };
+    }
+    return state;
+  }
+
+  setStateNameForDraftTrips(tripRequest: ExtendedTripRequest, state: { state: string; name: string }) {
+    if (!tripRequest.trp_is_pulled_back && !tripRequest.trp_is_sent_back) {
+      state = {
+        state: 'draft',
+        name: 'Draft'
+      };
+    } else if (tripRequest.trp_is_pulled_back) {
+      state = {
+        state: 'pulledBack',
+        name: 'Pulled Back'
+      };
+    } else if (tripRequest.trp_is_sent_back) {
+      state = {
+        state: 'inquiry',
+        name: 'Inquiry'
+      };
+    }
+    return state;
   }
 
   getUserTripRequestStateParams(state: string) {

@@ -13,6 +13,8 @@ export class TripDatesService {
     return new Date(date.getTime() + userTimezoneOffset);
   }
 
+  // unavoidable here
+  // eslint-disable-next-line complexity
   fixDates(data) {
     if (data.created_at) {
       data.created_at = new Date(data.created_at);

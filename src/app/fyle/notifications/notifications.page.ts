@@ -52,7 +52,6 @@ export class NotificationsPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private formBuilder: FormBuilder,
     private offlineService: OfflineService,
-    private loaderService: LoaderService,
     private router: Router,
     private navController: NavController
   ) { }
@@ -94,11 +93,11 @@ export class NotificationsPage implements OnInit {
       const a = new FormControl(true);
       const b = new FormControl(true);
 
-      if (unSubscribedPushNotifications.indexOf(event.eventType.toUpperCase()) > -1 ) {
+      if (unSubscribedPushNotifications.indexOf(event.eventType.toUpperCase()) > -1) {
         a.setValue(false);
       }
 
-      if (unSubscribedEmailNotifications.indexOf(event.eventType.toUpperCase()) > -1 ) {
+      if (unSubscribedEmailNotifications.indexOf(event.eventType.toUpperCase()) > -1) {
         b.setValue(false);
       }
 
@@ -155,7 +154,10 @@ export class NotificationsPage implements OnInit {
     this.orgSettings$.pipe(
       map(setting => {
         if (setting.admin_email_settings.unsubscribed_events.length) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => this.orgSettings.admin_email_settings.unsubscribed_events.indexOf(notificationEvent.eventType.toUpperCase()) === -1);
+          this.notificationEvents.events = this.notificationEvents.events
+            .filter(notificationEvent =>
+              this.orgSettings.admin_email_settings.unsubscribed_events.indexOf(notificationEvent.eventType.toUpperCase()) === -1
+            );
         }
       })
     );
@@ -165,7 +167,10 @@ export class NotificationsPage implements OnInit {
     this.orgSettings$.pipe(
       map(setting => {
         if (!setting.advance_requests.enabled) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => notificationEvent.feature !== 'advances');
+          this.notificationEvents.events = this.notificationEvents.events
+            .filter(
+              notificationEvent => notificationEvent.feature !== 'advances'
+            );
           delete this.notificationEvents.features.advances;
         }
       })
@@ -178,14 +183,17 @@ export class NotificationsPage implements OnInit {
         const isTripRequestsEnabled = setting.trip_requests.enabled;
 
         if (!isTripRequestsEnabled) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => notificationEvent.feature !== 'trips');
+          this.notificationEvents.events = this.notificationEvents.events
+            .filter(notificationEvent => notificationEvent.feature !== 'trips');
           delete this.notificationEvents.features.trips;
         }
         if (isTripRequestsEnabled && !setting.trip_requests.enabled_hotel_requests) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => notificationEvent.profile !== 'hotel_requests');
+          this.notificationEvents.events = this.notificationEvents.events
+            .filter(notificationEvent => notificationEvent.profile !== 'hotel_requests');
         }
         if (isTripRequestsEnabled && !setting.trip_requests.enabled_transportation_requests) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(notificationEvent => notificationEvent.profile !== 'transport_requests');
+          this.notificationEvents.events = this.notificationEvents.events
+            .filter(notificationEvent => notificationEvent.profile !== 'transport_requests');
         }
       })
     ).subscribe(noop);
