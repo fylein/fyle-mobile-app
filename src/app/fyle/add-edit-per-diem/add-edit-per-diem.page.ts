@@ -453,7 +453,7 @@ export class AddEditPerDiemPage implements OnInit {
         expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
         perDiemCategoriesContainer: this.getPerDiemCategories()
       }).pipe(
-        switchMap(({expenseFieldsMap, perDiemCategoriesContainer}) => {
+        switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {
           const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
           return this.expenseFieldsService
             .filterByOrgCategoryId(
@@ -593,9 +593,9 @@ export class AddEditPerDiemPage implements OnInit {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
         if (!this.fg.controls.project.value) {
-          this.fg.patchValue({billable: false});
+          this.fg.patchValue({ billable: false });
         } else {
-          this.fg.patchValue({billable: this.billableDefaultValue});
+          this.fg.patchValue({ billable: this.billableDefaultValue });
         }
       }),
       startWith(this.fg.controls.project.value),
@@ -837,7 +837,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.allowedPerDiemRateOptions$ = allowedPerDiemRates$.pipe(
       map(allowedPerDiemRates => allowedPerDiemRates.map(rate => {
         rate.readableRate = this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + ' per day';
-        return ({label: rate.name, value: rate});
+        return ({ label: rate.name, value: rate });
       })
       )
     );
@@ -2008,10 +2008,12 @@ export class AddEditPerDiemPage implements OnInit {
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
 
-    const header = reportId? 'Remove Per Diem': 'Delete  Per Diem';
-    const message = reportId? 'Are you sure you want to remove this Per Diem expense from this report?': 'Are you sure you want to delete this Per Diem expense?';
-    const CTAText = reportId? 'Remove': 'Delete';
-    const loadingMessage = reportId? 'Removing Per Diem...':'Deleting Per Diem...';
+    const header = reportId ? 'Remove Per Diem' : 'Delete  Per Diem';
+    const message = reportId ? 
+    'Are you sure you want to remove this Per Diem expense from this report?' : 
+    'Are you sure you want to delete this Per Diem expense?';
+    const CTAText = reportId ? 'Remove' : 'Delete';
+    const loadingMessage = reportId ? 'Removing Per Diem...' : 'Deleting Per Diem...';
 
     const popupResult = await this.popupService.showPopup({
       header,
@@ -2030,7 +2032,7 @@ export class AddEditPerDiemPage implements OnInit {
             return this.transactionService.delete(id);
           }
         }),
-        tap(() => this.trackingService.deleteExpense({Asset: 'Mobile', Type: 'Per Diem'})),
+        tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile', Type: 'Per Diem' })),
         finalize(() => from(this.loaderService.hideLoader()))
       ).subscribe(() => {
         if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
