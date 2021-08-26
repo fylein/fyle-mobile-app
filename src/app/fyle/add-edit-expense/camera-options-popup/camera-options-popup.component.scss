@@ -23,7 +23,7 @@ $details-color: #ababab;
     height: 35%;
 
     &-first {
-      border-bottom: 1px solid #dddddd;
+      border-bottom: 1px solid $grey;
     }
   }
 
@@ -31,8 +31,15 @@ $details-color: #ababab;
     &__icon {
       height: 28px;
       width: 28px;
-      stroke: $grey-light;
       vertical-align: middle;
+
+      &--camera {
+        stroke: $grey-light;
+      }
+
+      &--gallery {
+        color: $grey-light;
+      }
     }
   }
 
