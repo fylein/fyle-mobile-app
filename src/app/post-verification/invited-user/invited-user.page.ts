@@ -60,7 +60,10 @@ export class InvitedUserPage implements OnInit {
     this.isConnected$.subscribe(noop);
 
     this.fg = this.fb.group({
-      fullName: ['', Validators.required],
+      fullName: ['', Validators.compose([
+        Validators.required,
+        Validators.pattern(/[A-Za-z]/)]
+      )],
       password: ['',
         Validators.compose(
           [
@@ -131,7 +134,7 @@ export class InvitedUserPage implements OnInit {
         // return $state.go('enterprise.my_dashboard');
       });
     } else {
-      const message = `Please enter a valid ${!this.fg.value.fullName.length ? 'name' : 'password'}`;
+      const message = `Please enter a valid ${!this.fg.controls.fullName.valid ? 'name' : 'password'}`;
       this.matSnackBar.openFromComponent( ToastMessageComponent, {
         ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
         panelClass: ['msb-failure']
