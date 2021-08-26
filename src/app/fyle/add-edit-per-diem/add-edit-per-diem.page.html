@@ -477,13 +477,13 @@
 
                   <div *ngIf="mode === 'add'">
                     <ng-container *ngIf="isExpandedView;else expandViewContent">
-                      <div class="expansion-btn" fill="clear" (click)="isExpandedView=false">
+                      <div class="expansion-btn" fill="clear" (click)="hideFields()">
                         Hide more fields
                         <ion-icon class="expansion-icon" name="chevron-up"></ion-icon>
                       </div>
                     </ng-container>
                     <ng-template #expandViewContent>
-                      <div class="expansion-btn" fill="clear" (click)="isExpandedView=true">
+                      <div class="expansion-btn" fill="clear" (click)="showFields()">
                         Show more fields
                         <ion-icon class="expansion-icon" name="chevron-down"></ion-icon>
                       </div>
