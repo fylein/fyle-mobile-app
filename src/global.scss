@@ -745,6 +745,9 @@ ref - https://stackoverflow.com/a/31162426
 .delete-dialog {
   --width: 296px;
   --max-height: 266px;
+  .popover-content {
+    border-radius: 16px;
+  }
 }
 
 .route-visualizer--map {
@@ -841,4 +844,8 @@ ion-modal.auto-height {
           overflow: auto;
       }
   }
+}
+
+.icon--navigate-left {
+  height: 14px;
 }
