@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of } from 'rxjs';
+import { BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ActionSheetController, ModalController, PopoverController, ToastController } from '@ionic/angular';
@@ -14,6 +14,7 @@ import {
   shareReplay,
   switchMap,
   take,
+  takeUntil,
   tap
 } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -148,6 +149,8 @@ export class MyExpensesPage implements OnInit {
   isLoadingDataInInfiniteScroll: boolean;
 
   allExpensesCount: number;
+
+  onPageExit$ = new Subject();
 
   get HeaderState() {
     return HeaderState;
@@ -334,6 +337,9 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  ionViewWillLeave() {
+    this.onPageExit$.next();
+  }
 
   ionViewWillEnter() {
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
@@ -377,18 +383,14 @@ export class MyExpensesPage implements OnInit {
 
     this.selectionMode = false;
     this.selectedElements = [];
-    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
-    this.syncing = true;
-    from(this.pendingTransactions).pipe(
-      switchMap(() => from(this.transactionOutboxService.sync())),
-      tap(() => this.sendFirstExpenseCreatedEvent()),
-      finalize(() => this.syncing = false)
-    ).subscribe(() => {
-      const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+    this.syncOutboxExpenses();
 
-      if (pendingTransactions.length === 0) {
-        this.doRefresh();
+    this.isConnected$.pipe(
+      takeUntil(this.onPageExit$.asObservable()),
+    ).subscribe(connected => {
+      if (connected) {
+        this.syncOutboxExpenses();
       }
     });
 
@@ -577,9 +579,9 @@ export class MyExpensesPage implements OnInit {
     }, 1000);
   }
 
-  doRefresh(event?) {
-    const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-    if (pendingTransactions.length > 0) {
+  syncOutboxExpenses() {
+    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+    if (this.pendingTransactions.length > 0) {
       this.syncing = true;
       from(this.pendingTransactions).pipe(
         switchMap(() => from(this.transactionOutboxService.sync())),
@@ -592,7 +594,10 @@ export class MyExpensesPage implements OnInit {
         })
       ).subscribe(noop);
     }
+  }
 
+  doRefresh(event?) {
+    this.syncOutboxExpenses();
     this.currentPageNumber = 1;
     this.selectedElements = [];
     if (this.selectionMode) {
