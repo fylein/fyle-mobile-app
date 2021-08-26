@@ -2085,5 +2085,23 @@ export class AddEditPerDiemPage implements OnInit {
       this.trackingService.viewComment({ Asset: 'Mobile' });
     }
   }
+
+  hideFields() {
+    this.trackingService.hideMoreClicked({
+      Asset: 'Mobile',
+      source: 'Add Edit Per Diem page',
+    });
+
+    this.isExpandedView = false;
+  }
+
+  showFields() {
+    this.trackingService.showMoreClicked({
+      Asset: 'Mobile',
+      source: 'Add Edit Per Diem page',
+    });
+
+    this.isExpandedView = true;
+  }
 }
 

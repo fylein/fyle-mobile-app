@@ -15,6 +15,7 @@ import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubm
 import { SubmitReportPopoverComponent } from './submit-report-popover/submit-report-popover.component';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 
 @Component({
   selector: 'app-my-view-report',
@@ -168,32 +169,28 @@ export class MyViewReportPage implements OnInit {
   }
 
   async deleteReport() {
-    const popupResults = await this.popupService.showPopup({
-      header: 'Delete Report',
-      message: `
-        <p class="highlight-info">
-          On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-        </p>
-        <p>
-          Are you sure, you want to delete this report?
-        </p>
-      `,
-      primaryCta: {
-        text: 'Delete Report'
+    const deleteReportPopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: 'Delete Report',
+        body: 'Are you sure you want to delete this report?',
+        infoMessage: 'Deleting the report will not delete any of the expenses.',
+        deleteMethod: () => this.reportService.delete(this.activatedRoute.snapshot.params.id).pipe(
+          tap(() => this.trackingService.deleteReport({
+            Asset: 'Mobile'
+          }))
+        )
       }
     });
 
-    if (popupResults === 'primary') {
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
-        tap(() => this.trackingService.deleteReport({
-          Asset: 'Mobile'
-        })
-        ),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_reports']);
-      });
+    await deleteReportPopover.present();
+
+    const { data } = await deleteReportPopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      this.router.navigate(['/', 'enterprise', 'my_reports']);
     }
   }
 
