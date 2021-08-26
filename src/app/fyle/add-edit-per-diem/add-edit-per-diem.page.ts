@@ -2007,13 +2007,14 @@ export class AddEditPerDiemPage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
+    const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
-    const header = reportId ? 'Remove Per Diem' : 'Delete  Per Diem';
-    const message = reportId ? 
-    'Are you sure you want to remove this Per Diem expense from this report?' : 
-    'Are you sure you want to delete this Per Diem expense?';
-    const CTAText = reportId ? 'Remove' : 'Delete';
-    const loadingMessage = reportId ? 'Removing Per Diem...' : 'Deleting Per Diem...';
+    const header = (reportId && removeExpenseFromReport) ? 'Remove Per Diem' : 'Delete  Per Diem';
+    const message = (reportId && removeExpenseFromReport) ?
+      'Are you sure you want to remove this Per Diem expense from this report?' :
+      'Are you sure you want to delete this Per Diem expense?';
+    const CTAText = (reportId && removeExpenseFromReport) ? 'Remove' : 'Delete';
+    const loadingMessage = (reportId && removeExpenseFromReport) ? 'Removing Per Diem...' : 'Deleting Per Diem...';
 
     const popupResult = await this.popupService.showPopup({
       header,
@@ -2026,7 +2027,7 @@ export class AddEditPerDiemPage implements OnInit {
     if (popupResult === 'primary') {
       from(this.loaderService.showLoader(loadingMessage)).pipe(
         switchMap(() => {
-          if (reportId) {
+          if (reportId && removeExpenseFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           } else {
             return this.transactionService.delete(id);

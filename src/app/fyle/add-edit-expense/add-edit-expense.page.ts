@@ -1,8 +1,8 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
-import {combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, Subject, throwError} from 'rxjs';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, Subject, throwError } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   catchError,
   concatMap,
@@ -274,7 +274,7 @@ export class AddEditExpensePage implements OnInit {
 
   taxGroups$: Observable<TaxGroup[]>;
 
-  taxGroupsOptions$: Observable<{label: string; value: any}[]>;
+  taxGroupsOptions$: Observable<{ label: string; value: any }[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1894,9 +1894,9 @@ export class AddEditExpensePage implements OnInit {
       switchMap((initialProject) => this.fg.controls.project.valueChanges.pipe(
         tap(initialProject => {
           if (!initialProject) {
-            this.fg.patchValue({billable: false});
+            this.fg.patchValue({ billable: false });
           } else {
-            this.fg.patchValue({billable: this.billableDefaultValue});
+            this.fg.patchValue({ billable: this.billableDefaultValue });
           }
         }),
         startWith(initialProject),
@@ -2124,7 +2124,7 @@ export class AddEditExpensePage implements OnInit {
       if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
         this.taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
         this.taxGroupsOptions$ = this.taxGroups$.pipe(
-          map(taxGroupsOptions =>  taxGroupsOptions.map(tg => ({label: tg.name, value: tg})))
+          map(taxGroupsOptions => taxGroupsOptions.map(tg => ({ label: tg.name, value: tg })))
         );
       } else {
         this.taxGroups$ = of(null);
@@ -3516,11 +3516,14 @@ export class AddEditExpensePage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
+    const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
-    const header = reportId? 'Remove Expense': 'Delete Expense';
-    const message = reportId? 'Are you sure you want to remove this expense from this report?': 'Are you sure you want to delete this expense?';
-    const CTAText = reportId? 'Remove': 'Delete';
-    const loadingMessage = reportId? 'Removing Expense...':'Deleting Expense...';
+    const header = (reportId && removeExpenseFromReport) ? 'Remove Expense' : 'Delete Expense';
+    const message = (reportId && removeExpenseFromReport) ?
+      'Are you sure you want to remove this expense from this report?' :
+      'Are you sure you want to delete this expense?';
+    const CTAText = (reportId && removeExpenseFromReport) ? 'Remove' : 'Delete';
+    const loadingMessage = (reportId && removeExpenseFromReport) ? 'Removing Expense...' : 'Deleting Expense...';
 
     const popupResult = await this.popupService.showPopup({
       header,
@@ -3533,7 +3536,7 @@ export class AddEditExpensePage implements OnInit {
     if (popupResult === 'primary') {
       from(this.loaderService.showLoader(loadingMessage)).pipe(
         switchMap(() => {
-          if (reportId) {
+          if (reportId && removeExpenseFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           } else {
             return this.transactionService.delete(id);

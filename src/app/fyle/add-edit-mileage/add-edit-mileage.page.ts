@@ -2174,13 +2174,14 @@ export class AddEditMileagePage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
+    const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
-    const header = reportId ? 'Remove Mileage' : 'Delete  Mileage';
-    const message = reportId ?
+    const header = (reportId && removeExpenseFromReport) ? 'Remove Mileage' : 'Delete  Mileage';
+    const message = (reportId && removeExpenseFromReport) ?
       'Are you sure you want to remove this mileage expense from this report?' :
       'Are you sure you want to delete this mileage expense?';
-    const CTAText = reportId ? 'Remove' : 'Delete';
-    const loadingMessage = reportId ? 'Removing Mileage...' : 'Deleting Mileage...';
+    const CTAText = (reportId && removeExpenseFromReport) ? 'Remove' : 'Delete';
+    const loadingMessage = (reportId && removeExpenseFromReport) ? 'Removing Mileage...' : 'Deleting Mileage...';
 
     const popupResponse = await this.popupService.showPopup({
       header,
@@ -2193,7 +2194,7 @@ export class AddEditMileagePage implements OnInit {
     if (popupResponse === 'primary') {
       from(this.loaderService.showLoader(loadingMessage)).pipe(
         switchMap(() => {
-          if (reportId) {
+          if (reportId && removeExpenseFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           } else {
             return this.transactionService.delete(id);
