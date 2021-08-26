@@ -222,9 +222,9 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          this.addMultipleExpensesToQueue(this.base64ImagesWithSource).pipe(
-            finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses']))
-          ).subscribe(noop);
+          this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {
+            this.router.navigate(['/', 'enterprise', 'my_expenses'])
+          });
         }
       }
     }
@@ -256,10 +256,9 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          this.addMultipleExpensesToQueue(this.base64ImagesWithSource).pipe(
-            finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses']))
-          ).subscribe(noop);
-
+          this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {
+            this.router.navigate(['/', 'enterprise', 'my_expenses'])
+          });
         }
       }
     }
