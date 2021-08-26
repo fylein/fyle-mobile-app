@@ -24,6 +24,7 @@ import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
+import { TaxGroupService } from './tax_group.service';
 
 @Injectable({
   providedIn: 'root'
@@ -47,7 +48,8 @@ export class OfflineService {
     private permissionsService: PermissionsService,
     private orgUserService: OrgUserService,
     private deviceService: DeviceService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private taxGroupService: TaxGroupService
   ) { }
 
   @Cacheable()
@@ -133,6 +135,27 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
+  getEnabledTaxGroups() {
+    return this.networkService.isOnline().pipe(
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            const params = {
+              is_enabled: 'eq.true'
+            };
+            return this.taxGroupService.get(params).pipe(
+              tap((taxGroups) => {
+                this.storageService.set('cachedTaxGroups', taxGroups);
+              })
+            );
+          } else {
+            return from(this.storageService.get('cachedTaxGroups'));
+          }
+        }
+      )
+    );
+  }
 
   @Cacheable()
   getAllowedCostCenters(orgUserSettings) {
@@ -464,6 +487,7 @@ export class OfflineService {
     const currencies$ = this.getCurrencies();
     const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
+    const taxGroups$ = this.getEnabledTaxGroups();
 
     this.deviceService.getDeviceInfo().subscribe(deviceInfo => {
       if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
@@ -486,7 +510,8 @@ export class OfflineService {
       expenseFieldsMap$,
       currencies$,
       homeCurrency$,
-      delegatedAccounts$
+      delegatedAccounts$,
+      taxGroups$
     ]);
 
   }

@@ -233,6 +233,10 @@ export class TransactionService {
     // FYLE-6148. Don't send custom_attributes.
     transaction.custom_attributes = null;
 
+    if (transaction.tax) {
+      delete transaction.tax;
+    }
+
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         const offset = orgUserSettings.locale.offset;
@@ -474,6 +478,10 @@ export class TransactionService {
   testPolicy(etxn) {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
+
+        if (etxn.tx_tax) {
+          delete etxn.tx_tax;
+        }
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (etxn.tx_txn_dt) {
           etxn.tx_txn_dt.setHours(12);
