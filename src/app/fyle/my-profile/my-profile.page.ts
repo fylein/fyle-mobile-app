@@ -92,20 +92,25 @@ export class MyProfilePage implements OnInit {
   ) { }
 
   logOut() {
-    forkJoin({
-      device: this.deviceService.getDeviceInfo(),
-      eou: from(this.authService.getEou())
-    }).pipe(
-      switchMap(({ device, eou }) => this.authService.logout({
-        device_id: device.uuid,
-        user_id: eou.us.id
-      })),
-      finalize(() => {
-        this.userEventService.logout();
-        this.storageService.clearAll();
-        globalCacheBusterNotifier.next();
-      })
-    ).subscribe(noop);
+    try {
+      forkJoin({
+        device: this.deviceService.getDeviceInfo(),
+        eou: from(this.authService.getEou())
+      }).pipe(
+        switchMap(({ device, eou }) => this.authService.logout({
+          device_id: device.uuid,
+          user_id: eou.us.id
+        })),
+        finalize(() => {
+          this.storageService.clearAll();
+          globalCacheBusterNotifier.next();
+          this.userEventService.logout();
+        })
+      ).subscribe(noop);
+    } catch(e) {
+      this.storageService.clearAll();
+      globalCacheBusterNotifier.next();
+    }
   }
 
   toggleUsageDetails() {
