@@ -11,7 +11,7 @@ export class ReportState implements PipeTransform {
       COMPLETE: 'fyled',
       APPROVER_PENDING: 'reported',
       SUBMITTED: 'reported',
-      APPROVER_INQUIRY: 'inquiry',
+      APPROVER_INQUIRY: 'sent_back',
       POLICY_INQUIRY: 'auto_flagged',
       REJECTED: 'rejected',
       APPROVED: 'approved',

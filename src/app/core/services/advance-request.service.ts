@@ -226,30 +226,6 @@ export class AdvanceRequestService {
     );
   }
 
-  getUserAdvanceRequestParams(state: string) {
-    const stateMap = {
-      draft: {
-        state: ['DRAFT'],
-        is_sent_back: false
-      },
-      pending: {
-        state: ['APPROVAL_PENDING']
-      },
-      approved: {
-        state: ['APPROVED']
-      },
-      inquiry: {
-        state: ['DRAFT'],
-        is_sent_back: true
-      },
-      all: {
-        state: ['APPROVAL_PENDING', 'DRAFT', 'APPROVED', 'REJECTED']
-      }
-    };
-
-    return stateMap[state];
-  }
-
   getPaginatedEAdvanceRequestsStats(params) {
     return this.apiService.get('/eadvance_requests/stats', { params });
   }

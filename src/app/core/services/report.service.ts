@@ -225,8 +225,18 @@ export class ReportService {
         state: ['DRAFT', 'APPROVER_PENDING']
       },
       all: {
-        // eslint-disable-next-line max-len
-        state: ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVED', 'APPROVER_PENDING', 'APPROVER_INQUIRY', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID', 'REJECTED']
+        state: [
+          'DRAFT',
+          'DRAFT_INQUIRY',
+          'COMPLETE',
+          'APPROVED',
+          'APPROVER_PENDING',
+          'APPROVER_INQUIRY',
+          'PAYMENT_PENDING',
+          'PAYMENT_PROCESSING',
+          'PAID',
+          'REJECTED'
+        ]
       }
     };
 
