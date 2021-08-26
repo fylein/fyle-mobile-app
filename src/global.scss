@@ -127,6 +127,15 @@ input:focus, textarea:focus{
   color: $dark-yellow !important;
 }
 
+.icon--flagged {
+  color: $red;
+}
+
+.icon--unflagged {
+  color: transparent;
+  stroke: $black-light;
+}
+
 .dialog-popover {
   .popover-wrapper {
     .popover-content {
