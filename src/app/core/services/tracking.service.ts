@@ -761,4 +761,18 @@ export class TrackingService {
   myExpensesFilterApplied(properties) {
     this.eventTrack('my expenses filters applied', properties);
   }
+
+  // Duplicates
+  duplicateDetectionAlertShown(properties) {
+    this.eventTrack('Duplicate Detection User Alert Shown', properties);
+  };
+
+  duplicateDetectionUserActionExpand(properties) {
+    this.eventTrack('Duplicate Detection User Action Expand', properties);
+  };
+
+  duplicateDetectionUserActionCollapse(properties) {
+    this.eventTrack('Duplicate Detection User Action Collapse', properties);
+  };
+
 }

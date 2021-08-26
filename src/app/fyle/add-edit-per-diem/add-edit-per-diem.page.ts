@@ -310,6 +310,24 @@ export class AddEditPerDiemPage implements OnInit {
       take(1)
     ).subscribe((res) => {
       this.pointToDuplicates = true;
+
+      this.etxn$.pipe(take(1)).subscribe(etxn => {
+        try {
+          const duplicateTxnIds = res.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
+          const duplicateFields = res.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
+
+          this.trackingService.duplicateDetectionAlertShown({
+            Asset: 'Mobile',
+            Page: this.mode === 'add' ? 'Add' : 'Edit',
+            ExpenseId: etxn.tx.id,
+            DuplicateExpenses: duplicateTxnIds,
+            DuplicateFields: duplicateFields
+          });
+        } catch (err) {
+          // Ignore event tracking errors
+        }
+      });
+
       setTimeout(() => {
         this.pointToDuplicates = false;
       }, 3000);
@@ -2083,6 +2101,16 @@ export class AddEditPerDiemPage implements OnInit {
       this.trackingService.addComment({ Asset: 'Mobile' });
     } else {
       this.trackingService.viewComment({ Asset: 'Mobile' });
+    }
+  }
+
+  setDuplicateBoxOpen(value) {
+    this.duplicateBoxOpen = value;
+
+    if (value) {
+      this.trackingService.duplicateDetectionUserActionExpand({ Asset: 'Mobile', Page: this.mode === 'add' ? 'Add' : 'Edit' });
+    } else {
+      this.trackingService.duplicateDetectionUserActionCollapse({ Asset: 'Mobile', Page: this.mode === 'add' ? 'Add' : 'Edit'});
     }
   }
 }

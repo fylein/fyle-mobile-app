@@ -416,10 +416,10 @@
                       <div>
                         {{duplicates.length}} Duplicates Detected
                       </div>
-                      <div (click)="duplicateBoxOpen = false" *ngIf="duplicateBoxOpen">
+                      <div (click)="setDuplicateBoxOpen(false)" *ngIf="duplicateBoxOpen">
                         Collapse
                       </div>
-                      <div (click)="duplicateBoxOpen = true" *ngIf="!duplicateBoxOpen">
+                      <div (click)="setDuplicateBoxOpen(true)" *ngIf="!duplicateBoxOpen">
                         Expand
                       </div>
                     </div>

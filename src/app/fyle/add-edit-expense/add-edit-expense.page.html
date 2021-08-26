@@ -774,10 +774,10 @@
                 </div>
               </div>
 
-              <div (click)="duplicateBoxOpen = false" *ngIf="duplicateBoxOpen" class="add-edit-expense--duplicate-cta">
+              <div (click)="setDuplicateBoxOpen(false)" *ngIf="duplicateBoxOpen" class="add-edit-expense--duplicate-cta">
                 Collapse
               </div>
-              <div (click)="duplicateBoxOpen = true" *ngIf="!duplicateBoxOpen" class="add-edit-expense--duplicate-cta">
+              <div (click)="setDuplicateBoxOpen(true)" *ngIf="!duplicateBoxOpen" class="add-edit-expense--duplicate-cta">
                 Expand
               </div>
             </div>
