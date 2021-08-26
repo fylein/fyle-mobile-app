@@ -1,3 +1,4 @@
+@import "../../../../theme/colors.scss";
 $details-color: #ababab;
 
 .camera-options {
@@ -5,26 +6,41 @@ $details-color: #ababab;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  padding: 0 16px;
+  padding: 0 24px 4px;
+
+  &--header-container {
+    &__header {
+      color: $grey-light;
+      padding-top: 24px;
+      line-height: 18px;
+    }
+  }
 
   &--element {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    height: 45%;
-    font-size: 18px;
-    font-weight: 500;
+    height: 35%;
 
     &-first {
       border-bottom: 1px solid #dddddd;
     }
   }
 
-  &--icon {
-    margin: 0  12px;
+  &--icon-container {
+    &__icon {
+      height: 28px;
+      width: 28px;
+      stroke: $grey-light;
+      vertical-align: middle;
+    }
   }
 
   &--content {
-    margin-left: 12px;
+    font-size: 18px;
+    line-height: 23px;
+    font-weight: 400;
+    color: $black;
+    margin-left: 20px;
   }
 }
