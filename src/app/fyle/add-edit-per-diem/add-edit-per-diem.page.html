@@ -1,10 +1,12 @@
 <ion-header mode="md">
   <ion-toolbar class="add-edit-per-diem--toolbar" [ngClass]="{'add-edit-per-diem--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
-      <ion-back-button mode="md"></ion-back-button>
+      <ion-button (click)="showClosePopup()">
+        <ion-icon class="icon--navigate-left" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-buttons>
-    <ion-buttons mode="md" slot="start" *ngIf="!navigateBack">
-      <ion-button (click)="goBack()">
+    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
+      <ion-button (click)="showClosePopup()">
         <ion-icon name="close" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
