@@ -643,7 +643,7 @@ export class AddEditExpensePage implements OnInit {
 
           this.trackingService.duplicateDetectionAlertShown({
             Asset: 'Mobile',
-            Page: this.mode === 'add' ? 'Add' : 'Edit',
+            Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
             ExpenseId: etxn.tx.id,
             DuplicateExpenses: duplicateTxnIds,
             DuplicateFields: duplicateFields
@@ -3588,9 +3588,9 @@ export class AddEditExpensePage implements OnInit {
     this.duplicateBoxOpen = value;
 
     if (value) {
-      this.trackingService.duplicateDetectionUserActionExpand({ Asset: 'Mobile', Page: this.mode === 'add' ? 'Add' : 'Edit' });
+      this.trackingService.duplicateDetectionUserActionExpand({ Asset: 'Mobile', Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense' });
     } else {
-      this.trackingService.duplicateDetectionUserActionCollapse({ Asset: 'Mobile', Page: this.mode === 'add' ? 'Add' : 'Edit'});
+      this.trackingService.duplicateDetectionUserActionCollapse({ Asset: 'Mobile', Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'});
     }
   }
 }
