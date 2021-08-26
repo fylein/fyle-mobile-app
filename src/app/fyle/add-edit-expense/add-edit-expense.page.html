@@ -323,6 +323,36 @@
             </ng-container>
           </ng-container>
 
+          <ng-container *ngIf="taxSettings$|async as taxSettings">
+            <ng-container *ngIf="txnFields$|async as txnFields">
+              <ng-container *ngIf="taxGroupsOptions$|async as taxGroups">
+                <div *ngIf="txnFields?.tax_group_id && taxGroups?.length > 0" class="add-edit-expense--primary-block">
+                  <div class="add-edit-expense--internal-block">
+                    <app-fy-select [label]="(txnFields.tax_group_id.field_name || 'Tax Group')" [options]="taxGroups" [mandatory]="txnFields.tax_group_id.is_mandatory" 
+                      [selectModalHeader]="'Select ' + (txnFields.tax_group_id.field_name || 'Tax Group')" formControlName="tax_group">
+                    </app-fy-select>
+                  </div>
+                  <div *ngIf="fg.controls.tax_group.touched && !fg.controls.tax_group.valid"
+                  class="add-edit-expense--error">
+                    Please select a valid tax group.
+                  </div>
+                  <div class="add-edit-expense--text add-edit-expense--internal-block">
+                    <div class="add-edit-expense--text-label">
+                      {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
+                    </div>
+                    <input (blur)="focusState = false" (focus)="focusState = true" class="add-edit-expense--text-input"
+                      formControlName="tax_amount" inputmode="decimal" type="number"
+                      [placeholder]="'Enter Tax Amount'" />
+                  </div>
+                  <div *ngIf="fg.controls.tax_amount.touched && !fg.controls.tax_amount.valid"
+                  class="add-edit-expense--error">
+                    Please enter a valid tax amount.
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="isConnected$|async as isConnected">
               <div>
@@ -666,26 +696,6 @@
         </div>
       </ng-container>
 
-      <ng-container *ngIf="isExpandedView">
-        <ng-container *ngIf="taxSettings$|async as taxSettings">
-          <div *ngIf="taxSettings?.enabled && taxSettings?.groups?.length > 0 && isExpandedView" class="add-edit-expense--primary-block">
-            <div class="add-edit-expense--internal-block">
-              <app-fy-select [label]="(taxSettings.name || 'Tax Group')" [options]="taxSettings?.groups"
-                [selectModalHeader]="'Select ' + (taxSettings.name || 'Tax Group')" formControlName="tax">
-              </app-fy-select>
-            </div>
-            <div class="add-edit-expense--text add-edit-expense--internal-block">
-              <div class="add-edit-expense--text-label">
-                {{(taxSettings.name || 'Tax') | ellipsis: 30 }}
-              </div>
-              <input (blur)="focusState = false" (focus)="focusState = true" class="add-edit-expense--text-input"
-                formControlName="taxValue" inputmode="decimal" type="number"
-                [placeholder]="'Enter ' + taxSettings.name || 'Tax'" />
-            </div>
-          </div>
-        </ng-container>
-      </ng-container>
-
       <!-- Hide in offline/ critical policy violation/ draft expense/ only expense in the report(canAddToReport)-->
       <ng-container *ngIf="isConnected$|async as isConnected">
         <ng-container *ngIf="etxn$|async as etxn">
@@ -710,13 +720,13 @@
 
       <div *ngIf="mode === 'add'">
         <ng-container *ngIf="isExpandedView;else expandViewContent">
-          <div class="expansion-btn" fill="clear" (click)="isExpandedView=false">
+          <div class="expansion-btn" fill="clear" (click)="hideFields()">
             Hide more fields
             <ion-icon class="expansion-icon" name="chevron-up"></ion-icon>
           </div>
         </ng-container>
         <ng-template #expandViewContent>
-          <div class="expansion-btn" fill="clear" (click)="isExpandedView=true">
+          <div class="expansion-btn" fill="clear" (click)="showFields()">
             Show more fields
             <ion-icon class="expansion-icon" name="chevron-down"></ion-icon>
           </div>

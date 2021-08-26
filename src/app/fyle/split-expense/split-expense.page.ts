@@ -28,6 +28,8 @@ export class SplitExpensePage implements OnInit {
 
   splitType: string;
 
+  txnFields: any;
+
   amount: number;
 
   currency: string;
@@ -150,6 +152,21 @@ export class SplitExpensePage implements OnInit {
     }
   }
 
+  setUpSplitExpenseBillable(splitExpense) {
+    if (splitExpense.project && this.txnFields && this.txnFields.billable) {
+      return this.txnFields.billable.default_value;
+    }
+    return this.transaction.billable;
+  }
+
+  setUpSplitExpenseTax(splitExpense) {
+    if (this.transaction.tax_amount && this.transaction.amount) {
+      return ((this.transaction.tax_amount * splitExpense.percentage)/100);
+    } else {
+      return this.transaction.tax_amount;
+    }
+  }
+
   generateSplitEtxnFromFg(splitExpenseValue) {
     // Fixing the date format here as the transaction object date is a string
     this.transaction.from_dt = this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
@@ -162,7 +179,9 @@ export class SplitExpensePage implements OnInit {
       cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
       currency: splitExpenseValue.currency,
       amount: splitExpenseValue.amount,
-      source: 'MOBILE'
+      source: 'MOBILE',
+      billable: this.setUpSplitExpenseBillable(splitExpenseValue),
+      tax_amount: this.setUpSplitExpenseTax(splitExpenseValue)
     };
   }
 
@@ -338,6 +357,7 @@ export class SplitExpensePage implements OnInit {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
       const orgSettings$ = this.offlineService.getOrgSettings();
       this.splitType = this.activatedRoute.snapshot.params.splitType;
+      this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields);
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
       this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);

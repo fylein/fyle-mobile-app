@@ -1,6 +1,6 @@
 <ion-header mode="md" >
   <ion-toolbar class="view-mileage--toolbar">
-      <ion-buttons mode="md" slot="end">
+      <ion-buttons *ngIf="this.reportId" mode="md" slot="end">
         <ion-button (click)="goBack()">
           <mat-icon>close</mat-icon>
         </ion-button>
