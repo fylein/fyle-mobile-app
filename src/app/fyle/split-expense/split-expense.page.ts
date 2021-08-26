@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap, tap} from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -27,6 +27,8 @@ export class SplitExpensePage implements OnInit {
   fg: FormGroup;
 
   splitType: string;
+
+  txnFields: any;
 
   amount: number;
 
@@ -100,7 +102,7 @@ export class SplitExpensePage implements OnInit {
       }, { emitEvent: false });
     }
 
-    let percentage = (splitExpenseForm.value.amount / this.amount ) * 100;
+    let percentage = (splitExpenseForm.value.amount / this.amount) * 100;
     percentage = parseFloat(percentage.toFixed(3));
 
     splitExpenseForm.patchValue({
@@ -110,7 +112,7 @@ export class SplitExpensePage implements OnInit {
     this.getTotalSplitAmount();
   }
 
-  onChangePercentage(splitExpenseForm, index){
+  onChangePercentage(splitExpenseForm, index) {
     if (!splitExpenseForm.controls.percentage._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.percentage))) {
       return;
     }
@@ -150,7 +152,26 @@ export class SplitExpensePage implements OnInit {
     }
   }
 
+  setUpSplitExpenseBillable(splitExpense) {
+    if (splitExpense.project && this.txnFields && this.txnFields.billable) {
+      return this.txnFields.billable.default_value;
+    }
+    return this.transaction.billable;
+  }
+
+  setUpSplitExpenseTax(splitExpense) {
+    if (this.transaction.tax_amount && this.transaction.amount) {
+      return ((this.transaction.tax_amount * splitExpense.percentage)/100);
+    } else {
+      return this.transaction.tax_amount;
+    }
+  }
+
   generateSplitEtxnFromFg(splitExpenseValue) {
+    // Fixing the date format here as the transaction object date is a string
+    this.transaction.from_dt = this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
+    this.transaction.to_dt = this.transaction?.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
+
     return {
       ...this.transaction,
       org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
@@ -158,14 +179,23 @@ export class SplitExpensePage implements OnInit {
       cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
       currency: splitExpenseValue.currency,
       amount: splitExpenseValue.amount,
-      source: 'MOBILE'
+      source: 'MOBILE',
+      billable: this.setUpSplitExpenseBillable(splitExpenseValue),
+      tax: this.setUpSplitExpenseTax(splitExpenseValue)
     };
   }
 
   uploadNewFiles(files) {
     const fileObjs = [];
     files.forEach(file => {
-      if (file.type && (file.type.indexOf('image') > -1 || file.type.indexOf('jpeg') > -1 || file.type.indexOf('jpg') > -1 || file.type.indexOf('png') > -1)) {
+      if (file.type &&
+        (
+          file.type.indexOf('image') > -1 ||
+          file.type.indexOf('jpeg') > -1 ||
+          file.type.indexOf('jpg') > -1 ||
+          file.type.indexOf('png') > -1
+        )
+      ) {
         file.type = 'image';
       } else if (file.type && file.type.indexOf('pdf') > -1) {
         file.type = 'pdf';
@@ -244,7 +274,7 @@ export class SplitExpensePage implements OnInit {
   save() {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
-      if (this.amount && this.amount !== this.totalSplitAmount ) {
+      if (this.amount && this.amount !== this.totalSplitAmount) {
         this.showErrorBlock = true;
         this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
         setTimeout(() => {
@@ -327,6 +357,7 @@ export class SplitExpensePage implements OnInit {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
       const orgSettings$ = this.offlineService.getOrgSettings();
       this.splitType = this.activatedRoute.snapshot.params.splitType;
+      this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields);
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
       this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
@@ -361,28 +392,37 @@ export class SplitExpensePage implements OnInit {
       );
 
       this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
-        this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
-        this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
-        let amount1 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
-        let amount2 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
-
-        const percentage1 = this.amount ? 60 : null;
-        const percentage2 = this.amount ? 40 : null;
-        amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
-        amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
-        this.add(amount1, this.currency, percentage1, null);
-        this.add(amount2, this.currency, percentage2, null);
-        this.getTotalSplitAmount();
-
-        const today = new Date();
-        const minDate = new Date('Jan 1, 2001');
-        const maxDate = this.dateService.addDaysToDate(today, 1);
-
-        this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
-        this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
+        this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
       });
     });
 
+  }
+
+  setValuesForCCC(currencyObj: any, homeCurrency: any, isCorporateCardsEnabled: boolean) {
+    this.setAmountAndCurrency(currencyObj, homeCurrency);
+
+    let amount1 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
+    let amount2 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
+
+    const percentage1 = this.amount ? 60 : null;
+    const percentage2 = this.amount ? 40 : null;
+    amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
+    amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
+    this.add(amount1, this.currency, percentage1, null);
+    this.add(amount2, this.currency, percentage2, null);
+    this.getTotalSplitAmount();
+
+    const today = new Date();
+    const minDate = new Date('Jan 1, 2001');
+    const maxDate = this.dateService.addDaysToDate(today, 1);
+
+    this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
+    this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
+  }
+
+  setAmountAndCurrency(currencyObj: any, homeCurrency: any) {
+    this.amount = currencyObj && (currencyObj.orig_amount || currencyObj.amount);
+    this.currency = (currencyObj && (currencyObj.orig_currency || currencyObj.currency)) || homeCurrency;
   }
 
   customDateValidator(control: AbstractControl) {
@@ -406,8 +446,8 @@ export class SplitExpensePage implements OnInit {
     }
     const fg = this.formBuilder.group({
       amount: [amount, Validators.required],
-      currency: [currency, ],
-      percentage: [percentage, ],
+      currency: [currency,],
+      percentage: [percentage,],
       txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])]
     });
 

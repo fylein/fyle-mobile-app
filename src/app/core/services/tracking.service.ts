@@ -28,6 +28,12 @@ export class TrackingService {
     }
   }
 
+  async updateIdentityIfNotPresent() {
+    if (!this.identityEmail) {
+      await this.updateIdentity();
+    }
+  }
+
   // deprecated - use updateSegmentProfile
   uploadCtUserProfile(data) {
     this.updateSegmentProfile(data);
@@ -59,6 +65,8 @@ export class TrackingService {
       this.tracking.identify(email, {
         $email: email
       });
+
+      this.identityEmail = email;
     }
 
     this.eventTrack('Signin', properties);
@@ -364,6 +372,11 @@ export class TrackingService {
   // When user completes account setup journey
   setupComplete(properties) {
     this.eventTrack('Setup Complete', properties);
+  }
+
+  // When toast message is displayed
+  showToastMessage(properties) {
+    this.eventTrack('Toast message displayed', properties);
   }
 
   /*** Old events ***/
@@ -728,6 +741,10 @@ export class TrackingService {
     this.eventTrack('dashboard report pill clicked', properties);
   }
 
+  dashboardOnCorporateCardClick(properties) {
+    this.eventTrack('dashboard corporate card clicked', properties);
+  }
+
   // Footer
   footerButtonClicked(properties) {
     this.eventTrack('footer button clicked', properties);
@@ -743,5 +760,21 @@ export class TrackingService {
 
   myExpensesFilterApplied(properties) {
     this.eventTrack('my expenses filters applied', properties);
+  }
+
+  showMoreClicked(properties) {
+    this.eventTrack('show more clicked', properties);
+  }
+
+  hideMoreClicked(properties) {
+    this.eventTrack('hide more clicked', properties);
+  }
+
+  footerSaveAndPrevClicked(properties) {
+    this.eventTrack('save and previous clicked inside footer', properties);
+  }
+
+  footerSaveAndNextClicked(properties) {
+    this.eventTrack('save and next clicked inside footer', properties);
   }
 }

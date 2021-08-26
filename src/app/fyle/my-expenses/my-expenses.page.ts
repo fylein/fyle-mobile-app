@@ -1,10 +1,10 @@
-import {Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
-import {BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of} from 'rxjs';
-import {NetworkService} from 'src/app/core/services/network.service';
-import {LoaderService} from 'src/app/core/services/loader.service';
-import {ActionSheetController, ModalController, PopoverController, ToastController} from '@ionic/angular';
-import {DateService} from 'src/app/core/services/date.service';
-import {ActivatedRoute, Params, Router} from '@angular/router';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject } from 'rxjs';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ActionSheetController, ModalController, PopoverController, ToastController } from '@ionic/angular';
+import { DateService } from 'src/app/core/services/date.service';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   catchError,
   debounceTime,
@@ -14,19 +14,19 @@ import {
   shareReplay,
   switchMap,
   take,
+  takeUntil,
   tap
 } from 'rxjs/operators';
-import {TransactionService} from 'src/app/core/services/transaction.service';
-import {MyExpensesSortFilterComponent} from './my-expenses-sort-filter/my-expenses-sort-filter.component';
-import {Expense} from 'src/app/core/models/expense.model';
-import {CurrencyService} from 'src/app/core/services/currency.service';
-import {AddExpensePopoverComponent} from './add-expense-popover/add-expense-popover.component';
-import {TransactionsOutboxService} from 'src/app/core/services/transactions-outbox.service';
-import {OfflineService} from 'src/app/core/services/offline.service';
-import {PopupService} from 'src/app/core/services/popup.service';
-import {AddTxnToReportDialogComponent} from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
-import {TrackingService} from '../../core/services/tracking.service';
-import {StorageService} from '../../core/services/storage.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { Expense } from 'src/app/core/models/expense.model';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { TrackingService } from '../../core/services/tracking.service';
+import { StorageService } from '../../core/services/storage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { cloneDeep, indexOf, isEqual } from 'lodash';
@@ -36,19 +36,20 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import {TokenService} from 'src/app/core/services/token.service';
-import {ApiV2Service} from 'src/app/core/services/api-v2.service';
-import {environment} from 'src/environments/environment';
-import {HeaderState} from '../../shared/components/fy-header/header-state.enum';
-import {FyDeleteDialogComponent} from '../../shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import {FyFiltersComponent} from '../../shared/components/fy-filters/fy-filters.component';
-import {FilterOptions} from '../../shared/components/fy-filters/filter-options.interface';
-import {FilterOptionType} from '../../shared/components/fy-filters/filter-option-type.enum';
-import {DateFilters} from '../../shared/components/fy-filters/date-filters.enum';
-import {SelectedFilters} from '../../shared/components/fy-filters/selected-filters.interface';
-import {FilterPill} from '../../shared/components/fy-filter-pills/filter-pill.interface';
+import { TokenService } from 'src/app/core/services/token.service';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { environment } from 'src/environments/environment';
+import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
+import { FyDeleteDialogComponent } from '../../shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filters.component';
+import { FilterOptions } from '../../shared/components/fy-filters/filter-options.interface';
+import { FilterOptionType } from '../../shared/components/fy-filters/filter-option-type.enum';
+import { DateFilters } from '../../shared/components/fy-filters/date-filters.enum';
+import { SelectedFilters } from '../../shared/components/fy-filters/selected-filters.interface';
+import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
 import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
+import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 
 type Filters = Partial<{
   state: string[];
@@ -149,6 +150,8 @@ export class MyExpensesPage implements OnInit {
 
   allExpensesCount: number;
 
+  onPageExit$ = new Subject();
+
   get HeaderState() {
     return HeaderState;
   }
@@ -175,7 +178,7 @@ export class MyExpensesPage implements OnInit {
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
-    private toastController: ToastController
+    private snackbarProperties: SnackbarPropertiesService
   ) { }
 
   clearText() {
@@ -232,7 +235,7 @@ export class MyExpensesPage implements OnInit {
     if (!isFirstExpenseCreated) {
       this.allExpensesStats$.subscribe(async (res) => {
         if (res.count === 0) {
-          this.trackingService.createFirstExpense({Asset: 'Mobile'});
+          this.trackingService.createFirstExpense({ Asset: 'Mobile' });
           await this.storageService.set('isFirstExpenseCreated', true);
         }
       });
@@ -287,6 +290,7 @@ export class MyExpensesPage implements OnInit {
     }, {
       text: 'Add Manually',
       icon: 'assets/svg/fy-expense.svg',
+      cssClass: 'capture-receipt',
       handler: () => {
         this.trackingService.myExpensesActionSheetAction({
           Asset: 'Mobile',
@@ -302,6 +306,7 @@ export class MyExpensesPage implements OnInit {
       this.actionSheetButtons.push({
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
+        cssClass: 'capture-receipt',
         handler: () => {
           this.trackingService.myExpensesActionSheetAction({
             Asset: 'Mobile',
@@ -318,6 +323,7 @@ export class MyExpensesPage implements OnInit {
       that.actionSheetButtons.push({
         text: 'Add Per Diem',
         icon: 'assets/svg/fy-calendar.svg',
+        cssClass: 'capture-receipt',
         handler: () => {
           this.trackingService.myExpensesActionSheetAction({
             Asset: 'Mobile',
@@ -331,14 +337,17 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  ionViewWillLeave() {
+    this.onPageExit$.next();
+  }
 
   ionViewWillEnter() {
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
-      map(orgUserSettings => orgUserSettings && orgUserSettings.insta_fyle_settings && orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled)
+      map(orgUserSettings => orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled)
     );
 
     this.isBulkFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
-      map(orgUserSettings => orgUserSettings && orgUserSettings.bulk_fyle_settings && orgUserSettings.bulk_fyle_settings.enabled)
+      map(orgUserSettings => orgUserSettings?.bulk_fyle_settings?.enabled)
     );
 
     this.isMileageEnabled$ = this.offlineService.getOrgSettings().pipe(
@@ -375,18 +384,13 @@ export class MyExpensesPage implements OnInit {
     this.selectionMode = false;
     this.selectedElements = [];
 
-    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+    this.syncOutboxExpenses();
 
-    this.syncing = true;
-    from(this.pendingTransactions).pipe(
-      switchMap(() => from(this.transactionOutboxService.sync())),
-      tap(() => this.sendFirstExpenseCreatedEvent()),
-      finalize(() => this.syncing = false)
-    ).subscribe(() => {
-      this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-
-      if (this.pendingTransactions.length === 0) {
-        this.doRefresh();
+    this.isConnected$.pipe(
+      takeUntil(this.onPageExit$.asObservable()),
+    ).subscribe(connected => {
+      if (connected) {
+        this.syncOutboxExpenses();
       }
     });
 
@@ -443,6 +447,9 @@ export class MyExpensesPage implements OnInit {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
+      }),
+      tap(()=> {
+        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
 
@@ -455,7 +462,7 @@ export class MyExpensesPage implements OnInit {
         let queryParams = params.queryParams || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state =  'in.(COMPLETE,DRAFT)';
+        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.transactionService.getMyExpensesCount(queryParams);
       }),
@@ -485,7 +492,7 @@ export class MyExpensesPage implements OnInit {
         tx_report_id: 'is.null'
       })),
       map(stats => {
-        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+        const count = stats && stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
         return count && count.function_value;
       })
     );
@@ -497,7 +504,7 @@ export class MyExpensesPage implements OnInit {
         tx_state: 'in.(DRAFT)'
       })),
       map(stats => {
-        const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+        const count = stats && stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
         return count && count.function_value;
       })
     );
@@ -507,7 +514,7 @@ export class MyExpensesPage implements OnInit {
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
         queryParams,
-        replaceUrl : true
+        replaceUrl: true
       });
     });
 
@@ -523,11 +530,11 @@ export class MyExpensesPage implements OnInit {
     } else if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
       if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
-        filters = {tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT'};
+        filters = { tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT' };
       } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
-        filters = {tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED'};
+        filters = { tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED' };
       } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
-        filters = {tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT'};
+        filters = { tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT' };
       }
       this.filters = Object.assign({}, this.filters, filters);
       this.currentPageNumber = 1;
@@ -544,11 +551,12 @@ export class MyExpensesPage implements OnInit {
 
     const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
 
-    this.openReports$ = this.reportService.getAllExtendedReports({queryParams}).pipe(
+    this.openReports$ = this.reportService.getAllExtendedReports({ queryParams }).pipe(
       map((openReports) => openReports.filter(openReport =>
-      // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
-      // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list
-        !openReport.report_approvals || (openReport.report_approvals && !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
+        // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
+        // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list
+        !openReport.report_approvals ||
+        (openReport.report_approvals && !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
       ))
     );
   }
@@ -571,19 +579,25 @@ export class MyExpensesPage implements OnInit {
     }, 1000);
   }
 
-  doRefresh(event?) {
+  syncOutboxExpenses() {
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-
-    if (this.pendingTransactions.length) {
+    if (this.pendingTransactions.length > 0) {
       this.syncing = true;
       from(this.pendingTransactions).pipe(
         switchMap(() => from(this.transactionOutboxService.sync())),
-        finalize(() => this.syncing = false)
-      ).subscribe((a) => {
-        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-      });
+        finalize(() => {
+          this.syncing = false;
+          const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+          if (pendingTransactions.length === 0) {
+            this.doRefresh();
+          }
+        })
+      ).subscribe(noop);
     }
+  }
 
+  doRefresh(event?) {
+    this.syncOutboxExpenses();
     this.currentPageNumber = 1;
     this.selectedElements = [];
     if (this.selectionMode) {
@@ -605,142 +619,183 @@ export class MyExpensesPage implements OnInit {
     const filterPills: FilterPill[] = [];
 
     if (filter.state && filter.state.length) {
-      filterPills.push({
-        label: 'Type',
-        type: 'state',
-        value: filter.state.map(state => state.replace(/_/g, ' ').toLowerCase()).reduce((state1, state2) => `${state1}, ${state2}`)
-      });
+      this.generateStateFilterPills(filterPills, filter);
     }
 
     if (filter.receiptsAttached) {
-      filterPills.push({
-        label: 'Receipts Attached',
-        type: 'receiptsAttached',
-        value: filter.receiptsAttached.toLowerCase()
-      });
+      this.generateReceiptsAttachedFilterPills(filterPills, filter);
     }
 
     if (filter.date) {
-      if (filter.date === DateFilters.thisWeek) {
-        filterPills.push({
-          label: 'Date',
-          type: 'date',
-          value: 'this Week'
-        });
-      }
-
-      if (filter.date === DateFilters.thisMonth) {
-        filterPills.push({
-          label: 'Date',
-          type: 'date',
-          value: 'this Month'
-        });
-      }
-
-      if (filter.date === DateFilters.all) {
-        filterPills.push({
-          label: 'Date',
-          type: 'date',
-          value: 'All'
-        });
-      }
-
-      if (filter.date === DateFilters.lastMonth) {
-        filterPills.push({
-          label: 'Date',
-          type: 'date',
-          value: 'Last Month'
-        });
-      }
-
-      if (filter.date === DateFilters.custom) {
-        const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
-        const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
-
-        if (startDate && endDate) {
-          filterPills.push({
-            label: 'Date',
-            type: 'date',
-            value: `${startDate} to ${endDate}`
-          });
-        } else if (startDate) {
-          filterPills.push({
-            label: 'Date',
-            type: 'date',
-            value: `>= ${startDate}`
-          });
-        } else if (endDate) {
-          filterPills.push({
-            label: 'Date',
-            type: 'date',
-            value: `<= ${endDate}`
-          });
-        }
-      }
+      this.generateDateFilterPills(filter, filterPills);
     }
 
     if (filter.type && filter.type.length) {
-      const combinedValue = filter.type.map(type => {
-        if (type === 'RegularExpenses') {
-          return 'Regular Expenses';
-        } else if (type === 'PerDiem') {
-          return 'Per Diem';
-        } else if (type === 'Mileage') {
-          return 'Mileage';
-        } else {
-          return type;
-        }
-      }).reduce((type1, type2) => `${type1}, ${type2}`);
-
-      filterPills.push({
-        label: 'Expense Type',
-        type: 'type',
-        value: combinedValue
-      });
+      this.generateTypeFilterPills(filter, filterPills);
     }
 
 
     if (filter.sortParam && filter.sortDir) {
-      if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'date - old to new'
-        });
-      } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'date - new to old'
-        });
-      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'amount - high to low'
-        });
-      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'amount - low to high'
-        });
-      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'category - a to z'
-        });
-      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
-        filterPills.push({
-          label: 'Sort By',
-          type: 'sort',
-          value: 'category - z to a'
-        });
-      }
+      this.generateSortFilterPills(filter, filterPills);
     }
 
     return filterPills;
+  }
+
+  generateSortFilterPills(filter, filterPills: FilterPill[]) {
+    this.generateSortTxnDatePills(filter, filterPills);
+
+    this.generateSortAmountPills(filter, filterPills);
+
+    this.generateSortCategoryPills(filter, filterPills);
+  }
+
+  generateSortCategoryPills(filter: any, filterPills: FilterPill[]) {
+    if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'category - a to z'
+      });
+    } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'category - z to a'
+      });
+    }
+  }
+
+  generateSortAmountPills(filter: any, filterPills: FilterPill[]) {
+    if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'amount - high to low'
+      });
+    } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'amount - low to high'
+      });
+    }
+  }
+
+  generateSortTxnDatePills(filter: any, filterPills: FilterPill[]) {
+    if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'date - old to new'
+      });
+    } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'date - new to old'
+      });
+    }
+  }
+
+  generateTypeFilterPills(filter,
+    filterPills: FilterPill[]) {
+    const combinedValue = filter.type.map(type => {
+      if (type === 'RegularExpenses') {
+        return 'Regular Expenses';
+      } else if (type === 'PerDiem') {
+        return 'Per Diem';
+      } else if (type === 'Mileage') {
+        return 'Mileage';
+      } else {
+        return type;
+      }
+    }).reduce((type1, type2) => `${type1}, ${type2}`);
+
+    filterPills.push({
+      label: 'Expense Type',
+      type: 'type',
+      value: combinedValue
+    });
+  }
+
+  generateDateFilterPills(filter, filterPills: FilterPill[]) {
+    if (filter.date === DateFilters.thisWeek) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'this Week'
+      });
+    }
+
+    if (filter.date === DateFilters.thisMonth) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'this Month'
+      });
+    }
+
+    if (filter.date === DateFilters.all) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'All'
+      });
+    }
+
+    if (filter.date === DateFilters.lastMonth) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'Last Month'
+      });
+    }
+
+    if (filter.date === DateFilters.custom) {
+      this.generateCustomDatePill(filter, filterPills);
+    }
+  }
+
+  generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
+    const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
+    const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
+
+    if (startDate && endDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `${startDate} to ${endDate}`
+      });
+    } else if (startDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `>= ${startDate}`
+      });
+    } else if (endDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `<= ${endDate}`
+      });
+    }
+  }
+
+  generateReceiptsAttachedFilterPills(filterPills: FilterPill[], filter) {
+    filterPills.push({
+      label: 'Receipts Attached',
+      type: 'receiptsAttached',
+      value: filter.receiptsAttached.toLowerCase()
+    });
+  }
+
+  generateStateFilterPills(filterPills: FilterPill[], filter) {
+    filterPills.push({
+      label: 'Type',
+      type: 'state',
+      value: filter.state.map(state => state.replace(/_/g, ' ').toLowerCase()).reduce((state1, state2) => `${state1}, ${state2}`)
+    });
   }
 
   addNewFiltersToParams() {
@@ -758,19 +813,14 @@ export class MyExpensesPage implements OnInit {
 
     this.generateTypeFilters(newQueryParams);
 
-    if (this.filters.sortParam && this.filters.sortDir) {
-      currentParams.sortParam = this.filters.sortParam;
-      currentParams.sortDir = this.filters.sortDir;
-    } else {
-      currentParams.sortParam = 'tx_txn_dt';
-      currentParams.sortDir = 'desc';
-    }
+    this.setSortParams(currentParams);
 
     currentParams.queryParams = newQueryParams;
 
     const onlyDraftStateFilterApplied = this.filters.state && this.filters.state.length === 1 && this.filters.state.includes('DRAFT');
-    const onlyCriticalPolicyFilterApplied = this.filters.state && this.filters.state.length === 1 && this.filters.state.includes('CANNOT_REPORT');
-    const draftAndCriticalPolicyFilterApplied = this.filters.state && this.filters.state.length === 2 && this.filters.state.includes('DRAFT') && this.filters.state.includes('CANNOT_REPORT');
+    const onlyCriticalPolicyFilterApplied = this.filters.state?.length === 1 && this.filters.state.includes('CANNOT_REPORT');
+    const draftAndCriticalPolicyFilterApplied = this.filters.state?.length === 2 &&
+      this.filters.state.includes('DRAFT') && this.filters.state.includes('CANNOT_REPORT');
 
     this.reviewMode = false;
     if (onlyDraftStateFilterApplied || onlyCriticalPolicyFilterApplied || draftAndCriticalPolicyFilterApplied) {
@@ -778,6 +828,18 @@ export class MyExpensesPage implements OnInit {
     }
 
     return currentParams;
+  }
+
+  setSortParams(currentParams: Partial<{
+    pageNumber: number; queryParams: any; sortParam: string; sortDir: string; searchString: string;
+  }>) {
+    if (this.filters.sortParam && this.filters.sortDir) {
+      currentParams.sortParam = this.filters.sortParam;
+      currentParams.sortDir = this.filters.sortDir;
+    } else {
+      currentParams.sortParam = 'tx_txn_dt';
+      currentParams.sortDir = 'desc';
+    }
   }
 
   generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
@@ -816,40 +878,105 @@ export class MyExpensesPage implements OnInit {
     }
 
     if (filter.sortParam && filter.sortDir) {
-      if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'dateOldToNew'
-        });
-      } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'dateNewToOld'
-        });
-      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'amountHighToLow'
-        });
-      } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'amountLowToHigh'
-        });
-      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'categoryAToZ'
-        });
-      } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
-        generatedFilters.push({
-          name: 'Sort By',
-          value: 'categoryZToA'
-        });
-      }
+      this.addSortToGeneatedFilters(filter, generatedFilters);
     }
 
     return generatedFilters;
+  }
+
+  addSortToGeneatedFilters(filter: Partial<{
+    state: string[];
+    date: string;
+    customDateStart: Date;
+    customDateEnd: Date;
+    receiptsAttached: string;
+    type: string[];
+    sortParam: string;
+    sortDir: string;
+  }>, generatedFilters: SelectedFilters<any>[]) {
+    this.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
+
+    this.convertAmountSortToSelectedFilters(filter, generatedFilters);
+
+    this.convertCategorySortToSelectedFilters(filter, generatedFilters);
+  }
+
+  convertCategorySortToSelectedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      receiptsAttached: string;
+      type: string[];
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
+    if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'categoryAToZ'
+      });
+    } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'categoryZToA'
+      });
+    }
+  }
+
+  convertAmountSortToSelectedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      receiptsAttached: string;
+      type: string[];
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
+    if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'amountHighToLow'
+      });
+    } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'amountLowToHigh'
+      });
+    }
+  }
+
+  convertTxnDtSortToSelectedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      receiptsAttached: string;
+      type: string[];
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
+    if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'dateOldToNew'
+      });
+    } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'dateNewToOld'
+      });
+    }
   }
 
   convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
@@ -881,6 +1008,24 @@ export class MyExpensesPage implements OnInit {
 
     const sortBy = selectedFilters.find(filter => filter.name === 'Sort By');
 
+    this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+    return generatedFilters;
+  }
+
+  convertSelectedSortFitlersToFilters(
+    sortBy: SelectedFilters<any>,
+    generatedFilters: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      receiptsAttached: string;
+      type: string[];
+      sortParam: string;
+      sortDir: string;
+    }>
+  ) {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
         generatedFilters.sortParam = 'tx_txn_dt';
@@ -902,8 +1047,6 @@ export class MyExpensesPage implements OnInit {
         generatedFilters.sortDir = 'desc';
       }
     }
-
-    return generatedFilters;
   }
 
   async openFilters(activeFilterInitialName?: string) {
@@ -1032,8 +1175,6 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      console.log(data);
-      // await this.loaderService.showLoader('Loading Expenses...', 1000);
       this.filters = this.convertFilters(data);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -1043,29 +1184,6 @@ export class MyExpensesPage implements OnInit {
         Asset: 'Mobile',
         ...this.filters
       });
-    }
-  }
-
-
-  async openSort() {
-    const sortPopover = await this.popoverController.create({
-      component: MyExpensesSortFilterComponent,
-      componentProps: {
-        filters: this.filters
-      },
-      cssClass: 'dialog-popover'
-    });
-
-    await sortPopover.present();
-
-    const { data } = await sortPopover.onWillDismiss();
-    if (data) {
-      await this.loaderService.showLoader('Loading Expenses...', 1000);
-      this.filters = Object.assign({}, this.filters, data.sortOptions);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
     }
   }
 
@@ -1112,7 +1230,7 @@ export class MyExpensesPage implements OnInit {
 
       await addExpensePopover.present();
 
-      const {data} = await addExpensePopover.onDidDismiss();
+      const { data } = await addExpensePopover.onDidDismiss();
 
       if (data && data.reload) {
         this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
@@ -1136,7 +1254,7 @@ export class MyExpensesPage implements OnInit {
           of(this.transactionOutboxService.deleteOfflineExpense(index)),
           this.transactionService.delete(etxn.tx_id)
         )),
-        tap(() => this.trackingService.deleteExpense({Asset: 'Mobile'})),
+        tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile' })),
         finalize(async () => {
           await this.loaderService.hideLoader();
           this.doRefresh();
@@ -1157,7 +1275,7 @@ export class MyExpensesPage implements OnInit {
     if (expense.tx_id) {
       isSelectedElementsIncludesExpense = this.selectedElements.some(txn => expense.tx_id === txn.tx_id);
     } else {
-      isSelectedElementsIncludesExpense =  this.selectedElements.some(txn => isEqual(txn, expense));
+      isSelectedElementsIncludesExpense = this.selectedElements.some(txn => isEqual(txn, expense));
     }
 
     if (isSelectedElementsIncludesExpense) {
@@ -1182,6 +1300,7 @@ export class MyExpensesPage implements OnInit {
   async showCannotEditActivityDialog() {
     const popupResult = await this.popupService.showPopup({
       header: 'Cannot Edit Activity Expense!',
+      // eslint-disable-next-line max-len
       message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.ROUTER_API_ENDPOINT}">${this.ROUTER_API_ENDPOINT}</a>`,
       primaryCta: {
         text: 'Close'
@@ -1211,12 +1330,12 @@ export class MyExpensesPage implements OnInit {
   }
 
   onAddTransactionToNewReport(expense) {
-    this.trackingService.clickAddToReport({Asset: 'Mobile'});
+    this.trackingService.clickAddToReport({ Asset: 'Mobile' });
     const transactionIds = JSON.stringify([expense.tx_id]);
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
-  async openCriticalPolicyViolationPopOver(config: { title: string; message: string; report_type: string}) {
+  async openCriticalPolicyViolationPopOver(config: { title: string; message: string; reportType: string }) {
     const criticalPolicyViolationPopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
@@ -1236,11 +1355,11 @@ export class MyExpensesPage implements OnInit {
 
     await criticalPolicyViolationPopOver.present();
 
-    const {data} = await criticalPolicyViolationPopOver.onWillDismiss();
+    const { data } = await criticalPolicyViolationPopOver.onWillDismiss();
 
     if (data && data.action) {
       if (data.action === 'continue') {
-        if (config.report_type === 'oldReport') {
+        if (config.reportType === 'oldReport') {
           this.showOldReportsMatBottomSheet();
         } else {
           this.showNewReportModal();
@@ -1249,58 +1368,71 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
-    if (!this.isReportableExpensesSelected) {
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        data: {
-          message: 'You can not add draft expenses and Critical policy violated expenses to a report',
-          showCloseButton: true
-        },
-        panelClass: ['mat-snack-bar-info']
-      });
-      return;
-    }
+  showNonReportableExpenseSelectedToast(message) {
+    this.matSnackBar.openFromComponent( ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+      panelClass: ['msb-failure-with-report-btn']
+    });
+    this.trackingService.showToastMessage({ToastContent: message});
+  }
 
-    this.trackingService.addToReport({Asset: 'Mobile'});
-
+  async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport') {
+    this.trackingService.addToReport({ Asset: 'Mobile', count: this.selectedElements.length });
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
     selectedElements = selectedElements.filter(exp => exp.tx_id);
-
-    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) => this.transactionService.getIsCriticalPolicyViolated(expense));
+    if(!selectedElements.length) {
+      this.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
+      return;
+    }
+    const expensesWithCriticalPolicyViolations = selectedElements
+      .filter((expense) => this.transactionService.getIsCriticalPolicyViolated(expense));
     const expensesInDraftState = selectedElements.filter((expense) => this.transactionService.getIsDraft(expense));
-
-    const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
-      const amount = current.tx_amount || current.tx_user_amount;
-      return prev + amount;
-    }, 0);
 
     const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
     const noOfExpensesInDraftState = expensesInDraftState.length;
-    let title = '';
-    let message = '';
 
-    if ((noOfExpensesWithCriticalPolicyViolations > 0) || (noOfExpensesInDraftState > 0)) {
-
-      this.homeCurrency$.subscribe(homeCurrency => {
-        if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
-          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
-        } else if (noOfExpensesWithCriticalPolicyViolations > 0 ) {
-          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
-          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
-        } else if (noOfExpensesInDraftState > 0) {
-          title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-          message = `${noOfExpensesInDraftState} expenses are in draft states.`;
-        }
-        this.openCriticalPolicyViolationPopOver({title, message, report_type});
-      });
-
+    if (noOfExpensesWithCriticalPolicyViolations === selectedElements.length) {
+      this.showNonReportableExpenseSelectedToast('You cannot add critical policy violated expenses to a report');
+    } else if (noOfExpensesInDraftState === selectedElements.length) {
+      this.showNonReportableExpenseSelectedToast('You cannot add draft expenses to a report');
+    } else if(noOfExpensesWithCriticalPolicyViolations + noOfExpensesInDraftState === selectedElements.length) {
+      this.showNonReportableExpenseSelectedToast('You cannot add draft expenses and critical policy violated expenses to a report');
     } else {
-      if (report_type === 'oldReport') {
-        this.showOldReportsMatBottomSheet();
+      this.trackingService.addToReport({ Asset: 'Mobile' });
+      const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
+        const amount = current.tx_amount || current.tx_user_amount;
+        return prev + amount;
+      }, 0);
+
+      let title = '';
+      let message = '';
+
+      if (noOfExpensesWithCriticalPolicyViolations > 0 || noOfExpensesInDraftState > 0) {
+        this.homeCurrency$.subscribe(homeCurrency => {
+          if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
+            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
+              ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
+            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
+              ${this.homeCurrencySymbol}${totalAmountofCriticalPolicyViolationExpenses} from being submitted. \
+              Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
+          } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
+            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
+            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
+              ${this.homeCurrencySymbol}${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
+          } else if (noOfExpensesInDraftState > 0) {
+            title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
+            message = `${noOfExpensesInDraftState} expenses are in draft states.`;
+          }
+          this.openCriticalPolicyViolationPopOver({ title, message, reportType });
+        });
+
       } else {
-        this.showNewReportModal();
+        if (reportType === 'oldReport') {
+          this.showOldReportsMatBottomSheet();
+        } else {
+          this.showNewReportModal();
+        }
       }
     }
   }
@@ -1321,12 +1453,12 @@ export class MyExpensesPage implements OnInit {
     const { data } = await addExpenseToNewReportModal.onDidDismiss();
 
     if (data && data.report) {
-      this.showAddToReportSuccessToast({report: data.report, message: data.message});
+      this.showAddToReportSuccessToast({ report: data.report, message: data.message });
     }
   }
 
   openCreateReport() {
-    this.trackingService.clickCreateReport({Asset: 'Mobile'});
+    this.trackingService.clickCreateReport({ Asset: 'Mobile' });
     this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
 
@@ -1348,10 +1480,7 @@ export class MyExpensesPage implements OnInit {
         }).pipe(
           map(expenses => expenses.filter(expense => {
             if (params.searchString) {
-              return Object.values(expense)
-                .map(value => value && value.toString().toLowerCase())
-                .filter(value => !!value)
-                .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()));
+              return this.filterExpensesBySearchString(expense, params.searchString);
             } else {
               return true;
             }
@@ -1407,6 +1536,13 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
+  filterExpensesBySearchString(expense: any, searchString: string) {
+    return Object.values(expense)
+      .map(value => value && value.toString().toLowerCase())
+      .filter(value => !!value)
+      .some(value => value.toLowerCase().includes(searchString.toLowerCase()));
+  }
+
   uploadCameraOveralay() {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', {
       from: 'my_expenses'
@@ -1431,17 +1567,16 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showAddToReportSuccessToast(config: { message: string; report}) {
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      data: {
-        icon: 'tick-square-filled',
-        message: config.message,
-        redirectionText: 'View Report',
-        showCloseButton: true
-      },
-      panelClass: ['mat-snack-bar-success'],
-      duration: 3000,
+  showAddToReportSuccessToast(config: { message: string; report }) {
+    const toastMessageData = {
+      message: config.message,
+      redirectionText: 'View Report'
+    };
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent( ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon']
     });
+    this.trackingService.showToastMessage({ToastContent: config.message});
 
     this.isReportableExpensesSelected = false;
     this.selectionMode = false;
@@ -1490,7 +1625,7 @@ export class MyExpensesPage implements OnInit {
         } else {
           message = 'Expenses added to report successfully';
         }
-        this.showAddToReportSuccessToast({message, report});
+        this.showAddToReportSuccessToast({ message, report });
       }
     });
 
@@ -1538,29 +1673,25 @@ export class MyExpensesPage implements OnInit {
 
     if (data) {
       this.trackingService.myExpensesBulkDeleteExpenses({
-        Asset:'Mobile',
+        Asset: 'Mobile',
         count: this.selectedElements.length
       });
       if (data.status === 'success') {
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          data: {
-            icon: 'tick-square-filled',
-            message: `${offlineExpenses.length + this.selectedElements.length} Expenses have been deleted`,
-            showCloseButton: true
-          },
-          panelClass: ['mat-snack-bar-success'],
-          duration: 3000,
+        const totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
+        const message = totalNoOfSelectedExpenses === 1 ? '1 expense has been deleted'
+          :`${totalNoOfSelectedExpenses} expenses have been deleted`;
+        this.matSnackBar.openFromComponent( ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon']
         });
+        this.trackingService.showToastMessage({ToastContent: message});
       } else {
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          data: {
-            icon: 'tick-square-filled',
-            message: 'We could not delete the expenses. Please try again ',
-            showCloseButton: true
-          },
-          panelClass: ['mat-snack-bar-error'],
-          duration: 3000,
+        const message = 'We could not delete the expenses. Please try again';
+        this.matSnackBar.openFromComponent( ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+          panelClass: ['msb-failure-with-camera-icon']
         });
+        this.trackingService.showToastMessage({ToastContent: message});
       }
 
       this.isReportableExpensesSelected = false;
@@ -1592,7 +1723,7 @@ export class MyExpensesPage implements OnInit {
           queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
           return queryParams;
         }),
-        switchMap(queryParams => this.transactionService.getAllExpenses({queryParams}))
+        switchMap(queryParams => this.transactionService.getAllExpenses({ queryParams }))
       ).subscribe(allExpenses => {
         this.selectedElements = this.selectedElements.concat(allExpenses);
         this.allExpensesCount = this.selectedElements.length;
@@ -1659,7 +1790,7 @@ export class MyExpensesPage implements OnInit {
     }]);
   }
 
-  private generateTypeFilters(newQueryParams) {
+  generateTypeFilters(newQueryParams) {
     const typeOrFilter = [];
 
     if (this.filters.type) {
@@ -1684,7 +1815,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  private generateStateFilters(newQueryParams) {
+  generateStateFilters(newQueryParams) {
     const stateOrFilter = [];
 
     if (this.filters.state) {
@@ -1713,7 +1844,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  private generateReceiptAttachedParams(newQueryParams) {
+  generateReceiptAttachedParams(newQueryParams) {
     if (this.filters.receiptsAttached) {
       if (this.filters.receiptsAttached === 'YES') {
         newQueryParams.tx_num_files = 'gt.0';
@@ -1725,29 +1856,52 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  private generateDateParams(newQueryParams) {
+  generateDateParams(newQueryParams) {
     if (this.filters.date) {
       this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
       if (this.filters.date === DateFilters.thisMonth) {
+        const thisMonth = this.dateService.getThisMonthRange();
         newQueryParams.and =
-            `(tx_txn_dt.gte.${this.dateService.getThisMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
-      } else if (this.filters.date === DateFilters.thisWeek) {
+          `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`;
+      }
+
+      if (this.filters.date === DateFilters.thisWeek) {
+        const thisWeek = this.dateService.getThisWeekRange();
         newQueryParams.and =
-            `(tx_txn_dt.gte.${this.dateService.getThisWeekRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getThisWeekRange().to.toISOString()})`;
-      } else if (this.filters.date === DateFilters.lastMonth) {
+          `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`;
+      }
+
+      if (this.filters.date === DateFilters.lastMonth) {
+        const lastMonth = this.dateService.getLastMonthRange();
         newQueryParams.and =
-            `(tx_txn_dt.gte.${this.dateService.getLastMonthRange().from.toISOString()},tx_txn_dt.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
-      } else if (this.filters.date === DateFilters.custom) {
-        if (this.filters.customDateStart && this.filters.customDateEnd) {
-          newQueryParams.and =`(tx_txn_dt.gte.${this.filters?.customDateStart?.toISOString()},tx_txn_dt.lt.${this.filters?.customDateEnd?.toISOString()})`;
-        } else if (this.filters.customDateStart) {
-          newQueryParams.and =`(tx_txn_dt.gte.${this.filters.customDateStart?.toISOString()})`;
-        } else if (this.filters.customDateEnd) {
-          newQueryParams.and =`(tx_txn_dt.lt.${this.filters.customDateEnd?.toISOString()})`;
-        }
+          `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
+      }
+
+      this.generateCustomDateParams(newQueryParams);
+    }
+  }
+
+
+  generateCustomDateParams(newQueryParams: any) {
+    if (this.filters.date === DateFilters.custom) {
+      const startDate = this.filters?.customDateStart?.toISOString();
+      const endDate = this.filters?.customDateEnd?.toISOString();
+      if (this.filters.customDateStart && this.filters.customDateEnd) {
+        newQueryParams.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
+      } else if (this.filters.customDateStart) {
+        newQueryParams.and = `(tx_txn_dt.gte.${startDate})`;
+      } else if (this.filters.customDateEnd) {
+        newQueryParams.and = `(tx_txn_dt.lt.${endDate})`;
       }
     }
   }
 
+  searchClick() {
+    this.headerState = HeaderState.simpleSearch;
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    setTimeout(() => {
+      searchInput.focus();
+    }, 300);
+  }
 }

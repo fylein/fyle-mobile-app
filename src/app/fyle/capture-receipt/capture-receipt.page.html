@@ -1,6 +1,5 @@
-<ion-content class="capture-receipt--camera-preview">
+<ion-content class="capture-receipt--camera-preview" [ngClass]="{'capture-receipt--camera-preview__is-active': isCameraShown}">
   <div id="cameraPreview"></div>
-
   <div *ngIf="hasModeChanged" class="capture-receipt--switch-mode-info text-center">
     <div class="capture-receipt--switch-mode-text">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
   </div>
@@ -26,7 +25,7 @@
     </div>
   </div>
 
-  <div class="capture-receipt--single-bulk-gallery-container">
+  <div class="capture-receipt--single-bulk-gallery-container" [ngClass]="{'capture-receipt--single-bulk-gallery-container__offline': isOffline$|async}">
     <div class="capture-receipt--gallery-icon-block text-center">
       <mat-icon class="capture-receipt--gallery-icon" svgIcon="gallery" (click)="galleryUpload()"></mat-icon>
       <div class="text-center capture-receipt--footer-text capture-receipt--gallery-icon-text">Gallery</div>

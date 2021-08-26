@@ -1,13 +1,13 @@
 import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
-import {noop, of, from} from 'rxjs';
+import { noop, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { isEqual } from 'lodash';
-import {concatMap, map, switchMap} from 'rxjs/operators';
-import {CurrencyService} from '../../../core/services/currency.service';
+import { concatMap, map, switchMap } from 'rxjs/operators';
+import { CurrencyService } from '../../../core/services/currency.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
@@ -28,6 +28,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   @Input() homeCurrency: string;
 
   @Input() recentlyUsed: { label: string; value: string }[];
+
+  @Input() expanded: boolean;
+
 
   exchangeRate = 1;
 
@@ -75,13 +78,13 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
       switchMap(formValue => {
         if (!formValue.amount && !formValue.homeCurrencyAmount && formValue.currency !== this.homeCurrency) {
           return this.currencyService.getExchangeRate(formValue.currency, this.homeCurrency, this.txnDt || new Date()).pipe(
-            map(exchangeRate => ({ formValue,  exchangeRate}))
+            map(exchangeRate => ({ formValue, exchangeRate }))
           );
         } else {
-          return of({formValue, exchangeRate: null});
+          return of({ formValue, exchangeRate: null });
         }
       })
-    ).subscribe(({formValue, exchangeRate}) => {
+    ).subscribe(({ formValue, exchangeRate }) => {
 
       if (exchangeRate) {
         this.exchangeRate = exchangeRate;
@@ -195,7 +198,9 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         currentCurrency: this.homeCurrency,
         newCurrency: shortCode || this.fg.controls.currency.value,
         txnDt: this.txnDt,
-        exchangeRate: (this.value.orig_currency === (shortCode || this.fg.controls.currency.value)) ? (this.fg.value.homeCurrencyAmount / this.fg.value.amount) : null
+        exchangeRate: (this.value.orig_currency === (
+          shortCode || this.fg.controls.currency.value
+        )) ? (this.fg.value.homeCurrencyAmount / this.fg.value.amount) : null
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),

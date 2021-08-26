@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { forkJoin, from, noop, Observable, throwError, of } from 'rxjs';
-import {concatMap, finalize, map, shareReplay, switchMap, take, catchError, tap} from 'rxjs/operators';
+import { concatMap, finalize, map, shareReplay, switchMap, take, catchError, tap } from 'rxjs/operators';
 import { ModalController, ToastController, PopoverController } from '@ionic/angular';
 
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -19,9 +19,12 @@ import { SelectCurrencyComponent } from './select-currency/select-currency.compo
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { Plugins } from '@capacitor/core';
 import { TokenService } from 'src/app/core/services/token.service';
-import {TrackingService} from '../../core/services/tracking.service';
+import { TrackingService } from '../../core/services/tracking.service';
 import { environment } from 'src/environments/environment';
 import { StatsOneDResponse } from 'src/app/core/models/stats-one-dimension.model';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 const { Browser } = Plugins;
 
@@ -83,24 +86,31 @@ export class MyProfilePage implements OnInit {
     private orgUserService: OrgUserService,
     private popoverController: PopoverController,
     private tokenService: TokenService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) { }
 
   logOut() {
-    forkJoin({
-      device: this.deviceService.getDeviceInfo(),
-      eou: from(this.authService.getEou())
-    }).pipe(
-      switchMap(({ device, eou }) => this.authService.logout({
-        device_id: device.uuid,
-        user_id: eou.us.id
-      })),
-      finalize(() => {
-        this.userEventService.logout();
-        this.storageService.clearAll();
-        globalCacheBusterNotifier.next();
-      })
-    ).subscribe(noop);
+    try {
+      forkJoin({
+        device: this.deviceService.getDeviceInfo(),
+        eou: from(this.authService.getEou())
+      }).pipe(
+        switchMap(({ device, eou }) => this.authService.logout({
+          device_id: device.uuid,
+          user_id: eou.us.id
+        })),
+        finalize(() => {
+          this.storageService.clearAll();
+          globalCacheBusterNotifier.next();
+          this.userEventService.logout();
+        })
+      ).subscribe(noop);
+    } catch(e) {
+      this.storageService.clearAll();
+      globalCacheBusterNotifier.next();
+    }
   }
 
   toggleUsageDetails() {
@@ -115,24 +125,20 @@ export class MyProfilePage implements OnInit {
       orgUserSettings: this.orgUserService.postOrgUser(eou.ou)
     }).pipe(
       concatMap(() => this.authService.refreshEou().pipe(
-        tap(() => this.trackingService.activated({Asset: 'Mobile'})),
+        tap(() => this.trackingService.activated({ Asset: 'Mobile' })),
         map(() => {
-          this.presentToast('Profile saved successfully', 1000);
-          this.reset();
+          const message = 'Profile saved successfully';
+          this.matSnackBar.openFromComponent( ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success']
+          });
+          this.trackingService.showToastMessage({ToastContent: message});
         })
       )),
       finalize(() => {
         this.saveProfileLoading = false;
       })
     ).subscribe(noop);
-  }
-
-  async presentToast(message, duration) {
-    const toast = await this.toastController.create({
-      message,
-      duration
-    });
-    toast.present();
   }
 
   setMyExpensesCountBySource(statsRes: StatsOneDResponse) {
@@ -181,9 +187,9 @@ export class MyProfilePage implements OnInit {
       .pipe(
         map((res) => {
           if (this.orgUserSettings.insta_fyle_settings.enabled) {
-            this.trackingService.onEnableInstaFyle({Asset: 'Mobile', persona: 'Enterprise'});
+            this.trackingService.onEnableInstaFyle({ Asset: 'Mobile', persona: 'Enterprise' });
           } else {
-            this.trackingService.onDisableInstaFyle({Asset: 'Mobile', persona: 'Enterprise'});
+            this.trackingService.onDisableInstaFyle({ Asset: 'Mobile', persona: 'Enterprise' });
           }
         })
       )
@@ -195,9 +201,9 @@ export class MyProfilePage implements OnInit {
       .pipe(
         map((res) => {
           if (this.orgUserSettings.bulk_fyle_settings.enabled) {
-            this.trackingService.onEnableBulkFyle({Asset: 'Mobile', persona: 'Enterprise'});
+            this.trackingService.onEnableBulkFyle({ Asset: 'Mobile', persona: 'Enterprise' });
           } else {
-            this.trackingService.onDisableBulkFyle({Asset: 'Mobile', persona: 'Enterprise'});
+            this.trackingService.onDisableBulkFyle({ Asset: 'Mobile', persona: 'Enterprise' });
           }
         })
       )
@@ -276,7 +282,8 @@ export class MyProfilePage implements OnInit {
           map(currencies => currencies
             .find(currency => currency.id === orgUserSettings.currency_settings.preferred_currency)
           ),
-          map(preferedCurrencySettings => preferedCurrencySettings && (preferedCurrencySettings.id + ' - ' + preferedCurrencySettings.value))
+          map(preferedCurrencySettings =>
+            preferedCurrencySettings && (preferedCurrencySettings.id + ' - ' + preferedCurrencySettings.value))
         )
       )
     );

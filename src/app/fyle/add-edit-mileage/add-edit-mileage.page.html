@@ -103,11 +103,6 @@
                 </span>
               </div>
               <div>
-                <div class="add-edit-mileage--amount-value mb-0">
-                  {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
-                </div>
-              </div>
-              <div>
                 <div class="add-edit-mileage--rate-value mb-0 text-right">
                   {{rate$|async | currency: homeCurrency: 'symbol-narrow'}} /
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
@@ -119,6 +114,11 @@
                       <span>{{ mileageConfig.unit }}</span>
                     </ng-container>
                   </ng-template>
+                </div>
+              </div>
+              <div>
+                <div class="add-edit-mileage--amount-value mb-0">
+                  {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
                 </div>
               </div>
             </div>
@@ -223,15 +223,15 @@
 
           <div class="add-edit-mileage--project-container">
             <ng-container *ngIf="isConnected$|async">
-              <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+              <ng-container *ngIf="txnFields$|async as txnFields">
                 <ng-container
-                  *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
+                  *ngIf="txnFields?.project_id && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
                   <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                     <ng-container *ngIf="isProjectVisible$|async">
                       <div class="add-edit-mileage--internal-block add-edit-mileage--project-block"
                         [ngClass]="{'add-edit-mileage--no-project': fg.controls.project.touched && !fg.controls.project.valid}">
                         <app-fy-select-project [cacheName]="'mileageProjectCache'" [categoryIds]="projectCategoryIds"
-                          [label]="'Project'" [mandatory]="transactionMandatoyFields.project" [defaultValue]="true"
+                          [label]="'Project'" [mandatory]="txnFields.project_id?.is_mandatory" [defaultValue]="true"
                           [recentlyUsed]="recentProjects" formControlName="project"></app-fy-select-project>
                       </div>
                     </ng-container>
@@ -386,25 +386,21 @@
               </ng-container>
             </ng-container>
 
-            <ng-container *ngIf="isExpandedView">
-              <ng-container *ngIf="isConnected$|async">
-                <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
-                <ng-container *ngIf="reports$|async as reports">
-                  <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                    <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
-                      <ng-container *ngIf="isExpandedView">
-                        <div class="add-edit-mileage--internal-block">
-                          <app-fy-add-to-report *ngIf="reports.length > 0"
-                            [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'" [options]="reports"
-                            formControlName="report"></app-fy-add-to-report>
-                          <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                            <span class="add-edit-mileage--text-label">
-                              Add to New Report
-                            </span>
-                          </mat-checkbox>
-                        </div>
-                      </ng-container>
-                    </ng-container>
+            <ng-container *ngIf="isConnected$|async">
+              <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
+              <ng-container *ngIf="reports$|async as reports">
+                <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
+                  <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
+                    <div class="add-edit-mileage--internal-block">
+                      <app-fy-add-to-report *ngIf="reports.length > 0"
+                        [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'" [options]="reports"
+                        formControlName="report"></app-fy-add-to-report>
+                      <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
+                        <span class="add-edit-mileage--text-label">
+                          Add to New Report
+                        </span>
+                      </mat-checkbox>
+                    </div>
                   </ng-container>
                 </ng-container>
               </ng-container>
@@ -447,13 +443,13 @@
 
           <div *ngIf="mode === 'add'">
             <ng-container *ngIf="isExpandedView;else expandViewContent">
-              <div class="expansion-btn" fill="clear" (click)="isExpandedView=false">
+              <div class="expansion-btn" fill="clear" (click)="hideFields()">
                 Hide more fields
                 <ion-icon class="expansion-icon" name="chevron-up"></ion-icon>
               </div>
             </ng-container>
             <ng-template #expandViewContent>
-              <div class="expansion-btn" fill="clear" (click)="isExpandedView=true">
+              <div class="expansion-btn" fill="clear" (click)="showFields()">
                 Show more fields
                 <ion-icon class="expansion-icon" name="chevron-down"></ion-icon>
               </div>
@@ -461,12 +457,12 @@
           </div>
 
           <ng-container *ngIf="isConnected$">
-            <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+            <ng-container *ngIf="txnFields$|async as txnFields">
               <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                 <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                   <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
 
-                    <app-fy-alert *ngIf="transactionMandatoyFields.project && individualProjectIds.length === 0"
+                    <app-fy-alert *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                       [type]="'warning'"
                       [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
                     </app-fy-alert>
@@ -493,16 +489,14 @@
       [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}">
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
-          <ion-button (click)="saveExpense()" class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid"
-            appFormButtonValidation [loading]="saveMileageLoader" [loadingText]="'Saving'"
-            [disabled]="saveMileageLoader || saveAndNewMileageLoader">
-            Save
-          </ion-button>
           <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add'"
             [disabled]="fg.controls.add_to_new_report.value || (saveMileageLoader || saveAndNewMileageLoader)"
-            class="add-edit-mileage--primary-cta" color="fyle-primary" fill="solid" appFormButtonValidation
-            [loading]="saveAndNewMileageLoader" [loadingText]="'Saving'">
+            class="btn-secondary" appFormButtonValidation [loading]="saveAndNewMileageLoader" [loadingText]="'Saving'">
             Save & New
+          </ion-button>
+          <ion-button (click)="saveExpense()" class="btn-primary" appFormButtonValidation
+            [loading]="saveMileageLoader" [loadingText]="'Saving'" [disabled]="saveMileageLoader || saveAndNewMileageLoader">
+            Save
           </ion-button>
         </ion-buttons>
       </div>

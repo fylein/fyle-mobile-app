@@ -73,8 +73,12 @@
         <div class="view-expense--element-label">Merchant</div>
         <div class="view-expense--element-value">{{ etxn.tx_vendor || '-' }}</div>
       </div>
-      <div class="view-expense--element" *ngIf="orgSettings?.tax_settings?.enabled && orgSettings?.tax_settings?.name">
-        <div class="view-expense--element-label">{{orgSettings.tax_settings.name}}</div>
+      <div class="view-expense--element" *ngIf="orgSettings?.tax_settings?.enabled">
+        <div class="view-expense--element-label">Tax Group</div>
+        <div class="view-expense--element-value">{{ (etxn.tg_name) || '-' }}</div>
+      </div>
+      <div class="view-expense--element" *ngIf="orgSettings?.tax_settings?.enabled">
+        <div class="view-expense--element-label">{{orgSettings.tax_settings.name || 'Tax Amount'}}</div>
         <div class="view-expense--element-value">{{ (etxn.tx_tax | currency:etxn.tx_currency: 'symbol-narrow') || '-' }}</div>
       </div>
       <div class="view-expense--element">
