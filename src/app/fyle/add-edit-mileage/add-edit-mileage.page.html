@@ -214,9 +214,9 @@
             </ion-grid>
 
             <ng-container *ngIf="isAdvancesEnabled$">
-              <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)"
+              <app-fy-alert-info *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)"
                 [message]="'You have outstanding balance in your advance account(s)'" [type]="'information'">
-              </app-fy-alert>
+              </app-fy-alert-info>
             </ng-container>
           </div>
 
@@ -462,10 +462,10 @@
                 <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                   <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
 
-                    <app-fy-alert *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
+                    <app-fy-alert-info *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                       [type]="'warning'"
                       [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
-                    </app-fy-alert>
+                    </app-fy-alert-info>
 
                   </ng-container>
                 </ng-container>

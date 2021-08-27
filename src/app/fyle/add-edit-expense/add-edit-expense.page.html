@@ -216,9 +216,9 @@
             </ion-row>
           </ion-grid>
           <ng-container *ngIf="isAdvancesEnabled$">
-            <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC"
+            <app-fy-alert-info *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC"
               [message]="'You have outstanding balance in your advance account(s)'" [type]="'information'">
-            </app-fy-alert>
+            </app-fy-alert-info>
           </ng-container>
         </div>
 
@@ -265,11 +265,11 @@
         </ng-container>
 
         <div class="add-edit-expense--primary-block">
-          <app-fy-alert
+          <app-fy-alert-info
             *ngIf="(isCCCAccountSelected$|async) && !selectedCCCTransaction && canChangeMatchingCCCTransaction && !(transactionInReport$|async)"
             [message]="'Expense will be saved as a draft. Kindly ensure that it is matched with an appropriate card transaction later, although we will attempt to auto-match it for you.'"
             [type]="'warning'">
-          </app-fy-alert>
+          </app-fy-alert-info>
 
           <ng-container *ngIf="txnFields$|async as txnFields">
             <div class="add-edit-expense--project-container" *ngIf="txnFields?.project_id">
@@ -745,9 +745,9 @@
         </div>
       </div>
 
-      <app-fy-alert *ngIf="isNotReimbursable$|async" [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
+      <app-fy-alert-info *ngIf="isNotReimbursable$|async" [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
                     [type]="'information'">
-      </app-fy-alert>
+      </app-fy-alert-info>
 
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container *ngIf="etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction">
@@ -803,10 +803,10 @@
             <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
               <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
 
-                <app-fy-alert *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
+                <app-fy-alert-info *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                   [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
                   [type]="'warning'">
-                </app-fy-alert>
+                </app-fy-alert-info>
 
               </ng-container>
             </ng-container>

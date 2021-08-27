@@ -48,7 +48,7 @@ export class IconModule {
     'hotel.svg',
     'insta-fyle.svg', 'instafyle.svg', 'internet.svg', 'ionic-log-out-outline.svg', 'information.svg',
     'logo-icon-white.svg', 'logo-white.svg', 'list.svg',
-    'mail.svg', 'mileage.svg',
+    'mail.svg', 'mileage.svg', 'no-attachment.svg',
     'office-supplies.svg',
     'parking.svg', 'per_diem.svg', 'phone.svg', 'professional-service.svg', 'plus.svg', 'profile.svg',
     'search.svg', 'settings.svg', 'single.svg', 'snacks.svg',
