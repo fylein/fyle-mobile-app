@@ -276,6 +276,8 @@ export class AddEditExpensePage implements OnInit {
 
   taxGroupsOptions$: Observable<{label: string; value: any}[]>;
 
+  source: string = 'MOBILE';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -862,96 +864,16 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getInstaFyleImageData() {
-    if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
-      const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
-      const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
-      return from(this.transactionOutboxService.parseReceipt(b64Image))
-        .pipe(
-          timeout(15000),
-          map((parsedResponse) => ({
-            parsedResponse: parsedResponse.data,
-            auditCallBackUrl: parsedResponse.callback_url
-          })),
-          catchError((err) => of({
-            error: true,
-            parsedResponse: {
-              source: 'MOBILE_INSTA'
-            }
-          })),
-          switchMap((extractedDetails: any) => {
-            const instaFyleImageData = {
-              thumbnail: this.activatedRoute.snapshot.params.dataUrl,
-              type: 'image',
-              url: this.activatedRoute.snapshot.params.dataUrl,
-              ...extractedDetails
-            };
-
-            if (extractedDetails.parsedResponse) {
-              return this.offlineService.getHomeCurrency().pipe(
-                switchMap(homeCurrency => {
-                  if (homeCurrency !== extractedDetails.parsedResponse.currency) {
-                    return this.currencyService.getExchangeRate(
-                      extractedDetails.parsedResponse.currency,
-                      homeCurrency,
-                      extractedDetails.parsedResponse.date ?
-                        new Date(extractedDetails.parsedResponse.date) :
-                        new Date()
-                    ).pipe(
-                      catchError(err => of(null)),
-                      map(exchangeRate => ({
-                        ...instaFyleImageData,
-                        exchangeRate
-                      }))
-                    );
-                  } else {
-                    return of(instaFyleImageData);
-                  }
-                })
-              );
-            } else {
-              return of(instaFyleImageData);
-            }
-          })
-        );
-    } else if (this.activatedRoute.snapshot.params.dataUrl) {
-      const instaFyleImageData = {
-        thumbnail: this.activatedRoute.snapshot.params.dataUrl,
-        type: 'image',
-        url: this.activatedRoute.snapshot.params.dataUrl,
-      };
-      return of(instaFyleImageData);
-    } else {
-      return of(null);
-    }
-  }
-
   getNewExpenseObservable() {
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
-
-
-    const instaFyleSettings$ = this.orgUserSettings$.pipe(
-      map(orgUserSettings => orgUserSettings.insta_fyle_settings),
-      map(instaFyleSettings => ({
-        shouldExtractAmount: instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1,
-        shouldExtractCurrency: instaFyleSettings.extract_fields.indexOf('CURRENCY') > -1,
-        shouldExtractDate: instaFyleSettings.extract_fields.indexOf('TXN_DT') > -1,
-        shouldExtractCategory: instaFyleSettings.extract_fields.indexOf('CATEGORY') > -1,
-        shouldExtractMerchant: instaFyleSettings.extract_fields.indexOf('MERCHANT') > -1
-      }))
-    );
 
     return forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$,
       categories: this.offlineService.getAllEnabledCategories(),
       homeCurrency: this.homeCurrency$,
-      accounts: accounts$,
       eou: eou$,
-      instaFyleSettings: instaFyleSettings$,
-      imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
       recentValue: this.recentlyUsedValues$
     }).pipe(
@@ -961,10 +883,7 @@ export class AddEditExpensePage implements OnInit {
           orgUserSettings,
           categories,
           homeCurrency,
-          accounts,
           eou,
-          instaFyleSettings,
-          imageData,
           recentCurrency,
           recentValue
         } = dependencies;
@@ -985,11 +904,13 @@ export class AddEditExpensePage implements OnInit {
               policy_amount: null,
               locations: [],
               custom_properties: [],
-              num_files: this.activatedRoute.snapshot.params.dataUrl ? 1 : 0,
+              num_files: 0,
               org_user_id: eou.ou.id
             },
             dataUrls: []
           };
+
+          this.source = 'MOBILE';
 
           if (orgUserSettings.currency_settings && orgUserSettings.currency_settings.enabled) {
             if (orgUserSettings.currency_settings.preferred_currency) {
@@ -1046,69 +967,8 @@ export class AddEditExpensePage implements OnInit {
             dataUrls: []
           };
         }
-        if (imageData && imageData.error) {
-          this.instaFyleCancelled = true;
-        } else if (imageData && imageData.parsedResponse) {
-          const extractedData = {
-            amount: imageData && imageData.parsedResponse && imageData.parsedResponse.amount,
-            currency: imageData && imageData.parsedResponse && imageData.parsedResponse.currency,
-            category: imageData && imageData.parsedResponse && imageData.parsedResponse.category,
-            date: (imageData && imageData.parsedResponse && imageData.parsedResponse.date) ? new Date(imageData.parsedResponse.date) : null,
-            vendor: imageData && imageData.parsedResponse && imageData.parsedResponse.vendor_name,
-            invoice_dt: imageData && imageData.parsedResponse && imageData.parsedResponse.invoice_dt || null
-          };
 
-          etxn.tx.extracted_data = extractedData;
-
-          if (instaFyleSettings.shouldExtractAmount && extractedData.amount) {
-            etxn.tx.amount = extractedData.amount;
-          }
-
-          if (instaFyleSettings.shouldExtractCurrency && extractedData.currency) {
-            etxn.tx.currency = extractedData.currency;
-
-
-            if (homeCurrency !== extractedData.currency &&
-              instaFyleSettings.shouldExtractAmount &&
-              extractedData.amount &&
-              imageData.exchangeRate) {
-              etxn.tx.orig_amount = extractedData.amount;
-              etxn.tx.orig_currency = extractedData.currency;
-              etxn.tx.amount = imageData.exchangeRate * extractedData.amount;
-              etxn.tx.currency = homeCurrency;
-            }
-          }
-
-          if (instaFyleSettings.shouldExtractDate && extractedData.date) {
-            etxn.tx.txn_dt = new Date(extractedData.date);
-          }
-
-          if (instaFyleSettings.shouldExtractDate && extractedData.invoice_dt) {
-            etxn.tx.txn_dt = new Date(extractedData.invoice_dt);
-          }
-
-          if (instaFyleSettings.shouldExtractMerchant && extractedData.vendor) {
-            etxn.tx.vendor = extractedData.vendor;
-          }
-
-          if (instaFyleSettings.shouldExtractCategory && extractedData.category) {
-            const categoryName = extractedData.category || 'unspecified';
-            const category = categories.find(orgCategory => orgCategory.name === categoryName);
-            etxn.tx.org_category_id = category && category.id;
-          }
-
-          etxn.tx.source = 'MOBILE_INSTA';
-        }
-
-        if (imageData && imageData.url) {
-          etxn.dataUrls.push({
-            url: imageData.url,
-            type: 'image',
-            thumbnail: imageData.url
-          });
-          etxn.tx.num_files = etxn.dataUrls.length;
-          etxn.tx.source = 'MOBILE_INSTA';
-        }
+        this.source = 'MOBILE';
 
         return etxn;
       }),
@@ -1919,6 +1779,8 @@ export class AddEditExpensePage implements OnInit {
   getEditExpenseObservable() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       switchMap(etxn => {
+        this.source = etxn.tx.source || 'MOBILE';
+
         const instaFyleSettings$ = this.orgUserSettings$.pipe(
           map(orgUserSettings => orgUserSettings.insta_fyle_settings)
         );
@@ -2434,6 +2296,7 @@ export class AddEditExpensePage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
+            source: this.source || etxn.tx.source,
             source_account_id: this.fg.value.paymentMode.acc.id,
             billable: this.fg.value.billable,
             skip_reimbursement: this.fg.value.paymentMode &&
@@ -3372,6 +3235,15 @@ export class AddEditExpensePage implements OnInit {
           fileObj.type = (fileObj.type === 'application/pdf' || fileObj.type === 'pdf') ? 'pdf' : 'image';
           return fileObj;
         });
+
+        if (!(this.source.includes('_CAMERA') || this.source.includes('_FILE'))) {
+          if (this.newExpenseDataUrls.some(fileObj => fileObj.type === 'pdf' )) {
+            this.source = 'MOBILE_FILE';
+          } else if (this.newExpenseDataUrls.some(fileObj => fileObj.type === 'image' )){
+            this.source = 'MOBILE_CAMERA';
+          }
+        }
+
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(
           take(1)
