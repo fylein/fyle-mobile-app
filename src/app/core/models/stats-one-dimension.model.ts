@@ -1,19 +1,24 @@
 export class StatsOneDResponse {
-
   dimensions: string[];
 
   name: string;
 
-  value: [{
-    aggregates?: [{
-      function_name?: string;
-      function_value?: any;
-    }];
-    key?: [{
-      column_name?: string;
-      column_value?: any;
-    }];
-  }];
+  value: [
+    {
+      aggregates?: [
+        {
+          function_name?: string;
+          function_value?: any;
+        }
+      ];
+      key?: [
+        {
+          column_name?: string;
+          column_value?: any;
+        }
+      ];
+    }
+  ];
 
   constructor(statObj: any) {
     this.dimensions = statObj.dimensions;
@@ -21,8 +26,8 @@ export class StatsOneDResponse {
     this.value = statObj.value;
   }
 
-  getStatAggregatesByIdx<T>(index: number): Array<{value: T; key: string}> {
-    return this.value.map(stat =>  ({
+  getStatAggregatesByIdx<T>(index: number): Array<{ value: T; key: string }> {
+    return this.value.map((stat) => ({
       value: stat.aggregates.length && stat.aggregates[index].function_value,
       key: stat.key.length && stat.key[index].column_value
     }));
@@ -35,7 +40,7 @@ export class StatsOneDResponse {
 
   public getStatsCountBySource(source: string, index = 0) {
     const stats = this.getStatAggregatesByIdx<number>(index);
-    const filteresStatsRes = stats.filter(stat => stat.key.toLowerCase().indexOf(source.toLowerCase()) > -1);
+    const filteresStatsRes = stats.filter((stat) => stat.key.toLowerCase().indexOf(source.toLowerCase()) > -1);
     return filteresStatsRes.reduce((acc, statValue) => acc + statValue.value, 0);
   }
 }

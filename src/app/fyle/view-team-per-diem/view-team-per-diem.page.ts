@@ -18,10 +18,9 @@ import { StatusService } from 'src/app/core/services/status.service';
 @Component({
   selector: 'app-view-team-per-diem',
   templateUrl: './view-team-per-diem.page.html',
-  styleUrls: ['./view-team-per-diem.page.scss'],
+  styleUrls: ['./view-team-per-diem.page.scss']
 })
 export class ViewTeamPerDiemPage implements OnInit {
-
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedPerDiem$: Observable<Expense>;
@@ -60,7 +59,7 @@ export class ViewTeamPerDiemPage implements OnInit {
     private router: Router,
     private popoverController: PopoverController,
     private statusService: StatusService
-  ) { }
+  ) {}
 
   isNumber(val) {
     return typeof val === 'number';
@@ -93,43 +92,48 @@ export class ViewTeamPerDiemPage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedPerDiem$ = this.updateFlag$.pipe(
-      switchMap(() => from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.transactionService.getExpenseV2(id))
-      )),
+      switchMap(() =>
+        from(this.loaderService.showLoader()).pipe(switchMap(() => this.transactionService.getExpenseV2(id)))
+      ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
 
-    this.extendedPerDiem$.subscribe(res => {
+    this.extendedPerDiem$.subscribe((res) => {
       this.reportId = res.tx_report_id;
     });
 
-    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay(1)
-    );
+    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
 
     this.perDiemCustomFields$ = this.extendedPerDiem$.pipe(
-      switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
-      map(res => res.map(customProperties => {
-        customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-        return customProperties;
-      }))
+      switchMap((res) =>
+        this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)
+      ),
+      map((res) =>
+        res.map((customProperties) => {
+          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+          return customProperties;
+        })
+      )
     );
 
     this.perDiemRate$ = this.extendedPerDiem$.pipe(
-      switchMap(res => {
+      switchMap((res) => {
         const perDiemRateId = parseInt(res.tx_per_diem_rate_id, 10);
         return this.perDiemService.getRate(perDiemRateId);
       })
     );
 
     this.canFlagOrUnflag$ = this.extendedPerDiem$.pipe(
-      map(etxn => ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1)
+      map(
+        (etxn) =>
+          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
+      )
     );
 
     this.canDelete$ = this.extendedPerDiem$.pipe(
-      concatMap(etxn => this.reportService.getTeamReport(etxn.tx_report_id)),
-      map(report => {
+      concatMap((etxn) => this.reportService.getTeamReport(etxn.tx_report_id)),
+      map((report) => {
         if (report.rp_num_transactions === 1) {
           return false;
         }
@@ -145,11 +149,11 @@ export class ViewTeamPerDiemPage implements OnInit {
     // })
 
     this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
-      map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+      map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
 
     this.isAmountCapped$ = this.extendedPerDiem$.pipe(
-      map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+      map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
 
     this.updateFlag$.next();
@@ -174,7 +178,5 @@ export class ViewTeamPerDiemPage implements OnInit {
     }
   }
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

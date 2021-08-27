@@ -11,10 +11,9 @@ import { ActionConfirmationPopoverComponent } from '../action-confirmation-popov
 @Component({
   selector: 'app-action-popover',
   templateUrl: './action-popover.component.html',
-  styleUrls: ['./action-popover.component.scss'],
+  styleUrls: ['./action-popover.component.scss']
 })
 export class ActionPopoverComponent implements OnInit {
-
   @Input() actions;
 
   constructor(
@@ -23,7 +22,7 @@ export class ActionPopoverComponent implements OnInit {
     private tripRequestsService: TripRequestsService,
     private loaderService: LoaderService,
     private reouter: Router
-  ) { }
+  ) {}
 
   async openRejectRequestPoup() {
     this.popoverController.dismiss();
@@ -40,24 +39,26 @@ export class ActionPopoverComponent implements OnInit {
 
     const { data } = await actionConfirmationPopover.onDidDismiss();
     if (data && data.message) {
-      from(this.loaderService.showLoader('Rejecting Trip')).pipe(
-        switchMap(() => {
-          const status = {
-            comment: data.message
-          };
+      from(this.loaderService.showLoader('Rejecting Trip'))
+        .pipe(
+          switchMap(() => {
+            const status = {
+              comment: data.message
+            };
 
-          const addStatusPayload = {
-            status,
-            notify: false
-          };
+            const addStatusPayload = {
+              status,
+              notify: false
+            };
 
-          return this.tripRequestsService.reject(this.actions.id, addStatusPayload);
-        }),
-        finalize(() => {
-          this.loaderService.hideLoader();
-          this.reouter.navigate(['/', 'enterprise', 'team_trips']);
-        })
-      ).subscribe(noop);
+            return this.tripRequestsService.reject(this.actions.id, addStatusPayload);
+          }),
+          finalize(() => {
+            this.loaderService.hideLoader();
+            this.reouter.navigate(['/', 'enterprise', 'team_trips']);
+          })
+        )
+        .subscribe(noop);
     }
   }
 
@@ -76,22 +77,24 @@ export class ActionPopoverComponent implements OnInit {
 
     const { data } = await actionConfirmationPopover.onDidDismiss();
     if (data && data.message) {
-      from(this.loaderService.showLoader('Sending Back')).pipe(
-        switchMap(() => {
-          const addStatusPayload = {
-            status: {
-              comment: data.message
-            },
-            notify: false
-          };
+      from(this.loaderService.showLoader('Sending Back'))
+        .pipe(
+          switchMap(() => {
+            const addStatusPayload = {
+              status: {
+                comment: data.message
+              },
+              notify: false
+            };
 
-          return this.tripRequestsService.inquire(this.actions.id, addStatusPayload);
-        }),
-        finalize(() => {
-          this.loaderService.hideLoader();
-          this.reouter.navigate(['/', 'enterprise', 'team_trips']);
-        })
-      ).subscribe(noop);
+            return this.tripRequestsService.inquire(this.actions.id, addStatusPayload);
+          }),
+          finalize(() => {
+            this.loaderService.hideLoader();
+            this.reouter.navigate(['/', 'enterprise', 'team_trips']);
+          })
+        )
+        .subscribe(noop);
     }
   }
 
@@ -106,18 +109,17 @@ export class ActionPopoverComponent implements OnInit {
     });
 
     if (popupResult === 'primary') {
-      from(this.loaderService.showLoader('Approving trip request')).pipe(
-        switchMap(() => this.tripRequestsService.approve(this.actions.id)),
-        finalize(() => {
-          this.loaderService.hideLoader();
-          this.reouter.navigate(['/', 'enterprise', 'team_trips']);
-        })
-      ).subscribe(noop);
+      from(this.loaderService.showLoader('Approving trip request'))
+        .pipe(
+          switchMap(() => this.tripRequestsService.approve(this.actions.id)),
+          finalize(() => {
+            this.loaderService.hideLoader();
+            this.reouter.navigate(['/', 'enterprise', 'team_trips']);
+          })
+        )
+        .subscribe(noop);
     }
   }
 
-  ngOnInit() {
-
-  }
-
+  ngOnInit() {}
 }

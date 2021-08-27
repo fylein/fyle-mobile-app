@@ -6,10 +6,7 @@ import { Cacheable } from 'ts-cacheable';
   providedIn: 'root'
 })
 export class TripRequestCustomFieldsService {
-
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) {}
 
   sortCustomFieldsByType(customField1, customField2) {
     if (customField1.type > customField2.type) {
@@ -25,8 +22,7 @@ export class TripRequestCustomFieldsService {
 
   filterByRequestTypeAndTripType(customFields, requestType, tripType) {
     return customFields
-      .filter((customField) =>
-        (customField.request_type === requestType && customField.trip_type.indexOf(tripType) > -1))
+      .filter((customField) => customField.request_type === requestType && customField.trip_type.indexOf(tripType) > -1)
       .sort(this.sortCustomFieldsByType);
   }
 

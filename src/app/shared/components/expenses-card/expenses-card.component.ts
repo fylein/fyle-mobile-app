@@ -13,10 +13,9 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 @Component({
   selector: 'app-expense-card',
   templateUrl: './expenses-card.component.html',
-  styleUrls: ['./expenses-card.component.scss'],
+  styleUrls: ['./expenses-card.component.scss']
 })
 export class ExpensesCardComponent implements OnInit {
-
   @Input() expense: Expense;
 
   @Input() previousExpenseTxnDate;
@@ -70,8 +69,7 @@ export class ExpensesCardComponent implements OnInit {
     private offlineService: OfflineService,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
-  ) { }
-
+  ) {}
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
@@ -81,9 +79,9 @@ export class ExpensesCardComponent implements OnInit {
 
   get isSelected() {
     if (this.expense.tx_id) {
-      return this.selectedElements.some(txn => this.expense.tx_id === txn.tx_id);
+      return this.selectedElements.some((txn) => this.expense.tx_id === txn.tx_id);
     } else {
-      return this.selectedElements.some(txn => isEqual(this.expense, txn));
+      return this.selectedElements.some((txn) => isEqual(this.expense, txn));
     }
   }
 
@@ -101,37 +99,42 @@ export class ExpensesCardComponent implements OnInit {
   ngOnInit() {
     this.setupNetworkWatcher();
     this.isSycing$ = this.isConnected$.pipe(
-      map(isConnected => isConnected &&
-        this.transactionOutboxService.isSyncInProgress() &&
-        this.isOutboxExpense
-      )
+      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
     this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
-    this.expense.isPolicyViolated = (this.expense.tx_manual_flag || this.expense.tx_policy_flag);
+    this.expense.isPolicyViolated = this.expense.tx_manual_flag || this.expense.tx_policy_flag;
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
     this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
 
-    this.offlineService.getHomeCurrency().pipe(
-      map((homeCurrency) => {
-        this.homeCurrency = homeCurrency;
-        this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
-        this.foreignCurrencySymbol = getCurrencySymbol(this.expense.tx_orig_currency, 'wide');
-      })
-    ).subscribe(noop);
+    this.offlineService
+      .getHomeCurrency()
+      .pipe(
+        map((homeCurrency) => {
+          this.homeCurrency = homeCurrency;
+          this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+          this.foreignCurrencySymbol = getCurrencySymbol(this.expense.tx_orig_currency, 'wide');
+        })
+      )
+      .subscribe(noop);
 
-    this.isProjectMandatory$ = this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => orgSettings.transaction_fields_settings &&
-        orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
-        orgSettings.transaction_fields_settings.transaction_mandatory_fields.project)
-    );
+    this.isProjectMandatory$ = this.offlineService
+      .getOrgSettings()
+      .pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.transaction_fields_settings &&
+            orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
+            orgSettings.transaction_fields_settings.transaction_mandatory_fields.project
+        )
+      );
 
     if (!this.expense.tx_id) {
       this.showDt = !!this.isFirstOfflineExpense;
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
-      const currentDate = (this.expense && (new Date(this.expense.tx_txn_dt || this.expense.tx_created_at)).toDateString());
+      const currentDate = this.expense && new Date(this.expense.tx_txn_dt || this.expense.tx_created_at).toDateString();
       const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
       this.showDt = currentDate !== previousDate;
     }
@@ -141,7 +144,6 @@ export class ExpensesCardComponent implements OnInit {
     this.isScanInProgress = this.getScanningReceiptCard(this.expense) || this.isOutboxExpense;
 
     this.setOtherData();
-
   }
 
   setOtherData() {
@@ -161,8 +163,10 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getScanningReceiptCard(expense: Expense): boolean {
-    if (expense.tx_fyle_category &&
-      (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')) {
+    if (
+      expense.tx_fyle_category &&
+      (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')
+    ) {
       return false;
     } else {
       if (!expense.tx_currency && !expense.tx_amount) {
@@ -191,5 +195,4 @@ export class ExpensesCardComponent implements OnInit {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
-
 }

@@ -7,16 +7,18 @@ describe('MyViewAdvanceRequestPage', () => {
   let component: MyViewAdvanceRequestPage;
   let fixture: ComponentFixture<MyViewAdvanceRequestPage>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ MyViewAdvanceRequestPage ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [MyViewAdvanceRequestPage],
+        imports: [IonicModule.forRoot()]
+      }).compileComponents();
 
-    fixture = TestBed.createComponent(MyViewAdvanceRequestPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+      fixture = TestBed.createComponent(MyViewAdvanceRequestPage);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    })
+  );
 
   it('should create', () => {
     expect(component).toBeTruthy();

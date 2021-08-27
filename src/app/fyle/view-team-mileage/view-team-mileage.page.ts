@@ -1,5 +1,5 @@
-import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
-import {Observable, from, Subject, concat} from 'rxjs';
+import { Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Observable, from, Subject, concat } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,20 +8,19 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import {switchMap, finalize, shareReplay, map, concatMap, tap, takeUntil} from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, tap, takeUntil } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 import { PopoverController, IonContent } from '@ionic/angular';
-import {NetworkService} from '../../core/services/network.service';
+import { NetworkService } from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
   selector: 'app-view-team-mileage',
   templateUrl: './view-team-mileage.page.html',
-  styleUrls: ['./view-team-mileage.page.scss'],
+  styleUrls: ['./view-team-mileage.page.scss']
 })
 export class ViewTeamMileagePage implements OnInit {
-
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedMileage$: Observable<Expense>;
@@ -62,7 +61,7 @@ export class ViewTeamMileagePage implements OnInit {
     private router: Router,
     private networkService: NetworkService,
     private statusService: StatusService
-  ) { }
+  ) {}
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -101,7 +100,7 @@ export class ViewTeamMileagePage implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
+    this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId }]);
   }
 
   onUpdateFlag(event) {
@@ -125,7 +124,7 @@ export class ViewTeamMileagePage implements OnInit {
     const { data } = await popover.onWillDismiss();
 
     if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id}]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
     }
   }
 
@@ -134,36 +133,41 @@ export class ViewTeamMileagePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedMileage$ = this.updateFlag$.pipe(
-      switchMap(() => from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.transactionService.getExpenseV2(id))
-      )),
+      switchMap(() =>
+        from(this.loaderService.showLoader()).pipe(switchMap(() => this.transactionService.getExpenseV2(id)))
+      ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
 
-    this.extendedMileage$.subscribe(res => {
+    this.extendedMileage$.subscribe((res) => {
       this.reportId = res.tx_report_id;
     });
 
-    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay(1)
-    );
+    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
-      map(res => res.map(customProperties => {
-        customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-        return customProperties;
-      }))
+      switchMap((res) =>
+        this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)
+      ),
+      map((res) =>
+        res.map((customProperties) => {
+          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+          return customProperties;
+        })
+      )
     );
 
     this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
-      map(etxn => ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1)
+      map(
+        (etxn) =>
+          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
+      )
     );
 
     this.canDelete$ = this.extendedMileage$.pipe(
-      concatMap(etxn => this.reportService.getTeamReport(etxn.tx_report_id)),
-      map(report => {
+      concatMap((etxn) => this.reportService.getTeamReport(etxn.tx_report_id)),
+      map((report) => {
         if (report.rp_num_transactions === 1) {
           return false;
         }
@@ -175,18 +179,15 @@ export class ViewTeamMileagePage implements OnInit {
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
-      map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+      map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
 
     this.isAmountCapped$ = this.extendedMileage$.pipe(
-      map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+      map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
 
     this.updateFlag$.next();
   }
 
-
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

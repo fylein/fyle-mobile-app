@@ -4,10 +4,9 @@ import { ModalController } from '@ionic/angular';
 @Component({
   selector: 'app-policy-violation-dialog',
   templateUrl: './policy-violation-dialog.component.html',
-  styleUrls: ['./policy-violation-dialog.component.scss'],
+  styleUrls: ['./policy-violation-dialog.component.scss']
 })
 export class PolicyViolationDialogComponent implements OnInit {
-
   @Input() latestComment: string;
 
   @Input() violatedPolicyRules: string[];
@@ -16,10 +15,7 @@ export class PolicyViolationDialogComponent implements OnInit {
 
   newComment: string;
 
-  constructor(
-    private modalController: ModalController
-  ) { }
-
+  constructor(private modalController: ModalController) {}
 
   closePolicyModal() {
     this.modalController.dismiss();
@@ -34,5 +30,4 @@ export class PolicyViolationDialogComponent implements OnInit {
   ngOnInit() {
     this.newComment = this.latestComment;
   }
-
 }

@@ -8,7 +8,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 @Component({
   selector: 'app-select-currency',
   templateUrl: './select-currency.component.html',
-  styleUrls: ['./select-currency.component.scss'],
+  styleUrls: ['./select-currency.component.scss']
 })
 export class SelectCurrencyComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
@@ -21,12 +21,14 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
     private currencyService: CurrencyService,
     private modalController: ModalController,
     private loaderService: LoaderService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
       concatMap(() => this.currencyService.getAll()),
-      map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({ shortCode, longName: currenciesObj[shortCode] }))),
+      map((currenciesObj) =>
+        Object.keys(currenciesObj).map((shortCode) => ({ shortCode, longName: currenciesObj[shortCode] }))
+      ),
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
       }),
@@ -41,15 +43,17 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => this.currencies$.pipe(
-        map(
-          currencies => currencies
-            .filter(
-              currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
-                  || currency.longName.toLowerCase().includes(searchText.toLowerCase())
+      switchMap((searchText) =>
+        this.currencies$.pipe(
+          map((currencies) =>
+            currencies.filter(
+              (currency) =>
+                currency.shortCode.toLowerCase().includes(searchText.toLowerCase()) ||
+                currency.longName.toLowerCase().includes(searchText.toLowerCase())
             )
+          )
         )
-      ))
+      )
     );
   }
 
@@ -62,5 +66,4 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
       currency
     });
   }
-
 }

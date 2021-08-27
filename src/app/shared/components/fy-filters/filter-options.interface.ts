@@ -1,4 +1,4 @@
-import {FilterOptionType} from './filter-option-type.enum';
+import { FilterOptionType } from './filter-option-type.enum';
 
 export interface FilterOptions<T> {
   optionType: FilterOptionType;

@@ -1,10 +1,10 @@
-import {Injectable} from '@angular/core';
-import {from, Observable, of, Subject} from 'rxjs';
-import {map, switchMap, tap} from 'rxjs/operators';
-import {Cacheable, CacheBuster} from 'ts-cacheable';
-import {ExtendedAdvance} from '../models/extended_advance.model';
-import {ApiV2Service} from './api-v2.service';
-import {AuthService} from './auth.service';
+import { Injectable } from '@angular/core';
+import { from, Observable, of, Subject } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { ExtendedAdvance } from '../models/extended_advance.model';
+import { ApiV2Service } from './api-v2.service';
+import { AuthService } from './auth.service';
 
 const advancesCacheBuster$ = new Subject<void>();
 
@@ -12,38 +12,40 @@ const advancesCacheBuster$ = new Subject<void>();
   providedIn: 'root'
 })
 export class AdvanceService {
-
-  constructor(
-    private apiv2Service: ApiV2Service,
-    private authService: AuthService
-  ) { }
-
+  constructor(private apiv2Service: ApiV2Service, private authService: AuthService) {}
 
   @Cacheable({
     cacheBusterObserver: advancesCacheBuster$
   })
-  getMyadvances(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
+  getMyadvances(
+    config: Partial<{ offset: number; limit: number; queryParams: any }> = {
+      offset: 0,
+      limit: 10,
+      queryParams: {}
+    }
+  ) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => this.apiv2Service.get('/advances', {
-        params: {
-          offset: config.offset,
-          limit: config.limit,
-          assignee_ou_id: 'eq.' + eou.ou.id,
-          ...config.queryParams
-        }
-      })),
-      map(res => res as {
-        count: number;
-        data: ExtendedAdvance[];
-        limit: number;
-        offset: number;
-        url: string;
-      }),
-      map(res => ({
+      switchMap((eou) =>
+        this.apiv2Service.get('/advances', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            assignee_ou_id: 'eq.' + eou.ou.id,
+            ...config.queryParams
+          }
+        })
+      ),
+      map(
+        (res) =>
+          res as {
+            count: number;
+            data: ExtendedAdvance[];
+            limit: number;
+            offset: number;
+            url: string;
+          }
+      ),
+      map((res) => ({
         ...res,
         data: res.data.map(this.fixDates)
       }))
@@ -58,15 +60,13 @@ export class AdvanceService {
   }
 
   getAdvance(id: string): Observable<ExtendedAdvance> {
-    return this.apiv2Service.get('/advances', {
-      params: {
-        adv_id: `eq.${id}`
-      }
-    }).pipe(
-      map(
-        res => this.fixDates(res.data[0]) as ExtendedAdvance
-      )
-    );
+    return this.apiv2Service
+      .get('/advances', {
+        params: {
+          adv_id: `eq.${id}`
+        }
+      })
+      .pipe(map((res) => this.fixDates(res.data[0]) as ExtendedAdvance));
   }
 
   getMyAdvancesCount(queryParams = {}) {
@@ -74,9 +74,7 @@ export class AdvanceService {
       offset: 0,
       limit: 1,
       queryParams
-    }).pipe(
-      map(advances => advances.count)
-    );
+    }).pipe(map((advances) => advances.count));
   }
 
   fixDates(data: ExtendedAdvance) {

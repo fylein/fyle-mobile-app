@@ -1,14 +1,13 @@
-import {Injectable} from '@angular/core';
-import {map} from 'rxjs/operators';
-import {cloneDeep} from 'lodash';
-import {CurrencyService} from './currency.service';
+import { Injectable } from '@angular/core';
+import { map } from 'rxjs/operators';
+import { cloneDeep } from 'lodash';
+import { CurrencyService } from './currency.service';
 import { UtilityService } from './utility.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TimezoneService {
-
   timezones = [
     {
       timezone: 'America/Louisville',
@@ -2932,10 +2931,7 @@ export class TimezoneService {
     }
   ];
 
-  constructor(
-    private currencService: CurrencyService,
-    private utilityService: UtilityService
-  ) { }
+  constructor(private currencService: CurrencyService, private utilityService: UtilityService) {}
 
   getTimezones() {
     return this.timezones;
@@ -2990,7 +2986,7 @@ export class TimezoneService {
   convertAllDatesToProperLocale(object, offset) {
     const that = this;
     const copiedObject = cloneDeep(object);
-    return that.utilityService.traverse(copiedObject, function(prop) {
+    return that.utilityService.traverse(copiedObject, function (prop) {
       if (prop instanceof Date) {
         prop.setHours(12);
         prop.setMinutes(0);

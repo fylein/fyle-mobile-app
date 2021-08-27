@@ -1,9 +1,9 @@
-import {Component, OnInit, forwardRef, Input, Injector} from '@angular/core';
-import {NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
+import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
+import { NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { noop, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import {FyUserlistModalComponent} from './fy-userlist-modal/fy-userlist-modal.component';
+import { FyUserlistModalComponent } from './fy-userlist-modal/fy-userlist-modal.component';
 import { Employee } from 'src/app/core/models/employee.model';
 import { cloneDeep } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -21,7 +21,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FyUserlistComponent implements OnInit {
-
   @Input() options: { label: string; value: any }[];
 
   @Input() disabled = false;
@@ -56,7 +55,7 @@ export class FyUserlistComponent implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);

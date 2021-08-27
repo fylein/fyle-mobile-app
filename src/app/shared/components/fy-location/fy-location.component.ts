@@ -18,7 +18,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FyLocationComponent implements ControlValueAccessor, OnInit {
-
   @Input() label = 'location';
 
   @Input() mandatory = false;
@@ -55,7 +54,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);

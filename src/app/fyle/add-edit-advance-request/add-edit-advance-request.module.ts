@@ -21,8 +21,6 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 
-
-
 @NgModule({
   imports: [
     CommonModule,

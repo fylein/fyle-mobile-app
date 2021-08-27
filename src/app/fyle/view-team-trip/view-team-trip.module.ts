@@ -14,7 +14,6 @@ import { ActionPopoverComponent } from './action-popover/action-popover.componen
 import { MatRippleModule } from '@angular/material/core';
 import { ActionConfirmationPopoverComponent } from './action-confirmation-popover/action-confirmation-popover.component';
 
-
 @NgModule({
   imports: [
     CommonModule,

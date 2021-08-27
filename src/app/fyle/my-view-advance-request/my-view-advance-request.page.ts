@@ -19,7 +19,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 @Component({
   selector: 'app-my-view-advance-request',
   templateUrl: './my-view-advance-request.page.html',
-  styleUrls: ['./my-view-advance-request.page.scss'],
+  styleUrls: ['./my-view-advance-request.page.scss']
 })
 export class MyViewAdvanceRequestPage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
@@ -45,7 +45,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private modalController: ModalController,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private modalProperties: ModalPropertiesService
-  ) { }
+  ) {}
 
   getReceiptExtension(name) {
     let res = null;
@@ -69,10 +69,10 @@ export class MyViewAdvanceRequestPage implements OnInit {
       thumbnail: 'img/fy-receipt.svg'
     };
 
-    if (ext && (['pdf'].indexOf(ext) > -1)) {
+    if (ext && ['pdf'].indexOf(ext) > -1) {
       res.type = 'pdf';
       res.thumbnail = 'img/fy-pdf.svg';
-    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
       res.type = 'image';
       res.thumbnail = file.url;
     }
@@ -88,21 +88,21 @@ export class MyViewAdvanceRequestPage implements OnInit {
       shareReplay(1)
     );
 
-    this.actions$ = this.advanceRequestService.getActions(id).pipe(
-      shareReplay(1)
-    );
+    this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap(res => from(res)),
-      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
-        map(downloadUrl => {
-          fileObj.url = downloadUrl;
-          const details = this.getReceiptDetails(fileObj);
-          fileObj.type = details.type;
-          fileObj.thumbnail = details.thumbnail;
-          return fileObj;
-        })
-      )),
+      switchMap((res) => from(res)),
+      concatMap((fileObj: any) =>
+        this.fileService.downloadUrl(fileObj.id).pipe(
+          map((downloadUrl) => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        )
+      ),
       reduce((acc, curr) => acc.concat(curr), [] as File[])
     );
 
@@ -112,15 +112,19 @@ export class MyViewAdvanceRequestPage implements OnInit {
       advanceRequest: this.advanceRequest$,
       customFields: this.customFields$
     }).pipe(
-      map(res => {
+      map((res) => {
         let customFieldValues = [];
-        if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
-          customFieldValues = this.advanceRequestService
-            .modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+        if (
+          res.advanceRequest.areq_custom_field_values !== null &&
+          res.advanceRequest.areq_custom_field_values.length > 0
+        ) {
+          customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
+            JSON.parse(res.advanceRequest.areq_custom_field_values)
+          );
         }
 
-        res.customFields.map(customField => {
-          customFieldValues.filter(customFieldValue => {
+        res.customFields.map((customField) => {
+          customFieldValues.filter((customFieldValue) => {
             if (customField.id === customFieldValue.id) {
               customField.value = customFieldValue.value;
             }
@@ -154,17 +158,24 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
       const id = this.activatedRoute.snapshot.params.id;
 
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.advanceRequestService.pullBackadvanceRequest(id, addStatusPayload)),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_advances']);
-      });
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => this.advanceRequestService.pullBackadvanceRequest(id, addStatusPayload)),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'my_advances']);
+        });
     }
   }
 
   edit() {
-    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: this.activatedRoute.snapshot.params.id }]);
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'add_edit_advance_request',
+      { id: this.activatedRoute.snapshot.params.id }
+    ]);
   }
 
   async delete() {
@@ -199,7 +210,5 @@ export class MyViewAdvanceRequestPage implements OnInit {
     await attachmentsModal.present();
   }
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

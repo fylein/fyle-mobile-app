@@ -11,14 +11,12 @@ import { Employee } from 'src/app/core/models/employee.model';
 import { isEqual, cloneDeep } from 'lodash';
 import { ReportService } from 'src/app/core/services/report.service';
 
-
 @Component({
   selector: 'app-approver-dialog',
   templateUrl: './approver-dialog.component.html',
   styleUrls: ['./approver-dialog.component.scss']
 })
 export class ApproverDialogComponent implements OnInit, AfterViewInit {
-
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() approverEmailsList: string[] = [];
@@ -49,15 +47,16 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     private popoverController: PopoverController,
     private advanceRequestService: AdvanceRequestService,
     private reportService: ReportService
-  ) { }
+  ) {}
 
   closeApproverModal() {
     this.modalController.dismiss();
   }
 
   async saveUpdatedApproveList() {
-
-    const newAddedApprovers = this.approverEmailsList.filter(approver => this.intialSelectedApproverEmails.indexOf(approver) === -1);
+    const newAddedApprovers = this.approverEmailsList.filter(
+      (approver) => this.intialSelectedApproverEmails.indexOf(approver) === -1
+    );
 
     const saveApproverConfirmationPopover = await this.popoverController.create({
       component: ConfirmationCommentPopoverComponent,
@@ -71,23 +70,24 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
     const { data } = await saveApproverConfirmationPopover.onWillDismiss();
     if (data && data.message) {
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => from(newAddedApprovers)),
-        concatMap(approver => {
-          if (this.from === 'TRIP_REQUEST') {
-            return this.tripRequestsService.addApproverETripRequests(this.id, approver, data.message);
-          } else if (this.from === 'ADVANCE_REQUEST') {
-            return this.advanceRequestService.addApprover(this.id, approver, data.message);
-          }
-          else {
-            return this.reportService.addApprover(this.id, approver, data.message);
-          }
-        }),
-        reduce((acc, curr) => acc.concat(curr), []),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        this.modalController.dismiss({ reload: true });
-      });
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => from(newAddedApprovers)),
+          concatMap((approver) => {
+            if (this.from === 'TRIP_REQUEST') {
+              return this.tripRequestsService.addApproverETripRequests(this.id, approver, data.message);
+            } else if (this.from === 'ADVANCE_REQUEST') {
+              return this.advanceRequestService.addApprover(this.id, approver, data.message);
+            } else {
+              return this.reportService.addApprover(this.id, approver, data.message);
+            }
+          }),
+          reduce((acc, curr) => acc.concat(curr), []),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(() => {
+          this.modalController.dismiss({ reload: true });
+        });
     }
   }
 
@@ -100,12 +100,11 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     }
 
     this.areApproversAdded = isEqual(this.intialSelectedApproverEmails, this.approverEmailsList);
-
   }
 
   getDefaultUsersList() {
     const params: any = {
-      order: 'us_full_name.asc,us_email.asc,ou_id',
+      order: 'us_full_name.asc,us_email.asc,ou_id'
     };
 
     if (this.approverEmailsList.length > 0) {
@@ -115,11 +114,13 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     }
 
     return from(this.loaderService.showLoader('Loading...')).pipe(
-      switchMap(_ => this.orgUserService.getEmployeesBySearch(params)),
-      map(approvers => approvers.map(approver => {
-        approver.is_selected = true;
-        return approver;
-      })),
+      switchMap((_) => this.orgUserService.getEmployeesBySearch(params)),
+      map((approvers) =>
+        approvers.map((approver) => {
+          approver.is_selected = true;
+          return approver;
+        })
+      ),
       finalize(() => from(this.loaderService.hideLoader()))
     );
   }
@@ -127,7 +128,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
   getSearchedUsersList(searchText?: string) {
     const params: any = {
       limit: 20,
-      order: 'us_full_name.asc,us_email.asc,ou_id',
+      order: 'us_full_name.asc,us_email.asc,ou_id'
     };
 
     if (searchText) {
@@ -135,11 +136,15 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     }
 
     return this.orgUserService.getEmployeesBySearch(params).pipe(
-      map(eouc => eouc.filter(eou => this.approverEmailsList.indexOf(eou.us_email) === -1)),
-      map(eouc => eouc.map(eou => {
-        eou.is_selected = this.approverEmailsList.indexOf(eou.us_email) > -1;
-        return eou;
-      }).filter(employee => employee.us_email !== this.ownerEmail))
+      map((eouc) => eouc.filter((eou) => this.approverEmailsList.indexOf(eou.us_email) === -1)),
+      map((eouc) =>
+        eouc
+          .map((eou) => {
+            eou.is_selected = this.approverEmailsList.indexOf(eou.us_email) > -1;
+            return eou;
+          })
+          .filter((employee) => employee.us_email !== this.ownerEmail)
+      )
     );
   }
 
@@ -148,10 +153,12 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
       return this.getSearchedUsersList(searchText);
     } else {
       return this.getDefaultUsersList().pipe(
-        switchMap(employees => {
-          employees = employees.filter(employee => this.intialSelectedApproverEmails.indexOf(employee.us_email) === -1);
+        switchMap((employees) => {
+          employees = employees.filter(
+            (employee) => this.intialSelectedApproverEmails.indexOf(employee.us_email) === -1
+          );
           return this.getSearchedUsersList(null).pipe(
-            map(searchedEmployees => {
+            map((searchedEmployees) => {
               searchedEmployees = this.getSearchedEmployees(searchedEmployees, employees);
               return employees.concat(searchedEmployees);
             })
@@ -162,8 +169,9 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
   }
 
   getSearchedEmployees(searchedEmployees: Employee[], employees: Employee[]) {
-    searchedEmployees = searchedEmployees
-      .filter(searchedEmployee => !employees.find(employee => employee.us_email === searchedEmployee.us_email));
+    searchedEmployees = searchedEmployees.filter(
+      (searchedEmployee) => !employees.find((employee) => employee.us_email === searchedEmployee.us_email)
+    );
     return searchedEmployees;
   }
 

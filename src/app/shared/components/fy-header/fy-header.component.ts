@@ -1,13 +1,12 @@
-import {Component, Input, OnInit, EventEmitter, Output} from '@angular/core';
-import {HeaderState} from './header-state.enum';
+import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { HeaderState } from './header-state.enum';
 
 @Component({
   selector: 'app-fy-header',
   templateUrl: './fy-header.component.html',
-  styleUrls: ['./fy-header.component.scss'],
+  styleUrls: ['./fy-header.component.scss']
 })
 export class FyHeaderComponent implements OnInit {
-
   @Input() currentState: HeaderState;
 
   @Input() navigateBack = false;
@@ -22,8 +21,7 @@ export class FyHeaderComponent implements OnInit {
     return HeaderState;
   }
 
-  constructor(
-  ) { }
+  constructor() {}
 
   ngOnInit() {}
 

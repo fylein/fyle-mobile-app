@@ -9,12 +9,7 @@ import { DeepLinkRedirectionPageRoutingModule } from './deep-link-redirection-ro
 import { DeepLinkRedirectionPage } from './deep-link-redirection.page';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    DeepLinkRedirectionPageRoutingModule
-  ],
+  imports: [CommonModule, FormsModule, IonicModule, DeepLinkRedirectionPageRoutingModule],
   declarations: [DeepLinkRedirectionPage]
 })
 export class DeepLinkRedirectionPageModule {}

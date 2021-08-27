@@ -1,15 +1,14 @@
-import {Injectable} from '@angular/core';
-import {LoadingController} from '@ionic/angular';
-import {noop} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { LoadingController } from '@ionic/angular';
+import { noop } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoaderService {
+  constructor(private loadingController: LoadingController) {}
 
-  constructor(private loadingController: LoadingController) { }
-
-  async showLoader(message = 'Please wait...', duration = 1000 ) {
+  async showLoader(message = 'Please wait...', duration = 1000) {
     const loading = await this.loadingController.create({
       message,
       duration

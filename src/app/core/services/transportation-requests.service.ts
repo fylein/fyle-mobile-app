@@ -5,10 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class TransportationRequestsService {
-
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) {}
 
   getTransportationPreferredTiming() {
     return [
@@ -22,10 +19,10 @@ export class TransportationRequestsService {
 
   getTransportationModes() {
     return [
-      {value: 'FLIGHT', label: 'FLIGHT'},
-      {value: 'TRAIN', label: 'TRAIN'},
-      {value: 'BUS', label: 'BUS'},
-      {value: 'TAXI', label: 'TAXI'}
+      { value: 'FLIGHT', label: 'FLIGHT' },
+      { value: 'TRAIN', label: 'TRAIN' },
+      { value: 'BUS', label: 'BUS' },
+      { value: 'TAXI', label: 'TAXI' }
     ];
   }
 
@@ -44,12 +41,19 @@ export class TransportationRequestsService {
       } else if (transportationRequest.tb.id && !transportationRequest.tb.cancellation_requested) {
         transportationRequest.internalState = 'booked';
         transportationRequest.internalStateDisplayName = 'Booked';
-      } else if (transportationRequest.tb.id
-        && transportationRequest.tb.cancellation_requested
-        && transportationRequest.tc.id && transportationRequest.tb.num_boarding_pass_files > 0) {
+      } else if (
+        transportationRequest.tb.id &&
+        transportationRequest.tb.cancellation_requested &&
+        transportationRequest.tc.id &&
+        transportationRequest.tb.num_boarding_pass_files > 0
+      ) {
         transportationRequest.internalState = 'boardingPassAttached';
         transportationRequest.internalStateDisplayName = 'Boarding Pass Attached';
-      } else if (transportationRequest.tb.id && transportationRequest.tb.cancellation_requested && transportationRequest.tc.id) {
+      } else if (
+        transportationRequest.tb.id &&
+        transportationRequest.tb.cancellation_requested &&
+        transportationRequest.tc.id
+      ) {
         transportationRequest.internalState = 'cancelled';
         transportationRequest.internalStateDisplayName = 'Cancelled';
       } else if (transportationRequest.tb.id && transportationRequest.tb.cancellation_requested) {

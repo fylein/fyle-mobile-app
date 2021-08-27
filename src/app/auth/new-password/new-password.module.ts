@@ -1,22 +1,22 @@
-import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import {IonicModule} from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 
-import {NewPasswordPageRoutingModule} from './new-password-routing.module';
+import { NewPasswordPageRoutingModule } from './new-password-routing.module';
 
-import {NewPasswordPage} from './new-password.page';
+import { NewPasswordPage } from './new-password.page';
 
-import {MatFormFieldModule} from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
-import {MatInputModule} from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
 
-import {MatIconModule} from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 
-import {PopupComponent} from './popup/popup.component';
+import { PopupComponent } from './popup/popup.component';
 
 @NgModule({
   imports: [
@@ -31,9 +31,6 @@ import {PopupComponent} from './popup/popup.component';
     MatIconModule,
     MatButtonModule
   ],
-  declarations: [
-    NewPasswordPage,
-    PopupComponent
-  ]
+  declarations: [NewPasswordPage, PopupComponent]
 })
-export class NewPasswordPageModule { }
+export class NewPasswordPageModule {}

@@ -27,9 +27,7 @@ import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-m
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FyAlertComponent } from './components/fy-alert/fy-alert.component';
 import { FyDuplicateDetectionComponent } from './components/fy-duplicate-detection/fy-duplicate-detection.component';
-import {
-  FyDuplicateDetectionModalComponent
-} from './components/fy-duplicate-detection/fy-duplicate-detection-modal/fy-duplicate-detection-modal.component';
+import { FyDuplicateDetectionModalComponent } from './components/fy-duplicate-detection/fy-duplicate-detection-modal/fy-duplicate-detection-modal.component';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { ApproverDialogComponent } from './components/fy-apporver/approver-dialog/approver-dialog.component';
@@ -48,9 +46,7 @@ import { ViewCommentComponent } from './components/comments-history/view-comment
 import { AuditHistoryComponent } from './components/comments-history/audit-history/audit-history.component';
 import { StatusesDiffComponent } from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
 import { FyApporverComponent } from './components/fy-apporver/fy-apporver.component';
-import {
-  ConfirmationCommentPopoverComponent
-} from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
+import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
 
 // directive imports
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
@@ -93,8 +89,7 @@ import { AgmDirectionModule } from 'agm-direction';
 import { RouteSelectorComponent } from './components/route-selector/route-selector.component';
 import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
-import {ReceiptPreviewThumbnailComponent} from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
-
+import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 
 @NgModule({
   declarations: [
@@ -247,11 +242,8 @@ import {ReceiptPreviewThumbnailComponent} from './components/receipt-preview-thu
     ReceiptPreviewThumbnailComponent,
     RouteVisualizerComponent,
     RouteSelectorComponent,
-    MatChipsModule,
+    MatChipsModule
   ],
-  providers: [
-    DecimalPipe,
-    DatePipe
-  ]
+  providers: [DecimalPipe, DatePipe]
 })
-export class SharedModule { }
+export class SharedModule {}

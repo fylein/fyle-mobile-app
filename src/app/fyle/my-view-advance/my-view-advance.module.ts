@@ -10,13 +10,7 @@ import { MyViewAdvancePage } from './my-view-advance.page';
 import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    MyViewAdvancePageRoutingModule,
-    MatIconModule
-  ],
+  imports: [CommonModule, FormsModule, IonicModule, MyViewAdvancePageRoutingModule, MatIconModule],
   declarations: [MyViewAdvancePage]
 })
 export class MyViewAdvancePageModule {}

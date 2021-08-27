@@ -16,7 +16,7 @@ import { AdvanceRequestsComponent } from './advance-requests/advance-requests.co
 import { PullBackTripComponent } from './pull-back-trip/pull-back-trip.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
@@ -40,4 +40,4 @@ import { SharedModule } from 'src/app/shared/shared.module';
     PullBackTripComponent
   ]
 })
-export class MyViewTripsPageModule { }
+export class MyViewTripsPageModule {}

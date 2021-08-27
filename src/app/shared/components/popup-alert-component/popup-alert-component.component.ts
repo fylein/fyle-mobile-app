@@ -3,10 +3,9 @@ import { PopoverController } from '@ionic/angular';
 @Component({
   selector: 'app-popup-alert-component',
   templateUrl: './popup-alert-component.component.html',
-  styleUrls: ['./popup-alert-component.component.scss'],
+  styleUrls: ['./popup-alert-component.component.scss']
 })
 export class PopupAlertComponentComponent implements OnInit {
-
   @Input() title: string;
 
   @Input() message: string;
@@ -15,9 +14,7 @@ export class PopupAlertComponentComponent implements OnInit {
 
   @Input() secondaryCta: { text: string; action: string; type?: string };
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   ngOnInit() {}
 

@@ -18,10 +18,9 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 @Component({
   selector: 'app-split-expense',
   templateUrl: './split-expense.page.html',
-  styleUrls: ['./split-expense.page.scss'],
+  styleUrls: ['./split-expense.page.scss']
 })
 export class SplitExpensePage implements OnInit {
-
   splitExpensesFormArray = new FormArray([]);
 
   fg: FormGroup;
@@ -75,31 +74,33 @@ export class SplitExpensePage implements OnInit {
     private navController: NavController,
     private router: Router,
     private transactionsOutboxService: TransactionsOutboxService
-  ) { }
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   goBack() {
     this.navController.back();
   }
 
   onChangeAmount(splitExpenseForm, index) {
-    if (!splitExpenseForm.controls.amount._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.amount))) {
+    if (!splitExpenseForm.controls.amount._pendingChange || !this.amount || !isNumber(splitExpenseForm.value.amount)) {
       return;
     }
 
     if (this.splitExpensesFormArray.length === 2) {
-      const otherIndex = (index === 0) ? 1 : 0;
+      const otherIndex = index === 0 ? 1 : 0;
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
       const amount = parseFloat((this.amount - splitExpenseForm.value.amount).toFixed(3));
       const percentage = parseFloat(((amount / this.amount) * 100).toFixed(3));
 
-      otherSplitExpenseForm.patchValue({
-        amount,
-        percentage
-      }, { emitEvent: false });
+      otherSplitExpenseForm.patchValue(
+        {
+          amount,
+          percentage
+        },
+        { emitEvent: false }
+      );
     }
 
     let percentage = (splitExpenseForm.value.amount / this.amount) * 100;
@@ -113,21 +114,28 @@ export class SplitExpensePage implements OnInit {
   }
 
   onChangePercentage(splitExpenseForm, index) {
-    if (!splitExpenseForm.controls.percentage._pendingChange || (!this.amount || !isNumber(splitExpenseForm.value.percentage))) {
+    if (
+      !splitExpenseForm.controls.percentage._pendingChange ||
+      !this.amount ||
+      !isNumber(splitExpenseForm.value.percentage)
+    ) {
       return;
     }
 
     if (this.splitExpensesFormArray.length === 2) {
-      const otherIndex = (index === 0) ? 1 : 0;
+      const otherIndex = index === 0 ? 1 : 0;
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
       const percentage = Math.min(100, Math.max(0, 100 - splitExpenseForm.value.percentage));
       const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
 
-      otherSplitExpenseForm.patchValue({
-        amount,
-        percentage
-      }, { emitEvent: false });
+      otherSplitExpenseForm.patchValue(
+        {
+          amount,
+          percentage
+        },
+        { emitEvent: false }
+      );
     }
 
     let amount = (this.amount * splitExpenseForm.value.percentage) / 100;
@@ -141,8 +149,7 @@ export class SplitExpensePage implements OnInit {
 
   getTotalSplitAmount() {
     if (this.splitExpensesFormArray.value.length > 1) {
-
-      const amounts = this.splitExpensesFormArray.value.map(obj => obj.amount);
+      const amounts = this.splitExpensesFormArray.value.map((obj) => obj.amount);
 
       const totalSplitAmount = amounts.reduce((acc, curr) => acc + curr);
 
@@ -161,7 +168,7 @@ export class SplitExpensePage implements OnInit {
 
   setUpSplitExpenseTax(splitExpense) {
     if (this.transaction.tax_amount && this.transaction.amount) {
-      return ((this.transaction.tax_amount * splitExpense.percentage)/100);
+      return (this.transaction.tax_amount * splitExpense.percentage) / 100;
     } else {
       return this.transaction.tax_amount;
     }
@@ -169,7 +176,8 @@ export class SplitExpensePage implements OnInit {
 
   generateSplitEtxnFromFg(splitExpenseValue) {
     // Fixing the date format here as the transaction object date is a string
-    this.transaction.from_dt = this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
+    this.transaction.from_dt =
+      this.transaction?.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
     this.transaction.to_dt = this.transaction?.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
 
     return {
@@ -187,14 +195,13 @@ export class SplitExpensePage implements OnInit {
 
   uploadNewFiles(files) {
     const fileObjs = [];
-    files.forEach(file => {
-      if (file.type &&
-        (
-          file.type.indexOf('image') > -1 ||
+    files.forEach((file) => {
+      if (
+        file.type &&
+        (file.type.indexOf('image') > -1 ||
           file.type.indexOf('jpeg') > -1 ||
           file.type.indexOf('jpg') > -1 ||
-          file.type.indexOf('png') > -1
-        )
+          file.type.indexOf('png') > -1)
       ) {
         file.type = 'image';
       } else if (file.type && file.type.indexOf('pdf') > -1) {
@@ -203,17 +210,13 @@ export class SplitExpensePage implements OnInit {
       fileObjs.push(from(this.transactionsOutboxService.fileUpload(file.url, file.type)));
     });
 
-    return iif(
-      () => fileObjs.length !== 0,
-      forkJoin(fileObjs),
-      of(null)
-    );
+    return iif(() => fileObjs.length !== 0, forkJoin(fileObjs), of(null));
   }
 
   uploadFiles(files) {
     if (!this.transaction.id) {
       return this.uploadNewFiles(files).pipe(
-        map(files => {
+        map((files) => {
           this.fileObjs = files;
           return this.fileObjs;
         })
@@ -235,12 +238,9 @@ export class SplitExpensePage implements OnInit {
     return forkJoin(splitExpense$).pipe(
       switchMap((data: any) => {
         const txnIds = data.txns.map((txn) => txn.id);
-        return this.splitExpenseService.linkTxnWithFiles(data).pipe(
-          map(() => txnIds)
-        );
+        return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
       })
     );
-
   }
 
   async showSplitExpenseStatusPopup(isSplitSuccessful: boolean) {
@@ -248,7 +248,7 @@ export class SplitExpensePage implements OnInit {
       component: SplitExpenseStatusComponent,
       componentProps: {
         isSplitSuccessful
-      },
+      }
     });
 
     await splitExpenseStatusPopup.present();
@@ -258,18 +258,16 @@ export class SplitExpensePage implements OnInit {
     if (isSplitSuccessful) {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
-
   }
 
   getAttachedFiles(transactionId) {
     return this.fileService.findByTransactionId(transactionId).pipe(
-      map(uploadedFiles => {
+      map((uploadedFiles) => {
         this.fileObjs = uploadedFiles;
         return this.fileObjs;
       })
     );
   }
-
 
   save() {
     if (this.splitExpensesFormArray.valid) {
@@ -283,8 +281,7 @@ export class SplitExpensePage implements OnInit {
         return;
       }
       let canCreateNegativeExpense = true;
-      this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
-
+      this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
         canCreateNegativeExpense = this.splitExpensesFormArray.value.reduce((defaultValue, splitExpenseValue) => {
           const negativeAmountPresent = splitExpenseValue.amount && splitExpenseValue.amount <= 0;
           if (!isCorporateCardsEnabled && negativeAmountPresent) {
@@ -304,41 +301,42 @@ export class SplitExpensePage implements OnInit {
 
         this.saveSplitExpenseLoading = true;
         const generatedSplitEtxn = [];
-        this.splitExpensesFormArray.value.forEach(splitExpenseValue => {
+        this.splitExpensesFormArray.value.forEach((splitExpenseValue) => {
           generatedSplitEtxn.push(this.generateSplitEtxnFromFg(splitExpenseValue));
         });
 
         const uploadFiles$ = this.uploadFiles(this.fileUrls);
 
-        uploadFiles$.pipe(
-          concatMap(() => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
-          concatMap((res) => {
-            const observables$ = [];
-            if (this.transaction.id) {
-              observables$.push(this.transactionService.delete(this.transaction.id));
-            }
-            if (this.transaction.corporate_credit_card_expense_group_id) {
-              observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id));
-            }
+        uploadFiles$
+          .pipe(
+            concatMap(() => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
+            concatMap((res) => {
+              const observables$ = [];
+              if (this.transaction.id) {
+                observables$.push(this.transactionService.delete(this.transaction.id));
+              }
+              if (this.transaction.corporate_credit_card_expense_group_id) {
+                observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id));
+              }
 
-            if (observables$.length === 0) {
-              observables$.push(of(true));
-            }
-            return forkJoin(observables$);
-          }),
-          tap((res) => {
-            this.showSplitExpenseStatusPopup(true);
-          }),
-          catchError(err => {
-            this.showSplitExpenseStatusPopup(false);
-            return throwError(err);
-          }),
-          finalize(() => {
-            this.saveSplitExpenseLoading = false;
-          })
-        ).subscribe(noop);
+              if (observables$.length === 0) {
+                observables$.push(of(true));
+              }
+              return forkJoin(observables$);
+            }),
+            tap((res) => {
+              this.showSplitExpenseStatusPopup(true);
+            }),
+            catchError((err) => {
+              this.showSplitExpenseStatusPopup(false);
+              return throwError(err);
+            }),
+            finalize(() => {
+              this.saveSplitExpenseLoading = false;
+            })
+          )
+          .subscribe(noop);
       });
-
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
     }
@@ -347,13 +345,11 @@ export class SplitExpensePage implements OnInit {
   getActiveCategories() {
     const allCategories$ = this.offlineService.getAllEnabledCategories();
 
-    return allCategories$.pipe(
-      map(catogories => this.categoriesService.filterRequired(catogories))
-    );
+    return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
 
   ionViewWillEnter() {
-    this.offlineService.getHomeCurrency().subscribe(homeCurrency => {
+    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
       const orgSettings$ = this.offlineService.getOrgSettings();
       this.splitType = this.activatedRoute.snapshot.params.splitType;
@@ -364,7 +360,7 @@ export class SplitExpensePage implements OnInit {
 
       if (this.splitType === 'categories') {
         this.categories$ = this.getActiveCategories().pipe(
-          map(categories => categories.map(category => ({ label: category.displayName, value: category })))
+          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
         );
       } else if (this.splitType === 'cost centers') {
         const orgSettings$ = this.offlineService.getOrgSettings();
@@ -380,29 +376,33 @@ export class SplitExpensePage implements OnInit {
               return of([]);
             }
           }),
-          map(costCenters => costCenters.map(costCenter => ({
-            label: costCenter.name,
-            value: costCenter
-          })))
+          map((costCenters) =>
+            costCenters.map((costCenter) => ({
+              label: costCenter.name,
+              value: costCenter
+            }))
+          )
         );
       }
 
       this.isCorporateCardsEnabled$ = orgSettings$.pipe(
-        map(orgSettings => orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled)
+        map(
+          (orgSettings) =>
+            orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
+        )
       );
 
-      this.isCorporateCardsEnabled$.subscribe(isCorporateCardsEnabled => {
+      this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
         this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
       });
     });
-
   }
 
   setValuesForCCC(currencyObj: any, homeCurrency: any, isCorporateCardsEnabled: boolean) {
     this.setAmountAndCurrency(currencyObj, homeCurrency);
 
-    let amount1 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.6 : null; // 60% split
-    let amount2 = (this.amount > 0.0001 || isCorporateCardsEnabled) ? this.amount * 0.4 : null; // 40% split
+    let amount1 = this.amount > 0.0001 || isCorporateCardsEnabled ? this.amount * 0.6 : null; // 60% split
+    let amount2 = this.amount > 0.0001 || isCorporateCardsEnabled ? this.amount * 0.4 : null; // 40% split
 
     const percentage1 = this.amount ? 60 : null;
     const percentage2 = this.amount ? 40 : null;
@@ -431,9 +431,11 @@ export class SplitExpensePage implements OnInit {
     const maxDate = moment(new Date(today)).add(1, 'day');
     const passedInDate = control.value && moment(new Date(control.value));
     if (passedInDate) {
-      return passedInDate.isBetween(minDate, maxDate) ? null : {
-        invalidDateSelection: true
-      };
+      return passedInDate.isBetween(minDate, maxDate)
+        ? null
+        : {
+            invalidDateSelection: true
+          };
     }
   }
 
@@ -446,8 +448,8 @@ export class SplitExpensePage implements OnInit {
     }
     const fg = this.formBuilder.group({
       amount: [amount, Validators.required],
-      currency: [currency,],
-      percentage: [percentage,],
+      currency: [currency],
+      percentage: [percentage],
       txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])]
     });
 
@@ -473,10 +475,13 @@ export class SplitExpensePage implements OnInit {
       const percentage = Math.min(100, Math.max(0, 100 - firstSplitExpenseForm.value.percentage));
       const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
 
-      lastSplitExpenseForm.patchValue({
-        amount,
-        percentage
-      }, { emitEvent: false });
+      lastSplitExpenseForm.patchValue(
+        {
+          amount,
+          percentage
+        },
+        { emitEvent: false }
+      );
     }
 
     this.getTotalSplitAmount();

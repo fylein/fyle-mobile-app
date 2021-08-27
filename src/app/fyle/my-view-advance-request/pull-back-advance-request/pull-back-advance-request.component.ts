@@ -4,14 +4,12 @@ import { PopoverController } from '@ionic/angular';
 @Component({
   selector: 'app-pull-back-advance-request',
   templateUrl: './pull-back-advance-request.component.html',
-  styleUrls: ['./pull-back-advance-request.component.scss'],
+  styleUrls: ['./pull-back-advance-request.component.scss']
 })
 export class PullBackAdvanceRequestComponent implements OnInit {
   reason = '';
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   async cancel() {
     await this.popoverController.dismiss();
@@ -24,5 +22,4 @@ export class PullBackAdvanceRequestComponent implements OnInit {
   }
 
   ngOnInit() {}
-
 }

@@ -1,15 +1,12 @@
 import { Injectable } from '@angular/core';
-import {ApiService} from './api.service';
+import { ApiService } from './api.service';
 import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExpenseSuggestionsService {
-
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) {}
 
   getSuggestions(queryParams) {
     const data: any = {
@@ -24,5 +21,4 @@ export class ExpenseSuggestionsService {
     }
     return this.apiService.get('/expense_suggestions', data);
   }
-
 }

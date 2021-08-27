@@ -7,7 +7,7 @@ import { ModalController } from '@ionic/angular';
 @Component({
   selector: 'app-fy-filters',
   templateUrl: './fy-filters.component.html',
-  styleUrls: ['./fy-filters.component.scss'],
+  styleUrls: ['./fy-filters.component.scss']
 })
 export class FyFiltersComponent implements OnInit {
   @Input() filterOptions: FilterOptions<any>[];
@@ -35,20 +35,20 @@ export class FyFiltersComponent implements OnInit {
     return FilterOptionType;
   }
 
-  constructor(
-    private modalController: ModalController
-  ) { }
+  constructor(private modalController: ModalController) {}
 
   ngOnInit() {
-    const activeFilterInitialIndex = (this.activeFilterInitialName
-      && this.filterOptions.findIndex(option => option.name === this.activeFilterInitialName)) || 0;
+    const activeFilterInitialIndex =
+      (this.activeFilterInitialName &&
+        this.filterOptions.findIndex((option) => option.name === this.activeFilterInitialName)) ||
+      0;
     this.activeFilter = this.filterOptions[activeFilterInitialIndex];
     this.currentFilterValueMap = this.selectedFilterValues.reduce((acc, curr) => {
       acc[curr.name] = curr.value;
       return acc;
     }, {});
     this.customDateMap = this.selectedFilterValues
-      .filter(selectedFilters => selectedFilters.name === 'Date' && selectedFilters.value === 'custom')
+      .filter((selectedFilters) => selectedFilters.name === 'Date' && selectedFilters.value === 'custom')
       .reduce((acc, curr) => {
         acc[curr.name] = {
           startDate: curr.associatedData?.startDate,
@@ -108,18 +108,26 @@ export class FyFiltersComponent implements OnInit {
   }
 
   save() {
-    const filters = Object.keys(this.currentFilterValueMap).reduce((acc, key) => acc.concat({
-      name: key,
-      value: this.currentFilterValueMap[key],
-      associatedData: this.customDateMap[key]
-    } as SelectedFilters<any>), []);
+    const filters = Object.keys(this.currentFilterValueMap).reduce(
+      (acc, key) =>
+        acc.concat({
+          name: key,
+          value: this.currentFilterValueMap[key],
+          associatedData: this.customDateMap[key]
+        } as SelectedFilters<any>),
+      []
+    );
     this.modalController.dismiss(filters);
   }
 
-  private switchDateFilter(filter: any, currentFilter: FilterOptions<any>, option: {
-    label: string;
-    value: any;
-  }) {
+  private switchDateFilter(
+    filter: any,
+    currentFilter: FilterOptions<any>,
+    option: {
+      label: string;
+      value: any;
+    }
+  ) {
     if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
       this.currentFilterValueMap[currentFilter.name] = null;
     } else {
@@ -132,15 +140,20 @@ export class FyFiltersComponent implements OnInit {
     }
   }
 
-  private switchMultiselectFilter(filter: any, option: {
-    label: string;
-    value: any;
-  }, currentFilter: FilterOptions<any>) {
+  private switchMultiselectFilter(
+    filter: any,
+    option: {
+      label: string;
+      value: any;
+    },
+    currentFilter: FilterOptions<any>
+  ) {
     if (filter) {
-      const doesValueExistInFilter = filter.some(value => value === option.value);
+      const doesValueExistInFilter = filter.some((value) => value === option.value);
       if (doesValueExistInFilter) {
-        this.currentFilterValueMap[currentFilter.name] = this.currentFilterValueMap[currentFilter.name]
-          .filter(value => value !== option.value);
+        this.currentFilterValueMap[currentFilter.name] = this.currentFilterValueMap[currentFilter.name].filter(
+          (value) => value !== option.value
+        );
       } else {
         this.currentFilterValueMap[currentFilter.name].push(option.value);
       }
@@ -149,15 +162,18 @@ export class FyFiltersComponent implements OnInit {
     }
   }
 
-  private switchSingleSelectFilter(filter: any, currentFilter: FilterOptions<any>, option: {
-    label: string;
-    value: any;
-  }) {
+  private switchSingleSelectFilter(
+    filter: any,
+    currentFilter: FilterOptions<any>,
+    option: {
+      label: string;
+      value: any;
+    }
+  ) {
     if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
       this.currentFilterValueMap[currentFilter.name] = null;
     } else {
       this.currentFilterValueMap[currentFilter.name] = option.value;
     }
   }
-
 }

@@ -10,10 +10,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-my-trips',
   templateUrl: './my-trips.page.html',
-  styleUrls: ['./my-trips.page.scss'],
+  styleUrls: ['./my-trips.page.scss']
 })
 export class MyTripsPage implements OnInit {
-
   isConnected$: Observable<boolean>;
 
   myTripRequests$: Observable<ExtendedTripRequest[]>;
@@ -34,22 +33,26 @@ export class MyTripsPage implements OnInit {
     private networkService: NetworkService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) { }
+  ) {}
 
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.currentPageNumber = 1;
 
     this.myTripRequests$ = this.loadData$.pipe(
-      concatMap(pageNumber => from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.tripRequestsService.getMyTrips({
-          offset: (pageNumber - 1) * 10,
-          limit: 10,
-          queryParams: { order: 'trp_created_at.desc,trp_id.desc' }
-        })),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )),
-      map(res => res.data),
+      concatMap((pageNumber) =>
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() =>
+            this.tripRequestsService.getMyTrips({
+              offset: (pageNumber - 1) * 10,
+              limit: 10,
+              queryParams: { order: 'trp_created_at.desc,trp_id.desc' }
+            })
+          ),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+      ),
+      map((res) => res.data),
       scan((acc, curr) => {
         if (this.currentPageNumber === 1) {
           return curr;
@@ -59,12 +62,10 @@ export class MyTripsPage implements OnInit {
       shareReplay(1)
     );
 
-    this.count$ = this.tripRequestsService.getMyTripsCount().pipe(
-      shareReplay(1)
-    );
+    this.count$ = this.tripRequestsService.getMyTripsCount().pipe(shareReplay(1));
 
     this.isInfiniteScrollRequired$ = this.myTripRequests$.pipe(
-      concatMap(myTrips => this.count$.pipe(map(count => count > myTrips.length)))
+      concatMap((myTrips) => this.count$.pipe(map((count) => count > myTrips.length)))
     );
 
     this.loadData$.subscribe(noop);
@@ -76,7 +77,7 @@ export class MyTripsPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;

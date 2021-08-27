@@ -1,11 +1,10 @@
-import {Injectable} from '@angular/core';
-import {JwtHelperService as AngularJwtHelper} from '@auth0/angular-jwt';
+import { Injectable } from '@angular/core';
+import { JwtHelperService as AngularJwtHelper } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JwtHelperService {
-
   helper: AngularJwtHelper;
 
   constructor() {

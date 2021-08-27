@@ -1,16 +1,12 @@
-import {Injectable} from '@angular/core';
-import {StorageService} from './storage.service';
-import {UserEventService} from './user-event.service';
+import { Injectable } from '@angular/core';
+import { StorageService } from './storage.service';
+import { UserEventService } from './user-event.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TokenService {
-
-  constructor(
-    private storageService: StorageService,
-    private userEventService: UserEventService
-  ) {
+  constructor(private storageService: StorageService, private userEventService: UserEventService) {
     this.userEventService.onLogout(() => {
       this.resetRefreshToken();
       this.resetAccessToken();

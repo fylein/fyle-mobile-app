@@ -4,10 +4,9 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 @Component({
   selector: 'app-team-report-card',
   templateUrl: './team-report-card.component.html',
-  styleUrls: ['./team-report-card.component.scss'],
+  styleUrls: ['./team-report-card.component.scss']
 })
 export class TeamReportCardComponent implements OnInit {
-
   @Input() erpt: ExtendedReport;
 
   @Input() prevDate: Date;
@@ -24,11 +23,12 @@ export class TeamReportCardComponent implements OnInit {
 
   actionOpened = false;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
     this.showDate =
-      (this.erpt && (new Date(this.erpt.rp_created_at)).toDateString()) !== (this.prevDate && (new Date(this.prevDate)).toDateString());
+      (this.erpt && new Date(this.erpt.rp_created_at).toDateString()) !==
+      (this.prevDate && new Date(this.prevDate).toDateString());
   }
 
   onDeleteReport() {
@@ -42,5 +42,4 @@ export class TeamReportCardComponent implements OnInit {
   onViewComments() {
     this.viewComments.emit(this.erpt);
   }
-
 }
