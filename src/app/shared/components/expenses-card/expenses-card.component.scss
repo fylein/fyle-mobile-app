@@ -85,6 +85,12 @@
     border-radius: 8px;
     height: 74px;
     width: 90px;
+  }  
+
+  &--with-image {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
   }
 
   &--receipt-icon {
