@@ -57,6 +57,8 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { RouteSelectorComponent } from 'src/app/shared/components/route-selector/route-selector.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -1352,23 +1354,41 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  async goBack() {
+  async showClosePopup() {
     if (this.fg.touched) {
-      const popupResults = await this.popupService.showPopup({
-        header: 'Unsaved Changes',
-        message: 'You have unsaved changes. Are you sure, you want to abandon this expense?',
-        primaryCta: {
-          text: 'DISCARD CHANGES'
-        }
+      const unsavedChangesPopOver = await this.popoverController.create({
+        component: PopupAlertComponentComponent,
+        componentProps: {
+          title: 'Unsaved Changes',
+          message: 'Your changes will be lost if you do not save the expense.',
+          primaryCta: {
+            text: 'Discard',
+            action: 'continue'
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel'
+          }
+        },
+        cssClass: 'pop-up-in-center'
       });
 
-      if (popupResults === 'primary') {
-        this.close();
+      await unsavedChangesPopOver.present();
+
+      const {data} = await unsavedChangesPopOver.onWillDismiss();
+
+      if (data && data.action === 'continue') {
+        if (this.navigateBack) {
+          this.navController.back();
+        } else {
+          this.close();
+        }
       }
     } else {
       if (this.activatedRoute.snapshot.params.id) {
         this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Mileage' });
       }
+
       if (this.navigateBack) {
         this.navController.back();
       } else {
@@ -2173,31 +2193,32 @@ export class AddEditMileagePage implements OnInit {
   }
 
   async deleteExpense() {
-    const id = this.activatedRoute.snapshot.params.id;
+    const txnId = this.activatedRoute.snapshot.params.id;
 
-    const popupResponse = await this.popupService.showPopup({
-      header: 'Delete  Mileage',
-      message: 'Are you sure you want to delete this mileage expense?',
-      primaryCta: {
-        text: 'DELETE'
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: 'Delete  Mileage',
+        body: 'Are you sure you want to delete this mileage expense?',
+        deleteMethod: () => this.transactionService.delete(txnId)
       }
     });
 
-    if (popupResponse === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense...')).pipe(
-        switchMap(() => this.transactionService.delete(id)),
-        tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile', Type: 'Mileage' })),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-          this.reviewList.splice(+this.activeIndex, 1);
-          this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
-            this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-          });
-        } else {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        }
-      });
+    await deletePopover.present();
+
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+        this.reviewList.splice(+this.activeIndex, 1);
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+          this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
+        });
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     } else {
       this.trackingService.clickDeleteExpense({ Asset: 'Mobile', Type: 'Mileage' });
     }
