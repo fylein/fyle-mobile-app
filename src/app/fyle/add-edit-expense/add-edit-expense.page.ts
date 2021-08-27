@@ -276,7 +276,7 @@ export class AddEditExpensePage implements OnInit {
 
   taxGroupsOptions$: Observable<{label: string; value: any}[]>;
 
-  source: string = 'MOBILE';
+  source = 'MOBILE';
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -3084,7 +3084,15 @@ export class AddEditExpensePage implements OnInit {
                     fileId: this.receiptsData.fileId
                   };
                 }
-                return of(this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData));
+                return this.isConnected$.pipe(
+                  switchMap(isConnected=> {
+                    if (!isConnected) {
+                      etxn.tx.source += '_OFFLINE';
+                    }
+
+                    return of(this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData));
+                  })
+                );
               }
             }
             )
