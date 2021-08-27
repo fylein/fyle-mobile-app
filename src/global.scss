@@ -842,3 +842,7 @@ ion-modal.auto-height {
       }
   }
 }
+
+.no-pointer-events {
+  pointer-events: none;
+}
