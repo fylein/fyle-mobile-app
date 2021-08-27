@@ -3084,7 +3084,9 @@ export class AddEditExpensePage implements OnInit {
                     fileId: this.receiptsData.fileId
                   };
                 }
+
                 return this.isConnected$.pipe(
+                  take(1),
                   switchMap(isConnected=> {
                     if (!isConnected) {
                       etxn.tx.source += '_OFFLINE';
@@ -3098,6 +3100,7 @@ export class AddEditExpensePage implements OnInit {
             )
           )),
         finalize(() => {
+          console.log('finalize called');
           this.saveExpenseLoader = false;
           this.saveAndNewExpenseLoader = false;
           this.saveAndNextExpenseLoader = false;
