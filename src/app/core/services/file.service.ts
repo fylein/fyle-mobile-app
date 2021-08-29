@@ -21,7 +21,6 @@ export class FileService {
   }
 
   downloadThumbnailUrl(fileId: string): Observable<any[]> {
-    const file_ids= [fileId];
     return this.apiService.post('/files/download_urls',
       [{
         id: fileId,

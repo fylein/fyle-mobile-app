@@ -120,7 +120,7 @@ export class ExpensesCardComponent implements OnInit {
           map((ThumbFiles: File[]) => {
             if (ThumbFiles.length > 0) {
               this.fileService.downloadThumbnailUrl(ThumbFiles[0].id).pipe(
-                map((downloadUrl) => {
+                map((downloadUrl: FileObject[]) => {
                   this.receiptThumbnail = downloadUrl[0].url;
                 })
               ).subscribe(noop);
