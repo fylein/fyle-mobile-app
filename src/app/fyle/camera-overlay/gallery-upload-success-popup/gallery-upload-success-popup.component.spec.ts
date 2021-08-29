@@ -7,16 +7,18 @@ describe('GalleryUploadSuccessPopupComponent', () => {
   let component: GalleryUploadSuccessPopupComponent;
   let fixture: ComponentFixture<GalleryUploadSuccessPopupComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ GalleryUploadSuccessPopupComponent ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [GalleryUploadSuccessPopupComponent],
+        imports: [IonicModule.forRoot()]
+      }).compileComponents();
 
-    fixture = TestBed.createComponent(GalleryUploadSuccessPopupComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+      fixture = TestBed.createComponent(GalleryUploadSuccessPopupComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    })
+  );
 
   it('should create', () => {
     expect(component).toBeTruthy();

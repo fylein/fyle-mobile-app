@@ -5,16 +5,14 @@ import { FileObject } from 'src/app/core/models/file_obj.model';
 @Component({
   selector: 'app-receipt-preview-thumbnail',
   templateUrl: './receipt-preview-thumbnail.component.html',
-  styleUrls: ['./receipt-preview-thumbnail.component.scss'],
-
+  styleUrls: ['./receipt-preview-thumbnail.component.scss']
 })
 export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
-
   @ViewChild('slides') imageSlides;
 
   @Input() attachments: FileObject[];
 
-  @Input()  isUploading: boolean;
+  @Input() isUploading: boolean;
 
   @Output() addMoreAttachments: EventEmitter<void> = new EventEmitter();
 
@@ -26,12 +24,12 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   previousCount: number;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
     this.sliderOptions = {
       slidesPerView: 1,
-      spaceBetween: 80,
+      spaceBetween: 80
     };
     this.previousCount = this.attachments.length;
   }
@@ -53,7 +51,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   }
 
   getActiveIndex() {
-    this.imageSlides.getActiveIndex().then(index => this.activeIndex = index);
+    this.imageSlides.getActiveIndex().then((index) => (this.activeIndex = index));
   }
 
   ngDoCheck() {
@@ -63,5 +61,4 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
       this.getActiveIndex();
     }
   }
-
 }

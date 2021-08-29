@@ -5,20 +5,40 @@
         <ion-icon [src]="'../../../../../assets/svg/fy-chevron-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <mat-form-field appearance="outline" class="mat-form-field-no-padding selection-modal--simple-search selection-modal--simple-search-container">
+    <mat-form-field
+      appearance="outline"
+      class="mat-form-field-no-padding selection-modal--simple-search selection-modal--simple-search-container"
+    >
       <div class="selection-modal--simple-search-block">
-        <input #searchBar [(ngModel)]="value" class="selection-modal--simple-search-input" matInput
-          placeholder="Search">
+        <input
+          #searchBar
+          [(ngModel)]="value"
+          class="selection-modal--simple-search-input"
+          matInput
+          placeholder="Search"
+        />
         <mat-icon *ngIf="loader" class="selection-modal--autocomplete-loader" svgIcon="fy-spinner-circle" matSuffix>
         </mat-icon>
-        <button (click)="clearValue()" *ngIf="value" aria-label="Clear" class="selection-modal--simple-search-close"
-          mat-button mat-icon-button matSuffix>
+        <button
+          (click)="clearValue()"
+          *ngIf="value"
+          aria-label="Clear"
+          class="selection-modal--simple-search-close"
+          mat-button
+          mat-icon-button
+          matSuffix
+        >
           <mat-icon class="selection-modal--simple-search-icon" svgIcon="fy-clear"></mat-icon>
         </button>
       </div>
     </mat-form-field>
     <ion-buttons mode="md" slot="end">
-      <ion-button color="fy-primary" class="text-capitalize selection-modal--cta-button" mode="md" (click)="onDoneClick()">
+      <ion-button
+        color="fy-primary"
+        class="text-capitalize selection-modal--cta-button"
+        mode="md"
+        (click)="onDoneClick()"
+      >
         Save
       </ion-button>
     </ion-buttons>
@@ -27,52 +47,68 @@
 
 <ion-content>
   <div *ngIf="header" class="selection-modal--header">
-    {{header | lowercase}}
+    {{ header | lowercase }}
   </div>
   <div class="selection-modal--current-location-getter" *ngIf="!currentGeolocationPermissionGranted">
-    <app-fy-alert-info [message]="'Enable location from Settings to fetch current location'" [type]="'information'"
-      [showActionButton]="true" (actionClick)="askForCurrentLocationPermission()" [actionButtonContent]="'Enable'">
+    <app-fy-alert-info
+      [message]="'Enable location from Settings to fetch current location'"
+      [type]="'information'"
+      [showActionButton]="true"
+      (actionClick)="askForCurrentLocationPermission()"
+      [actionButtonContent]="'Enable'"
+    >
     </app-fy-alert-info>
   </div>
   <div class="selection-modal--error-lookup" *ngIf="lookupFailed">
-    <app-fy-alert-info [message]="'Couldn\'t get current location. Please enter manually.'" [type]="'warning'"></app-fy-alert-info>
+    <app-fy-alert-info
+      [message]="'Couldn\'t get current location. Please enter manually.'"
+      [type]="'warning'"
+    ></app-fy-alert-info>
   </div>
   <ng-container *ngIf="loader">
     <div class="selection-modal--spinner">
       <ion-spinner name="crescent"></ion-spinner>
     </div>
   </ng-container>
-  <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of recentItemsFilteredList$ | async as list" (click)="onRecentItemSelect(filteredListItem.display)">
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-recently-used">
-    </mat-icon>
+  <div
+    matRipple
+    class="selection-modal--list-element"
+    *ngFor="let filteredListItem of recentItemsFilteredList$ | async as list"
+    (click)="onRecentItemSelect(filteredListItem.display)"
+  >
+    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-recently-used"> </mat-icon>
     <div>
       <div class="selection-modal--location-main-text">
-        {{filteredListItem.display}}
+        {{ filteredListItem.display }}
       </div>
       <div class="selection-modal--location-description">
-        {{filteredListItem.display}}
+        {{ filteredListItem.display }}
       </div>
     </div>
   </div>
-  <div matRipple class="selection-modal--list-element" *ngFor="let filteredListItem of filteredList$ | async as list"
-    (click)="onElementSelect(filteredListItem)">
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-location">
-    </mat-icon>
+  <div
+    matRipple
+    class="selection-modal--list-element"
+    *ngFor="let filteredListItem of filteredList$ | async as list"
+    (click)="onElementSelect(filteredListItem)"
+  >
+    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-location"> </mat-icon>
     <div>
       <div class="selection-modal--location-main-text" *ngIf="filteredListItem.structured_formatting?.main_text">
-        {{filteredListItem.structured_formatting?.main_text || filteredListItem.description}}
+        {{ filteredListItem.structured_formatting?.main_text || filteredListItem.description }}
       </div>
       <div class="selection-modal--location-description">
-        {{filteredListItem.description}}
+        {{ filteredListItem.description }}
       </div>
     </div>
   </div>
-  <div *ngIf="!loader && currentGeolocationPermissionGranted" matRipple class="selection-modal--list-element selection-modal--list-element__current-location"
-    (click)="getCurrentLocation()">
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-location">
-    </mat-icon>
-    <div class="selection-modal--location-main-text">
-      Use Current Location
-    </div>
+  <div
+    *ngIf="!loader && currentGeolocationPermissionGranted"
+    matRipple
+    class="selection-modal--list-element selection-modal--list-element__current-location"
+    (click)="getCurrentLocation()"
+  >
+    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-location"> </mat-icon>
+    <div class="selection-modal--location-main-text">Use Current Location</div>
   </div>
 </ion-content>

@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
 export class MobileEventService {
   cardExpandedSubject = new Subject();
 
-  constructor() { }
+  constructor() {}
 
   onDashboardCardExpanded() {
     return this.cardExpandedSubject.asObservable();

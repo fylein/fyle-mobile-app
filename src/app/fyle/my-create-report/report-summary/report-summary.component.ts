@@ -4,7 +4,7 @@ import { ModalController, PopoverController } from '@ionic/angular';
 @Component({
   selector: 'app-report-summary',
   templateUrl: './report-summary.component.html',
-  styleUrls: ['./report-summary.component.scss'],
+  styleUrls: ['./report-summary.component.scss']
 })
 export class ReportSummaryComponent implements OnInit {
   @Input() selectedTotalAmount;
@@ -17,9 +17,7 @@ export class ReportSummaryComponent implements OnInit {
 
   @Input() action;
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   createReport() {
     this.popoverController.dismiss({
@@ -31,5 +29,5 @@ export class ReportSummaryComponent implements OnInit {
     this.popoverController.dismiss();
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 }

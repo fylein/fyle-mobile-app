@@ -9,7 +9,7 @@ import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
-import {ActivatedRoute, Params, Router} from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
@@ -21,10 +21,9 @@ enum DashboardState {
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
-  styleUrls: ['./dashboard.page.scss'],
+  styleUrls: ['./dashboard.page.scss']
 })
 export class DashboardPage implements OnInit {
-
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
 
   orgUserSettings$: Observable<OrgUserSettings>;
@@ -51,7 +50,7 @@ export class DashboardPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController
-  ) { }
+  ) {}
 
   ionViewWillLeave() {
     this.onPageExit$.next();
@@ -79,22 +78,17 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    const currentState = this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
+    const currentState =
+      this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
     if (currentState === DashboardState.tasks) {
       this.currentStateIndex = 1;
     } else {
       this.currentStateIndex = 0;
     }
 
-    this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
-      shareReplay(1),
-    );
-    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay(1),
-    );
-    this.homeCurrency$ = this.offlineService.getHomeCurrency().pipe(
-      shareReplay(1),
-    );
+    this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
+    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+    this.homeCurrency$ = this.offlineService.getHomeCurrency().pipe(shareReplay(1));
 
     this.statsComponent.init();
     /**
@@ -106,14 +100,14 @@ export class DashboardPage implements OnInit {
     forkJoin({
       isGetStartedPopupShown: from(this.storageService.get('getStartedPopupShown')),
       totalCount: this.transactionService.getPaginatedETxncCount()
-    }).pipe(
-      filter(({isGetStartedPopupShown, totalCount}) => !isGetStartedPopupShown && totalCount.count === 0)
-    ).subscribe(_ => this.showGetStartedPopup());
+    })
+      .pipe(filter(({ isGetStartedPopupShown, totalCount }) => !isGetStartedPopupShown && totalCount.count === 0))
+      .subscribe((_) => this.showGetStartedPopup());
   }
 
   ngOnInit() {
     const that = this;
-    that.offlineService.getOrgSettings().subscribe(orgSettings => {
+    that.offlineService.getOrgSettings().subscribe((orgSettings) => {
       this.setupActionSheet(orgSettings);
     });
   }
@@ -132,9 +126,14 @@ export class DashboardPage implements OnInit {
   }
 
   onCameraClicked() {
-    this.router.navigate(['/', 'enterprise', 'camera_overlay', {
-      navigate_back: true
-    }]);
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'camera_overlay',
+      {
+        navigate_back: true
+      }
+    ]);
   }
 
   onHomeClicked() {
@@ -150,33 +149,46 @@ export class DashboardPage implements OnInit {
     const that = this;
     const mileageEnabled = orgSettings.mileage.enabled;
     const isPerDiemEnabled = orgSettings.per_diem.enabled;
-    that.actionSheetButtons = [{
-      text: 'Capture Receipt',
-      icon: 'assets/svg/fy-camera.svg',
-      cssClass: 'capture-receipt',
-      handler: () => {
-        that.trackingService.dashboardActionSheetButtonClicked({
-          Asset: 'Mobile',
-          Action: 'Capture Receipt'
-        });
-        that.router.navigate(['/', 'enterprise', 'camera_overlay', {
-          navigate_back: true
-        }]);
+    that.actionSheetButtons = [
+      {
+        text: 'Capture Receipt',
+        icon: 'assets/svg/fy-camera.svg',
+        cssClass: 'capture-receipt',
+        handler: () => {
+          that.trackingService.dashboardActionSheetButtonClicked({
+            Asset: 'Mobile',
+            Action: 'Capture Receipt'
+          });
+          that.router.navigate([
+            '/',
+            'enterprise',
+            'camera_overlay',
+            {
+              navigate_back: true
+            }
+          ]);
+        }
+      },
+      {
+        text: 'Add Manually',
+        icon: 'assets/svg/fy-expense.svg',
+        cssClass: 'capture-receipt',
+        handler: () => {
+          that.trackingService.dashboardActionSheetButtonClicked({
+            Asset: 'Mobile',
+            Action: 'Add Manually'
+          });
+          that.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_expense',
+            {
+              navigate_back: true
+            }
+          ]);
+        }
       }
-    }, {
-      text: 'Add Manually',
-      icon: 'assets/svg/fy-expense.svg',
-      cssClass: 'capture-receipt',
-      handler: () => {
-        that.trackingService.dashboardActionSheetButtonClicked({
-          Asset: 'Mobile',
-          Action: 'Add Manually'
-        });
-        that.router.navigate(['/', 'enterprise', 'add_edit_expense',{
-          navigate_back: true
-        }]);
-      }
-    }];
+    ];
 
     if (mileageEnabled) {
       this.actionSheetButtons.push({
@@ -188,9 +200,14 @@ export class DashboardPage implements OnInit {
             Asset: 'Mobile',
             Action: 'Add Mileage'
           });
-          that.router.navigate(['/', 'enterprise', 'add_edit_mileage',{
-            navigate_back: true
-          }]);
+          that.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_mileage',
+            {
+              navigate_back: true
+            }
+          ]);
         }
       });
     }
@@ -205,9 +222,14 @@ export class DashboardPage implements OnInit {
             Asset: 'Mobile',
             Action: 'Add Per Diem'
           });
-          that.router.navigate(['/', 'enterprise', 'add_edit_per_diem',{
-            navigate_back: true
-          }]);
+          that.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_per_diem',
+            {
+              navigate_back: true
+            }
+          ]);
         }
       });
     }

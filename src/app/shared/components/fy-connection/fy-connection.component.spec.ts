@@ -9,7 +9,7 @@ describe('FyConnectionComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FyConnectionComponent ],
+      declarations: [FyConnectionComponent],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 

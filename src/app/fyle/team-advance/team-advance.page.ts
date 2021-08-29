@@ -10,10 +10,9 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-team-advance',
   templateUrl: './team-advance.page.html',
-  styleUrls: ['./team-advance.page.scss'],
+  styleUrls: ['./team-advance.page.scss']
 })
 export class TeamAdvancePage implements OnInit {
-
   teamAdvancerequests$: Observable<any[]>;
 
   loadData$: Subject<{ pageNumber: number; state: string }> = new Subject();
@@ -30,39 +29,41 @@ export class TeamAdvancePage implements OnInit {
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
     private router: Router
-  ) { }
+  ) {}
 
-  ngOnInit() {
-
-  }
+  ngOnInit() {}
 
   ionViewWillEnter() {
     this.currentPageNumber = 1;
     this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
-        const extraParams = state === 'PENDING' ? {
-          areq_state: ['eq.APPROVAL_PENDING'],
-          areq_trip_request_id: ['is.null'],
-          or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
-
-        } : {
-          areq_trip_request_id: ['is.null'],
-          areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}']
-        };
+        const extraParams =
+          state === 'PENDING'
+            ? {
+                areq_state: ['eq.APPROVAL_PENDING'],
+                areq_trip_request_id: ['is.null'],
+                or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
+              }
+            : {
+                areq_trip_request_id: ['is.null'],
+                areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}']
+              };
 
         return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.advanceRequestService.getTeamadvanceRequests({
-            offset: (pageNumber - 1) * 10,
-            limit: 10,
-            queryParams: {
-              ...extraParams
-            },
-            filter: state
-          })),
+          switchMap(() =>
+            this.advanceRequestService.getTeamadvanceRequests({
+              offset: (pageNumber - 1) * 10,
+              limit: 10,
+              queryParams: {
+                ...extraParams
+              },
+              filter: state
+            })
+          ),
           finalize(() => from(this.loaderService.hideLoader()))
         );
       }),
-      map(res => res.data),
+      map((res) => res.data),
       scan((acc, curr) => {
         if (this.currentPageNumber === 1) {
           return curr;
@@ -74,15 +75,17 @@ export class TeamAdvancePage implements OnInit {
 
     this.count$ = this.loadData$.pipe(
       switchMap(({ state }) => {
-        const extraParams = state === 'PENDING' ? {
-          areq_state: ['eq.APPROVAL_PENDING'],
-          areq_trip_request_id: ['is.null'],
-          or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
-
-        } : {
-          areq_trip_request_id: ['is.null'],
-          areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}']
-        };
+        const extraParams =
+          state === 'PENDING'
+            ? {
+                areq_state: ['eq.APPROVAL_PENDING'],
+                areq_trip_request_id: ['is.null'],
+                or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)']
+              }
+            : {
+                areq_trip_request_id: ['is.null'],
+                areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}']
+              };
 
         return this.advanceRequestService.getTeamAdvanceRequestsCount(
           {
@@ -95,9 +98,12 @@ export class TeamAdvancePage implements OnInit {
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
-      concatMap(teamAdvancerequests => this.count$.pipe(
-        take(1),
-        map(count => count > teamAdvancerequests.length)))
+      concatMap((teamAdvancerequests) =>
+        this.count$.pipe(
+          take(1),
+          map((count) => count > teamAdvancerequests.length)
+        )
+      )
     );
 
     this.loadData$.subscribe(noop);
@@ -128,5 +134,4 @@ export class TeamAdvancePage implements OnInit {
     this.state = state;
     this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
   }
-
 }

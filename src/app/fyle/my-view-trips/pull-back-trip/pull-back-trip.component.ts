@@ -5,18 +5,16 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-pull-back-trip',
   templateUrl: './pull-back-trip.component.html',
-  styleUrls: ['./pull-back-trip.component.scss'],
+  styleUrls: ['./pull-back-trip.component.scss']
 })
 export class PullBackTripComponent implements OnInit {
   reason = '';
 
   showError = false;
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   async cancel() {
     await this.popoverController.dismiss();

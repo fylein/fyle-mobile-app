@@ -19,10 +19,9 @@ import { TrackingService } from '../../core/services/tracking.service';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
-  styleUrls: ['./my-view-report.page.scss'],
+  styleUrls: ['./my-view-report.page.scss']
 })
 export class MyViewReportPage implements OnInit {
-
   erpt$: Observable<ExtendedReport>;
 
   etxns$: Observable<any[]>;
@@ -60,7 +59,7 @@ export class MyViewReportPage implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private trackingService: TrackingService
-  ) { }
+  ) {}
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -77,8 +76,7 @@ export class MyViewReportPage implements OnInit {
     });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -100,11 +98,11 @@ export class MyViewReportPage implements OnInit {
   }
 
   getShowViolation(etxn) {
-    return etxn.tx_id &&
-      (etxn.tx_manual_flag ||
-        etxn.tx_policy_flag) &&
-      !((typeof (etxn.tx_policy_amount) === 'number')
-        && etxn.tx_policy_amount < 0.0001);
+    return (
+      etxn.tx_id &&
+      (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
+      !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
+    );
   }
 
   ionViewWillEnter() {
@@ -115,37 +113,38 @@ export class MyViewReportPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.sharedWith$ = this.reportService
-      .getExports(this.activatedRoute.snapshot.params.id)
-      .pipe(
-        map(pdfExports => pdfExports.results
-          .sort((a, b) =>
-            (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0)
-          )
+    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
+      map((pdfExports) =>
+        pdfExports.results
+          .sort((a, b) => (a.created_at < b.created_at ? 1 : b.created_at < a.created_at ? -1 : 0))
           .map((pdfExport) => pdfExport.sent_to)
-          .filter((item, index, inputArray) => inputArray.indexOf(item) === index))
-      );
+          .filter((item, index, inputArray) => inputArray.indexOf(item) === index)
+      )
+    );
 
     this.reportApprovals$ = this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id).pipe(
-      map(reportApprovals => reportApprovals
-        .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1
-        )
-        .map((approval) => {
-          if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
-            approval.approved_at = approval.updated_at;
-          }
-          return approval;
-        }))
+      map((reportApprovals) =>
+        reportApprovals
+          .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
+          .map((approval) => {
+            if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
+              approval.approved_at = approval.updated_at;
+            }
+            return approval;
+          })
+      )
     );
 
     this.etxns$ = from(this.authService.getEou()).pipe(
-      switchMap(eou => this.transactionService.getAllETxnc({
-        tx_org_user_id: 'eq.' + eou.ou.id,
-        tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
-        order: 'tx_txn_dt.desc,tx_id.desc'
-      })),
-      map(
-        etxns => etxns.map(etxn => {
+      switchMap((eou) =>
+        this.transactionService.getAllETxnc({
+          tx_org_user_id: 'eq.' + eou.ou.id,
+          tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
+          order: 'tx_txn_dt.desc,tx_id.desc'
+        })
+      ),
+      map((etxns) =>
+        etxns.map((etxn) => {
           etxn.vendor = this.getVendorName(etxn);
           etxn.violation = this.getShowViolation(etxn);
           return etxn;
@@ -156,9 +155,9 @@ export class MyViewReportPage implements OnInit {
 
     const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
 
-    this.canEdit$ = actions$.pipe(map(actions => actions.can_edit));
-    this.canDelete$ = actions$.pipe(map(actions => actions.can_delete));
-    this.canResubmitReport$ = actions$.pipe(map(actions => actions.can_resubmit));
+    this.canEdit$ = actions$.pipe(map((actions) => actions.can_edit));
+    this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
+    this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
 
     this.etxns$.subscribe(noop);
   }
@@ -184,16 +183,19 @@ export class MyViewReportPage implements OnInit {
     });
 
     if (popupResults === 'primary') {
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
-        tap(() => this.trackingService.deleteReport({
-          Asset: 'Mobile'
-        })
-        ),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_reports']);
-      });
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
+          tap(() =>
+            this.trackingService.deleteReport({
+              Asset: 'Mobile'
+            })
+          ),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'my_reports']);
+        });
     }
   }
 
@@ -276,10 +278,13 @@ export class MyViewReportPage implements OnInit {
       }
     }
     if (canEdit) {
-      this.router.navigate([route, {
-        id: etxn.tx_id,
-        navigate_back: true
-      }]);
+      this.router.navigate([
+        route,
+        {
+          id: etxn.tx_id,
+          navigate_back: true
+        }
+      ]);
     } else {
       this.router.navigate([route, { id: etxn.tx_id }]);
     }
@@ -310,6 +315,6 @@ export class MyViewReportPage implements OnInit {
   }
 
   canEditTxn(txState) {
-    return (this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(txState) > -1);
+    return this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(txState) > -1;
   }
 }

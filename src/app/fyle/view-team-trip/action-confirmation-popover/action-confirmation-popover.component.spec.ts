@@ -7,16 +7,18 @@ describe('ActionConfirmationPopoverComponent', () => {
   let component: ActionConfirmationPopoverComponent;
   let fixture: ComponentFixture<ActionConfirmationPopoverComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ ActionConfirmationPopoverComponent ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [ActionConfirmationPopoverComponent],
+        imports: [IonicModule.forRoot()]
+      }).compileComponents();
 
-    fixture = TestBed.createComponent(ActionConfirmationPopoverComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+      fixture = TestBed.createComponent(ActionConfirmationPopoverComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    })
+  );
 
   it('should create', () => {
     expect(component).toBeTruthy();

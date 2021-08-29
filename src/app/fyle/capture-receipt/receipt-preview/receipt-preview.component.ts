@@ -5,10 +5,9 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 @Component({
   selector: 'app-receipt-preview',
   templateUrl: './receipt-preview.component.html',
-  styleUrls: ['./receipt-preview.component.scss'],
+  styleUrls: ['./receipt-preview.component.scss']
 })
 export class ReceiptPreviewComponent implements OnInit {
-
   @ViewChild('slides') imageSlides: any;
 
   @Input() base64ImagesWithSource: string[];
@@ -22,7 +21,7 @@ export class ReceiptPreviewComponent implements OnInit {
   constructor(
     private platform: Platform,
     private modalController: ModalController,
-    private popoverController: PopoverController,
+    private popoverController: PopoverController
   ) {
     this.registerBackButtonAction();
   }
@@ -38,8 +37,8 @@ export class ReceiptPreviewComponent implements OnInit {
       initialSlide: 0,
       slidesPerView: 1,
       zoom: {
-        maxRatio: 1,
-      },
+        maxRatio: 1
+      }
     };
     this.activeIndex = 0;
   }
@@ -148,5 +147,4 @@ export class ReceiptPreviewComponent implements OnInit {
     const activeIndex = await this.imageSlides.getActiveIndex();
     this.activeIndex = activeIndex;
   }
-
 }

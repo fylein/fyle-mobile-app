@@ -23,9 +23,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatButtonModule,
     MatSnackBarModule
   ],
-  declarations: [
-    MyProfilePage,
-    SelectCurrencyComponent,
-  ]
+  declarations: [MyProfilePage, SelectCurrencyComponent]
 })
 export class MyProfilePageModule {}

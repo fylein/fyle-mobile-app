@@ -7,16 +7,18 @@ describe('FyZeroStateComponent', () => {
   let component: FyZeroStateComponent;
   let fixture: ComponentFixture<FyZeroStateComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ FyZeroStateComponent ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [FyZeroStateComponent],
+        imports: [IonicModule.forRoot()]
+      }).compileComponents();
 
-    fixture = TestBed.createComponent(FyZeroStateComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+      fixture = TestBed.createComponent(FyZeroStateComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    })
+  );
 
   it('should create', () => {
     expect(component).toBeTruthy();

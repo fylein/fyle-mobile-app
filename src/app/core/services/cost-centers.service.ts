@@ -9,10 +9,7 @@ const costCentersCacheBuster$ = new Subject<void>();
   providedIn: 'root'
 })
 export class CostCentersService {
-
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) {}
 
   @Cacheable({
     cacheBusterObserver: costCentersCacheBuster$

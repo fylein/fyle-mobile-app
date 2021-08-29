@@ -7,16 +7,18 @@ describe('FyCurrencyExchangeRateComponent', () => {
   let component: FyCurrencyExchangeRateComponent;
   let fixture: ComponentFixture<FyCurrencyExchangeRateComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ FyCurrencyExchangeRateComponent ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [FyCurrencyExchangeRateComponent],
+        imports: [IonicModule.forRoot()]
+      }).compileComponents();
 
-    fixture = TestBed.createComponent(FyCurrencyExchangeRateComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+      fixture = TestBed.createComponent(FyCurrencyExchangeRateComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    })
+  );
 
   it('should create', () => {
     expect(component).toBeTruthy();

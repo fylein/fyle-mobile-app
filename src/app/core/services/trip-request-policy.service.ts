@@ -10,7 +10,6 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class TripRequestPolicyService {
-
   ROOT_ENDPOINT: string;
 
   constructor(
@@ -35,8 +34,8 @@ export class TripRequestPolicyService {
 
   testTripRequest(tripRequestObject) {
     return from(this.authService.getEou()).pipe(
-      map(eou => tripRequestObject.trip_request.org_user_id = eou.ou.id),
-      concatMap(() => this.postCall('/policy_check/test', tripRequestObject, {timeout: 5000}))
+      map((eou) => (tripRequestObject.trip_request.org_user_id = eou.ou.id)),
+      concatMap(() => this.postCall('/policy_check/test', tripRequestObject, { timeout: 5000 }))
     );
   }
 
@@ -44,7 +43,7 @@ export class TripRequestPolicyService {
     const popupRules = [];
 
     if (result) {
-      result.trip_request_policy_rule_desired_states.forEach(desiredState => {
+      result.trip_request_policy_rule_desired_states.forEach((desiredState) => {
         if (desiredState.popup) {
           popupRules.push(desiredState.description);
         }

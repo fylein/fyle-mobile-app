@@ -16,12 +16,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from '../../shared/shared.module';
 import { CorporateCardExpenseCardComponent } from './corporate-card-expense-card/corporate-card-expense-card.component';
-import {
-  CorporateCardExpensesSearchFilterComponent
-} from './corporate-card-expenses-search-filter/corporate-card-expenses-search-filter.component';
-import {
-  CorporateCardExpensesSortFilterComponent
-} from './corporate-card-expenses-sort-filter/corporate-card-expenses-sort-filter.component';
+import { CorporateCardExpensesSearchFilterComponent } from './corporate-card-expenses-search-filter/corporate-card-expenses-search-filter.component';
+import { CorporateCardExpensesSortFilterComponent } from './corporate-card-expenses-sort-filter/corporate-card-expenses-sort-filter.component';
 
 @NgModule({
   imports: [
@@ -48,4 +44,4 @@ import {
     CorporateCardExpensesSortFilterComponent
   ]
 })
-export class CorporateCardExpensesPageModule { }
+export class CorporateCardExpensesPageModule {}

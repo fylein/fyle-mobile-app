@@ -57,17 +57,7 @@
             "prefix": "app"
           }
         ],
-        "indent": [
-          "error",
-          2
-        ],
-        "quotes": [
-          2,
-          "single",
-          {
-            "avoidEscape": true
-          }
-        ],
+        "quotes": "off",
         "semi": "error",
         "no-underscore-dangle": "off",
         "@angular-eslint/template/no-negated-async": "off",
@@ -93,7 +83,10 @@
         "max-params-no-constructor/max-params-no-constructor": [
           "error",
           4
-        ]
+        ],
+        "max-len": "off", // this is taken care by prettier
+        "space-before-function-paren": "off",
+        "@typescript-eslint/quotes": "off"
         // "max-nested-callbacks": [2,3]
       }
     },

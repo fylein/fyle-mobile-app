@@ -49,17 +49,17 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
 
     this.fg = this.fb.group({
       currency: [], // currency which is currently shown
-      amount: [], // amount which is currently shown
+      amount: [] // amount which is currently shown
     });
 
-    this.fg.valueChanges.subscribe(formValue => {
+    this.fg.valueChanges.subscribe((formValue) => {
       const value = {
         amount: null,
         currency: null
@@ -77,8 +77,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   }
 
   checkIfSameValue(amount1, amount2) {
-    return amount1 && amount2 && amount1.amount === amount2.amount &&
-      amount1.currency === amount2.currency;
+    return amount1 && amount2 && amount1.amount === amount2.amount && amount1.currency === amount2.currency;
   }
 
   convertInnerValueToFormValue(innerVal) {
@@ -102,9 +101,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
-      this.fg.setValue(
-        this.convertInnerValueToFormValue(
-          this.innerValue));
+      this.fg.setValue(this.convertInnerValueToFormValue(this.innerValue));
       this.onChangeCallback(v);
     }
   }

@@ -21,9 +21,6 @@ import { MatButtonModule } from '@angular/material/button';
     PdfViewerModule,
     MatButtonModule
   ],
-  declarations: [
-    ViewTeamExpensePage,
-    RemoveExpenseReportComponent
-  ]
+  declarations: [ViewTeamExpensePage, RemoveExpenseReportComponent]
 })
 export class ViewTeamExpensePageModule {}

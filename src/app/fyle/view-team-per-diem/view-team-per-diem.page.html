@@ -1,4 +1,4 @@
-<ion-header mode="md" >
+<ion-header mode="md">
   <ion-toolbar class="view-per-diem--toolbar">
     <ion-buttons mode="md" slot="end">
       <ion-button (click)="goBack()">
@@ -11,16 +11,23 @@
 
 <ion-content>
   <div class="view-per-diem--container" *ngIf="extendedPerDiem$|async as extendedPerDiem">
-
     <ng-container *ngIf="extendedPerDiem.tx_policy_flag">
       <ng-container *ngIf="comments$|async as comments">
-        <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments"></app-fy-policy-violation-info>
+        <app-fy-policy-violation-info
+          (click)="scrollCommentsIntoView()"
+          [estatuses]="comments"
+        ></app-fy-policy-violation-info>
       </ng-container>
     </ng-container>
 
     <div class="view-per-diem--policy-info-container" *ngIf="isAmountCapped$|async">
-      <p class="view-per-diem--policy-info-text" *ngIf="isCriticalPolicyViolated$|async">This expense has violated a critical policy. You cannot create a report with this expense.</p>
-      <p class="view-per-diem--policy-info-text" *ngIf="!(isCriticalPolicyViolated$|async)">Claimed amount {{extendedPerDiem.tx_user_amount | currency: extendedPerDiem.tx_currency: 'symbol-narrow'}} was capped to {{extendedPerDiem.tx_amount | currency: extendedPerDiem.tx_currency: 'symbol-narrow'}} due to policy.</p>
+      <p class="view-per-diem--policy-info-text" *ngIf="isCriticalPolicyViolated$|async">
+        This expense has violated a critical policy. You cannot create a report with this expense.
+      </p>
+      <p class="view-per-diem--policy-info-text" *ngIf="!(isCriticalPolicyViolated$|async)">
+        Claimed amount {{extendedPerDiem.tx_user_amount | currency: extendedPerDiem.tx_currency: 'symbol-narrow'}} was
+        capped to {{extendedPerDiem.tx_amount | currency: extendedPerDiem.tx_currency: 'symbol-narrow'}} due to policy.
+      </p>
     </div>
 
     <app-currency [etxn]="extendedPerDiem"></app-currency>
@@ -28,12 +35,16 @@
     <div class="view-per-diem--info-card">
       <div class="view-per-diem--element">
         <div class="view-per-diem--element-label">From</div>
-        <div class="view-per-diem--element-value view-per-diem--element-value_date">{{extendedPerDiem.tx_from_dt | date: 'MMM dd, yyyy'}}</div>
+        <div class="view-per-diem--element-value view-per-diem--element-value_date">
+          {{extendedPerDiem.tx_from_dt | date: 'MMM dd, yyyy'}}
+        </div>
       </div>
 
       <div class="view-per-diem--element">
         <div class="view-per-diem--element-label">To</div>
-        <div class="view-per-diem--element-value view-per-diem--element-value_date">{{extendedPerDiem.tx_to_dt | date: 'MMM dd, yyyy'}}</div>
+        <div class="view-per-diem--element-value view-per-diem--element-value_date">
+          {{extendedPerDiem.tx_to_dt | date: 'MMM dd, yyyy'}}
+        </div>
       </div>
 
       <div class="view-per-diem--element">
@@ -83,12 +94,18 @@
 
     <div class="view-per-diem--card">
       <div class="view-per-diem--card-action" id="commentsSection">
-        <app-comments-history #comments objectType="transactions" [objectId]="extendedPerDiem.tx_id" text="Comments" [showCommentsCount]="true"></app-comments-history>
+        <app-comments-history
+          #comments
+          objectType="transactions"
+          [objectId]="extendedPerDiem.tx_id"
+          text="Comments"
+          [showCommentsCount]="true"
+        ></app-comments-history>
       </div>
     </div>
 
     <div class="view-per-diem--card" *ngIf="canFlagOrUnflag$|async">
-      <app-fy-flag-expense [etxn]="extendedPerDiem" (notify)='onUpdateFlag($event)'></app-fy-flag-expense>
+      <app-fy-flag-expense [etxn]="extendedPerDiem" (notify)="onUpdateFlag($event)"></app-fy-flag-expense>
     </div>
 
     <div class="view-per-diem--card" *ngIf="canDelete$|async">
@@ -96,10 +113,11 @@
         <mat-icon class="view-per-diem--card-action-icon">delete</mat-icon>
         <div class="view-per-diem--card-action-text__comment">
           <div class="view-per-diem--card-action-text view-per-diem--card-action-text__delete">Remove</div>
-          <div class="view-per-diem--delete-warning view-per-diem--card-action-text__helper-comment">remove from report</div>
+          <div class="view-per-diem--delete-warning view-per-diem--card-action-text__helper-comment">
+            remove from report
+          </div>
         </div>
       </div>
     </div>
   </div>
-
 </ion-content>

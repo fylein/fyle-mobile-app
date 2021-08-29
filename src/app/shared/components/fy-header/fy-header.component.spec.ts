@@ -9,7 +9,7 @@ describe('FyHeaderComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FyHeaderComponent ],
+      declarations: [FyHeaderComponent],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 

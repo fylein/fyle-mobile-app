@@ -13,7 +13,7 @@ export class HumanizeCurrencyPipe implements PipeTransform {
     const result = amount / Math.pow(1000, exp);
     let fixedResult;
 
-    const currency = getCurrencySymbol(currencyCode, 'wide' , 'en');
+    const currency = getCurrencySymbol(currencyCode, 'wide', 'en');
     if (currency) {
       const fractionSize = fraction;
       if (fractionSize) {
@@ -29,5 +29,4 @@ export class HumanizeCurrencyPipe implements PipeTransform {
     fixedResult = fixedResult + si[exp];
     return sign + fixedResult;
   }
-
 }

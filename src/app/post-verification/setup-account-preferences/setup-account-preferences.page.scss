@@ -24,7 +24,7 @@ $completed: #25ae88;
     position: relative;
     &::before {
       color: $uncompleted;
-      content: "∙";
+      content: '∙';
       position: absolute;
       font-size: 90px;
       left: -40px;
@@ -34,7 +34,7 @@ $completed: #25ae88;
     &__completed {
       &::before {
         color: $completed;
-        content: "∙";
+        content: '∙';
         position: absolute;
         font-size: 90px;
         left: -40px;

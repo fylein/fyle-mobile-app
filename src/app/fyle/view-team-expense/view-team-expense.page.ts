@@ -1,27 +1,26 @@
-import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
-import {Observable, from, forkJoin, Subject, combineLatest, concat, noop} from 'rxjs';
+import { Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Observable, from, forkJoin, Subject, combineLatest, concat, noop } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import {switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUntil, scan, take} from 'rxjs/operators';
+import { switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUntil, scan, take } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ModalController, PopoverController, IonContent } from '@ionic/angular';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
-import {NetworkService} from '../../core/services/network.service';
+import { NetworkService } from '../../core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-view-team-expense',
   templateUrl: './view-team-expense.page.html',
-  styleUrls: ['./view-team-expense.page.scss'],
+  styleUrls: ['./view-team-expense.page.scss']
 })
 export class ViewTeamExpensePage implements OnInit {
-
   @ViewChild('comments') commentsContainer: ElementRef;
 
   etxn$: Observable<Expense>;
@@ -71,7 +70,7 @@ export class ViewTeamExpensePage implements OnInit {
     private router: Router,
     private popoverController: PopoverController,
     private networkService: NetworkService
-  ) { }
+  ) {}
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -97,7 +96,7 @@ export class ViewTeamExpensePage implements OnInit {
   }
 
   goBackToReport() {
-    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
+    this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId }]);
   }
 
   isPolicyComment(estatus) {
@@ -128,7 +127,7 @@ export class ViewTeamExpensePage implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/', 'enterprise', 'view_team_report', {id: this.reportId}]);
+    this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId }]);
   }
 
   ngOnInit() {}
@@ -141,28 +140,26 @@ export class ViewTeamExpensePage implements OnInit {
     };
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
-      switchMap(() => from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.transactionService.getEtxn(txId))
-      )),
+      switchMap(() =>
+        from(this.loaderService.showLoader()).pipe(switchMap(() => this.transactionService.getEtxn(txId)))
+      ),
       finalize(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
 
-    this.etxnWithoutCustomProperties$.subscribe(res => {
+    this.etxnWithoutCustomProperties$.subscribe((res) => {
       this.reportId = res.tx_report_id;
     });
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap(etxn => this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)),
+      concatMap((etxn) =>
+        this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)
+      ),
       shareReplay(1)
     );
 
-    this.etxn$ = combineLatest(
-      [
-        this.etxnWithoutCustomProperties$,
-        this.customProperties$
-      ]).pipe(
-      map(res => {
+    this.etxn$ = combineLatest([this.etxnWithoutCustomProperties$, this.customProperties$]).pipe(
+      map((res) => {
         res[0].tx_custom_properties = res[1];
         return res[0];
       }),
@@ -171,21 +168,24 @@ export class ViewTeamExpensePage implements OnInit {
     );
 
     this.policyViloations$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap(etxn => this.statusService.find('transactions', etxn.tx_id)),
-      map(comments => comments.filter(this.isPolicyComment))
+      concatMap((etxn) => this.statusService.find('transactions', etxn.tx_id)),
+      map((comments) => comments.filter(this.isPolicyComment))
     );
 
     this.comments$ = this.statusService.find('transactions', txId);
 
     this.canFlagOrUnflag$ = this.etxnWithoutCustomProperties$.pipe(
-      map(etxn => ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1)
+      map(
+        (etxn) =>
+          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
+      )
     );
 
     this.canDelete$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap(etxn => this.reportService.getTeamReport(etxn.tx_report_id).pipe(
-        map(report => ({report, etxn}))
-      )),
-      map(({report, etxn}) => {
+      concatMap((etxn) =>
+        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
+      ),
+      map(({ report, etxn }) => {
         if (report.rp_num_transactions === 1) {
           return false;
         }
@@ -194,32 +194,34 @@ export class ViewTeamExpensePage implements OnInit {
     );
 
     this.isAmountCapped$ = this.etxn$.pipe(
-      map(etxn => this.isNumber(etxn.tx_admin_amount) || this.isNumber(etxn.tx_policy_amount))
+      map((etxn) => this.isNumber(etxn.tx_admin_amount) || this.isNumber(etxn.tx_policy_amount))
     );
 
     const orgSettings$ = this.offlineService.getOrgSettings();
 
-    orgSettings$.subscribe(orgSettings => {
+    orgSettings$.subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
     });
 
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
-      map(etxn => this.isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001),
+      map((etxn) => this.isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001)
     );
 
     const editExpenseAttachments = this.etxn$.pipe(
       take(1),
-      switchMap(etxn => this.fileService.findByTransactionId(etxn.tx_id)),
-      switchMap(fileObjs => from(fileObjs)),
-      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
-        map(downloadUrl => {
-          fileObj.url = downloadUrl;
-          const details = this.getReceiptDetails(fileObj);
-          fileObj.type = details.type;
-          fileObj.thumbnail = details.thumbnail;
-          return fileObj;
-        })
-      )),
+      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx_id)),
+      switchMap((fileObjs) => from(fileObjs)),
+      concatMap((fileObj: any) =>
+        this.fileService.downloadUrl(fileObj.id).pipe(
+          map((downloadUrl) => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        )
+      ),
       reduce((acc, curr) => acc.concat(curr), [])
     );
 
@@ -250,10 +252,10 @@ export class ViewTeamExpensePage implements OnInit {
       thumbnail: 'img/fy-receipt.svg'
     };
 
-    if (ext && (['pdf'].indexOf(ext) > -1)) {
+    if (ext && ['pdf'].indexOf(ext) > -1) {
       res.type = 'pdf';
       res.thumbnail = 'img/fy-pdf.svg';
-    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
       res.type = 'image';
       res.thumbnail = file.url;
     }
@@ -276,23 +278,25 @@ export class ViewTeamExpensePage implements OnInit {
     const { data } = await popover.onWillDismiss();
 
     if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id}]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
     }
   }
 
   viewAttachments() {
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.attachments$),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(async (attachments) => {
-      const attachmentsModal = await this.modalController.create({
-        component: FyViewAttachmentComponent,
-        componentProps: {
-          attachments
-        }
-      });
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.attachments$),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(async (attachments) => {
+        const attachmentsModal = await this.modalController.create({
+          component: FyViewAttachmentComponent,
+          componentProps: {
+            attachments
+          }
+        });
 
-      await attachmentsModal.present();
-    });
+        await attachmentsModal.present();
+      });
   }
 }

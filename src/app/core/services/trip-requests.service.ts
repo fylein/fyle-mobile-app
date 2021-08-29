@@ -18,7 +18,6 @@ const tripRequestsCacheBuster$ = new Subject<void>();
   providedIn: 'root'
 })
 export class TripRequestsService {
-
   constructor(
     private apiv2Service: ApiV2Service,
     private apiService: ApiService,
@@ -27,7 +26,7 @@ export class TripRequestsService {
     private tripDatesService: TripDatesService,
     private networkService: NetworkService,
     private storageService: StorageService
-  ) { }
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: tripRequestsCacheBuster$
@@ -41,13 +40,15 @@ export class TripRequestsService {
   })
   getHotelRequests(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/hotel_requests').pipe(
-      map((reqs) => reqs.map(req => {
-        const hotelRequest = this.dataTransformService.unflatten(req);
-        this.tripDatesService.fixDates(hotelRequest.hr);
-        this.tripDatesService.fixDates(hotelRequest.hb);
-        this.tripDatesService.fixDates(hotelRequest.hc);
-        return hotelRequest;
-      }))
+      map((reqs) =>
+        reqs.map((req) => {
+          const hotelRequest = this.dataTransformService.unflatten(req);
+          this.tripDatesService.fixDates(hotelRequest.hr);
+          this.tripDatesService.fixDates(hotelRequest.hb);
+          this.tripDatesService.fixDates(hotelRequest.hc);
+          return hotelRequest;
+        })
+      )
     );
   }
 
@@ -56,7 +57,7 @@ export class TripRequestsService {
   })
   saveDraft(tripRequest) {
     return from(this.authService.getEou()).pipe(
-      map(eou => tripRequest.org_user_id = eou.ou.id),
+      map((eou) => (tripRequest.org_user_id = eou.ou.id)),
       concatMap(() => this.apiService.post('/trip_requests/save', tripRequest))
     );
   }
@@ -66,7 +67,7 @@ export class TripRequestsService {
   })
   submit(tripRequest) {
     return from(this.authService.getEou()).pipe(
-      map(eou => tripRequest.org_user_id = eou.ou.id),
+      map((eou) => (tripRequest.org_user_id = eou.ou.id)),
       concatMap(() => this.apiService.post('/trip_requests/submit', tripRequest))
     );
   }
@@ -81,7 +82,6 @@ export class TripRequestsService {
     };
     return this.apiService.post('/trip_requests/' + tripRequestId + '/approver/add', data);
   }
-
 
   @CacheBuster({
     cacheBusterNotifier: tripRequestsCacheBuster$
@@ -107,29 +107,36 @@ export class TripRequestsService {
   @Cacheable({
     cacheBusterObserver: tripRequestsCacheBuster$
   })
-  getTeamTrips(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
+  getTeamTrips(
+    config: Partial<{ offset: number; limit: number; queryParams: any }> = {
+      offset: 0,
+      limit: 10,
+      queryParams: {}
+    }
+  ) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => this.apiv2Service.get('/trip_requests', {
-        params: {
-          offset: config.offset,
-          limit: config.limit,
-          order: 'trp_created_at.desc',
-          approvers: 'cs.{' + eou.ou.id + '}',
-          ...config.queryParams
-        }
-      })),
-      map(res => res as {
-        count: number;
-        data: ExtendedTripRequest[];
-        limit: number;
-        offset: number;
-        url: string;
-      }),
-      map(res => ({
+      switchMap((eou) =>
+        this.apiv2Service.get('/trip_requests', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            order: 'trp_created_at.desc',
+            approvers: 'cs.{' + eou.ou.id + '}',
+            ...config.queryParams
+          }
+        })
+      ),
+      map(
+        (res) =>
+          res as {
+            count: number;
+            data: ExtendedTripRequest[];
+            limit: number;
+            offset: number;
+            url: string;
+          }
+      ),
+      map((res) => ({
         ...res,
         data: res.data.map(this.fixDates)
       }))
@@ -141,13 +148,14 @@ export class TripRequestsService {
   })
   getTransportationRequests(tripRequestId: string) {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/transportation_requests').pipe(
-      map((reqs) => reqs.map(req => {
-        const transportationRequest = this.dataTransformService.unflatten(req);
-        this.tripDatesService.fixDates(transportationRequest.tr);
-        this.tripDatesService.fixDates(transportationRequest.tb);
-        this.tripDatesService.fixDates(transportationRequest.tc);
-        return transportationRequest;
-      })
+      map((reqs) =>
+        reqs.map((req) => {
+          const transportationRequest = this.dataTransformService.unflatten(req);
+          this.tripDatesService.fixDates(transportationRequest.tr);
+          this.tripDatesService.fixDates(transportationRequest.tb);
+          this.tripDatesService.fixDates(transportationRequest.tc);
+          return transportationRequest;
+        })
       )
     );
   }
@@ -155,28 +163,35 @@ export class TripRequestsService {
   @Cacheable({
     cacheBusterObserver: tripRequestsCacheBuster$
   })
-  getMyTrips(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
+  getMyTrips(
+    config: Partial<{ offset: number; limit: number; queryParams: any }> = {
+      offset: 0,
+      limit: 10,
+      queryParams: {}
+    }
+  ) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => this.apiv2Service.get('/trip_requests', {
-        params: {
-          offset: config.offset,
-          limit: config.limit,
-          trp_org_user_id: 'eq.' + eou.ou.id,
-          ...config.queryParams
-        }
-      })),
-      map(res => res as {
-        count: number;
-        data: ExtendedTripRequest[];
-        limit: number;
-        offset: number;
-        url: string;
-      }),
-      map(res => ({
+      switchMap((eou) =>
+        this.apiv2Service.get('/trip_requests', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            trp_org_user_id: 'eq.' + eou.ou.id,
+            ...config.queryParams
+          }
+        })
+      ),
+      map(
+        (res) =>
+          res as {
+            count: number;
+            data: ExtendedTripRequest[];
+            limit: number;
+            offset: number;
+            url: string;
+          }
+      ),
+      map((res) => ({
         ...res,
         data: res.data.map(this.fixDates)
       }))
@@ -212,26 +227,24 @@ export class TripRequestsService {
   }
 
   getTrip(id: string): Observable<ExtendedTripRequest> {
-    return this.apiv2Service.get('/trip_requests', {
-      params: {
-        trp_id: `eq.${id}`
-      }
-    }).pipe(
-      map(
-        res => {
+    return this.apiv2Service
+      .get('/trip_requests', {
+        params: {
+          trp_id: `eq.${id}`
+        }
+      })
+      .pipe(
+        map((res) => {
           let modifiedTrip = this.fixDates(res.data[0]) as ExtendedTripRequest;
           // try catch is failsafe against bad data
           try {
             modifiedTrip.trp_custom_field_values = JSON.parse(modifiedTrip.trp_custom_field_values);
-          } catch (error) {
-          }
+          } catch (error) {}
           modifiedTrip = this.setInternalStateAndDisplayName(modifiedTrip);
           return modifiedTrip;
-        }
-      )
-    );
+        })
+      );
   }
-
 
   get(tripRequestId) {
     return this.apiService.get('/trip_requests/' + tripRequestId);
@@ -241,21 +254,16 @@ export class TripRequestsService {
     return this.apiService.get('/trip_requests/' + tripRequestId + '/actions');
   }
 
-
   getTeamTripsCount(queryParams = {}) {
     return this.getTeamTrips({
       offset: 0,
       limit: 1,
       queryParams
-    }).pipe(
-      map(trip => trip.count)
-    );
+    }).pipe(map((trip) => trip.count));
   }
 
   getApproversByTripRequestId(tripRequestId: string) {
-    return this.apiService.get('/trip_requests/' + tripRequestId + '/approvals').pipe(
-      map(res => res as Approval[])
-    );
+    return this.apiService.get('/trip_requests/' + tripRequestId + '/approvals').pipe(map((res) => res as Approval[]));
   }
 
   setInternalStateAndDisplayName(tripRequest) {
@@ -321,7 +329,7 @@ export class TripRequestsService {
     datum.trp_created_at = new Date(datum.trp_created_at);
     datum.trp_updated_at = new Date(datum.trp_updated_at);
 
-    datum.trp_trip_cities = datum.trp_trip_cities.map(trpCity => {
+    datum.trp_trip_cities = datum.trp_trip_cities.map((trpCity) => {
       trpCity.onward_date = new Date(trpCity.onward_date);
       trpCity.return_date = trpCity.return_date ? new Date(trpCity.return_date) : null;
       return trpCity;
@@ -333,15 +341,12 @@ export class TripRequestsService {
     return datum;
   }
 
-
   getMyTripsCount(queryParams = {}) {
     return this.getMyTrips({
       offset: 0,
       limit: 1,
       queryParams
-    }).pipe(
-      map(trip => trip.count)
-    );
+    }).pipe(map((trip) => trip.count));
   }
 
   getInternalStateAndDisplayName(tripRequest: ExtendedTripRequest): { state: string; name: string } {
@@ -466,22 +471,19 @@ export class TripRequestsService {
 
   getPaginatedMyETripRequestsCount(params) {
     return this.networkService.isOnline().pipe(
-      switchMap(
-        isOnline => {
-          if (isOnline) {
-            return this.apiService.get('/etrip_requests/count', { params }).pipe(
-              tap((res) => {
-                this.storageService.set('etripRequestsCount' + JSON.stringify(params), res);
-              })
-            );
-          } else {
-            return from(this.storageService.get('etripRequestsCount' + JSON.stringify(params)));
-          }
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.apiService.get('/etrip_requests/count', { params }).pipe(
+            tap((res) => {
+              this.storageService.set('etripRequestsCount' + JSON.stringify(params), res);
+            })
+          );
+        } else {
+          return from(this.storageService.get('etripRequestsCount' + JSON.stringify(params)));
         }
-      )
+      })
     );
   }
-
 
   triggerPolicyCheck(tripRequestId) {
     return this.apiService.post('/trip_requests/' + tripRequestId + '/trigger_policy_check');
@@ -496,5 +498,4 @@ export class TripRequestsService {
 
     return this.apiService.get('/trip_requests', data);
   }
-
 }

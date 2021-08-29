@@ -4,17 +4,14 @@ import { PopoverController } from '@ionic/angular';
 @Component({
   selector: 'app-flag-unflag-confirmation',
   templateUrl: './flag-unflag-confirmation.component.html',
-  styleUrls: ['./flag-unflag-confirmation.component.scss'],
+  styleUrls: ['./flag-unflag-confirmation.component.scss']
 })
 export class FlagUnflagConfirmationComponent implements OnInit {
-
   @Input() title;
 
   message = '';
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   closeConfirmationPopup() {
     this.popoverController.dismiss();
@@ -24,9 +21,8 @@ export class FlagUnflagConfirmationComponent implements OnInit {
     if (this.message.trim().length < 0) {
       return;
     }
-    this.popoverController.dismiss({message: this.message});
+    this.popoverController.dismiss({ message: this.message });
   }
 
   ngOnInit() {}
-
 }

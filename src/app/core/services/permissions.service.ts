@@ -78,7 +78,7 @@ export class PermissionsService {
       },
       summary: {
         team: false,
-        company: true,
+        company: true
       },
       trips: {
         view: true,
@@ -245,7 +245,7 @@ export class PermissionsService {
       },
       summary: {
         team: false,
-        company: true,
+        company: true
       },
       trips: {
         view: true,
@@ -412,7 +412,7 @@ export class PermissionsService {
       },
       summary: {
         team: false,
-        company: true,
+        company: true
       },
       trips: {
         view: true,
@@ -580,7 +580,7 @@ export class PermissionsService {
       },
       summary: {
         team: false,
-        company: false,
+        company: false
       },
       trips: {
         view: true,
@@ -740,14 +740,15 @@ export class PermissionsService {
         export: false,
         delete: false
       },
-      receipts: { // approver
+      receipts: {
+        // approver
         upload: false,
         match: false,
         delete: false
       },
       summary: {
         team: true,
-        company: false,
+        company: false
       },
       trips: {
         view: true,
@@ -915,7 +916,7 @@ export class PermissionsService {
       },
       summary: {
         team: false,
-        company: false,
+        company: false
       },
       trips: {
         view: false,
@@ -1082,7 +1083,7 @@ export class PermissionsService {
       },
       summary: {
         team: false,
-        company: false,
+        company: false
       },
       trips: {
         view: true,
@@ -1249,7 +1250,7 @@ export class PermissionsService {
       },
       summary: {
         team: false,
-        company: false,
+        company: false
       },
       trips: {
         view: false,
@@ -1416,7 +1417,7 @@ export class PermissionsService {
       },
       summary: {
         team: false,
-        company: false,
+        company: false
       },
       trips: {
         view: false,
@@ -1583,7 +1584,7 @@ export class PermissionsService {
       },
       summary: {
         team: false,
-        company: false,
+        company: false
       },
       trips: {
         view: true,
@@ -1750,7 +1751,7 @@ export class PermissionsService {
       },
       summary: {
         team: false,
-        company: false,
+        company: false
       },
       trips: {
         view: true,
@@ -1917,7 +1918,7 @@ export class PermissionsService {
       },
       summary: {
         team: true,
-        company: false,
+        company: false
       },
       trips: {
         view: true,
@@ -2085,7 +2086,7 @@ export class PermissionsService {
       },
       summary: {
         team: true,
-        company: false,
+        company: false
       },
       trips: {
         view: true,
@@ -2184,10 +2185,7 @@ export class PermissionsService {
     }
   };
 
-
-  constructor(
-    private authService: AuthService
-  ) { }
+  constructor(private authService: AuthService) {}
 
   allowedActions(resource, actions, orgSettings) {
     const roles$ = this.authService.getRoles();
@@ -2196,7 +2194,7 @@ export class PermissionsService {
     };
 
     const filteredRoles$ = roles$.pipe(
-      map(roles => {
+      map((roles) => {
         if (roles.indexOf('SUPER_ADMIN') > -1) {
           roles.splice(roles.indexOf('SUPER_ADMIN'), 1);
         }
@@ -2206,33 +2204,28 @@ export class PermissionsService {
     );
 
     const allowedActions$ = filteredRoles$.pipe(
-      map(
-        filteredRoles => {
-          if (this.allowedAccess(resource, orgSettings)) {
-            for (const currentRole of filteredRoles) {
-              const role = currentRole.toLowerCase();
-              this.setAllowedActions(actions, allowedActions, role, resource);
-            }
-          }
-          return allowedActions;
-        }
-      ),
-      switchMap(
-        currentAllowedActions => {
-          if (currentAllowedActions.allowedRouteAccess) {
-            return of(currentAllowedActions);
-          } else {
-            return throwError('no route access');
+      map((filteredRoles) => {
+        if (this.allowedAccess(resource, orgSettings)) {
+          for (const currentRole of filteredRoles) {
+            const role = currentRole.toLowerCase();
+            this.setAllowedActions(actions, allowedActions, role, resource);
           }
         }
-      )
+        return allowedActions;
+      }),
+      switchMap((currentAllowedActions) => {
+        if (currentAllowedActions.allowedRouteAccess) {
+          return of(currentAllowedActions);
+        } else {
+          return throwError('no route access');
+        }
+      })
     );
 
     return filteredRoles$.pipe(
-      switchMap(filteredRoles => iif(() => filteredRoles.length > 0, allowedActions$, of(null)))
+      switchMap((filteredRoles) => iif(() => filteredRoles.length > 0, allowedActions$, of(null)))
     );
   }
-
 
   setAllowedActions(actions: any, allowedActions: any, role: any, resource: any) {
     for (const action of actions) {
@@ -2260,21 +2253,27 @@ export class PermissionsService {
   isTravelAdmin() {
     const roles$ = this.authService.getRoles();
     return roles$.pipe(
-      map(roles => (roles.indexOf('TRAVEL_ADMIN') > -1) && (roles.indexOf('ADMIN') === -1) && (roles.indexOf('FINANCE') === -1))
+      map(
+        (roles) =>
+          roles.indexOf('TRAVEL_ADMIN') > -1 && roles.indexOf('ADMIN') === -1 && roles.indexOf('FINANCE') === -1
+      )
     );
   }
 
   isTravelAgent() {
     const roles$ = this.authService.getRoles();
     return roles$.pipe(
-      map(roles => (roles.indexOf('TRAVEL_AGENT') > -1) && (roles.indexOf('ADMIN') === -1) && (roles.indexOf('FINANCE') === -1))
+      map(
+        (roles) =>
+          roles.indexOf('TRAVEL_AGENT') > -1 && roles.indexOf('ADMIN') === -1 && roles.indexOf('FINANCE') === -1
+      )
     );
   }
 
   isAuditor() {
     const roles$ = this.authService.getRoles();
     return roles$.pipe(
-      map(roles => (roles.indexOf('AUDITOR') > -1) && (roles.indexOf('ADMIN') === -1) && (roles.indexOf('FINANCE') === -1))
+      map((roles) => roles.indexOf('AUDITOR') > -1 && roles.indexOf('ADMIN') === -1 && roles.indexOf('FINANCE') === -1)
     );
   }
 }

@@ -46,14 +46,13 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
   }
 
-  ngOnDestroy() {
-  }
+  ngOnDestroy() {}
 
   get value(): any {
     return this.innerValue;

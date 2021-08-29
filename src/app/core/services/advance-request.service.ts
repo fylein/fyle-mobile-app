@@ -25,7 +25,6 @@ const advanceRequestsCacheBuster$ = new Subject<void>();
   providedIn: 'root'
 })
 export class AdvanceRequestService {
-
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
@@ -39,33 +38,40 @@ export class AdvanceRequestService {
     private dateService: DateService,
     private fileService: FileService,
     private transactionsOutboxService: TransactionsOutboxService
-  ) { }
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$
   })
-  getMyadvanceRequests(config: Partial<{ offset: number; limit: number; queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
+  getMyadvanceRequests(
+    config: Partial<{ offset: number; limit: number; queryParams: any }> = {
+      offset: 0,
+      limit: 10,
+      queryParams: {}
+    }
+  ) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => this.apiv2Service.get('/advance_requests', {
-        params: {
-          offset: config.offset,
-          limit: config.limit,
-          areq_org_user_id: 'eq.' + eou.ou.id,
-          ...config.queryParams
-        }
-      })),
-      map(res => res as {
-        count: number;
-        data: ExtendedAdvanceRequest[];
-        limit: number;
-        offset: number;
-        url: string;
-      }),
-      map(res => ({
+      switchMap((eou) =>
+        this.apiv2Service.get('/advance_requests', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            areq_org_user_id: 'eq.' + eou.ou.id,
+            ...config.queryParams
+          }
+        })
+      ),
+      map(
+        (res) =>
+          res as {
+            count: number;
+            data: ExtendedAdvanceRequest[];
+            limit: number;
+            offset: number;
+            url: string;
+          }
+      ),
+      map((res) => ({
         ...res,
         data: res.data.map(this.fixDates)
       }))
@@ -76,15 +82,13 @@ export class AdvanceRequestService {
     cacheBusterObserver: advanceRequestsCacheBuster$
   })
   getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
-    return this.apiv2Service.get('/advance_requests', {
-      params: {
-        areq_id: `eq.${id}`
-      }
-    }).pipe(
-      map(
-        res => this.fixDates(res.data[0]) as ExtendedAdvanceRequest
-      )
-    );
+    return this.apiv2Service
+      .get('/advance_requests', {
+        params: {
+          areq_id: `eq.${id}`
+        }
+      })
+      .pipe(map((res) => this.fixDates(res.data[0]) as ExtendedAdvanceRequest));
   }
 
   @CacheBuster({
@@ -158,19 +162,19 @@ export class AdvanceRequestService {
     return of(null);
   }
 
-
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$
   })
-  getTeamadvanceRequests(config: Partial<{ offset: number; limit: number; queryParams: any; filter: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {},
-    filter: 'PENDING'
-  }) {
+  getTeamadvanceRequests(
+    config: Partial<{ offset: number; limit: number; queryParams: any; filter: any }> = {
+      offset: 0,
+      limit: 10,
+      queryParams: {},
+      filter: 'PENDING'
+    }
+  ) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-
+      switchMap((eou) => {
         const defaultParams = {};
         if (config.filter === 'APPROVED') {
           defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_DONE'];
@@ -189,24 +193,26 @@ export class AdvanceRequestService {
           }
         });
       }),
-      map(res => res as {
-        count: number;
-        data: ExtendedAdvanceRequest[];
-        limit: number;
-        offset: number;
-        url: string;
-      }),
-      map(res => ({
+      map(
+        (res) =>
+          res as {
+            count: number;
+            data: ExtendedAdvanceRequest[];
+            limit: number;
+            offset: number;
+            url: string;
+          }
+      ),
+      map((res) => ({
         ...res,
         data: res.data.map(this.fixDates)
       }))
     );
   }
 
-
   getEReq(advanceRequestId) {
     return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
-      map(res => {
+      map((res) => {
         const eAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
         // self.setInternalStateAndDisplayName(eAdvanceRequest.areq);
@@ -217,9 +223,12 @@ export class AdvanceRequestService {
 
   testPolicy(advanceRequest): Observable<any> {
     return this.orgUserSettingsService.get().pipe(
-      switchMap(orgUserSettings => {
+      switchMap((orgUserSettings) => {
         if (advanceRequest.created_at) {
-          advanceRequest.created_at = this.timezoneService.convertToUtc(advanceRequest.created_at, orgUserSettings.locale.offset);
+          advanceRequest.created_at = this.timezoneService.convertToUtc(
+            advanceRequest.created_at,
+            orgUserSettings.locale.offset
+          );
         }
         return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest, { timeout: 5000 });
       })
@@ -256,19 +265,17 @@ export class AdvanceRequestService {
 
   getPaginatedMyEAdvanceRequestsCount(params) {
     return this.networkService.isOnline().pipe(
-      switchMap(
-        isOnline => {
-          if (isOnline) {
-            return this.apiService.get('/eadvance_requests/count', { params }).pipe(
-              tap((res) => {
-                this.storageService.set('eadvanceRequestsCount' + JSON.stringify(params), res);
-              })
-            );
-          } else {
-            return from(this.storageService.get('eadvanceRequestsCount' + JSON.stringify(params)));
-          }
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.apiService.get('/eadvance_requests/count', { params }).pipe(
+            tap((res) => {
+              this.storageService.set('eadvanceRequestsCount' + JSON.stringify(params), res);
+            })
+          );
+        } else {
+          return from(this.storageService.get('eadvanceRequestsCount' + JSON.stringify(params)));
         }
-      )
+      })
     );
   }
 
@@ -277,14 +284,14 @@ export class AdvanceRequestService {
   }
 
   getApproversByAdvanceRequestId(advanceRequestId: string) {
-    return this.apiService.get('/eadvance_requests/' + advanceRequestId + '/approvals').pipe(
-      map(res => res as Approval[])
-    );
+    return this.apiService
+      .get('/eadvance_requests/' + advanceRequestId + '/approvals')
+      .pipe(map((res) => res as Approval[]));
   }
 
   getActiveApproversByAdvanceRequestId(advanceRequestId: string) {
     return from(this.getApproversByAdvanceRequestId(advanceRequestId)).pipe(
-      map(approvers => {
+      map((approvers) => {
         const filteredApprovers = approvers.filter((approver) => {
           if (approver.state !== 'APPROVAL_DISABLED') {
             return approver;
@@ -300,9 +307,7 @@ export class AdvanceRequestService {
       offset: 0,
       limit: 1,
       queryParams
-    }).pipe(
-      map(advanceRequest => advanceRequest.count)
-    );
+    }).pipe(map((advanceRequest) => advanceRequest.count));
   }
 
   getTeamAdvanceRequestsCount(queryParams: {}, filter: any) {
@@ -311,13 +316,11 @@ export class AdvanceRequestService {
       limit: 1,
       queryParams,
       filter
-    }).pipe(
-      map(advanceRequest => advanceRequest.count)
-    );
+    }).pipe(map((advanceRequest) => advanceRequest.count));
   }
 
   modifyAdvanceRequestCustomFields(customFields): CustomField[] {
-    customFields = customFields.map(customField => {
+    customFields = customFields.map((customField) => {
       if (customField.type === 'DATE' && customField.value) {
         customField.value = new Date(customField.value);
       }
@@ -411,7 +414,7 @@ export class AdvanceRequestService {
       files: fileObservables,
       advanceReq: this.submit(advanceRequest)
     }).pipe(
-      switchMap(res => {
+      switchMap((res) => {
         if (res.files && res.files.length > 0) {
           const fileObjs: File[] = res.files;
           const advanceReq = res.advanceReq;
@@ -419,13 +422,9 @@ export class AdvanceRequestService {
             obj.advance_request_id = advanceReq.id;
             return this.fileService.post(obj);
           });
-          return forkJoin(newFileObjs).pipe(
-            map(() => res)
-          );
+          return forkJoin(newFileObjs).pipe(map(() => res));
         } else {
-          return of(null).pipe(
-            map(() => res)
-          );
+          return of(null).pipe(map(() => res));
         }
       })
     );
@@ -436,7 +435,7 @@ export class AdvanceRequestService {
       files: fileObservables,
       advanceReq: this.saveDraft(advanceRequest)
     }).pipe(
-      switchMap(res => {
+      switchMap((res) => {
         if (res.files && res.files.length > 0) {
           const fileObjs: File[] = res.files;
           const advanceReq = res.advanceReq;
@@ -444,13 +443,9 @@ export class AdvanceRequestService {
             obj.advance_request_id = advanceReq.id;
             return this.fileService.post(obj);
           });
-          return forkJoin(newFileObjs).pipe(
-            map(() => res)
-          );
+          return forkJoin(newFileObjs).pipe(map(() => res));
         } else {
-          return of(null).pipe(
-            map(() => res)
-          );
+          return of(null).pipe(map(() => res));
         }
       })
     );

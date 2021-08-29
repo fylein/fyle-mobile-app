@@ -4,16 +4,15 @@ import { Observable, Subject } from 'rxjs';
 import { map, switchMap, startWith } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ViewCommentComponent } from './view-comment/view-comment.component';
-import {TrackingService} from '../../../core/services/tracking.service';
+import { TrackingService } from '../../../core/services/tracking.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-comments-history',
   templateUrl: './comments-history.component.html',
-  styleUrls: ['./comments-history.component.scss'],
+  styleUrls: ['./comments-history.component.scss']
 })
 export class CommentsHistoryComponent implements OnInit {
-
   @Input() objectType: string;
 
   @Input() objectId: string;
@@ -35,7 +34,7 @@ export class CommentsHistoryComponent implements OnInit {
     private statusService: StatusService,
     private trackingService: TrackingService,
     private modalProperties: ModalPropertiesService
-  ) { }
+  ) {}
 
   async presentModal() {
     const modal = await this.modalController.create({
@@ -53,21 +52,22 @@ export class CommentsHistoryComponent implements OnInit {
     const { data } = await modal.onDidDismiss();
 
     if (data && data.updated) {
-      this.trackingService.addComment({Asset: 'Mobile'});
+      this.trackingService.addComment({ Asset: 'Mobile' });
       this.refreshComments$.next();
     } else {
-      this.trackingService.viewComment({Asset: 'Mobile'});
+      this.trackingService.viewComment({ Asset: 'Mobile' });
     }
   }
 
   ngOnInit() {
     this.noOfComments$ = this.refreshComments$.pipe(
       startWith(0),
-      switchMap(() => this.statusService.find(this.objectType, this.objectId).pipe(
-        map(res => res.filter((estatus) => estatus.us_full_name).length),
-      ))
+      switchMap(() =>
+        this.statusService
+          .find(this.objectType, this.objectId)
+          .pipe(map((res) => res.filter((estatus) => estatus.us_full_name).length))
+      )
     );
     this.refreshComments$.next();
   }
-
 }

@@ -4,8 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class DataTransformService {
-
-  constructor() { }
+  constructor() {}
 
   unflatten(data): any {
     const res = {};
