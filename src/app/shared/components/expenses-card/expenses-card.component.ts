@@ -119,9 +119,9 @@ export class ExpensesCardComponent implements OnInit {
         this.fileService.getFilesWithThumbnail(this.expense.tx_id).pipe(
           map((ThumbFiles: File[]) => {
             if (ThumbFiles.length > 0) {
-              this.fileService.downloadUrl(ThumbFiles[0].id).pipe(
-                map((downloadUrl: string) => {
-                  this.receiptThumbnail = downloadUrl;
+              this.fileService.downloadThumbnailUrl(ThumbFiles[0].id).pipe(
+                map((downloadUrl) => {
+                  this.receiptThumbnail = downloadUrl[0].url;
                 })
               ).subscribe(noop);
             } else {

@@ -20,6 +20,16 @@ export class FileService {
     );
   }
 
+  downloadThumbnailUrl(fileId: string): Observable<any[]> {
+    const file_ids= [fileId];
+    return this.apiService.post('/files/download_urls',
+      [{
+        id: fileId,
+        purpose: 'THUMBNAILx200x200'
+      }]
+    );
+  }
+
   getFilesWithThumbnail(txnId: string): Observable<any[]> {
     return this.apiService.get('/files?skip_html=true&purpose=THUMBNAILx200x200&transaction_id=' + txnId);
   }
