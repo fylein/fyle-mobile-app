@@ -3787,41 +3787,44 @@ export class AddEditExpensePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
     const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
-    const header = (reportId && removeExpenseFromReport) ? 'Remove Expense' : 'Delete Expense';
-    const message = (reportId && removeExpenseFromReport) ?
-      'Are you sure you want to remove this expense from this report?' :
-      'Are you sure you want to delete this expense?';
-    const CTAText = (reportId && removeExpenseFromReport) ? 'Remove' : 'Delete';
-    const loadingMessage = (reportId && removeExpenseFromReport) ? 'Removing Expense...' : 'Deleting Expense...';
+    const header = reportId && removeExpenseFromReport ? 'Remove Expense' : 'Delete Expense';
+    const message =
+      reportId && removeExpenseFromReport
+        ? 'Are you sure you want to remove this expense from this report?'
+        : 'Are you sure you want to delete this expense?';
+    const CTAText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
+    const loadingMessage = reportId && removeExpenseFromReport ? 'Removing Expense...' : 'Deleting Expense...';
 
     const popupResult = await this.popupService.showPopup({
       header,
       message,
       primaryCta: {
-        text: CTAText
-      }
+        text: CTAText,
+      },
     });
 
     if (popupResult === 'primary') {
-      from(this.loaderService.showLoader(loadingMessage)).pipe(
-        switchMap(() => {
-          if (reportId && removeExpenseFromReport) {
-            return this.reportService.removeTransaction(reportId, id);
+      from(this.loaderService.showLoader(loadingMessage))
+        .pipe(
+          switchMap(() => {
+            if (reportId && removeExpenseFromReport) {
+              return this.reportService.removeTransaction(reportId, id);
+            } else {
+              return this.transactionService.delete(id);
+            }
+          }),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(() => {
+          if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+            this.reviewList.splice(+this.activeIndex, 1);
+            this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
+              this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
+            });
           } else {
-            return this.transactionService.delete(id);
+            this.router.navigate(['/', 'enterprise', 'my_expenses']);
           }
-        }),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-          this.reviewList.splice(+this.activeIndex, 1);
-          this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
-            this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-          });
-        } else {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        }
-      });
+        });
     }
   }
 

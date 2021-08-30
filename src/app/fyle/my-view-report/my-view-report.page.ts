@@ -275,13 +275,16 @@ export class MyViewReportPage implements OnInit {
       }
     }
     if (canEdit) {
-      this.router.navigate([route, {
-        id: etxn.tx_id,
-        navigate_back: true,
-        remove_from_report: true
-      }]);
+      this.router.navigate([
+        route,
+        {
+          id: etxn.tx_id,
+          navigate_back: true,
+          remove_from_report: true,
+        },
+      ]);
     } else {
-      this.router.navigate([route, { id: etxn.tx_id  }]);
+      this.router.navigate([route, { id: etxn.tx_id }]);
     }
   }
 

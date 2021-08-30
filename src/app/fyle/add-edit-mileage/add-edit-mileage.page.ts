@@ -2347,42 +2347,45 @@ export class AddEditMileagePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
     const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
-    const header = (reportId && removeExpenseFromReport) ? 'Remove Mileage' : 'Delete  Mileage';
-    const message = (reportId && removeExpenseFromReport) ?
-      'Are you sure you want to remove this mileage expense from this report?' :
-      'Are you sure you want to delete this mileage expense?';
-    const CTAText = (reportId && removeExpenseFromReport) ? 'Remove' : 'Delete';
-    const loadingMessage = (reportId && removeExpenseFromReport) ? 'Removing Mileage...' : 'Deleting Mileage...';
+    const header = reportId && removeExpenseFromReport ? 'Remove Mileage' : 'Delete  Mileage';
+    const message =
+      reportId && removeExpenseFromReport
+        ? 'Are you sure you want to remove this mileage expense from this report?'
+        : 'Are you sure you want to delete this mileage expense?';
+    const CTAText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
+    const loadingMessage = reportId && removeExpenseFromReport ? 'Removing Mileage...' : 'Deleting Mileage...';
 
     const popupResponse = await this.popupService.showPopup({
       header,
       message,
       primaryCta: {
-        text: CTAText
-      }
+        text: CTAText,
+      },
     });
 
     if (popupResponse === 'primary') {
-      from(this.loaderService.showLoader(loadingMessage)).pipe(
-        switchMap(() => {
-          if (reportId && removeExpenseFromReport) {
-            return this.reportService.removeTransaction(reportId, id);
+      from(this.loaderService.showLoader(loadingMessage))
+        .pipe(
+          switchMap(() => {
+            if (reportId && removeExpenseFromReport) {
+              return this.reportService.removeTransaction(reportId, id);
+            } else {
+              return this.transactionService.delete(id);
+            }
+          }),
+          tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile', Type: 'Mileage' })),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(() => {
+          if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+            this.reviewList.splice(+this.activeIndex, 1);
+            this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
+              this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
+            });
           } else {
-            return this.transactionService.delete(id);
+            this.router.navigate(['/', 'enterprise', 'my_expenses']);
           }
-        }),
-        tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile', Type: 'Mileage' })),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-          this.reviewList.splice(+this.activeIndex, 1);
-          this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
-            this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-          });
-        } else {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        }
-      });
+        });
     } else {
       this.trackingService.clickDeleteExpense({ Asset: 'Mobile', Type: 'Mileage' });
     }
