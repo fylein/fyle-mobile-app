@@ -3,6 +3,10 @@ import { AdvanceState } from "./advance-state.pipe";
 describe('AdvanceStatePipe', () => {
   const pipe = new AdvanceState();
 
+  it('transforms "" state to ""', () => {
+    expect(pipe.transform('')).toBe('');
+  });
+
   it('transforms "DRAFT" state to "draft"', () => {
     expect(pipe.transform('DRAFT')).toBe('draft');
   });

@@ -5,6 +5,10 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class ReportState implements PipeTransform {
   transform(val) {
+    if (!val) {
+      return val;
+    }
+
     const states = {
       DRAFT: 'draft',
       DRAFT_INQUIRY: 'incomplete',
