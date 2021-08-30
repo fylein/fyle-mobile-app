@@ -7,7 +7,7 @@
     </ion-buttons>
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
-        <ion-icon name="close" slot="icon-only"></ion-icon>
+        <ion-icon class="icon--fy-close" [src]="'../../../../assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
 
@@ -652,9 +652,6 @@
                     <label>
                       <mat-checkbox formControlName="value">
                         {{customInput.name | ellipsis: 35 }}
-                        <span class="add-edit-expense--mandatory" *ngIf="customInput.mandatory">
-                          *
-                        </span>
                       </mat-checkbox>
                     </label>
                   </div>
