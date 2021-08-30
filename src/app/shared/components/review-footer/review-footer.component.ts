@@ -8,7 +8,6 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   styleUrls: ['./review-footer.component.scss'],
 })
 export class ReviewFooterComponent implements OnInit {
-
   @Input() activeIndex: number;
 
   @Input() reviewList: Array<Expense>;
@@ -21,22 +20,20 @@ export class ReviewFooterComponent implements OnInit {
 
   @Output() saveAndGoToNext = new EventEmitter();
 
-  constructor(
-    private trackingService: TrackingService
-  ) { }
+  constructor(private trackingService: TrackingService) {}
 
   ngOnInit() {}
 
   onSaveAndGoToNext() {
     this.trackingService.footerSaveAndNextClicked({
-      Asset: 'Mobile'
+      Asset: 'Mobile',
     });
     this.saveAndGoToNext.emit();
   }
 
   onSaveAndGoToPrev() {
     this.trackingService.footerSaveAndPrevClicked({
-      Asset: 'Mobile'
+      Asset: 'Mobile',
     });
     this.saveAndGoToPrev.emit();
   }

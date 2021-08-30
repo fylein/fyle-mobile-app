@@ -13,7 +13,6 @@ import { StatusService } from 'src/app/core/services/status.service';
   styleUrls: ['./fy-flag-expense.component.scss'],
 })
 export class FyFlagExpenseComponent implements OnInit {
-
   @Input() etxn;
 
   @Output() notify: EventEmitter<any> = new EventEmitter<any>();
@@ -23,41 +22,43 @@ export class FyFlagExpenseComponent implements OnInit {
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private statusService: StatusService
-  ) { }
+  ) {}
 
   async flagUnflag() {
     const confirmationPopup = await this.popoverController.create({
       component: FlagUnflagConfirmationComponent,
       componentProps: {
-        title: this.etxn.tx_manual_flag ?  'Unflag' : 'Flag'
+        title: this.etxn.tx_manual_flag ? 'Unflag' : 'Flag',
       },
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     confirmationPopup.present();
 
     const { data } = await confirmationPopup.onDidDismiss();
     if (data && data.message) {
-      from(this.loaderService.showLoader('Please wait')).pipe(
-        switchMap(() => {
-          const comment = {
-            comment: data.message
-          };
-          return this.statusService.post('transactions', this.etxn.tx_id, comment, true);
-        }),
-        concatMap(() =>
-        // eslint-disable-next-line max-len
-          this.etxn.tx_manual_flag ?  this.transactionService.manualUnflag(this.etxn.tx_id) : this.transactionService.manualFlag(this.etxn.tx_id)
-        ),
-        finalize(() => {
-          this.notify.emit(true);
-          this.loaderService.hideLoader();
-        })
-      ).subscribe(noop);
+      from(this.loaderService.showLoader('Please wait'))
+        .pipe(
+          switchMap(() => {
+            const comment = {
+              comment: data.message,
+            };
+            return this.statusService.post('transactions', this.etxn.tx_id, comment, true);
+          }),
+          concatMap(() =>
+            // eslint-disable-next-line max-len
+            this.etxn.tx_manual_flag
+              ? this.transactionService.manualUnflag(this.etxn.tx_id)
+              : this.transactionService.manualFlag(this.etxn.tx_id)
+          ),
+          finalize(() => {
+            this.notify.emit(true);
+            this.loaderService.hideLoader();
+          })
+        )
+        .subscribe(noop);
     }
   }
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

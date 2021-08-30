@@ -1,7 +1,6 @@
 @import '../../../../theme/colors';
 
-.expenses-card{
-
+.expenses-card {
   &--date {
     color: $grey-light;
     font-size: 14px;
@@ -14,7 +13,7 @@
     background-color: $pure-white;
     min-height: 106px;
     padding: 16px;
-    
+
     &__with-border {
       padding-top: 0;
     }
@@ -26,7 +25,7 @@
     text-overflow: ellipsis;
   }
 
-  &--checkbox-container{
+  &--checkbox-container {
     margin-top: auto;
     margin-bottom: auto;
     margin-right: 16px;
@@ -43,12 +42,11 @@
   }
 
   &--scaning-receipt {
-
     &__container {
       padding: 3px 11px 0 11px;
       overflow: hidden;
     }
-    
+
     &__header {
       color: $black;
       font-weight: 500;
@@ -137,7 +135,7 @@
     font-size: 20px;
   }
 
-  &--vendor  {
+  &--vendor {
     color: $blue-black;
     font-size: 14px;
     line-height: 1.2;
@@ -233,4 +231,3 @@
     text-transform: lowercase;
   }
 }
-

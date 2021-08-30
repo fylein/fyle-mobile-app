@@ -1,19 +1,22 @@
 <div *ngIf="showDt" class="expenses-card--date">
   <ng-container *ngIf="{ isConnected: isConnected$ | async } as data">
-    <ng-container *ngIf="(expense.tx_id && data.isConnected);else isOffline">
-      {{(expense.tx_txn_dt || expense.tx_created_at) | dateFormat }}
+    <ng-container *ngIf="expense.tx_id && data.isConnected; else isOffline">
+      {{ expense.tx_txn_dt || expense.tx_created_at | dateFormat }}
     </ng-container>
 
-    <ng-template #isOffline>
-      Offline Expenses
-    </ng-template>
+    <ng-template #isOffline> Offline Expenses </ng-template>
   </ng-container>
 </div>
 
-<div class="expenses-card--body" [ngClass]="{'expenses-card--body__with-border': !showDt}" (click)="onGoToTransaction()"
-  (tap)="onTapTransaction()" (press)="onSetMultiselectMode()">
+<div
+  class="expenses-card--body"
+  [ngClass]="{ 'expenses-card--body__with-border': !showDt }"
+  (click)="onGoToTransaction()"
+  (tap)="onTapTransaction()"
+  (press)="onSetMultiselectMode()"
+>
   <div class="expenses-card--divider" *ngIf="!showDt"></div>
-  <ng-container *ngIf="expenseFields$|async as expenseFields">
+  <ng-container *ngIf="expenseFields$ | async as expenseFields">
     <div class="display-flex">
       <div class="display-flex">
         <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
@@ -26,10 +29,12 @@
           <ion-icon class="expenses-card--receipt-icon" [src]="receipt"></ion-icon>
         </div>
         <ng-template #outboxExpenseDisplay>
-          <ng-container *ngIf="isSycing$|async; else defaultState">
+          <ng-container *ngIf="isSycing$ | async; else defaultState">
             <div class="expenses-card--receipt-container">
-              <ion-icon class="expenses-card--receipt-icon expenses-card--receipt-icon__spinner"
-                [src]="'../../../../assets/svg/fy-spinner-circle.svg'"></ion-icon>
+              <ion-icon
+                class="expenses-card--receipt-icon expenses-card--receipt-icon__spinner"
+                [src]="'../../../../assets/svg/fy-spinner-circle.svg'"
+              ></ion-icon>
             </div>
           </ng-container>
           <ng-template #defaultState>
@@ -41,32 +46,24 @@
       </div>
 
       <div class="display-flex expenses-card--deatils-block">
-        <ng-container *ngIf="isConnected$|async; else expenseCardDefaultView">
-          <ng-container *ngIf="isSycing$|async;else expenseCardScanning">
+        <ng-container *ngIf="isConnected$ | async; else expenseCardDefaultView">
+          <ng-container *ngIf="isSycing$ | async; else expenseCardScanning">
             <div class="expenses-card--scaning-receipt__container">
               <div class="expenses-card--scaning-receipt__header">
-                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem">
-                  Adding Mileage
-                </ng-container>
+                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem"> Adding Mileage </ng-container>
                 <ng-template #uploadPerDiem>
-                  <ng-container *ngIf="category === 'per diem'; else uploadDefault">
-                    Adding Per Diem
-                  </ng-container>
+                  <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Adding Per Diem </ng-container>
                 </ng-template>
-                <ng-template #uploadDefault>
-                  Uploading receipt
-                </ng-template>
+                <ng-template #uploadDefault> Uploading receipt </ng-template>
               </div>
               <div class="expenses-card--scaning-receipt__content">
                 Your
-                <ng-container *ngIf="category ==='mileage' || category === 'per diem';else receiptContent">
-                  {{category}}
+                <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else receiptContent">
+                  {{ category }}
                 </ng-container>
-                <ng-template #receiptContent>
-                  receipt
-                </ng-template>
+                <ng-template #receiptContent> receipt </ng-template>
                 details will be
-                <ng-container *ngIf="category ==='mileage' || category === 'per diem';else autoExtractContent">
+                <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else autoExtractContent">
                   added
                 </ng-container>
                 <ng-template #autoExtractContent> auto-extracted</ng-template>
@@ -77,11 +74,9 @@
         </ng-container>
 
         <ng-template #expenseCardScanning>
-          <ng-container *ngIf="(isScanInProgress && !isOutboxExpense); else expenseCardDefaultView">
+          <ng-container *ngIf="isScanInProgress && !isOutboxExpense; else expenseCardDefaultView">
             <div class="expenses-card--scaning-receipt__container">
-              <div class="expenses-card--scaning-receipt__header">
-                Scanning receipt
-              </div>
+              <div class="expenses-card--scaning-receipt__header">Scanning receipt</div>
               <div class="expenses-card--scaning-receipt__content">
                 Your receipt details will be auto-extracted shortly.
               </div>
@@ -89,52 +84,69 @@
             <ng-container *ngIf="expense.isDraft">
               <div class="expenses-card--state-container ion-text-right">
                 <span class="expenses-card--state">
-                  {{expense.tx_state | titlecase}}
+                  {{ expense.tx_state | titlecase }}
                 </span>
               </div>
             </ng-container>
           </ng-container>
-
         </ng-template>
 
         <ng-template #expenseCardDefaultView>
           <div class="expenses-card--category-vendor-project-container">
             <div class="display-flex expenses-card--category-icon-container">
-              <div class="expenses-card--category"
-                [ngClass]="{'expenses-card--category__small': isSelectionModeEnabled}">
-                {{expense?.tx_org_category || 'Unspecified'}}
+              <div
+                class="expenses-card--category"
+                [ngClass]="{ 'expenses-card--category__small': isSelectionModeEnabled }"
+              >
+                {{ expense?.tx_org_category || 'Unspecified' }}
               </div>
-              <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
-                class="expenses-card--policy-violated-icon">error</mat-icon>
+              <mat-icon
+                *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
+                class="expenses-card--policy-violated-icon"
+                >error</mat-icon
+              >
             </div>
 
-            <div class="expenses-card--vendor" [ngClass]="{'expenses-card--vendor__not-filled': !expense.vendorDetails,
-              'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'}">
-              {{expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled'}}
+            <div
+              class="expenses-card--vendor"
+              [ngClass]="{
+                'expenses-card--vendor__not-filled': !expense.vendorDetails,
+                'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'
+              }"
+            >
+              {{ expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled' }}
             </div>
 
-            <div *ngIf="isProjectMandatory$ | async" class="expenses-card--project" [ngClass]="{'expenses-card--project__not-filled': !expense.tx_project_name}">
-              {{expense.tx_project_name ? 'Project: ' + expense.tx_project_name : 'Project not filled'}}
+            <div
+              *ngIf="isProjectMandatory$ | async"
+              class="expenses-card--project"
+              [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
+            >
+              {{ expense.tx_project_name ? 'Project: ' + expense.tx_project_name : 'Project not filled' }}
             </div>
           </div>
           <div class="display-flex">
             <div>
               <div class="expenses-card--currency-amount-container ion-text-right">
-                <span class="expenses-card--currency">{{homeCurrencySymbol}}</span>
-                <span class="expenses-card--amount">{{(expense.tx_amount || expense?.tx_extracted_data?.amount || 0) |
-                  humanizeCurrency: homeCurrency: 2: true }}</span>
-                <mat-icon class="expenses-card--icon" svgIcon="{{paymentModeIcon}}"></mat-icon>
+                <span class="expenses-card--currency">{{ homeCurrencySymbol }}</span>
+                <span class="expenses-card--amount">{{
+                  expense.tx_amount || expense?.tx_extracted_data?.amount || 0 | humanizeCurrency: homeCurrency:2:true
+                }}</span>
+                <mat-icon class="expenses-card--icon" svgIcon="{{ paymentModeIcon }}"></mat-icon>
               </div>
 
-              <div *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
-                class="expenses-card--exchange-rate ion-text-right">
-                ({{foreignCurrencySymbol}}{{expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency : 2:
-                true }} at {{homeCurrencySymbol}}{{(expense.tx_amount / expense.tx_orig_amount) | number: '1.0-2'}})
+              <div
+                *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
+                class="expenses-card--exchange-rate ion-text-right"
+              >
+                ({{ foreignCurrencySymbol
+                }}{{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency:2:true }} at
+                {{ homeCurrencySymbol }}{{ expense.tx_amount / expense.tx_orig_amount | number: '1.0-2' }})
               </div>
 
               <div *ngIf="expense.isDraft" class="expenses-card--state-container ion-text-right">
                 <span class="expenses-card--state">
-                  {{expense.tx_state | titlecase}}
+                  {{ expense.tx_state | titlecase }}
                 </span>
               </div>
 

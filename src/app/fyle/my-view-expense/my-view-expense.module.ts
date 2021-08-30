@@ -18,10 +18,8 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     MatIconModule,
     SharedModule,
     PinchZoomModule,
-    PdfViewerModule
+    PdfViewerModule,
   ],
-  declarations: [
-    MyViewExpensePage
-  ]
+  declarations: [MyViewExpensePage],
 })
 export class MyViewExpensePageModule {}

@@ -1,5 +1,5 @@
-@import "../../../../../assets/styles/fy_select";
-@import "../../../../../theme/colors.scss";
+@import '../../../../../assets/styles/fy_select';
+@import '../../../../../theme/colors.scss';
 
 .selection-modal {
   color: black;
@@ -19,7 +19,8 @@
     }
   }
 
-  &--current-location-getter, &--error-lookup {
+  &--current-location-getter,
+  &--error-lookup {
     margin: 16px;
   }
 

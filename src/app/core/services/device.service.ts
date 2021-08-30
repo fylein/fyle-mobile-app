@@ -1,16 +1,15 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
-import {Plugins} from '@capacitor/core';
-import {from} from 'rxjs';
+import { Plugins } from '@capacitor/core';
+import { from } from 'rxjs';
 
 const { Device } = Plugins;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DeviceService {
-
-  constructor() { }
+  constructor() {}
 
   getDeviceInfo() {
     return from(Device.getInfo());

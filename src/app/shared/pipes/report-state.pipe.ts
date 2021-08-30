@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'reportState'
+  name: 'reportState',
 })
 export class ReportState implements PipeTransform {
   transform(val) {
@@ -22,7 +22,7 @@ export class ReportState implements PipeTransform {
       APPROVAL_PENDING: 'reported',
       APPROVAL_DONE: 'approved',
       APPROVAL_DISABLED: 'disabled',
-      APPROVAL_REJECTED: 'rejected'
+      APPROVAL_REJECTED: 'rejected',
     };
 
     return states[val];

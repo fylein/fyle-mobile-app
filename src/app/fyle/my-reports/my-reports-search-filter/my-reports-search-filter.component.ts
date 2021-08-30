@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
-import {ModalController, PopoverController} from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { AppDateAdapter, APP_DATE_FORMATS } from 'src/app/shared/format-datepicker/format-datepicker';
 
 @Component({
@@ -9,12 +9,11 @@ import { AppDateAdapter, APP_DATE_FORMATS } from 'src/app/shared/format-datepick
   templateUrl: './my-reports-search-filter.component.html',
   styleUrls: ['./my-reports-search-filter.component.scss'],
   providers: [
-    {provide: DateAdapter, useClass: AppDateAdapter},
-    {provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS}
-  ]
+    { provide: DateAdapter, useClass: AppDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS },
+  ],
 })
 export class MyReportsSearchFilterComponent implements OnInit {
-
   @Input() filters: Partial<{
     state: string;
     date: string;
@@ -26,29 +25,27 @@ export class MyReportsSearchFilterComponent implements OnInit {
 
   fg: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private popoverController: PopoverController
-  ) { }
+  constructor(private fb: FormBuilder, private popoverController: PopoverController) {}
 
   ngOnInit() {
     this.fg = this.fb.group({
       state: [this.filters && this.filters.state],
       date: [this.filters && this.filters.date],
       customDateStart: [this.filters && this.filters.customDateStart],
-      customDateEnd: [this.filters && this.filters.customDateEnd]
+      customDateEnd: [this.filters && this.filters.customDateEnd],
     });
 
     this.fg.validator = this.customDatevalidator;
   }
 
   customDatevalidator(formGroup: FormGroup) {
-    if (formGroup.value.date &&
+    if (
+      formGroup.value.date &&
       formGroup.value.date === 'CUSTOMDATE' &&
-      (formGroup.controls.customDateStart.value === null ||
-        formGroup.controls.customDateEnd.value === null)) {
+      (formGroup.controls.customDateStart.value === null || formGroup.controls.customDateEnd.value === null)
+    ) {
       return {
-        error: 'custom date input is required when custom dates are selected'
+        error: 'custom date input is required when custom dates are selected',
       };
     }
   }
@@ -60,7 +57,7 @@ export class MyReportsSearchFilterComponent implements OnInit {
     }
 
     this.popoverController.dismiss({
-      filters: this.fg.value
+      filters: this.fg.value,
     });
   }
 
@@ -71,5 +68,4 @@ export class MyReportsSearchFilterComponent implements OnInit {
   clearAll() {
     this.fg.reset();
   }
-
 }

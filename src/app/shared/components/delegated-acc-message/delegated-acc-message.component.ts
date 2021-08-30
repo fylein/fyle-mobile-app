@@ -8,17 +8,13 @@ import { from } from 'rxjs';
   styleUrls: ['./delegated-acc-message.component.scss'],
 })
 export class DelegatedAccMessageComponent implements OnInit {
-
   delegateeName;
 
-  constructor(
-    private authService: AuthService
-  ) { }
+  constructor(private authService: AuthService) {}
 
   ngOnInit() {
-    from(this.authService.getEou()).subscribe(res => {
+    from(this.authService.getEou()).subscribe((res) => {
       this.delegateeName = res.us.full_name;
     });
   }
-
 }
