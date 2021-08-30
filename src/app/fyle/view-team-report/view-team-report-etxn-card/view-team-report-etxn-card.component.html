@@ -1,8 +1,6 @@
 <div class="etxn-card">
   <div class="etxn-card--date" *ngIf="showDate">
-    <span>
-      {{ etxn?.tx_txn_dt | date: 'EEEE' }} </span
-    >,
+    <span> {{ etxn?.tx_txn_dt | date: 'EEEE' }} </span>,
     <span>
       {{ etxn?.tx_txn_dt | date: 'MMM dd, yyyy' }}
     </span>
