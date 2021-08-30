@@ -280,6 +280,7 @@ export class MyViewReportPage implements OnInit {
         {
           id: etxn.tx_id,
           navigate_back: true,
+          remove_from_report: true,
         },
       ]);
     } else {
