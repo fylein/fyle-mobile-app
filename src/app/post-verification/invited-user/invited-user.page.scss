@@ -44,7 +44,7 @@ $header-text: #aaa;
     width: 100%;
     color: $header-text;
     &::after {
-      content: '*';
+      content: "*";
       position: relative;
       left: -4px;
     }
@@ -70,7 +70,7 @@ $header-text: #aaa;
   &--save {
     width: 100%;
     &__disabled {
-      opacity: 0.2;
+      opacity: .2;
     }
   }
 

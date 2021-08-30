@@ -1,3 +1,3 @@
 export interface BankBranch {
-  bank_name?: any;
+    bank_name?: any;
 }

@@ -8,17 +8,23 @@ import { OrgUserSettings } from '../models/org_user_settings.model';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
+
 @Injectable({
   providedIn: 'root'
 })
 export class OrgUserSettingsService {
-  constructor(private apiService: ApiService, private costCentersService: CostCentersService) {}
+  constructor(
+    private apiService: ApiService,
+    private costCentersService: CostCentersService
+  ) { }
 
   @Cacheable({
     cacheBusterObserver: orgUserSettingsCacheBuster$
   })
   get() {
-    return this.apiService.get('/org_user_settings').pipe(map((res) => res as OrgUserSettings));
+    return this.apiService.get('/org_user_settings').pipe(
+      map(res => res as OrgUserSettings)
+    );
   }
 
   @CacheBuster({
@@ -308,19 +314,20 @@ export class OrgUserSettingsService {
     return featuresList;
   }
 
+
   getAllowedCostCenteres(orgUserSettings) {
     return this.costCentersService.getAllActive().pipe(
-      map((costCenters) => {
-        let allowedCostCenters = [];
-        if (orgUserSettings.cost_center_ids && orgUserSettings.cost_center_ids.length > 0) {
-          allowedCostCenters = costCenters.filter(
-            (costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1
-          );
-        } else {
-          allowedCostCenters = costCenters;
+      map(
+        (costCenters) => {
+          let allowedCostCenters = [];
+          if (orgUserSettings.cost_center_ids && orgUserSettings.cost_center_ids.length > 0) {
+            allowedCostCenters = costCenters.filter((costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1);
+          } else {
+            allowedCostCenters = costCenters;
+          }
+          return allowedCostCenters;
         }
-        return allowedCostCenters;
-      })
+      )
     );
   }
 
@@ -331,8 +338,8 @@ export class OrgUserSettingsService {
       features: emailEvents.features,
       events: []
     };
-    Object.keys(emailEvents.features).forEach((featureKey) => {
-      Object.keys(emailEvents[featureKey]).forEach((notificationEvent) => {
+    Object.keys(emailEvents.features).forEach(featureKey => {
+      Object.keys(emailEvents[featureKey]).forEach(notificationEvent => {
         const newNotificationEvent = emailEvents[featureKey][notificationEvent];
         newNotificationEvent.feature = featureKey;
         newNotificationEvent.eventType = notificationEvent;
@@ -344,12 +351,12 @@ export class OrgUserSettingsService {
 
   getDefaultCostCenter() {
     return forkJoin([this.costCentersService.getAllActive(), this.get()]).pipe(
-      map((aggregatedResponse) => {
+      map(aggregatedResponse => {
         const [costCenters, settings] = aggregatedResponse;
-        const defaultCostCenterId =
-          settings.cost_center_settings && settings.cost_center_settings.default_cost_center_id;
-        return costCenters.find((costCenter) => costCenter.id === defaultCostCenterId);
+        const defaultCostCenterId = settings.cost_center_settings && settings.cost_center_settings.default_cost_center_id;
+        return costCenters.find(costCenter => costCenter.id === defaultCostCenterId);
       })
     );
   }
+
 }

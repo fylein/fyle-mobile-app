@@ -1,4 +1,4 @@
 export enum LoaderPosition {
-  prefix = 'prefix',
-  postfix = 'postfix'
+  prefix= 'prefix',
+  postfix= 'postfix'
 }

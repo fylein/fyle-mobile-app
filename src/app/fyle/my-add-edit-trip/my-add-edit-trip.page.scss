@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@import "../../../theme/colors.scss";
 
 .add-edit-trip {
   &--toolbar {
@@ -53,7 +53,7 @@
     color: #ababab;
     font-weight: 500;
   }
-
+  
   &--delete-traveller {
     color: $red;
     font-size: 16px;

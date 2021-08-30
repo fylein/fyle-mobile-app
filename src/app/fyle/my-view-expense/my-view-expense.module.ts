@@ -20,6 +20,8 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     PinchZoomModule,
     PdfViewerModule
   ],
-  declarations: [MyViewExpensePage]
+  declarations: [
+    MyViewExpensePage
+  ]
 })
 export class MyViewExpensePageModule {}

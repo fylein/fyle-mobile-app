@@ -3,7 +3,9 @@
     <ion-buttons mode="md" slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> Reports </ion-title>
+    <ion-title mode="md"  class="page-title">
+      Reports
+    </ion-title>
   </ion-toolbar>
   <ion-toolbar mode="md">
     <div class="reports--toolbar">
@@ -11,16 +13,8 @@
         <mat-form-field class="mat-form-field-no-padding reports--simple-search" appearance="outline">
           <div class="reports--simple-search-block">
             <mat-icon matPrefix svgIcon="search" class="reports--simple-search-icon"></mat-icon>
-            <input #simpleSearchInput matInput placeholder="Search" [(ngModel)]="searchText" />
-            <button
-              mat-button
-              *ngIf="searchText"
-              matSuffix
-              mat-icon-button
-              aria-label="Clear"
-              class="reports--simple-search-close"
-              (click)="clearText()"
-            >
+            <input #simpleSearchInput matInput placeholder="Search" [(ngModel)]="searchText">
+            <button mat-button *ngIf="searchText" matSuffix mat-icon-button aria-label="Clear" class="reports--simple-search-close" (click)="clearText()">
               <mat-icon class="reports--simple-search-icon">close</mat-icon>
             </button>
           </div>
@@ -29,31 +23,19 @@
       <div>
         <ion-buttons mode="md" slot="end">
           <button mat-icon-button class="reports--filter-button" (click)="openSort()">
-            <mat-icon
-              class="reports--filter-button-icon"
-              *ngIf="filters?.sortDir === 'asc'"
-              svgIcon="fy-sort-ascending"
-            ></mat-icon>
-            <mat-icon
-              class="reports--filter-button-icon"
-              *ngIf="filters?.sortDir === 'desc' || true && filters?.sortDir !== 'asc'"
-              svgIcon="fy-sort-descending"
-            ></mat-icon>
+            <mat-icon class="reports--filter-button-icon" *ngIf="filters?.sortDir === 'asc'" svgIcon="fy-sort-ascending"></mat-icon>
+            <mat-icon class="reports--filter-button-icon" *ngIf="filters?.sortDir === 'desc' || true && filters?.sortDir !== 'asc'" svgIcon="fy-sort-descending"></mat-icon>
           </button>
-          <button
-            mat-icon-button
-            class="reports--filter-button"
-            [ngClass]="{'reports--filter-button__applied': filters?.state || filters?.date}"
-            (click)="openFilters()"
-          >
+          <button mat-icon-button class="reports--filter-button"
+                  [ngClass]="{'reports--filter-button__applied': filters?.state || filters?.date}"
+                  (click)="openFilters()">
             <mat-icon class="reports--filter-button-icon" svgIcon="fy-filter"></mat-icon>
           </button>
         </ion-buttons>
       </div>
     </div>
     <div class="reports--filters" *ngIf="filters?.state || filters?.date">
-      <div>
-        Filtered by
+      <div>Filtered by
         <span [ngSwitch]="filters?.state">
           <span *ngSwitchCase="'MYQUEUE'">My Queue</span>
           <span *ngSwitchCase="'ALL'">All Reports</span>
@@ -68,7 +50,9 @@
           <span *ngSwitchDefault></span>
         </span>
       </div>
-      <mat-icon (click)="clearFilters()"> cancel </mat-icon>
+      <mat-icon (click)="clearFilters()">
+        cancel
+      </mat-icon>
     </div>
   </ion-toolbar>
 </ion-header>
@@ -80,24 +64,20 @@
     </ion-refresher>
 
     <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
-      <app-team-report-card
-        [erpt]="erpt"
-        [prevDate]="list[i-1]?.rp_created_at"
-        (gotoReport)="onReportClick($event)"
-        (deleteReport)="onDeleteReportClick($event)"
-      >
+      <app-team-report-card [erpt]="erpt" [prevDate]="list[i-1]?.rp_created_at" (gotoReport)="onReportClick($event)"
+        (deleteReport)="onDeleteReportClick($event)">
       </app-team-report-card>
     </div>
   </ng-container>
 
+
   <ng-template #zeroState>
     <div class="reports--zero-state">
-      <app-fy-zero-state
-        [image]="'../../../assets/images/zero-states/coffee.svg'"
+      <app-fy-zero-state [image]="'../../../assets/images/zero-states/coffee.svg'"
         [header]="'Nothing here, grab a coffee maybe?'"
-        [message]="'Expense reports that need your approval will show up here.'"
-      ></app-fy-zero-state>
+        [message]="'Expense reports that need your approval will show up here.'"></app-fy-zero-state>
     </div>
+
   </ng-template>
 
   <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">

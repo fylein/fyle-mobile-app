@@ -1,20 +1,10 @@
 <div class="alert-info-container">
   <mat-icon *ngIf="type === 'information'" class="alert-info-container--icon" svgIcon="fy-info"></mat-icon>
-  <mat-icon
-    *ngIf="type === 'warning'"
-    class="alert-info-container--icon icon--alert-warning"
-    svgIcon="danger"
-  ></mat-icon>
-  <div class="alert-info-container--message">{{ message }}</div>
+  <mat-icon *ngIf="type === 'warning'" class="alert-info-container--icon icon--alert-warning" svgIcon="danger"></mat-icon>
+  <div class="alert-info-container--message"> {{ message }} </div>
   <div *ngIf="showActionButton">
-    <ion-button
-      class="text-capitalize alert-info-container--button"
-      mode="md"
-      fill="clear"
-      color="fy-primary"
-      (click)="onActionClick()"
-    >
-      {{ actionButtonContent }}
+    <ion-button class="text-capitalize alert-info-container--button" mode="md" fill="clear" color="fy-primary" (click)="onActionClick()">
+      {{actionButtonContent}} 
     </ion-button>
   </div>
 </div>

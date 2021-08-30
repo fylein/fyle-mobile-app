@@ -15,9 +15,10 @@ import { StatusService } from 'src/app/core/services/status.service';
 @Component({
   selector: 'app-my-view-mileage',
   templateUrl: './my-view-mileage.page.html',
-  styleUrls: ['./my-view-mileage.page.scss']
+  styleUrls: ['./my-view-mileage.page.scss'],
 })
 export class MyViewMileagePage implements OnInit {
+
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedMileage$: Observable<Expense>;
@@ -43,7 +44,7 @@ export class MyViewMileagePage implements OnInit {
     private policyService: PolicyService,
     private navController: NavController,
     private statusService: StatusService
-  ) {}
+  ) { }
 
   isNumber(val) {
     return typeof val === 'number';
@@ -75,31 +76,33 @@ export class MyViewMileagePage implements OnInit {
       shareReplay(1)
     );
 
-    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
+      shareReplay(1)
+    );
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      switchMap((res) =>
-        this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)
-      ),
-      map((res) =>
-        res.map((customProperties) => {
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-          return customProperties;
-        })
-      )
+      switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
+      map(res => res.map(customProperties => {
+        customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+        return customProperties;
+      }))
     );
 
     this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
-      map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+      map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
 
     this.isAmountCapped$ = this.extendedMileage$.pipe(
-      map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+      map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
+
   }
 
-  ngOnInit() {}
+
+  ngOnInit() {
+  }
+
 }

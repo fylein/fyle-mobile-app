@@ -9,9 +9,9 @@
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1) !important;
     border-radius: 4px;
     border: 1px solid #e0e0e0;
-
+    
     &__disabled {
-      opacity: 0.4;
+      opacity: .4;
     }
 
     &__selected {
@@ -33,7 +33,7 @@
     vertical-align: middle;
     margin-right: 8px;
     &__classify {
-      fill: #da1e28;
+      fill: #DA1E28;
     }
   }
 
@@ -93,4 +93,6 @@
       color: #ababab;
     }
   }
+
 }
+

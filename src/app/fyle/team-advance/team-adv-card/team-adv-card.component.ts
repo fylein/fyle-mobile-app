@@ -5,9 +5,10 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 @Component({
   selector: 'app-team-adv-card',
   templateUrl: './team-adv-card.component.html',
-  styleUrls: ['./team-adv-card.component.scss']
+  styleUrls: ['./team-adv-card.component.scss'],
 })
 export class TeamAdvCardComponent implements OnInit {
+
   @Input() advanceRequest: ExtendedAdvanceRequest;
 
   @Output() gotoAdvance: EventEmitter<ExtendedAdvanceRequest> = new EventEmitter();
@@ -16,7 +17,9 @@ export class TeamAdvCardComponent implements OnInit {
 
   actionOpened = false;
 
-  constructor(private advanceRequestService: AdvanceRequestService) {}
+  constructor(
+    private advanceRequestService: AdvanceRequestService
+  ) { }
 
   ngOnInit() {
     this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(this.advanceRequest);
@@ -25,4 +28,5 @@ export class TeamAdvCardComponent implements OnInit {
   onGoToAdvances() {
     this.gotoAdvance.emit(this.advanceRequest);
   }
+
 }

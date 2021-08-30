@@ -1,12 +1,14 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 
+
 @Component({
   selector: 'app-my-reports-card',
   templateUrl: './my-reports-card.component.html',
-  styleUrls: ['./my-reports-card.component.scss']
+  styleUrls: ['./my-reports-card.component.scss'],
 })
 export class MyReportsCardComponent implements OnInit {
+
   @Input() erpt: ExtendedReport;
 
   @Input() prevDate: Date;
@@ -23,12 +25,11 @@ export class MyReportsCardComponent implements OnInit {
 
   actionOpened = false;
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit() {
     this.showDate =
-      (this.erpt && new Date(this.erpt.rp_created_at).toDateString()) !==
-      (this.prevDate && new Date(this.prevDate).toDateString());
+      (this.erpt && (new Date(this.erpt.rp_created_at)).toDateString()) !== (this.prevDate && (new Date(this.prevDate)).toDateString());
   }
 
   onDeleteReport() {

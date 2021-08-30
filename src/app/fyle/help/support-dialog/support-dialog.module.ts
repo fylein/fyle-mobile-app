@@ -11,7 +11,14 @@ import { SupportDialogPage } from './support-dialog.page';
 import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, MatButtonModule, SupportDialogPageRoutingModule, MatIconModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MatButtonModule,
+    SupportDialogPageRoutingModule,
+    MatIconModule
+  ],
   declarations: [SupportDialogPage]
 })
 export class SupportDialogPageModule {}

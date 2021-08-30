@@ -1,15 +1,4 @@
-import {
-  Component,
-  OnInit,
-  forwardRef,
-  Input,
-  ContentChild,
-  TemplateRef,
-  ElementRef,
-  OnDestroy,
-  Injector,
-  Output
-} from '@angular/core';
+import { Component, OnInit, forwardRef, Input, ContentChild, TemplateRef, ElementRef, OnDestroy, Injector, Output } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NG_VALIDATORS, FormControl, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
@@ -17,6 +6,7 @@ import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.compon
 import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+
 
 @Component({
   selector: 'app-fy-select',
@@ -83,13 +73,14 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
     private modalController: ModalController,
     private injector: Injector,
     private modalProperties: ModalPropertiesService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+  }
 
   get value(): any {
     return this.innerValue;
@@ -99,14 +90,14 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
     if (v !== this.innerValue) {
       this.innerValue = v;
       if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
+        const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
         if (selectedOption && selectedOption.label) {
           this.displayValue = selectedOption.label;
         } else if (typeof this.innerValue === 'string') {
           this.displayValue = this.innerValue;
         } else if (this.innerValue && this.defaultLabelProp) {
           this.displayValue = this.innerValue[this.defaultLabelProp];
-        } else {
+        }  else {
           this.displayValue = '';
         }
       }
@@ -123,7 +114,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         showBackdrop: true,
         swipeToClose: true,
         backdropDismiss: true,
-        animated: true
+        animated: true,
       };
     } else {
       modalProperties = this.modalProperties.getModalDefaultProperties();
@@ -169,7 +160,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
+        const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
 
         if (selectedOption && selectedOption.label) {
           this.displayValue = selectedOption.label;

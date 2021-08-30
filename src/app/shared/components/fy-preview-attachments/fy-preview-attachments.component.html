@@ -1,12 +1,16 @@
-<ng-container *ngIf="attachments$ | async as attachments">
+<ng-container *ngIf="attachments$|async as attachments">
   <div class="preview-attachments--controls" *ngIf="attachments.length > 1">
-    <mat-icon class="preview-attachments--go-back" (click)="goToPrevSlide()"> arrow_back_ios </mat-icon>
-    <mat-icon class="preview-attachments--go-forward" (click)="goToNextSlide()"> arrow_forward_ios </mat-icon>
+    <mat-icon class="preview-attachments--go-back" (click)="goToPrevSlide()">
+      arrow_back_ios
+    </mat-icon>
+    <mat-icon class="preview-attachments--go-forward" (click)="goToNextSlide()">
+      arrow_forward_ios
+    </mat-icon>
   </div>
 </ng-container>
 
 <ion-slides #slides>
-  <ng-container *ngIf="attachments$ | async as attachments; else loading">
+  <ng-container *ngIf="attachments$|async as attachments; else loading">
     <ng-container *ngFor="let attachment of attachments">
       <ion-slide>
         <div class="preview-attachments--container">
@@ -27,5 +31,7 @@
       </ion-slide>
     </ng-container>
   </ng-container>
-  <ng-template #loading> Loading attachments.. </ng-template>
+  <ng-template #loading>
+    Loading attachments..
+  </ng-template>
 </ion-slides>

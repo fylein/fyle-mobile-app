@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
-import { StorageService } from './storage.service';
+import {StorageService} from './storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginInfoService {
-  constructor(private storageService: StorageService) {}
+
+  constructor(
+    private storageService: StorageService
+  ) { }
 
   async addLoginInfo(version, time) {
     // login succeeded on this version at this time

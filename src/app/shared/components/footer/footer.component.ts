@@ -9,9 +9,10 @@ import { Observable } from 'rxjs/internal/Observable';
 @Component({
   selector: 'app-fy-footer',
   templateUrl: './footer.component.html',
-  styleUrls: ['./footer.component.scss']
+  styleUrls: ['./footer.component.scss'],
 })
 export class FooterComponent implements OnInit {
+
   @Output() homeClicked = new EventEmitter();
 
   @Output() cameraClicked = new EventEmitter();
@@ -34,7 +35,7 @@ export class FooterComponent implements OnInit {
     private networkService: NetworkService,
     private trackingService: TrackingService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.connectionState$ = this.networkService.getConnectionStatus();

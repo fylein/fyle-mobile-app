@@ -9,7 +9,7 @@ describe('FyDeleteDialogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [FyDeleteDialogComponent],
+      declarations: [ FyDeleteDialogComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 

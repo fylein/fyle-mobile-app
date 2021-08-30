@@ -7,18 +7,16 @@ describe('AdvanceRequestComponent', () => {
   let component: AdvanceRequestComponent;
   let fixture: ComponentFixture<AdvanceRequestComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [AdvanceRequestComponent],
-        imports: [IonicModule.forRoot()]
-      }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ AdvanceRequestComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-      fixture = TestBed.createComponent(AdvanceRequestComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-    })
-  );
+    fixture = TestBed.createComponent(AdvanceRequestComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

@@ -1,52 +1,44 @@
 <div class="stat-badge" matRipple (click)="onBadgeClicked()">
-  <div class="stat-badge--container">
-    <ion-grid class="stat-badge--grid">
-      <ion-row>
-        <ion-col class="stat-badge--count-col" size="4">
-          <div
-            *ngIf="!loading"
-            [ngClass]="'stat-badge--count stat-badge--count__' + reportState.toString().toLowerCase()"
-          >
-            {{ count }}
-          </div>
-          <div class="stat-badge--count-loader" *ngIf="loading">
-            <ion-skeleton-text animated></ion-skeleton-text>
-          </div>
-        </ion-col>
-        <ion-col class="stat-badge--grid-outer-col" size="8">
-          <ion-grid class="stat-badge--grid">
-            <ion-row>
-              <ion-col class="stat-badge--grid-col">
-                <div *ngIf="!loading" class="stat-badge--name">
-                  {{ name }}
-                </div>
-                <div *ngIf="loading">
-                  <ion-skeleton-text
-                    class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-large"
-                    animated
-                  ></ion-skeleton-text>
-                </div>
-              </ion-col>
-            </ion-row>
-            <ion-row>
-              <ion-col class="stat-badge--grid-col">
-                <div *ngIf="!loading" class="stat-badge--amount">
-                  <span class="stat-badge--currency">
-                    {{ currencySymbol }}
-                  </span>
-                  {{ value | humanizeCurrency: currency:2:true }}
-                </div>
-                <div *ngIf="loading">
-                  <ion-skeleton-text
-                    class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-medium"
-                    animated
-                  ></ion-skeleton-text>
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
+ <div class="stat-badge--container">
+   <ion-grid class="stat-badge--grid">
+     <ion-row>
+       <ion-col class="stat-badge--count-col" size="4">
+         <div *ngIf="!loading" [ngClass]="'stat-badge--count stat-badge--count__' + reportState.toString().toLowerCase()">
+           {{count}}
+         </div>
+         <div class="stat-badge--count-loader" *ngIf="loading">
+           <ion-skeleton-text animated></ion-skeleton-text>
+         </div>
+       </ion-col>
+       <ion-col class="stat-badge--grid-outer-col" size="8">
+         <ion-grid class="stat-badge--grid">
+           <ion-row>
+             <ion-col class="stat-badge--grid-col">
+               <div *ngIf="!loading" class="stat-badge--name">
+                 {{name}}
+               </div>
+               <div *ngIf="loading">
+                 <ion-skeleton-text class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-large" animated></ion-skeleton-text>
+               </div>
+             </ion-col>
+           </ion-row>
+           <ion-row>
+             <ion-col class="stat-badge--grid-col">
+               <div *ngIf="!loading" class="stat-badge--amount">
+                 <span class="stat-badge--currency">
+                   {{currencySymbol}}
+                 </span>
+                 {{value | humanizeCurrency: currency: 2: true }}
+               </div>
+               <div *ngIf="loading">
+                 <ion-skeleton-text class="stat-badge--skeleton-loader stat-badge--skeleton-loader__width-medium" animated></ion-skeleton-text>
+               </div>
+             </ion-col>
+           </ion-row>
+         </ion-grid>
+       </ion-col>
+     </ion-row>
+   </ion-grid>
+ </div>
 </div>
+

@@ -7,18 +7,16 @@ describe('PullBackAdvanceRequestComponent', () => {
   let component: PullBackAdvanceRequestComponent;
   let fixture: ComponentFixture<PullBackAdvanceRequestComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [PullBackAdvanceRequestComponent],
-        imports: [IonicModule.forRoot()]
-      }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ PullBackAdvanceRequestComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-      fixture = TestBed.createComponent(PullBackAdvanceRequestComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-    })
-  );
+    fixture = TestBed.createComponent(PullBackAdvanceRequestComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

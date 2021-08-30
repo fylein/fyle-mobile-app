@@ -11,23 +11,23 @@
 
 <ion-content>
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
+
     <ng-container *ngIf="etxn.tx_policy_flag">
       <ng-container *ngIf="comments$|async as comments">
-        <app-fy-policy-violation-info
-          (click)="scrollCommentsIntoView()"
-          [estatuses]="comments"
-        ></app-fy-policy-violation-info>
+        <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments"></app-fy-policy-violation-info>
       </ng-container>
     </ng-container>
 
     <div class="view-expense--policy-container" *ngIf="isAmountCapped$|async">
       <ng-template [ngIf]="isCriticalPolicyViolated$|async" [ngIfElse]="crititcalPolicyNotiolated">
-        <span> This expense has violated a critical policy. You cannot create a report with this expense. </span>
+        <span>
+          This expense has violated a critical policy. You cannot create a report with this expense.
+        </span>
       </ng-template>
       <ng-template #crititcalPolicyNotiolated>
         <span class="info-text m-0">
-          Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to {{
-          etxn.tx_amount | currency:etxn.tx_currency: 'symbol-narrow'}} due to policy.
+          Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to
+          {{ etxn.tx_amount | currency:etxn.tx_currency: 'symbol-narrow'}} due to policy.
         </span>
       </ng-template>
     </div>
@@ -36,13 +36,17 @@
       <div class="view-expense--attachment-block">
         <ng-container *ngIf="attachments$|async as attachments">
           <div class="view-expense--no-attachment" *ngIf="attachments.length === 0">
-            <div>No</div>
-            <div>Receipt</div>
+            <div>
+              No
+            </div>
+            <div>
+              Receipt
+            </div>
           </div>
 
           <div *ngIf="attachments.length > 0" (click)="viewAttachments()">
             <div class="view-expense--receipt">
-              <img src="assets/svg/fy-attachment.svg" />
+              <img src="assets/svg/fy-attachment.svg">
             </div>
             <div class="view-expense--receipt-count">
               <span class="view-expense--receipt-count-number">{{ etxn.tx_num_files }}</span>
@@ -63,9 +67,7 @@
       </div>
       <div class="view-expense--element">
         <div class="view-expense--element-label">Date</div>
-        <div class="view-expense--element-value view-expense--element-value_date">
-          {{ etxn.tx_txn_dt | date: 'MMM dd, yyyy' }}
-        </div>
+        <div class="view-expense--element-value view-expense--element-value_date">{{ etxn.tx_txn_dt | date: 'MMM dd, yyyy' }}</div>
       </div>
       <div class="view-expense--element">
         <div class="view-expense--element-label">Merchant</div>
@@ -77,9 +79,7 @@
       </div>
       <div class="view-expense--element" *ngIf="orgSettings?.tax_settings?.enabled">
         <div class="view-expense--element-label">{{orgSettings.tax_settings.name || 'Tax Amount'}}</div>
-        <div class="view-expense--element-value">
-          {{ (etxn.tx_tax | currency:etxn.tx_currency: 'symbol-narrow') || '-' }}
-        </div>
+        <div class="view-expense--element-value">{{ (etxn.tx_tax | currency:etxn.tx_currency: 'symbol-narrow') || '-' }}</div>
       </div>
       <div class="view-expense--element">
         <div class="view-expense--element-label">Purpose</div>
@@ -87,9 +87,7 @@
       </div>
     </div>
 
-    <div
-      *ngIf="etxn.tx_fyle_category === 'Hotel' && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)"
-    >
+    <div *ngIf="etxn.tx_fyle_category === 'Hotel' && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)">
       hotel
       <div class="view-expense--element-block">
         <div class="view-expense--element" *ngIf="etxn.tx_locations[0]?.display">
@@ -108,13 +106,11 @@
     </div>
 
     <div *ngIf="etxn.tx_fyle_category === 'Flight'">
-      <div
-        class="view-expense--element-block"
-        *ngIf="etxn.tx_from_dt || etxn.tx_to_dt || etxn.tx_flight_journey_travel_class || etxn.tx_flight_return_travel_class"
-      >
+      <div class="view-expense--element-block"
+        *ngIf="etxn.tx_from_dt || etxn.tx_to_dt || etxn.tx_flight_journey_travel_class || etxn.tx_flight_return_travel_class">
         <div class="view-expense--element" *ngIf="etxn.tx_from_dt">
           <div class="view-expense--element-label">Check-In</div>
-          <div class="view-expense--element-value">{{ etxn.tx_from_dt | date: 'MMM dd, yyyy' }}</div>
+          <div class="view-expense--element-value">{{ etxn.tx_from_dt | date: 'MMM dd, yyyy'  }}</div>
         </div>
         <div class="view-expense--element" *ngIf="etxn.tx_to_dt">
           <div class="view-expense--element-label">Check-Out</div>
@@ -183,4 +179,5 @@
       </div>
     </div>
   </div>
+
 </ion-content>

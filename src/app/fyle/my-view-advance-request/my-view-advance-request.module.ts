@@ -30,6 +30,9 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     PinchZoomModule,
     PdfViewerModule
   ],
-  declarations: [MyViewAdvanceRequestPage, PullBackAdvanceRequestComponent]
+  declarations: [
+    MyViewAdvanceRequestPage,
+    PullBackAdvanceRequestComponent
+  ]
 })
-export class MyViewAdvanceRequestPageModule {}
+export class MyViewAdvanceRequestPageModule { }

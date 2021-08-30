@@ -7,16 +7,20 @@ import { RejectAdvanceComponent } from '../reject-advance/reject-advance.compone
 @Component({
   selector: 'app-advance-actions',
   templateUrl: './advance-actions.component.html',
-  styleUrls: ['./advance-actions.component.scss']
+  styleUrls: ['./advance-actions.component.scss'],
 })
 export class AdvanceActionsComponent implements OnInit {
+
   @Input() actions;
 
   @Input() areq;
 
-  constructor(private popoverController: PopoverController) {}
+  constructor(
+    private popoverController: PopoverController
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 
   openAnotherPopover(command) {
     this.popoverController.dismiss({

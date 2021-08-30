@@ -9,7 +9,7 @@ describe('RouteVisualizerComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [RouteVisualizerComponent],
+      declarations: [ RouteVisualizerComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 

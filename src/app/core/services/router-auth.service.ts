@@ -20,6 +20,7 @@ import { PushNotificationService } from './push-notification.service';
   providedIn: 'root'
 })
 export class RouterAuthService {
+
   constructor(
     private routerApiService: RouterApiService,
     private storageService: StorageService,
@@ -34,7 +35,7 @@ export class RouterAuthService {
     private vendorService: VendorService,
     private tripRequestPolicyService: TripRequestPolicyService,
     private pushNotificationService: PushNotificationService
-  ) {}
+  ) { }
 
   checkEmailExists(email) {
     return this.routerApiService.post('/auth/basic/email_exists', {
@@ -53,6 +54,7 @@ export class RouterAuthService {
   }
 
   async setClusterDomain(domain) {
+
     this.apiService.setRoot(domain);
     this.advanceRequestPolicyService.setRoot(domain);
     this.apiv2Service.setRoot(domain);
@@ -73,11 +75,9 @@ export class RouterAuthService {
 
   async fetchAccessToken(refreshToken): Promise<AuthResponse> {
     // this function is called from multiple places, token should be returned and not saved from here
-    return await this.routerApiService
-      .post('/auth/access_token', {
-        refresh_token: refreshToken
-      })
-      .toPromise();
+    return await this.routerApiService.post('/auth/access_token', {
+      refresh_token: refreshToken
+    }).toPromise();
   }
 
   sendResetPassword(email: string) {
@@ -99,20 +99,24 @@ export class RouterAuthService {
   }
 
   basicSignin(email, password): Observable<AuthResponse> {
-    return this.routerApiService
-      .post('/auth/basic/signin', {
-        email,
-        password
-      })
-      .pipe(switchMap((res) => from(this.handleSignInResponse(res)).pipe(map(() => res))));
+    return this.routerApiService.post('/auth/basic/signin', {
+      email,
+      password
+    }).pipe(
+      switchMap(res => from(this.handleSignInResponse(res)).pipe(
+        map(() => res)
+      ))
+    );
   }
 
   googleSignin(accessToken): Observable<AuthResponse> {
-    return this.routerApiService
-      .post('/auth/google/signin', {
-        access_token: accessToken
-      })
-      .pipe(switchMap((res) => from(this.handleSignInResponse(res)).pipe(map(() => res))));
+    return this.routerApiService.post('/auth/google/signin', {
+      access_token: accessToken
+    }).pipe(
+      switchMap(res => from(this.handleSignInResponse(res)).pipe(
+        map(() => res)
+      ))
+    );
   }
 
   checkIfFreeDomain(email: string) {
@@ -122,23 +126,28 @@ export class RouterAuthService {
   }
 
   emailVerify(verificationCode: string) {
-    return this.routerApiService
-      .post('/auth/email_verify', {
-        verification_code: verificationCode
-      })
-      .pipe(switchMap((res) => from(this.handleSignInResponse(res)).pipe(map(() => res))));
+    return this.routerApiService.post('/auth/email_verify', {
+      verification_code: verificationCode
+    }).pipe(
+      switchMap(res => from(this.handleSignInResponse(res)).pipe(
+        map(() => res)
+      ))
+    );
   }
 
   resetPassword(refreshToken: string, newPassword: string) {
-    return this.routerApiService
-      .post('/auth/reset_password', {
-        refresh_token: refreshToken,
-        password: newPassword
-      })
-      .pipe(switchMap((data) => this.handleSignInResponse(data)));
+    return this.routerApiService.post('/auth/reset_password', {
+      refresh_token: refreshToken,
+      password: newPassword
+    }).pipe(
+      switchMap(data => this.handleSignInResponse(data))
+    );
   }
 
   getRegions() {
-    return this.routerApiService.get('/regions').pipe(map((data) => data.regions));
+    return this.routerApiService.get('/regions').pipe(
+      map((data) => data.regions)
+    );
   }
+
 }

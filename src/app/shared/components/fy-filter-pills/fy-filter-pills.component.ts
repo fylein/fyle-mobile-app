@@ -1,12 +1,13 @@
-import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
-import { FilterPill } from './filter-pill.interface';
+import {Component, Input, OnInit, EventEmitter, Output} from '@angular/core';
+import {FilterPill} from './filter-pill.interface';
 
 @Component({
   selector: 'app-fy-filter-pills',
   templateUrl: './fy-filter-pills.component.html',
-  styleUrls: ['./fy-filter-pills.component.scss']
+  styleUrls: ['./fy-filter-pills.component.scss'],
 })
 export class FyFilterPillsComponent implements OnInit {
+
   @Input() filterPills: FilterPill[];
 
   @Output() clearAll = new EventEmitter();
@@ -15,7 +16,7 @@ export class FyFilterPillsComponent implements OnInit {
 
   @Output() filterClose = new EventEmitter();
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit() {}
 

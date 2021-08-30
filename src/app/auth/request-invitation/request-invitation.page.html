@@ -2,55 +2,54 @@
   <ion-grid class="request-invitation--header-container">
     <ion-row class="request-invitation--header ion-align-items-center">
       <ion-col class="request-invitation--header-logo-container">
-        <img class="request-invitation--header-logo" src="../../../assets/svg/logo-white.svg" alt="fyle-logo" />
+        <img class="request-invitation--header-logo" src="../../../assets/svg/logo-white.svg" alt="fyle-logo">
       </ion-col>
     </ion-row>
   </ion-grid>
   <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.notSent">
-    <div class="request-invitation--form-header">Request Invitation</div>
+    <div class="request-invitation--form-header">
+      Request Invitation
+    </div>
     <div class="request-invitation--form-subheader">
       Your company already uses Fyle. Send an invitation request to your Fyle admin.
     </div>
     <form [formGroup]="fg">
       <mat-form-field class="request-invitation--form-field" appearance="outline">
-        <input
-          formControlName="=email"
-          id="request-invitation--email"
-          formControlName="email"
-          type="email"
-          matInput
-          placeholder="Work Email"
-        />
+        <input formControlName="=email" id="request-invitation--email" formControlName="email" type="email" matInput
+          placeholder="Work Email">
       </mat-form-field>
     </form>
     <div class="request-invitation--primary-cta">
-      <button
-        id="request-invitation--continue"
-        [disabled]="!fg.controls.email.valid"
-        mat-flat-button
-        color="primary"
-        (click)="sendRequestInvitation()"
-      >
+      <button id="request-invitation--continue" [disabled]="!fg.controls.email.valid" mat-flat-button color="primary"
+        (click)="sendRequestInvitation()">
         REQUEST INVITATION
       </button>
     </div>
   </div>
   <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.success">
-    <div class="request-invitation--form-header">Request Invitation Successful</div>
+    <div class="request-invitation--form-header">
+      Request Invitation Successful
+    </div>
     <div class="request-invitation--form-subheader">
       Your request has been sent to your admin - they may take some time to process it
     </div>
   </div>
   <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.failure">
-    <div class="request-invitation--form-header">Request Invitation Failed</div>
+    <div class="request-invitation--form-header">
+      Request Invitation Failed
+    </div>
     <div class="request-invitation--form-subheader">
       Something went wrong. Please send us a note at support@fylehq.com
     </div>
   </div>
   <div class="request-invitation--form" *ngIf="currentPageState === RequestInvitationStates.alreadySent">
-    <div class="request-invitation--form-header">Request Pending</div>
+    <div class="request-invitation--form-header">
+      Request Pending
+    </div>
     <div class="request-invitation--form-subheader">
-      <div>Your request has already been sent to your organization's admin.</div>
+      <div>
+        Your request has already been sent to your organization's admin.
+      </div>
       <div>
         You cannot request an invitation again. Please wait till the invitation is accepted or write a note to your
         organization's admin.
@@ -61,7 +60,7 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-button fill="clear" expand="full" [routerLink]="['/','auth','sign_in']" routerLinkActive="router-link-active">
+    <ion-button fill="clear" expand="full" [routerLink]="['/','auth','sign_in']" routerLinkActive="router-link-active" >
       Back to Sign in
     </ion-button>
   </ion-toolbar>

@@ -4,7 +4,7 @@ import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
-import { from, Observable, range, concat, forkJoin, Subject, of } from 'rxjs';
+import {from, Observable, range, concat, forkJoin, Subject, of} from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
@@ -21,6 +21,7 @@ const transactionsCacheBuster$ = new Subject<void>();
   providedIn: 'root'
 })
 export class TransactionService {
+
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
@@ -34,7 +35,7 @@ export class TransactionService {
     private utilityService: UtilityService,
     private fileService: FileService,
     private policyApiService: PolicyApiService
-  ) {}
+  ) { }
 
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$
@@ -48,9 +49,9 @@ export class TransactionService {
   })
   get(txnId) {
     // TODO api v2
-    return this.apiService
-      .get('/transactions/' + txnId)
-      .pipe(map((transaction) => this.dateService.fixDates(transaction)));
+    return this.apiService.get('/transactions/' + txnId).pipe(
+      map((transaction) => this.dateService.fixDates(transaction))
+    );
   }
 
   @Cacheable({
@@ -60,11 +61,9 @@ export class TransactionService {
     // TODO api v2
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((transaction) => {
+
         let categoryDisplayName = transaction.tx_org_category;
-        if (
-          transaction.tx_sub_category &&
-          transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()
-        ) {
+        if (transaction.tx_sub_category && transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
           categoryDisplayName += ' / ' + transaction.tx_sub_category;
         }
         transaction.tx_categoryDisplayName = categoryDisplayName;
@@ -92,11 +91,13 @@ export class TransactionService {
     cacheBusterObserver: transactionsCacheBuster$
   })
   getMyETxnc(params: { offset: number; limit: number; tx_org_user_id: string }) {
-    return this.apiV2Service
-      .get('/expenses', {
-        params
-      })
-      .pipe(map((etxns) => etxns.data));
+    return this.apiV2Service.get('/expenses', {
+      params
+    }).pipe(
+      map(
+        (etxns) => etxns.data
+      )
+    );
   }
 
   @Cacheable({
@@ -104,11 +105,11 @@ export class TransactionService {
   })
   getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
-      switchMap((res) => {
+      switchMap(res => {
         const count = res.count > 50 ? res.count / 50 : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getETxnc({ offset: 50 * page, limit: 50, params })),
+      concatMap(page => this.getETxnc({ offset: 50 * page, limit: 50, params })),
       reduce((acc, curr) => acc.concat(curr))
     );
   }
@@ -118,54 +119,46 @@ export class TransactionService {
   })
   getAllMyETxnc() {
     return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.getMyETxncCount('eq.' + eou.ou.id).pipe(
-          switchMap((res) => {
-            const count = res.count > 50 ? res.count / 50 : 1;
-            return range(0, count);
-          }),
-          concatMap((page) => this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id })),
-          reduce((acc, curr) => acc.concat(curr))
-        )
-      )
+      switchMap(eou => this.getMyETxncCount('eq.' + eou.ou.id).pipe(
+        switchMap(res => {
+          const count = res.count > 50 ? res.count / 50 : 1;
+          return range(0, count);
+        }),
+        concatMap(page => this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id })),
+        reduce((acc, curr) => acc.concat(curr))
+      ))
     );
   }
+
 
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$
   })
-  getMyExpenses(
-    config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
-      offset: 0,
-      limit: 10,
-      queryParams: {}
-    }
-  ) {
+  getMyExpenses(config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
+    offset: 0,
+    limit: 10,
+    queryParams: {}
+  }) {
     return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.get('/expenses', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams
-          }
-        })
-      ),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: any[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
-      map((res) => ({
+      switchMap(eou => this.apiV2Service.get('/expenses', {
+        params: {
+          offset: config.offset,
+          limit: config.limit,
+          order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
+          tx_org_user_id: 'eq.' + eou.ou.id,
+          ...config.queryParams
+        }
+      })),
+      map(res => res as {
+        count: number;
+        data: any[];
+        limit: number;
+        offset: number;
+        url: string;
+      }),
+      map(res => ({
         ...res,
-        data: res.data.map((datum) => this.dateService.fixDatesV2(datum))
+        data: res.data.map(datum => this.dateService.fixDatesV2(datum))
       }))
     );
   }
@@ -175,14 +168,12 @@ export class TransactionService {
   })
   getAllExpenses(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyExpensesCount(config.queryParams).pipe(
-      switchMap((count) => {
+      switchMap(count => {
         count = count > 50 ? count / 50 : 1;
         return range(0, count);
       }),
-      concatMap((page) =>
-        this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })
-      ),
-      map((res) => res.data),
+      concatMap(page => this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })),
+      map(res => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as any[])
     );
   }
@@ -192,16 +183,14 @@ export class TransactionService {
   })
   getTransactionStats(aggregates: string, queryParams = {}) {
     return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.get('/expenses/stats', {
-          params: {
-            aggregates,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...queryParams
-          }
-        })
-      ),
-      map((res) => res.data)
+      switchMap(eou => this.apiV2Service.get('/expenses/stats', {
+        params: {
+          aggregates,
+          tx_org_user_id: 'eq.' + eou.ou.id,
+          ...queryParams
+        }
+      })),
+      map(res => res.data)
     );
   }
 
@@ -219,7 +208,7 @@ export class TransactionService {
     const chunkSize = 10;
     const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
     return range(0, count).pipe(
-      concatMap((page) => {
+      concatMap(page => {
         const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
         return this.apiService.post('/transactions/delete/bulk', {
           txn_ids: filteredtxnIds
@@ -252,10 +241,7 @@ export class TransactionService {
       switchMap((orgUserSettings) => {
         const offset = orgUserSettings.locale.offset;
 
-        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(
-          transaction.custom_properties,
-          offset
-        );
+        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset);
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (transaction.txn_dt) {
           transaction.txn_dt.setHours(12);
@@ -293,22 +279,16 @@ export class TransactionService {
   })
   createTxnWithFiles(txn, fileUploads$: Observable<any>) {
     return fileUploads$.pipe(
-      switchMap((fileObjs: any[]) =>
-        this.upsert(txn).pipe(
-          switchMap((transaction) =>
-            from(
-              fileObjs.map((fileObj) => {
-                fileObj.transaction_id = transaction.id;
-                return fileObj;
-              })
-            ).pipe(
-              concatMap((fileObj) => this.fileService.post(fileObj)),
-              reduce((acc, curr) => acc.concat([curr]), []),
-              map(() => transaction)
-            )
-          )
-        )
-      )
+      switchMap((fileObjs: any[]) => this.upsert(txn).pipe(
+        switchMap(transaction => from(fileObjs.map(fileObj => {
+          fileObj.transaction_id = transaction.id;
+          return fileObj;
+        })).pipe(
+          concatMap(fileObj => this.fileService.post(fileObj)),
+          reduce((acc, curr) => acc.concat([curr]), []),
+          map(() => transaction)
+        ))
+      )),
     );
   }
 
@@ -318,9 +298,9 @@ export class TransactionService {
   removeTxnsFromRptInBulk(txnIds, comment?) {
     const count = txnIds.length > 50 ? txnIds.length / 50 : 1;
     return range(0, count).pipe(
-      concatMap((page) => {
+      concatMap(page => {
         const data: any = {
-          ids: txnIds.slice(page * 50, (page + 1) * 50)
+          ids: txnIds.slice((page) * 50, (page + 1) * 50)
         };
 
         if (comment) {
@@ -336,7 +316,7 @@ export class TransactionService {
   parseRaw(etxnsRaw) {
     const etxns = [];
 
-    etxnsRaw.forEach((element) => {
+    etxnsRaw.forEach(element => {
       const etxn = this.dataTransformService.unflatten(element);
 
       this.dateService.fixDates(etxn.tx);
@@ -365,6 +345,7 @@ export class TransactionService {
 
     return count;
   }
+
 
   getUserTransactionParams(state: string) {
     const stateMap = {
@@ -402,36 +383,46 @@ export class TransactionService {
 
   getPaginatedETxncCount(params?) {
     return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.apiService.get('/etxns/count', { params }).pipe(
-            tap((res) => {
-              this.storageService.set('etxncCount' + JSON.stringify(params), res);
-            })
-          );
-        } else {
-          return from(this.storageService.get('etxncCount' + JSON.stringify(params)));
+      switchMap(
+        isOnline => {
+          if (isOnline) {
+            return this.apiService.get('/etxns/count', { params }).pipe(
+              tap((res) => {
+                this.storageService.set('etxncCount' + JSON.stringify(params), res);
+              })
+            );
+          } else {
+            return from(this.storageService.get('etxncCount' + JSON.stringify(params)));
+          }
         }
-      })
+      )
     );
   }
 
   getMyETxncCount(tx_org_user_id: string): Observable<{ count: number }> {
-    return this.apiV2Service
-      .get('/expenses', { params: { offset: 0, limit: 1, tx_org_user_id } })
-      .pipe(map((res) => res as { count: number }));
+    return this.apiV2Service.get('/expenses', { params: { offset: 0, limit: 1, tx_org_user_id } }).pipe(
+      map(
+        res => res as { count: number }
+      )
+    );
   }
 
   getETxnc(params: { offset: number; limit: number; params: any }) {
-    return this.apiV2Service
-      .get('/expenses', {
-        ...params
-      })
-      .pipe(map((etxns) => etxns.data));
+    return this.apiV2Service.get('/expenses', {
+      ...params
+    }).pipe(
+      map(
+        (etxns) => etxns.data
+      )
+    );
   }
 
   getETxnCount(params: any) {
-    return this.apiV2Service.get('/expenses', { params }).pipe(map((res) => res as { count: number }));
+    return this.apiV2Service.get('/expenses', { params }).pipe(
+      map(
+        res => res as { count: number }
+      )
+    );
   }
 
   getMyExpensesCount(queryParams = {}) {
@@ -439,25 +430,29 @@ export class TransactionService {
       offset: 0,
       limit: 1,
       queryParams
-    }).pipe(map((res) => res.count));
+    }).pipe(
+      map(res => res.count)
+    );
   }
 
   getTotalNoCurrency(etxns) {
     let total = 0;
-    etxns.forEach((etxn) => {
+    etxns.forEach(etxn => {
       total = total + etxn.tx_amount;
     });
     return total;
   }
 
   getExpenseV2(id: string): Observable<any> {
-    return this.apiV2Service
-      .get('/expenses', {
-        params: {
-          tx_id: `eq.${id}`
-        }
-      })
-      .pipe(map((res) => this.fixDates(res.data[0]) as Expense));
+    return this.apiV2Service.get('/expenses', {
+      params: {
+        tx_id: `eq.${id}`
+      }
+    }).pipe(
+      map(
+        res => this.fixDates(res.data[0]) as Expense
+      )
+    );
   }
 
   fixDates(data: Expense) {
@@ -478,9 +473,12 @@ export class TransactionService {
     return data;
   }
 
+
+
   testPolicy(etxn) {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
+
         if (etxn.tx_tax) {
           delete etxn.tx_tax;
         }
@@ -571,6 +569,7 @@ export class TransactionService {
     return this.getAllETxnc(data);
   }
 
+
   unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string) {
     const data = {
       transaction_id: txnId,
@@ -602,19 +601,18 @@ export class TransactionService {
       } else {
         vendorDisplayName += ' Day';
       }
+
     }
 
     return vendorDisplayName;
   }
 
   getReportableExpenses(expenses: Expense[]): Expense[] {
-    return expenses.filter(
-      (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
-    );
+    return expenses.filter(expense => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id);
   }
 
-  getIsCriticalPolicyViolated(expense: Expense): boolean {
-    return typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001;
+  getIsCriticalPolicyViolated(expense: Expense): boolean{
+    return (typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001);
   }
 
   getIsDraft(expense: Expense): boolean {

@@ -49,7 +49,7 @@ $text-light: #ababab;
       font-size: 12px;
 
       &::before {
-        content: '∙';
+        content: "∙";
         font-size: 48px;
         position: absolute;
         left: -20px;
@@ -69,7 +69,7 @@ $text-light: #ababab;
         left: 8px;
       }
     }
-
+    
     &-count {
       background: white;
       margin-left: -8px;
@@ -81,7 +81,7 @@ $text-light: #ababab;
     border-radius: 4px;
     display: inline-block;
     color: white;
-    font-weight: 500;
+    font-weight: 500;    
 
     &__draft {
       background: $trips_draft_color;

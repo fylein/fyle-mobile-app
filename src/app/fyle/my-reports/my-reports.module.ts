@@ -36,6 +36,11 @@ import { SharedModule } from 'src/app/shared/shared.module';
     MatIconModule,
     SharedModule
   ],
-  declarations: [MyReportsPage, MyReportsCardComponent, MyReportsSearchFilterComponent, MyReportsSortFilterComponent]
+  declarations: [
+    MyReportsPage,
+    MyReportsCardComponent,
+    MyReportsSearchFilterComponent,
+    MyReportsSortFilterComponent
+  ]
 })
-export class MyReportsPageModule {}
+export class MyReportsPageModule { }

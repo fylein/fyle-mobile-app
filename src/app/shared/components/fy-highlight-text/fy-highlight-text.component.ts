@@ -7,12 +7,14 @@ import { Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
   // To avoid that, setting ViewEncapsulation to None
   encapsulation: ViewEncapsulation.None
 })
-export class FyHighlightTextComponent implements OnInit {
+export class FyHighlightTextComponent implements OnInit{
+
   @Input() fullText: string;
 
   @Input() queryText: string;
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit() {}
+
 }

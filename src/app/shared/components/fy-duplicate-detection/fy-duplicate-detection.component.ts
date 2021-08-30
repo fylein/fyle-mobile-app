@@ -20,6 +20,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ]
 })
 export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccessor {
+
   @Input() duplicates: any;
 
   @Input() transactionId: any;
@@ -42,12 +43,10 @@ export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccess
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private duplicateDetectionService: DuplicateDetectionService
-  ) {}
+  ) { }
 
   ngOnInit() {
-    this.options = this.duplicateDetectionService
-      .getDuplicateReasons()
-      .map((reason) => ({ label: reason, value: reason }));
+    this.options = this.duplicateDetectionService.getDuplicateReasons().map(reason => ({ label: reason, value: reason }));
   }
 
   get value(): any {
@@ -58,7 +57,7 @@ export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccess
     if (v !== this.innerValue) {
       this.innerValue = v;
       if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
+        const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
         if (selectedOption) {
           this.displayValue = selectedOption && selectedOption.label;
         }
@@ -97,7 +96,7 @@ export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccess
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
+        const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
         this.displayValue = selectedOption && selectedOption.label;
       }
     }

@@ -2,7 +2,9 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select Currency</div>
+      <div class="selection-modal--title">
+        Select Currency
+      </div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -12,14 +14,7 @@
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
     <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
-      <input
-        #searchBar
-        id="election-modal--search-input"
-        class="selection-modal--search-input"
-        matInput
-        placeholder="Search"
-        [(ngModel)]="value"
-      />
+      <input #searchBar id="election-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search" [(ngModel)]="value">
       <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
         <mat-icon>close</mat-icon>
       </button>
@@ -29,35 +24,40 @@
 
 <ion-content>
   <div class="selection-modal--container">
-    <div class="selection-modal--recently-used-block" *ngIf="(recentlyUsedCurrencies$ | async)?.length > 0">
-      <div
-        matRipple
-        class="selection-modal--list-element"
-        *ngFor="let recentlyUsedItem of recentlyUsedCurrencies$ | async as list"
-        (click)="onCurrencySelect(recentlyUsedItem)"
-      >
-        <ng-template #defaultSelectionElement let-label="shortCode" let-currency="longName" let-selected="selected">
+    <div class="selection-modal--recently-used-block" *ngIf="(recentlyUsedCurrencies$|async)?.length > 0">
+
+      <div matRipple class="selection-modal--list-element" *ngFor="let recentlyUsedItem of recentlyUsedCurrencies$ | async as list" (click)="onCurrencySelect(recentlyUsedItem)">
+        <ng-template #defaultSelectionElement  let-label="shortCode" let-currency="longName" let-selected="selected">
           <div class="selection-modal--recently-used-item-content">
             <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
             <span class="selection-modal--label">
-              <app-fy-highlight-text [fullText]="label + ' - ' + currency" [queryText]="value"> </app-fy-highlight-text>
+              <app-fy-highlight-text
+                [fullText]="label + ' - ' + currency"
+                [queryText]="value">
+              </app-fy-highlight-text>
             </span>
           </div>
-          <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+          <mat-icon *ngIf="selected" class="selection-modal--check">
+            check
+          </mat-icon>
         </ng-template>
-        <ng-container
-          *ngTemplateOutlet="selectionElement ? selectionElement : defaultSelectionElement; context: recentlyUsedItem"
-        >
+        <ng-container *ngTemplateOutlet="selectionElement ? selectionElement: defaultSelectionElement;context:recentlyUsedItem">
         </ng-container>
       </div>
     </div>
     <div *ngIf="filteredCurrencies$ | async as filteredCurrencies">
       <div *ngIf="filteredCurrencies.length > 0">
-        <div class="selection-modal--sub-title">All Currencies</div>
+        <div class="selection-modal--sub-title">
+          All Currencies
+        </div>
         <ng-container *ngFor="let currency of filteredCurrencies">
           <div matRipple class="selection-modal--list-element" (click)="onCurrencySelect(currency)">
-            <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-            <mat-icon *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
+            <div>
+              {{currency.shortCode}} - {{currency.longName}}
+            </div>
+            <mat-icon *ngIf="currency.shortCode === currentSelection">
+              check
+            </mat-icon>
           </div>
         </ng-container>
       </div>

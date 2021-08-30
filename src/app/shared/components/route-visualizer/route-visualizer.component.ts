@@ -11,9 +11,10 @@ type AgmDirectionLocation = {
 @Component({
   selector: 'app-route-visualizer',
   templateUrl: './route-visualizer.component.html',
-  styleUrls: ['./route-visualizer.component.scss']
+  styleUrls: ['./route-visualizer.component.scss'],
 })
 export class RouteVisualizerComponent implements OnInit, OnChanges {
+
   @Input() mileageLocations: MileageLocation[];
 
   @Output() mapClick = new EventEmitter<void>();
@@ -45,10 +46,12 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
     }
   };
 
-  constructor(private locationService: LocationService) {}
+  constructor(
+    private locationService: LocationService
+  ) { }
 
   ngOnInit() {
-    this.locationService.getCurrentLocation().subscribe((geoLocationPosition) => {
+    this.locationService.getCurrentLocation().subscribe(geoLocationPosition => {
       if (geoLocationPosition) {
         this.currentLocation = {
           lat: geoLocationPosition.coords?.latitude,
@@ -60,22 +63,20 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.showEmptyMap = false;
-    const transformedLocations = this.mileageLocations.map((mileageLocation) => ({
+    const transformedLocations = this.mileageLocations.map(mileageLocation => ({
       lat: mileageLocation?.latitude,
       lng: mileageLocation?.longitude
     }));
 
-    if (transformedLocations.some((location) => !location.lat || !location.lng) || transformedLocations.length === 0) {
+    if (transformedLocations.some(location => !location.lat || !location.lng) || transformedLocations.length === 0) {
       this.origin = null;
       this.destination = null;
       this.waypoints = null;
 
-      if (
-        transformedLocations.every((location) => !location.lat || !location.lng) ||
-        transformedLocations.length === 0
-      ) {
+      if (transformedLocations.every(location => !location.lat || !location.lng) || transformedLocations.length === 0) {
         this.showEmptyMap = true;
       }
+
     } else {
       if (transformedLocations?.length >= 2) {
         this.origin = transformedLocations[0];
@@ -84,7 +85,7 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
           const copyOfMileageLocations = cloneDeep(transformedLocations);
           copyOfMileageLocations.shift();
           copyOfMileageLocations.pop();
-          this.waypoints = copyOfMileageLocations.map((loc) => ({ location: { ...loc } }));
+          this.waypoints = copyOfMileageLocations.map(loc => ({ location: { ...loc } }));
         } else {
           this.waypoints = [];
         }

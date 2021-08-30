@@ -13,8 +13,20 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, CaptureReceiptPageRoutingModule, MatIconModule, PinchZoomModule],
-  declarations: [CaptureReceiptPage, ReceiptPreviewComponent],
-  providers: [ImagePicker]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    CaptureReceiptPageRoutingModule,
+    MatIconModule,
+    PinchZoomModule
+  ],
+  declarations: [
+    CaptureReceiptPage,
+    ReceiptPreviewComponent
+  ],
+  providers: [
+    ImagePicker
+  ]
 })
 export class CaptureReceiptPageModule {}

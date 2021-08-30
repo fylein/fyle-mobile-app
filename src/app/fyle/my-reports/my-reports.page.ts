@@ -3,18 +3,7 @@ import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, ii
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import {
-  concatMap,
-  switchMap,
-  finalize,
-  map,
-  scan,
-  shareReplay,
-  distinctUntilChanged,
-  tap,
-  debounceTime,
-  takeUntil
-} from 'rxjs/operators';
+import { concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilChanged, tap, debounceTime, takeUntil } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -44,15 +33,13 @@ export class MyReportsPage implements OnInit {
 
   isInfiniteScrollRequired$: Observable<boolean>;
 
-  loadData$: BehaviorSubject<
-    Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  >;
+  loadData$: BehaviorSubject<Partial<{
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
+  }>>;
 
   currentPageNumber = 1;
 
@@ -80,6 +67,7 @@ export class MyReportsPage implements OnInit {
 
   onPageExit = new Subject();
 
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -93,9 +81,10 @@ export class MyReportsPage implements OnInit {
     private popoverController: PopoverController,
     private trackingService: TrackingService,
     private apiV2Service: ApiV2Service
-  ) {}
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -127,8 +116,7 @@ export class MyReportsPage implements OnInit {
         map((event: any) => event.srcElement.value as string),
         distinctUntilChanged(),
         debounceTime(1000)
-      )
-      .subscribe((searchString) => {
+      ).subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
         currentParams.searchString = searchString;
         this.currentPageNumber = 1;
@@ -143,11 +131,11 @@ export class MyReportsPage implements OnInit {
         let queryParams = params.queryParams || {
           rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)'
         };
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getMyReportsCount(queryParams).pipe(
-          switchMap((count) => {
-            if (count > (params.pageNumber - 1) * 10) {
+          switchMap(count => {
+            if (count > ((params.pageNumber - 1) * 10)) {
               return this.reportService.getMyReports({
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
@@ -162,7 +150,7 @@ export class MyReportsPage implements OnInit {
           })
         );
       }),
-      map((res) => {
+      map(res => {
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
@@ -171,10 +159,12 @@ export class MyReportsPage implements OnInit {
       })
     );
 
-    this.myReports$ = paginatedPipe.pipe(shareReplay(1));
+    this.myReports$ = paginatedPipe.pipe(
+      shareReplay(1)
+    );
 
     this.count$ = this.loadData$.pipe(
-      switchMap((params) => {
+      switchMap(params => {
         let queryParams = params.queryParams || {
           rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)'
         };
@@ -185,12 +175,15 @@ export class MyReportsPage implements OnInit {
     );
 
     const paginatedScroll$ = this.myReports$.pipe(
-      switchMap((erpts) => this.count$.pipe(map((count) => count > erpts.length)))
+      switchMap(erpts => this.count$.pipe(
+        map(count => count > erpts.length)))
     );
 
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(
+      switchMap(_ => paginatedScroll$)
+    );
 
-    this.loadData$.subscribe((params) => {
+    this.loadData$.subscribe(params => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -200,27 +193,21 @@ export class MyReportsPage implements OnInit {
     });
 
     this.expensesAmountStats$ = this.loadData$.pipe(
-      switchMap((_) =>
-        this.transactionService
-          .getTransactionStats('count(tx_id),sum(tx_amount)', {
-            scalar: true,
-            tx_report_id: 'is.null',
-            tx_state: 'in.(COMPLETE)',
-            or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'
-          })
-          .pipe(
-            map((stats) => {
-              const sum =
-                stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
-              const count =
-                stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-              return {
-                sum: (sum && sum.function_value) || 0,
-                count: (count && count.function_value) || 0
-              };
-            })
-          )
-      )
+      switchMap(_ => this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+        scalar: true,
+        tx_report_id: 'is.null',
+        tx_state: 'in.(COMPLETE)',
+        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'
+      }).pipe(
+        map(stats => {
+          const sum = stats && stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
+          const count = stats && stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+          return {
+            sum: sum && sum.function_value || 0,
+            count: count && count.function_value || 0
+          };
+        })
+      ))
     );
 
     this.myReports$.subscribe(noop);
@@ -294,19 +281,23 @@ export class MyReportsPage implements OnInit {
         newQueryParams.rp_state =
           'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
       } else {
-        newQueryParams.rp_state = `in.(${this.filters.state})`;
+        newQueryParams.rp_state =
+          `in.(${this.filters.state})`;
       }
     }
 
     if (this.filters.date) {
       if (this.filters.date === 'THISMONTH') {
         const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and = `(rp_created_at.gte.${thisMonth.from.toISOString()},rp_created_at.lt.${thisMonth.to.toISOString()})`;
+        newQueryParams.and =
+          `(rp_created_at.gte.${thisMonth.from.toISOString()},rp_created_at.lt.${thisMonth.to.toISOString()})`;
       } else if (this.filters.date === 'LASTMONTH') {
         const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and = `(rp_created_at.gte.${lastMonth.from.toISOString()},rp_created_at.lt.${lastMonth.to.toISOString()})`;
+        newQueryParams.and =
+          `(rp_created_at.gte.${lastMonth.from.toISOString()},rp_created_at.lt.${lastMonth.to.toISOString()})`;
       } else if (this.filters.date === 'CUSTOMDATE') {
-        newQueryParams.and = `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
+        newQueryParams.and =
+          `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
       }
     }
 
@@ -343,6 +334,7 @@ export class MyReportsPage implements OnInit {
     }
   }
 
+
   async openSort() {
     const sortPopover = await this.popoverController.create({
       component: MyReportsSortFilterComponent,
@@ -374,6 +366,7 @@ export class MyReportsPage implements OnInit {
   }
 
   async onDeleteReportClick(erpt: ExtendedReport) {
+
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
       await this.popupService.showPopup({
         header: 'Cannot Delete Report',
@@ -400,16 +393,14 @@ export class MyReportsPage implements OnInit {
       });
 
       if (popupResults === 'primary') {
-        from(this.loaderService.showLoader())
-          .pipe(
-            switchMap(() => this.reportService.delete(erpt.rp_id)),
-            tap(() => this.trackingService.deleteReport({ Asset: 'Mobile' })),
-            finalize(async () => {
-              await this.loaderService.hideLoader();
-              this.doRefresh();
-            })
-          )
-          .subscribe(noop);
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() => this.reportService.delete(erpt.rp_id)),
+          tap(() => this.trackingService.deleteReport({ Asset: 'Mobile' })),
+          finalize(async () => {
+            await this.loaderService.hideLoader();
+            this.doRefresh();
+          })
+        ).subscribe(noop);
       }
     }
   }

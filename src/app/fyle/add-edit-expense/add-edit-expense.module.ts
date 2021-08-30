@@ -22,7 +22,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
-import { MatButtonModule } from '@angular/material/button';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -54,4 +54,4 @@ import { MatButtonModule } from '@angular/material/button';
     MatchTransactionComponent
   ]
 })
-export class AddEditExpensePageModule {}
+export class AddEditExpensePageModule { }

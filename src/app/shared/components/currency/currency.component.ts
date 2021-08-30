@@ -1,17 +1,19 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { filter, map, switchMap } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
-import { Expense } from '../../../core/models/expense.model';
+import {Component, OnInit, Input} from '@angular/core';
+import {CurrencyService} from 'src/app/core/services/currency.service';
+import {OfflineService} from 'src/app/core/services/offline.service';
+import {filter, map, switchMap} from 'rxjs/operators';
+import {Observable, of} from 'rxjs';
+import {Expense} from '../../../core/models/expense.model';
 import { cloneDeep } from 'lodash';
+
 
 @Component({
   selector: 'app-currency',
   templateUrl: './currency.component.html',
-  styleUrls: ['./currency.component.scss']
+  styleUrls: ['./currency.component.scss'],
 })
 export class CurrencyComponent implements OnInit {
+
   @Input() options: any;
 
   @Input() etxn: Expense;
@@ -26,14 +28,18 @@ export class CurrencyComponent implements OnInit {
 
   homeCurrency$: Observable<string>;
 
-  constructor(private currencyService: CurrencyService, private offlineService: OfflineService) {}
+  constructor(
+    private currencyService: CurrencyService,
+    private offlineService: OfflineService
+  ) {
+  }
 
   ngOnInit() {
     this.extnInternal = cloneDeep(this.etxn);
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
 
     this.showExchangeRate$ = this.homeCurrency$.pipe(
-      map((homeCurrency) => {
+      map(homeCurrency => {
         if (this.etxn.tx_orig_currency) {
           return this.etxn.tx_orig_currency !== homeCurrency;
         }
@@ -44,7 +50,8 @@ export class CurrencyComponent implements OnInit {
 
     // TODO cleanup
     this.calculatedExchangeRate$ = this.homeCurrency$.pipe(
-      switchMap((homeCurrency) => {
+      switchMap(homeCurrency => {
+
         let isHomeCurrency: boolean;
 
         if (this.etxn.tx_orig_amount && this.etxn.tx_orig_currency) {
@@ -61,24 +68,23 @@ export class CurrencyComponent implements OnInit {
             this.extnInternal.tx_currency = homeCurrency;
             this.extnInternal.tx_orig_amount = this.etxn.tx_amount;
 
-            return this.currencyService.getExchangeRate(
-              this.extnInternal.tx_orig_currency,
-              homeCurrency,
-              this.extnInternal.tx_txn_dt
-            );
+            return this.currencyService.getExchangeRate(this.extnInternal.tx_orig_currency, homeCurrency, this.extnInternal.tx_txn_dt);
           }
         }
       })
     );
 
     this.amountConvertedToHomeCurrency$ = this.calculatedExchangeRate$.pipe(
-      map((calculatedExchangeRate: number) => {
-        if (this.etxn.tx_orig_amount) {
-          return this.etxn.tx_orig_amount * calculatedExchangeRate;
-        } else {
-          return this.etxn.tx_amount * calculatedExchangeRate;
+      map(
+        (calculatedExchangeRate: number) => {
+          if (this.etxn.tx_orig_amount) {
+            return this.etxn.tx_orig_amount * calculatedExchangeRate;
+          } else {
+            return this.etxn.tx_amount * calculatedExchangeRate;
+          }
         }
-      })
+      )
     );
   }
+
 }

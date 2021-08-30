@@ -11,14 +11,7 @@
     </ion-toolbar>
     <ion-toolbar class="approver-list--form-field-container">
       <mat-form-field class="approver-list--form-field mat-form-field-no-padding" appearance="none">
-        <input
-          #searchBar
-          id="approver-list--search-input"
-          class="approver-list--search-input"
-          matInput
-          placeholder="Search"
-          [(ngModel)]="value"
-        />
+        <input #searchBar id="approver-list--search-input" class="approver-list--search-input" matInput placeholder="Search" [(ngModel)]="value">
         <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
           <mat-icon>close</mat-icon>
         </button>
@@ -30,13 +23,13 @@
 <ion-content>
   <div>
     <p class="approver-list--all-approvers">All approvers</p>
-    <div class="approver-list--list-container" *ngFor="let approver of searchedApprovers$ | async as approverList">
+    <div class="approver-list--list-container" *ngFor="let approver of searchedApprovers$|async as approverList">
       <div class="approver-list--list-element">
         <label class="approver-list--list-element-label">
           <mat-checkbox [checked]="approver.is_selected" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
           <span class="approver-list--approver-details">
-            <span class="approver-list--approver-details_name">{{ approver.us_full_name }}</span>
-            <span>{{ approver.us_email }}</span>
+            <span class="approver-list--approver-details_name">{{approver.us_full_name}}</span>
+            <span>{{approver.us_email}}</span>
           </span>
         </label>
       </div>
@@ -46,14 +39,7 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-button
-      mode="md"
-      class="approver-list--save"
-      fill="solid"
-      [disabled]="areApproversAdded"
-      color="fyle-primary"
-      (click)="saveUpdatedApproveList()"
-    >
+    <ion-button mode="md" class="approver-list--save" fill="solid" [disabled]="areApproversAdded" color="fyle-primary" (click)="saveUpdatedApproveList()">
       Proceed
     </ion-button>
   </ion-toolbar>

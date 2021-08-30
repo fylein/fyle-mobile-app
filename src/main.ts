@@ -12,16 +12,17 @@ Sentry.init({
   dsn: environment.SENTRY_DSN,
   tracesSampleRate: 1.0,
   release: 'please-replace-your-git-commit-version',
-  ignoreErrors: ['Non-Error exception captured']
+  ignoreErrors: [
+    'Non-Error exception captured'
+  ]
 });
 
 if (environment.production) {
   enableProdMode();
 }
 
-platformBrowserDynamic()
-  .bootstrapModule(AppModule)
-  .catch((err) => console.log(err));
+platformBrowserDynamic().bootstrapModule(AppModule)
+  .catch(err => console.log(err));
 
 // Call the element loader after the platform has been bootstrapped
 defineCustomElements(window);

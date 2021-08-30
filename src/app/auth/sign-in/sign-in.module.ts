@@ -20,6 +20,9 @@ import { SharedModule } from '../../shared/shared.module';
     MatButtonModule,
     ReactiveFormsModule
   ],
-  declarations: [SignInPage, ErrorComponent]
+  declarations: [
+    SignInPage,
+    ErrorComponent
+  ]
 })
-export class SignInPageModule {}
+export class SignInPageModule { }

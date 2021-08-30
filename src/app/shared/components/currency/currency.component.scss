@@ -5,6 +5,7 @@ $no-action-bg: #f2f2f2;
 $link-color: #0077ee;
 
 .currency-component {
+
   &--currency-block {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1) !important; // Need to override
     border-radius: 4px;
@@ -75,4 +76,5 @@ $link-color: #0077ee;
       border: 0;
     }
   }
+
 }

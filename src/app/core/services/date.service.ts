@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as moment from 'moment';
 
 @Injectable({
@@ -13,34 +13,11 @@ export class DateService {
 
   // '12:00', '12:30' has been removed since cron dosn't support 24
   // eslint-disable-next-line max-len
-  timeIntervals = [
-    '1:00',
-    '1:30',
-    '2:00',
-    '2:30',
-    '3:00',
-    '3:30',
-    '4:00',
-    '4:30',
-    '5:00',
-    '5:30',
-    '6:00',
-    '6:30',
-    '7:00',
-    '7:30',
-    '8:00',
-    '8:30',
-    '9:00',
-    '9:30',
-    '10:00',
-    '10:30',
-    '11:00',
-    '11:30'
-  ];
+  timeIntervals = ['1:00', '1:30', '2:00', '2:30', '3:00', '3:30', '4:00', '4:30', '5:00', '5:30', '6:00', '6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30'];
 
   meridians = ['AM', 'PM'];
 
-  constructor() {}
+  constructor() { }
 
   getDayShortCodeMap() {
     return {
@@ -249,17 +226,17 @@ export class DateService {
   }
 
   getDifferenceBetweenDates(toDate, fromDate) {
-    return Math.ceil(Math.abs(toDate.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+    return (Math.ceil(Math.abs(toDate.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000))) + 1;
   }
 
   getAbsoluteDifferenceBetweenDates(toDate, fromDate) {
-    return Math.ceil((fromDate.getTime() - toDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+    return (Math.ceil((fromDate.getTime() - toDate.getTime()) / (24 * 60 * 60 * 1000))) + 1;
   }
 
   addDaysToDate(fromDate, numOfDays) {
     numOfDays = parseInt(numOfDays, 10);
 
-    return new Date(fromDate.getTime() + numOfDays * 24 * 60 * 60 * 1000);
+    return new Date(fromDate.getTime() + (numOfDays * 24 * 60 * 60 * 1000));
   }
 
   getThisMonthRange() {
@@ -280,6 +257,7 @@ export class DateService {
   lastOfLastMonth() {
     return new Date(this.year, this.month, 0, 23, 59);
   }
+
 
   getLastMonthRange() {
     const firstDay = this.firstOfLastMonth();

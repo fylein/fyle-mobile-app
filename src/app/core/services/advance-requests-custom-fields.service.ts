@@ -5,7 +5,10 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class AdvanceRequestsCustomFieldsService {
-  constructor(private apiService: ApiService) {}
+
+  constructor(
+    private apiService: ApiService
+  ) { }
 
   getAll() {
     return this.apiService.get('/advance_request_custom_fields');

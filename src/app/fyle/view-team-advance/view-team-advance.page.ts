@@ -22,9 +22,10 @@ import { AuthService } from 'src/app/core/services/auth.service';
 @Component({
   selector: 'app-view-team-advance',
   templateUrl: './view-team-advance.page.html',
-  styleUrls: ['./view-team-advance.page.scss']
+  styleUrls: ['./view-team-advance.page.scss'],
 })
 export class ViewTeamAdvancePage implements OnInit {
+
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
 
   actions$: Observable<any>;
@@ -53,43 +54,44 @@ export class ViewTeamAdvancePage implements OnInit {
     private loaderService: LoaderService,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
-      switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.advanceRequestService.getAdvanceRequest(id)))
-      ),
+      switchMap(() => from(this.loaderService.showLoader()).pipe(
+        switchMap(() => this.advanceRequestService.getAdvanceRequest(id))
+      )),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
 
-    this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
-
-    this.showAdvanceActions$ = this.actions$.pipe(
-      map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject)
+    this.actions$ = this.advanceRequestService.getActions(id).pipe(
+      shareReplay(1)
     );
+
+    this.showAdvanceActions$ = this.actions$
+      .pipe(
+        map(advanceActions => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject)
+      );
 
     this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
 
     this.activeApprovals$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() => this.approvals$),
-      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED'))
+      map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
     );
 
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap((res) => from(res)),
-      concatMap((file) =>
-        this.fileService.downloadUrl(file.id).pipe(
-          map((url) => {
-            file.file_download_url = url;
-            return file as File;
-          })
-        )
-      ),
+      switchMap(res => from(res)),
+      concatMap(file => this.fileService.downloadUrl(file.id).pipe(
+        map(url => {
+          file.file_download_url = url;
+          return file as File;
+        })
+      )),
       reduce((acc, curr) => acc.concat(curr), [] as File[])
     );
 
@@ -100,30 +102,27 @@ export class ViewTeamAdvancePage implements OnInit {
       customFields: this.customFields$,
       eou: from(this.authService.getEou())
     }).pipe(
-      map((res) => {
+      map(res => {
         if (res.eou.ou.org_id === res.advanceRequest.ou_org_id) {
           let customFieldValues = [];
-          if (
-            res.advanceRequest.areq_custom_field_values !== null &&
-            res.advanceRequest.areq_custom_field_values.length > 0
-          ) {
-            customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-              JSON.parse(res.advanceRequest.areq_custom_field_values)
-            );
+          if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
+            customFieldValues = this.advanceRequestService
+              .modifyAdvanceRequestCustomFields(
+                JSON.parse(res.advanceRequest.areq_custom_field_values)
+              );
           }
 
-          res.customFields.map((customField) => {
-            customFieldValues.filter((customFieldValue) => {
+          res.customFields.map(customField => {
+            customFieldValues.filter(customFieldValue => {
               if (customField.id === customFieldValue.id) {
                 customField.value = customFieldValue.value;
               }
             });
           });
           return res.customFields;
+
         } else {
-          return this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            JSON.parse(res.advanceRequest.areq_custom_field_values)
-          );
+          return this.advanceRequestService.modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
         }
       })
     );
@@ -131,18 +130,14 @@ export class ViewTeamAdvancePage implements OnInit {
 
   edit() {
     this.router.navigate([
-      '/',
-      'enterprise',
-      'add_edit_advance_request',
+      '/', 'enterprise', 'add_edit_advance_request',
       {
-        id: this.activatedRoute.snapshot.params.id,
-        from: 'TEAM_ADVANCE'
-      }
-    ]);
+        id: this.activatedRoute.snapshot.params.id, from: 'TEAM_ADVANCE'
+      }]);
   }
 
   getApproverEmails(activeApprovals) {
-    return activeApprovals.map((approver) => approver.approver_email);
+    return activeApprovals.map(approver => approver.approver_email);
   }
 
   onUpdateApprover(message: boolean) {
@@ -252,5 +247,6 @@ export class ViewTeamAdvancePage implements OnInit {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 }

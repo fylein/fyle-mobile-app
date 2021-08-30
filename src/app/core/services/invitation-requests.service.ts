@@ -5,7 +5,10 @@ import { RouterApiService } from './router-api.service';
   providedIn: 'root'
 })
 export class InvitationRequestsService {
-  constructor(private routerApiService: RouterApiService) {}
+
+  constructor(
+    private routerApiService: RouterApiService
+  ) { }
 
   upsertRouter(email: string) {
     return this.routerApiService.post('/invitation_requests/invite', { email });

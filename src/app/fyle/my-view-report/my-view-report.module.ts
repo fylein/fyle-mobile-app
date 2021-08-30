@@ -39,4 +39,4 @@ import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubm
     ResubmitReportPopoverComponent
   ]
 })
-export class MyViewReportPageModule {}
+export class MyViewReportPageModule { }

@@ -1,4 +1,4 @@
-$advance_draft_color: #464d57;
+$advance_draft_color: #464D57;
 $advance_pulled_back_color: #979797;
 $advance_inquiry_color: #7e57c2;
 $advance_pending_approval_color: #1ab6bb;
@@ -77,6 +77,7 @@ $advance_rejected_color: #d50000;
     &__rejected {
       background: $advance_rejected_color;
     }
+
   }
 
   &--currency {

@@ -10,7 +10,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 @Component({
   selector: 'app-fy-select-vendor-modal',
   templateUrl: './fy-select-vendor-modal.component.html',
-  styleUrls: ['./fy-select-vendor-modal.component.scss']
+  styleUrls: ['./fy-select-vendor-modal.component.scss'],
 })
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
@@ -31,9 +31,11 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     private vendorService: VendorService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private utilityService: UtilityService
-  ) {}
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+
+  }
 
   clearValue() {
     this.value = '';
@@ -44,12 +46,11 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
 
   getRecentlyUsedVendors() {
     return from(this.recentLocalStorageItemsService.get('recentVendorList')).pipe(
-      map((options: VendorListItem[]) =>
-        options.map((option) => {
+      map((options: VendorListItem[]) => options
+        .map(option => {
           option.selected = isEqual(option.value, this.currentSelection);
           return option;
-        })
-      )
+        }))
     );
   }
 
@@ -66,14 +67,13 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
           // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
           this.cdr.detectChanges();
           return this.vendorService.get(searchText).pipe(
-            map((vendors) =>
-              vendors.map((vendor) => ({
-                label: vendor.display_name,
-                value: vendor
-              }))
+            map(vendors => vendors.map(vendor => ({
+              label: vendor.display_name,
+              value: vendor
+            }))
             ),
-            catchError((err) => []), // api fails on empty searchText and if app is offline - failsafe here
-            map((vendors) => [{ label: 'None', value: null }].concat(vendors)),
+            catchError(err => []), // api fails on empty searchText and if app is offline - failsafe here
+            map(vendors => [{ label: 'None', value: null }].concat(vendors)),
             finalize(() => {
               // set isLoading to false
               this.isLoading = false;
@@ -88,14 +88,14 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       }),
       startWith([{ label: 'None', value: null }]),
       map((vendors: VendorListItem[]) => {
-        if (!vendors.some((vendor) => isEqual(vendor.value, this.currentSelection))) {
+        if (!vendors.some(vendor => isEqual(vendor.value, this.currentSelection))) {
           vendors = vendors.concat({
             label: this.currentSelection.display_name,
             value: this.currentSelection
           });
         }
 
-        return vendors.map((vendor) => {
+        return vendors.map(vendor => {
           if (isEqual(vendor.value, this.currentSelection)) {
             vendor.selected = true;
           }
@@ -108,12 +108,10 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) =>
-        this.getRecentlyUsedVendors().pipe(
-          // filtering of recently used items wrt searchText is taken care in service method
-          this.utilityService.searchArrayStream(searchText)
-        )
-      )
+      switchMap((searchText) => this.getRecentlyUsedVendors().pipe(
+        // filtering of recently used items wrt searchText is taken care in service method
+        this.utilityService.searchArrayStream(searchText)
+      )),
     );
 
     this.cdr.detectChanges();

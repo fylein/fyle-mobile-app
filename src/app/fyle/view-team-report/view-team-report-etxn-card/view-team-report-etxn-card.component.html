@@ -1,8 +1,10 @@
 <div class="etxn-card">
   <div class="etxn-card--date" *ngIf="showDate">
-    <span> {{ etxn?.tx_txn_dt | date: 'EEEE' }} </span>,
     <span>
-      {{ etxn?.tx_txn_dt | date: 'MMM dd, yyyy' }}
+      {{etxn?.tx_txn_dt | date: 'EEEE'}}
+    </span>,
+    <span>
+      {{etxn?.tx_txn_dt | date: 'MMM dd, yyyy'}}
     </span>
   </div>
   <div class="etxn-card--body" matRipple (click)="goToTransactionClicked()">
@@ -11,22 +13,20 @@
     </div>
     <div class="etxn-card--details">
       <div>
-        <span class="etxn-card--currency" [ngClass]="{ 'etxn-card--non-reimbursable': etxn.tx_skip_reimbursement }">
-          {{ etxn.tx_currency }}
+        <span class="etxn-card--currency" [ngClass]="{'etxn-card--non-reimbursable': etxn.tx_skip_reimbursement}">
+          {{etxn.tx_currency}}
         </span>
         <span class="etxn-card--amount">
-          <span
-            [ngClass]="{ 'etxn-card--non-reimbursable etxn-card--non-reimbursable-amount': etxn.tx_skip_reimbursement }"
-          >
-            {{ etxn.tx_amount | number: '1.2-2' }}
+          <span [ngClass]="{'etxn-card--non-reimbursable etxn-card--non-reimbursable-amount': etxn.tx_skip_reimbursement}">
+            {{etxn.tx_amount | number:'1.2-2'}}
           </span>
         </span>
       </div>
       <div class="etxn-card--vendor">
-        {{ etxn.vendor }}
+        {{etxn.vendor}}
       </div>
       <div class="etxn-card--category">
-        {{ etxn.tx_org_category }}
+        {{etxn.tx_org_category}}
       </div>
     </div>
     <div class="etxn-card--violation" *ngIf="etxn.violation">

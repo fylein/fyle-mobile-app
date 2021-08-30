@@ -4,16 +4,19 @@ import { ModalController } from '@ionic/angular';
 @Component({
   selector: 'app-policy-violation',
   templateUrl: './policy-violation.component.html',
-  styleUrls: ['./policy-violation.component.scss']
+  styleUrls: ['./policy-violation.component.scss'],
 })
 export class PolicyViolationComponent implements OnInit {
+
   @Input() policyViolationMessages = [];
 
   @Input() policyActionDescription = '';
 
   @Input() comment = '';
 
-  constructor(private modalController: ModalController) {}
+  constructor(
+    private modalController: ModalController
+  ) { }
 
   ngOnInit() {}
 

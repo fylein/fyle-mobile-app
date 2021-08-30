@@ -7,7 +7,7 @@ import { isEqual } from 'lodash';
 @Component({
   selector: 'app-fy-duplicate-detection-modal',
   templateUrl: './fy-duplicate-detection-modal.component.html',
-  styleUrls: ['./fy-duplicate-detection-modal.component.scss']
+  styleUrls: ['./fy-duplicate-detection-modal.component.scss'],
 })
 export class FyDuplicateDetectionModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
@@ -16,26 +16,26 @@ export class FyDuplicateDetectionModalComponent implements OnInit, AfterViewInit
 
   @Input() currentSelection: any;
 
-  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+  @Input() filteredOptions$: Observable<{ label: string; value: any ; selected?: boolean}[]>;
 
-  constructor(private modalController: ModalController, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private modalController: ModalController,
+    private cdr: ChangeDetectorRef
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   ngAfterViewInit() {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      map((searchText) =>
-        [{ label: 'None', value: null }].concat(
-          this.options
-            .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
-            .map((option) => {
-              option.selected = isEqual(option.value, this.currentSelection);
-              return option;
-            })
-        )
+      map((searchText) => [{ label: 'None', value: null }].concat(this.options
+        .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
+        .map(option => {
+          option.selected = isEqual(option.value, this.currentSelection);
+          return option;
+        }))
       )
     );
     this.cdr.detectChanges();

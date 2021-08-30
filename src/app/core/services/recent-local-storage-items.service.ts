@@ -1,13 +1,17 @@
-import { Injectable } from '@angular/core';
-import { from } from 'rxjs';
-import { StorageService } from './storage.service';
+import {Injectable} from '@angular/core';
+import {from} from 'rxjs';
+import {StorageService} from './storage.service';
 import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecentLocalStorageItemsService {
-  constructor(private storageService: StorageService) {}
+
+  constructor(
+    private storageService: StorageService
+  ) {
+  }
 
   async get(cacheName) {
     let recentItems = [];
@@ -83,14 +87,12 @@ export class RecentLocalStorageItemsService {
       i = recentItems.indexOf(item);
     }
 
-    if (i > -1) {
-      // 2. If found in the array
+    if (i > -1) { // 2. If found in the array
       // a. remove the object
       recentItems.splice(i, 1);
       // b. put it as first item
       recentItems.unshift(item);
-    } else {
-      // 3. If not found in the array
+    } else { // 3. If not found in the array
       // a. check if array is full (5)
       if (recentItems.length >= maxArrayLength) {
         // b. yes - remove last item
@@ -100,7 +102,8 @@ export class RecentLocalStorageItemsService {
       recentItems.unshift(item);
     }
 
-    await this.storageService.set(cacheName, { recentItems, updatedAt: new Date() });
+    await this.storageService.set(cacheName, {recentItems, updatedAt: new Date()});
     return recentItems;
   }
+
 }

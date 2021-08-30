@@ -1,4 +1,5 @@
 .view-per-diem {
+
   &--toolbar {
     border-bottom: 1px solid #e0e0e0;
   }
@@ -27,7 +28,7 @@
     color: #ababab;
   }
 
-  &--amount-currency-block {
+  &--amount-currency-block{
     box-shadow: none !important;
     padding: 16px 0;
     height: auto;
@@ -171,4 +172,5 @@
     height: 100%;
     padding: 0 8px 8px 16px;
   }
+
 }

@@ -1,14 +1,5 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  Input,
-  ChangeDetectorRef,
-  TemplateRef
-} from '@angular/core';
-import { from, fromEvent, Observable, of } from 'rxjs';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
+import {from, fromEvent, Observable, of} from 'rxjs';
 import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
@@ -17,7 +8,7 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 @Component({
   selector: 'app-add-to-report-modal',
   templateUrl: './fy-add-to-report-modal.component.html',
-  styleUrls: ['./fy-add-to-report-modal.component.scss']
+  styleUrls: ['./fy-add-to-report-modal.component.scss'],
 })
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
@@ -50,7 +41,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.states.DRAFT = 'draft';
@@ -73,9 +64,12 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.filteredOptions = this.options.filter((option) => !isEqual(option.value, this.currentSelection));
 
-    this.selectedOption = this.options.find((option) => isEqual(option.value, this.currentSelection));
+    this.filteredOptions = this.options
+      .filter(option => !isEqual(option.value, this.currentSelection));
+
+    this.selectedOption = this.options
+      .find(option => isEqual(option.value, this.currentSelection));
 
     this.cdr.detectChanges();
   }
@@ -94,4 +88,5 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
       value: null
     });
   }
+
 }

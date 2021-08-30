@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class SnackbarPropertiesService {
-  constructor() {}
+  constructor() { }
   /**
    * Factory function for properties of toast message component
    *
@@ -13,10 +13,7 @@ export class SnackbarPropertiesService {
    * @returns Object to be used for displaying toast message component
    */
 
-  setSnackbarProperties(
-    toastMessageType: 'success' | 'failure',
-    toastMessageData: { message: string; redirectiontext?: string }
-  ) {
+  setSnackbarProperties(toastMessageType: 'success'|'failure', toastMessageData: {message: string; redirectiontext?: string}) {
     const snackbarIcon = toastMessageType === 'success' ? 'tick-square-filled' : 'danger';
     return {
       data: {

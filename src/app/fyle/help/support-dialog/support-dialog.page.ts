@@ -9,9 +9,10 @@ const { Browser } = Plugins;
 @Component({
   selector: 'app-support-dialog',
   templateUrl: './support-dialog.page.html',
-  styleUrls: ['./support-dialog.page.scss']
+  styleUrls: ['./support-dialog.page.scss'],
 })
 export class SupportDialogPage implements OnInit {
+
   @Input() adminEous: [];
 
   dialogType = this.navParams.get('type');
@@ -22,7 +23,7 @@ export class SupportDialogPage implements OnInit {
     private modalController: ModalController,
     private navParams: NavParams,
     private trackingService: TrackingService
-  ) {}
+  ) { }
 
   openHelpLink() {
     this.trackingService.engageWithHelpCard({ Asset: 'Mobile' });
@@ -51,5 +52,6 @@ export class SupportDialogPage implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 }

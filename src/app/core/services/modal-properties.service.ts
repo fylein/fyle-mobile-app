@@ -5,7 +5,10 @@ import { ModalController } from '@ionic/angular';
   providedIn: 'root'
 })
 export class ModalPropertiesService {
-  constructor(private modalController: ModalController) {}
+
+  constructor(
+    private modalController: ModalController
+  ) { }
 
   getModalDefaultProperties() {
     const properties = {
@@ -13,7 +16,7 @@ export class ModalPropertiesService {
       showBackdrop: true,
       swipeToClose: true,
       backdropDismiss: true,
-      animated: true
+      animated: true,
     };
     return properties;
   }

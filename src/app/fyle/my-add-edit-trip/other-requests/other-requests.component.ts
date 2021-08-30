@@ -25,9 +25,10 @@ import { DateService } from 'src/app/core/services/date.service';
 @Component({
   selector: 'app-other-requests',
   templateUrl: './other-requests.component.html',
-  styleUrls: ['./other-requests.component.scss']
+  styleUrls: ['./other-requests.component.scss'],
 })
 export class OtherRequestsComponent implements OnInit {
+
   @Input() otherRequests;
 
   @Input() fgValues;
@@ -109,7 +110,7 @@ export class OtherRequestsComponent implements OnInit {
     private tripRequestPolicyService: TripRequestPolicyService,
     private statusService: StatusService,
     private dateService: DateService
-  ) {}
+  ) { }
 
   goBack() {
     this.modalController.dismiss();
@@ -131,7 +132,7 @@ export class OtherRequestsComponent implements OnInit {
     forkJoin({
       homeCurrency: this.homeCurrency$,
       preferredCurrency: this.preferredCurrency$
-    }).subscribe((res) => {
+    }).subscribe(res => {
       const details = this.formBuilder.group({
         amount: [null, Validators.required],
         currency: [res.preferredCurrency || res.homeCurrency, Validators.required],
@@ -145,8 +146,8 @@ export class OtherRequestsComponent implements OnInit {
   }
 
   modifyOtherRequestCustomFields(customFields, type): CustomField[] {
-    customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
-    customFields = customFields.map((customField) => {
+    customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
+    customFields = customFields.map(customField => {
       if (customField.type === 'DATE' && customField.value) {
         customField.value = moment(customField.value).format('y-MM-DD');
       }
@@ -173,15 +174,12 @@ export class OtherRequestsComponent implements OnInit {
     if (this.otherRequests[2].transportation && requestType === 'transport') {
       this.transportRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(
         map((customFields: any[]) => {
-          const customFieldsFormArray = this.transportDetails.controls[index]['controls']
-            .custom_field_values as FormArray;
+          const customFieldsFormArray = this.transportDetails.controls[index]['controls'].custom_field_values as FormArray;
           customFieldsFormArray.clear();
-          customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
+          customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
-          customFields = customFields.filter(
-            (field) =>
-              field.request_type === 'TRANSPORTATION_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1
-          );
+          customFields = customFields
+            .filter(field => field.request_type === 'TRANSPORTATION_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
 
           for (const customField of customFields) {
             let value;
@@ -203,7 +201,7 @@ export class OtherRequestsComponent implements OnInit {
             customField.control = customFieldsFormArray.at(i);
 
             if (customField.input_options) {
-              customField.input_options = customField.input_options.map((option) => ({ label: option, value: option }));
+              customField.input_options = customField.input_options.map(option => ({ label: option, value: option }));
             }
             return customField;
           });
@@ -216,11 +214,10 @@ export class OtherRequestsComponent implements OnInit {
         map((customFields: any[]) => {
           const customFieldsFormArray = this.hotelDetails.controls[index]['controls'].custom_field_values as FormArray;
           customFieldsFormArray.clear();
-          customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
+          customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
-          customFields = customFields.filter(
-            (field) => field.request_type === 'HOTEL_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1
-          );
+          customFields = customFields
+            .filter(field => field.request_type === 'HOTEL_REQUEST' && field.trip_type.indexOf(this.fgValues.tripType) > -1);
 
           for (const customField of customFields) {
             let value;
@@ -242,7 +239,7 @@ export class OtherRequestsComponent implements OnInit {
             customField.control = customFieldsFormArray.at(i);
 
             if (customField.options) {
-              customField.options = customField.options.map((option) => ({ label: option, value: option }));
+              customField.options = customField.options.map(option => ({ label: option, value: option }));
             }
             return customField;
           });
@@ -253,10 +250,9 @@ export class OtherRequestsComponent implements OnInit {
     if (this.otherRequests[1].advance && requestType === 'advance') {
       this.advanceRequestCustomFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
         map((customFields: any[]) => {
-          const customFieldsFormArray = this.advanceDetails.controls[index]['controls']
-            .custom_field_values as FormArray;
+          const customFieldsFormArray = this.advanceDetails.controls[index]['controls'].custom_field_values as FormArray;
           customFieldsFormArray.clear();
-          customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
+          customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
 
           for (const customField of customFields) {
             let value;
@@ -279,7 +275,7 @@ export class OtherRequestsComponent implements OnInit {
             customField.control = customFieldsFormArray.at(i);
 
             if (customField.options) {
-              customField.options = customField.options.map((option) => ({ label: option, value: option }));
+              customField.options = customField.options.map(option => ({ label: option, value: option }));
             }
             return customField;
           });
@@ -297,7 +293,10 @@ export class OtherRequestsComponent implements OnInit {
       component: SavePopoverComponent,
       componentProps: {
         saveMode: 'SUBMIT',
-        otherRequests: [{ hotel: this.fgValues.hotelRequest }, { transportation: this.fgValues.transportationRequest }]
+        otherRequests: [
+          { hotel: this.fgValues.hotelRequest },
+          { transportation: this.fgValues.transportationRequest }
+        ]
       },
       cssClass: 'dialog-popover'
     });
@@ -327,9 +326,7 @@ export class OtherRequestsComponent implements OnInit {
   }
 
   async showPolicyViolationPopup(policyPopupRules: any[], policyActionDescription: string, tripReq) {
-    const latestComment = await this.statusService
-      .findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id)
-      .toPromise();
+    const latestComment = await this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).toPromise();
 
     const policyViolationsModal = await this.modalController.create({
       component: PolicyViolationComponent,
@@ -366,13 +363,17 @@ export class OtherRequestsComponent implements OnInit {
         };
 
         return this.tripRequestPolicyService.testTripRequest(tripRequestObject).pipe(
-          catchError((err) => of(null)),
+          catchError(err => of(null)),
           switchMap((policyTest: any) => {
             const policyPopupRules = this.tripRequestPolicyService.getPolicyPopupRules(policyTest);
             if (policyPopupRules.length > 0) {
               const policyActionDescription = policyTest && policyTest.trip_request_desired_state.action_description;
-              return from(this.showPolicyViolationPopup(policyPopupRules, policyActionDescription, tripReq)).pipe(
-                switchMap((policyModalRes) => {
+              return from(this.showPolicyViolationPopup(
+                policyPopupRules,
+                policyActionDescription,
+                tripReq
+              )).pipe(
+                switchMap(policyModalRes => {
                   if (policyModalRes.status === 'proceed') {
                     return of({
                       tripReq,
@@ -403,13 +404,13 @@ export class OtherRequestsComponent implements OnInit {
       switchMap(({ tripReq, comment }: any) => {
         if (comment && tripReq.id) {
           if (saveMode === 'SUBMIT') {
-            return this.tripRequestsService
-              .submit(tripReq)
-              .pipe(this.updateStatusOnTripReqSubmission(tripReq, comment));
+            return this.tripRequestsService.submit(tripReq).pipe(
+              this.updateStatusOnTripReqSubmission(tripReq, comment)
+            );
           } else {
-            return this.tripRequestsService
-              .saveDraft(tripReq)
-              .pipe(this.updateStatusOnTripReqDraftSubmission(tripReq, comment));
+            return this.tripRequestsService.saveDraft(tripReq).pipe(
+              this.updateStatusOnTripReqDraftSubmission(tripReq, comment)
+            );
           }
         } else {
           if (saveMode === 'SUBMIT') {
@@ -418,36 +419,36 @@ export class OtherRequestsComponent implements OnInit {
             return this.tripRequestsService.saveDraft(tripReq);
           }
         }
-      })
+      }),
     );
   }
 
   updateStatusOnTripReqDraftSubmission(tripReq: any, comment: any) {
-    return switchMap((res) =>
-      this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
-        switchMap((result) => {
-          if (result !== comment) {
-            return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(map(() => res));
-          } else {
-            return of(res);
-          }
-        })
-      )
-    );
+    return switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+      switchMap(result => {
+        if (result !== comment) {
+          return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(
+            map(() => res)
+          );
+        } else {
+          return of(res);
+        }
+      })
+    ));
   }
 
   updateStatusOnTripReqSubmission(tripReq: any, comment: any) {
-    return switchMap((res) =>
-      this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
-        switchMap((result) => {
-          if (result !== comment) {
-            return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(map(() => res));
-          } else {
-            return of(res);
-          }
-        })
-      )
-    );
+    return switchMap((res) => this.statusService.findLatestComment(tripReq.id, 'trip_requests', tripReq.org_user_id).pipe(
+      switchMap(result => {
+        if (result !== comment) {
+          return this.statusService.post('trip_requests', tripReq.id, { comment }, true).pipe(
+            map(() => res)
+          );
+        } else {
+          return of(res);
+        }
+      })
+    ));
   }
 
   submitOtherRequests(formValue, mode) {
@@ -457,37 +458,32 @@ export class OtherRequestsComponent implements OnInit {
       this.saveDratTripLoading = true;
     }
     let trpId;
-    this.makeTripRequestFromForm(this.fgValues)
-      .pipe(
-        concatMap((tripReq) => {
-          if (mode === 'SUBMIT') {
-            return this.checkPolicyAndSaveOrSubmit(tripReq, formValue, 'SUBMIT');
-          }
-          if (mode === 'DRAFT') {
-            return this.checkPolicyAndSaveOrSubmit(tripReq, formValue, 'SAVE_DRAFT');
-          }
-        }),
-        concatMap((res) => {
-          trpId = res.id;
-          return this.createOtherRequestForm(formValue, trpId, 'SUBMIT');
-        }),
-        concatMap((res) => this.tripRequestsService.triggerPolicyCheck(trpId)),
-        finalize(() => {
-          if (mode === 'SUBMIT') {
-            this.submitTripLoading = false;
-          } else {
-            this.saveDratTripLoading = false;
-          }
-        })
-      )
-      .subscribe(
-        () => {
-          this.otherDetailsForm.reset();
-          this.modalController.dismiss();
-          this.router.navigate(['/', 'enterprise', 'my_trips']);
-        },
-        (_) => {}
-      );
+    this.makeTripRequestFromForm(this.fgValues).pipe(
+      concatMap(tripReq => {
+        if (mode === 'SUBMIT') {
+          return this.checkPolicyAndSaveOrSubmit(tripReq, formValue, 'SUBMIT');
+        }
+        if (mode === 'DRAFT') {
+          return this.checkPolicyAndSaveOrSubmit(tripReq, formValue, 'SAVE_DRAFT');
+        }
+      }),
+      concatMap(res => {
+        trpId = res.id;
+        return this.createOtherRequestForm(formValue, trpId, 'SUBMIT');
+      }),
+      concatMap(res => this.tripRequestsService.triggerPolicyCheck(trpId)),
+      finalize(() => {
+        if (mode === 'SUBMIT') {
+          this.submitTripLoading = false;
+        } else {
+          this.saveDratTripLoading = false;
+        }
+      })
+    ).subscribe(() => {
+      this.otherDetailsForm.reset();
+      this.modalController.dismiss();
+      this.router.navigate(['/', 'enterprise', 'my_trips']);
+    }, _ => { });
   }
 
   makeTripRequestFromForm(fgValues) {
@@ -495,7 +491,7 @@ export class OtherRequestsComponent implements OnInit {
       return forkJoin({
         tripRequest: this.tripRequestsService.get(this.id)
       }).pipe(
-        map((res) => {
+        map(res => {
           const tripRequest: any = res.tripRequest;
 
           const trp = {
@@ -503,7 +499,7 @@ export class OtherRequestsComponent implements OnInit {
             custom_field_values: fgValues.custom_field_values,
             end_dt: fgValues.endDate,
             notes: fgValues.notes,
-            project_id: (fgValues.project && fgValues.project.project_id) || null,
+            project_id: fgValues.project && fgValues.project.project_id || null,
             purpose: fgValues.purpose,
             source: fgValues.source,
             start_dt: fgValues.startDate,
@@ -519,7 +515,7 @@ export class OtherRequestsComponent implements OnInit {
         custom_field_values: fgValues.custom_field_values,
         end_dt: fgValues.endDate,
         notes: fgValues.notes,
-        project_id: (fgValues.project && fgValues.project.project_id) || null,
+        project_id: fgValues.project && fgValues.project.project_id || null,
         purpose: fgValues.purpose,
         source: fgValues.source,
         start_dt: fgValues.startDate,
@@ -555,6 +551,7 @@ export class OtherRequestsComponent implements OnInit {
     } catch (e) {
       console.log('e', e);
     }
+
   }
 
   handleTransportDetails(formValue: any, mode: any, transport: any[], trpId: any) {
@@ -565,14 +562,10 @@ export class OtherRequestsComponent implements OnInit {
         });
       } else {
         // this case handels submit transport request, makes sequential submit calls
-        of(formValue.transportDetails)
-          .pipe(
-            switchMap((transportDetails) => from(transportDetails)),
-            concatMap((transportDetail, index) =>
-              this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode)
-            )
-          )
-          .subscribe(noop);
+        of(formValue.transportDetails).pipe(
+          switchMap(transportDetails => from(transportDetails)),
+          concatMap((transportDetail, index) => this.makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode))
+        ).subscribe(noop);
       }
     }
   }
@@ -585,12 +578,10 @@ export class OtherRequestsComponent implements OnInit {
         });
       } else {
         // this case handels submit hotel request, makes sequential submit calls
-        of(formValue.hotelDetails)
-          .pipe(
-            switchMap((hotelDetails) => from(hotelDetails)),
-            concatMap((hotelDetail, index) => this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode))
-          )
-          .subscribe(noop);
+        of(formValue.hotelDetails).pipe(
+          switchMap(hotelDetails => from(hotelDetails)),
+          concatMap((hotelDetail, index) => this.makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode))
+        ).subscribe(noop);
       }
     }
   }
@@ -603,14 +594,10 @@ export class OtherRequestsComponent implements OnInit {
         });
       } else {
         // this case handels submit advance request, makes sequential submit calls
-        of(formValue.advanceDetails)
-          .pipe(
-            switchMap((advanceDetails) => from(advanceDetails)),
-            concatMap((advanceDetail, index) =>
-              this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode)
-            )
-          )
-          .subscribe(noop);
+        of(formValue.advanceDetails).pipe(
+          switchMap(advanceDetails => from(advanceDetails)),
+          concatMap((advanceDetail, index) => this.makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode))
+        ).subscribe(noop);
       }
     }
   }
@@ -619,7 +606,7 @@ export class OtherRequestsComponent implements OnInit {
   makeAdvanceRequestObjectFromForm(advanceDetail, trpId, index, mode) {
     if (this.id) {
       return this.advanceRequest$.pipe(
-        switchMap((res) => {
+        switchMap(res => {
           const advanceRequest: any = res && res[index];
 
           if (advanceRequest) {
@@ -678,7 +665,7 @@ export class OtherRequestsComponent implements OnInit {
   makeHotelRequestObjectFromForm(hotelDetail, trpId, index, mode) {
     if (this.id) {
       return this.hotelRequest$.pipe(
-        switchMap((res) => {
+        switchMap(res => {
           const hotelRequest: any = res && res[index] && res[index].hr;
 
           if (hotelRequest) {
@@ -761,7 +748,7 @@ export class OtherRequestsComponent implements OnInit {
   makeTransportRequestObjectFromForm(transportDetail, trpId, index, mode) {
     if (this.id) {
       return this.transportationRequest$.pipe(
-        switchMap((res) => {
+        switchMap(res => {
           const transportationRequest: any = res && res[index] && res[index].tr;
 
           if (transportationRequest) {
@@ -810,6 +797,7 @@ export class OtherRequestsComponent implements OnInit {
             }
             return of(transportDetailObject);
           }
+
         })
       );
     } else {
@@ -876,14 +864,12 @@ export class OtherRequestsComponent implements OnInit {
       homeCurrency: this.homeCurrency$,
       preferredCurrency: this.preferredCurrency$
     }).pipe(
-      map((res) => {
+      map(res => {
         if (this.otherRequests[0].hotel && this.hotelDetails.length === 0) {
           this.fgValues.cities.forEach((city, index) => {
+
             // eslint-disable-next-line max-len
-            const checkOutDate =
-              this.fgValues.cities.length > 1 && this.fgValues.cities[index + 1]
-                ? this.fgValues.cities[index + 1].onward_dt
-                : null;
+            const checkOutDate = this.fgValues.cities.length > 1 && this.fgValues.cities[index + 1] ? this.fgValues.cities[index + 1].onward_dt : null;
 
             const details = this.formBuilder.group({
               assignedAt: [new Date()],
@@ -907,6 +893,7 @@ export class OtherRequestsComponent implements OnInit {
 
         if (this.otherRequests[2].transportation && this.transportDetails.length === 0) {
           this.fgValues.cities.forEach((city, index) => {
+
             const onwardDt = this.fgValues.cities[index].onward_dt;
 
             const details = this.formBuilder.group({
@@ -965,6 +952,7 @@ export class OtherRequestsComponent implements OnInit {
   }
 
   ngOnInit() {
+
     this.tripDate = {
       startMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
       endMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
@@ -975,7 +963,7 @@ export class OtherRequestsComponent implements OnInit {
     this.hotelDate = {
       checkInMin: moment(this.fgValues.startDate).format('y-MM-DD'),
       checkInMax: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
-      checkOutMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD')
+      checkOutMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
     };
 
     this.orgUserSettings$ = this.orgUserSettings.get();
@@ -986,7 +974,7 @@ export class OtherRequestsComponent implements OnInit {
     this.otherDetailsForm = new FormGroup({
       hotelDetails: new FormArray([]),
       transportDetails: new FormArray([]),
-      advanceDetails: new FormArray([])
+      advanceDetails: new FormArray([]),
     });
 
     this.minDate = this.fgValues.startDate;
@@ -997,19 +985,21 @@ export class OtherRequestsComponent implements OnInit {
       can_submit: true
     };
 
-    this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(map((res) => res));
+    this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(
+      map(res => res)
+    );
 
-    this.preferredCurrency$ = this.orgUserSettings$.pipe(map((res) => res.currency_settings.preferred_currency));
+    this.preferredCurrency$ = this.orgUserSettings$.pipe(
+      map(res => res.currency_settings.preferred_currency)
+    );
 
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
       concatMap(() => this.currencyService.getAll()),
-      map((currenciesObj) =>
-        Object.keys(currenciesObj).map((shortCode) => ({
-          value: shortCode,
-          label: shortCode,
-          displayValue: shortCode + ' - ' + currenciesObj[shortCode]
-        }))
-      ),
+      map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({
+        value: shortCode,
+        label: shortCode,
+        displayValue: shortCode + ' - ' + currenciesObj[shortCode]
+      }))),
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
       }),
@@ -1027,129 +1017,125 @@ export class OtherRequestsComponent implements OnInit {
       this.advanceRequest$ = this.tripRequestsService.getAdvanceRequests(this.id).pipe(shareReplay(1));
       this.actions$ = this.tripRequestsService.getActions(this.id);
 
-      from(this.loaderService.showLoader('Getting trip details'))
-        .pipe(
-          switchMap(() =>
-            combineLatest([this.hotelRequest$, this.transportationRequest$, this.advanceRequest$, this.actions$])
-          ),
-          take(1)
-        )
-        .subscribe(([hotelRequests, transportationRequests, advanceRequests, actions]) => {
-          this.tripActions = actions;
-          if (this.otherRequests[0].hotel) {
-            this.hotelDetails.clear();
+      from(this.loaderService.showLoader('Getting trip details')).pipe(
+        switchMap(() => combineLatest([
+          this.hotelRequest$,
+          this.transportationRequest$,
+          this.advanceRequest$,
+          this.actions$
+        ])),
+        take(1),
+      ).subscribe(([hotelRequests, transportationRequests, advanceRequests, actions]) => {
+        this.tripActions = actions;
+        if (this.otherRequests[0].hotel) {
+          this.hotelDetails.clear();
 
-            // editing trip req, getting hotel data from api
-            if (hotelRequests.length > 0) {
-              hotelRequests.forEach((request, index) => {
-                const details = this.formBuilder.group({
-                  assignedAt: [moment(request.hr.created_at).format('y-MM-DD')],
-                  assignedTo: [request.hr.assigned_to],
-                  checkInDt: [moment(request.hr.check_in_dt).format('y-MM-DD'), Validators.required],
-                  checkOutDt: [moment(request.hr.check_out_dt).format('y-MM-DD'), Validators.required],
-                  city: [request.hr.city],
-                  currency: [request.hr.currency],
-                  amount: [request.hr.amount],
-                  location: [request.hr.location],
-                  needBooking: [request.hr.need_booking],
-                  travellerDetails: [this.fgValues.travellerDetails],
-                  rooms: [request.hr.rooms],
-                  notes: [request.hr.notes],
-                  custom_field_values: new FormArray([])
-                });
-                const custom = details.get('custom_field_values') as FormArray;
-                const renderedCustomFeild = this.modifyOtherRequestCustomFields(
-                  request.hr.custom_field_values,
-                  'HOTEL'
-                );
-                renderedCustomFeild.forEach((field) => {
-                  const customFields = this.formBuilder.group({
-                    id: [field.id],
-                    name: [field.name],
-                    value: [field.value]
-                  });
-                  custom.push(customFields);
-                });
-                this.hotelDetails.push(details);
+          // editing trip req, getting hotel data from api
+          if (hotelRequests.length > 0) {
+            hotelRequests.forEach((request, index) => {
+              const details = this.formBuilder.group({
+                assignedAt: [moment(request.hr.created_at).format('y-MM-DD')],
+                assignedTo: [request.hr.assigned_to],
+                checkInDt: [moment(request.hr.check_in_dt).format('y-MM-DD'), Validators.required],
+                checkOutDt: [moment(request.hr.check_out_dt).format('y-MM-DD'), Validators.required],
+                city: [request.hr.city],
+                currency: [request.hr.currency],
+                amount: [request.hr.amount],
+                location: [request.hr.location],
+                needBooking: [request.hr.need_booking],
+                travellerDetails: [this.fgValues.travellerDetails],
+                rooms: [request.hr.rooms],
+                notes: [request.hr.notes],
+                custom_field_values: new FormArray([])
               });
-            } else {
-              // editing trip req, if creating new hotel req
-              this.initializeOtherRequests();
-            }
-          }
-
-          if (this.otherRequests[1].advance) {
-            this.advanceDetails.clear();
-
-            if (advanceRequests.length > 0) {
-              advanceRequests.forEach((request, index) => {
-                const details = this.formBuilder.group({
-                  amount: [request.amount, Validators.required],
-                  currency: [request.currency],
-                  purpose: [request.purpose, Validators.required],
-                  custom_field_values: new FormArray([]),
-                  notes: [request.notes]
+              const custom = details.get('custom_field_values') as FormArray;
+              const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.hr.custom_field_values, 'HOTEL');
+              renderedCustomFeild.forEach(field => {
+                const customFields = this.formBuilder.group({
+                  id: [field.id],
+                  name: [field.name],
+                  value: [field.value]
                 });
-                const custom = details.get('custom_field_values') as FormArray;
-                const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.custom_field_values, 'ADVANCE');
-                renderedCustomFeild.forEach((field) => {
-                  const customFields = this.formBuilder.group({
-                    id: [field.id],
-                    name: [field.name],
-                    value: [field.value]
-                  });
-                  custom.push(customFields);
-                });
-                this.advanceDetails.push(details);
+                custom.push(customFields);
               });
-            } else {
-              this.initializeOtherRequests();
-            }
-          }
-
-          if (this.otherRequests[2].transportation) {
-            this.transportDetails.clear();
-
-            if (transportationRequests.length > 0) {
-              transportationRequests.forEach((request, index) => {
-                const details = this.formBuilder.group({
-                  assignedAt: [request.tr.created_at],
-                  currency: [request.tr.currency],
-                  amount: [request.tr.amount],
-                  custom_field_values: new FormArray([]),
-                  fromCity: [request.tr.from_city],
-                  needBooking: [request.tr.need_booking],
-                  onwardDt: [request.tr.onward_dt],
-                  toCity: [request.tr.to_city],
-                  transportMode: [request.tr.transport_mode, Validators.required],
-                  transportTiming: [request.tr.preferred_timing],
-                  travellerDetails: [this.fgValues.travellerDetails],
-                  notes: [request.tr.notes]
-                });
-                const custom = details.get('custom_field_values') as FormArray;
-                const renderedCustomFeild = this.modifyOtherRequestCustomFields(
-                  request.tr.custom_field_values,
-                  'TRANSPORT'
-                );
-                renderedCustomFeild.forEach((field) => {
-                  const customFields = this.formBuilder.group({
-                    id: [field.id],
-                    name: [field.name],
-                    value: [field.value]
-                  });
-                  custom.push(customFields);
-                });
-                this.transportDetails.push(details);
-              });
-            } else {
-              this.initializeOtherRequests();
-            }
-          }
-
-          if (hotelRequests.length === 0 && transportationRequests.length === 0 && advanceRequests.length === 0) {
+              this.hotelDetails.push(details);
+            });
+          } else {
+            // editing trip req, if creating new hotel req
             this.initializeOtherRequests();
           }
-        });
+        }
+
+        if (this.otherRequests[1].advance) {
+          this.advanceDetails.clear();
+
+          if (advanceRequests.length > 0) {
+            advanceRequests.forEach((request, index) => {
+              const details = this.formBuilder.group({
+                amount: [request.amount, Validators.required],
+                currency: [request.currency],
+                purpose: [request.purpose, Validators.required],
+                custom_field_values: new FormArray([]),
+                notes: [request.notes]
+              });
+              const custom = details.get('custom_field_values') as FormArray;
+              const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.custom_field_values, 'ADVANCE');
+              renderedCustomFeild.forEach(field => {
+                const customFields = this.formBuilder.group({
+                  id: [field.id],
+                  name: [field.name],
+                  value: [field.value]
+                });
+                custom.push(customFields);
+              });
+              this.advanceDetails.push(details);
+            });
+          } else {
+            this.initializeOtherRequests();
+          }
+        }
+
+        if (this.otherRequests[2].transportation) {
+          this.transportDetails.clear();
+
+          if (transportationRequests.length > 0) {
+            transportationRequests.forEach((request, index) => {
+              const details = this.formBuilder.group({
+                assignedAt: [request.tr.created_at],
+                currency: [request.tr.currency],
+                amount: [request.tr.amount],
+                custom_field_values: new FormArray([]),
+                fromCity: [request.tr.from_city],
+                needBooking: [request.tr.need_booking],
+                onwardDt: [request.tr.onward_dt],
+                toCity: [request.tr.to_city],
+                transportMode: [request.tr.transport_mode, Validators.required],
+                transportTiming: [request.tr.preferred_timing],
+                travellerDetails: [this.fgValues.travellerDetails],
+                notes: [request.tr.notes]
+              });
+              const custom = details.get('custom_field_values') as FormArray;
+              const renderedCustomFeild = this.modifyOtherRequestCustomFields(request.tr.custom_field_values, 'TRANSPORT');
+              renderedCustomFeild.forEach(field => {
+                const customFields = this.formBuilder.group({
+                  id: [field.id],
+                  name: [field.name],
+                  value: [field.value]
+                });
+                custom.push(customFields);
+              });
+              this.transportDetails.push(details);
+            });
+          } else {
+            this.initializeOtherRequests();
+          }
+        }
+
+        if (hotelRequests.length === 0 && transportationRequests.length === 0 && advanceRequests.length === 0) {
+          this.initializeOtherRequests();
+        }
+      });
     }
   }
+
 }

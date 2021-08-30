@@ -11,7 +11,14 @@ import { HelpPage } from './help.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, MatButtonModule, HelpPageRoutingModule, SharedModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MatButtonModule,
+    HelpPageRoutingModule,
+    SharedModule
+  ],
   declarations: [HelpPage]
 })
 export class HelpPageModule {}

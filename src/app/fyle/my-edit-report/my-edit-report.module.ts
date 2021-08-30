@@ -12,7 +12,17 @@ import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expen
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, MyEditReportPageRoutingModule, MatIconModule, SharedModule],
-  declarations: [MyEditReportPage, AddExpensesToReportComponent]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MyEditReportPageRoutingModule,
+    MatIconModule,
+    SharedModule
+  ],
+  declarations: [
+    MyEditReportPage,
+    AddExpensesToReportComponent
+  ]
 })
 export class MyEditReportPageModule {}

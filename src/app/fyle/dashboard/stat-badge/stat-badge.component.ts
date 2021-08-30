@@ -1,13 +1,14 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { ReportStates } from './report-states';
-import { getCurrencySymbol } from '@angular/common';
+import {getCurrencySymbol} from '@angular/common';
 
 @Component({
   selector: 'app-stat-badge',
   templateUrl: './stat-badge.component.html',
-  styleUrls: ['./stat-badge.component.scss']
+  styleUrls: ['./stat-badge.component.scss'],
 })
 export class StatBadgeComponent implements OnInit {
+
   @Input() reportState: ReportStates;
 
   @Input() name: string;
@@ -24,7 +25,9 @@ export class StatBadgeComponent implements OnInit {
 
   currencySymbol = '';
 
-  constructor() {}
+
+  constructor(
+  ) { }
 
   ngOnInit() {
     this.currencySymbol = getCurrencySymbol(this.currency, 'wide');

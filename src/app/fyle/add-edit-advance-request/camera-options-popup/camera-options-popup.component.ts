@@ -9,18 +9,19 @@ import { FileService } from 'src/app/core/services/file.service';
 @Component({
   selector: 'app-camera-options-popup',
   templateUrl: './camera-options-popup.component.html',
-  styleUrls: ['./camera-options-popup.component.scss']
+  styleUrls: ['./camera-options-popup.component.scss'],
 })
 export class CameraOptionsPopupComponent implements OnInit {
+
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
   constructor(
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private fileService: FileService
-  ) {}
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   closeClicked() {
     this.popoverController.dismiss();

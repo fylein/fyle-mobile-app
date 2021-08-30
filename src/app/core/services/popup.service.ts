@@ -1,13 +1,15 @@
-import { Injectable } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
-import { FyPopupComponent } from 'src/app/shared/components/fy-popup/fy-popup.component';
-import { PopupConfig } from 'src/app/shared/components/fy-popup/popup.model';
+import {Injectable} from '@angular/core';
+import {PopoverController} from '@ionic/angular';
+import {FyPopupComponent} from 'src/app/shared/components/fy-popup/fy-popup.component';
+import {PopupConfig} from 'src/app/shared/components/fy-popup/popup.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PopupService {
-  constructor(private popoverController: PopoverController) {}
+  constructor(
+    private popoverController: PopoverController
+  ) { }
 
   async showPopup(popupConfig: PopupConfig) {
     const popup = await this.popoverController.create({
@@ -24,4 +26,5 @@ export class PopupService {
 
     return data && data.action;
   }
+
 }

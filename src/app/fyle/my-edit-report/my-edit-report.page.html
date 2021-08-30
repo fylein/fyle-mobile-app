@@ -2,7 +2,9 @@
   <div class="my-edit-report--header">
     <ion-toolbar class="ion-no-border my-edit-report--header-toolbar">
       <ion-buttons mode="md" slot="end">
-        <ion-button class="my-edit-report--header-closebutton" (click)="goBack()"> Cancel </ion-button>
+        <ion-button class="my-edit-report--header-closebutton" (click)="goBack()">
+          Cancel
+        </ion-button>
       </ion-buttons>
 
       <ion-title class="my-edit-report--header-title" mode="md">Edit Report</ion-title>
@@ -12,45 +14,29 @@
 
 <ion-content>
   <div class="my-edit-report--container" *ngIf="extendedReport$|async as extendedReport">
+
     <div class="my-edit-report--report-card" *ngIf="(extendedReport.rp_state === 'DRAFT')">
       <p class="my-edit-report--report-title">Report Name*</p>
-      <input
-        class="my-edit-report--report-name"
-        name="reportName"
-        type="text"
-        placeholder="Enter Report Title"
-        [(ngModel)]="reportTitle"
-        required
-        (ngModelChange)="setPurposeChanged()"
-      />
+      <input class="my-edit-report--report-name" name="reportName" type="text" placeholder="Enter Report Title" [(ngModel)]="reportTitle" required (ngModelChange)="setPurposeChanged()">
     </div>
-    <div class="my-edit-report--error-message" *ngIf="showReportNameError">Please enter report name.</div>
+    <div class="my-edit-report--error-message" *ngIf="showReportNameError">
+      Please enter report name.
+    </div>
 
-    <div
-      class="my-edit-report--report-card"
-      *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)  && extendedReport.rp_state === 'DRAFT'"
-    >
+    <div class="my-edit-report--report-card" *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)  && extendedReport.rp_state === 'DRAFT'">
       <span>Select a trip to associate with report:</span>
       <div class="my-edit-report--select-trip">
-        <app-fy-select [label]="'Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest"> </app-fy-select>
+        <app-fy-select [label]="'Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest">
+        </app-fy-select>
       </div>
     </div>
 
     <div class="my-edit-report--report-card" *ngIf="!isTripRequestsEnabled && extendedReport.rp_state === 'DRAFT'">
       <p class="my-edit-report--report-title">Trip Request ID</p>
-      <input
-        class="my-edit-report--text-trip"
-        type="text"
-        placeholder="Enter Trip Request ID"
-        [(ngModel)]="tripRequestId"
-      />
+      <input class="my-edit-report--text-trip" type="text" placeholder="Enter Trip Request ID" [(ngModel)]="tripRequestId">
     </div>
 
-    <div
-      class="my-edit-report--add-expense-container"
-      (click)="showAddExpensesToReportModal()"
-      *ngIf="(extendedReport.rp_state === 'DRAFT' || extendedReport.rp_state === 'APPROVER_PENDING') && (unReportedEtxns && unReportedEtxns.length > 0)"
-    >
+    <div class="my-edit-report--add-expense-container" (click)="showAddExpensesToReportModal()" *ngIf="(extendedReport.rp_state === 'DRAFT' || extendedReport.rp_state === 'APPROVER_PENDING') && (unReportedEtxns && unReportedEtxns.length > 0)">
       <mat-icon class="my-edit-report--add-expense-icon">add_circle_outline</mat-icon>
       <span class="my-edit-report--add-expense-title">Add expenses to report</span>
     </div>
@@ -60,10 +46,7 @@
         <span class="my-edit-report--report-info-currency">{{extendedReport.rp_currency}}</span>
         <span class="my-edit-report--report-info-amount"> {{(reportAmount + selectedTotalAmount).toFixed(2)}} </span>
       </div>
-      <p class="my-edit-report--report-info-no-of-txns">
-        Contain {{noOfTxnsInReport + selectedTotalTxns}} expense
-        <ng-container *ngIf="(noOfTxnsInReport + selectedTotalTxns)>1">s</ng-container>
-      </p>
+      <p class="my-edit-report--report-info-no-of-txns">Contain {{noOfTxnsInReport + selectedTotalTxns}} expense <ng-container *ngIf="(noOfTxnsInReport + selectedTotalTxns)>1">s</ng-container></p>
     </div>
 
     <div class="my-edit-report--expense-list" *ngIf="addedExpensesIdList.length > 0">
@@ -76,15 +59,11 @@
               <ion-col size="3" (click)="removeExpenseFromAddedExpensesList(unReportedEtxn)">
                 <mat-icon class="my-edit-report--expense-card-icon">remove_circle</mat-icon>
               </ion-col>
-              <ion-col size="9">
+              <ion-col size ="9">
                 <ion-row>
                   <span [ngClass]="{'my-edit-report--non-reimbursable' : unReportedEtxn.tx_skip_reimbursement}">
                     <span class="my-edit-report--expense-card-currency">{{unReportedEtxn.tx_currency}}</span>
-                    <span
-                      class="my-edit-report--expense-card-amount"
-                      [ngClass]="{'my-edit-report--expense-card-amount__non-reimbursable' : unReportedEtxn.tx_skip_reimbursement}"
-                      >{{unReportedEtxn.tx_amount}}</span
-                    >
+                    <span class="my-edit-report--expense-card-amount" [ngClass]="{'my-edit-report--expense-card-amount__non-reimbursable' : unReportedEtxn.tx_skip_reimbursement}">{{unReportedEtxn.tx_amount}}</span>
                   </span>
                 </ion-row>
 
@@ -93,6 +72,7 @@
               </ion-col>
             </ion-row>
           </div>
+
         </div>
       </div>
     </div>
@@ -100,20 +80,17 @@
     <div class="my-edit-report--expense-list" *ngIf="reportedEtxns$|async as reportedEtxns">
       <p class="my-edit-report--expense-list-title" *ngIf="reportedEtxns.length">Report Expenses</p>
       <div *ngFor="let reportedEtxn of reportedEtxns; let i = index;">
+
         <div class="my-edit-report--expense-card">
           <ion-row [ngClass]="{'my-edit-report--expense-card-info-hidden': reportedEtxn.isHidden}">
             <ion-col size="3" (click)="addExpenseToDeleteList(reportedEtxn)">
               <mat-icon class="my-edit-report--expense-card-icon">remove_circle</mat-icon>
             </ion-col>
-            <ion-col size="9">
+            <ion-col size ="9">
               <ion-row>
                 <span [ngClass]="{'my-edit-report--non-reimbursable' : reportedEtxn.tx_skip_reimbursement}">
                   <span class="my-edit-report--expense-card-currency">{{reportedEtxn.tx_currency}}</span>
-                  <span
-                    class="my-edit-report--expense-card-amount"
-                    [ngClass]="{'my-edit-report--expense-card-amount__non-reimbursable' : reportedEtxn.tx_skip_reimbursement}"
-                    >{{reportedEtxn.tx_amount | number: '1.0-2'}}</span
-                  >
+                  <span class="my-edit-report--expense-card-amount" [ngClass]="{'my-edit-report--expense-card-amount__non-reimbursable' : reportedEtxn.tx_skip_reimbursement}">{{reportedEtxn.tx_amount | number: '1.0-2'}}</span>
                 </span>
               </ion-row>
 
@@ -124,26 +101,23 @@
 
           <div class="my-edit-report--expense-card-removed-info-block" *ngIf="reportedEtxn.isHidden">
             <p class="my-edit-report--expense-card-removed-info">Expense will be removed</p>
-            <p class="my-edit-report--expense-card-removed-undo-action" (click)="undoExpenseDelete(reportedEtxn)">
-              Undo
-            </p>
+            <p class="my-edit-report--expense-card-removed-undo-action" (click)="undoExpenseDelete(reportedEtxn)">Undo</p>
           </div>
         </div>
       </div>
 
       <!-- zero state -->
-      <div class="my-edit-report--report-card my-edit-report--report-card_no-shadow" *ngIf="!reportedEtxns.length">
-        <div class="my-edit-report--zero-state">
-          <div class="my-edit-report--zero-state-img-container">
-            <img
-              class="my-edit-report--zero-state-img"
-              [src]="'../../../assets/images/zero-states/expenses.svg'"
-              alt="zero-state"
-            />
-          </div>
-          <div class="my-edit-report--zero-state-text">No expense in this report.</div>
+    <div class="my-edit-report--report-card my-edit-report--report-card_no-shadow"  *ngIf="!reportedEtxns.length">
+      <div class="my-edit-report--zero-state">
+        <div class="my-edit-report--zero-state-img-container">
+          <img class="my-edit-report--zero-state-img" [src]="'../../../assets/images/zero-states/expenses.svg'" alt="zero-state">
+        </div>
+        <div class="my-edit-report--zero-state-text">
+          No expense in this report.
         </div>
       </div>
+    </div>
+
     </div>
   </div>
 </ion-content>
@@ -151,29 +125,11 @@
 <ion-footer>
   <ion-toolbar mode="md">
     <ng-container *ngIf="extendedReport$|async as extendedReport">
-      <ion-button
-        *ngIf="(extendedReport.rp_state === 'DRAFT') || ((noOfTxnsInReport + selectedTotalTxns) > 0 && extendedReport.rp_state !== 'DRAFT')"
-        class="my-edit-report--primary-cta"
-        fill="solid"
-        color="fyle-primary"
-        expand="block"
-        [disabled]="!isReportEdited"
-        (click)="saveReport()"
-        appFormButtonValidation
-        [loading]="saveReoprtLoading"
-        [loadingText]="'SAVING'"
-      >
+      <ion-button *ngIf="(extendedReport.rp_state === 'DRAFT') || ((noOfTxnsInReport + selectedTotalTxns) > 0 && extendedReport.rp_state !== 'DRAFT')" class="my-edit-report--primary-cta" fill="solid" color="fyle-primary" expand="block" [disabled]="!isReportEdited" (click)="saveReport()"
+        appFormButtonValidation [loading]="saveReoprtLoading" [loadingText]="'SAVING'">
         Save Report
       </ion-button>
-      <ion-button
-        *ngIf="((noOfTxnsInReport + selectedTotalTxns) === 0 && extendedReport.rp_state !== 'DRAFT')"
-        class="my-edit-report--primary-cta"
-        fill="solid"
-        color="fyle-primary"
-        expand="block"
-        [disabled]="!isReportEdited"
-        (click)="deleteReport()"
-      >
+      <ion-button *ngIf="((noOfTxnsInReport + selectedTotalTxns) === 0 && extendedReport.rp_state !== 'DRAFT')" class="my-edit-report--primary-cta" fill="solid" color="fyle-primary" expand="block" [disabled]="!isReportEdited" (click)="deleteReport()">
         Delete Report
       </ion-button>
     </ng-container>

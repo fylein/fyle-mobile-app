@@ -24,7 +24,7 @@
     color: $black-light;
   }
 
-  &--grid-outer-col {
+  &--grid-outer-col{
     --ion-grid-column-padding: 4px;
   }
 
@@ -53,8 +53,7 @@
       background-color: $highlight-blue;
     }
 
-    &__approved,
-    &__payment_pending {
+    &__approved, &__payment_pending {
       background-color: $highlight-green;
     }
   }

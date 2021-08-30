@@ -4,19 +4,27 @@ import { map } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 
+
 const orgSettingsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrgSettingsService {
-  constructor(private apiService: ApiService) {}
+
+  constructor(
+    private apiService: ApiService
+  ) { }
 
   @Cacheable({
     cacheBusterObserver: orgSettingsCacheBuster$
   })
   get() {
-    return this.apiService.get('/org/settings').pipe(map((incoming) => this.processIncoming(incoming)));
+    return this.apiService.get('/org/settings').pipe(
+      map(
+        incoming => this.processIncoming(incoming)
+      )
+    );
   }
 
   @CacheBuster({
@@ -60,7 +68,8 @@ export class OrgSettingsService {
         accounting.settings = tally;
 
         accounting.settings.collapse_expenses = !!accounting.settings.collapse_expenses; // To make sure this is always true/false
-        accounting.settings.separate_org_user_advance_ledger = !!accounting.settings.separate_org_user_advance_ledger; // To make sure this is always true/false
+        accounting.settings.separate_org_user_advance_ledger
+          = !!accounting.settings.separate_org_user_advance_ledger; // To make sure this is always true/false
       } else if (accountingSettings && accountingSettings.enabled) {
         accounting.enabled = true;
         accounting.type = accountingSettings.export_name;
@@ -127,8 +136,7 @@ export class OrgSettingsService {
         four_wheeler4_distance_limit: incoming.mileage_details && incoming.mileage_details.four_wheeler4_distance_limit,
         bicycle_distance_limit: incoming.mileage_details && incoming.mileage_details.bicycle_distance_limit,
         electric_car_distance_limit: incoming.mileage_details && incoming.mileage_details.electric_car_distance_limit,
-        enable_individual_mileage_rates:
-          incoming.mileage_details && incoming.mileage_details.enable_individual_mileage_rates
+        enable_individual_mileage_rates: incoming.mileage_details && incoming.mileage_details.enable_individual_mileage_rates
       },
       advances: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
@@ -141,24 +149,17 @@ export class OrgSettingsService {
       advanced_projects: {
         allowed: incoming.advanced_project_settings && incoming.advanced_project_settings.allowed,
         enabled: incoming.advanced_project_settings && incoming.advanced_project_settings.enabled,
-        enable_individual_projects:
-          incoming.advanced_project_settings && incoming.advanced_project_settings.enable_individual_projects
+        enable_individual_projects: incoming.advanced_project_settings && incoming.advanced_project_settings.enable_individual_projects
       },
       trip_requests: {
         allowed: incoming.trip_request_settings && incoming.trip_request_settings.allowed,
         enabled: incoming.trip_request_settings && incoming.trip_request_settings.enable_trip_requests,
-        enable_for_certain_employee:
-          incoming.trip_request_settings &&
-          incoming.trip_request_settings.allowed &&
-          incoming.trip_request_settings.enable_trip_requests_for_certain_employees,
-        enabled_hotel_requests:
-          incoming.trip_request_settings &&
-          incoming.trip_request_settings.allowed &&
-          incoming.trip_request_settings.enable_hotel_requests,
-        enabled_transportation_requests:
-          incoming.trip_request_settings &&
-          incoming.trip_request_settings.allowed &&
-          incoming.trip_request_settings.enable_transportation_requests
+        enable_for_certain_employee: incoming.trip_request_settings
+          && incoming.trip_request_settings.allowed && incoming.trip_request_settings.enable_trip_requests_for_certain_employees,
+        enabled_hotel_requests: incoming.trip_request_settings
+          && incoming.trip_request_settings.allowed && incoming.trip_request_settings.enable_hotel_requests,
+        enabled_transportation_requests: incoming.trip_request_settings
+          && incoming.trip_request_settings.allowed && incoming.trip_request_settings.enable_transportation_requests
       },
       advance_requests: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
@@ -171,22 +172,13 @@ export class OrgSettingsService {
       policies: {
         allowed: incoming.policy_settings && incoming.policy_settings.allowed,
         enabled: incoming.policy_settings && incoming.policy_settings.is_enabled,
-        self_serve_enabled:
-          incoming.policy_settings &&
-          incoming.policy_settings.allowed &&
-          incoming.policy_settings.is_self_serve_enabled,
-        trip_request_policy_enabled:
-          incoming.policy_settings &&
-          incoming.policy_settings.allowed &&
-          incoming.policy_settings.is_trip_request_policy_enabled,
-        advance_request_policy_enabled:
-          incoming.policy_settings &&
-          incoming.policy_settings.allowed &&
-          incoming.policy_settings.is_advance_request_policy_enabled,
-        duplicate_detection_enabled:
-          incoming.duplicate_detection_settings &&
-          incoming.duplicate_detection_settings.allowed &&
-          incoming.duplicate_detection_settings.enabled
+        self_serve_enabled: incoming.policy_settings && incoming.policy_settings.allowed && incoming.policy_settings.is_self_serve_enabled,
+        trip_request_policy_enabled: incoming.policy_settings
+          && incoming.policy_settings.allowed && incoming.policy_settings.is_trip_request_policy_enabled,
+        advance_request_policy_enabled: incoming.policy_settings
+          && incoming.policy_settings.allowed && incoming.policy_settings.is_advance_request_policy_enabled,
+        duplicate_detection_enabled: incoming.duplicate_detection_settings
+          && incoming.duplicate_detection_settings.allowed && incoming.duplicate_detection_settings.enabled
       },
       org_creation: {
         allowed: incoming.multi_org_settings && incoming.multi_org_settings.allowed,
@@ -220,22 +212,14 @@ export class OrgSettingsService {
       expense_limit_settings: incoming.expense_limit_settings,
       approval_settings: {
         allowed: incoming.approval_settings && incoming.approval_settings.allowed,
-        admin_approve_own_report:
-          incoming.approval_settings &&
-          incoming.approval_settings.allowed &&
-          incoming.approval_settings.admin_approve_own_report,
-        enable_secondary_approvers:
-          incoming.approval_settings &&
-          incoming.approval_settings.allowed &&
-          incoming.approval_settings.enable_secondary_approvers,
-        enable_sequential_approvers:
-          incoming.approval_settings &&
-          incoming.approval_settings.allowed &&
-          incoming.approval_settings.enable_sequential_approvers,
-        allow_user_add_trip_request_approvers:
-          incoming.approval_settings &&
-          incoming.approval_settings.allowed &&
-          incoming.approval_settings.allow_user_add_trip_request_approvers
+        admin_approve_own_report: incoming.approval_settings &&
+          incoming.approval_settings.allowed && incoming.approval_settings.admin_approve_own_report,
+        enable_secondary_approvers: incoming.approval_settings &&
+          incoming.approval_settings.allowed && incoming.approval_settings.enable_secondary_approvers,
+        enable_sequential_approvers: incoming.approval_settings &&
+          incoming.approval_settings.allowed && incoming.approval_settings.enable_sequential_approvers,
+        allow_user_add_trip_request_approvers: incoming.approval_settings &&
+          incoming.approval_settings.allowed && incoming.approval_settings.allow_user_add_trip_request_approvers,
       },
       accounting: this.getIncomingAccountingObject(incoming.accounting_export_settings),
       transaction_fields_settings: incoming.transaction_fields_settings,
@@ -245,18 +229,13 @@ export class OrgSettingsService {
       org_logo_settings: incoming.org_logo_settings,
       org_branding_settings: {
         allowed: incoming.org_branding_settings && incoming.org_branding_settings.allowed,
-        enabled: incoming.org_branding_settings && incoming.org_branding_settings.enabled
+        enabled: incoming.org_branding_settings && incoming.org_branding_settings.enabled,
       },
       verification: {
         allowed: incoming.verification_settings && incoming.verification_settings.allowed,
-        mandatory:
-          incoming.verification_settings &&
-          incoming.verification_settings.allowed &&
-          incoming.verification_settings.mandatory,
-        late_mode_enabled:
-          incoming.verification_settings &&
-          incoming.verification_settings.allowed &&
-          incoming.verification_settings.late_mode_enabled
+        mandatory: incoming.verification_settings && incoming.verification_settings.allowed && incoming.verification_settings.mandatory,
+        late_mode_enabled: incoming.verification_settings &&
+          incoming.verification_settings.allowed && incoming.verification_settings.late_mode_enabled,
       },
       data_extraction_settings: incoming.data_extraction_settings,
       advance_account_settings: incoming.advance_account_settings,
@@ -516,4 +495,5 @@ export class OrgSettingsService {
       workflow_settings: outgoing.workflow_settings
     };
   }
+
 }

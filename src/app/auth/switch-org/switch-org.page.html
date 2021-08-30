@@ -1,38 +1,35 @@
-<ion-header mode="md">
+<ion-header mode="md" >
   <ion-toolbar mode="md" class="switch-org--toolbar">
     <mat-form-field class="switch-org--form-field" appearance="outline">
-      <span class="material-icons switch-org--search-icon" matPrefix> search </span>
-      <input
-        #searchOrgsInput
-        [(ngModel)]="searchInput"
-        id="switch-org--search-input"
-        class="switch-org--search-input"
-        matInput
-        placeholder="Search Orgs"
-      />
+      <span class="material-icons switch-org--search-icon" matPrefix>
+        search
+      </span>
+      <input #searchOrgsInput [(ngModel)]="searchInput" id="switch-org--search-input" class="switch-org--search-input" matInput placeholder="Search Orgs">
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div>
-    <div class="switch-org--header">Select an organization to switch to</div>
+    <div class="switch-org--header">
+      Select an organization to switch to
+    </div>
     <div id="switch-org-list" *ngIf="!isLoading">
-      <div
-        matRipple
-        (click)="switchToOrg(org)"
-        class="switch-org--org-element"
-        [attr.id]="'org-' + org.id"
-        *ngFor="let org of filteredOrgs$ | async as list"
-      >
+      <div matRipple (click)="switchToOrg(org)" class="switch-org--org-element" [attr.id]="'org-' + org.id" *ngFor="let org of filteredOrgs$ | async as list">
         <ion-grid>
           <ion-row>
             <ion-col size="2">
-              <div class="switch-org--org-thumb">{{org.name | initials | uppercase}}</div>
+              <div class="switch-org--org-thumb">
+                {{org.name | initials | uppercase}}
+              </div>
             </ion-col>
             <ion-col size="10">
-              <div class="switch-org--org-element-name">{{org.name}}</div>
-              <div class="switch-org--org-element-domain">{{org.domain}}</div>
+              <div class="switch-org--org-element-name">
+                {{org.name}}
+              </div>
+              <div class="switch-org--org-element-domain">
+                {{org.domain}}
+              </div>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -60,4 +57,5 @@
       </div>
     </div>
   </div>
+
 </ion-content>

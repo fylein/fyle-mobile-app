@@ -3,7 +3,7 @@
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="selection-modal--title">
-        {{ selectModalHeader }}
+        {{selectModalHeader}}
       </div>
     </ion-title>
     <ion-buttons slot="start">
@@ -12,59 +12,36 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button class="selection-modal--cta" (click)="useSelected()"> Done </ion-button>
+      <ion-button class="selection-modal--cta" (click)="useSelected()" >
+        Done
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': currentSelections?.length > 0 }">
-    <mat-form-field
-      class="selection-modal--form-container mat-form-field-no-padding"
-      appearance="none"
-      [ngClass]="{ 'selection-modal--form-container__chips': currentSelections?.length > 0 }"
-    >
+  <ion-toolbar class="text-center" [ngClass]="{'selection-modal--toolbar': currentSelections?.length > 0}">
+    <mat-form-field class="selection-modal--form-container mat-form-field-no-padding" appearance="none" [ngClass]="{'selection-modal--form-container__chips': currentSelections?.length > 0}">
       <mat-chip-list #chipList aria-label="Multi select">
-        <mat-chip
-          *ngFor="let item of currentSelections"
-          [selectable]="selectable"
-          [removable]="removable"
-          (removed)="removeChip(item)"
-        >
-          {{ item }}
+        <mat-chip *ngFor="let item of currentSelections" [selectable]="selectable"
+                 [removable]="removable" (removed)="removeChip(item)">
+          {{item}}
           <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
         </mat-chip>
-        <mat-icon
-          *ngIf="!(currentSelections?.length > 0)"
-          class="selection-modal--search-icon"
-          matPrefix
-          svgIcon="fy-search"
-        ></mat-icon>
-        <input
-          #searchBar
-          [(ngModel)]="value"
-          class="selection-modal--form-input"
-          [ngClass]="{ 'selection-modal--form-input__chips': currentSelections?.length > 0 }"
-          [matChipInputFor]="chipList"
-          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-          [matChipInputAddOnBlur]="addOnBlur"
-          (matChipInputTokenEnd)="addChip($event)"
-          [placeholder]="!(currentSelections?.length > 0) ? 'Search' : ''"
-        />
+        <mat-icon *ngIf="!(currentSelections?.length > 0)" class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+        <input #searchBar [(ngModel)]="value" class="selection-modal--form-input" [ngClass]="{'selection-modal--form-input__chips': currentSelections?.length > 0}"
+               [matChipInputFor]="chipList"
+               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+               [matChipInputAddOnBlur]="addOnBlur"
+               (matChipInputTokenEnd)="addChip($event)"
+               [placeholder]="!(currentSelections?.length > 0) ? 'Search' : ''">
       </mat-chip-list>
     </mat-form-field>
-    <div class="selection-modal--selected-count" *ngIf="currentSelections?.length > 0">
-      {{ currentSelections.length }} selected
-    </div>
+    <div class="selection-modal--selected-count" *ngIf="currentSelections?.length > 0">{{ currentSelections.length }} selected</div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="selection-modal--container">
-    <mat-checkbox
-      class="selection-modal--list-element"
-      *ngFor="let filteredListItem of filteredOptions$ | async as list"
-      [(ngModel)]="filteredListItem.selected"
-      (ngModelChange)="onElementSelected(filteredListItem)"
-    >
-      {{ filteredListItem.label }}
+    <mat-checkbox class="selection-modal--list-element" *ngFor="let filteredListItem of filteredOptions$ | async as list" [(ngModel)]="filteredListItem.selected" (ngModelChange)="onElementSelected(filteredListItem)">
+      {{filteredListItem.label}}
     </mat-checkbox>
   </div>
 </ion-content>

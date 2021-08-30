@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AuthService } from './auth.service';
+import {AuthService} from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +7,9 @@ import { AuthService } from './auth.service';
 export class TrackingService {
   identityEmail = null;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService
+  ) { }
 
   get tracking() {
     return (window as any).analytics;
@@ -44,7 +46,8 @@ export class TrackingService {
     }
   }
 
-  onStateChange(toState, toParams, fromState, fromParams) {}
+  onStateChange(toState, toParams, fromState, fromParams) {
+  }
 
   eventTrack(action, properties) {
     properties = {
@@ -69,7 +72,8 @@ export class TrackingService {
     this.eventTrack('Signin', properties);
   }
 
-  onLogout() {}
+  onLogout() {
+  }
 
   /*** Events related to expense ***/
 
@@ -312,6 +316,7 @@ export class TrackingService {
   clickAddSecondaryEmail(properties) {
     this.eventTrack('Click Add Secondary email', properties);
   }
+
 
   /*** Events related to help page ***/
 

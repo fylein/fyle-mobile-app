@@ -11,9 +11,10 @@ import { ReportService } from 'src/app/core/services/report.service';
 @Component({
   selector: 'app-submit-report-popover',
   templateUrl: './submit-report-popover.component.html',
-  styleUrls: ['./submit-report-popover.component.scss']
+  styleUrls: ['./submit-report-popover.component.scss'],
 })
 export class SubmitReportPopoverComponent implements OnInit {
+
   @Input() erpt;
 
   @Input() etxns;
@@ -32,7 +33,7 @@ export class SubmitReportPopoverComponent implements OnInit {
     private tripRequestService: TripRequestsService,
     private transactionService: TransactionService,
     private reportService: ReportService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.numCriticalPolicies = this.getCriticalPolicyViolations(this.etxns);
@@ -42,16 +43,20 @@ export class SubmitReportPopoverComponent implements OnInit {
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       approvedButUnreportedTripRequests: this.tripRequestService
         .findMyUnreportedRequests()
-        .pipe(map((requests) => requests.filter((request) => request.state === 'APPROVED')))
+        .pipe(
+          map(requests => requests
+            .filter(request => request.state === 'APPROVED')
+          )
+        )
     }).subscribe(({ orgSettings, orgUserSettings, approvedButUnreportedTripRequests }) => {
-      const canAssociateTripRequests =
-        orgSettings.trip_requests.enabled &&
-        (!orgSettings.trip_requests.enable_for_certain_employee ||
-          (orgSettings.trip_requests.enable_for_certain_employee &&
-            orgUserSettings.trip_request_org_user_settings.enabled));
+      const canAssociateTripRequests = orgSettings.trip_requests.enabled &&
+        (
+          !orgSettings.trip_requests.enable_for_certain_employee ||
+          (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)
+        );
       const isTripRequestsEnabled = orgSettings.trip_requests.enabled;
-      this.showTripRequestWarning =
-        (canAssociateTripRequests || !isTripRequestsEnabled) &&
+      this.showTripRequestWarning = (canAssociateTripRequests ||
+        !isTripRequestsEnabled) &&
         !this.erpt.rp_trip_request_id &&
         approvedButUnreportedTripRequests &&
         approvedButUnreportedTripRequests.length > 0;
@@ -60,7 +65,7 @@ export class SubmitReportPopoverComponent implements OnInit {
 
   getCriticalPolicyViolations(etxns) {
     let count = 0;
-    etxns.forEach(function (etxn) {
+    etxns.forEach(function(etxn) {
       if (etxn.tx_policy_flag && isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001) {
         count = count + 1;
       }
@@ -105,25 +110,25 @@ export class SubmitReportPopoverComponent implements OnInit {
     event.stopPropagation();
     this.submitReportLoading = true;
 
-    const txnIdsCriticalViolations = this.etxns
-      .filter((etxn) => this.filterCriticalViolations(etxn))
-      .map((etxn) => etxn.tx_id);
+    const txnIdsCriticalViolations = this.etxns.filter(
+      etxn => this.filterCriticalViolations(etxn)
+    ).map((etxn) => etxn.tx_id);
+
 
     iif(
       () => txnIdsCriticalViolations.length > 0,
       this.transactionService.removeTxnsFromRptInBulk(txnIdsCriticalViolations),
-      of(null)
-    )
+      of(null))
       .pipe(
         concatMap(() => this.reportService.submit(this.erpt.rp_id)),
         finalize(() => {
           this.submitReportLoading = false;
         })
-      )
-      .subscribe(() => {
+      ).subscribe(() => {
         this.popoverController.dismiss({
           goBack: true
         });
       });
   }
+
 }

@@ -5,9 +5,10 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 @Component({
   selector: 'app-review-footer',
   templateUrl: './review-footer.component.html',
-  styleUrls: ['./review-footer.component.scss']
+  styleUrls: ['./review-footer.component.scss'],
 })
 export class ReviewFooterComponent implements OnInit {
+
   @Input() activeIndex: number;
 
   @Input() reviewList: Array<Expense>;
@@ -20,7 +21,9 @@ export class ReviewFooterComponent implements OnInit {
 
   @Output() saveAndGoToNext = new EventEmitter();
 
-  constructor(private trackingService: TrackingService) {}
+  constructor(
+    private trackingService: TrackingService
+  ) { }
 
   ngOnInit() {}
 

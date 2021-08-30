@@ -7,9 +7,10 @@ import * as moment from 'moment';
   selector: '[appFormatDate]'
 })
 export class FormatDateDirective implements OnInit {
-  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
 
-  @HostListener('ngModelChange', ['$event']) onChange(value: string) {
+  constructor(private elementRef: ElementRef, private renderer: Renderer2) { }
+
+  @HostListener('ngModelChange', [ '$event'] ) onChange(value: string) {
     this.modifyDisplayValue(value);
   }
 
@@ -33,4 +34,5 @@ export class FormatDateDirective implements OnInit {
     const initalValue = this.elementRef.nativeElement as HTMLInputElement;
     this.modifyDisplayValue(initalValue.value);
   }
+
 }

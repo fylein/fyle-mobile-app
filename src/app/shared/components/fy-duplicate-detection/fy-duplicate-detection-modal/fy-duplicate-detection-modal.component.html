@@ -2,7 +2,9 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select Items</div>
+      <div class="selection-modal--title">
+        Select Items
+      </div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -12,26 +14,16 @@
   </ion-toolbar>
   <ion-toolbar class="selection-modal--form-field-container">
     <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
-      <input
-        #searchBar
-        id="selection-modal--search-input"
-        class="selection-modal--search-input"
-        matInput
-        placeholder="Search"
-      />
+      <input #searchBar id="selection-modal--search-input" class="selection-modal--search-input" matInput placeholder="Search">
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="selection-modal--container">
-    <div
-      matRipple
-      class="selection-modal--list-element"
-      *ngFor="let filteredListItem of filteredOptions$ | async as list"
-      (click)="onElementSelect(filteredListItem)"
-    >
-      {{ filteredListItem.label }}
+    <div matRipple class="selection-modal--list-element"
+      *ngFor="let filteredListItem of filteredOptions$ | async as list" (click)="onElementSelect(filteredListItem)">
+      {{filteredListItem.label}}
     </div>
   </div>
 </ion-content>

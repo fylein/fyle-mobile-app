@@ -5,12 +5,14 @@ import { PopupConfig } from './popup.model';
 @Component({
   selector: 'app-fy-popup',
   templateUrl: './fy-popup.component.html',
-  styleUrls: ['./fy-popup.component.scss']
+  styleUrls: ['./fy-popup.component.scss'],
 })
 export class FyPopupComponent implements OnInit {
   @Input() config: PopupConfig;
 
-  constructor(private popoverController: PopoverController) {}
+  constructor(
+    private popoverController: PopoverController
+  ) { }
 
   ngOnInit() {
     if (this.config.showCancelButton === undefined) {

@@ -1,26 +1,17 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  Input,
-  AfterViewInit,
-  ChangeDetectorRef,
-  TemplateRef
-} from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, AfterViewInit, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { Observable, from, noop, fromEvent, of } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, map, finalize, shareReplay, startWith, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { RecentLocalStorageItemsService } from '../../../../core/services/recent-local-storage-items.service';
-import { OfflineService } from '../../../../core/services/offline.service';
+import {OfflineService} from '../../../../core/services/offline.service';
 import { Currency } from 'src/app/core/models/currency.model';
 
 @Component({
   selector: 'app-fy-currency-choose-currency',
   templateUrl: './fy-currency-choose-currency.component.html',
-  styleUrls: ['./fy-currency-choose-currency.component.scss']
+  styleUrls: ['./fy-currency-choose-currency.component.scss'],
 })
 export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
@@ -45,7 +36,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
     private loaderService: LoaderService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   clearValue() {
     this.value = '';
@@ -57,9 +48,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
   ngOnInit() {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
       concatMap(() => this.offlineService.getCurrencies()),
-      map((currenciesObj) =>
-        Object.keys(currenciesObj).map((shortCode) => ({ shortCode, longName: currenciesObj[shortCode] }))
-      ),
+      map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({ shortCode, longName: currenciesObj[shortCode] }))),
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
       }),
@@ -82,35 +71,31 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) =>
-        this.currencies$.pipe(
-          map((currencies) =>
-            currencies.filter(
-              (currency) =>
-                currency.shortCode.toLowerCase().includes(searchText.toLowerCase()) ||
-                currency.longName.toLowerCase().includes(searchText.toLowerCase())
+      switchMap((searchText) => this.currencies$.pipe(
+        map(
+          currencies => currencies
+            .filter(
+              currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
+                  || currency.longName.toLowerCase().includes(searchText.toLowerCase())
             )
-          )
         )
-      )
+      ))
     );
 
     this.recentlyUsedCurrencies$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) =>
-        this.getRecentlyUsedItems().pipe(
-          // filtering of recently used items wrt searchText is taken care in service method
-          map((currencies) =>
-            currencies.filter(
-              (currency) =>
-                currency.shortCode.toLowerCase().includes(searchText.toLowerCase()) ||
-                currency.longName.toLowerCase().includes(searchText.toLowerCase())
+      switchMap((searchText) => this.getRecentlyUsedItems().pipe(
+        // filtering of recently used items wrt searchText is taken care in service method
+        map(
+          currencies => currencies
+            .filter(
+              currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
+                  || currency.longName.toLowerCase().includes(searchText.toLowerCase())
             )
-          )
         )
-      )
+      ))
     );
     this.cdr.detectChanges();
   }

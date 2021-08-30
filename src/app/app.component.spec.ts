@@ -9,30 +9,26 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
-  let statusBarSpy;
-  let splashScreenSpy;
-  let platformReadySpy;
-  let platformSpy;
 
-  beforeEach(
-    waitForAsync(() => {
-      statusBarSpy = jasmine.createSpyObj('StatusBar', ['styleDefault']);
-      splashScreenSpy = jasmine.createSpyObj('SplashScreen', ['hide']);
-      platformReadySpy = Promise.resolve();
-      platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
+  let statusBarSpy; let splashScreenSpy; let platformReadySpy; let platformSpy;
 
-      TestBed.configureTestingModule({
-        declarations: [AppComponent],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA],
-        providers: [
-          { provide: StatusBar, useValue: statusBarSpy },
-          { provide: SplashScreen, useValue: splashScreenSpy },
-          { provide: Platform, useValue: platformSpy }
-        ],
-        imports: [RouterTestingModule.withRoutes([])]
-      }).compileComponents();
-    })
-  );
+  beforeEach(waitForAsync(() => {
+    statusBarSpy = jasmine.createSpyObj('StatusBar', ['styleDefault']);
+    splashScreenSpy = jasmine.createSpyObj('SplashScreen', ['hide']);
+    platformReadySpy = Promise.resolve();
+    platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
+
+    TestBed.configureTestingModule({
+      declarations: [AppComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      providers: [
+        { provide: StatusBar, useValue: statusBarSpy },
+        { provide: SplashScreen, useValue: splashScreenSpy },
+        { provide: Platform, useValue: platformSpy },
+      ],
+      imports: [ RouterTestingModule.withRoutes([])],
+    }).compileComponents();
+  }));
 
   it('should create the app', async () => {
     const fixture = TestBed.createComponent(AppComponent);
@@ -67,4 +63,5 @@ describe('AppComponent', () => {
     expect(menuItems[0].getAttribute('ng-reflect-router-link')).toEqual('/folder/Inbox');
     expect(menuItems[1].getAttribute('ng-reflect-router-link')).toEqual('/folder/Outbox');
   });
+
 });

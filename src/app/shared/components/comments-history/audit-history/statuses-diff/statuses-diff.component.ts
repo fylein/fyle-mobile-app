@@ -12,9 +12,10 @@ export class StatusesDiffComponent implements OnInit {
 
   isValueList: boolean;
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit() {
-    this.isValueList = this.value instanceof Array;
+    this.isValueList = (this.value instanceof Array);
   }
+
 }

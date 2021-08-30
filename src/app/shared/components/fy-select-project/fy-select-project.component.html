@@ -1,19 +1,14 @@
 <label class="fy-select-project--label">
   <div class="fy-select-project--label-content">
     <span>
-      {{ label }}
+      {{label}}
     </span>
-    <span *ngIf="mandatory" class="fy-select-project--mandatory"> * </span>
+    <span *ngIf="mandatory" class="fy-select-project--mandatory">
+      *
+    </span>
   </div>
-  <div class="fy-select-project--input-container" [ngClass]="{ 'fy-select-project--input-invalid': !valid }">
-    <input
-      class="fy-select-project--input"
-      type="text"
-      [placeholder]="'Select ' + label"
-      [ngModel]="displayValue"
-      (blur)="onBlur()"
-      (click)="openModal()"
-    />
+  <div class="fy-select-project--input-container" [ngClass]="{'fy-select-project--input-invalid': !valid}">
+    <input class="fy-select-project--input" type="text" [placeholder]="'Select ' + label" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
     <mat-icon class="fy-select-project--icon" svgIcon="fy-arrow-down"></mat-icon>
   </div>
 </label>

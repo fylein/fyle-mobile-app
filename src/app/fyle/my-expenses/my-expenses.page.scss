@@ -168,7 +168,7 @@
 
     &__applied {
       ::after {
-        content: '•';
+        content: "•";
         font-size: 48px;
         position: absolute;
         top: -8px;
@@ -240,6 +240,7 @@
         font-weight: 500;
       }
     }
+
   }
 
   &--needs-receipt {
@@ -313,4 +314,6 @@
       opacity: 0.8;
     }
   }
-}
+}   
+
+

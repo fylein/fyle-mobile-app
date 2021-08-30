@@ -35,6 +35,10 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
     MatInputModule,
     MatButtonModule
   ],
-  declarations: [AddEditMileagePage, FySelectVehicleComponent, PolicyViolationComponent]
+  declarations: [
+    AddEditMileagePage,
+    FySelectVehicleComponent,
+    PolicyViolationComponent
+  ]
 })
-export class AddEditMileagePageModule {}
+export class AddEditMileagePageModule { }

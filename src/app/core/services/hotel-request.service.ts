@@ -6,7 +6,11 @@ import { TripDatesService } from './trip-dates.service';
   providedIn: 'root'
 })
 export class HotelRequestService {
-  constructor(private apiService: ApiService, private tripDatesService: TripDatesService) {}
+
+  constructor(
+    private apiService: ApiService,
+    private tripDatesService: TripDatesService
+  ) { }
 
   upsert(hotelRequest) {
     return this.apiService.post('/hotel_requests', hotelRequest);

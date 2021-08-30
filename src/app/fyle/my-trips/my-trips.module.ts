@@ -26,6 +26,9 @@ import { MatRippleModule } from '@angular/material/core';
     SharedModule,
     MatRippleModule
   ],
-  declarations: [MyTripsPage, MyTripsCardComponent]
+  declarations: [
+    MyTripsPage,
+    MyTripsCardComponent
+  ]
 })
-export class MyTripsPageModule {}
+export class MyTripsPageModule { }

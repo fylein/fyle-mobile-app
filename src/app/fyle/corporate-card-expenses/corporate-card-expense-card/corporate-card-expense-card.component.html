@@ -1,85 +1,61 @@
 <div>
   <div class="corporate-card-expenses-card--date" *ngIf="showDt && !skipDate">
     <span *ngIf="corporateCardExpense.txn_dt">
-      {{ corporateCardExpense.txn_dt | date: 'EEEE, MMM dd, yyyy' }}
+      {{corporateCardExpense.txn_dt | date: 'EEEE, MMM dd, yyyy'}}
     </span>
   </div>
-  <ng-container *ngIf="baseState === 'unclassified'">
+  <ng-container *ngIf="baseState==='unclassified'">
     <div class="corporate-card-expenses-card--body" matRipple (click)="onGoToTransaction()">
       <div>
         <div>
           <span class="corporate-card-expenses-card--currency">
-            {{ corporateCardExpense.currency }}
+            {{corporateCardExpense.currency}}
           </span>
-          <span class="corporate-card-expenses-card--amount">
-            {{ corporateCardExpense.amount | number: '1.2-2' }}
+            <span class="corporate-card-expenses-card--amount">
+            {{corporateCardExpense.amount | number:'1.2-2'}}
           </span>
         </div>
         <div class="corporate-card-expenses-card--vendor">
-          {{
-            corporateCardExpense.vendor
-              ? corporateCardExpense.vendor
-              : corporateCardExpense.description
-              ? corporateCardExpense.description
-              : 'Unspecified Merchant /Description'
-          }}
+          {{corporateCardExpense.vendor ? corporateCardExpense.vendor : corporateCardExpense.description ? corporateCardExpense.description :'Unspecified Merchant /Description'}}
         </div>
       </div>
       <div class="corporate-card-expenses-card--footer">
         <span>
-          <mat-icon
-            class="corporate-card-expenses-card--footer-icon corporate-card-expenses-card--footer-icon__classify"
-            svgIcon="fy-classify-ccc"
-          ></mat-icon>
+          <mat-icon class="corporate-card-expenses-card--footer-icon corporate-card-expenses-card--footer-icon__classify" svgIcon="fy-classify-ccc"></mat-icon>
           <span>Classify Transaction</span>
         </span>
         <mat-icon>chevron_right</mat-icon>
       </div>
     </div>
   </ng-container>
-  <ng-container *ngIf="baseState === 'classified'">
+  <ng-container *ngIf="baseState==='classified'">
     <div class="corporate-card-expenses-card--body" matRipple (click)="onGoToTransaction()">
-      <div>
+      <div >
         <div>
           <span class="corporate-card-expenses-card--currency">
-            {{ corporateCardExpense.currency }}
+            {{corporateCardExpense.currency}}
           </span>
           <span class="corporate-card-expenses-card--amount">
-            {{ corporateCardExpense.amount | number: '1.2-2' }}
+            {{corporateCardExpense.amount | number:'1.2-2'}}
           </span>
         </div>
         <div class="corporate-card-expenses-card--vendor">
-          {{
-            corporateCardExpense.vendor
-              ? corporateCardExpense.vendor
-              : corporateCardExpense.description
-              ? corporateCardExpense.description
-              : 'Unspecified Merchant /Description'
-          }}
+          {{corporateCardExpense.vendor ? corporateCardExpense.vendor : corporateCardExpense.description ? corporateCardExpense.description :'Unspecified Merchant /Description'}}
         </div>
       </div>
-      <div
-        class="corporate-card-expenses-card--footer"
-        *ngIf="corporateCardExpense.matched_by && corporateCardExpense.matched_by !== 'SYSTEM'"
-      >
+      <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.matched_by && corporateCardExpense.matched_by !== 'SYSTEM'">
         <div>
           <mat-icon class="corporate-card-expenses-card--footer-icon" svgIcon="fy-done"></mat-icon>
-          <span>Matched</span>
+          <span >Matched</span>
         </div>
       </div>
-      <div
-        class="corporate-card-expenses-card--footer"
-        *ngIf="corporateCardExpense.matched_by && corporateCardExpense.matched_by === 'SYSTEM'"
-      >
+      <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.matched_by && corporateCardExpense.matched_by === 'SYSTEM'">
         <div>
           <mat-icon class="corporate-card-expenses-card--footer-icon">flash_on</mat-icon>
           <span>Auto Matched</span>
         </div>
       </div>
-      <div
-        class="corporate-card-expenses-card--footer"
-        *ngIf="corporateCardExpense.personal && !corporateCardExpense.balance_transfer_id"
-      >
+      <div class="corporate-card-expenses-card--footer" *ngIf="corporateCardExpense.personal && !corporateCardExpense.balance_transfer_id">
         <div>
           <mat-icon svgIcon="fy-individual" class="corporate-card-expenses-card--footer-icon"></mat-icon>
           <span>Personal</span>
@@ -105,4 +81,5 @@
       </div>
     </div>
   </ng-container>
+
 </div>

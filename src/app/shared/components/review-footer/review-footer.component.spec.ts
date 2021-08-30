@@ -9,7 +9,7 @@ describe('ReviewFooterComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ReviewFooterComponent],
+      declarations: [ ReviewFooterComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 

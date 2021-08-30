@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@import "../../../theme/colors.scss";
 
 $menu-botton-color: #000;
 $background-color: #fff;
@@ -12,7 +12,7 @@ $background-color: #fff;
     //   border-bottom: 1px solid $grey-lighter;
     // }
 
-    &-closebutton {
+    &-closebutton{
       height: 60px;
     }
 
@@ -206,7 +206,7 @@ $background-color: #fff;
 
   &--primary-cta {
     width: 100%;
-    height: 48px;
+    height:48px;
     --border-width: 1px;
   }
 

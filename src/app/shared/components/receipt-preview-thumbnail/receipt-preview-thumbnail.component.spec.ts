@@ -7,18 +7,16 @@ describe('FyReceiptPreviewThumbnailComponent', () => {
   let component: ReceiptPreviewThumbnailComponent;
   let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [ReceiptPreviewThumbnailComponent],
-        imports: [IonicModule.forRoot()]
-      }).compileComponents();
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [ ReceiptPreviewThumbnailComponent ],
+      imports: [IonicModule.forRoot()]
+    }).compileComponents();
 
-      fixture = TestBed.createComponent(ReceiptPreviewThumbnailComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-    })
-  );
+    fixture = TestBed.createComponent(ReceiptPreviewThumbnailComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }));
 
   it('should create', () => {
     expect(component).toBeTruthy();

@@ -4,10 +4,13 @@ import { PopoverController } from '@ionic/angular';
 @Component({
   selector: 'app-draft-advance-summary',
   templateUrl: './draft-advance-summary.component.html',
-  styleUrls: ['./draft-advance-summary.component.scss']
+  styleUrls: ['./draft-advance-summary.component.scss'],
 })
 export class DraftAdvanceSummaryComponent implements OnInit {
-  constructor(private popoverController: PopoverController) {}
+
+  constructor(
+    private popoverController: PopoverController
+  ) { }
 
   ngOnInit() {}
 
@@ -20,4 +23,5 @@ export class DraftAdvanceSummaryComponent implements OnInit {
   close() {
     this.popoverController.dismiss();
   }
+
 }

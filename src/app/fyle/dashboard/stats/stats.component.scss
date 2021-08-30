@@ -1,6 +1,6 @@
 @import '../../../../theme/colors';
 
-$ccc-bank-name: #c4cae8;
+$ccc-bank-name: #C4CAE8;
 
 .stats {
   &--menu-button {
@@ -60,8 +60,7 @@ $ccc-bank-name: #c4cae8;
     padding-top: 3px;
   }
 
-  &--expenses-count,
-  &--expenses-amount {
+  &--expenses-count, &--expenses-amount {
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
@@ -247,8 +246,7 @@ $ccc-bank-name: #c4cae8;
     }
   }
 
-  &--ccc-classified-count,
-  &--ccc-classified-amount {
+  &--ccc-classified-count, &--ccc-classified-amount {
     font-weight: 500;
     font-size: 18px;
     line-height: 28px;
@@ -288,4 +286,5 @@ $ccc-bank-name: #c4cae8;
       margin-left: auto;
     }
   }
+
 }

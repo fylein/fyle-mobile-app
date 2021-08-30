@@ -1,4 +1,5 @@
 .ccc-classify-actions {
+
   &--toolbar {
     border-bottom: 1px solid #e0e0e0;
   }
@@ -45,7 +46,7 @@
     display: flex;
     align-items: center;
     padding: 22px 16px;
-    color: #5a5d72;
+    color: #5A5D72;
     margin: 12px;
   }
 
@@ -80,13 +81,14 @@
     &__large {
       width: 148px;
     }
+
   }
 
   &--classify-details {
     display: flex;
     padding-top: 14px;
     padding-bottom: 12px;
-    color: #5a5d72;
+    color: #5A5D72;
     &-date {
       min-width: 60px;
       padding-right: 16px;
@@ -98,9 +100,12 @@
     }
 
     &-vendor {
+
     }
 
     &-purpose {
+
     }
   }
+
 }

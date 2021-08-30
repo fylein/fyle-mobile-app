@@ -27,7 +27,7 @@ $small-screen: 700px;
   &--cta-button {
     font-weight: 500;
     &__disabled {
-      opacity: 0.2;
+      opacity: .2;
     }
   }
 
@@ -54,4 +54,5 @@ $small-screen: 700px;
       background: $red;
     }
   }
+
 }

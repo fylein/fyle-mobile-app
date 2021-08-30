@@ -1,6 +1,8 @@
+
 @import '../../../../theme/colors.scss';
 
 .create-new-report {
+
   &--title-container {
     margin-left: -15%;
     color: $black;
@@ -68,6 +70,7 @@
     color: $red;
   }
 
+
   &--heading {
     color: $grey-light;
     font-size: 14px;
@@ -78,7 +81,7 @@
 
   &--select-all-checkbox {
     font-size: 14px;
-    padding: 16px 16px;
+    padding: 16px 16px; 
     background-color: $pure-white;
   }
 
@@ -93,7 +96,7 @@
     height: 20px;
     width: 20px;
   }
-
+  
   &--add-more-text {
     margin-left: 5px;
     color: $black-light;
@@ -147,3 +150,4 @@
     }
   }
 }
+

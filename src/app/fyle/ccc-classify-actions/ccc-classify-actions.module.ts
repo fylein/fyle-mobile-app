@@ -7,10 +7,10 @@ import { IonicModule } from '@ionic/angular';
 import { CccClassifyActionsPageRoutingModule } from './ccc-classify-actions-routing.module';
 
 import { CccClassifyActionsPage } from './ccc-classify-actions.page';
-import { SharedModule } from '../../shared/shared.module';
-import { MatRippleModule } from '@angular/material/core';
-import { MatchExpensePopoverComponent } from './match-expense-popover/match-expense-popover.component';
-import { MatButtonModule } from '@angular/material/button';
+import {SharedModule} from '../../shared/shared.module';
+import {MatRippleModule} from '@angular/material/core';
+import {MatchExpensePopoverComponent} from './match-expense-popover/match-expense-popover.component';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -22,6 +22,9 @@ import { MatButtonModule } from '@angular/material/button';
     MatRippleModule,
     MatButtonModule
   ],
-  declarations: [CccClassifyActionsPage, MatchExpensePopoverComponent]
+  declarations: [
+    CccClassifyActionsPage,
+    MatchExpensePopoverComponent
+  ]
 })
 export class CccClassifyActionsPageModule {}

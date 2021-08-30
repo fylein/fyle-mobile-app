@@ -92,10 +92,7 @@ export class AppComponent implements OnInit {
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
-    this.matIconRegistry.addSvgIcon(
-      'add-advance',
-      this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/svg/add-advance')
-    );
+    this.matIconRegistry.addSvgIcon('add-advance', this.domSanitizer.bypassSecurityTrustResourceUrl('../../assets/svg/add-advance'));
   }
 
   async showAppCloseAlert() {
@@ -118,13 +115,9 @@ export class AppComponent implements OnInit {
 
   registerBackButtonAction() {
     this.platform.backButton.subscribeWithPriority(10, () => {
-      if (
-        this.router.url.includes('my_dashboard') ||
-        this.router.url.includes('tasks') ||
-        this.router.url.includes('sign_in')
-      ) {
+      if (this.router.url.includes('my_dashboard') || this.router.url.includes('tasks') || this.router.url.includes('sign_in')) {
         this.showAppCloseAlert();
-      } else if (this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts')) {
+      } else if ((this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts'))) {
         if (this.previousUrl && this.previousUrl.includes('enterprise')) {
           this.navController.back();
         } else {
@@ -173,33 +166,30 @@ export class AppComponent implements OnInit {
   }
 
   checkAppSupportedVersion() {
-    this.deviceService
-      .getDeviceInfo()
-      .pipe(
-        switchMap((deviceInfo) => {
-          const data = {
-            app_version: deviceInfo.appVersion,
-            device_os: deviceInfo.platform
-          };
+    this.deviceService.getDeviceInfo().pipe(
+      switchMap((deviceInfo) => {
+        const data = {
+          app_version: deviceInfo.appVersion,
+          device_os: deviceInfo.platform
+        };
 
-          return this.appVersionService.isSupported(data);
-        })
-      )
-      .subscribe(async (res: { message: string; supported: boolean }) => {
-        if (!res.supported && environment.production) {
-          const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
-          const eou = await this.authService.getEou();
+        return this.appVersionService.isSupported(data);
+      })
+    ).subscribe(async (res: { message: string; supported: boolean }) => {
+      if (!res.supported && environment.production) {
+        const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
+        const eou = await this.authService.getEou();
 
-          this.trackingService.eventTrack('Auto Logged out', {
-            Asset: 'Mobile',
-            lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
-            user_email: eou && eou.us && eou.us.email,
-            appVersion: deviceInfo.appVersion
-          });
+        this.trackingService.eventTrack('Auto Logged out', {
+          Asset: 'Mobile',
+          lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
+          user_email: eou && eou.us && eou.us.email,
+          appVersion: deviceInfo.appVersion
+        });
 
-          this.router.navigate(['/', 'auth', 'app_version', { message: res.message }]);
-        }
-      });
+        this.router.navigate(['/', 'auth', 'app_version', { message: res.message }]);
+      }
+    });
   }
 
   async showSideMenu() {
@@ -209,100 +199,88 @@ export class AppComponent implements OnInit {
     }
     const orgs$ = this.offlineService.getOrgs();
     const currentOrg$ = this.offlineService.getCurrentOrg();
-    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+    const orgSettings$ = this.offlineService.getOrgSettings().pipe(
+      shareReplay(1)
+    );
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const delegatedAccounts$ = this.offlineService
-      .getDelegatedAccounts()
-      .pipe(map((res) => this.orgUserService.excludeByStatus(res, 'DISABLED')));
+    const delegatedAccounts$ = this.offlineService.getDelegatedAccounts().pipe(
+      map(res => this.orgUserService.excludeByStatus(res, 'DISABLED'))
+    );
     const deviceInfo$ = this.deviceService.getDeviceInfo();
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
 
     this.allowedActions$ = orgSettings$.pipe(
-      switchMap((orgSettings) => {
+      switchMap(orgSettings => {
         const allowedReportsActions$ = this.offlineService.getReportActions(orgSettings);
-        const allowedAdvancesActions$ = this.permissionsService.allowedActions(
-          'advances',
-          ['approve', 'create', 'delete'],
-          orgSettings
-        );
-        const allowedTripsActions$ = this.permissionsService.allowedActions(
-          'trips',
-          ['approve', 'create', 'edit', 'cancel'],
-          orgSettings
-        );
+        const allowedAdvancesActions$ = this.permissionsService.allowedActions('advances', ['approve', 'create', 'delete'], orgSettings);
+        const allowedTripsActions$ = this.permissionsService.allowedActions('trips', ['approve', 'create', 'edit', 'cancel'], orgSettings);
 
         return forkJoin({
           allowedReportsActions: allowedReportsActions$,
-          allowedAdvancesActions: iif(
-            () => orgSettings.advance_requests.enabled || orgSettings.advances.enabled,
-            allowedAdvancesActions$,
-            of(null)
-          ),
+          allowedAdvancesActions: iif(() => (orgSettings.advance_requests.enabled
+            || orgSettings.advances.enabled), allowedAdvancesActions$, of(null)),
           allowedTripsActions: iif(() => orgSettings.trip_requests.enabled, allowedTripsActions$, of(null))
         });
       })
     );
 
-    this.isConnected$
-      .pipe(
-        switchMap((isConnected) =>
-          forkJoin({
-            orgs: orgs$,
-            currentOrg: currentOrg$,
-            orgSettings: orgSettings$,
-            orgUserSettings: orgUserSettings$,
-            delegatedAccounts: delegatedAccounts$,
-            allowedActions: this.allowedActions$,
-            deviceInfo: deviceInfo$,
-            isSwitchedToDelegator: isSwitchedToDelegator$,
-            isConnected: of(isConnected),
-            eou: this.offlineService.getCurrentUser()
-          })
-        )
-      )
-      .subscribe((res) => {
-        const orgs = res.orgs;
-        this.activeOrg = res.currentOrg;
-        const orgSettings = res.orgSettings;
-        const orgUserSettings = res.orgUserSettings;
-        const isDelegatee = res.delegatedAccounts.length > 0;
-        this.appVersion = (res.deviceInfo && res.deviceInfo.appVersion) || '1.2.3';
-        const allowedReportsActions = res.allowedActions && res.allowedActions.allowedReportsActions;
-        const allowedAdvancesActions = res.allowedActions && res.allowedActions.allowedAdvancesActions;
-        const allowedTripsActions = res.allowedActions && res.allowedActions.allowedTripsActions;
-        this.isSwitchedToDelegator = res.isSwitchedToDelegator;
-        const isConnected = res.isConnected;
-        this.eou = res.eou;
+    this.isConnected$.pipe(
+      switchMap(isConnected => forkJoin({
+        orgs: orgs$,
+        currentOrg: currentOrg$,
+        orgSettings: orgSettings$,
+        orgUserSettings: orgUserSettings$,
+        delegatedAccounts: delegatedAccounts$,
+        allowedActions: this.allowedActions$,
+        deviceInfo: deviceInfo$,
+        isSwitchedToDelegator: isSwitchedToDelegator$,
+        isConnected: of(isConnected),
+        eou: this.offlineService.getCurrentUser()
+      }))
+    ).subscribe((res) => {
+      const orgs = res.orgs;
+      this.activeOrg = res.currentOrg;
+      const orgSettings = res.orgSettings;
+      const orgUserSettings = res.orgUserSettings;
+      const isDelegatee = res.delegatedAccounts.length > 0;
+      this.appVersion = (res.deviceInfo && res.deviceInfo.appVersion) || '1.2.3';
+      const allowedReportsActions = res.allowedActions && res.allowedActions.allowedReportsActions;
+      const allowedAdvancesActions = res.allowedActions && res.allowedActions.allowedAdvancesActions;
+      const allowedTripsActions = res.allowedActions && res.allowedActions.allowedTripsActions;
+      this.isSwitchedToDelegator = res.isSwitchedToDelegator;
+      const isConnected = res.isConnected;
+      this.eou = res.eou;
 
-        if (res.eou) {
-          Sentry.setUser({
-            id: res.eou.us.email + ' - ' + res.eou.ou.id,
-            email: res.eou.us.email,
-            orgUserId: res.eou.ou.id
-          });
-        }
 
-        this.freshChatService.setupNetworkWatcher();
+      if (res.eou) {
+        Sentry.setUser({
+          id: res.eou.us.email + ' - ' + res.eou.ou.id,
+          email: res.eou.us.email,
+          orgUserId: res.eou.ou.id
+        });
+      }
 
-        // TODO: remove nested subscribe - mini tech debt
-        this.setupSideMenu(
-          isConnected,
-          orgSettings,
-          orgUserSettings,
-          allowedReportsActions,
-          allowedTripsActions,
-          allowedAdvancesActions,
-          orgs,
-          isDelegatee
-        );
+      this.freshChatService.setupNetworkWatcher();
 
-        /* These below conditions have been added to place the divider in the sidenav:-
+      // TODO: remove nested subscribe - mini tech debt
+      this.setupSideMenu(
+        isConnected,
+        orgSettings,
+        orgUserSettings,
+        allowedReportsActions,
+        allowedTripsActions,
+        allowedAdvancesActions,
+        orgs,
+        isDelegatee
+      );
+
+      /* These below conditions have been added to place the divider in the sidenav:-
         - if 'Advances' is enabled, the divider will be placed under 'Advances',
         - else if 'Trips' is enabled, the divider will be placed under 'Trips',
         - else it will be placed under 'Reports'
       */
-        this.setDividerTitle(orgSettings, orgUserSettings);
-      });
+      this.setDividerTitle(orgSettings, orgUserSettings);
+    });
   }
 
   // TODO: Reduce number of params being passed
@@ -316,8 +294,7 @@ export class AppComponent implements OnInit {
     allowedTripsActions: any,
     allowedAdvancesActions: any,
     orgs,
-    isDelegatee: boolean
-  ) {
+    isDelegatee: boolean) {
     if (isConnected) {
       this.setSideMenuOnline(
         orgSettings,
@@ -326,8 +303,7 @@ export class AppComponent implements OnInit {
         allowedTripsActions,
         allowedAdvancesActions,
         orgs,
-        isDelegatee
-      );
+        isDelegatee);
     } else {
       this.setSideMenuOffline(
         orgSettings,
@@ -336,8 +312,7 @@ export class AppComponent implements OnInit {
         allowedTripsActions,
         allowedAdvancesActions,
         orgs,
-        isDelegatee
-      );
+        isDelegatee);
     }
   }
 
@@ -350,8 +325,7 @@ export class AppComponent implements OnInit {
     allowedTripsActions: any,
     allowedAdvancesActions: any,
     orgs: any,
-    isDelegatee: boolean
-  ) {
+    isDelegatee: boolean) {
     this.sideMenuList = [
       {
         title: 'Dashboard',
@@ -382,11 +356,7 @@ export class AppComponent implements OnInit {
       {
         title: 'Trips',
         // eslint-disable-next-line max-len
-        isVisible:
-          orgSettings.trip_requests.enabled &&
-          (!orgSettings.trip_requests.enable_for_certain_employee ||
-            (orgSettings.trip_requests.enable_for_certain_employee &&
-              orgUserSettings.trip_request_org_user_settings.enabled)),
+        isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
         icon: 'fy-trips-new',
         route: ['/', 'enterprise', 'my_trips'],
         disabled: true
@@ -408,7 +378,7 @@ export class AppComponent implements OnInit {
       },
       {
         title: 'Team Trips',
-        isVisible: orgSettings.trip_requests.enabled && allowedTripsActions && allowedReportsActions.approve,
+        isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
         icon: 'fy-team-trips-new',
         route: ['/', 'enterprise', 'team_trips'],
         disabled: true
@@ -419,13 +389,12 @@ export class AppComponent implements OnInit {
         icon: 'fy-team-advances-new',
         route: ['/', 'enterprise', 'team_advance'],
         disabled: true
-      }
+      },
     ];
     this.sideMenuSecondaryList = [
       {
         title: 'Live Chat',
-        isVisible:
-          orgUserSettings &&
+        isVisible: orgUserSettings &&
           orgUserSettings.in_app_chat_settings &&
           orgUserSettings.in_app_chat_settings.allowed &&
           orgUserSettings.in_app_chat_settings.enabled,
@@ -437,11 +406,11 @@ export class AppComponent implements OnInit {
         title: 'Settings',
         isVisible: true,
         icon: 'fy-settings',
-        route: ['/', 'enterprise', 'my_profile']
+        route: ['/', 'enterprise', 'my_profile'],
       },
       {
         title: 'Switch Organization',
-        isVisible: orgs.length > 1,
+        isVisible: (orgs.length > 1),
         icon: 'fy-switch-new',
         route: ['/', 'auth', 'switch_org', { choose: true }],
         disabled: true
@@ -471,15 +440,7 @@ export class AppComponent implements OnInit {
   }
 
   // eslint-disable-next-line
-  setSideMenuOnline(
-    orgSettings: any,
-    orgUserSettings: OrgUserSettings,
-    allowedReportsActions: any,
-    allowedTripsActions: any,
-    allowedAdvancesActions: any,
-    orgs: any,
-    isDelegatee: boolean
-  ) {
+  setSideMenuOnline(orgSettings: any, orgUserSettings: OrgUserSettings, allowedReportsActions: any, allowedTripsActions: any, allowedAdvancesActions: any, orgs: any, isDelegatee: boolean) {
     this.sideMenuList = [
       {
         title: 'Dashboard',
@@ -508,11 +469,7 @@ export class AppComponent implements OnInit {
       {
         title: 'Trips',
         // eslint-disable-next-line max-len
-        isVisible:
-          orgSettings.trip_requests.enabled &&
-          (!orgSettings.trip_requests.enable_for_certain_employee ||
-            (orgSettings.trip_requests.enable_for_certain_employee &&
-              orgUserSettings.trip_request_org_user_settings.enabled)),
+        isVisible: orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee || (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled)),
         icon: 'fy-trips-new',
         route: ['/', 'enterprise', 'my_trips']
       },
@@ -531,7 +488,7 @@ export class AppComponent implements OnInit {
       },
       {
         title: 'Team Trips',
-        isVisible: orgSettings.trip_requests.enabled && allowedTripsActions && allowedReportsActions.approve,
+        isVisible: orgSettings.trip_requests.enabled && (allowedTripsActions && allowedReportsActions.approve),
         icon: 'fy-team-trips-new',
         route: ['/', 'enterprise', 'team_trips']
       },
@@ -540,13 +497,12 @@ export class AppComponent implements OnInit {
         isVisible: allowedAdvancesActions && allowedAdvancesActions.approve,
         icon: 'fy-team-advances-new',
         route: ['/', 'enterprise', 'team_advance']
-      }
+      },
     ];
     this.sideMenuSecondaryList = [
       {
         title: 'Live Chat',
-        isVisible:
-          orgUserSettings &&
+        isVisible: orgUserSettings &&
           orgUserSettings.in_app_chat_settings &&
           orgUserSettings.in_app_chat_settings.allowed &&
           orgUserSettings.in_app_chat_settings.enabled,
@@ -561,7 +517,7 @@ export class AppComponent implements OnInit {
       },
       {
         title: 'Switch Organization',
-        isVisible: orgs.length > 1 && !this.isSwitchedToDelegator,
+        isVisible: (orgs.length > 1) && !this.isSwitchedToDelegator,
         icon: 'fy-switch-new',
         route: ['/', 'auth', 'switch_org', { choose: true }]
       },
@@ -588,12 +544,9 @@ export class AppComponent implements OnInit {
 
   setDividerTitle(orgSettings: any, orgUserSettings: OrgUserSettings) {
     this.dividerTitle = 'Reports';
-    if (
-      orgSettings.trip_requests.enabled &&
+    if (orgSettings.trip_requests.enabled &&
       (!orgSettings.trip_requests.enable_for_certain_employee ||
-        (orgSettings.trip_requests.enable_for_certain_employee &&
-          orgUserSettings.trip_request_org_user_settings.enabled))
-    ) {
+        (orgSettings.trip_requests.enable_for_certain_employee && orgUserSettings.trip_request_org_user_settings.enabled))) {
       this.dividerTitle = 'Trips';
     }
     if (orgSettings.advances.enabled || orgSettings.advance_requests.enabled) {
@@ -604,20 +557,16 @@ export class AppComponent implements OnInit {
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
-    );
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(shareReplay(1));
   }
 
   ngOnInit() {
     if ((window as any) && (window as any).localStorage) {
       const lstorage = (window as any).localStorage;
-      Object.keys(lstorage)
-        .filter((key) => key.match(/^fyle/))
-        .forEach((key) => lstorage.removeItem(key));
+      Object.keys(lstorage).filter(key => key.match(/^fyle/)).forEach(key => lstorage.removeItem(key));
     }
 
-    from(this.deviceService.getDeviceInfo()).subscribe((res) => {
+    from(this.deviceService.getDeviceInfo()).subscribe(res => {
       if (res.platform === 'android' || res.platform === 'ios') {
         this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
       }
@@ -649,21 +598,22 @@ export class AppComponent implements OnInit {
       // adding try catch because this may fail due to network issues
       // noop is no op - basically an empty function
       try {
-        this.trackingService.updateIdentityIfNotPresent().then(noop).catch(noop);
-      } catch (error) {}
+        this.trackingService.updateIdentityIfNotPresent()
+          .then(noop)
+          .catch(noop);
+      } catch (error) {
+      }
 
       if (ev instanceof NavigationStart) {
         this.previousUrl = this.router.url;
       }
       if (ev instanceof NavigationEnd) {
         this.menuController.swipeGesture(false);
-        if (
-          ev.urlAfterRedirects.indexOf('enterprise') > -1 &&
-          !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)
-        ) {
+        if ((ev.urlAfterRedirects.indexOf('enterprise') > -1) && !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)) {
           this.menuController.swipeGesture(true);
         }
       }
     });
   }
+
 }

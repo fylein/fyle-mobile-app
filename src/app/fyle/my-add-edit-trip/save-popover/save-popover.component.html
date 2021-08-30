@@ -1,15 +1,9 @@
-<ion-header mode="md">
-  <ion-toolbar [ngClass]="{ 'save-trip--header': saveMode === 'DRAFT' }">
-    <ion-buttons *ngIf="saveMode === 'DRAFT'" mode="md" slot="end" class="save-trip--close-button" (click)="close()">
+<ion-header mode="md" >
+  <ion-toolbar [ngClass]="{'save-trip--header': saveMode === 'DRAFT'}">
+    <ion-buttons  *ngIf="saveMode === 'DRAFT'" mode="md" slot="end" class="save-trip--close-button" (click)="close()">
       Back
     </ion-buttons>
-    <ion-buttons
-      *ngIf="saveMode === 'SUBMIT' || saveMode === 'CLOSE'"
-      mode="md"
-      slot="end"
-      class="save-trip--close-button"
-      (click)="close()"
-    >
+    <ion-buttons  *ngIf="saveMode === 'SUBMIT' || saveMode === 'CLOSE'" mode="md" slot="end" class="save-trip--close-button" (click)="close()">
       CANCEL
     </ion-buttons>
     <ion-title mode="md" class="save-trip--title">
@@ -24,7 +18,9 @@
   <div class="save-trip--warning-box" *ngIf="saveMode === 'DRAFT'">
     <p>
       This action will save a draft trip request and will not be submitted to your approvers directly.
-      <strong> You need to explicitly submit a draft trip request. </strong>
+      <strong>
+        You need to explicitly submit a draft trip request.
+      </strong>
     </p>
   </div>
 
@@ -45,37 +41,13 @@
 
 <ion-footer>
   <ion-toolbar class="save-trip--cta-container">
-    <ion-button
-      class="save-trip--cta-container-cta"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
-      type="button"
-      (click)="saveAsDraft()"
-      *ngIf="saveMode === 'DRAFT'"
-    >
+    <ion-button class="save-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="saveAsDraft()" *ngIf="saveMode === 'DRAFT'">
       Finish
     </ion-button>
-    <ion-button
-      class="save-trip--cta-container-cta"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
-      type="button"
-      (click)="saveAsDraft()"
-      *ngIf="saveMode === 'SUBMIT'"
-    >
+    <ion-button class="save-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="saveAsDraft()" *ngIf="saveMode === 'SUBMIT'">
       Continue
     </ion-button>
-    <ion-button
-      class="save-trip--cta-container-cta"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
-      type="button"
-      (click)="saveAsDraft()"
-      *ngIf="saveMode === 'CLOSE'"
-    >
+    <ion-button class="save-trip--cta-container-cta" fill="solid" color="fyle-primary" expand="block" type="button" (click)="saveAsDraft()" *ngIf="saveMode === 'CLOSE'">
       Discard
     </ion-button>
   </ion-toolbar>

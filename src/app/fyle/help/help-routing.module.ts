@@ -10,12 +10,12 @@ const routes: Routes = [
   },
   {
     path: 'support-dialog',
-    loadChildren: () => import('./support-dialog/support-dialog.module').then((m) => m.SupportDialogPageModule)
+    loadChildren: () => import('./support-dialog/support-dialog.module').then( m => m.SupportDialogPageModule)
   }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class HelpPageRoutingModule {}

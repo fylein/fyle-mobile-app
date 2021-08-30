@@ -9,7 +9,7 @@ describe('FyFilterPillsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [FyFilterPillsComponent],
+      declarations: [ FyFilterPillsComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 

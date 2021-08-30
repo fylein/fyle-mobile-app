@@ -1,16 +1,17 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs/internal/Observable';
-import { PopoverController } from '@ionic/angular';
-import { catchError, finalize, map } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { LoaderPosition } from '../../directive/loader-position.enum';
+import {Component, Input, OnInit} from '@angular/core';
+import {Observable} from 'rxjs/internal/Observable';
+import {PopoverController} from '@ionic/angular';
+import {catchError, finalize, map} from 'rxjs/operators';
+import {of} from 'rxjs';
+import {LoaderPosition} from '../../directive/loader-position.enum';
 
 @Component({
   selector: 'app-fy-delete-dialog',
   templateUrl: './fy-delete-dialog.component.html',
-  styleUrls: ['./fy-delete-dialog.component.scss']
+  styleUrls: ['./fy-delete-dialog.component.scss'],
 })
 export class FyDeleteDialogComponent implements OnInit {
+
   @Input() deleteMethod: () => Observable<any>;
 
   @Input() header: string;
@@ -23,9 +24,13 @@ export class FyDeleteDialogComponent implements OnInit {
     return LoaderPosition;
   }
 
-  constructor(private popoverController: PopoverController) {}
+  constructor(
+      private popoverController: PopoverController
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+
+  }
 
   cancel() {
     if (!this.deleteCallInProgress) {
@@ -35,18 +40,15 @@ export class FyDeleteDialogComponent implements OnInit {
 
   delete() {
     this.deleteCallInProgress = true;
-    this.deleteMethod()
-      .pipe(
-        map((res) => ({ status: 'success' })),
-        catchError(() =>
-          of({
-            status: 'error'
-          })
-        ),
-        finalize(() => (this.deleteCallInProgress = false))
-      )
-      .subscribe((res) => {
-        this.popoverController.dismiss(res);
-      });
+    this.deleteMethod().pipe(
+      map(res => ({ status: 'success' })),
+      catchError(() => of({
+        status: 'error'
+      })),
+      finalize(() => this.deleteCallInProgress = false)
+    ).subscribe(res => {
+      this.popoverController.dismiss(res);
+    });
   }
+
 }

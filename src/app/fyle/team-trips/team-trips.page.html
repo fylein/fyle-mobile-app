@@ -1,34 +1,26 @@
-<ion-header mode="md">
+<ion-header mode="md" >
   <ion-toolbar class="trip--toolbar">
     <ion-buttons mode="md" slot="start">
       <app-fy-menu-icon class="trip--menubutton" auto-hide="false"></app-fy-menu-icon>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> Trips </ion-title>
+    <ion-title mode="md"  class="page-title">
+      Trips
+    </ion-title>
     <ion-buttons mode="md" slot="end">
       <button mat-button class="trip--option" [matMenuTriggerFor]="menu">Filter</button>
     </ion-buttons>
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="changeState('PENDING')">
         <div class="trip--select-state">
-          <ion-checkbox
-            class="trip--select-state-checkbox"
-            mode="ios"
-            color="primary"
-            [checked]="state === 'PENDING'"
-            slot="start"
-          ></ion-checkbox>
+          <ion-checkbox class="trip--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'PENDING'"
+            slot="start"></ion-checkbox>
           <ion-label>Pending</ion-label>
         </div>
       </button>
       <button mat-menu-item (click)="changeState('ALL')">
         <div class="trip--select-state">
-          <ion-checkbox
-            class="trip--select-state-checkbox"
-            mode="ios"
-            color="primary"
-            [checked]="state === 'ALL'"
-            slot="start"
-          ></ion-checkbox>
+          <ion-checkbox class="trip--select-state-checkbox" mode="ios" color="primary" [checked]="state === 'ALL'"
+            slot="start"></ion-checkbox>
           <ion-label>ALL</ion-label>
         </div>
       </button>
@@ -49,11 +41,9 @@
 
   <ng-template #zeroState>
     <div class="trip--zero-state">
-      <app-fy-zero-state
-        [image]="'../../../assets/images/zero-states/coffee.svg'"
+      <app-fy-zero-state [image]="'../../../assets/images/zero-states/coffee.svg'"
         [header]="'Nothing here, grab a coffee maybe?'"
-        [message]="'Trip Requests that need your approval will show up here.'"
-      ></app-fy-zero-state>
+        [message]="'Trip Requests that need your approval will show up here.'"></app-fy-zero-state>
     </div>
   </ng-template>
 

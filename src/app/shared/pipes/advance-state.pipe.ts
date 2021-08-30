@@ -4,6 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'advanceState'
 })
 export class AdvanceState implements PipeTransform {
+
   transform(value) {
     const states = {
       DRAFT: 'draft',
@@ -15,9 +16,10 @@ export class AdvanceState implements PipeTransform {
       APPROVAL_DONE: 'approved',
       APPROVAL_DISABLED: 'disabled',
       APPROVAL_REJECTED: 'rejected',
-      REJECTED: 'rejected'
+      REJECTED: 'rejected',
     };
 
     return states[value];
   }
+
 }

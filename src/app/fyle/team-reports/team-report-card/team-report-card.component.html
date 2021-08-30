@@ -1,57 +1,56 @@
 <p *ngIf="showDate" class="reports-card--date">
-  {{ erpt.rp_created_at | date: 'EEEE, MMM dd, yyyy' }}
+  {{erpt.rp_created_at | date: 'EEEE, MMM dd, yyyy'}}
 </p>
 <div class="reports-card--policy-violation" *ngIf="erpt.rp_manual_flag || erpt.rp_policy_flag">
   <span>Policy Violation</span>
 </div>
-<div
-  [ngClass]="{ 'reports-card__no-top-margin': erpt.rp_manual_flag || erpt.rp_policy_flag }"
-  class="reports-card"
-  (click)="onGoToReport()"
-  *ngIf="!actionOpened"
-  matRipple
->
+<div [ngClass]="{'reports-card__no-top-margin': erpt.rp_manual_flag || erpt.rp_policy_flag}" class="reports-card" (click)="onGoToReport()" *ngIf="!actionOpened" matRipple>
   <div class="reports-card--main-info">
     <div>
       <div>
         <span class="reports-card--currency">
-          {{ erpt.rp_currency }}
+          {{erpt.rp_currency}}
         </span>
         <span class="reports-card--amount">
-          {{ erpt.rp_amount | number: '1.2-2' }}
+          {{erpt.rp_amount | number: '1.2-2'}}
         </span>
       </div>
       <div class="reports-card--purpose">
-        {{ erpt.rp_purpose | ellipsis: 30 }}
+        {{erpt.rp_purpose | ellipsis: 30}}
       </div>
-      <div class="reports-card--purpose">Owner: {{ erpt.us_full_name | ellipsis: 30 }}</div>
+      <div class="reports-card--purpose">
+        Owner: {{erpt.us_full_name | ellipsis: 30}}
+      </div>
     </div>
     <!-- <div (click)="actionOpened = true; $event.stopPropagation()">
         <mat-icon class="reports-card--more">more_horiz</mat-icon>
     </div> -->
   </div>
   <div class="reports-card--secondary-info">
-    <p class="reports-card--no-transactions">
-      Contains <span>{{ erpt.rp_num_transactions }}</span> expenses
-    </p>
+    <p class="reports-card--no-transactions">Contains <span>{{erpt.rp_num_transactions}}</span> expenses</p>
   </div>
-  <div class="reports-card--pill  reports-card--pill__{{ erpt.rp_state | reportState }}">
-    {{ erpt.rp_state | reportState | snakeCaseToSpaceCase | uppercase }}
+  <div class="reports-card--pill  reports-card--pill__{{erpt.rp_state | reportState}}">
+    {{erpt.rp_state | reportState | snakeCaseToSpaceCase | uppercase}}
   </div>
 </div>
+
 
 <div class="reports-card-menu" *ngIf="actionOpened">
   <div class="reports-card-menu--close">
     <div matRipple (click)="actionOpened = false" class="reports-card-menu--cancel">
-      <mat-icon> close </mat-icon>
+      <mat-icon>
+        close
+      </mat-icon>
     </div>
   </div>
   <div class="reports-card-menu--buttons">
-    <div matRipple class="reports-card-menu--action reports-card-menu--action__comments" (click)="onViewComments()">
+    <div matRipple class="reports-card-menu--action reports-card-menu--action__comments"
+      (click)="onViewComments()">
       View Comments
     </div>
 
-    <div matRipple class="reports-card-menu--action reports-card-menu--action__delete" (click)="onDeleteReport()">
+    <div matRipple class="reports-card-menu--action reports-card-menu--action__delete"
+      (click)="onDeleteReport()">
       Delete
     </div>
   </div>

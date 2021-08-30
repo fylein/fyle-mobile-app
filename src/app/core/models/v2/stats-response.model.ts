@@ -24,7 +24,7 @@ export class StatsResponse {
 
   url: string;
 
-  constructor({ data, url }) {
+  constructor({data, url}) {
     this.data = data;
     this.url = url;
   }

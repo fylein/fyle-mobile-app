@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
-import { Plugins } from '@capacitor/core';
+import {Plugins} from '@capacitor/core';
 
 const { Storage } = Plugins;
 
@@ -8,7 +8,8 @@ const { Storage } = Plugins;
   providedIn: 'root'
 })
 export class StorageService {
-  constructor() {}
+
+  constructor() { }
 
   async set(key: string, value: any) {
     return await Storage.set({

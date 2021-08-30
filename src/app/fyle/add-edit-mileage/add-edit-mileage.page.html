@@ -8,13 +8,11 @@
         <ion-icon name="close" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title
-      *ngIf="mode"
-      class="page-title"
-      mode="md"
-      [ngClass]="{'add-edit-mileage--title__review': reviewList?.length}"
-    >
-      <div *ngIf="mode === 'add'">Add Mileage</div>
+    <ion-title *ngIf="mode" class="page-title" mode="md"
+      [ngClass]="{'add-edit-mileage--title__review': reviewList?.length}">
+      <div *ngIf="mode === 'add'">
+        Add Mileage
+      </div>
       <div *ngIf="mode === 'edit'">
         <ng-container *ngIf="reviewList?.length;else editMode">
           Review Mileage
@@ -23,7 +21,9 @@
           </div>
         </ng-container>
         <ng-template #editMode>
-          <div>Edit Mileage</div>
+          <div>
+            Edit Mileage
+          </div>
         </ng-template>
       </div>
     </ion-title>
@@ -42,9 +42,13 @@
   <div>
     <div class="add-edit-mileage--duplicate-pointer-container">
       <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-mileage--duplicate-pointer">
-        <div class="add-edit-mileage--duplicate-pointer-text">Possible Duplicates Detected !</div>
+        <div class="add-edit-mileage--duplicate-pointer-text">
+          Possible Duplicates Detected !
+        </div>
         <div class="add-edit-mileage--duplicate-pointer-icon">
-          <mat-icon class="add-edit-mileage--duplicate-pointer-icon-internal"> expand_more </mat-icon>
+          <mat-icon class="add-edit-mileage--duplicate-pointer-icon-internal">
+            expand_more
+          </mat-icon>
         </div>
       </div>
     </div>
@@ -65,9 +69,9 @@
                   This mileage has violated a critical policy. You cannot create a report with this mileage.
                 </ng-container>
                 <ng-template #justAmountCapped>
-                  Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: 'symbol-narrow'}} was capped to
-                  {{etxn.tx.amount | currency: etxn.tx.currency: 'symbol-narrow'}} due to policy
-                  <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+                  Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: 'symbol-narrow'}} was capped
+                  to {{etxn.tx.amount | currency: etxn.tx.currency: 'symbol-narrow'}} due to policy <span
+                    *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
                 </ng-template>
               </div>
             </ng-container>
@@ -76,10 +80,7 @@
 
         <ng-container *ngIf="isConnected$|async">
           <div class="add-edit-mileage--map">
-            <app-route-visualizer
-              [mileageLocations]="fg.controls.route.value?.mileageLocations || []"
-              (mapClick)="onRouteVisualizerClick()"
-            ></app-route-visualizer>
+            <app-route-visualizer [mileageLocations]="fg.controls.route.value?.mileageLocations || []" (mapClick)="onRouteVisualizerClick()"></app-route-visualizer>
           </div>
         </ng-container>
 
@@ -127,17 +128,12 @@
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <ng-container *ngIf="mileageConfig$|async as mileageConfig">
                     <ng-container *ngIf="recentlyUsedMileageLocations$|async as recentlyUsedMileageLocations">
-                      <app-route-selector
-                        formControlName="route"
-                        [isConnected]="connectionStatus.connected"
+                      <app-route-selector formControlName="route" [isConnected]="connectionStatus.connected"
                         [recentlyUsedMileageLocations]="recentlyUsedMileageLocations"
-                        [formInitialized]="formInitializedFlag"
-                        [txnFields]="txnFields"
+                        [formInitialized]="formInitializedFlag" [txnFields]="txnFields"
                         [isAmountDisabled]="(isAmountDisabled$|async) || (txnFields?.distance?(!txnFields?.distance?.canEdit):false)"
-                        [isDistanceMandatory]="txnFields?.distance?.is_mandatory"
-                        [mileageConfig]="mileageConfig"
-                        [unit]="etxn.tx.distance_unit || mileageConfig.unit"
-                      ></app-route-selector>
+                        [isDistanceMandatory]="txnFields?.distance?.is_mandatory" [mileageConfig]="mileageConfig"
+                        [unit]="etxn.tx.distance_unit || mileageConfig.unit"></app-route-selector>
                     </ng-container>
                   </ng-container>
                 </ng-container>
@@ -146,12 +142,8 @@
 
             <ng-container *ngIf="mileageConfig$|async as mileageConfig">
               <div class="add-edit-mileage--internal-block">
-                <app-fy-select-vehicle
-                  [isAmountDisabled]="(isAmountDisabled$|async)"
-                  [mandatory]="true"
-                  [mileageConfig]="mileageConfig"
-                  formControlName="mileage_vehicle_type"
-                ></app-fy-select-vehicle>
+                <app-fy-select-vehicle [isAmountDisabled]="(isAmountDisabled$|async)" [mandatory]="true"
+                  [mileageConfig]="mileageConfig" formControlName="mileage_vehicle_type"></app-fy-select-vehicle>
               </div>
             </ng-container>
 
@@ -159,61 +151,43 @@
               <ion-row>
                 <ion-col size="6">
                   <ng-container *ngIf="txnFields$|async as txnFields">
-                    <div
-                      *ngIf="txnFields?.txn_dt"
-                      class="
-                        add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin
-                      "
-                      [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
-                    >
+                    <div *ngIf="txnFields?.txn_dt"
+                      class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
+                      [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}">
                       <div class="add-edit-mileage--date-label">
                         {{txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'}}
                         <span class="add-edit-mileage--mandatory" *ngIf="txnFields?.txn_dt?.is_mandatory">*</span>
                       </div>
-                      <input
-                        appFormatDate
-                        (keydown)="$event.preventDefault()"
-                        [max]="maxDate"
-                        [min]="minDate"
-                        class="add-edit-mileage--date-input date-input__format"
-                        [name]="txnFields?.txn_dt?.field_name"
-                        formControlName="dateOfSpend"
-                        type="date"
-                        [placeholder]="'Select ' + txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'"
-                      />
+                      <input appFormatDate (keydown)="$event.preventDefault()" [max]="maxDate" [min]="minDate"
+                        class="add-edit-mileage--date-input date-input__format" [name]="txnFields?.txn_dt?.field_name"
+                        formControlName="dateOfSpend" type="date"
+                        [placeholder]="'Select ' + txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'">
                     </div>
-                    <div
-                      *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
-                      class="add-edit-mileage--error"
-                    >
+                    <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
+                      class="add-edit-mileage--error">
                       Please select a valid date.
                     </div>
                   </ng-container>
                 </ion-col>
                 <ion-col size="6">
                   <ng-container *ngIf="paymentModes$|async as paymentModes">
-                    <div
-                      *ngIf="paymentModes.length > 1"
+                    <div *ngIf="paymentModes.length > 1"
                       class="add-edit-mileage--payment-modes add-edit-mileage--internal-block"
-                      [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
-                    >
-                      <app-fy-select
-                        [enableSearch]="false"
-                        [label]="'Payment Mode'"
-                        [mandatory]="true"
-                        [nullOption]="false"
-                        [options]="paymentModes"
-                        [selectModalHeader]="'Select Payment Mode'"
-                        [selectionElement]="paymentMode"
-                        formControlName="paymentMode"
-                      >
+                      [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}">
+                      <app-fy-select [enableSearch]="false" [label]="'Payment Mode'" [mandatory]="true" [nullOption]="false"
+                        [options]="paymentModes" [selectModalHeader]="'Select Payment Mode'" [selectionElement]="paymentMode"
+                        formControlName="paymentMode">
                       </app-fy-select>
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
                         <div>
-                          <div class="add-edit-mileage--payment-mode-header">{{label}}</div>
+                          <div class="add-edit-mileage--payment-mode-header">
+                            {{label}}
+                          </div>
                           <ng-container *ngIf="paymentMode">
                             <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
-                              <div class="add-edit-mileage--payment-mode-section">{{paymentMode.advance.purpose}}</div>
+                              <div class="add-edit-mileage--payment-mode-section">
+                                {{paymentMode.advance.purpose}}
+                              </div>
                             </ng-container>
                             <div *ngIf="paymentMode.acc.isReimbursable" class="add-edit-mileage--payment-mode-section">
                               (Reimbursable)
@@ -223,13 +197,13 @@
                             </div>
                           </ng-container>
                         </div>
-                        <mat-icon *ngIf="selected" class="add-edit-mileage--check"> check </mat-icon>
+                        <mat-icon *ngIf="selected" class="add-edit-mileage--check">
+                          check
+                        </mat-icon>
                       </ng-template>
                     </div>
-                    <div
-                      *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
-                      class="add-edit-mileage--error"
-                    >
+                    <div *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
+                      class="add-edit-mileage--error">
                       Please select payment mode.
                     </div>
                   </ng-container>
@@ -238,36 +212,25 @@
             </ion-grid>
 
             <ng-container *ngIf="isAdvancesEnabled$">
-              <app-fy-alert
-                *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)"
-                [message]="'You have outstanding balance in your advance account(s)'"
-                [type]="'information'"
-              >
+              <app-fy-alert *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)"
+                [message]="'You have outstanding balance in your advance account(s)'" [type]="'information'">
               </app-fy-alert>
             </ng-container>
           </div>
+
 
           <div class="add-edit-mileage--project-container">
             <ng-container *ngIf="isConnected$|async">
               <ng-container *ngIf="txnFields$|async as txnFields">
                 <ng-container
-                  *ngIf="txnFields?.project_id && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
-                >
+                  *ngIf="txnFields?.project_id && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))">
                   <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                     <ng-container *ngIf="isProjectVisible$|async">
-                      <div
-                        class="add-edit-mileage--internal-block add-edit-mileage--project-block"
-                        [ngClass]="{'add-edit-mileage--no-project': fg.controls.project.touched && !fg.controls.project.valid}"
-                      >
-                        <app-fy-select-project
-                          [cacheName]="'mileageProjectCache'"
-                          [categoryIds]="projectCategoryIds"
-                          [label]="'Project'"
-                          [mandatory]="txnFields.project_id?.is_mandatory"
-                          [defaultValue]="true"
-                          [recentlyUsed]="recentProjects"
-                          formControlName="project"
-                        ></app-fy-select-project>
+                      <div class="add-edit-mileage--internal-block add-edit-mileage--project-block"
+                        [ngClass]="{'add-edit-mileage--no-project': fg.controls.project.touched && !fg.controls.project.valid}">
+                        <app-fy-select-project [cacheName]="'mileageProjectCache'" [categoryIds]="projectCategoryIds"
+                          [label]="'Project'" [mandatory]="txnFields.project_id?.is_mandatory" [defaultValue]="true"
+                          [recentlyUsed]="recentProjects" formControlName="project"></app-fy-select-project>
                       </div>
                     </ng-container>
                   </ng-container>
@@ -277,7 +240,9 @@
 
             <div *ngIf="fg.controls.project.value">
               <mat-checkbox formControlName="billable">
-                <span class="add-edit-mileage--checkbox"> Billable </span>
+                <span class="add-edit-mileage--checkbox">
+                  Billable
+                </span>
               </mat-checkbox>
             </div>
           </div>
@@ -288,24 +253,15 @@
 
           <ng-container *ngIf="filteredCategories$|async as subCategories">
             <ng-container *ngIf="subCategories.length > 0">
-              <div
-                class="add-edit-mileage--internal-block"
-                [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.sub_category.touched && !fg.controls.sub_category.valid}"
-              >
-                <app-fy-select
-                  [cacheName]="'mileageSubCategoryName'"
-                  [label]="'Sub Category'"
-                  [mandatory]="true"
-                  [options]="subCategories"
-                  [selectModalHeader]="'Select Sub Category'"
-                  formControlName="sub_category"
-                >
+              <div class="add-edit-mileage--internal-block"
+                [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.sub_category.touched && !fg.controls.sub_category.valid}">
+                <app-fy-select [cacheName]="'mileageSubCategoryName'" [label]="'Sub Category'" [mandatory]="true"
+                  [options]="subCategories" [selectModalHeader]="'Select Sub Category'" formControlName="sub_category">
+
                 </app-fy-select>
               </div>
-              <div
-                *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid"
-                class="add-edit-mileage--error"
-              >
+              <div *ngIf="fg.controls.sub_category.touched && !fg.controls.sub_category.valid"
+                class="add-edit-mileage--error">
                 Please select a Sub Category.
               </div>
             </ng-container>
@@ -315,26 +271,17 @@
             <ng-container *ngIf="costCenters$|async as costCenters">
               <ng-container *ngIf="txnFields$|async as txnFields">
                 <ng-container *ngIf="txnFields.cost_center_id?.is_mandatory || isExpandedView">
-                  <div
-                    *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
+                  <div *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
                     class="add-edit-mileage--internal-block"
-                    [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
-                  >
-                    <app-fy-select
-                      [cacheName]="'mileageCostCenterCache'"
-                      [label]="txnFields.cost_center_id?.field_name"
-                      [mandatory]="txnFields.cost_center_id.is_mandatory"
-                      [options]="costCenters"
-                      [selectModalHeader]="'Select Cost Center'"
-                      [recentlyUsed]="recentCostCenters"
-                      formControlName="costCenter"
-                    >
+                    [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}">
+                    <app-fy-select [cacheName]="'mileageCostCenterCache'" [label]="txnFields.cost_center_id?.field_name"
+                      [mandatory]="txnFields.cost_center_id.is_mandatory" [options]="costCenters"
+                      [selectModalHeader]="'Select Cost Center'" [recentlyUsed]="recentCostCenters"
+                      formControlName="costCenter">
                     </app-fy-select>
                   </div>
-                  <div
-                    *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"
-                    class="add-edit-mileage--error"
-                  >
+                  <div *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"
+                    class="add-edit-mileage--error">
                     Please select a Cost Center.
                   </div>
                 </ng-container>
@@ -344,44 +291,35 @@
             <ng-container *ngIf="txnFields$|async as txnFields">
               <ng-container *ngIf="txnFields?.purpose">
                 <ng-container *ngIf="txnFields.purpose?.is_mandatory || isExpandedView">
-                  <div
-                    *ngIf="txnFields.purpose?.type === 'TEXT'"
+                  <div *ngIf="txnFields.purpose?.type === 'TEXT'"
                     class="add-edit-mileage--text add-edit-mileage--internal-block"
-                    [ngClass]="{'add-edit-mileage--text__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-                  >
+                    [ngClass]="{'add-edit-mileage--text__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}">
                     <div class="add-edit-mileage--text-label">
                       {{ txnFields.purpose?.field_name| slice: 0:30 }}
-                      <span class="add-edit-mileage--mandatory" *ngIf="txnFields.purpose?.is_mandatory"> * </span>
+                      <span class="add-edit-mileage--mandatory" *ngIf="txnFields.purpose?.is_mandatory">
+                        *
+                      </span>
                     </div>
-                    <input
-                      [disabled]="!txnFields.purpose?.canEdit"
+                    <input [disabled]="!txnFields.purpose?.canEdit"
                       [placeholder]="'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
-                      [required]="txnFields.purpose?.is_mandatory"
-                      [title]="'Enter'+txnFields.purpose?.field_name"
-                      class="add-edit-mileage--text-input"
-                      formControlName="purpose"
-                    />
+                      [required]="txnFields.purpose?.is_mandatory" [title]="'Enter'+txnFields.purpose?.field_name"
+                      class="add-edit-mileage--text-input" formControlName="purpose">
                   </div>
                   <div *ngIf="txnFields.purpose?.type === 'SELECT'" class="add-edit-mileage--internal-block">
-                    <app-fy-select
-                      [disabled]="!txnFields.purpose?.canEdit"
-                      [label]="txnFields.purpose?.field_name"
-                      [mandatory]="txnFields.purpose?.is_mandatory"
-                      [options]="txnFields.purpose?.options"
-                      [selectModalHeader]="'Enter ' + txnFields.purpose?.field_name"
-                      formControlName="purpose"
-                    >
+                    <app-fy-select [disabled]="!txnFields.purpose?.canEdit" [label]="txnFields.purpose?.field_name"
+                      [mandatory]="txnFields.purpose?.is_mandatory" [options]="txnFields.purpose?.options"
+                      [selectModalHeader]="'Enter ' + txnFields.purpose?.field_name" formControlName="purpose">
                     </app-fy-select>
                   </div>
-                  <div
-                    *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid"
-                    class="add-edit-mileage--error add-edit-mileage--text-error"
-                  >
+                  <div *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid"
+                    class="add-edit-mileage--error add-edit-mileage--text-error">
                     Please enter a {{ txnFields.purpose?.field_name }}
                   </div>
                 </ng-container>
               </ng-container>
             </ng-container>
+
+
 
             <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
               <ng-container *ngIf="customInput.mandatory || isExpandedView">
@@ -390,38 +328,23 @@
                     <div
                       *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'"
                       class="add-edit-mileage--text"
-                      [ngClass]="{'add-edit-mileage--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-                    >
+                      [ngClass]="{'add-edit-mileage--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}">
                       <div class="add-edit-mileage--text-label">
                         {{customInput.name | ellipsis: 30}}
-                        <span class="add-edit-mileage--mandatory" *ngIf="customInput.mandatory"> * </span>
+                        <span class="add-edit-mileage--mandatory" *ngIf="customInput.mandatory">
+                          *
+                        </span>
                       </div>
-                      <input
-                        *ngIf="customInput.type === 'TEXT'"
-                        class="add-edit-mileage--text-input"
-                        formControlName="value"
-                        type="text"
-                        [placeholder]="'Enter ' + customInput.name"
-                      />
+                      <input *ngIf="customInput.type === 'TEXT'" class="add-edit-mileage--text-input"
+                        formControlName="value" type="text" [placeholder]="'Enter ' + customInput.name">
 
-                      <input
-                        *ngIf="customInput.type === 'NUMBER'"
-                        class="add-edit-mileage--text-input"
-                        formControlName="value"
-                        inputmode="decimal"
-                        type="number"
-                        [placeholder]="'Enter ' + customInput.name"
-                      />
+                      <input *ngIf="customInput.type === 'NUMBER'" class="add-edit-mileage--text-input"
+                        formControlName="value" inputmode="decimal" type="number"
+                        [placeholder]="'Enter ' + customInput.name">
 
-                      <input
-                        appFormatDate
-                        *ngIf="customInput.type === 'DATE'"
-                        class="add-edit-mileage--date-input date-input__format"
-                        formControlName="value"
-                        type="date"
-                        [placeholder]="'Select ' + customInput.name"
-                        [name]="customInput.name"
-                      />
+                      <input appFormatDate *ngIf="customInput.type === 'DATE'"
+                        class="add-edit-mileage--date-input date-input__format" formControlName="value" type="date"
+                        [placeholder]="'Select ' + customInput.name" [name]="customInput.name">
                     </div>
 
                     <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-mileage--checkbox">
@@ -434,42 +357,28 @@
                     </div>
 
                     <div *ngIf="customInput.type === 'LOCATION'">
-                      <app-fy-location
-                        [label]="customInput.name | ellipsis: 30"
-                        [mandatory]="customInput.mandatory"
-                        formControlName="value"
-                      >
+                      <app-fy-location [label]="customInput.name | ellipsis: 30" [mandatory]="customInput.mandatory"
+                        formControlName="value">
                       </app-fy-location>
                     </div>
 
                     <div *ngIf="customInput.type === 'SELECT'">
-                      <app-fy-select
-                        [label]="customInput.name | ellipsis: 30"
-                        [mandatory]="customInput.mandatory"
-                        [options]="customInput.options"
-                        [selectModalHeader]="'Select '+customInput.name"
-                        formControlName="value"
-                      >
+                      <app-fy-select [label]="customInput.name | ellipsis: 30" [mandatory]="customInput.mandatory"
+                        [options]="customInput.options" [selectModalHeader]="'Select '+customInput.name"
+                        formControlName="value">
                       </app-fy-select>
                     </div>
 
                     <div *ngIf="customInput.type === 'MULTI_SELECT'">
-                      <app-fy-multiselect
-                        [label]="customInput.name | ellipsis: 30"
-                        [mandatory]="customInput.mandatory"
-                        [options]="customInput.options"
-                        [selectModalHeader]="'Select '+customInput.name"
-                        [subheader]="customInput.name"
-                        formControlName="value"
-                      >
+                      <app-fy-multiselect [label]="customInput.name | ellipsis: 30" [mandatory]="customInput.mandatory"
+                        [options]="customInput.options" [selectModalHeader]="'Select '+customInput.name"
+                        [subheader]="customInput.name" formControlName="value">
                       </app-fy-multiselect>
                     </div>
                   </form>
                 </div>
-                <div
-                  *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid"
-                  class="add-edit-mileage--error"
-                >
+                <div *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid"
+                  class="add-edit-mileage--error">
                   Please enter a {{customInput.name}}
                 </div>
               </ng-container>
@@ -481,14 +390,13 @@
                 <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
                   <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
                     <div class="add-edit-mileage--internal-block">
-                      <app-fy-add-to-report
-                        *ngIf="reports.length > 0"
-                        [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                        [options]="reports"
-                        formControlName="report"
-                      ></app-fy-add-to-report>
+                      <app-fy-add-to-report *ngIf="reports.length > 0"
+                        [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'" [options]="reports"
+                        formControlName="report"></app-fy-add-to-report>
                       <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                        <span class="add-edit-mileage--text-label"> Add to New Report </span>
+                        <span class="add-edit-mileage--text-label">
+                          Add to New Report
+                        </span>
                       </mat-checkbox>
                     </div>
                   </ng-container>
@@ -499,27 +407,29 @@
             <ng-container *ngIf="isConnected$|async">
               <ng-container *ngIf="duplicates$|async as duplicates">
                 <ng-container *ngIf="duplicates.length > 0">
-                  <div
-                    #duplicateInputContainer
-                    class="add-edit-mileage--duplicates-box add-edit-mileage--primary-block"
-                  >
+                  <div #duplicateInputContainer
+                    class="add-edit-mileage--duplicates-box add-edit-mileage--primary-block">
                     <div class="add-edit-mileage--duplicate-header">
-                      <mat-icon> warning </mat-icon>
-                      <div>{{duplicates.length}} Duplicates Detected</div>
-                      <div (click)="duplicateBoxOpen = false" *ngIf="duplicateBoxOpen">Collapse</div>
-                      <div (click)="duplicateBoxOpen = true" *ngIf="!duplicateBoxOpen">Expand</div>
+                      <mat-icon>
+                        warning
+                      </mat-icon>
+                      <div>
+                        {{duplicates.length}} Duplicates Detected
+                      </div>
+                      <div (click)="duplicateBoxOpen = false" *ngIf="duplicateBoxOpen">
+                        Collapse
+                      </div>
+                      <div (click)="duplicateBoxOpen = true" *ngIf="!duplicateBoxOpen">
+                        Expand
+                      </div>
                     </div>
                     <div *ngIf="duplicateBoxOpen" class="add-edit-mileage--duplicate-sub-box">
                       <div *ngFor="let duplicate of duplicates" class="add-edit-mileage--duplicate-reason">
                         {{duplicate.reason}}
                       </div>
                       <div class="add-edit-mileage--duplicate-reason-select">
-                        <app-fy-select
-                          [label]="'Reason'"
-                          [options]="duplicateDetectionReasons"
-                          [selectModalHeader]="'Select Reason'"
-                          formControlName="duplicate_detection_reason"
-                        >
+                        <app-fy-select [label]="'Reason'" [options]="duplicateDetectionReasons"
+                          [selectModalHeader]="'Select Reason'" formControlName="duplicate_detection_reason">
                         </app-fy-select>
                       </div>
                     </div>
@@ -549,12 +459,12 @@
               <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                 <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                   <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-                    <app-fy-alert
-                      *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
+
+                    <app-fy-alert *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                       [type]="'warning'"
-                      [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                    >
+                      [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
                     </app-fy-alert>
+
                   </ng-container>
                 </ng-container>
               </ng-container>
@@ -569,42 +479,21 @@
   </div>
 </ion-content>
 <ng-container *ngIf="fg">
-  <app-review-footer
-    *ngIf="reviewList?.length"
-    [activeIndex]="+activeIndex"
-    [reviewList]="reviewList"
-    [saveAndPrevLoader]="saveAndPrevMileageLoader"
-    [saveAndNextLoader]="saveAndNextMileageLoader"
-    (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
-    (saveAndGoToNext)="saveExpenseAndGotoNext()"
-  ></app-review-footer>
+  <app-review-footer *ngIf="reviewList?.length" [activeIndex]="+activeIndex" [reviewList]="reviewList"
+    [saveAndPrevLoader]="saveAndPrevMileageLoader" [saveAndNextLoader]="saveAndNextMileageLoader"
+    (saveAndGoToPrev)="saveExpenseAndGotoPrev()" (saveAndGoToNext)="saveExpenseAndGotoNext()"></app-review-footer>
   <ion-footer *ngIf="!reviewList?.length">
-    <ion-toolbar
-      mode="md"
-      class="add-edit-mileage--footer-toolbar"
-      [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}"
-    >
+    <ion-toolbar mode="md" class="add-edit-mileage--footer-toolbar"
+      [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}">
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
         <ion-buttons>
-          <ion-button
-            (click)="saveAndNewExpense()"
-            *ngIf="mode === 'add'"
+          <ion-button (click)="saveAndNewExpense()" *ngIf="mode === 'add'"
             [disabled]="fg.controls.add_to_new_report.value || (saveMileageLoader || saveAndNewMileageLoader)"
-            class="btn-secondary"
-            appFormButtonValidation
-            [loading]="saveAndNewMileageLoader"
-            [loadingText]="'Saving'"
-          >
+            class="btn-secondary" appFormButtonValidation [loading]="saveAndNewMileageLoader" [loadingText]="'Saving'">
             Save & New
           </ion-button>
-          <ion-button
-            (click)="saveExpense()"
-            class="btn-primary"
-            appFormButtonValidation
-            [loading]="saveMileageLoader"
-            [loadingText]="'Saving'"
-            [disabled]="saveMileageLoader || saveAndNewMileageLoader"
-          >
+          <ion-button (click)="saveExpense()" class="btn-primary" appFormButtonValidation
+            [loading]="saveMileageLoader" [loadingText]="'Saving'" [disabled]="saveMileageLoader || saveAndNewMileageLoader">
             Save
           </ion-button>
         </ion-buttons>

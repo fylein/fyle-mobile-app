@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, Injector, OnDestroy } from '@angular/core';
+import {Component, OnInit, forwardRef, Input, Injector, OnDestroy} from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 
@@ -15,6 +15,7 @@ import { noop } from 'rxjs';
   ]
 })
 export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
+
   @Input() mandatory = false;
 
   @Input() label = 'Type';
@@ -39,7 +40,9 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
 
   private onChangeCallback: (_: any) => void = noop;
 
-  constructor(private injector: Injector) {}
+  constructor(
+    private injector: Injector
+  ) { }
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
@@ -52,6 +55,7 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
+
 
       this.onChangeCallback(v);
     }
@@ -70,6 +74,7 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
   selectType(value: string) {
     this.value = value;
   }
+
 
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;

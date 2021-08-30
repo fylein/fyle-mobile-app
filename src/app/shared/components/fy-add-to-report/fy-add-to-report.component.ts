@@ -1,10 +1,10 @@
-import { Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
-import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
-import { RecentLocalStorageItemsService } from '../../../core/services/recent-local-storage-items.service';
-import { isEqual } from 'lodash';
-import { FyAddToReportModalComponent } from './fy-add-to-report-modal/fy-add-to-report-modal.component';
+import {Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef} from '@angular/core';
+import {NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
+import {noop} from 'rxjs';
+import {ModalController} from '@ionic/angular';
+import {RecentLocalStorageItemsService} from '../../../core/services/recent-local-storage-items.service';
+import {isEqual} from 'lodash';
+import {FyAddToReportModalComponent} from './fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
@@ -62,13 +62,14 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+  }
 
   get value(): any {
     return this.innerValue;
@@ -78,10 +79,10 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
     if (v !== this.innerValue) {
       this.innerValue = v;
       if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
+        const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
         if (selectedOption) {
           this.displayValue = selectedOption && selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
+        } else if (typeof this.innerValue === 'string'){
           this.displayValue = this.innerValue;
         } else {
           this.displayValue = '';
@@ -127,7 +128,7 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
+        const selectedOption = this.options.find(option => isEqual(option.value, this.innerValue));
         if (selectedOption) {
           this.displayValue = selectedOption.label;
         } else if (typeof this.innerValue === 'string') {

@@ -17,8 +17,8 @@
     }
 
     &__first {
-      max-height: 45px;
-      min-height: 45px;
+        max-height: 45px;
+        min-height: 45px;
     }
 
     &__last {
@@ -47,7 +47,7 @@
       }
     }
 
-    &__last > &-internal {
+    &__last > &-internal{
       &::before {
         content: '■';
         position: relative;
@@ -61,7 +61,7 @@
       align-items: center;
       &__first {
         position: relative;
-        top: -24px;
+        top: -24px;  
       }
 
       &__last {
@@ -88,4 +88,5 @@
       top: 18px;
     }
   }
+
 }

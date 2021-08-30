@@ -1,11 +1,12 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TripDatesService {
-  constructor() {}
+
+  constructor() { }
 
   getUTCDate(date) {
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
@@ -96,7 +97,8 @@ export class TripDatesService {
     }
 
     if (data.trip_cities) {
-      data.trip_cities.forEach((tripCity) => {
+      data.trip_cities.forEach(tripCity => {
+
         if (tripCity.onward_dt) {
           tripCity.onward_dt = moment(tripCity.onward_dt).format('y-MM-D');
         }
@@ -109,4 +111,5 @@ export class TripDatesService {
 
     return data;
   }
+
 }

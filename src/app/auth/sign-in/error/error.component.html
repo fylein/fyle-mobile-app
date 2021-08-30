@@ -1,12 +1,11 @@
 <div class="error-internal">
   <div class="error-internal--header" id="sign-in--error-msg">
-    {{ header }}
+    {{header}}
   </div>
   <div class="error-internal--details">
     <div *ngIf="error.status === 401 && (error.data || error.message)">
       This email address will be temporarily locked after 5 unsuccessful login attempts. Try
-      <a class="error-internal--redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">resetting</a> your
-      password?
+        <a class="error-internal--redirect" (click)="routeTo(['/','auth','reset_password'])">resetting</a> your password?
     </div>
 
     <div *ngIf="error.status === 400">
@@ -14,24 +13,21 @@
     </div>
 
     <div *ngIf="error.status === 500">
-      <div>
-        Please retry in a while. Send us a note to <a href="mailto:support@fylehq.com">support@fylehq.com</a> if the
-        problem persists.
-      </div>
+      <div> Please retry in a while. Send us a note to <a href="mailto:support@fylehq.com">support@fylehq.com</a> if the problem persists. </div>
     </div>
 
     <div *ngIf="error.status === 433">
-      <div>
-        This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please
-        retry later.
-      </div>
+      <div> This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please retry later.</div>
     </div>
 
     <div *ngIf="error.status === 401 && !(error.data || error.message)">
       <div>Your organization has restricted Fyle’s access to its corporate network.</div>
     </div>
+
   </div>
   <div class="error-internal--primary-cta">
-    <button mat-flat-button color="primary" (click)="tryAgainClicked()">TRY AGAIN</button>
+    <button mat-flat-button color="primary" (click)="tryAgainClicked()">
+      TRY AGAIN
+    </button>
   </div>
 </div>

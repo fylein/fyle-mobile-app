@@ -1,7 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import {Component, Input, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import {ModalController, PopoverController} from '@ionic/angular';
 import { AppDateAdapter, APP_DATE_FORMATS } from 'src/app/shared/format-datepicker/format-datepicker';
 
 @Component({
@@ -9,8 +9,8 @@ import { AppDateAdapter, APP_DATE_FORMATS } from 'src/app/shared/format-datepick
   templateUrl: './corporate-card-expenses-search-filter.component.html',
   styleUrls: ['./corporate-card-expenses-search-filter.component.scss'],
   providers: [
-    { provide: DateAdapter, useClass: AppDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS }
+    {provide: DateAdapter, useClass: AppDateAdapter},
+    {provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS}
   ]
 })
 export class CorporateCardExpensesSearchFilterComponent implements OnInit {
@@ -24,7 +24,10 @@ export class CorporateCardExpensesSearchFilterComponent implements OnInit {
 
   fg: FormGroup;
 
-  constructor(private fb: FormBuilder, private popoverController: PopoverController) {}
+  constructor(
+    private fb: FormBuilder,
+    private popoverController: PopoverController
+  ) { }
 
   ngOnInit() {
     this.fg = this.fb.group({
@@ -37,11 +40,10 @@ export class CorporateCardExpensesSearchFilterComponent implements OnInit {
   }
 
   customDatevalidator(formGroup: FormGroup) {
-    if (
-      formGroup.value.date &&
+    if (formGroup.value.date &&
       formGroup.value.date === 'CUSTOMDATE' &&
-      (formGroup.controls.customDateStart.value === null || formGroup.controls.customDateEnd.value === null)
-    ) {
+      (formGroup.controls.customDateStart.value === null ||
+        formGroup.controls.customDateEnd.value === null)) {
       return {
         error: 'custom date input is required when custom dates are selected'
       };

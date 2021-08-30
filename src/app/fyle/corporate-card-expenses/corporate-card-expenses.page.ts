@@ -8,27 +8,21 @@ import { ActivatedRoute, Params, Router, NavigationEnd } from '@angular/router';
 import { TransactionsOutboxService } from '../../core/services/transactions-outbox.service';
 import { OfflineService } from '../../core/services/offline.service';
 import { PopupService } from '../../core/services/popup.service';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  finalize,
-  map,
-  shareReplay,
-  switchMap,
-  take,
-  takeUntil,
-  filter
-} from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, takeUntil, filter } from 'rxjs/operators';
 import { BehaviorSubject, concat, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject } from 'rxjs';
 import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
 import { CorporateCardExpense } from '../../core/models/v2/corporate-card-expense.model';
-import { CorporateCardExpensesSortFilterComponent } from './corporate-card-expenses-sort-filter/corporate-card-expenses-sort-filter.component';
-import { CorporateCardExpensesSearchFilterComponent } from './corporate-card-expenses-search-filter/corporate-card-expenses-search-filter.component';
+import {
+  CorporateCardExpensesSortFilterComponent
+} from './corporate-card-expenses-sort-filter/corporate-card-expenses-sort-filter.component';
+import {
+  CorporateCardExpensesSearchFilterComponent
+} from './corporate-card-expenses-search-filter/corporate-card-expenses-search-filter.component';
 
 @Component({
   selector: 'app-corporate-card-expenses',
   templateUrl: './corporate-card-expenses.page.html',
-  styleUrls: ['./corporate-card-expenses.page.scss']
+  styleUrls: ['./corporate-card-expenses.page.scss'],
 })
 export class CorporateCardExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
@@ -39,15 +33,13 @@ export class CorporateCardExpensesPage implements OnInit {
 
   isInfiniteScrollRequired$: Observable<boolean>;
 
-  loadData$: BehaviorSubject<
-    Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  >;
+  loadData$: BehaviorSubject<Partial<{
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
+  }>>;
 
   currentPageNumber = 1;
 
@@ -87,7 +79,8 @@ export class CorporateCardExpensesPage implements OnInit {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private router: Router,
     private activatedRoute: ActivatedRoute
-  ) {}
+  ) {
+  }
 
   clearText() {
     this.simpleSearchText = '';
@@ -96,9 +89,11 @@ export class CorporateCardExpensesPage implements OnInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 
   ionViewWillEnter() {
+
     this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.acc = [];
@@ -120,8 +115,7 @@ export class CorporateCardExpensesPage implements OnInit {
         map((event: any) => event.srcElement.value as string),
         distinctUntilChanged(),
         debounceTime(400)
-      )
-      .subscribe((searchString) => {
+      ).subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
         currentParams.searchString = searchString;
         this.currentPageNumber = 1;
@@ -141,7 +135,7 @@ export class CorporateCardExpensesPage implements OnInit {
         const queryParams = params.queryParams || {};
         queryParams.state = queryParams.state || defaultState;
 
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
         return this.corporateCreditCardExpenseService.getv2CardTransactions({
           offset: (params.pageNumber - 1) * 10,
           limit: 10,
@@ -149,7 +143,7 @@ export class CorporateCardExpensesPage implements OnInit {
           order: orderByParams
         });
       }),
-      map((res) => {
+      map(res => {
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
@@ -159,7 +153,7 @@ export class CorporateCardExpensesPage implements OnInit {
     );
 
     const simpleSearchAllDataPipe = this.loadData$.pipe(
-      switchMap((params) => {
+      switchMap(params => {
         let defaultState;
         if (this.baseState === 'unclassified') {
           defaultState = 'in.(INITIALIZED)';
@@ -170,26 +164,18 @@ export class CorporateCardExpensesPage implements OnInit {
         const queryParams = params.queryParams || {};
         queryParams.state = queryParams.state || defaultState;
 
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
 
         return from(this.loaderService.showLoader()).pipe(
-          switchMap(() =>
-            this.corporateCreditCardExpenseService
-              .getAllv2CardTransactions({
-                queryParams,
-                order: orderByParams
-              })
-              .pipe(
-                map((expenses) =>
-                  expenses.filter((expense) =>
-                    Object.values(expense)
-                      .map((value) => value && value.toString().toLowerCase())
-                      .filter((value) => !!value)
-                      .some((value) => value.toLowerCase().includes(params.searchString.toLowerCase()))
-                  )
-                )
-              )
-          ),
+          switchMap(() => this.corporateCreditCardExpenseService.getAllv2CardTransactions({
+            queryParams,
+            order: orderByParams
+          }).pipe(
+            map(expenses => expenses.filter(expense => Object.values(expense)
+              .map(value => value && value.toString().toLowerCase())
+              .filter(value => !!value)
+              .some(value => value.toLowerCase().includes(params.searchString.toLowerCase()))))
+          )),
           finalize(() => from(this.loaderService.hideLoader()))
         );
       })
@@ -198,14 +184,12 @@ export class CorporateCardExpensesPage implements OnInit {
     this.baseState = this.activatedRoute.snapshot.params.pageState || 'unclassified';
 
     this.cardTransactions$ = this.loadData$.pipe(
-      switchMap((params) =>
-        iif(() => params.searchString && params.searchString !== '', simpleSearchAllDataPipe, paginatedPipe)
-      ),
+      switchMap(params => iif(() => (params.searchString && params.searchString !== ''), simpleSearchAllDataPipe, paginatedPipe)),
       shareReplay(1)
     );
 
     this.count$ = this.loadData$.pipe(
-      switchMap((params) => {
+      switchMap(params => {
         let defaultState;
         if (this.baseState === 'unclassified') {
           defaultState = 'in.(INITIALIZED)';
@@ -220,6 +204,7 @@ export class CorporateCardExpensesPage implements OnInit {
       shareReplay(1)
     );
 
+
     this.unclassifiedExpensesCountHeader$ = this.corporateCreditCardExpenseService.getv2CardTransactionsCount({
       state: 'in.(INITIALIZED)'
     });
@@ -229,14 +214,15 @@ export class CorporateCardExpensesPage implements OnInit {
     });
 
     const paginatedScroll$ = this.cardTransactions$.pipe(
-      switchMap((cardTxns) => this.count$.pipe(map((count) => count > cardTxns.length)))
+      switchMap(cardTxns => this.count$.pipe(
+        map(count => count > cardTxns.length)))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap((params) => iif(() => params.searchString && params.searchString !== '', of(false), paginatedScroll$))
+      switchMap(params => iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$))
     );
 
-    this.loadData$.subscribe((params) => {
+    this.loadData$.subscribe(params => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -302,12 +288,15 @@ export class CorporateCardExpensesPage implements OnInit {
     if (this.filters.date) {
       if (this.filters.date === 'THISMONTH') {
         const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and = `(txn_dt.gte.${thisMonth.from.toISOString()},txn_dt.lt.${thisMonth.to.toISOString()})`;
+        newQueryParams.and =
+          `(txn_dt.gte.${thisMonth.from.toISOString()},txn_dt.lt.${thisMonth.to.toISOString()})`;
       } else if (this.filters.date === 'LASTMONTH') {
         const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and = `(txn_dt.gte.${lastMonth.from.toISOString()},txn_dt.lt.${lastMonth.to.toISOString()})`;
+        newQueryParams.and =
+          `(txn_dt.gte.${lastMonth.from.toISOString()},txn_dt.lt.${lastMonth.to.toISOString()})`;
       } else if (this.filters.date === 'CUSTOMDATE') {
-        newQueryParams.and = `(txn_dt.gte.${this.filters.customDateStart.toISOString()},txn_dt.lt.${this.filters.customDateEnd.toISOString()})`;
+        newQueryParams.and =
+          `(txn_dt.gte.${this.filters.customDateStart.toISOString()},txn_dt.lt.${this.filters.customDateEnd.toISOString()})`;
       }
     }
 
@@ -323,12 +312,14 @@ export class CorporateCardExpensesPage implements OnInit {
     return currentParams;
   }
 
+
   clearFilters() {
     this.filters = {};
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
   }
+
 
   setState(state: string) {
     this.baseState = state;
@@ -355,6 +346,7 @@ export class CorporateCardExpensesPage implements OnInit {
     }
   }
 
+
   async openSort() {
     const sortModal = await this.popoverController.create({
       component: CorporateCardExpensesSortFilterComponent,
@@ -377,19 +369,9 @@ export class CorporateCardExpensesPage implements OnInit {
 
   goToTransaction(cccTxn) {
     if (this.baseState === 'unclassified') {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'ccc_classify_actions',
-        { cccTransactionId: cccTxn.id, pageState: this.baseState }
-      ]);
+      this.router.navigate(['/', 'enterprise', 'ccc_classify_actions', { cccTransactionId: cccTxn.id, pageState: this.baseState }]);
     } else {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'ccc_classified_actions',
-        { cccTransactionId: cccTxn.id, pageState: this.baseState }
-      ]);
+      this.router.navigate(['/', 'enterprise', 'ccc_classified_actions', { cccTransactionId: cccTxn.id, pageState: this.baseState }]);
     }
   }
 }
