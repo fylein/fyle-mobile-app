@@ -50,12 +50,16 @@
 <ion-footer>
   <ion-toolbar mode="md" class="receipt-preview--footer">
     <div class="receipt-preview--cta-container">
-      <button *ngIf="mode === 'single'" type="button" class="receipt-preview--cta-button receipt-preview--secondary-cta text-center" (click)="retake()">
-        Retake
-      </button>
-      <!-- <button *ngIf="mode === 'bulk'" type="button" class="receipt-preview--cta-button receipt-preview--secondary-cta text-center" (click)="addMore()">
-        Add More
-      </button> -->
+      <ng-container *ngIf="mode === 'single' && base64ImagesWithSource.length === 1; else bulkMode">
+        <button type="button" class="receipt-preview--cta-button receipt-preview--secondary-cta text-center" (click)="retake()">
+          Retake
+        </button>
+      </ng-container>
+      <ng-template #bulkMode>
+        <button *ngIf="base64ImagesWithSource.length < 20" type="button" class="receipt-preview--cta-button receipt-preview--secondary-cta text-center" (click)="addMore()">
+          Add More
+        </button>
+      </ng-template>
       <button type="submit" class="receipt-preview--cta-button receipt-preview--primary-cta text-center" (click)="finish()">
         Finish
       </button>
