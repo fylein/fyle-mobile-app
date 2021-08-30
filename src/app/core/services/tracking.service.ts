@@ -49,7 +49,7 @@ export class TrackingService {
   onStateChange(toState, toParams, fromState, fromParams) {
   }
 
-  eventTrack(action, properties) {
+  eventTrack(action, properties = {}) {
     properties = {
       ...properties,
       Asset: 'Mobile'
@@ -60,7 +60,7 @@ export class TrackingService {
   }
 
   // external APIs
-  onSignin(email, properties) {
+  onSignin(email, properties = {}) {
     if (this.tracking) {
       this.tracking.identify(email, {
         $email: email
@@ -102,7 +102,7 @@ export class TrackingService {
   }
 
   // delete expense event
-  deleteExpense(properties) {
+  deleteExpense(properties = {}) {
     this.eventTrack('Delete Expense', properties);
   }
 
@@ -127,7 +127,7 @@ export class TrackingService {
   }
 
   // add view attachment event
-  viewAttachment(properties) {
+  viewAttachment(properties = {}) {
     this.eventTrack('View Attachment', properties);
   }
 
@@ -137,22 +137,22 @@ export class TrackingService {
   }
 
   // add comment event
-  addComment(properties) {
+  addComment(properties = {}) {
     this.eventTrack('Add Comment', properties);
   }
 
   // view comment event
-  viewComment(properties) {
+  viewComment(properties = {}) {
     this.eventTrack('View Comment', properties);
   }
 
   // click Add To Report event
-  clickAddToReport(properties) {
+  clickAddToReport(properties = {}) {
     this.eventTrack('Click Add To Report', properties);
   }
 
   // click on save and add new expense button
-  clickSaveAddNew(properties) {
+  clickSaveAddNew(properties = {}) {
     this.eventTrack('Click Save Add New Expense', properties);
   }
 
@@ -192,12 +192,12 @@ export class TrackingService {
   }
 
   // click on Add to report button
-  addToReport(properties) {
+  addToReport(properties = {}) {
     this.eventTrack('Add Expenses to report', properties);
   }
 
   // click on Create Report
-  clickCreateReport(properties) {
+  clickCreateReport(properties = {}) {
     this.eventTrack('Click Create Report', properties);
   }
 
@@ -214,12 +214,12 @@ export class TrackingService {
   }
 
   // click share report
-  clickShareReport(properties) {
+  clickShareReport(properties = {}) {
     this.eventTrack('Click Share Report', properties);
   }
 
   // delete report event
-  deleteReport(properties) {
+  deleteReport(properties = {}) {
     this.eventTrack('Delete Report', properties);
   }
 
@@ -321,26 +321,26 @@ export class TrackingService {
   /*** Events related to help page ***/
 
   // view help card event
-  viewHelpCard(properties) {
+  viewHelpCard(properties = {}) {
     this.eventTrack('View Help Card', properties);
   }
 
   // engage with help card event
-  engageWithHelpCard(properties) {
+  engageWithHelpCard(properties = {}) {
     this.eventTrack('Engage with Help Card', properties);
   }
 
   /*** Events related to system ***/
 
   // signout event
-  onSignOut(properties) {
+  onSignOut(properties = {}) {
     this.eventTrack('Sign Out', properties);
   }
 
   /*** Events related to lifecycle ***/
 
   // email verified event
-  emailVerified(properties) {
+  emailVerified(properties = {}) {
     this.eventTrack('Email Verified', properties);
   }
 
@@ -350,12 +350,12 @@ export class TrackingService {
   }
 
   // activated event
-  activated(properties) {
+  activated(properties = {}) {
     this.eventTrack('Activated', properties);
   }
 
   // when first expense is created
-  createFirstExpense(properties) {
+  createFirstExpense(properties = {}) {
     this.eventTrack('Create First Expense', properties);
   }
 
@@ -365,12 +365,12 @@ export class TrackingService {
   }
 
   // When user submits password and company details form and hits continue.
-  setupHalf(properties) {
+  setupHalf(properties = {}) {
     this.eventTrack('Setup Half', properties);
   }
 
   // When user completes account setup journey
-  setupComplete(properties) {
+  setupComplete(properties = {}) {
     this.eventTrack('Setup Complete', properties);
   }
 
@@ -382,7 +382,7 @@ export class TrackingService {
   /*** Old events ***/
 
   // reset password event
-  resetPassword(properties) {
+  resetPassword(properties = {}) {
     this.eventTrack('Reset Password', properties);
   }
 
@@ -392,12 +392,12 @@ export class TrackingService {
   }
 
   // adding expenses in existing report event
-  addToExistingReport(properties) {
+  addToExistingReport(properties = {}) {
     this.eventTrack('Add Expenses to Report', properties);
   }
 
   // adding expenses in existing report while add/edit expense event
-  addToExistingReportAddEditExpense(properties) {
+  addToExistingReportAddEditExpense(properties = {}) {
     this.eventTrack('Add Expenses to existing report while add/edit expense', properties);
   }
 
@@ -406,7 +406,7 @@ export class TrackingService {
     this.eventTrack('Move expense from one report to another report while add/edit expense', properties);
   }
 
-  removeFromExistingReportEditExpense(properties) {
+  removeFromExistingReportEditExpense(properties = {}) {
     this.eventTrack('Remove Expenses from existing report through edit expense', properties);
   }
 
@@ -704,19 +704,19 @@ export class TrackingService {
 
   // Instafyle Actions
 
-  instafyleIntroDisabled(properties) {
+  instafyleIntroDisabled(properties = {}) {
     this.eventTrack('instafyle intro disabled', properties);
   }
 
-  switchedToInstafyleBulkMode(properties) {
+  switchedToInstafyleBulkMode(properties = {}) {
     this.eventTrack('switched to bulk instafyle', properties);
   }
 
-  switchedToInstafyleSingleMode(properties) {
+  switchedToInstafyleSingleMode(properties = {}) {
     this.eventTrack('switched to single instafyle', properties);
   }
 
-  instafyleGalleryUploadOpened(properties) {
+  instafyleGalleryUploadOpened(properties = {}) {
     this.eventTrack('instafyle gallery upload opened', properties);
   }
 
@@ -725,7 +725,7 @@ export class TrackingService {
   }
 
   // New Dashboard Actions
-  dashboardActionSheetOpened(properties) {
+  dashboardActionSheetOpened(properties = {}) {
     this.eventTrack('dashboard action sheet opened', properties);
   }
 
@@ -733,7 +733,7 @@ export class TrackingService {
     this.eventTrack('dashboard action sheet button clicked', properties);
   }
 
-  dashboardOnUnreportedExpensesClick(properties) {
+  dashboardOnUnreportedExpensesClick(properties = {}) {
     this.eventTrack('dashboard unreported expenses clicked', properties);
   }
 
@@ -750,7 +750,7 @@ export class TrackingService {
     this.eventTrack('footer button clicked', properties);
   }
 
-  myExpensesBulkDeleteExpenses(properties) {
+  myExpensesBulkDeleteExpenses(properties = {}) {
     this.eventTrack('bulk delete of expenses from my expenses page', properties);
   }
 
@@ -770,11 +770,11 @@ export class TrackingService {
     this.eventTrack('hide more clicked', properties);
   }
 
-  footerSaveAndPrevClicked(properties) {
+  footerSaveAndPrevClicked(properties = {}) {
     this.eventTrack('save and previous clicked inside footer', properties);
   }
 
-  footerSaveAndNextClicked(properties) {
+  footerSaveAndNextClicked(properties = {}) {
     this.eventTrack('save and next clicked inside footer', properties);
   }
 }

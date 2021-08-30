@@ -70,7 +70,6 @@ export class SignInPage implements OnInit {
         tap(async () => {
           await this.trackLoginInfo();
           this.trackingService.onSignin(this.fg.value.email, {
-            Asset: 'Mobile',
             label: 'Email'
           });
         })
@@ -188,7 +187,6 @@ export class SignInPage implements OnInit {
         tap(async () => {
           await this.trackLoginInfo();
           this.trackingService.onSignin(this.fg.value.email, {
-            Asset: 'Mobile',
             label: 'Email'
           });
         }),
@@ -226,7 +224,6 @@ export class SignInPage implements OnInit {
         tap(async () => {
           await this.trackLoginInfo();
           this.trackingService.onSignin(this.fg.value.email, {
-            Asset: 'Mobile',
             label: 'Email'
           });
         })
@@ -244,7 +241,7 @@ export class SignInPage implements OnInit {
 
   async trackLoginInfo() {
     const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
-    this.trackingService.eventTrack('Added Login Info', {Asset: 'Mobile', label: deviceInfo.appVersion});
+    this.trackingService.eventTrack('Added Login Info', {label: deviceInfo.appVersion});
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 

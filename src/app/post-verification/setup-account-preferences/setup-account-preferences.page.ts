@@ -98,11 +98,11 @@ export class SetupAccountPreferencesPage implements OnInit {
   markActiveAndRedirect() {
     from(this.loadingService.showLoader()).pipe(
       tap(() => {
-        this.trackingService.setupComplete({ Asset: 'Mobile' });
+        this.trackingService.setupComplete();
       }),
       switchMap(() => this.orgUserService.markActive()),
       tap(() => {
-        this.trackingService.activated({ Asset: 'Mobile' });
+        this.trackingService.activated();
       }),
       finalize(async () => this.loadingService.hideLoader())
     ).subscribe(() => {

@@ -160,7 +160,6 @@ export class StatsComponent implements OnInit {
     });
 
     this.trackingService.dashboardOnReportPillClick({
-      Asset: 'Mobile',
       State: state.toString()
     });
   }
@@ -171,9 +170,7 @@ export class StatsComponent implements OnInit {
       queryParams
     });
 
-    this.trackingService.dashboardOnUnreportedExpensesClick({
-      Asset: 'Mobile'
-    });
+    this.trackingService.dashboardOnUnreportedExpensesClick();
   }
 
   goToCCCPage(state: string) {

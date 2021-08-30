@@ -260,7 +260,7 @@ export class AddEditPerDiemPage implements OnInit {
       }
     } else {
       if (this.activatedRoute.snapshot.params.id) {
-        this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Per Diem' });
+        this.trackingService.viewExpense({ Type: 'Per Diem' });
       }
 
       if (this.navigateBack) {
@@ -1583,7 +1583,6 @@ export class AddEditPerDiemPage implements OnInit {
               const comments = [];
               this.trackingService.createExpense(
                 {
-                  Asset: 'Mobile',
                   Type: 'Receipt',
                   Amount: etxn.tx.amount,
                   Currency: etxn.tx.currency,
@@ -1630,7 +1629,7 @@ export class AddEditPerDiemPage implements OnInit {
   trackPolicyCorrections() {
     this.isCriticalPolicyViolated$.subscribe(isCriticalPolicyViolated => {
       if (isCriticalPolicyViolated && this.fg.dirty) {
-        this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Critical', Mode: 'Edit Expense' });
+        this.trackingService.policyCorrection({ Violation: 'Critical', Mode: 'Edit Expense' });
       }
     });
 
@@ -1641,7 +1640,7 @@ export class AddEditPerDiemPage implements OnInit {
       map(policyViolationComments => policyViolationComments.length > 0)
     ).subscribe(policyViolated => {
       if (policyViolated && this.fg.dirty) {
-        this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Regular', Mode: 'Edit Expense' });
+        this.trackingService.policyCorrection({ Violation: 'Regular', Mode: 'Edit Expense' });
       }
     });
   }
@@ -1745,7 +1744,6 @@ export class AddEditPerDiemPage implements OnInit {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
               this.trackingService.editExpense({
-                Asset: 'Mobile',
                 Type: 'Per Diem',
                 Amount: etxn.tx.amount,
                 Currency: etxn.tx.currency,
@@ -1760,7 +1758,7 @@ export class AddEditPerDiemPage implements OnInit {
               });
             } else {
               // tracking expense closed without editing
-              this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Per Diem' });
+              this.trackingService.viewExpense({ Type: 'Per Diem' });
             }
 
             return this.transactionService.upsert(etxn.tx).pipe(
@@ -1772,7 +1770,7 @@ export class AddEditPerDiemPage implements OnInit {
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
-                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
@@ -1780,14 +1778,14 @@ export class AddEditPerDiemPage implements OnInit {
                   if (txnCopy.tx.report_id && selectedReportId && selectedReportId !== txnCopy.tx.report_id) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
-                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
-                      tap(() => this.trackingService.removeFromExistingReportEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
                   }
@@ -2054,7 +2052,7 @@ export class AddEditPerDiemPage implements OnInit {
       }
     } else {
       if (this.mode === 'add') {
-        this.trackingService.clickDeleteExpense({ Asset: 'Mobile', Type: 'Per Diem' });
+        this.trackingService.clickDeleteExpense({ Type: 'Per Diem' });
       }
     }
   }
@@ -2101,15 +2099,14 @@ export class AddEditPerDiemPage implements OnInit {
     const { data } = await modal.onDidDismiss();
 
     if (data && data.updated) {
-      this.trackingService.addComment({ Asset: 'Mobile' });
+      this.trackingService.addComment();
     } else {
-      this.trackingService.viewComment({ Asset: 'Mobile' });
+      this.trackingService.viewComment();
     }
   }
 
   hideFields() {
     this.trackingService.hideMoreClicked({
-      Asset: 'Mobile',
       source: 'Add Edit Per Diem page',
     });
 
@@ -2118,7 +2115,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   showFields() {
     this.trackingService.showMoreClicked({
-      Asset: 'Mobile',
       source: 'Add Edit Per Diem page',
     });
 

@@ -235,7 +235,7 @@ export class MyExpensesPage implements OnInit {
     if (!isFirstExpenseCreated) {
       this.allExpensesStats$.subscribe(async (res) => {
         if (res.count === 0) {
-          this.trackingService.createFirstExpense({ Asset: 'Mobile' });
+          this.trackingService.createFirstExpense();
           await this.storageService.set('isFirstExpenseCreated', true);
         }
       });
@@ -280,7 +280,6 @@ export class MyExpensesPage implements OnInit {
       cssClass: 'capture-receipt',
       handler: () => {
         this.trackingService.myExpensesActionSheetAction({
-          Asset: 'Mobile',
           Action: 'capture receipts'
         });
         that.router.navigate(['/', 'enterprise', 'camera_overlay', {
@@ -293,7 +292,6 @@ export class MyExpensesPage implements OnInit {
       cssClass: 'capture-receipt',
       handler: () => {
         this.trackingService.myExpensesActionSheetAction({
-          Asset: 'Mobile',
           Action: 'Add Expense'
         });
         that.router.navigate(['/', 'enterprise', 'add_edit_expense', {
@@ -309,7 +307,6 @@ export class MyExpensesPage implements OnInit {
         cssClass: 'capture-receipt',
         handler: () => {
           this.trackingService.myExpensesActionSheetAction({
-            Asset: 'Mobile',
             Action: 'Add Mileage'
           });
           that.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
@@ -326,7 +323,6 @@ export class MyExpensesPage implements OnInit {
         cssClass: 'capture-receipt',
         handler: () => {
           this.trackingService.myExpensesActionSheetAction({
-            Asset: 'Mobile',
             Action: 'Add Per Diem'
           });
           that.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
@@ -1181,7 +1177,6 @@ export class MyExpensesPage implements OnInit {
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
       this.trackingService.myExpensesFilterApplied({
-        Asset: 'Mobile',
         ...this.filters
       });
     }
@@ -1254,7 +1249,7 @@ export class MyExpensesPage implements OnInit {
           of(this.transactionOutboxService.deleteOfflineExpense(index)),
           this.transactionService.delete(etxn.tx_id)
         )),
-        tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile' })),
+        tap(() => this.trackingService.deleteExpense()),
         finalize(async () => {
           await this.loaderService.hideLoader();
           this.doRefresh();
@@ -1330,7 +1325,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   onAddTransactionToNewReport(expense) {
-    this.trackingService.clickAddToReport({ Asset: 'Mobile' });
+    this.trackingService.clickAddToReport();
     const transactionIds = JSON.stringify([expense.tx_id]);
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
@@ -1377,7 +1372,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport') {
-    this.trackingService.addToReport({ Asset: 'Mobile', count: this.selectedElements.length });
+    this.trackingService.addToReport({ count: this.selectedElements.length });
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
     selectedElements = selectedElements.filter(exp => exp.tx_id);
@@ -1399,7 +1394,7 @@ export class MyExpensesPage implements OnInit {
     } else if(!this.isReportableExpensesSelected) {
       this.showNonReportableExpenseSelectedToast('You cannot add draft expenses and critical policy violated expenses to a report');
     } else {
-      this.trackingService.addToReport({ Asset: 'Mobile' });
+      this.trackingService.addToReport();
       const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
         const amount = current.tx_amount || current.tx_user_amount;
         return prev + amount;
@@ -1458,7 +1453,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   openCreateReport() {
-    this.trackingService.clickCreateReport({ Asset: 'Mobile' });
+    this.trackingService.clickCreateReport();
     this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
 
@@ -1673,7 +1668,6 @@ export class MyExpensesPage implements OnInit {
 
     if (data) {
       this.trackingService.myExpensesBulkDeleteExpenses({
-        Asset: 'Mobile',
         count: this.selectedElements.length
       });
       if (data.status === 'success') {

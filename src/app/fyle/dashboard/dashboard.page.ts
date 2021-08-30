@@ -156,7 +156,6 @@ export class DashboardPage implements OnInit {
       cssClass: 'capture-receipt',
       handler: () => {
         that.trackingService.dashboardActionSheetButtonClicked({
-          Asset: 'Mobile',
           Action: 'Capture Receipt'
         });
         that.router.navigate(['/', 'enterprise', 'camera_overlay', {
@@ -169,7 +168,6 @@ export class DashboardPage implements OnInit {
       cssClass: 'capture-receipt',
       handler: () => {
         that.trackingService.dashboardActionSheetButtonClicked({
-          Asset: 'Mobile',
           Action: 'Add Manually'
         });
         that.router.navigate(['/', 'enterprise', 'add_edit_expense',{
@@ -185,7 +183,6 @@ export class DashboardPage implements OnInit {
         cssClass: 'capture-receipt',
         handler: () => {
           that.trackingService.dashboardActionSheetButtonClicked({
-            Asset: 'Mobile',
             Action: 'Add Mileage'
           });
           that.router.navigate(['/', 'enterprise', 'add_edit_mileage',{
@@ -202,7 +199,6 @@ export class DashboardPage implements OnInit {
         cssClass: 'capture-receipt',
         handler: () => {
           that.trackingService.dashboardActionSheetButtonClicked({
-            Asset: 'Mobile',
             Action: 'Add Per Diem'
           });
           that.router.navigate(['/', 'enterprise', 'add_edit_per_diem',{
@@ -215,9 +211,7 @@ export class DashboardPage implements OnInit {
 
   async openAddExpenseActionSheet() {
     const that = this;
-    that.trackingService.dashboardActionSheetOpened({
-      Asset: 'Mobile'
-    });
+    that.trackingService.dashboardActionSheetOpened();
     const actionSheet = await this.actionSheetController.create({
       header: 'ADD EXPENSE',
       mode: 'md',

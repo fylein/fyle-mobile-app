@@ -136,7 +136,7 @@ export class SetupAccountPage implements OnInit {
         finalize(async () => await this.loaderService.hideLoader()),
         concatMap(() => this.authService.refreshEou())
       ).subscribe(() => {
-        this.trackingService.setupHalf({ Asset: 'Mobile' });
+        this.trackingService.setupHalf();
         // // setting up company details in clevertap profile
         this.trackingService.updateSegmentProfile({
           'Company Name': this.fg.controls.companyName.value

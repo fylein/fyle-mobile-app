@@ -84,10 +84,10 @@ export class ViewCommentComponent implements OnInit {
 
   closeCommentModal() {
     if (this.isCommentAdded) {
-      this.trackingService.addComment({ Asset: 'Mobile' });
+      this.trackingService.addComment();
       this.modalController.dismiss({ updated: true });
     } else {
-      this.trackingService.viewComment({ Asset: 'Mobile' });
+      this.trackingService.viewComment();
       this.modalController.dismiss();
     }
   }

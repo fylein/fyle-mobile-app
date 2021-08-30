@@ -75,7 +75,7 @@ export class OrgUserService {
   markActive() {
     return this.apiService.post('/orgusers/current/mark_active').pipe(
       switchMap(() => this.authService.refreshEou()),
-      tap(() => this.trackingService.activated({Asset: 'Mobile'}))
+      tap(() => this.trackingService.activated())
     );
   }
 

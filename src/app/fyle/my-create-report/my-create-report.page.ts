@@ -87,7 +87,7 @@ export class MyCreateReportPage implements OnInit {
           const etxns = this.readyToReportEtxns.filter(etxn => etxn.isSelected);
           const txnIds = etxns.map(etxn => etxn.tx_id);
           const selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
-          this.trackingService.createFirstReport({ Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: selectedTotalAmount });
+          this.trackingService.createFirstReport({ Expense_Count: txnIds.length, Report_Value: selectedTotalAmount });
           await this.storageService.set('isFirstReportCreated', true);
         }
       });
@@ -134,7 +134,7 @@ export class MyCreateReportPage implements OnInit {
         this.saveDraftReportLoading = true;
         this.reportService.createDraft(report).pipe(
           tap(() => {
-            this.trackingService.createReport({ Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount });
+            this.trackingService.createReport({ Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount });
           }),
           switchMap((res) => iif(() => txnIds.length > 0, this.reportService.addTransactions(res.id, txnIds), of(null))),
           finalize(() => {
@@ -147,7 +147,6 @@ export class MyCreateReportPage implements OnInit {
         this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
         this.reportService.create(report, txnIds).pipe(
           tap(() => this.trackingService.createReport({
-            Asset: 'Mobile',
             Expense_Count: txnIds.length,
             Report_Value: this.selectedTotalAmount
           })),

@@ -119,7 +119,7 @@ export class CreateNewReportComponent implements OnInit {
       this.saveDraftReportLoader = true;
       return this.reportService.createDraft(report).pipe(
         tap(() => this.trackingService
-          .createReport({ Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount })),
+          .createReport({ Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount })),
         switchMap((report) => {
           if (txnIds.length > 0) {
             return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
@@ -140,7 +140,7 @@ export class CreateNewReportComponent implements OnInit {
       this.submitReportLoader = true;
       this.reportService.create(report, txnIds).pipe(
         tap(() => this.trackingService
-          .createReport({ Asset: 'Mobile', Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount })),
+          .createReport({ Expense_Count: txnIds.length, Report_Value: this.selectedTotalAmount })),
         finalize(() => {
           this.submitReportLoader = false;
         })
