@@ -181,7 +181,7 @@ export class SplitExpensePage implements OnInit {
       amount: splitExpenseValue.amount,
       source: 'MOBILE',
       billable: this.setUpSplitExpenseBillable(splitExpenseValue),
-      tax: this.setUpSplitExpenseTax(splitExpenseValue)
+      tax_amount: this.setUpSplitExpenseTax(splitExpenseValue)
     };
   }
 

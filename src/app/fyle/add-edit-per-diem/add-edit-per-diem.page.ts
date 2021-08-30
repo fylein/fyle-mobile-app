@@ -55,6 +55,8 @@ import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -226,23 +228,41 @@ export class AddEditPerDiemPage implements OnInit {
       +this.activeIndex === (this.reviewList.length - 1);
   }
 
-  async closePopup() {
+  async showClosePopup() {
     if (this.fg.touched) {
-      const popupResults = await this.popupService.showPopup({
-        header: 'Unsaved Changes',
-        message: 'You have unsaved changes. Are you sure, you want to abandon this expense?',
-        primaryCta: {
-          text: 'Discard Changes'
-        }
+      const unsavedChangesPopOver = await this.popoverController.create({
+        component: PopupAlertComponentComponent,
+        componentProps: {
+          title: 'Unsaved Changes',
+          message: 'Your changes will be lost if you do not save the expense.',
+          primaryCta: {
+            text: 'Discard',
+            action: 'continue'
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel'
+          }
+        },
+        cssClass: 'pop-up-in-center'
       });
 
-      if (popupResults === 'primary') {
-        this.goBack();
+      await unsavedChangesPopOver.present();
+
+      const {data} = await unsavedChangesPopOver.onWillDismiss();
+
+      if (data && data.action === 'continue') {
+        if (this.navigateBack) {
+          this.navController.back();
+        } else {
+          this.goBack();
+        }
       }
     } else {
       if (this.activatedRoute.snapshot.params.id) {
         this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Per Diem' });
       }
+
       if (this.navigateBack) {
         this.navController.back();
       } else {
@@ -2006,31 +2026,32 @@ export class AddEditPerDiemPage implements OnInit {
   // }
 
   async deleteExpense() {
-    const id = this.activatedRoute.snapshot.params.id;
+    const txnId = this.activatedRoute.snapshot.params.id;
 
-    const popupResult = await this.popupService.showPopup({
-      header: 'Confirm',
-      message: 'Are you sure you want to delete this Expense?',
-      primaryCta: {
-        text: 'Delete Expense'
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: 'Delete  Expense',
+        body: 'Are you sure you want to delete this expense?',
+        deleteMethod: () => this.transactionService.delete(txnId)
       }
     });
 
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense...')).pipe(
-        switchMap(() => this.transactionService.delete(id)),
-        tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile', Type: 'Per Diem' })),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-          this.reviewList.splice(+this.activeIndex, 1);
-          this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
-            this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-          });
-        } else {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        }
-      });
+    await deletePopover.present();
+
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+        this.reviewList.splice(+this.activeIndex, 1);
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+          this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
+        });
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     } else {
       if (this.mode === 'add') {
         this.trackingService.clickDeleteExpense({ Asset: 'Mobile', Type: 'Per Diem' });
@@ -2084,6 +2105,24 @@ export class AddEditPerDiemPage implements OnInit {
     } else {
       this.trackingService.viewComment({ Asset: 'Mobile' });
     }
+  }
+
+  hideFields() {
+    this.trackingService.hideMoreClicked({
+      Asset: 'Mobile',
+      source: 'Add Edit Per Diem page',
+    });
+
+    this.isExpandedView = false;
+  }
+
+  showFields() {
+    this.trackingService.showMoreClicked({
+      Asset: 'Mobile',
+      source: 'Add Edit Per Diem page',
+    });
+
+    this.isExpandedView = true;
   }
 }
 

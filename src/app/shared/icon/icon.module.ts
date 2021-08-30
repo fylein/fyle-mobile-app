@@ -53,7 +53,7 @@ export class IconModule {
     'office-supplies.svg',
     'parking.svg', 'per_diem.svg', 'phone.svg', 'professional-service.svg', 'plus.svg', 'profile.svg',
     'search.svg', 'settings.svg', 'single.svg', 'snacks.svg',
-    'software.svg', 'split-expense.svg', 'send.svg', 'success-tick.svg', 'search-not-found.svg', 'single-mode.svg',
+    'software.svg', 'split-expense.svg', 'send.svg', 'send-back.svg', 'success-tick.svg', 'search-not-found.svg', 'single-mode.svg',
     'tax.svg', 'taxi.svg', 'toll-charge.svg', 'train.svg', 'training.svg', 'tick-square-filled.svg',
     'utility.svg',
     'warning-inverted.svg', 'warning.svg'

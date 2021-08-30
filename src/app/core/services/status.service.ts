@@ -71,6 +71,12 @@ export class StatusService {
         icon: 'list'
       };
       break;
+    case lowerCaseComment.indexOf('unflagged') > -1:
+      statusCategory = {
+        category: 'Unflagged',
+        icon: 'flag'
+      };
+      break;
     case lowerCaseComment.indexOf('flagged') > -1:
       statusCategory = {
         category: 'Flagged',
@@ -93,6 +99,12 @@ export class StatusService {
       statusCategory = {
         category: 'Verified',
         icon: 'success-tick'
+      };
+      break;
+    case lowerCaseComment.indexOf('un-approved') > -1:
+      statusCategory = {
+        category: type + ' Sent Back',
+        icon: 'send-back'
       };
       break;
     case lowerCaseComment.indexOf('approved') > -1:
