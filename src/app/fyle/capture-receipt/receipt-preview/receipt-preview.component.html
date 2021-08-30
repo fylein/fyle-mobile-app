@@ -56,7 +56,7 @@
         </button>
       </ng-container>
       <ng-template #bulkMode>
-        <button type="button" class="receipt-preview--cta-button receipt-preview--secondary-cta text-center" (click)="addMore()">
+        <button *ngIf="base64ImagesWithSource.length < 20" type="button" class="receipt-preview--cta-button receipt-preview--secondary-cta text-center" (click)="addMore()">
           Add More
         </button>
       </ng-template>

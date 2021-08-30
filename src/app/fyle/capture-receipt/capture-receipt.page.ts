@@ -251,9 +251,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
         this.setUpAndStartCamera();
       } else {
         if (data.continueCaptureReceipt) {
-          this.captureCount = 0;
-          this.lastImage = null;
-          this.isBulkMode = false;
+          this.isBulkMode = true;
           this.setUpAndStartCamera();
         } else {
           this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {

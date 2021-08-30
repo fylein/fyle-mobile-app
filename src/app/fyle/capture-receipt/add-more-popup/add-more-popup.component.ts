@@ -7,7 +7,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
   styleUrls: ['./add-more-popup.component.scss'],
 })
 export class AddMorePopupComponent implements OnInit {
-  actionButtons: { icon: string; title: string; mode: string}[];
+  actionButtons: { icon: string; title: string; mode: string }[];
 
   constructor(
     private matBottomSheet: MatBottomSheet
@@ -29,7 +29,7 @@ export class AddMorePopupComponent implements OnInit {
   }
 
   ctaClickedEvent(mode) {
-    this.matBottomSheet.dismiss({mode});
+    this.matBottomSheet.dismiss({ mode });
   }
 
 }
