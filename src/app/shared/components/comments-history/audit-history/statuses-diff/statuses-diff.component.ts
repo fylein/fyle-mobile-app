@@ -3,7 +3,7 @@ import { Component, OnInit, Input } from '@angular/core';
 @Component({
   selector: 'app-statuses-diff',
   templateUrl: './statuses-diff.component.html',
-  styleUrls: ['./statuses-diff.component.scss']
+  styleUrls: ['./statuses-diff.component.scss'],
 })
 export class StatusesDiffComponent implements OnInit {
   @Input() key;
@@ -12,10 +12,9 @@ export class StatusesDiffComponent implements OnInit {
 
   isValueList: boolean;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
-    this.isValueList = (this.value instanceof Array);
+    this.isValueList = this.value instanceof Array;
   }
-
 }

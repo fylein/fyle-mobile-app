@@ -11,14 +11,12 @@ import { Router } from '@angular/router';
 import { TrackingService } from '../../../../core/services/tracking.service';
 import * as moment from 'moment';
 
-
 @Component({
   selector: 'app-view-comment',
   templateUrl: './view-comment.component.html',
   styleUrls: ['./view-comment.component.scss'],
 })
 export class ViewCommentComponent implements OnInit {
-
   @Input() objectType: string;
 
   @Input() objectId: any;
@@ -62,23 +60,23 @@ export class ViewCommentComponent implements OnInit {
     private trackingService: TrackingService,
     private elementRef: ElementRef,
     public platform: Platform
-  ) { }
+  ) {}
 
   addComment() {
-
     if (this.newComment) {
       const data = {
-        comment: this.newComment
+        comment: this.newComment,
       };
 
       this.newComment = null;
       this.isCommentAdded = true;
 
-      this.statusService.post(this.objectType, this.objectId, data).pipe(
-      ).subscribe(res => {
-        this.refreshEstatuses$.next();
-      });
-
+      this.statusService
+        .post(this.objectType, this.objectId, data)
+        .pipe()
+        .subscribe((res) => {
+          this.refreshEstatuses$.next();
+        });
     }
   }
 
@@ -116,29 +114,37 @@ export class ViewCommentComponent implements OnInit {
     this.estatuses$ = this.refreshEstatuses$.pipe(
       startWith(0),
       switchMap(() => eou$),
-      switchMap(eou => this.statusService.find(this.objectType, this.objectId).pipe(
-        map(res => res.map(status => {
-          status.isBotComment = status && (['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
-          status.isSelfComment = status && eou && eou.ou && (status.st_org_user_id === eou.ou.id);
-          status.isOthersComment = status && eou && eou.ou && (status.st_org_user_id !== eou.ou.id);
-          return status;
-        })),
-        map(res => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf())),
-        finalize(() => {
-          setTimeout(() => {
-            this.content.scrollToBottom(500);
-          }, 500);
-        })
-      ))
+      switchMap((eou) =>
+        this.statusService.find(this.objectType, this.objectId).pipe(
+          map((res) =>
+            res.map((status) => {
+              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
+              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
+              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
+              return status;
+            })
+          ),
+          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf())),
+          finalize(() => {
+            setTimeout(() => {
+              this.content.scrollToBottom(500);
+            }, 500);
+          })
+        )
+      )
     );
 
-    this.estatuses$.subscribe(estatuses => {
-      const reversalStatus = estatuses
-        .filter((status) => (status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1));
+    this.estatuses$.subscribe((estatuses) => {
+      const reversalStatus = estatuses.filter(
+        (status) => status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1
+      );
 
       this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
 
-      this.type = this.objectType.toLowerCase() === 'transactions' ? 'Expense' : this.objectType.substring(0, this.objectType.length - 1);
+      this.type =
+        this.objectType.toLowerCase() === 'transactions'
+          ? 'Expense'
+          : this.objectType.substring(0, this.objectType.length - 1);
 
       this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
 
@@ -165,16 +171,21 @@ export class ViewCommentComponent implements OnInit {
     });
 
     this.totalCommentsCount$ = this.estatuses$.pipe(
-      map(res => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
+      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
   }
 
   async openViewExpense() {
     await this.modalController.dismiss();
     if (this.matchedExpense) {
-      this.router.navigate(['/', 'enterprise', 'my_view_expense', {
-        id: this.matchedExpense.tx_id
-      }]);
+      this.router.navigate([
+        '/',
+        'enterprise',
+        'my_view_expense',
+        {
+          id: this.matchedExpense.tx_id,
+        },
+      ]);
     }
   }
 }

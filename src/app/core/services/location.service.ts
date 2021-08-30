@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {environment} from 'src/environments/environment';
-import {catchError, map} from 'rxjs/operators';
-import {from, Observable, of, Subject} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import { catchError, map } from 'rxjs/operators';
+import { from, Observable, of, Subject } from 'rxjs';
 import { GeolocationPosition, Plugins } from '@capacitor/core';
 import { Cacheable } from 'ts-cacheable';
 const { Geolocation } = Plugins;
@@ -10,29 +10,28 @@ const { Geolocation } = Plugins;
 const currentLocationCacheBuster$ = new Subject<void>();
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LocationService {
-
   ROOT_ENDPOINT: string;
 
-  constructor(
-    private httpClient: HttpClient
-  ) {
+  constructor(private httpClient: HttpClient) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
   @Cacheable({
     cacheBusterObserver: currentLocationCacheBuster$,
-    maxAge: 10 * 60 * 1000 // 10 minutes
+    maxAge: 10 * 60 * 1000, // 10 minutes
   })
-  getCurrentLocation(config: {enableHighAccuracy: boolean} = {enableHighAccuracy: false}): Observable<GeolocationPosition>{
-    return from(Geolocation.getCurrentPosition({
-      timeout: 5000,
-      enableHighAccuracy: config.enableHighAccuracy
-    })).pipe(
-      catchError(() => of(null))
-    );
+  getCurrentLocation(
+    config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false }
+  ): Observable<GeolocationPosition> {
+    return from(
+      Geolocation.getCurrentPosition({
+        timeout: 5000,
+        enableHighAccuracy: config.enableHighAccuracy,
+      })
+    ).pipe(catchError(() => of(null)));
   }
 
   setRoot(rootUrl: string) {
@@ -47,8 +46,8 @@ export class LocationService {
     const data: any = {
       params: {
         text,
-        user_id: userId
-      }
+        user_id: userId,
+      },
     };
 
     if (currentLocation) {
@@ -58,9 +57,7 @@ export class LocationService {
       data.params.types = types;
     }
 
-    return this.get('/autocomplete', data).pipe(
-      map((res: any) => res.predictions)
-    );
+    return this.get('/autocomplete', data).pipe(map((res: any) => res.predictions));
   }
 
   getDistance(fromLocation, toLocation): Observable<number> {
@@ -70,20 +67,18 @@ export class LocationService {
         origin_long: fromLocation.longitude,
         destination_lat: toLocation.latitude,
         destination_long: toLocation.longitude,
-        mode: 'driving'
-      }
+        mode: 'driving',
+      },
     };
 
-    return this.get('/distance', data).pipe(
-      map(res => res as number)
-    );
+    return this.get('/distance', data).pipe(map((res) => res as number));
   }
 
   getPlace(placeId) {
     const data = {
       params: {
-        place_id: placeId
-      }
+        place_id: placeId,
+      },
     };
 
     return this.get('/place_details', data);

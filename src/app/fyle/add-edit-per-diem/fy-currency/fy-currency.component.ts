@@ -15,9 +15,9 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FyCurrencyComponent),
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   @Input() txnDt: Date;
@@ -56,7 +56,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
@@ -64,15 +64,15 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     this.fg = this.fb.group({
       currency: [], // currency which is currently shown
       amount: [], // amount which is currently shown
-      homeCurrencyAmount: [] // Amount converted to home currency
+      homeCurrencyAmount: [], // Amount converted to home currency
     });
 
-    this.fg.valueChanges.subscribe(formValue => {
+    this.fg.valueChanges.subscribe((formValue) => {
       const value = {
         amount: null,
         currency: null,
         orig_amount: null,
-        orig_currency: null
+        orig_currency: null,
       };
 
       if (formValue.currency !== this.homeCurrency) {
@@ -97,10 +97,14 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   }
 
   checkIfSameValue(amount1, amount2) {
-    return amount1 && amount2 && amount1.amount === amount2.amount &&
+    return (
+      amount1 &&
+      amount2 &&
+      amount1.amount === amount2.amount &&
       amount1.currency === amount2.currency &&
       amount1.orig_amount === amount2.orig_amount &&
-      amount1.orig_currency === amount2.orig_currency;
+      amount1.orig_currency === amount2.orig_currency
+    );
   }
 
   convertInnerValueToFormValue(innerVal) {
@@ -108,19 +112,19 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
       return {
         amount: innerVal.orig_amount,
         currency: innerVal.orig_currency,
-        homeCurrencyAmount: innerVal.amount
+        homeCurrencyAmount: innerVal.amount,
       };
     } else if (innerVal) {
       return {
         amount: innerVal.amount,
         currency: innerVal.currency,
-        homeCurrencyAmount: null
+        homeCurrencyAmount: null,
       };
     } else {
       return {
         amount: null,
         currency: this.homeCurrency,
-        homeCurrencyAmount: null
+        homeCurrencyAmount: null,
       };
     }
   }
@@ -132,9 +136,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
-      this.fg.setValue(
-        this.convertInnerValueToFormValue(
-          this.innerValue));
+      this.fg.setValue(this.convertInnerValueToFormValue(this.innerValue));
       this.onChangeCallback(v);
     }
   }
@@ -163,11 +165,11 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
       const currencyModal = await this.modalController.create({
         component: FyCurrencyChooseCurrencyComponent,
         componentProps: {
-          currentSelection: this.fg.controls.currency.value
+          currentSelection: this.fg.controls.currency.value,
         },
         mode: 'ios',
         presentingElement: await this.modalController.getTop(),
-        ...this.modalProperties.getModalDefaultProperties()
+        ...this.modalProperties.getModalDefaultProperties(),
       });
 
       await currencyModal.present();
@@ -184,11 +186,11 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
               amount: this.fg.controls.amount.value,
               currentCurrency: this.homeCurrency,
               newCurrency: shortCode,
-              txnDt: this.txnDt
+              txnDt: this.txnDt,
             },
             mode: 'ios',
             presentingElement: await this.modalController.getTop(),
-            ...this.modalProperties.getModalDefaultProperties()
+            ...this.modalProperties.getModalDefaultProperties(),
           });
 
           await exchangeRateModal.present();
@@ -198,7 +200,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
             this.fg.setValue({
               currency: shortCode,
               amount: data.amount,
-              homeCurrencyAmount: data.homeCurrencyAmount
+              homeCurrencyAmount: data.homeCurrencyAmount,
             });
           }
         }

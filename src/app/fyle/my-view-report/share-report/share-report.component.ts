@@ -9,9 +9,7 @@ import { PopoverController } from '@ionic/angular';
 export class ShareReportComponent implements OnInit {
   email = '';
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   async cancel() {
     await this.popoverController.dismiss();
@@ -24,12 +22,12 @@ export class ShareReportComponent implements OnInit {
 
     if (emailInput.valid) {
       this.popoverController.dismiss({
-        email: this.email
+        email: this.email,
       });
     } else {
       emailInput.control.markAllAsTouched();
     }
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 }

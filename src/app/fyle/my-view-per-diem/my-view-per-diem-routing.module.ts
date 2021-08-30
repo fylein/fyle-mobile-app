@@ -6,8 +6,8 @@ import { MyViewPerDiemPage } from './my-view-per-diem.page';
 const routes: Routes = [
   {
     path: '',
-    component: MyViewPerDiemPage
-  }
+    component: MyViewPerDiemPage,
+  },
 ];
 
 @NgModule({

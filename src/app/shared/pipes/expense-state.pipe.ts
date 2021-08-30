@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'expenseState'
+  name: 'expenseState',
 })
 export class ExpenseState implements PipeTransform {
   transform(val) {
@@ -12,7 +12,7 @@ export class ExpenseState implements PipeTransform {
       APPROVED: 'approved',
       PAYMENT_PENDING: 'payment_pending',
       PAYMENT_PROCESSING: 'payment_processing',
-      PAID: 'paid'
+      PAID: 'paid',
     };
 
     return states[val];

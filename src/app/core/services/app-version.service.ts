@@ -7,15 +7,14 @@ import { RouterApiService } from './router-api.service';
 import { AppVersion } from '../models/app_version.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AppVersionService {
-
   constructor(
     private deviceService: DeviceService,
     private apiService: ApiService,
     private routerApiService: RouterApiService
-  ) { }
+  ) {}
 
   // not fixing since copied from somewhere
   // not human readable at the moment
@@ -33,9 +32,9 @@ export class AppVersionService {
     const len = Math.max(a.length, b.length);
 
     for (let i = 0; i < len; i++) {
-      if ((a[i] && !b[i] && parseInt(a[i], 10) > 0) || (parseInt(a[i], 10) > parseInt(b[i], 10))) {
+      if ((a[i] && !b[i] && parseInt(a[i], 10) > 0) || parseInt(a[i], 10) > parseInt(b[i], 10)) {
         return false;
-      } else if ((b[i] && !a[i] && parseInt(b[i], 10) > 0) || (parseInt(a[i], 10) < parseInt(b[i], 10))) {
+      } else if ((b[i] && !a[i] && parseInt(b[i], 10) > 0) || parseInt(a[i], 10) < parseInt(b[i], 10)) {
         return true;
       }
     }
@@ -44,47 +43,22 @@ export class AppVersionService {
   }
 
   load() {
-    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(
-      shareReplay(1)
-    );
-    const platformOS$ = deviceInfo$.pipe(
-      map(
-        deviceInfo => deviceInfo.operatingSystem as string
-      )
-    );
-    const platformVersion$ = deviceInfo$.pipe(
-      map(
-        deviceInfo => deviceInfo.osVersion
-      )
-    );
+    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
+    const platformOS$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.operatingSystem as string));
+    const platformVersion$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.osVersion));
 
-    const currentVersion$ = deviceInfo$.pipe(
-      map(
-        deviceInfo => deviceInfo.appVersion
-      )
-    );
+    const currentVersion$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.appVersion));
 
-    const storedVersion$ = platformOS$.pipe(
-      switchMap(
-        os => this.get(os)
-      )
-    );
+    const storedVersion$ = platformOS$.pipe(switchMap((os) => this.get(os)));
 
-    forkJoin(
-      [
-        platformOS$,
-        platformVersion$,
-        currentVersion$,
-        storedVersion$
-      ]
-    ).pipe(
-      switchMap(
-        (aggregatedResponses) => {
+    forkJoin([platformOS$, platformVersion$, currentVersion$, storedVersion$])
+      .pipe(
+        switchMap((aggregatedResponses) => {
           const [platformOS, platformVersion, currentVersion, storedVersion] = aggregatedResponses;
           const data = {
             app_version: currentVersion,
             device_platform: platformOS,
-            platform_version: platformVersion
+            platform_version: platformVersion,
           };
 
           const isLower = this.isVersionLower(storedVersion && storedVersion.app_version, currentVersion);
@@ -94,9 +68,9 @@ export class AppVersionService {
           } else {
             return of(noop);
           }
-        }
+        })
       )
-    ).subscribe(noop); // because this needs to happen in the background
+      .subscribe(noop); // because this needs to happen in the background
   }
 
   isSupported(data) {
@@ -105,11 +79,7 @@ export class AppVersionService {
 
   get(os: string) {
     const operatingSystem = os.toUpperCase();
-    return this.apiService.get(`/version/app/${operatingSystem}`).pipe(
-      map(
-        res => res as AppVersion
-      )
-    );
+    return this.apiService.get(`/version/app/${operatingSystem}`).pipe(map((res) => res as AppVersion));
   }
 
   post(data) {

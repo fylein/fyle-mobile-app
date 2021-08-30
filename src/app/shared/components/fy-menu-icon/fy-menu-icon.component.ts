@@ -6,10 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./fy-menu-icon.component.scss'],
 })
 export class FyMenuIconComponent implements OnInit {
+  constructor() {}
 
-
-  constructor() { }
-
-  ngOnInit() { }
-
+  ngOnInit() {}
 }

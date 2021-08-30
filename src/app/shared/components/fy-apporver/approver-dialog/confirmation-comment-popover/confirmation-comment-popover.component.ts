@@ -7,17 +7,13 @@ import { PopoverController } from '@ionic/angular';
   styleUrls: ['./confirmation-comment-popover.component.scss'],
 })
 export class ConfirmationCommentPopoverComponent implements OnInit {
-
-
   @Input() selectedApprovers;
 
   confirmationMessage = '';
 
   validMessage = true;
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   closeConfirmationPopover() {
     this.popoverController.dismiss();
@@ -25,11 +21,9 @@ export class ConfirmationCommentPopoverComponent implements OnInit {
 
   saveUpdatedApproveList() {
     this.popoverController.dismiss({
-      message: this.confirmationMessage
+      message: this.confirmationMessage,
     });
   }
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

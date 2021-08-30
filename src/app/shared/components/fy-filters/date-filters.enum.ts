@@ -3,5 +3,5 @@ export enum DateFilters {
   thisWeek = 'thisWeek',
   lastMonth = 'lastMonth',
   thisMonth = 'thisMonth',
-  custom = 'custom'
+  custom = 'custom',
 }

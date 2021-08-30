@@ -12,7 +12,7 @@ export const environment = {
   ANDROID_CLIENT_ID: '',
   GOOGLE_MAPS_API_KEY: '',
   FRESHCHAT_TOKEN: '',
-  SENTRY_DSN: ''
+  SENTRY_DSN: '',
 };
 
 /*

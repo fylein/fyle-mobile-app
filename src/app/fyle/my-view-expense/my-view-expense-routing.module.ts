@@ -6,8 +6,8 @@ import { MyViewExpensePage } from './my-view-expense.page';
 const routes: Routes = [
   {
     path: '',
-    component: MyViewExpensePage
-  }
+    component: MyViewExpensePage,
+  },
 ];
 
 @NgModule({
