@@ -1,4 +1,4 @@
-import { AdvanceState } from "./advance-state.pipe";
+import { AdvanceState } from './advance-state.pipe';
 
 describe('AdvanceStatePipe', () => {
   const pipe = new AdvanceState();

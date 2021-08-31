@@ -1,4 +1,4 @@
-import { ExpenseState } from "./expense-state.pipe";
+import { ExpenseState } from './expense-state.pipe';
 
 fdescribe('ExpenseStatePipe', () => {
   const pipe = new ExpenseState();
