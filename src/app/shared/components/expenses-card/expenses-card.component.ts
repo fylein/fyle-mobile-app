@@ -251,8 +251,7 @@ export class ExpensesCardComponent implements OnInit {
         const attachmentType = this.fileService.getAttachmentType(data.type);
 
         from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType)).pipe(
-          switchMap((fileObj: FileObject) => {
-            fileObj.transaction_id = this.expense.tx_id;
+          tap((fileObj: FileObject) => {
             this.expense.tx_file_ids = [];
             this.expense.tx_file_ids.push(fileObj.id);
             if (this.expense.tx_file_ids) {
@@ -266,13 +265,16 @@ export class ExpensesCardComponent implements OnInit {
                 })
               ).subscribe(noop);
             }
+          } ),
+          switchMap((fileObj: FileObject) => {
+            fileObj.transaction_id = this.expense.tx_id;
             return this.fileService.post(fileObj);
           }),
           finalize(() => {
             this.attachmentUploadInProgress = false;
           })
-        ).subscribe((attachments) => {
-          this.attachedReceiptsCount = attachments;
+        ).subscribe((attachmentsCount) => {
+          this.attachedReceiptsCount = attachmentsCount;
         });
       }
     }

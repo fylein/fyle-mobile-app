@@ -30,7 +30,13 @@ export class FileService {
   }
 
   getFilesWithThumbnail(txnId: string): Observable<any[]> {
-    return this.apiService.get('/files?skip_html=true&purpose=THUMBNAILx200x200&transaction_id=' + txnId);
+    return this.apiService.get('/files', {
+      params: {
+        transaction_id: txnId,
+        skip_html: 'true',
+        purpose: 'THUMBNAILx200x200'
+      }
+    });
   }
 
   base64Download(fileId) {
