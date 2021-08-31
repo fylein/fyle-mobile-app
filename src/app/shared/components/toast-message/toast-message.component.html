@@ -1,11 +1,19 @@
 <div class="toast-message--container display-flex">
   <div class="display-flex">
-    <mat-icon *ngIf="data.icon" class="toast-message--left-icon icon--toast-danger" svgIcon="{{data.icon}}"></mat-icon>
-    <span class="toast-message--body">{{data.message}}</span>
+    <mat-icon
+      *ngIf="data.icon"
+      class="toast-message--left-icon icon--toast-danger"
+      svgIcon="{{ data.icon }}"
+    ></mat-icon>
+    <span class="toast-message--body">{{ data.message }}</span>
   </div>
 
   <div class="display-flex ion-text-right">
-    <span *ngIf="data.redirectionText" class="toast-message--redirection ion-text-right" (click)="actionEvent()">{{data.redirectionText}}</span>
-    <mat-icon *ngIf="data.showCloseButton" class="toast-message--right-icon ion-text-right" (click)="closeEvent()">close</mat-icon>
+    <span *ngIf="data.redirectionText" class="toast-message--redirection ion-text-right" (click)="actionEvent()">{{
+      data.redirectionText
+    }}</span>
+    <mat-icon *ngIf="data.showCloseButton" class="toast-message--right-icon ion-text-right" (click)="closeEvent()"
+      >close</mat-icon
+    >
   </div>
 </div>

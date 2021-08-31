@@ -9,26 +9,22 @@ import { ReportService } from 'src/app/core/services/report.service';
   styleUrls: ['./remove-expense-report.component.scss'],
 })
 export class RemoveExpenseReportComponent implements OnInit {
-
   @Input() etxn: Expense;
 
   removalReason = '';
 
-  constructor(
-    private popoverController: PopoverController,
-    private reportService: ReportService
-  ) { }
+  constructor(private popoverController: PopoverController, private reportService: ReportService) {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   cancel() {
     this.popoverController.dismiss();
   }
 
   remove(event) {
-    this.reportService.removeTransaction(this.etxn.tx_report_id, this.etxn.tx_id, this.removalReason).subscribe(_ => {
+    this.reportService.removeTransaction(this.etxn.tx_report_id, this.etxn.tx_id, this.removalReason).subscribe((_) => {
       this.popoverController.dismiss({
-        goBack: true
+        goBack: true,
       });
     });
   }

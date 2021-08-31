@@ -23,7 +23,6 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
   styleUrls: ['./my-view-report.page.scss'],
 })
 export class MyViewReportPage implements OnInit {
-
   erpt$: Observable<ExtendedReport>;
 
   etxns$: Observable<any[]>;
@@ -61,7 +60,7 @@ export class MyViewReportPage implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private trackingService: TrackingService
-  ) { }
+  ) {}
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -78,8 +77,7 @@ export class MyViewReportPage implements OnInit {
     });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -101,11 +99,11 @@ export class MyViewReportPage implements OnInit {
   }
 
   getShowViolation(etxn) {
-    return etxn.tx_id &&
-      (etxn.tx_manual_flag ||
-        etxn.tx_policy_flag) &&
-      !((typeof (etxn.tx_policy_amount) === 'number')
-        && etxn.tx_policy_amount < 0.0001);
+    return (
+      etxn.tx_id &&
+      (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
+      !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
+    );
   }
 
   ionViewWillEnter() {
@@ -116,37 +114,38 @@ export class MyViewReportPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.sharedWith$ = this.reportService
-      .getExports(this.activatedRoute.snapshot.params.id)
-      .pipe(
-        map(pdfExports => pdfExports.results
-          .sort((a, b) =>
-            (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0)
-          )
+    this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
+      map((pdfExports) =>
+        pdfExports.results
+          .sort((a, b) => (a.created_at < b.created_at ? 1 : b.created_at < a.created_at ? -1 : 0))
           .map((pdfExport) => pdfExport.sent_to)
-          .filter((item, index, inputArray) => inputArray.indexOf(item) === index))
-      );
+          .filter((item, index, inputArray) => inputArray.indexOf(item) === index)
+      )
+    );
 
     this.reportApprovals$ = this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id).pipe(
-      map(reportApprovals => reportApprovals
-        .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1
-        )
-        .map((approval) => {
-          if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
-            approval.approved_at = approval.updated_at;
-          }
-          return approval;
-        }))
+      map((reportApprovals) =>
+        reportApprovals
+          .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
+          .map((approval) => {
+            if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
+              approval.approved_at = approval.updated_at;
+            }
+            return approval;
+          })
+      )
     );
 
     this.etxns$ = from(this.authService.getEou()).pipe(
-      switchMap(eou => this.transactionService.getAllETxnc({
-        tx_org_user_id: 'eq.' + eou.ou.id,
-        tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
-        order: 'tx_txn_dt.desc,tx_id.desc'
-      })),
-      map(
-        etxns => etxns.map(etxn => {
+      switchMap((eou) =>
+        this.transactionService.getAllETxnc({
+          tx_org_user_id: 'eq.' + eou.ou.id,
+          tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
+          order: 'tx_txn_dt.desc,tx_id.desc',
+        })
+      ),
+      map((etxns) =>
+        etxns.map((etxn) => {
           etxn.vendor = this.getVendorName(etxn);
           etxn.violation = this.getShowViolation(etxn);
           return etxn;
@@ -157,9 +156,9 @@ export class MyViewReportPage implements OnInit {
 
     const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
 
-    this.canEdit$ = actions$.pipe(map(actions => actions.can_edit));
-    this.canDelete$ = actions$.pipe(map(actions => actions.can_delete));
-    this.canResubmitReport$ = actions$.pipe(map(actions => actions.can_resubmit));
+    this.canEdit$ = actions$.pipe(map((actions) => actions.can_edit));
+    this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
+    this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
 
     this.etxns$.subscribe(noop);
   }
@@ -177,10 +176,13 @@ export class MyViewReportPage implements OnInit {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
         infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: () => this.reportService.delete(this.activatedRoute.snapshot.params.id).pipe(
-          tap(() => this.trackingService.deleteReport())
-        )
-      }
+        deleteMethod: () =>
+          this.reportService.delete(this.activatedRoute.snapshot.params.id).pipe(
+            tap(() =>
+              this.trackingService.deleteReport()
+            )
+          ),
+      },
     });
 
     await deleteReportPopover.present();
@@ -198,10 +200,10 @@ export class MyViewReportPage implements OnInit {
     const popover = await this.popoverController.create({
       componentProps: {
         erpt,
-        etxns
+        etxns,
       },
       component: ResubmitReportPopoverComponent,
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await popover.present();
@@ -219,10 +221,10 @@ export class MyViewReportPage implements OnInit {
     const popover = await this.popoverController.create({
       componentProps: {
         erpt,
-        etxns
+        etxns,
       },
       component: SubmitReportPopoverComponent,
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await popover.present();
@@ -247,8 +249,8 @@ export class MyViewReportPage implements OnInit {
         header: 'Cannot Edit Activity',
         message: 'Editing activity is not supported in mobile app.',
         primaryCta: {
-          text: 'Cancel'
-        }
+          text: 'Cancel',
+        },
       });
     }
 
@@ -271,10 +273,14 @@ export class MyViewReportPage implements OnInit {
       }
     }
     if (canEdit) {
-      this.router.navigate([route, {
-        id: etxn.tx_id,
-        navigate_back: true
-      }]);
+      this.router.navigate([
+        route,
+        {
+          id: etxn.tx_id,
+          navigate_back: true,
+          remove_from_report: true,
+        },
+      ]);
     } else {
       this.router.navigate([route, { id: etxn.tx_id }]);
     }
@@ -285,7 +291,7 @@ export class MyViewReportPage implements OnInit {
 
     const popover = await this.popoverController.create({
       component: ShareReportComponent,
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await popover.present();
@@ -295,7 +301,7 @@ export class MyViewReportPage implements OnInit {
     if (data && data.email) {
       const params = {
         report_ids: [this.activatedRoute.snapshot.params.id],
-        email: data.email
+        email: data.email,
       };
       this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
         const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
@@ -305,6 +311,6 @@ export class MyViewReportPage implements OnInit {
   }
 
   canEditTxn(txState) {
-    return (this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(txState) > -1);
+    return this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(txState) > -1;
   }
 }

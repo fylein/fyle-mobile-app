@@ -6,8 +6,8 @@ import { MyViewAdvanceRequestPage } from './my-view-advance-request.page';
 const routes: Routes = [
   {
     path: '',
-    component: MyViewAdvanceRequestPage
-  }
+    component: MyViewAdvanceRequestPage,
+  },
 ];
 
 @NgModule({

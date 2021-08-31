@@ -2,9 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="text-center view-attachments--title">
-        Receipt Preview
-      </div>
+      <div class="text-center view-attachments--title">Receipt Preview</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -21,12 +19,8 @@
 
 <ion-content>
   <div class="view-attachments--controls" *ngIf="attachments.length > 1">
-    <mat-icon class="view-attachments--go-back" (click)="goToPrevSlide()">
-      arrow_back_ios
-    </mat-icon>
-    <mat-icon class="view-attachments--go-forward" (click)="goToNextSlide()">
-      arrow_forward_ios
-    </mat-icon>
+    <mat-icon class="view-attachments--go-back" (click)="goToPrevSlide()"> arrow_back_ios </mat-icon>
+    <mat-icon class="view-attachments--go-forward" (click)="goToNextSlide()"> arrow_forward_ios </mat-icon>
   </div>
   <ion-slides #slides [options]="sliderOptions" zoom>
     <ng-container *ngFor="let attachment of attachments">

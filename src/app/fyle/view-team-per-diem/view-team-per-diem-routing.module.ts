@@ -6,8 +6,8 @@ import { ViewTeamPerDiemPage } from './view-team-per-diem.page';
 const routes: Routes = [
   {
     path: '',
-    component: ViewTeamPerDiemPage
-  }
+    component: ViewTeamPerDiemPage,
+  },
 ];
 
 @NgModule({

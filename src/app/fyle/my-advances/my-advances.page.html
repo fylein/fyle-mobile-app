@@ -1,7 +1,6 @@
 <ion-header class="ion-no-border">
   <div class="my-advances--header">
     <ion-toolbar class="my-advances--toolbar-header">
-
       <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
         <app-fy-menu-icon></app-fy-menu-icon>
       </ion-buttons>
@@ -23,32 +22,35 @@
     <ng-container *ngIf="advances$|async as advances">
       <ng-container *ngIf="advances?.length === 0">
         <div class="my-advances--zero-state">
-          <app-fy-zero-state [image]="'../../../assets/images/zero-states/reports.svg'"
+          <app-fy-zero-state
+            [image]="'../../../assets/images/zero-states/reports.svg'"
             [header]="'This is the home to all your Advance Requests'"
-            [message]="'Your advance request logs will show up here. Request your first advance to see how it looks.'">
+            [message]="'Your advance request logs will show up here. Request your first advance to see how it looks.'"
+          >
           </app-fy-zero-state>
         </div>
 
         <div class="my-advances--zero-state-action-button-container">
-          <div class="my-advances--zero-state-action-button">
-            Request First Advance
-          </div>
+          <div class="my-advances--zero-state-action-button">Request First Advance</div>
         </div>
       </ng-container>
     </ng-container>
 
     <div *ngFor="let advances of advances$ | async">
-      <app-my-advances-card [advanceRequest]=advances (advanceClick)="onAdvanceClick($event)">
-      </app-my-advances-card>
+      <app-my-advances-card [advanceRequest]="advances" (advanceClick)="onAdvanceClick($event)"> </app-my-advances-card>
     </div>
-
   </div>
 </ion-content>
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-button [routerLink]="['/', 'enterprise', 'add_edit_advance_request']" class="my-advances--primary-cta"
-      fill="solid" color="fyle-primary" expand="block">
+    <ion-button
+      [routerLink]="['/', 'enterprise', 'add_edit_advance_request']"
+      class="my-advances--primary-cta"
+      fill="solid"
+      color="fyle-primary"
+      expand="block"
+    >
       REQUEST NEW ADVANCE
     </ion-button>
   </ion-toolbar>

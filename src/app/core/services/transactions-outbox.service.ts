@@ -17,7 +17,7 @@ import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TransactionsOutboxService {
   queue = [];
@@ -63,7 +63,7 @@ export class TransactionsOutboxService {
   async removeDataExtractionEntry(expense, dataUrls) {
     const entry = {
       transaction: expense,
-      dataUrls
+      dataUrls,
     };
 
     const idx = this.dataExtractionQueue.indexOf(entry);
@@ -101,7 +101,7 @@ export class TransactionsOutboxService {
   async addDataExtractionEntry(transaction, dataUrls) {
     this.dataExtractionQueue.push({
       transaction,
-      dataUrls
+      dataUrls,
     });
     await this.saveDataExtractionQueue();
   }
@@ -118,36 +118,44 @@ export class TransactionsOutboxService {
 
         const base64Image = entry.dataUrls[0].url.replace('data:image/jpeg;base64,', '');
 
-        that.parseReceipt(base64Image).then((response: any) => {
-          const parsedResponse = response.data;
+        that
+          .parseReceipt(base64Image)
+          .then(
+            (response: any) => {
+              const parsedResponse = response.data;
 
-          if (parsedResponse) {
-            const extractedData = {
-              amount: parsedResponse.amount,
-              currency: parsedResponse.currency,
-              category: parsedResponse.category,
-              date: parsedResponse.date ? new Date(parsedResponse.date) : null,
-              vendor: parsedResponse.vendor_name
-            };
+              if (parsedResponse) {
+                const extractedData = {
+                  amount: parsedResponse.amount,
+                  currency: parsedResponse.currency,
+                  category: parsedResponse.category,
+                  date: parsedResponse.date ? new Date(parsedResponse.date) : null,
+                  vendor: parsedResponse.vendor_name,
+                };
 
-            entry.transaction.extracted_data = extractedData;
-            entry.transaction.txn_dt = new Date();
+                entry.transaction.extracted_data = extractedData;
+                entry.transaction.txn_dt = new Date();
 
-            this.transactionService.upsert(entry.transaction).toPromise().finally(() => {
+                this.transactionService
+                  .upsert(entry.transaction)
+                  .toPromise()
+                  .finally(() => {
+                    this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+                  });
+              } else {
+                this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+              }
+            },
+            (err) => {
               this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
-            });
-
-          } else {
-            this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
-          }
-        }, (err) => {
-          this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
-        }).finally(() => {
-          // iterating to next item on list.
-          if (index < clonedQueue.length - 1) {
-            loop(index + 1);
-          }
-        });
+            }
+          )
+          .finally(() => {
+            // iterating to next item on list.
+            if (index < clonedQueue.length - 1) {
+              loop(index + 1);
+            }
+          });
       };
 
       loop(0);
@@ -156,7 +164,7 @@ export class TransactionsOutboxService {
 
   uploadData(uploadUrl, blob, contentType) {
     return this.httpClient.put<any>(uploadUrl, blob, {
-      headers: new HttpHeaders({ 'Content-Type': contentType })
+      headers: new HttpHeaders({ 'Content-Type': contentType }),
     });
   }
 
@@ -170,24 +178,35 @@ export class TransactionsOutboxService {
         contentType = 'image/jpeg';
       }
 
-      this.fileService.post({
-        name: '000.' + fileExtension,
-        receipt_coordinates: receiptCoordinates
-      }).toPromise().then((fileObj) => this.fileService.uploadUrl(fileObj.id).toPromise().then((url) => {
-        const uploadUrl = url;
-        // check from here
-        fetch(dataUrl).then(res => res.blob()).then(blob => {
-          this.uploadData(uploadUrl, blob, contentType)
+      this.fileService
+        .post({
+          name: '000.' + fileExtension,
+          receipt_coordinates: receiptCoordinates,
+        })
+        .toPromise()
+        .then((fileObj) =>
+          this.fileService
+            .uploadUrl(fileObj.id)
             .toPromise()
-            .then(_ => this.fileService.uploadComplete(fileObj.id).toPromise())
-            .then(() => resolve(fileObj))
-            .catch(err => {
-              reject(err);
-            });
+            .then((url) => {
+              const uploadUrl = url;
+              // check from here
+              fetch(dataUrl)
+                .then((res) => res.blob())
+                .then((blob) => {
+                  this.uploadData(uploadUrl, blob, contentType)
+                    .toPromise()
+                    .then((_) => this.fileService.uploadComplete(fileObj.id).toPromise())
+                    .then(() => resolve(fileObj))
+                    .catch((err) => {
+                      reject(err);
+                    });
+                });
+            })
+        )
+        .catch((err) => {
+          reject(err);
         });
-      })).catch(err => {
-        reject(err);
-      });
     });
   }
 
@@ -206,7 +225,7 @@ export class TransactionsOutboxService {
       comments,
       reportId,
       applyMagic: !!applyMagic,
-      receiptsData
+      receiptsData,
     });
 
     return this.saveQueue();
@@ -237,7 +256,7 @@ export class TransactionsOutboxService {
     const indexes = deleteExpenses.map((offlineExpense) => indexOf(pendingTransactions, offlineExpense));
     // We need to delete last element of this list first
     indexes.sort((a, b) => b - a);
-    indexes.forEach(index => {
+    indexes.forEach((index) => {
       this.deleteOfflineExpense(index);
     });
   }
@@ -250,9 +269,7 @@ export class TransactionsOutboxService {
     if (!entry.receiptsData) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
-          const fileObjPromise = that.fileUpload(
-            dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates
-          );
+          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates);
 
           fileObjPromiseArray.push(fileObjPromise);
         });
@@ -260,74 +277,88 @@ export class TransactionsOutboxService {
     }
 
     return new Promise((resolve, reject) => {
-      const fileUploadsPromise = Promise.all(fileObjPromiseArray).then(val => val).catch(err => {
-        reject(err);
-      });
-      that.transactionService.createTxnWithFiles(entry.transaction, from(fileUploadsPromise)).toPromise().then((resp) => {
-        const comments = entry.comments;
-        // adding created transaction id into entry object to get created transaction id when promise is resolved.
-        entry.transaction.id = resp.id;
-        if (comments && comments.length > 0) {
-          comments.forEach((comment) => {
-            that.statusService.post('transactions', resp.id, { comment }, true).subscribe(noop);
-          });
-        }
-        if (entry.receiptsData) {
-          const linkReceiptPayload = {
-            transaction_id: entry.transaction.id,
-            linked_by: entry.receiptsData.linked_by
-          };
-          that.receiptService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
-        }
-        if (entry.dataUrls && entry.dataUrls.length > 0) {
-          that.transactionService.getETxn(resp.id).toPromise().then((etxn) => {
-            entry.dataUrls.forEach((dataUrl) => {
-              if (dataUrl.callBackUrl) {
-                that.httpClient.post(dataUrl.callBackUrl, {
-                  entered_data: {
-                    amount: etxn.tx.amount,
-                    currency: etxn.tx.currency,
-                    orig_currency: etxn.tx.orig_currency,
-                    orig_amount: etxn.tx.orig_amount,
-                    date: etxn.tx.txn_dt,
-                    vendor: etxn.tx.vendor,
-                    category: etxn.tx.fyle_category,
-                    external_id: etxn.tx.external_id,
-                    transaction_id: etxn.tx.id
+      const fileUploadsPromise = Promise.all(fileObjPromiseArray)
+        .then((val) => val)
+        .catch((err) => {
+          reject(err);
+        });
+      that.transactionService
+        .createTxnWithFiles(entry.transaction, from(fileUploadsPromise))
+        .toPromise()
+        .then((resp) => {
+          const comments = entry.comments;
+          // adding created transaction id into entry object to get created transaction id when promise is resolved.
+          entry.transaction.id = resp.id;
+          if (comments && comments.length > 0) {
+            comments.forEach((comment) => {
+              that.statusService.post('transactions', resp.id, { comment }, true).subscribe(noop);
+            });
+          }
+          if (entry.receiptsData) {
+            const linkReceiptPayload = {
+              transaction_id: entry.transaction.id,
+              linked_by: entry.receiptsData.linked_by,
+            };
+            that.receiptService.linkReceiptWithExpense(entry.receiptsData.receipt_id, linkReceiptPayload);
+          }
+          if (entry.dataUrls && entry.dataUrls.length > 0) {
+            that.transactionService
+              .getETxn(resp.id)
+              .toPromise()
+              .then((etxn) => {
+                entry.dataUrls.forEach((dataUrl) => {
+                  if (dataUrl.callBackUrl) {
+                    that.httpClient.post(dataUrl.callBackUrl, {
+                      entered_data: {
+                        amount: etxn.tx.amount,
+                        currency: etxn.tx.currency,
+                        orig_currency: etxn.tx.orig_currency,
+                        orig_amount: etxn.tx.orig_amount,
+                        date: etxn.tx.txn_dt,
+                        vendor: etxn.tx.vendor,
+                        category: etxn.tx.fyle_category,
+                        external_id: etxn.tx.external_id,
+                        transaction_id: etxn.tx.id,
+                      },
+                    });
                   }
                 });
-              }
-            });
-          });
-        }
+              });
+          }
 
-        if (reportId) {
-          const txnIds = [resp.id];
-          that.reportService.addTransactions(reportId, txnIds).toPromise().then((result) => {
-            this.trackingService.addToExistingReportAddEditExpense();
-            return result;
-          });
-        }
+          if (reportId) {
+            const txnIds = [resp.id];
+            that.reportService
+              .addTransactions(reportId, txnIds)
+              .toPromise()
+              .then((result) => {
+                this.trackingService.addToExistingReportAddEditExpense();
+                return result;
+              });
+          }
 
-        that.removeEntry(entry);
+          that.removeEntry(entry);
 
-        if (entry.applyMagic) {
-          that.addDataExtractionEntry(resp, entry.dataUrls);
-        }
+          if (entry.applyMagic) {
+            that.addDataExtractionEntry(resp, entry.dataUrls);
+          }
 
-        // that would be on matching an expense for the first time
-        if (entry.transaction.matchCCCId) {
-          that.transactionService.matchCCCExpense(resp.id, entry.transaction.matchCCCId).toPromise().then(() => {
+          // that would be on matching an expense for the first time
+          if (entry.transaction.matchCCCId) {
+            that.transactionService
+              .matchCCCExpense(resp.id, entry.transaction.matchCCCId)
+              .toPromise()
+              .then(() => {
+                resolve(entry);
+              });
+          } else {
             resolve(entry);
-          });
-        } else {
-          resolve(entry);
-        }
-      }).catch((err) => {
-        this.trackingService.syncError({ label: err });
-
-        reject(err);
-      });
+          }
+        })
+        .catch((err) => {
+          this.trackingService.syncError({ label: err });
+          reject(err);
+        });
     });
   }
 
@@ -346,29 +377,32 @@ export class TransactionsOutboxService {
         p.push(that.syncEntry(that.queue[i]));
       }
 
-      Promise.all(p).then(() => {
-        // if (p.length > 0) {
-        //   TransactionService.deleteCache();
-        // }
-        that.processDataExtractionEntry();
-        resolve(true);
-      }).catch(err=>{
-        reject(err);
-      }).finally(()=>{
-        that.syncDeferred = null;
-        that.syncInProgress = false;
-      });
+      Promise.all(p)
+        .then(() => {
+          // if (p.length > 0) {
+          //   TransactionService.deleteCache();
+          // }
+          that.processDataExtractionEntry();
+          resolve(true);
+        })
+        .catch((err) => {
+          reject(err);
+        })
+        .finally(() => {
+          that.syncDeferred = null;
+          that.syncInProgress = false;
+        });
     });
 
-    return this.syncDeferred.then(()=> {
+    return this.syncDeferred.then(() => {
       // console.log('Sync initiatiated');
     });
   }
 
   createTxnAndUploadBase64File(transaction, base64Content) {
-    return this.transactionService.upsert(transaction).pipe(
-      switchMap((res) => this.fileService.base64Upload('expense.jpg', base64Content, res.id, null, null))
-    );
+    return this.transactionService
+      .upsert(transaction)
+      .pipe(switchMap((res) => this.fileService.base64Upload('expense.jpg', base64Content, res.id, null, null)));
   }
 
   isSyncInProgress() {
@@ -378,27 +412,41 @@ export class TransactionsOutboxService {
   parseReceipt(data, fileType?): Promise<ParsedReceipt> {
     const url = this.ROOT_ENDPOINT + '/data_extraction/extract';
     let suggestedCurrency = null;
-    const fileName = (fileType && fileType === 'pdf') ? '000.pdf' : '000.jpeg';
+    const fileName = fileType && fileType === 'pdf' ? '000.pdf' : '000.jpeg';
 
     // send homeCurrency of the user's org as suggestedCurrency for data-extraction
-    return this.offlineService.getHomeCurrency().toPromise().then((homeCurrency) => {
-      suggestedCurrency = homeCurrency;
-      return this.httpClient.post(url, {
-        files: [{
-          name: fileName,
-          content: data
-        }],
-        suggested_currency: suggestedCurrency
-      }).toPromise()
-        .then(res => res as ParsedReceipt);
-    }).catch((err) => this.httpClient.post(url, {
-      files: [{
-        name: fileName,
-        content: data
-      }],
-      suggested_currency: suggestedCurrency
-    }).toPromise()
-      .then(res => res as ParsedReceipt));
+    return this.offlineService
+      .getHomeCurrency()
+      .toPromise()
+      .then((homeCurrency) => {
+        suggestedCurrency = homeCurrency;
+        return this.httpClient
+          .post(url, {
+            files: [
+              {
+                name: fileName,
+                content: data,
+              },
+            ],
+            suggested_currency: suggestedCurrency,
+          })
+          .toPromise()
+          .then((res) => res as ParsedReceipt);
+      })
+      .catch((err) =>
+        this.httpClient
+          .post(url, {
+            files: [
+              {
+                name: fileName,
+                content: data,
+              },
+            ],
+            suggested_currency: suggestedCurrency,
+          })
+          .toPromise()
+          .then((res) => res as ParsedReceipt)
+      );
   }
 
   isDataExtractionPending(txnId) {

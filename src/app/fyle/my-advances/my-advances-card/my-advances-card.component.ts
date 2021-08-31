@@ -8,27 +8,26 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
   styleUrls: ['./my-advances-card.component.scss'],
 })
 export class MyAdvancesCardComponent implements OnInit {
-
   @Input() advanceRequest: any;
 
-  @Output() advanceClick: EventEmitter<{ advanceRequest: ExtendedAdvanceRequest; internalState: any }> = new EventEmitter();
+  @Output() advanceClick: EventEmitter<{ advanceRequest: ExtendedAdvanceRequest; internalState: any }> =
+    new EventEmitter();
 
   internalState: { name: string; state: string };
 
-  constructor(
-    private advanceRequestService: AdvanceRequestService
-  ) { }
+  constructor(private advanceRequestService: AdvanceRequestService) {}
 
   ngOnInit() {
-    this.internalState = (this.advanceRequest.type === 'request') ?
-      this.advanceRequestService.getInternalStateAndDisplayName(this.advanceRequest) : {
-        state: 'paid',
-        name: 'Paid'
-      };
+    this.internalState =
+      this.advanceRequest.type === 'request'
+        ? this.advanceRequestService.getInternalStateAndDisplayName(this.advanceRequest)
+        : {
+            state: 'paid',
+            name: 'Paid',
+          };
   }
 
   onAdvanceClick() {
     this.advanceClick.emit({ advanceRequest: this.advanceRequest, internalState: this.internalState });
   }
-
 }

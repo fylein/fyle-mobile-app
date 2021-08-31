@@ -12,7 +12,6 @@ const { Browser } = Plugins;
   styleUrls: ['./support-dialog.page.scss'],
 })
 export class SupportDialogPage implements OnInit {
-
   @Input() adminEous: [];
 
   dialogType = this.navParams.get('type');
@@ -23,7 +22,7 @@ export class SupportDialogPage implements OnInit {
     private modalController: ModalController,
     private navParams: NavParams,
     private trackingService: TrackingService
-  ) { }
+  ) {}
 
   openHelpLink() {
     this.trackingService.engageWithHelpCard();
@@ -34,7 +33,7 @@ export class SupportDialogPage implements OnInit {
     this.trackingService.engageWithHelpCard();
     Browser.open({
       toolbarColor: '#280a31',
-      url: 'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk'
+      url: 'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk',
     });
   }
 
@@ -42,16 +41,15 @@ export class SupportDialogPage implements OnInit {
     this.trackingService.engageWithHelpCard();
     Browser.open({
       toolbarColor: '#280a31',
-      url: 'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview'
+      url: 'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview',
     });
   }
 
   closeDialog() {
     this.modalController.dismiss({
-      dismissed: true
+      dismissed: true,
     });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 }

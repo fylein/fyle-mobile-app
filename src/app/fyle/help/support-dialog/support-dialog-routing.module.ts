@@ -6,8 +6,8 @@ import { SupportDialogPage } from './support-dialog.page';
 const routes: Routes = [
   {
     path: '',
-    component: SupportDialogPage
-  }
+    component: SupportDialogPage,
+  },
 ];
 
 @NgModule({

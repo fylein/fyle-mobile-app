@@ -6,8 +6,8 @@ import { ViewTeamMileagePage } from './view-team-mileage.page';
 const routes: Routes = [
   {
     path: '',
-    component: ViewTeamMileagePage
-  }
+    component: ViewTeamMileagePage,
+  },
 ];
 
 @NgModule({

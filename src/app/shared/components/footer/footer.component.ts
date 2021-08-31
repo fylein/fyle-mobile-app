@@ -12,7 +12,6 @@ import { Observable } from 'rxjs/internal/Observable';
   styleUrls: ['./footer.component.scss'],
 })
 export class FooterComponent implements OnInit {
-
   @Output() homeClicked = new EventEmitter();
 
   @Output() cameraClicked = new EventEmitter();
@@ -35,7 +34,7 @@ export class FooterComponent implements OnInit {
     private networkService: NetworkService,
     private trackingService: TrackingService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.connectionState$ = this.networkService.getConnectionStatus();
@@ -44,7 +43,7 @@ export class FooterComponent implements OnInit {
   goToHome() {
     this.trackingService.footerButtonClicked({
       Action: 'Home',
-      Url: this.router.url
+      Url: this.router.url,
     });
 
     this.homeClicked.emit();
@@ -53,7 +52,7 @@ export class FooterComponent implements OnInit {
   goToCameraMode() {
     this.trackingService.footerButtonClicked({
       Action: 'Camera',
-      Url: this.router.url
+      Url: this.router.url,
     });
 
     this.cameraClicked.emit();
@@ -62,7 +61,7 @@ export class FooterComponent implements OnInit {
   goToTasks() {
     this.trackingService.footerButtonClicked({
       Action: 'Tasks',
-      Url: this.router.url
+      Url: this.router.url,
     });
 
     this.taskClicked.emit();

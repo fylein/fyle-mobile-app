@@ -1,16 +1,16 @@
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {finalize, map, switchMap, tap} from 'rxjs/operators';
-import {from, Observable} from 'rxjs';
-import {ActivatedRoute} from '@angular/router';
-import {LoaderService} from 'src/app/core/services/loader.service';
-import {RouterAuthService} from 'src/app/core/services/router-auth.service';
-import {AuthService} from 'src/app/core/services/auth.service';
-import {PopoverController} from '@ionic/angular';
-import {PopupComponent} from './popup/popup.component';
-import {TrackingService} from '../../core/services/tracking.service';
-import {DeviceService} from '../../core/services/device.service';
-import {LoginInfoService} from '../../core/services/login-info.service';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { finalize, map, switchMap, tap } from 'rxjs/operators';
+import { from, Observable } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { RouterAuthService } from 'src/app/core/services/router-auth.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { PopoverController } from '@ionic/angular';
+import { PopupComponent } from './popup/popup.component';
+import { TrackingService } from '../../core/services/tracking.service';
+import { DeviceService } from '../../core/services/device.service';
+import { LoginInfoService } from '../../core/services/login-info.service';
 
 @Component({
   selector: 'app-new-password',
@@ -18,7 +18,6 @@ import {LoginInfoService} from '../../core/services/login-info.service';
   styleUrls: ['./new-password.page.scss'],
 })
 export class NewPasswordPage implements OnInit {
-
   fg: FormGroup;
 
   lengthValidationDisplay$: Observable<boolean>;
@@ -43,51 +42,41 @@ export class NewPasswordPage implements OnInit {
     private trackingService: TrackingService,
     private deviceService: DeviceService,
     private loginInfoService: LoginInfoService
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
     this.fg = this.fb.group({
-      password: ['',
-        Validators.compose(
-          [
-            Validators.required,
-            Validators.minLength(12),
-            Validators.maxLength(32),
-            Validators.pattern(/[A-Z]/),
-            Validators.pattern(/[a-z]/),
-            Validators.pattern(/[0-9]/),
-            Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/)]
-        )]
+      password: [
+        '',
+        Validators.compose([
+          Validators.required,
+          Validators.minLength(12),
+          Validators.maxLength(32),
+          Validators.pattern(/[A-Z]/),
+          Validators.pattern(/[a-z]/),
+          Validators.pattern(/[0-9]/),
+          Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/),
+        ]),
+      ],
     });
 
     this.lengthValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => password && password.length >= 12 && password.length <= 32
-      )
+      map((password) => password && password.length >= 12 && password.length <= 32)
     );
 
     this.uppercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[A-Z]/.test(password))
-      )
+      map((password) => /[A-Z]/.test(password))
     );
 
     this.numberValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[0-9]/.test(password))
-      )
+      map((password) => /[0-9]/.test(password))
     );
     this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
-      )
+      map((password) => /[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
     );
 
     this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[a-z]/.test(password))
-      )
+      map((password) => /[a-z]/.test(password))
     );
   }
 
@@ -136,5 +125,4 @@ export class NewPasswordPage implements OnInit {
     this.trackingService.eventTrack('Added Login Info', {label: deviceInfo.appVersion});
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
-
 }

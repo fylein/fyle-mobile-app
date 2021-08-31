@@ -46,7 +46,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private modalController: ModalController,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private modalProperties: ModalPropertiesService
-  ) { }
+  ) {}
 
   getReceiptExtension(name) {
     let res = null;
@@ -67,13 +67,13 @@ export class MyViewAdvanceRequestPage implements OnInit {
     const ext = this.getReceiptExtension(file.name);
     const res = {
       type: 'unknown',
-      thumbnail: 'img/fy-receipt.svg'
+      thumbnail: 'img/fy-receipt.svg',
     };
 
-    if (ext && (['pdf'].indexOf(ext) > -1)) {
+    if (ext && ['pdf'].indexOf(ext) > -1) {
       res.type = 'pdf';
       res.thumbnail = 'img/fy-pdf.svg';
-    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
       res.type = 'image';
       res.thumbnail = file.url;
     }
@@ -89,21 +89,21 @@ export class MyViewAdvanceRequestPage implements OnInit {
       shareReplay(1)
     );
 
-    this.actions$ = this.advanceRequestService.getActions(id).pipe(
-      shareReplay(1)
-    );
+    this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap(res => from(res)),
-      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
-        map(downloadUrl => {
-          fileObj.url = downloadUrl;
-          const details = this.getReceiptDetails(fileObj);
-          fileObj.type = details.type;
-          fileObj.thumbnail = details.thumbnail;
-          return fileObj;
-        })
-      )),
+      switchMap((res) => from(res)),
+      concatMap((fileObj: any) =>
+        this.fileService.downloadUrl(fileObj.id).pipe(
+          map((downloadUrl) => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        )
+      ),
       reduce((acc, curr) => acc.concat(curr), [] as File[])
     );
 
@@ -111,17 +111,21 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$,
-      customFields: this.customFields$
+      customFields: this.customFields$,
     }).pipe(
-      map(res => {
+      map((res) => {
         let customFieldValues = [];
-        if ((res.advanceRequest.areq_custom_field_values !== null) && (res.advanceRequest.areq_custom_field_values.length > 0)) {
-          customFieldValues = this.advanceRequestService
-            .modifyAdvanceRequestCustomFields(JSON.parse(res.advanceRequest.areq_custom_field_values));
+        if (
+          res.advanceRequest.areq_custom_field_values !== null &&
+          res.advanceRequest.areq_custom_field_values.length > 0
+        ) {
+          customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
+            JSON.parse(res.advanceRequest.areq_custom_field_values)
+          );
         }
 
-        res.customFields.map(customField => {
-          customFieldValues.filter(customFieldValue => {
+        res.customFields.map((customField) => {
+          customFieldValues.filter((customFieldValue) => {
             if (customField.id === customFieldValue.id) {
               customField.value = customFieldValue.value;
             }
@@ -136,7 +140,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
   async pullBack() {
     const pullBackPopover = await this.popoverController.create({
       component: PullBackAdvanceRequestComponent,
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await pullBackPopover.present();
@@ -145,27 +149,34 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     if (data) {
       const status = {
-        comment: data.reason
+        comment: data.reason,
       };
 
       const addStatusPayload = {
         status,
-        notify: false
+        notify: false,
       };
 
       const id = this.activatedRoute.snapshot.params.id;
 
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.advanceRequestService.pullBackadvanceRequest(id, addStatusPayload)),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_advances']);
-      });
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => this.advanceRequestService.pullBackadvanceRequest(id, addStatusPayload)),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'my_advances']);
+        });
     }
   }
 
   edit() {
-    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: this.activatedRoute.snapshot.params.id }]);
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'add_edit_advance_request',
+      { id: this.activatedRoute.snapshot.params.id },
+    ]);
   }
 
   async delete() {
@@ -176,8 +187,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',
-        deleteMethod: () => this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id)
-      }
+        deleteMethod: () => this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id),
+      },
     });
 
     await deletePopover.present();
@@ -193,17 +204,15 @@ export class MyViewAdvanceRequestPage implements OnInit {
     const attachmentsModal = await this.modalController.create({
       component: FyViewAttachmentComponent,
       componentProps: {
-        attachments
+        attachments,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await attachmentsModal.present();
   }
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

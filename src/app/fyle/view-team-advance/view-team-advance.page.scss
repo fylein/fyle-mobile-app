@@ -18,7 +18,7 @@
     }
 
     &__edit {
-      padding: 8px 16px
+      padding: 8px 16px;
     }
 
     &_external-component {
@@ -32,7 +32,7 @@
     margin: 5px 0 -2px 0;
   }
 
-  &--attachment-currency-container{
+  &--attachment-currency-container {
     margin: 0 16px;
     display: flex;
   }
@@ -96,9 +96,9 @@
     margin-top: 20px;
     line-height: 1;
     margin-left: -4px;
-}
+  }
 
-  &--add-receipt-text{
+  &--add-receipt-text {
     margin: 0;
     display: inline-block;
     vertical-align: middle;
@@ -137,8 +137,6 @@
     font-weight: 500;
     border: 0;
   }
-
-
 
   &--element {
     display: flex;

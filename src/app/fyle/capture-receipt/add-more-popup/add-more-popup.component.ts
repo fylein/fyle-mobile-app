@@ -9,9 +9,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 export class AddMorePopupComponent implements OnInit {
   actionButtons: { icon: string; title: string; mode: string }[];
 
-  constructor(
-    private matBottomSheet: MatBottomSheet
-  ) { }
+  constructor(private matBottomSheet: MatBottomSheet) {}
 
   ngOnInit() {
     this.actionButtons = [
@@ -24,12 +22,11 @@ export class AddMorePopupComponent implements OnInit {
         icon: 'fy-gallery',
         title: 'Upload from Gallery',
         mode: 'gallery',
-      }
+      },
     ];
   }
 
   ctaClickedEvent(mode) {
     this.matBottomSheet.dismiss({ mode });
   }
-
 }
