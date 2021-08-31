@@ -89,12 +89,6 @@
           </ng-container>
         </ng-container>
 
-        <ng-container *ngIf="etxn$|async as etxn">
-          <div *ngIf="reviewList?.length > 0">
-            <app-fy-preview-attachments [txnId]="etxn.tx.id"></app-fy-preview-attachments>
-          </div>
-        </ng-container>
-
         <div class="add-edit-expense--receipt-currency-container">
           <ng-container *ngIf="attachedReceiptsCount === 0">
             <div *ngIf="!reviewList?.length || canAttachReceipts" class="add-edit-expense--receipt">
