@@ -14,14 +14,19 @@ jobs:
       with:
         # Make sure the actual branch is checked out when running on pull requests
         ref: ${{ github.head_ref }}
-        # This is important to fetch the changes to the previous commit
-        fetch-depth: 0
 
     - name: Prettify code
       uses: creyD/prettier_action@v3.3
       with:
         # This part is also where you can pass other options, for example:
         prettier_options: --write ./src
-        only_changed: True
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Commit changes
+      uses: EndBug/add-and-commit@v7
+      with:
+        author_name: Aiyush
+        author_email: aiyush.dhar@fyle.in
+        message: 'I add a few changes because I can!'
+        add: '.'
