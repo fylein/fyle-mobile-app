@@ -881,3 +881,7 @@ ion-modal.auto-height {
 .icon--navigate-left {
   height: 14px;
 }
+
+.no-pointer-events {
+  pointer-events: none;
+}
