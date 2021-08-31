@@ -5,6 +5,10 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class AdvanceState implements PipeTransform {
   transform(value) {
+    if (!value) {
+      return value;
+    }
+
     const states = {
       DRAFT: 'draft',
       SUBMITTED: 'pending',

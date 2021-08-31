@@ -4,8 +4,12 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'initials',
 })
 export class InitialsPipe implements PipeTransform {
-  transform(name) {
-    const userName = name.split(' ');
+  transform(name: string) {
+    if (!name) {
+      return '';
+    }
+
+    const userName = name.trim().split(' ');
     let initials = userName[0].substring(0, 1).toUpperCase();
 
     if (userName.length > 1) {
