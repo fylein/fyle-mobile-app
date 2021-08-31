@@ -22,11 +22,3 @@ jobs:
         prettier_options: --write ./src
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Commit changes
-      uses: EndBug/add-and-commit@v7
-      with:
-        author_name: Aiyush
-        author_email: aiyush.dhar@fyle.in
-        message: 'I add a few changes because I can!'
-        add: './src'
