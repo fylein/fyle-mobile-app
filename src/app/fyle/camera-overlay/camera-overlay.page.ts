@@ -260,7 +260,7 @@ export class CameraOverlayPage implements OnInit, OnDestroy {
     this.activeFlashMode = nextActiveFlashMode;
 
     this.trackingService.flashModeSet({
-      FlashMode: this.activeFlashMode
+      FlashMode: this.activeFlashMode,
     });
   }
 

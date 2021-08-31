@@ -1535,7 +1535,7 @@ export class AddEditMileagePage implements OnInit {
       }
     } else {
       if (this.activatedRoute.snapshot.params.id) {
-        this.trackingService.viewExpense({Type: 'Mileage' });
+        this.trackingService.viewExpense({ Type: 'Mileage' });
       }
 
       if (this.navigateBack) {

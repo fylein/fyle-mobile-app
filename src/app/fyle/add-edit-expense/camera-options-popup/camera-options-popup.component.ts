@@ -29,7 +29,7 @@ export class CameraOptionsPopupComponent implements OnInit {
   }
 
   async getImageFromPicture() {
-    this.trackingService.addAttachment({Mode: 'Add Expense', Category: 'Camera'});
+    this.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
 
     const image = await Camera.getPhoto({
       quality: 90,
@@ -51,7 +51,7 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   async getImageFromImagePicker() {
     const that = this;
-    that.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera'});
+    that.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
 
     const nativeElement = that.fileUpload.nativeElement as HTMLInputElement;
 

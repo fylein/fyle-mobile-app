@@ -141,7 +141,7 @@ export class StatsComponent implements OnInit {
     });
 
     this.trackingService.dashboardOnReportPillClick({
-      State: state.toString()
+      State: state.toString(),
     });
   }
 

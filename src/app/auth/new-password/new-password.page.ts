@@ -83,46 +83,49 @@ export class NewPasswordPage implements OnInit {
   changePassword() {
     const refreshToken = this.activatedRoute.snapshot.params.refreshToken;
 
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value)),
-      switchMap(res => this.authService.newRefreshToken(res.refresh_token)),
-      tap(async (eou) => {
-        const email = eou.us.email;
-        this.trackingService.onSignin(email);
-        this.trackingService.resetPassword();
-        await this.trackLoginInfo();
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(
-      async () => {
-        const popup = await this.popoverController.create({
-          component: PopupComponent,
-          componentProps: {
-            header: 'Password changed successfully',
-            route: ['/', 'auth', 'switch_org']
-          },
-          cssClass: 'dialog-popover'
-        });
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value)),
+        switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
+        tap(async (eou) => {
+          const email = eou.us.email;
+          this.trackingService.onSignin(email);
+          this.trackingService.resetPassword();
+          await this.trackLoginInfo();
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(
+        async () => {
+          const popup = await this.popoverController.create({
+            component: PopupComponent,
+            componentProps: {
+              header: 'Password changed successfully',
+              route: ['/', 'auth', 'switch_org'],
+            },
+            cssClass: 'dialog-popover',
+          });
 
-        await popup.present();
-      },
-      async () => {
-        const popup = await this.popoverController.create({
-          component: PopupComponent,
-          componentProps: {
-            header: 'Setting new password failed. Please try again later.',
-            route: ['/', 'auth', 'sign_in']
-          },
-          cssClass: 'dialog-popover'
-        });
+          await popup.present();
+        },
+        async () => {
+          const popup = await this.popoverController.create({
+            component: PopupComponent,
+            componentProps: {
+              header: 'Setting new password failed. Please try again later.',
+              route: ['/', 'auth', 'sign_in'],
+            },
+            cssClass: 'dialog-popover',
+          });
 
-        await popup.present();
-      });
+          await popup.present();
+        }
+      );
   }
 
   async trackLoginInfo() {
     const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
-    this.trackingService.eventTrack('Added Login Info', {label: deviceInfo.appVersion});
+    this.trackingService.eventTrack('Added Login Info', { label: deviceInfo.appVersion });
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 }

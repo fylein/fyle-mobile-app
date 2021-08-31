@@ -195,7 +195,7 @@ export class DashboardPage implements OnInit {
         cssClass: 'capture-receipt',
         handler: () => {
           that.trackingService.dashboardActionSheetButtonClicked({
-            Action: 'Add Mileage'
+            Action: 'Add Mileage',
           });
           that.router.navigate([
             '/',
@@ -216,7 +216,7 @@ export class DashboardPage implements OnInit {
         cssClass: 'capture-receipt',
         handler: () => {
           that.trackingService.dashboardActionSheetButtonClicked({
-            Action: 'Add Per Diem'
+            Action: 'Add Per Diem',
           });
           that.router.navigate([
             '/',

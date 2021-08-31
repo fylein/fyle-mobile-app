@@ -322,7 +322,7 @@ export class MyExpensesPage implements OnInit {
         cssClass: 'capture-receipt',
         handler: () => {
           this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Mileage'
+            Action: 'Add Mileage',
           });
           that.router.navigate([
             '/',
@@ -343,7 +343,7 @@ export class MyExpensesPage implements OnInit {
         cssClass: 'capture-receipt',
         handler: () => {
           this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Per Diem'
+            Action: 'Add Per Diem',
           });
           that.router.navigate([
             '/',
@@ -1227,7 +1227,7 @@ export class MyExpensesPage implements OnInit {
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
       this.trackingService.myExpensesFilterApplied({
-        ...this.filters
+        ...this.filters,
       });
     }
   }
@@ -1758,7 +1758,7 @@ export class MyExpensesPage implements OnInit {
 
     if (data) {
       this.trackingService.myExpensesBulkDeleteExpenses({
-        count: this.selectedElements.length
+        count: this.selectedElements.length,
       });
       if (data.status === 'success') {
         const totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;

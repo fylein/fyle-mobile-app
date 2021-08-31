@@ -177,24 +177,27 @@ export class SignInPage implements OnInit {
     if (this.fg.controls.password.valid) {
       this.emailLoading = false;
       this.passwordLoading = true;
-      this.routerAuthService.basicSignin(this.fg.value.email, this.fg.value.password).pipe(
-        catchError(err => {
-          this.handleError(err);
-          return throwError(err);
-        }),
-        switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
-        tap(async () => {
-          await this.trackLoginInfo();
-          this.trackingService.onSignin(this.fg.value.email, {
-            label: 'Email'
-          });
-        }),
-        finalize(() => this.passwordLoading = false)
-      ).subscribe(() => {
-        this.pushNotificationService.initPush();
-        this.fg.reset();
-        this.router.navigate(['/', 'auth', 'switch_org', {choose: true}]);
-      });
+      this.routerAuthService
+        .basicSignin(this.fg.value.email, this.fg.value.password)
+        .pipe(
+          catchError((err) => {
+            this.handleError(err);
+            return throwError(err);
+          }),
+          switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
+          tap(async () => {
+            await this.trackLoginInfo();
+            this.trackingService.onSignin(this.fg.value.email, {
+              label: 'Email',
+            });
+          }),
+          finalize(() => (this.passwordLoading = false))
+        )
+        .subscribe(() => {
+          this.pushNotificationService.initPush();
+          this.fg.reset();
+          this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+        });
     } else {
       this.fg.controls.password.markAsTouched();
     }
@@ -244,7 +247,7 @@ export class SignInPage implements OnInit {
 
   async trackLoginInfo() {
     const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
-    this.trackingService.eventTrack('Added Login Info', {label: deviceInfo.appVersion});
+    this.trackingService.eventTrack('Added Login Info', { label: deviceInfo.appVersion });
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 
