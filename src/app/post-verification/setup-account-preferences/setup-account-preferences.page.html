@@ -1,19 +1,13 @@
 <ion-content>
   <div class="setup-account-preferences" *ngIf="isConnected$|async">
-    <div class="setup-account-preferences--full-name">
-      {{companyName$|async}}
-    </div>
+    <div class="setup-account-preferences--full-name">{{companyName$|async}}</div>
 
     <div class="setup-account-preferences--form-header-container">
       <div class="setup-account-preferences--form-header setup-account-preferences--form-header__completed">
         Setup your account?
       </div>
-      <div class="setup-account-preferences--form-header">
-        Configure Fyle
-      </div>
-      <div class="setup-account-preferences--form-sub-header">
-        Setup your account preferences
-      </div>
+      <div class="setup-account-preferences--form-header">Configure Fyle</div>
+      <div class="setup-account-preferences--form-sub-header">Setup your account preferences</div>
     </div>
 
     <form [formGroup]="fg">
@@ -33,13 +27,11 @@
         </div>
       </div>
       <div class="setup-account-preferences--config">
-        <div class="setup-account-preferences--config-header">
-          Enable additional capabilities
-        </div>
+        <div class="setup-account-preferences--config-header">Enable additional capabilities</div>
         <div class="setup-account-preferences--config__offset">
           <div class="setup-account-preferences--checkbox-container">
             <ion-checkbox formControlName="ccc" color="fyle-primary" mode="ios"></ion-checkbox>
-            <div class="setup-account-preferences--checkbox-label">Corporate Cards </div>
+            <div class="setup-account-preferences--checkbox-label">Corporate Cards</div>
           </div>
           <div class="setup-account-preferences--checkbox-container">
             <ion-checkbox formControlName="trip" color="fyle-primary" mode="ios"></ion-checkbox>
@@ -52,19 +44,27 @@
         </div>
       </div>
       <div>
-        <button (click)="continueEnterprise()" class="setup-account-preferences--primary-cta" mat-flat-button color="primary">Finish</button>
+        <button
+          (click)="continueEnterprise()"
+          class="setup-account-preferences--primary-cta"
+          mat-flat-button
+          color="primary"
+        >
+          Finish
+        </button>
       </div>
     </form>
   </div>
   <div class="setup-account-preferences-offline ion-text-center" *ngIf="!(isConnected$|async)">
-    <img class="setup-account-preferences-offline--image" alt="offline-zer-state"
-      src="../../../assets/images/zero-states/offline.svg">
-    <div class="setup-account-preferences-offline--title">
-      Looks like you are offline
-    </div>
+    <img
+      class="setup-account-preferences-offline--image"
+      alt="offline-zer-state"
+      src="../../../assets/images/zero-states/offline.svg"
+    />
+    <div class="setup-account-preferences-offline--title">Looks like you are offline</div>
     <div class="setup-account-preferences-offline--sub-title">
-      You need to be connected to Internet to be able to login to the app. Please check if your Internet
-      connection is working.
+      You need to be connected to Internet to be able to login to the app. Please check if your Internet connection is
+      working.
     </div>
   </div>
 </ion-content>

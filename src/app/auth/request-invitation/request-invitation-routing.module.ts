@@ -1,13 +1,13 @@
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
-import {RequestInvitationPage} from './request-invitation.page';
+import { RequestInvitationPage } from './request-invitation.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: RequestInvitationPage
-  }
+    component: RequestInvitationPage,
+  },
 ];
 
 @NgModule({

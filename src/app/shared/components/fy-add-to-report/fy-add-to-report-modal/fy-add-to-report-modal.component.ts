@@ -1,5 +1,14 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
-import {from, fromEvent, Observable, of} from 'rxjs';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  Input,
+  ChangeDetectorRef,
+  TemplateRef,
+} from '@angular/core';
+import { from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
@@ -41,7 +50,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.states.DRAFT = 'draft';
@@ -64,12 +73,9 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    this.filteredOptions = this.options.filter((option) => !isEqual(option.value, this.currentSelection));
 
-    this.filteredOptions = this.options
-      .filter(option => !isEqual(option.value, this.currentSelection));
-
-    this.selectedOption = this.options
-      .find(option => isEqual(option.value, this.currentSelection));
+    this.selectedOption = this.options.find((option) => isEqual(option.value, this.currentSelection));
 
     this.cdr.detectChanges();
   }
@@ -85,8 +91,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   onNoneSelect() {
     this.modalController.dismiss({
       label: 'None',
-      value: null
+      value: null,
     });
   }
-
 }

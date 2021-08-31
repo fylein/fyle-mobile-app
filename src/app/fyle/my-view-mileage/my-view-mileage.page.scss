@@ -1,5 +1,4 @@
 .view-mileage {
-  
   &--container {
     padding: 5px 16px 0 16px;
   }
@@ -38,7 +37,7 @@
     border-right: 1px solid #e0e0e0;
   }
 
-  &--rate-block{
+  &--rate-block {
     width: 100px;
     padding-left: 16px;
     float: left;
@@ -67,7 +66,7 @@
     margin-bottom: 0;
   }
 
-  &--info-card{
+  &--info-card {
     padding: 12px;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
@@ -79,10 +78,9 @@
     border-bottom: 1px solid #e0e0e0;
     padding: 10px 0;
 
-    &:last-child { 
+    &:last-child {
       border-bottom: 0;
     }
-
   }
 
   &--element-label {
@@ -111,15 +109,15 @@
     font-size: 24px;
     color: #ababab;
 
-    &.selected{
-      color: #FF3366;
+    &.selected {
+      color: #ff3366;
     }
   }
 
   &--common-action-block {
     display: flex;
     padding: 4px 0;
-    
+
     p {
       display: inline-block;
       vertical-align: middle;

@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CustomFieldsService {
-
-  constructor() { }
+  constructor() {}
 
   sortcustomFieldsByType(customField1, customField2) {
     if (customField1.type > customField2.type) {
@@ -31,7 +30,6 @@ export class CustomFieldsService {
   }
 
   setProperty(prefix, customInput, customProperties) {
-
     /* Setting the name and mandatory based on the custom input key
      * Reason: Same method is used for expense custom fields and transport/advance request custom fields
      */
@@ -57,7 +55,7 @@ export class CustomFieldsService {
       placeholder: customInput[prefix + 'placeholder'],
       type: customInput[prefix + 'type'],
       mandatory: customInputMandatory,
-      options: customInput[prefix + 'options']
+      options: customInput[prefix + 'options'],
     };
 
     property = this.setDefaultValue(property, customInput[prefix + 'type']);
@@ -73,7 +71,6 @@ export class CustomFieldsService {
           break;
         }
       }
-
     }
     return property;
   }
@@ -100,7 +97,7 @@ export class CustomFieldsService {
       id: customProperty.id,
       name: customProperty.name,
       value: customProperty.value,
-      type: customProperty.type
+      type: customProperty.type,
     }));
 
     return changedCustomProperties;

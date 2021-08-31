@@ -1,5 +1,4 @@
 <ng-container>
-
   <div [ngSwitch]="category" class="icon-container">
     <mat-icon *ngSwitchCase="'Tax'" class="icon-container--icon" svgIcon="tax"></mat-icon>
     <mat-icon *ngSwitchCase="'Train'" class="icon-container--icon" svgIcon="train"></mat-icon>
@@ -25,9 +24,12 @@
     <mat-icon *ngSwitchCase="'Mileage'" class="icon-container--icon" svgIcon="mileage"></mat-icon>
     <mat-icon *ngSwitchCase="'Food'" class="icon-container--icon" svgIcon="food"></mat-icon>
     <mat-icon *ngSwitchCase="'Software'" class="icon-container--icon" svgIcon="software"></mat-icon>
-    <mat-icon *ngSwitchCase="'Professional Services'" class="icon-container--icon" svgIcon="professional-service"></mat-icon>
+    <mat-icon
+      *ngSwitchCase="'Professional Services'"
+      class="icon-container--icon"
+      svgIcon="professional-service"
+    ></mat-icon>
 
     <mat-icon *ngSwitchDefault class="icon-container--icon" svgIcon="fy-receipt"></mat-icon>
   </div>
-
 </ng-container>

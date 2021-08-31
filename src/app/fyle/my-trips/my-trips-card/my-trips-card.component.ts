@@ -8,7 +8,6 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
   styleUrls: ['./my-trips-card.component.scss'],
 })
 export class MyTripsCardComponent implements OnInit {
-
   @Input() tripRequest: ExtendedTripRequest;
 
   @Output() tripClick: EventEmitter<ExtendedTripRequest> = new EventEmitter();
@@ -18,12 +17,10 @@ export class MyTripsCardComponent implements OnInit {
   tripTypesMap = {
     ONE_WAY: 'One Way',
     ROUND: 'Round Trip',
-    MULTI_CITY: 'Multi City'
+    MULTI_CITY: 'Multi City',
   };
 
-  constructor(
-    private tripRequestService: TripRequestsService
-  ) { }
+  constructor(private tripRequestService: TripRequestsService) {}
 
   ngOnInit() {
     this.internalState = this.tripRequestService.getInternalStateAndDisplayName(this.tripRequest);
@@ -32,5 +29,4 @@ export class MyTripsCardComponent implements OnInit {
   onTripClick() {
     this.tripClick.emit(this.tripRequest);
   }
-
 }

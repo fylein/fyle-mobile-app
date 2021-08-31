@@ -10,38 +10,41 @@ import { ExpenseField } from '../models/v1/expense-field.model';
 const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CustomInputsService {
-
   constructor(
     private apiService: ApiService,
     private decimalPipe: DecimalPipe,
     private datePipe: DatePipe,
     private authService: AuthService
-  ) { }
+  ) {}
 
   @Cacheable({
-    cacheBusterObserver: customInputssCacheBuster$
+    cacheBusterObserver: customInputssCacheBuster$,
   })
   getAll(active: boolean = false): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => this.apiService.get('/expense_fields', {
-        params: {
-          org_id: eou.ou.org_id,
-          is_enabled: active,
-          is_custom: true
-        }
-      }))
+      switchMap((eou) =>
+        this.apiService.get('/expense_fields', {
+          params: {
+            org_id: eou.ou.org_id,
+            is_enabled: active,
+            is_custom: true,
+          },
+        })
+      )
     );
   }
 
   filterByCategory(customInputs, orgCategoryId) {
     return customInputs
-      .filter(
-        customInput => customInput.org_category_ids ?
-          customInput.org_category_ids && customInput.org_category_ids.some(id => id === orgCategoryId) : true
-      ).sort();
+      .filter((customInput) =>
+        customInput.org_category_ids
+          ? customInput.org_category_ids && customInput.org_category_ids.some((id) => id === orgCategoryId)
+          : true
+      )
+      .sort();
   }
 
   // TODO: eventually this should be replaced by rank (old app TODO)
@@ -57,7 +60,7 @@ export class CustomInputsService {
 
   fillCustomProperties(orgCategoryId, customProperties, active) {
     return this.getAll(active).pipe(
-      map(allCustomInputs => {
+      map((allCustomInputs) => {
         const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
 
         // this should be by rank eventually
@@ -72,7 +75,7 @@ export class CustomInputsService {
             value: null,
             type: customInput.type,
             mandatory: customInput.is_mandatory,
-            options: customInput.options
+            options: customInput.options,
           };
           // defaults for types
           if (customInput.type === 'BOOLEAN') {
@@ -102,13 +105,17 @@ export class CustomInputsService {
     );
   }
 
-  setCustomPropertyValue(property: {
-    name: any;
-    value: any;
-    type: any;
-    mandatory: any;
-    options: any;
-  }, customProperties: any, index: number) {
+  setCustomPropertyValue(
+    property: {
+      name: any;
+      value: any;
+      type: any;
+      mandatory: any;
+      options: any;
+    },
+    customProperties: any,
+    index: number
+  ) {
     if (property.type === 'DATE' && customProperties[index].value) {
       property.value = new Date(customProperties[index].value);
     } else {
@@ -116,7 +123,10 @@ export class CustomInputsService {
     }
   }
 
-  setSelectMultiselectValue(customInput: any, property: { name: any; value: any; type: any; mandatory: any; options: any }) {
+  setSelectMultiselectValue(
+    customInput: any,
+    property: { name: any; value: any; type: any; mandatory: any; options: any }
+  ) {
     if (customInput.type === 'SELECT' || customInput.type === 'MULTI_SELECT') {
       property.value = '';
     }
@@ -151,7 +161,7 @@ export class CustomInputsService {
   }
 
   private formatMultiselectCustomProperty(customProperty: any): string {
-    return (customProperty.value && customProperty.value.length > 0) ? customProperty.value.join(', ') : '-';
+    return customProperty.value && customProperty.value.length > 0 ? customProperty.value.join(', ') : '-';
   }
 
   private formatNumberCustomProperty(customProperty: any): string {

@@ -1,5 +1,4 @@
 .view-per-diem {
-
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
@@ -28,7 +27,7 @@
     color: #ababab;
   }
 
-  &--amount-currency-block{
+  &--amount-currency-block {
     box-shadow: none !important;
     padding: 16px 0;
     height: auto;
@@ -121,7 +120,6 @@
   }
 
   &--card-action-text {
-
     &__comment {
       color: #0077ee;
       display: inline-block;
