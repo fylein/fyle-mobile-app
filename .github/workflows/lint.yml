@@ -32,6 +32,7 @@ jobs:
         with:
           # This part is also where you can pass other options, for example:
           prettier_options:  --write ./src
+          commit_message: "Prettified code!"
           only_changed: True
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
