@@ -1,7 +1,11 @@
-import { AdvanceState } from "./advance-state.pipe";
+import { AdvanceState } from './advance-state.pipe';
 
 fdescribe('AdvanceStatePipe', () => {
   const pipe = new AdvanceState();
+
+  it('transforms "" state to ""', () => {
+    expect(pipe.transform('')).toBe('');
+  });
 
   it('transforms "DRAFT" state to "draft"', () => {
     expect(pipe.transform('DRAFT')).toBe('draft');
