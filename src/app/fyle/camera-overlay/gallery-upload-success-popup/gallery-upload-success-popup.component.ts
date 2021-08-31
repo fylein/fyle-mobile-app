@@ -7,12 +7,9 @@ import { PopoverController } from '@ionic/angular';
   styleUrls: ['./gallery-upload-success-popup.component.scss'],
 })
 export class GalleryUploadSuccessPopupComponent implements OnInit {
-
   @Input() uploadedTitle;
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   ngOnInit() {}
 
@@ -20,5 +17,4 @@ export class GalleryUploadSuccessPopupComponent implements OnInit {
     // noinspection JSIgnoredPromiseFromCall
     this.popoverController.dismiss();
   }
-
 }

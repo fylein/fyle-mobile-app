@@ -1,23 +1,18 @@
-import {Injectable} from '@angular/core';
-import {from, Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {File} from '../models/file.model';
-import {ApiService} from './api.service';
-import {FileObject} from '../models/file_obj.model';
+import { Injectable } from '@angular/core';
+import { from, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { File } from '../models/file.model';
+import { ApiService } from './api.service';
+import { FileObject } from '../models/file_obj.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FileService {
-
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) {}
 
   downloadUrl(fileId: string): Observable<string> {
-    return this.apiService.post('/files/' + fileId + '/download_url').pipe(
-      map(res => res.url)
-    );
+    return this.apiService.post('/files/' + fileId + '/download_url').pipe(map((res) => res.url));
   }
 
   base64Download(fileId) {
@@ -25,14 +20,16 @@ export class FileService {
   }
 
   findByAdvanceRequestId(advanceRequestId: string): Observable<File[]> {
-    return from(this.apiService.get('/files', {
-      params: {
-        advance_request_id: advanceRequestId,
-        skip_html: 'true'
-      }
-    })).pipe(
+    return from(
+      this.apiService.get('/files', {
+        params: {
+          advance_request_id: advanceRequestId,
+          skip_html: 'true',
+        },
+      })
+    ).pipe(
       map((files) => {
-        files.map(file => {
+        files.map((file) => {
           this.fixDates(file);
           this.setFileType(file);
         });
@@ -64,9 +61,9 @@ export class FileService {
     let fileType = 'unknown';
     const extension = this.getFileExtension(file.name);
 
-    if (extension && (['png', 'jpg', 'jpeg', 'gif'].indexOf(extension) > -1)) {
+    if (extension && ['png', 'jpg', 'jpeg', 'gif'].indexOf(extension) > -1) {
       fileType = 'image';
-    } else if (extension && (['pdf'].indexOf(extension) > -1)) {
+    } else if (extension && ['pdf'].indexOf(extension) > -1) {
       fileType = 'pdf';
     }
 
@@ -79,9 +76,7 @@ export class FileService {
   }
 
   uploadUrl(fileId) {
-    return this.apiService.post('/files/' + fileId + '/upload_url').pipe(
-      map(data => data.url)
-    );
+    return this.apiService.post('/files/' + fileId + '/upload_url').pipe(map((data) => data.url));
   }
 
   uploadComplete(fileId) {
@@ -91,23 +86,21 @@ export class FileService {
   // TODO: High impact. To be separately fixed
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   base64Upload(name, content, transactionId?, invoiceId?, password?) {
-    return this.apiService.post('/files/upload_b64',
-      {
-        name,
-        content,
-        transaction_id: transactionId,
-        invoice_id: invoiceId,
-        password
-      }
-    );
+    return this.apiService.post('/files/upload_b64', {
+      name,
+      content,
+      transaction_id: transactionId,
+      invoice_id: invoiceId,
+      password,
+    });
   }
 
   findByTransactionId(txnId: string): Observable<FileObject[]> {
     return this.apiService.get('/files', {
       params: {
         transaction_id: txnId,
-        skip_html: 'true'
-      }
+        skip_html: 'true',
+      },
     });
   }
 

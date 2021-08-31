@@ -25,9 +25,6 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatInputModule,
   ],
-  declarations: [
-    SplitExpensePage,
-    SplitExpenseStatusComponent
-  ]
+  declarations: [SplitExpensePage, SplitExpenseStatusComponent],
 })
 export class SplitExpensePageModule {}

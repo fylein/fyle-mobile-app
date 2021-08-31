@@ -9,7 +9,7 @@ import {
   NgControl,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
-  Validators
+  Validators,
 } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
@@ -24,14 +24,14 @@ import { RouteSelectorModalComponent } from './route-selector-modal/route-select
     {
       provide: NG_VALUE_ACCESSOR,
       multi: true,
-      useExisting: RouteSelectorComponent
+      useExisting: RouteSelectorComponent,
     },
     {
       provide: NG_VALIDATORS,
       useExisting: RouteSelectorComponent,
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
   @Input() unit: 'KM' | 'MILES';
@@ -65,17 +65,13 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   private ngControl: NgControl;
 
-  constructor(
-    private fb: FormBuilder,
-    private modalController: ModalController,
-    private injector: Injector
-  ) { }
+  constructor(private fb: FormBuilder, private modalController: ModalController, private injector: Injector) {}
 
   get mileageLocations() {
     return this.form.controls.mileageLocations as FormArray;
   }
 
-  onTouched = () => { };
+  onTouched = () => {};
 
   ngDoCheck() {
     if (this.ngControl.touched) {
@@ -90,9 +86,11 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   customDistanceValidator(control: AbstractControl) {
     const passedInDistance = control.value && +control.value;
     if (passedInDistance !== null) {
-      return (passedInDistance > 0) ? null : {
-        invalidDistance: true
-      };
+      return passedInDistance > 0
+        ? null
+        : {
+            invalidDistance: true,
+          };
     }
   }
 
@@ -108,7 +106,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   onTxnFieldsChange() {
     const keyToControlMap: { [id: string]: AbstractControl } = {
-      distance: this.form.controls.distance
+      distance: this.form.controls.distance,
     };
 
     for (const control of Object.values(keyToControlMap)) {
@@ -121,7 +119,9 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
       if (this.txnFields[txnFieldKey].is_mandatory) {
         if (txnFieldKey === 'distance') {
-          control.setValidators(this.isConnected ? Validators.compose([Validators.required, this.customDistanceValidator]) : null);
+          control.setValidators(
+            this.isConnected ? Validators.compose([Validators.required, this.customDistanceValidator]) : null
+          );
         }
       }
       control.updateValueAndValidity();
@@ -143,17 +143,21 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   writeValue(value): void {
     if (value) {
       if (value.mileageLocations) {
-        value.mileageLocations.forEach(location => {
-          this.mileageLocations.push(new FormControl(location, this.mileageConfig.location_mandatory && Validators.required));
+        value.mileageLocations.forEach((location) => {
+          this.mileageLocations.push(
+            new FormControl(location, this.mileageConfig.location_mandatory && Validators.required)
+          );
         });
         if (value.mileageLocations.length === 1) {
-          this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
+          this.mileageLocations.push(
+            new FormControl(null, this.mileageConfig.location_mandatory && Validators.required)
+          );
         }
       }
 
       this.form.patchValue({
         distance: value.distance,
-        roundTrip: value.roundTrip
+        roundTrip: value.roundTrip,
       });
     }
   }
@@ -169,8 +173,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   setDisabledState?(disabled: boolean): void {
     if (disabled) {
       this.form.disable();
-    }
-    else {
+    } else {
       this.form.enable();
     }
   }
@@ -178,7 +181,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
 
-    this.form.controls.roundTrip.valueChanges.subscribe(roundTrip => {
+    this.form.controls.roundTrip.valueChanges.subscribe((roundTrip) => {
       if (!this.skipRoundTripUpdate) {
         if (this.formInitialized) {
           if (this.form.value.distance) {
@@ -205,7 +208,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
         isAmountDisabled: this.isAmountDisabled,
         txnFields: this.txnFields,
         value: this.form.value,
-        recentlyUsedMileageLocations: this.recentlyUsedMileageLocations
+        recentlyUsedMileageLocations: this.recentlyUsedMileageLocations,
       },
     });
 
@@ -216,16 +219,18 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     if (data) {
       this.skipRoundTripUpdate = true;
       this.mileageLocations.clear({
-        emitEvent: false
+        emitEvent: false,
       });
 
-      data.mileageLocations.forEach(mileageLocation => {
-        this.mileageLocations.push(new FormControl(mileageLocation, this.mileageConfig.location_mandatory && Validators.required));
+      data.mileageLocations.forEach((mileageLocation) => {
+        this.mileageLocations.push(
+          new FormControl(mileageLocation, this.mileageConfig.location_mandatory && Validators.required)
+        );
       });
 
       this.form.patchValue({
         distance: parseFloat(data.distance),
-        roundTrip: data.roundTrip
+        roundTrip: data.roundTrip,
       });
     }
   }
@@ -234,10 +239,9 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     if (!this.form.valid) {
       return {
         ...this.form.controls.mileageLocations.errors,
-        ...this.form.controls.distance.errors
+        ...this.form.controls.distance.errors,
       };
     }
     return null;
   }
-
 }

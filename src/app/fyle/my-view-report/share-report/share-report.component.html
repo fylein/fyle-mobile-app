@@ -1,30 +1,27 @@
 <div class="share-report">
   <div class="share-report--header">
-    <div class="share-report--title">
-      Share Report
-    </div>
-    <div class="share-report--cancel" (click)="cancel()">
-      CLOSE
-    </div>
+    <div class="share-report--title">Share Report</div>
+    <div class="share-report--cancel" (click)="cancel()">CLOSE</div>
   </div>
 
-  <div class="share-report--details">
-    Share report with:
-  </div>
+  <div class="share-report--details">Share report with:</div>
   <div class="share-report--form">
     <mat-form-field appearance="outline" class="share-report--form-input mat-form-field-no-padding">
-      <input matInput type="email" placeholder="Email ID" [(ngModel)]="email" pattern="\S+@\S+\.\S{2,}" #emailInput="ngModel"/>
+      <input
+        matInput
+        type="email"
+        placeholder="Email ID"
+        [(ngModel)]="email"
+        pattern="\S+@\S+\.\S{2,}"
+        #emailInput="ngModel"
+      />
     </mat-form-field>
-    <div *ngIf="emailInput.touched && !emailInput.value" class="share-report--error">
-      Please enter an email.
-    </div>
+    <div *ngIf="emailInput.touched && !emailInput.value" class="share-report--error">Please enter an email.</div>
     <div *ngIf="emailInput.touched && emailInput.invalid && emailInput.value" class="share-report--error">
       Please enter a valid email.
     </div>
   </div>
   <div class="share-report--primary-cta">
-    <button mat-flat-button color="primary" (click)="shareReport(emailInput)">
-      SHARE
-    </button>
+    <button mat-flat-button color="primary" (click)="shareReport(emailInput)">SHARE</button>
   </div>
 </div>

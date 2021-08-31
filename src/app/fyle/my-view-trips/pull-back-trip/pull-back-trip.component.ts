@@ -12,11 +12,9 @@ export class PullBackTripComponent implements OnInit {
 
   showError = false;
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   async cancel() {
     await this.popoverController.dismiss();
@@ -29,7 +27,7 @@ export class PullBackTripComponent implements OnInit {
       return;
     }
     this.popoverController.dismiss({
-      reason: this.reason
+      reason: this.reason,
     });
   }
 }
