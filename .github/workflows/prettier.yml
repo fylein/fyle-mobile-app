@@ -29,4 +29,4 @@ jobs:
         author_name: Aiyush
         author_email: aiyush.dhar@fyle.in
         message: 'I add a few changes because I can!'
-        add: '.'
+        add: './src'
