@@ -2,7 +2,7 @@ import { InitialsPipe } from './initials.pipe';
 
 fdescribe('InitialsPipe', () => {
   const initialsPipe = new InitialsPipe();
-  it('create an instance', ()=>{
+  it('create an instance', () => {
     expect(initialsPipe).toBeTruthy();
   });
 
