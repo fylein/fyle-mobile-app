@@ -6,8 +6,8 @@ import { MyViewReportPage } from './my-view-report.page';
 const routes: Routes = [
   {
     path: '',
-    component: MyViewReportPage
-  }
+    component: MyViewReportPage,
+  },
 ];
 
 @NgModule({

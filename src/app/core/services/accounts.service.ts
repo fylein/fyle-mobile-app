@@ -6,42 +6,41 @@ import { cloneDeep } from 'lodash';
 import { CurrencyPipe } from '@angular/common';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AccountsService {
-
   constructor(
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
     private currencyPipe: CurrencyPipe
-  ) { }
+  ) {}
 
   getEMyAccounts(filters?) {
     const data = {
-      params: filters
+      params: filters,
     };
 
     return this.apiService.get('/eaccounts/', data).pipe(
-      map(
-        (accountsRaw: any[]) => {
-          const accounts = [];
+      map((accountsRaw: any[]) => {
+        const accounts = [];
 
-          accountsRaw.forEach((accountRaw) => {
-            const account = this.dataTransformService.unflatten(accountRaw);
-            accounts.push(account);
-          });
+        accountsRaw.forEach((accountRaw) => {
+          const account = this.dataTransformService.unflatten(accountRaw);
+          accounts.push(account);
+        });
 
-          return accounts;
-        }
-      )
+        return accounts;
+      })
     );
   }
 
   filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled, accountId?) {
-    return accounts.filter((account) =>
-      // Personal Account and CCC account are considered to always have sufficient funds
-      (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) ||
-      (['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'].indexOf(account.acc.type) > -1) || accountId === account.acc.id
+    return accounts.filter(
+      (account) =>
+        // Personal Account and CCC account are considered to always have sufficient funds
+        (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) ||
+        ['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'].indexOf(account.acc.type) > -1 ||
+        accountId === account.acc.id
     );
   }
 
@@ -73,11 +72,11 @@ export class AccountsService {
         account.acc.displayName = 'Paid via Corporate Card';
         account.acc.isReimbursable = false;
         return account;
-      }
+      },
     };
 
-    const mappedAccouts = accounts.map(account => accountsMap[account.acc.type](account));
-    const personalAccount = accounts.find(account => account.acc.type === 'PERSONAL_ACCOUNT');
+    const mappedAccouts = accounts.map((account) => accountsMap[account.acc.type](account));
+    const personalAccount = accounts.find((account) => account.acc.type === 'PERSONAL_ACCOUNT');
     if (personalAccount) {
       const personalNonreimbursableAccount = cloneDeep(personalAccount);
       personalNonreimbursableAccount.acc.displayName = 'Paid by Company';

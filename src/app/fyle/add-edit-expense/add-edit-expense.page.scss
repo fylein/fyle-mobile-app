@@ -1,11 +1,20 @@
-@import "../../../theme/colors.scss";
-@import "../../../theme/forms.scss";
+@import '../../../theme/colors.scss';
+@import '../../../theme/forms.scss';
 
 .add-edit-expense {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     &__review {
       min-height: 80px;
+    }
+  }
+
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
     }
   }
 
@@ -55,7 +64,8 @@
     }
   }
 
-  &--primary-cta, &--secondary-cta {
+  &--primary-cta,
+  &--secondary-cta {
     height: 48px;
     font-size: 14px;
     text-transform: inherit;
@@ -92,7 +102,7 @@
     }
 
     &__right {
-      margin-left: 18px; 
+      margin-left: 18px;
     }
   }
 
@@ -145,7 +155,7 @@
       font-size: 24px;
       font-weight: 400;
       text-align: center;
-      padding-top: 24px;;
+      padding-top: 24px;
     }
   }
 
@@ -271,7 +281,7 @@
     line-height: 1;
     margin-bottom: 12px;
     &__margin {
-      margin-right: 12px;    
+      margin-right: 12px;
     }
   }
 
@@ -314,7 +324,7 @@
     color: $blue-black;
     font-size: 12px;
     line-height: 16px;
-    letter-spacing: .16px;
+    letter-spacing: 0.16px;
   }
 
   &--comment {

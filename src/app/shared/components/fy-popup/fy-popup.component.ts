@@ -10,9 +10,7 @@ import { PopupConfig } from './popup.model';
 export class FyPopupComponent implements OnInit {
   @Input() config: PopupConfig;
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   ngOnInit() {
     if (this.config.showCancelButton === undefined) {
@@ -24,7 +22,7 @@ export class FyPopupComponent implements OnInit {
     if (this.config.primaryCta) {
       // noinspection JSIgnoredPromiseFromCall
       this.popoverController.dismiss({
-        action: 'primary'
+        action: 'primary',
       });
     }
   }
@@ -33,7 +31,7 @@ export class FyPopupComponent implements OnInit {
     if (this.config.secondaryCta) {
       // noinspection JSIgnoredPromiseFromCall
       this.popoverController.dismiss({
-        action: 'secondary'
+        action: 'secondary',
       });
     }
   }
@@ -41,7 +39,7 @@ export class FyPopupComponent implements OnInit {
   cancel() {
     // noinspection JSIgnoredPromiseFromCall
     this.popoverController.dismiss({
-      action: 'cancel'
+      action: 'cancel',
     });
   }
 }

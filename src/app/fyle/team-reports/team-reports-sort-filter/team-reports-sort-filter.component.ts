@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import {ModalController, PopoverController} from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 
 @Component({
   selector: 'app-team-reports-sort-filter',
@@ -8,7 +8,6 @@ import {ModalController, PopoverController} from '@ionic/angular';
   styleUrls: ['./team-reports-sort-filter.component.scss'],
 })
 export class TeamReportsSortFilterComponent implements OnInit {
-
   @Input() filters: Partial<{
     state: string;
     date: string;
@@ -20,25 +19,18 @@ export class TeamReportsSortFilterComponent implements OnInit {
 
   fg: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private popoverController: PopoverController
-  ) { }
+  constructor(private fb: FormBuilder, private popoverController: PopoverController) {}
 
   ngOnInit() {
     this.fg = this.fb.group({
-      sortParam: [
-        this.filters && this.filters.sortParam || 'rp_created_at', Validators.required
-      ],
-      sortDir: [
-        this.filters && this.filters.sortDir || 'desc', Validators.required
-      ]
+      sortParam: [(this.filters && this.filters.sortParam) || 'rp_created_at', Validators.required],
+      sortDir: [(this.filters && this.filters.sortDir) || 'desc', Validators.required],
     });
   }
 
   save() {
     this.popoverController.dismiss({
-      sortOptions: this.fg.value
+      sortOptions: this.fg.value,
     });
   }
 
@@ -53,7 +45,7 @@ export class TeamReportsSortFilterComponent implements OnInit {
   reset() {
     this.fg.setValue({
       sortParam: 'rp_created_at',
-      sortDir: 'desc'
+      sortDir: 'desc',
     });
   }
 }

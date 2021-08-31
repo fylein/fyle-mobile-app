@@ -7,8 +7,7 @@ import { NotificationsPage } from './notifications.page';
 import { MatSelectModule } from '@angular/material/select';
 import { SharedModule } from '../../shared/shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   imports: [
@@ -19,8 +18,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     NotificationsPageRoutingModule,
     MatSelectModule,
     SharedModule,
-    MatCheckboxModule
+    MatCheckboxModule,
   ],
-  declarations: [NotificationsPage]
+  declarations: [NotificationsPage],
 })
 export class NotificationsPageModule {}

@@ -22,6 +22,9 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { environment } from 'src/environments/environment';
 import { StatsOneDResponse } from 'src/app/core/models/stats-one-dimension.model';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 const { Browser } = Plugins;
 
@@ -83,24 +86,35 @@ export class MyProfilePage implements OnInit {
     private orgUserService: OrgUserService,
     private popoverController: PopoverController,
     private tokenService: TokenService,
-    private trackingService: TrackingService
-  ) { }
+    private trackingService: TrackingService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
+  ) {}
 
   logOut() {
-    forkJoin({
-      device: this.deviceService.getDeviceInfo(),
-      eou: from(this.authService.getEou())
-    }).pipe(
-      switchMap(({ device, eou }) => this.authService.logout({
-        device_id: device.uuid,
-        user_id: eou.us.id
-      })),
-      finalize(() => {
-        this.userEventService.logout();
-        this.storageService.clearAll();
-        globalCacheBusterNotifier.next();
+    try {
+      forkJoin({
+        device: this.deviceService.getDeviceInfo(),
+        eou: from(this.authService.getEou()),
       })
-    ).subscribe(noop);
+        .pipe(
+          switchMap(({ device, eou }) =>
+            this.authService.logout({
+              device_id: device.uuid,
+              user_id: eou.us.id,
+            })
+          ),
+          finalize(() => {
+            this.storageService.clearAll();
+            globalCacheBusterNotifier.next();
+            this.userEventService.logout();
+          })
+        )
+        .subscribe(noop);
+    } catch (e) {
+      this.storageService.clearAll();
+      globalCacheBusterNotifier.next();
+    }
   }
 
   toggleUsageDetails() {
@@ -112,27 +126,27 @@ export class MyProfilePage implements OnInit {
 
     forkJoin({
       userSettings: this.orgUserService.postUser(eou.us),
-      orgUserSettings: this.orgUserService.postOrgUser(eou.ou)
-    }).pipe(
-      concatMap(() => this.authService.refreshEou().pipe(
-        tap(() => this.trackingService.activated({ Asset: 'Mobile' })),
-        map(() => {
-          this.presentToast('Profile saved successfully', 1000);
-          this.reset();
+      orgUserSettings: this.orgUserService.postOrgUser(eou.ou),
+    })
+      .pipe(
+        concatMap(() =>
+          this.authService.refreshEou().pipe(
+            tap(() => this.trackingService.activated({ Asset: 'Mobile' })),
+            map(() => {
+              const message = 'Profile saved successfully';
+              this.matSnackBar.openFromComponent(ToastMessageComponent, {
+                ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+                panelClass: ['msb-success'],
+              });
+              this.trackingService.showToastMessage({ ToastContent: message });
+            })
+          )
+        ),
+        finalize(() => {
+          this.saveProfileLoading = false;
         })
-      )),
-      finalize(() => {
-        this.saveProfileLoading = false;
-      })
-    ).subscribe(noop);
-  }
-
-  async presentToast(message, duration) {
-    const toast = await this.toastController.create({
-      message,
-      duration
-    });
-    toast.present();
+      )
+      .subscribe(noop);
   }
 
   setMyExpensesCountBySource(statsRes: StatsOneDResponse) {
@@ -144,17 +158,19 @@ export class MyProfilePage implements OnInit {
       extension: statsRes.getStatsCountBySource('GMAIL'),
       outlook: statsRes.getStatsCountBySource('OUTLOOK'),
       email: statsRes.getStatsCountBySource('EMAIL'),
-      web: statsRes.getStatsCountBySource('WEBAPP')
+      web: statsRes.getStatsCountBySource('WEBAPP'),
     };
   }
 
   toggleCurrencySettings() {
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.orgUserSettingsService.post(this.orgUserSettings)),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(() => {
-      this.getPreferredCurrency();
-    });
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.orgUserSettingsService.post(this.orgUserSettings)),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(() => {
+        this.getPreferredCurrency();
+      });
   }
 
   onSelectCurrency(currency) {
@@ -164,7 +180,7 @@ export class MyProfilePage implements OnInit {
 
   async openCurrenySelectionModal() {
     const modal = await this.modalController.create({
-      component: SelectCurrencyComponent
+      component: SelectCurrencyComponent,
     });
 
     await modal.present();
@@ -177,7 +193,8 @@ export class MyProfilePage implements OnInit {
   }
 
   toggleAutoExtraction() {
-    return this.orgUserSettingsService.post(this.orgUserSettings)
+    return this.orgUserSettingsService
+      .post(this.orgUserSettings)
       .pipe(
         map((res) => {
           if (this.orgUserSettings.insta_fyle_settings.enabled) {
@@ -191,7 +208,8 @@ export class MyProfilePage implements OnInit {
   }
 
   toggleBulkMode() {
-    return this.orgUserSettingsService.post(this.orgUserSettings)
+    return this.orgUserSettingsService
+      .post(this.orgUserSettings)
       .pipe(
         map((res) => {
           if (this.orgUserSettings.bulk_fyle_settings.enabled) {
@@ -205,12 +223,12 @@ export class MyProfilePage implements OnInit {
   }
 
   toggleAutofillSettings() {
-    return this.orgUserSettingsService.post(this.orgUserSettings)
-      .subscribe(noop);
+    return this.orgUserSettingsService.post(this.orgUserSettings).subscribe(noop);
   }
 
   toggleSmsSettings() {
-    return this.orgUserSettingsService.post(this.orgUserSettings)
+    return this.orgUserSettingsService
+      .post(this.orgUserSettings)
       .pipe(
         map((res) => {
           // Todo: Tracking service and disable toogle button
@@ -222,13 +240,12 @@ export class MyProfilePage implements OnInit {
   toggleOneClickActionMode() {
     this.orgUserSettings.one_click_action_settings.module = null;
     this.oneClickActionSelectedModuleId = '';
-    return this.orgUserSettingsService.post(this.orgUserSettings)
-      .subscribe(noop);
+    return this.orgUserSettingsService.post(this.orgUserSettings).subscribe(noop);
   }
 
   ionViewWillEnter() {
     this.reset();
-    from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
+    from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
     });
 
@@ -237,16 +254,14 @@ export class MyProfilePage implements OnInit {
 
   reset() {
     this.eou$ = from(this.authService.getEou());
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(
-      shareReplay(1)
-    );
+    const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
 
-    this.myETxnc$ = this.transactionService.getTransactionStats('count(tx_id)', {
-      scalar: false,
-      dimension_1_1: 'tx_source'
-    }).pipe(
-      map(statsRes => this.setMyExpensesCountBySource(new StatsOneDResponse(statsRes[0])))
-    );
+    this.myETxnc$ = this.transactionService
+      .getTransactionStats('count(tx_id)', {
+        scalar: false,
+        dimension_1_1: 'tx_source',
+      })
+      .pipe(map((statsRes) => this.setMyExpensesCountBySource(new StatsOneDResponse(statsRes[0]))));
 
     this.org$ = this.offlineService.getCurrentOrg();
 
@@ -255,29 +270,34 @@ export class MyProfilePage implements OnInit {
     const orgSettings$ = this.offlineService.getOrgSettings();
     this.currencies$ = this.currencyService.getAllCurrenciesInList();
 
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => forkJoin({
-        eou: this.eou$,
-        orgUserSettings: orgUserSettings$,
-        orgSettings: orgSettings$
-      })),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(async (res) => {
-      this.orgUserSettings = res.orgUserSettings;
-      this.orgSettings = res.orgSettings;
-    });
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() =>
+          forkJoin({
+            eou: this.eou$,
+            orgUserSettings: orgUserSettings$,
+            orgSettings: orgSettings$,
+          })
+        ),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(async (res) => {
+        this.orgUserSettings = res.orgUserSettings;
+        this.orgSettings = res.orgSettings;
+      });
   }
 
   getPreferredCurrency() {
     this.preferredCurrency$ = this.offlineService.getOrgUserSettings().pipe(
-      switchMap((orgUserSettings) => this.currencyService
-        .getAllCurrenciesInList()
-        .pipe(
-          map(currencies => currencies
-            .find(currency => currency.id === orgUserSettings.currency_settings.preferred_currency)
+      switchMap((orgUserSettings) =>
+        this.currencyService.getAllCurrenciesInList().pipe(
+          map((currencies) =>
+            currencies.find((currency) => currency.id === orgUserSettings.currency_settings.preferred_currency)
           ),
-          map(preferedCurrencySettings =>
-            preferedCurrencySettings && (preferedCurrencySettings.id + ' - ' + preferedCurrencySettings.value))
+          map(
+            (preferedCurrencySettings) =>
+              preferedCurrencySettings && preferedCurrencySettings.id + ' - ' + preferedCurrencySettings.value
+          )
         )
       )
     );
@@ -295,6 +315,5 @@ export class MyProfilePage implements OnInit {
     Browser.open({ toolbarColor: '#f36', url: link });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 }

@@ -12,16 +12,15 @@ import { FileService } from 'src/app/core/services/file.service';
   styleUrls: ['./camera-options-popup.component.scss'],
 })
 export class CameraOptionsPopupComponent implements OnInit {
-
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
   constructor(
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private fileService: FileService
-  ) { }
+  ) {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   closeClicked() {
     this.popoverController.dismiss();
@@ -32,13 +31,13 @@ export class CameraOptionsPopupComponent implements OnInit {
       quality: 50,
       source: CameraSource.Camera,
       direction: CameraDirection.Rear,
-      resultType: CameraResultType.DataUrl
+      resultType: CameraResultType.DataUrl,
     });
 
     if (image) {
       this.popoverController.dismiss({
         type: image.format,
-        dataUrl: image.dataUrl
+        dataUrl: image.dataUrl,
       });
     } else {
       this.closeClicked();
@@ -56,7 +55,7 @@ export class CameraOptionsPopupComponent implements OnInit {
         const dataUrl = await that.fileService.readFile(file);
         that.popoverController.dismiss({
           type: file.type,
-          dataUrl
+          dataUrl,
         });
       } else {
         that.closeClicked();

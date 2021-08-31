@@ -1,6 +1,10 @@
 @import '../../../theme/colors';
 
 .dashboard {
+  &--header {
+    background: linear-gradient(27.66deg, #e1eeff 12.53%, #ffe4fb 83.29%);
+  }
+
   &--toolbar {
     border-bottom: 1px solid $grey-lightest;
   }
@@ -13,5 +17,24 @@
     .mat-tab-header {
       display: none;
     }
+  }
+}
+
+.stats {
+  &--toolbar {
+    --background: none;
+  }
+
+  &--title {
+    --color: #{$black-2};
+  }
+
+  &--action-shortcut-icon {
+    font-size: 24px;
+  }
+
+  &--action-shortcut {
+    padding-right: 12px;
+    padding-top: 2px;
   }
 }

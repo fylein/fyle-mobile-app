@@ -7,7 +7,6 @@ import { EventEmitter } from 'events';
   styleUrls: ['./fy-zero-state.component.scss'],
 })
 export class FyZeroStateComponent implements OnInit {
-
   @Input() image: string;
 
   @Input() header: string;
@@ -27,7 +26,7 @@ export class FyZeroStateComponent implements OnInit {
 
   @Output() linkClicked = new EventEmitter();
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {}
 
