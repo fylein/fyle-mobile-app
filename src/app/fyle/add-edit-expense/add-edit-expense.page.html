@@ -865,9 +865,7 @@
 
                   <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-expense--checkbox">
                     <label>
-                      <mat-checkbox formControlName="value">
-                        {{customInput.name | ellipsis: 35 }}
-                      </mat-checkbox>
+                      <mat-checkbox formControlName="value"> {{customInput.name | ellipsis: 35 }} </mat-checkbox>
                     </label>
                   </div>
 
