@@ -5,11 +5,11 @@
       <ul class="policy-violation-info--list">
         <li *ngIf="policyViolations.length === 1">
           <span class="policy-violation-info--content">{{policyViolations.length}} policy is violated by this expense.</span>
-          <span class="policy-violation-info--view-more">View More</span>
+          <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View More</span>
         </li>
         <li *ngIf="policyViolations.length > 1">
           <span class="policy-violation-info--content">{{policyViolations.length}} policies were violated by this expense.</span>
-          <span class="policy-violation-info--view-more">View More</span>
+          <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View More</span>
         </li>
         <li *ngIf="criticalPolicyViolated" class="policy-violation-info--content">
           This expense has a critical policy violation. It cannot be added to a report until resolved.
