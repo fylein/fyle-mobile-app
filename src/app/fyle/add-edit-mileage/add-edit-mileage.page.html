@@ -606,6 +606,14 @@
             Save & New
           </ion-button>
           <ion-button
+            (click)="close()"
+            *ngIf="mode === 'edit'"
+            [disabled]="saveMileageLoader"
+            class="btn-secondary"
+          >
+            Cancel
+          </ion-button>
+          <ion-button
             (click)="saveExpense()"
             class="btn-primary"
             appFormButtonValidation
