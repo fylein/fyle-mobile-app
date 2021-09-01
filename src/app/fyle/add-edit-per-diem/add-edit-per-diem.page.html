@@ -715,7 +715,7 @@
   <ion-footer
     *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0 && !reviewList?.length"
   >
-    <ion-toolbar mode="md" [ngClass]="{'add-edit-per-diem--footer-toolbar__offline': !(isConnected$|async)}">
+    <ion-toolbar mode="md" class="cta-footer-toolbar" [ngClass]="{'add-edit-per-diem--footer-toolbar__offline': !(isConnected$|async)}">
       <ion-buttons *ngIf="!reviewList">
         <ion-button
           (click)="savePerDiem()"
