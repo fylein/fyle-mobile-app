@@ -203,9 +203,13 @@ export class MyExpensesPage implements OnInit, DoCheck {
 
   ngDoCheck() {
     if( window.innerHeight < this.deviceHeight ) {
-      this.isKeyboardShown = true;
+      if(!this.isKeyboardShown) {
+        this.isKeyboardShown = true;
+      }
     } else {
-      this.isKeyboardShown = false;
+      if(this.isKeyboardShown) {
+        this.isKeyboardShown = false;
+      }
     }
   }
 
