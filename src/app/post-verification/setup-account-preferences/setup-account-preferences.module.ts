@@ -18,8 +18,8 @@ import { MatButtonModule } from '@angular/material/button';
     SetupAccountPreferencesPageRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    MatButtonModule
+    MatButtonModule,
   ],
-  declarations: [SetupAccountPreferencesPage]
+  declarations: [SetupAccountPreferencesPage],
 })
 export class SetupAccountPreferencesPageModule {}

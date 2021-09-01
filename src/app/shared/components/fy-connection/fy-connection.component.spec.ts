@@ -9,8 +9,8 @@ describe('FyConnectionComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FyConnectionComponent ],
-      imports: [IonicModule.forRoot()]
+      declarations: [FyConnectionComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyConnectionComponent);

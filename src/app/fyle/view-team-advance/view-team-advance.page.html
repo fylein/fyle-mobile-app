@@ -1,13 +1,9 @@
-<ion-header mode="md" >
+<ion-header mode="md">
   <ion-toolbar class="view-advances--toolbar">
-    <ion-title mode="md" class="page-title">
-      View Advance
-    </ion-title>
+    <ion-title mode="md" class="page-title"> View Advance </ion-title>
     <ion-buttons mode="md" slot="end">
       <button mat-icon-button [routerLink]="['/','enterprise','team_advance']">
-        <mat-icon>
-          close
-        </mat-icon>
+        <mat-icon> close </mat-icon>
       </button>
     </ion-buttons>
   </ion-toolbar>
@@ -16,118 +12,88 @@
 <ion-content>
   <div *ngIf="advanceRequest$|async as advanceRequest">
     <div class="view-advances--attachment-currency-container">
-      <p class="view-advances--content-header">
-        Advance Request
-      </p>
+      <p class="view-advances--content-header">Advance Request</p>
     </div>
 
     <div class="view-advances--card">
       <div class="view-advances--element">
-        <div class="view-advances--element-label">
-          Created On
-        </div>
-        <div class="view-advances--element-value">
-          {{advanceRequest.areq_created_at | date: 'MMM dd,  yyyy'}}
-        </div>
+        <div class="view-advances--element-label">Created On</div>
+        <div class="view-advances--element-value">{{advanceRequest.areq_created_at | date: 'MMM dd, yyyy'}}</div>
       </div>
 
       <div class="view-advances--element" *ngIf="advanceRequest.areq_approved_at">
-        <div class="view-advances--element-label">
-          Approved on
-        </div>
-        <div class="view-advances--element-value">
-          {{advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'}}
-        </div>
+        <div class="view-advances--element-label">Approved on</div>
+        <div class="view-advances--element-value">{{advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'}}</div>
       </div>
 
       <div class="view-advances--element">
-        <div class="view-advances--element-label">
-          State
-        </div>
-        <div class="view-advances--element-value">
-          {{advanceRequest.areq_state | snakeCaseToSpaceCase}}
-        </div>
+        <div class="view-advances--element-label">State</div>
+        <div class="view-advances--element-value">{{advanceRequest.areq_state | snakeCaseToSpaceCase}}</div>
       </div>
 
       <div class="view-advances--element">
-        <div class="view-advances--element-label">
-          Amount
-        </div>
+        <div class="view-advances--element-label">Amount</div>
         <div class="view-advances--element-value">
           {{advanceRequest.areq_amount | currency: advanceRequest.areq_currency : 'symbol-narrow'}}
         </div>
       </div>
 
       <div class="view-advances--element">
-        <div class="view-advances--element-label">
-          Employee
-        </div>
-        <div class="view-advances--element-value">
-          {{advanceRequest.us_full_name || '-'}}
-        </div>
+        <div class="view-advances--element-label">Employee</div>
+        <div class="view-advances--element-value">{{advanceRequest.us_full_name || '-'}}</div>
       </div>
 
       <div class="view-advances--element">
-        <div class="view-advances--element-label">
-          Purpose
-        </div>
-        <div class="view-advances--element-value">
-          {{advanceRequest.areq_purpose || '-'}}
-        </div>
+        <div class="view-advances--element-label">Purpose</div>
+        <div class="view-advances--element-value">{{advanceRequest.areq_purpose || '-'}}</div>
       </div>
 
       <div class="view-advances--element">
-        <div class="view-advances--element-label">
-          Description
-        </div>
-        <div class="view-advances--element-value">
-          {{advanceRequest.areq_notes || '-'}}
-        </div>
+        <div class="view-advances--element-label">Description</div>
+        <div class="view-advances--element-value">{{advanceRequest.areq_notes || '-'}}</div>
       </div>
 
       <div *ngIf="advanceRequest.project_name" class="view-advances--element">
-        <div class="view-advances--element-label">
-          Project
-        </div>
-        <div class="view-advances--element-value">
-          {{advanceRequest.project_name || '-'}}
-        </div>
+        <div class="view-advances--element-label">Project</div>
+        <div class="view-advances--element-value">{{advanceRequest.project_name || '-'}}</div>
       </div>
 
       <div class="view-advances--element">
-        <div class="view-advances--element-label">
-          Approvers
-        </div>
+        <div class="view-advances--element-label">Approvers</div>
         <div class="view-advances--element-value">
           <div *ngFor="let activeApproval of activeApprovals$ | async as list">
             <span>{{activeApproval.approver_name}}</span>
-            <div class="view-advances--element-value-subheader">{{activeApproval.state | advanceState | titlecase}}</div>
+            <div class="view-advances--element-value-subheader">
+              {{activeApproval.state | advanceState | titlecase}}
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Custom Fields block -->
       <div *ngIf="(advanceRequestCustomFields$|async)?.length > 0">
-        <div class="view-advances--element"
-          *ngFor="let advanceRequestCustomField of advanceRequestCustomFields$ | async; index as i">
-          <div class="view-advances--element-label">
-            {{advanceRequestCustomField.name}}
-          </div>
+        <div
+          class="view-advances--element"
+          *ngFor="let advanceRequestCustomField of advanceRequestCustomFields$ | async; index as i"
+        >
+          <div class="view-advances--element-label">{{advanceRequestCustomField.name}}</div>
           <div class="view-advances--element-value">
-            <span
-              *ngIf="advanceRequestCustomField.type === 'DATE'">{{(advanceRequestCustomField.value | date: 'MMM dd, yyyy') || '-'}}</span>
-            <span
-              *ngIf="advanceRequestCustomField.type === 'BOOLEAN'">{{advanceRequestCustomField.value ? 'Yes' : 'No'}}</span>
-            <span
-              *ngIf="advanceRequestCustomField.type !== 'BOOLEAN' && advanceRequestCustomField.type !== 'DATE'">{{advanceRequestCustomField.value || '-'}}</span>
+            <span *ngIf="advanceRequestCustomField.type === 'DATE'"
+              >{{(advanceRequestCustomField.value | date: 'MMM dd, yyyy') || '-'}}</span
+            >
+            <span *ngIf="advanceRequestCustomField.type === 'BOOLEAN'"
+              >{{advanceRequestCustomField.value ? 'Yes' : 'No'}}</span
+            >
+            <span *ngIf="advanceRequestCustomField.type !== 'BOOLEAN' && advanceRequestCustomField.type !== 'DATE'"
+              >{{advanceRequestCustomField.value || '-'}}</span
+            >
           </div>
         </div>
       </div>
-
     </div>
     <ng-container *ngIf="actions$|async as actions">
       <div class="view-advances--card view-advances--card__modified-padding" *ngIf="actions.can_edit">
-        <div class="view-advances--common-action-block" (click)=edit()>
+        <div class="view-advances--common-action-block" (click)="edit()">
           <mat-icon>edit</mat-icon>
           <p>Edit Advance</p>
         </div>
@@ -141,29 +107,37 @@
               [id]="advanceRequest.areq_id"
               [ownerEmail]="advanceRequest.us_email"
               [from]="'ADVANCE_REQUEST'"
-              (notify)="onUpdateApprover($event)">
+              (notify)="onUpdateApprover($event)"
+            >
             </app-fy-apporver>
           </div>
         </ng-container>
       </ng-container>
-
     </ng-container>
 
     <div class="view-advances--card view-advances--card__modified-padding">
       <div class="view-advances--common-action-block">
-        <app-comments-history objectType="advance_requests" [objectId]="advanceRequest.areq_id" text="Comments" [showCommentsCount]="true">
+        <app-comments-history
+          objectType="advance_requests"
+          [objectId]="advanceRequest.areq_id"
+          text="Comments"
+          [showCommentsCount]="true"
+        >
         </app-comments-history>
       </div>
     </div>
-
   </div>
-
 </ion-content>
 
 <ion-footer *ngIf="showAdvanceActions$|async">
   <ion-toolbar mode="md">
-    <ion-button class="view-advances--primary-cta flat-button" fill="solid" color="fyle-primary" expand="block"
-      (click)="openAdvanceActionsPopover()">
+    <ion-button
+      class="view-advances--primary-cta flat-button"
+      fill="solid"
+      color="fyle-primary"
+      expand="block"
+      (click)="openAdvanceActionsPopover()"
+    >
       Advance Actions
     </ion-button>
   </ion-toolbar>

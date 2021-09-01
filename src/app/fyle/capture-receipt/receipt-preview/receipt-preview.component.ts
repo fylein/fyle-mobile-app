@@ -1,21 +1,28 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { ActionSheetController, ModalController, Platform, PopoverController } from '@ionic/angular';
+import { from } from 'rxjs';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 
+type Image = Partial<{
+  source: string;
+  base64Image: string;
+}>;
 @Component({
   selector: 'app-receipt-preview',
   templateUrl: './receipt-preview.component.html',
   styleUrls: ['./receipt-preview.component.scss'],
 })
 export class ReceiptPreviewComponent implements OnInit {
-
   @ViewChild('slides') imageSlides: any;
 
-  @Input() base64ImagesWithSource: string[];
+  @Input() base64ImagesWithSource: Image[];
 
   @Input() mode: string;
 
-  sliderOptions: { initialSlide: number; slidesPerView: number; zoom: { maxRatio: number } };
+  sliderOptions: { initialSlide: number; slidesPerView: number; autoHeight: boolean; zoom: { maxRatio: number } };
 
   activeIndex: number;
 
@@ -23,6 +30,9 @@ export class ReceiptPreviewComponent implements OnInit {
     private platform: Platform,
     private modalController: ModalController,
     private popoverController: PopoverController,
+    private actionSheetController: ActionSheetController,
+    private matBottomSheet: MatBottomSheet,
+    private imagePicker: ImagePicker
   ) {
     this.registerBackButtonAction();
   }
@@ -37,6 +47,7 @@ export class ReceiptPreviewComponent implements OnInit {
     this.sliderOptions = {
       initialSlide: 0,
       slidesPerView: 1,
+      autoHeight: true,
       zoom: {
         maxRatio: 1,
       },
@@ -50,7 +61,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   async finish() {
     this.modalController.dismiss({
-      base64ImagesWithSource: this.base64ImagesWithSource
+      base64ImagesWithSource: this.base64ImagesWithSource,
     });
   }
 
@@ -69,14 +80,14 @@ export class ReceiptPreviewComponent implements OnInit {
         primaryCta: {
           text: 'Discard',
           action: 'discard',
-          type: 'alert'
+          type: 'alert',
         },
         secondaryCta: {
           text: 'Cancel',
-          action: 'cancel'
-        }
+          action: 'cancel',
+        },
       },
-      cssClass: 'pop-up-in-center'
+      cssClass: 'pop-up-in-center',
     });
 
     await closePopOver.present();
@@ -90,6 +101,56 @@ export class ReceiptPreviewComponent implements OnInit {
     }
   }
 
+  async addMore() {
+    const addMoreDialog = this.matBottomSheet.open(AddMorePopupComponent, {
+      data: {},
+      panelClass: ['mat-bottom-sheet-2'],
+    });
+
+    const data = await addMoreDialog.afterDismissed().toPromise();
+    if (data) {
+      if (data.mode === 'camera') {
+        this.captureReceipts();
+      } else {
+        this.galleryUpload();
+      }
+    }
+  }
+
+  galleryUpload() {
+    this.imagePicker.hasReadPermission().then((permission) => {
+      if (permission) {
+        const options = {
+          maximumImagesCount: 10,
+          outputType: 1,
+          quality: 70,
+        };
+        // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
+        from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
+          if (imageBase64Strings.length > 0) {
+            imageBase64Strings.forEach((base64String, key) => {
+              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
+              this.base64ImagesWithSource.push({
+                source: 'MOBILE_DASHCAM_GALLERY',
+                base64Image: base64PictureData,
+              });
+            });
+          }
+        });
+      } else {
+        this.imagePicker.requestReadPermission();
+        this.galleryUpload();
+      }
+    });
+  }
+
+  captureReceipts() {
+    this.modalController.dismiss({
+      base64ImagesWithSource: this.base64ImagesWithSource,
+      continueCaptureReceipt: true,
+    });
+  }
+
   async delete() {
     const activeIndex = await this.imageSlides.getActiveIndex();
     const deletePopOver = await this.popoverController.create({
@@ -100,14 +161,14 @@ export class ReceiptPreviewComponent implements OnInit {
         primaryCta: {
           text: 'Remove',
           action: 'remove',
-          type: 'alert'
+          type: 'alert',
         },
         secondaryCta: {
           text: 'Cancel',
-          action: 'cancel'
-        }
+          action: 'cancel',
+        },
       },
-      cssClass: 'pop-up-in-center'
+      cssClass: 'pop-up-in-center',
     });
 
     await deletePopOver.present();
@@ -130,7 +191,7 @@ export class ReceiptPreviewComponent implements OnInit {
   retake() {
     this.base64ImagesWithSource = [];
     this.modalController.dismiss({
-      base64ImagesWithSource: this.base64ImagesWithSource
+      base64ImagesWithSource: this.base64ImagesWithSource,
     });
   }
 
@@ -148,5 +209,4 @@ export class ReceiptPreviewComponent implements OnInit {
     const activeIndex = await this.imageSlides.getActiveIndex();
     this.activeIndex = activeIndex;
   }
-
 }

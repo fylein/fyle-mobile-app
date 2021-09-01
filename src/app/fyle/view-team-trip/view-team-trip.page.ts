@@ -2,7 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { TripRequestCustomFieldsService } from 'src/app/core/services/trip-request-custom-fields.service';
-import { map, shareReplay, filter, switchMap, withLatestFrom, tap, finalize, concatMap, reduce, startWith } from 'rxjs/operators';
+import {
+  map,
+  shareReplay,
+  filter,
+  switchMap,
+  withLatestFrom,
+  tap,
+  finalize,
+  concatMap,
+  reduce,
+  startWith,
+} from 'rxjs/operators';
 import { Observable, forkJoin, noop, from, EMPTY, iif, of, Subject } from 'rxjs';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
@@ -29,7 +40,6 @@ import { ActionPopoverComponent } from './action-popover/action-popover.componen
   styleUrls: ['./view-team-trip.page.scss'],
 })
 export class ViewTeamTripPage implements OnInit {
-
   tripRequest$: Observable<ExtendedTripRequest>;
 
   approvals$: Observable<Approval[]>;
@@ -88,8 +98,7 @@ export class ViewTeamTripPage implements OnInit {
     private modalController: ModalController,
     private popoverController: PopoverController,
     private popupService: PopupService
-  ) { }
-
+  ) {}
 
   async deleteTrip() {
     const id = this.activatedRoute.snapshot.params.id;
@@ -98,8 +107,8 @@ export class ViewTeamTripPage implements OnInit {
       header: 'Confirm',
       message: 'Are you sure you want to delete this trip',
       primaryCta: {
-        text: 'Delete Trip'
-      }
+        text: 'Delete Trip',
+      },
     });
 
     if (popupResults === 'primary') {
@@ -116,10 +125,15 @@ export class ViewTeamTripPage implements OnInit {
   }
 
   getTripRequestCustomFields(allTripRequestCustomFields, tripRequest: ExtendedTripRequest, requestType, requestObj) {
-    const customFields = this.tripRequestCustomFieldsService
-      .filterByRequestTypeAndTripType(allTripRequestCustomFields, requestType, tripRequest.trp_trip_type);
-    requestObj.custom_field_values = this.customFieldsService
-      .standardizeCustomFields(requestObj.trp_custom_field_values, customFields);
+    const customFields = this.tripRequestCustomFieldsService.filterByRequestTypeAndTripType(
+      allTripRequestCustomFields,
+      requestType,
+      tripRequest.trp_trip_type
+    );
+    requestObj.custom_field_values = this.customFieldsService.standardizeCustomFields(
+      requestObj.trp_custom_field_values,
+      customFields
+    );
     return requestObj;
   }
 
@@ -127,7 +141,8 @@ export class ViewTeamTripPage implements OnInit {
     const approvalStates = ['APPROVAL_PENDING', 'APPROVAL_DONE'];
 
     const approversNotAllowed = approvals
-      .filter((approver) => approvalStates.indexOf(approver.state) > -1).map((approver) => approver.approver_id);
+      .filter((approver) => approvalStates.indexOf(approver.state) > -1)
+      .map((approver) => approver.approver_id);
 
     approversNotAllowed.push(tripRequest.ou_id);
 
@@ -135,14 +150,16 @@ export class ViewTeamTripPage implements OnInit {
   }
 
   getTravellerNames(travellers: TrpTravellerDetail[]) {
-    return travellers.map((traveller) => {
-      let details = traveller.name;
-      if (traveller.phone_number) {
-        details += '(' + traveller.phone_number + ')';
-      }
+    return travellers
+      .map((traveller) => {
+        let details = traveller.name;
+        if (traveller.phone_number) {
+          details += '(' + traveller.phone_number + ')';
+        }
 
-      return details;
-    }).join(', ');
+        return details;
+      })
+      .join(', ');
   }
 
   async openTransportationRequests() {
@@ -152,8 +169,8 @@ export class ViewTeamTripPage implements OnInit {
       const transportReqModal = await this.modalController.create({
         component: TransportationRequestComponent,
         componentProps: {
-          transportationRequests
-        }
+          transportationRequests,
+        },
       });
 
       await this.loaderService.hideLoader();
@@ -169,8 +186,8 @@ export class ViewTeamTripPage implements OnInit {
       const hotelReqModal = await this.modalController.create({
         component: HotelRequestComponent,
         componentProps: {
-          hotelRequests
-        }
+          hotelRequests,
+        },
       });
 
       await this.loaderService.hideLoader();
@@ -186,15 +203,14 @@ export class ViewTeamTripPage implements OnInit {
       const advanceReqModal = await this.modalController.create({
         component: AdvanceRequestComponent,
         componentProps: {
-          advanceRequests
-        }
+          advanceRequests,
+        },
       });
 
       await this.loaderService.hideLoader();
 
       await advanceReqModal.present();
     }
-
   }
 
   setRequiredTripDetails(eTransportationRequest) {
@@ -202,15 +218,22 @@ export class ViewTeamTripPage implements OnInit {
     eTransportationRequest = this.transportationRequestsService.setInternalStateAndDisplayName(eTransportationRequest);
 
     if (eTransportationRequest.tr.preferred_timing) {
-      eTransportationRequest.tr.preferred_timing_formatted
-        = preferredTimings.filter(timing => timing.value === eTransportationRequest.tr.preferred_timing);
+      eTransportationRequest.tr.preferred_timing_formatted = preferredTimings.filter(
+        (timing) => timing.value === eTransportationRequest.tr.preferred_timing
+      );
     }
 
     return forkJoin({
-      bookingNumberExpense: iif(() => !!eTransportationRequest.tb.transaction_id,
-        this.transactionService.get(eTransportationRequest.tb.transaction_id), of(null)),
-      cancellationNumberExpense: iif(() => !!eTransportationRequest.tc.transaction_id,
-        this.transactionService.get(eTransportationRequest.tc.transaction_id), of(null))
+      bookingNumberExpense: iif(
+        () => !!eTransportationRequest.tb.transaction_id,
+        this.transactionService.get(eTransportationRequest.tb.transaction_id),
+        of(null)
+      ),
+      cancellationNumberExpense: iif(
+        () => !!eTransportationRequest.tc.transaction_id,
+        this.transactionService.get(eTransportationRequest.tc.transaction_id),
+        of(null)
+      ),
     }).pipe(
       map(({ bookingNumberExpense, cancellationNumberExpense }) => {
         if (bookingNumberExpense) {
@@ -233,9 +256,9 @@ export class ViewTeamTripPage implements OnInit {
     const actionBlock = await this.popoverController.create({
       component: ActionPopoverComponent,
       componentProps: {
-        actions
+        actions,
       },
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await actionBlock.present();
@@ -250,13 +273,12 @@ export class ViewTeamTripPage implements OnInit {
   async closeTrip() {
     const id = this.activatedRoute.snapshot.params.id;
 
-
     const popupResults = await this.popupService.showPopup({
       header: 'Close Trip',
       message: 'Are you sure you want to close this trip?',
       primaryCta: {
-        text: 'Close Trip'
-      }
+        text: 'Close Trip',
+      },
     });
 
     if (popupResults === 'primary') {
@@ -268,16 +290,13 @@ export class ViewTeamTripPage implements OnInit {
   }
 
   getApproverEmails(activeApprovals) {
-    return activeApprovals.map(approver => approver.approver_email);
+    return activeApprovals.map((approver) => approver.approver_email);
   }
 
   ionViewWillEnter() {
-
     const id = this.activatedRoute.snapshot.params.id;
     this.eou$ = from(this.authService.getEou());
-    this.tripRequest$ = from(
-      this.loaderService.showLoader()
-    ).pipe(
+    this.tripRequest$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.tripRequestsService.getTrip(id)),
       finalize(() => from(this.loaderService.hideLoader()))
     );
@@ -288,18 +307,14 @@ export class ViewTeamTripPage implements OnInit {
     this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll().pipe(shareReplay(1));
 
     this.canDoAction$ = this.actions$.pipe(
-      map(actions => actions.can_approve || actions.can_inquire || actions.can_reject)
+      map((actions) => actions.can_approve || actions.can_inquire || actions.can_reject)
     );
 
     const currentApproval$ = forkJoin([this.eou$, this.tripRequest$]).pipe(
       map(([eou, tripRequest]) => tripRequest.approvals[eou.ou.id].state)
     );
 
-    this.actionsRedefined$ = forkJoin([
-      this.eou$,
-      this.actions$,
-      currentApproval$
-    ]).pipe(
+    this.actionsRedefined$ = forkJoin([this.eou$, this.actions$, currentApproval$]).pipe(
       map(([eou, actions, currentApproval]) => {
         if (actions.can_approve && eou.ou.roles.indexOf('ADMIN') > -1) {
           if (currentApproval === 'APPROVAL_PENDING') {
@@ -315,63 +330,62 @@ export class ViewTeamTripPage implements OnInit {
     this.activeApprovals$ = this.refreshApprovers$.pipe(
       startWith(true),
       switchMap(() => this.approvals$),
-      map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
+      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED'))
     );
 
-    this.tripExtraInfo$ = this.tripRequest$.pipe(map(
-      extendedTripRequest => ({
+    this.tripExtraInfo$ = this.tripRequest$.pipe(
+      map((extendedTripRequest) => ({
         submittedBy: {
           fullName: extendedTripRequest.us_full_name,
-          email: extendedTripRequest.us_email
+          email: extendedTripRequest.us_email,
         },
         projectName: extendedTripRequest.trp_project_name || null,
         tripLocations: extendedTripRequest.trp_trip_cities.map((location) => {
           if (extendedTripRequest.trp_trip_type !== 'MULTI_CITY') {
             return [
               location.from_city.city ? location.from_city.city : location.from_city.display,
-              location.to_city.city ? location.to_city.city : location.to_city.display
+              location.to_city.city ? location.to_city.city : location.to_city.display,
             ];
           }
 
           return location.from_city.city ? location.from_city.city : location.from_city.display;
         }),
-        travellers: this.getTravellerNames(extendedTripRequest.trp_traveller_details)
-      })
-    ));
+        travellers: this.getTravellerNames(extendedTripRequest.trp_traveller_details),
+      }))
+    );
 
     this.transformedTripRequests$ = this.refreshApprovers$.pipe(
       startWith(true),
-      switchMap(res => forkJoin({
-        tripRequest: this.tripRequest$,
-        allTripRequestCustomFields: this.allTripRequestCustomFields$
-      })),
-      map(({
-        tripRequest,
-        allTripRequestCustomFields
-      }) => this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest))
+      switchMap((res) =>
+        forkJoin({
+          tripRequest: this.tripRequest$,
+          allTripRequestCustomFields: this.allTripRequestCustomFields$,
+        })
+      ),
+      map(({ tripRequest, allTripRequestCustomFields }) =>
+        this.getTripRequestCustomFields(allTripRequestCustomFields, tripRequest, 'TRIP_REQUEST', tripRequest)
+      )
     );
 
     this.transportationRequests$ = forkJoin([
       this.tripRequestsService.getTransportationRequests(id),
       this.allTripRequestCustomFields$,
-      this.tripRequest$
+      this.tripRequest$,
     ]).pipe(
-      map(
-        aggregatedRes => {
-          const [transportationRequests, allCustomFields, tripRequest] = aggregatedRes;
-          return transportationRequests.map(transportationRequest => {
-            const transformedTransportationRequests = this.dataTransformSerivce.unflatten(transportationRequest);
-            return this
-              .getTripRequestCustomFields(
-                allCustomFields,
-                tripRequest,
-                'TRANSPORTATION_REQUEST',
-                transformedTransportationRequests) as [];
-          });
-        }
-      ),
-      switchMap(transportationReqs => from(transportationReqs)),
-      concatMap(transportationReq => this.setRequiredTripDetails(transportationReq)),
+      map((aggregatedRes) => {
+        const [transportationRequests, allCustomFields, tripRequest] = aggregatedRes;
+        return transportationRequests.map((transportationRequest) => {
+          const transformedTransportationRequests = this.dataTransformSerivce.unflatten(transportationRequest);
+          return this.getTripRequestCustomFields(
+            allCustomFields,
+            tripRequest,
+            'TRANSPORTATION_REQUEST',
+            transformedTransportationRequests
+          ) as [];
+        });
+      }),
+      switchMap((transportationReqs) => from(transportationReqs)),
+      concatMap((transportationReq) => this.setRequiredTripDetails(transportationReq)),
       reduce((acc, curr) => acc.concat(curr), []),
       shareReplay(1)
     );
@@ -379,41 +393,39 @@ export class ViewTeamTripPage implements OnInit {
     this.hotelRequests$ = forkJoin([
       this.tripRequestsService.getHotelRequests(id),
       this.allTripRequestCustomFields$,
-      this.tripRequest$
+      this.tripRequest$,
     ]).pipe(
-      map(
-        aggregatedRes => {
-          const [hotelRequests, allCustomFields, tripRequest] = aggregatedRes;
-          return hotelRequests.map(hotelRequest => {
-            const transformedHotelRequest = this.dataTransformSerivce.unflatten(hotelRequest);
-            return this
-              .getTripRequestCustomFields(
-                allCustomFields,
-                tripRequest,
-                'HOTEL_REQUEST',
-                transformedHotelRequest);
-          });
-        }
-      ),
+      map((aggregatedRes) => {
+        const [hotelRequests, allCustomFields, tripRequest] = aggregatedRes;
+        return hotelRequests.map((hotelRequest) => {
+          const transformedHotelRequest = this.dataTransformSerivce.unflatten(hotelRequest);
+          return this.getTripRequestCustomFields(
+            allCustomFields,
+            tripRequest,
+            'HOTEL_REQUEST',
+            transformedHotelRequest
+          );
+        });
+      }),
       shareReplay(1)
     );
 
     this.transformedAdvanceRequests$ = forkJoin({
       advanceRequests: this.advanceRequests$,
-      advanceRequestsCustomFields: this.advanceRequestsCustomFieldsService.getAll()
+      advanceRequestsCustomFields: this.advanceRequestsCustomFieldsService.getAll(),
     }).pipe(
-      map(aggregatedRes => {
+      map((aggregatedRes) => {
         const { advanceRequests, advanceRequestsCustomFields } = aggregatedRes;
-        return advanceRequests.map(advanceRequest => {
-          advanceRequest.custom_field_values = this.customFieldsService
-            .standardizeCustomFields(advanceRequest.custom_field_values, advanceRequestsCustomFields);
+        return advanceRequests.map((advanceRequest) => {
+          advanceRequest.custom_field_values = this.customFieldsService.standardizeCustomFields(
+            advanceRequest.custom_field_values,
+            advanceRequestsCustomFields
+          );
           return advanceRequest;
         });
       })
     );
   }
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

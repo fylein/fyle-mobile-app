@@ -6,8 +6,8 @@ import { ViewTeamReportPage } from './view-team-report.page';
 const routes: Routes = [
   {
     path: '',
-    component: ViewTeamReportPage
-  }
+    component: ViewTeamReportPage,
+  },
 ];
 
 @NgModule({

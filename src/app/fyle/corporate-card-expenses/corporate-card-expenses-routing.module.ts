@@ -6,8 +6,8 @@ import { CorporateCardExpensesPage } from './corporate-card-expenses.page';
 const routes: Routes = [
   {
     path: '',
-    component: CorporateCardExpensesPage
-  }
+    component: CorporateCardExpensesPage,
+  },
 ];
 
 @NgModule({

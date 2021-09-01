@@ -20,8 +20,31 @@
     line-height: 18px;
     text-align: center;
     color: $blue-black;
-    padding: 7px 7px 32px;
+    padding: 7px 7px 0;
     width: 247px;
+  }
+
+  &--info-container {
+    border: 1px solid $grey;
+    border-radius: 8px;
+    margin-top: 18px;
+    padding: 12px 6px;
+
+    &__icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    &__message {
+      font-size: 12px;
+      line-height: 15px;
+      color: $blue-black;
+      margin-left: 10px;
+    }
+  }
+
+  &--cta-container {
+    margin-top: 28px;
   }
 
   &--delete {
@@ -43,7 +66,7 @@
     justify-content: center;
     align-items: center;
     &__disabled {
-      opacity: .2;
+      opacity: 0.2;
     }
   }
 }

@@ -1,8 +1,7 @@
 $white: #fff;
 $black: #000;
 .camera-overlay {
-
-  &--camera-preview{
+  &--camera-preview {
     --background: transparent;
   }
 
@@ -74,7 +73,7 @@ $black: #000;
     border-radius: 50%;
     border: 3px solid $white;
     left: 43%;
-    z-index: 999
+    z-index: 999;
   }
 
   &--capture-btn {
@@ -106,12 +105,12 @@ $black: #000;
   }
 
   &--retake-btn {
-    color: $white;;
+    color: $white;
     font-size: 18px;
   }
 
   &--continue-btn {
-    color: $white;;
+    color: $white;
     text-align: right;
     font-size: 18px;
   }
@@ -122,7 +121,7 @@ $black: #000;
     height: 50px;
     position: fixed;
     left: 30px;
-    border: 1px solid $white;;
+    border: 1px solid $white;
   }
 
   &--image-count {
@@ -137,7 +136,7 @@ $black: #000;
     bottom: 70px;
     z-index: 1;
     position: fixed;
-    border: 1px solid $white;;
+    border: 1px solid $white;
   }
 
   &--intro-container {
@@ -164,7 +163,7 @@ $black: #000;
   }
 
   &--switch-mode-info {
-    background-color: rgba(0, 0, 0, .5);
+    background-color: rgba(0, 0, 0, 0.5);
     width: 170px;
     height: 100px;
     position: absolute;
@@ -177,4 +176,3 @@ $black: #000;
     font-weight: 500;
   }
 }
-  

@@ -1,14 +1,11 @@
-import {Injectable} from '@angular/core';
-import {Router} from '@angular/router';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DeepLinkService {
-
-  constructor(
-    private router: Router
-  ) { }
+  constructor(private router: Router) {}
 
   getJsonFromUrl(url) {
     const query = url.split('?')[1];
@@ -27,34 +24,59 @@ export class DeepLinkService {
 
     if (redirectUri) {
       if (redirectUri.match('verify')) {
-        this.router.navigate(['/', 'auth', 'verify', {
-          verification_code: verificationCode
-        }]);
+        this.router.navigate([
+          '/',
+          'auth',
+          'verify',
+          {
+            verification_code: verificationCode,
+          },
+        ]);
       } else if (redirectUri.match('new_password')) {
-        this.router.navigate(['/', 'auth', 'new_password', {
-          refreshToken
-        }]);
-      } else if (redirectUri.match('/reports/rp') && (redirectUri.split('/reports/').pop().length === 12)) {
+        this.router.navigate([
+          '/',
+          'auth',
+          'new_password',
+          {
+            refreshToken,
+          },
+        ]);
+      } else if (redirectUri.match('/reports/rp') && redirectUri.split('/reports/').pop().length === 12) {
         const reportId = redirectUri.split('/reports/').pop();
         const subModule = 'report';
-        this.router.navigate(['/', 'deep_link_redirection', {
-          sub_module: subModule,
-          id: reportId
-        }]);
-      } else if (redirectUri.match('/view_expense/tx') && (redirectUri.split('/view_expense/').pop().length === 12)) {
+        this.router.navigate([
+          '/',
+          'deep_link_redirection',
+          {
+            sub_module: subModule,
+            id: reportId,
+          },
+        ]);
+      } else if (redirectUri.match('/view_expense/tx') && redirectUri.split('/view_expense/').pop().length === 12) {
         const txnId = redirectUri.split('/view_expense/').pop();
         const subModule = 'expense';
-        this.router.navigate(['/', 'deep_link_redirection', {
-          sub_module: subModule,
-          id: txnId
-        }]);
-      } else if (redirectUri.match('/advance_request/areq') && (redirectUri.split('/advance_request/').pop().length === 14)) {
+        this.router.navigate([
+          '/',
+          'deep_link_redirection',
+          {
+            sub_module: subModule,
+            id: txnId,
+          },
+        ]);
+      } else if (
+        redirectUri.match('/advance_request/areq') &&
+        redirectUri.split('/advance_request/').pop().length === 14
+      ) {
         const advReqId = redirectUri.split('/advance_request/').pop();
         const subModule = 'advReq';
-        this.router.navigate(['/', 'deep_link_redirection', {
-          sub_module: subModule,
-          id: advReqId
-        }]);
+        this.router.navigate([
+          '/',
+          'deep_link_redirection',
+          {
+            sub_module: subModule,
+            id: advReqId,
+          },
+        ]);
       } else {
         this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
       }

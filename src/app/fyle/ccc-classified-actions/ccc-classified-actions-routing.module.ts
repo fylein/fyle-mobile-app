@@ -6,8 +6,8 @@ import { CccClassifiedActionsPage } from './ccc-classified-actions.page';
 const routes: Routes = [
   {
     path: '',
-    component: CccClassifiedActionsPage
-  }
+    component: CccClassifiedActionsPage,
+  },
 ];
 
 @NgModule({

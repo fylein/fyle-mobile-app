@@ -24,14 +24,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatButtonModule,
     MatRippleModule,
     SharedModule,
-    MatFormFieldModule
+    MatFormFieldModule,
   ],
   declarations: [
     ViewTeamReportPage,
     ViewTeamReportEtxnCardComponent,
     ShareReportComponent,
     SendBackComponent,
-    ApproveReportComponent
-  ]
+    ApproveReportComponent,
+  ],
 })
 export class ViewTeamReportPageModule {}

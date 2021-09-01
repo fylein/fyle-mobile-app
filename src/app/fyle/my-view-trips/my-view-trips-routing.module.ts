@@ -6,8 +6,8 @@ import { MyViewTripsPage } from './my-view-trips.page';
 const routes: Routes = [
   {
     path: '',
-    component: MyViewTripsPage
-  }
+    component: MyViewTripsPage,
+  },
 ];
 
 @NgModule({

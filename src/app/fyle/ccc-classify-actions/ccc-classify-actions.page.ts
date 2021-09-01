@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {CorporateCardExpense} from '../../core/models/v2/corporate-card-expense.model';
-import {Observable} from 'rxjs';
-import {CorporateCreditCardExpenseService} from '../../core/services/corporate-credit-card-expense.service';
-import {ExpenseSuggestionsService} from '../../core/services/expense-suggestions.service';
-import {switchMap} from 'rxjs/operators';
-import {ExpenseSuggestion} from '../../core/models/expense-suggestion.model';
-import {PopupService} from '../../core/services/popup.service';
-import {TransactionService} from '../../core/services/transaction.service';
-import {PopoverController} from '@ionic/angular';
-import {MatchExpensePopoverComponent} from './match-expense-popover/match-expense-popover.component';
-import {LoaderService} from '../../core/services/loader.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CorporateCardExpense } from '../../core/models/v2/corporate-card-expense.model';
+import { Observable } from 'rxjs';
+import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
+import { ExpenseSuggestionsService } from '../../core/services/expense-suggestions.service';
+import { switchMap } from 'rxjs/operators';
+import { ExpenseSuggestion } from '../../core/models/expense-suggestion.model';
+import { PopupService } from '../../core/services/popup.service';
+import { TransactionService } from '../../core/services/transaction.service';
+import { PopoverController } from '@ionic/angular';
+import { MatchExpensePopoverComponent } from './match-expense-popover/match-expense-popover.component';
+import { LoaderService } from '../../core/services/loader.service';
 
 @Component({
   selector: 'app-ccc-classify-actions',
@@ -18,7 +18,6 @@ import {LoaderService} from '../../core/services/loader.service';
   styleUrls: ['./ccc-classify-actions.page.scss'],
 })
 export class CccClassifyActionsPage implements OnInit {
-
   cccExpense$: Observable<CorporateCardExpense>;
 
   expenseSuggestions$: Observable<ExpenseSuggestion[]>;
@@ -34,46 +33,55 @@ export class CccClassifyActionsPage implements OnInit {
     private popoverController: PopoverController,
     private transactionService: TransactionService,
     private loaderService: LoaderService
-  ) { }
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ionViewWillEnter() {
     if (this.activatedRoute.snapshot.params.pageState) {
       this.pageState = this.activatedRoute.snapshot.params.pageState;
     }
 
-    this.cccExpense$ = this.corporateCreditCardExpenseService.getv2CardTransaction(this.activatedRoute.snapshot.params.cccTransactionId);
+    this.cccExpense$ = this.corporateCreditCardExpenseService.getv2CardTransaction(
+      this.activatedRoute.snapshot.params.cccTransactionId
+    );
     this.expenseSuggestions$ = this.cccExpense$.pipe(
-      switchMap(cccExpense => this.expenseSuggestionsService.getSuggestions({
-        amount: cccExpense.amount,
-        txn_dt: cccExpense.txn_dt
-      }))
+      switchMap((cccExpense) =>
+        this.expenseSuggestionsService.getSuggestions({
+          amount: cccExpense.amount,
+          txn_dt: cccExpense.txn_dt,
+        })
+      )
     );
   }
 
   addExpenseManually(cccTxn: CorporateCardExpense) {
     const bankTxn = {
       ccce: cccTxn,
-      flow: 'newCCCFlow'
+      flow: 'newCCCFlow',
     };
 
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { bankTxn: JSON.stringify(bankTxn), navigate_back: true }]);
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'add_edit_expense',
+      { bankTxn: JSON.stringify(bankTxn), navigate_back: true },
+    ]);
   }
 
   async openDismissalPopover(cccTxn: CorporateCardExpense) {
     const popupResult = await this.popupService.showPopup({
       header: 'Confirm Dismissal',
-      message: 'Usually credit card payments are dismissed as they are paid by your company. Do you wish to dismiss this transaction?',
+      message:
+        'Usually credit card payments are dismissed as they are paid by your company. Do you wish to dismiss this transaction?',
       primaryCta: {
-        text: 'Yes, Dismiss'
+        text: 'Yes, Dismiss',
       },
       secondaryCta: {
-        text: 'Cancel'
+        text: 'Cancel',
       },
       cssClass: 'ccc-popup',
-      showCancelButton: false
+      showCancelButton: false,
     });
 
     if (popupResult === 'primary') {
@@ -87,19 +95,19 @@ export class CccClassifyActionsPage implements OnInit {
   async openMarkPersonalPopover(cccTxn: CorporateCardExpense) {
     const popupResult = await this.popupService.showPopup({
       header: 'Confirm Marking Personal',
-      message: 'A personal transaction made on the corporate card will not be paid by your company. Your finance team\n' +
-        '        will collect this amount from you based on your company\'s policy. Do you wish to classify this as a\n' +
+      message:
+        'A personal transaction made on the corporate card will not be paid by your company. Your finance team\n' +
+        "        will collect this amount from you based on your company's policy. Do you wish to classify this as a\n" +
         '        personal transaction?',
       primaryCta: {
-        text: 'Classify as Personal'
+        text: 'Classify as Personal',
       },
       secondaryCta: {
-        text: 'Cancel'
+        text: 'Cancel',
       },
       cssClass: 'ccc-popup',
-      showCancelButton: false
+      showCancelButton: false,
     });
-
 
     if (popupResult === 'primary') {
       await this.loaderService.showLoader();
@@ -117,8 +125,8 @@ export class CccClassifyActionsPage implements OnInit {
       componentProps: {
         expenseId: expense.id,
         CCCEId: cccExpense.id,
-        splitGroupId: expense.split_group_id
-      }
+        splitGroupId: expense.split_group_id,
+      },
     });
 
     await popover.present();

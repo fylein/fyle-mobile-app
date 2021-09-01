@@ -6,16 +6,20 @@
       <ion-grid class="ion-no-padding">
         <ion-row>
           <ion-col size="8.5" class="ion-no-padding">
-            <div class="report-list--purpose">{{report.rp_purpose}}</div>
-            <div class="report-list--count">{{report.rp_num_transactions}} Expenses</div>
+            <div class="report-list--purpose">{{ report.rp_purpose }}</div>
+            <div class="report-list--count">{{ report.rp_num_transactions }} Expenses</div>
           </ion-col>
           <ion-col size="3.5" class="ion-no-padding ion-text-right">
             <div class="report-list--currency-amount-container">
-              <span class="report-list--currency">{{reportCurrencySymbol}}</span>
-              <span class="report-list--amount">{{(report.rp_amount || 0) | humanizeCurrency: report.rp_currency: 2: true }}</span>
+              <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
+              <span class="report-list--amount">{{
+                report.rp_amount || 0 | humanizeCurrency: report.rp_currency:2:true
+              }}</span>
             </div>
             <div class="ion-text-right">
-              <div class="text-center report-list--state report-list--state__{{report.rp_state | reportState}}">{{report.rp_state | reportState | titlecase}}</div>
+              <div class="text-center report-list--state report-list--state__{{ report.rp_state | reportState }}">
+                {{ report.rp_state | reportState | titlecase }}
+              </div>
             </div>
           </ion-col>
         </ion-row>
