@@ -227,9 +227,9 @@ export class ReportService {
           'PAYMENT_PENDING',
           'PAYMENT_PROCESSING',
           'PAID',
-          'REJECTED'
-        ]
-      }
+          'REJECTED',
+        ],
+      },
     };
 
     return stateMap[state];
