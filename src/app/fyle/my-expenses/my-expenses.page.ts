@@ -199,7 +199,7 @@ export class MyExpensesPage implements OnInit {
 
   onSearchBarFocus() {
     console.log("check if search bar is focused -- before", this.isSearchBarFocused);
-    this.isSearchBarFocused = true;
+    this.isSearchBarFocused = !this.isSearchBarFocused;
     console.log("check if search bar is focused -- after", this.isSearchBarFocused);
   }
 
@@ -1854,6 +1854,7 @@ export class MyExpensesPage implements OnInit {
 
   onSimpleSearchCancel() {
     this.headerState = HeaderState.base;
+    this.isSearchBarFocused = !this.isSearchBarFocused;
     this.clearText();
   }
 
