@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
-import {AuthService} from './auth.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TrackingService {
   identityEmail = null;
 
-  constructor(
-    private authService: AuthService
-  ) { }
+  constructor(private authService: AuthService) {}
 
   get tracking() {
     return (window as any).analytics;
@@ -21,7 +19,7 @@ export class TrackingService {
     if (email && email !== this.identityEmail) {
       if (this.tracking) {
         this.tracking.identify(email, {
-          $email: email
+          $email: email,
         });
       }
       this.identityEmail = email;
@@ -46,13 +44,12 @@ export class TrackingService {
     }
   }
 
-  onStateChange(toState, toParams, fromState, fromParams) {
-  }
+  onStateChange(toState, toParams, fromState, fromParams) {}
 
   eventTrack(action, properties) {
     properties = {
       ...properties,
-      Asset: 'Mobile'
+      Asset: 'Mobile',
     };
     if (this.tracking) {
       this.tracking.track(action, properties);
@@ -63,7 +60,7 @@ export class TrackingService {
   onSignin(email, properties) {
     if (this.tracking) {
       this.tracking.identify(email, {
-        $email: email
+        $email: email,
       });
 
       this.identityEmail = email;
@@ -72,8 +69,7 @@ export class TrackingService {
     this.eventTrack('Signin', properties);
   }
 
-  onLogout() {
-  }
+  onLogout() {}
 
   /*** Events related to expense ***/
 
@@ -317,7 +313,6 @@ export class TrackingService {
     this.eventTrack('Click Add Secondary email', properties);
   }
 
-
   /*** Events related to help page ***/
 
   // view help card event
@@ -372,6 +367,11 @@ export class TrackingService {
   // When user completes account setup journey
   setupComplete(properties) {
     this.eventTrack('Setup Complete', properties);
+  }
+
+  // When toast message is displayed
+  showToastMessage(properties) {
+    this.eventTrack('Toast message displayed', properties);
   }
 
   /*** Old events ***/
@@ -736,6 +736,10 @@ export class TrackingService {
     this.eventTrack('dashboard report pill clicked', properties);
   }
 
+  dashboardOnCorporateCardClick(properties) {
+    this.eventTrack('dashboard corporate card clicked', properties);
+  }
+
   // Footer
   footerButtonClicked(properties) {
     this.eventTrack('footer button clicked', properties);
@@ -751,5 +755,21 @@ export class TrackingService {
 
   myExpensesFilterApplied(properties) {
     this.eventTrack('my expenses filters applied', properties);
+  }
+
+  showMoreClicked(properties) {
+    this.eventTrack('show more clicked', properties);
+  }
+
+  hideMoreClicked(properties) {
+    this.eventTrack('hide more clicked', properties);
+  }
+
+  footerSaveAndPrevClicked(properties) {
+    this.eventTrack('save and previous clicked inside footer', properties);
+  }
+
+  footerSaveAndNextClicked(properties) {
+    this.eventTrack('save and next clicked inside footer', properties);
   }
 }

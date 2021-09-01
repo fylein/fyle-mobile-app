@@ -1,4 +1,4 @@
-@import "../../../../theme/colors.scss";
+@import '../../../../theme/colors.scss';
 
 .match-transaction {
   &--matched-amount {
@@ -22,10 +22,10 @@
     font-size: 25px;
     margin: -14px 0 0 0;
   }
-  
+
   &--item {
     padding-right: 20px;
-  }  
+  }
 
   &--item-header {
     margin-top: 8px;

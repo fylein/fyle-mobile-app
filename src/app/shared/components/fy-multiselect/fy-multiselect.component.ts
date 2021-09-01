@@ -1,5 +1,5 @@
-import {Component, OnInit, forwardRef, Input, Injector} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
+import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
@@ -15,9 +15,9 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FyMultiselectComponent),
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
   @Input() options: { label: string; value: any }[] = [];
@@ -54,7 +54,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
@@ -69,8 +69,8 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
       this.innerValue = v;
       if (this.innerValue && this.innerValue.length > 0) {
         this.displayValue = this.innerValue
-          .map(selectedValue => this.options.find(option => isEqual(option.value, selectedValue)))
-          .map(option => option && option.label)
+          .map((selectedValue) => this.options.find((option) => isEqual(option.value, selectedValue)))
+          .map((option) => option && option.label)
           .join(',');
       } else {
         this.displayValue = '';
@@ -87,11 +87,11 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
         options: this.options,
         currentSelections: this.value,
         selectModalHeader: this.selectModalHeader,
-        subheader: this.subheader
+        subheader: this.subheader,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await selectionModal.present();
@@ -99,7 +99,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      this.value = data.selected.map(selection => selection.value);
+      this.value = data.selected.map((selection) => selection.value);
     }
   }
 
@@ -112,8 +112,8 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
       this.innerValue = value;
       if (this.innerValue && this.innerValue.length > 0) {
         this.displayValue = this.innerValue
-          .map(selectedValue => this.options.find(option => isEqual(option.value, selectedValue)))
-          .map(option => option && option.label)
+          .map((selectedValue) => this.options.find((option) => isEqual(option.value, selectedValue)))
+          .map((option) => option && option.label)
           .join(',');
       } else {
         this.displayValue = '';

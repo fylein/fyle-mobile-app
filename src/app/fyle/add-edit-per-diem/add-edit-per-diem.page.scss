@@ -1,5 +1,5 @@
-@import "../../../theme/colors.scss";
-@import "../../../theme/forms.scss";
+@import '../../../theme/colors.scss';
+@import '../../../theme/forms.scss';
 
 .add-edit-per-diem {
   &--toolbar {
@@ -45,7 +45,8 @@
     }
   }
 
-  &--primary-cta, &--secondary-cta {
+  &--primary-cta,
+  &--secondary-cta {
     height: 48px;
     font-size: 14px;
     text-transform: uppercase;
@@ -265,6 +266,10 @@
     padding: 10px;
   }
 
+  &--amount-value {
+    font-size: 22px;
+  }
+
   &--error {
     color: $red;
     line-height: 16px;
@@ -480,13 +485,13 @@
     margin-left: 12px;
   }
 
-  &--type-name{
+  &--type-name {
     font-weight: 400;
     font-size: 16px;
     color: $black;
   }
 
-  &--type-rate{
+  &--type-rate {
     font-size: 12px;
     color: $grey-light;
     margin-top: 5px;

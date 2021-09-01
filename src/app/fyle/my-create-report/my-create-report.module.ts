@@ -12,17 +12,7 @@ import { ReportSummaryComponent } from './report-summary/report-summary.componen
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    MyCreateReportPageRoutingModule,
-    MatIconModule,
-    SharedModule
-  ],
-  declarations: [
-    MyCreateReportPage,
-    ReportSummaryComponent
-  ]
+  imports: [CommonModule, FormsModule, IonicModule, MyCreateReportPageRoutingModule, MatIconModule, SharedModule],
+  declarations: [MyCreateReportPage, ReportSummaryComponent],
 })
 export class MyCreateReportPageModule {}

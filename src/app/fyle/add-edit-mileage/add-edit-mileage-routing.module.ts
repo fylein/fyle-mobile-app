@@ -6,8 +6,8 @@ import { AddEditMileagePage } from './add-edit-mileage.page';
 const routes: Routes = [
   {
     path: '',
-    component: AddEditMileagePage
-  }
+    component: AddEditMileagePage,
+  },
 ];
 
 @NgModule({

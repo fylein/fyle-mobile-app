@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of } from 'rxjs';
+import { BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ActionSheetController, ModalController, PopoverController, ToastController } from '@ionic/angular';
@@ -14,7 +14,8 @@ import {
   shareReplay,
   switchMap,
   take,
-  tap
+  takeUntil,
+  tap,
 } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -48,6 +49,7 @@ import { SelectedFilters } from '../../shared/components/fy-filters/selected-fil
 import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
 import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
+import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 
 type Filters = Partial<{
   state: string[];
@@ -76,13 +78,15 @@ export class MyExpensesPage implements OnInit {
 
   isInfiniteScrollRequired$: Observable<boolean>;
 
-  loadData$: BehaviorSubject<Partial<{
-    pageNumber: number;
-    queryParams: any;
-    sortParam: string;
-    sortDir: string;
-    searchString: string;
-  }>>;
+  loadData$: BehaviorSubject<
+    Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }>
+  >;
 
   currentPageNumber = 1;
 
@@ -148,6 +152,8 @@ export class MyExpensesPage implements OnInit {
 
   allExpensesCount: number;
 
+  onPageExit$ = new Subject();
+
   get HeaderState() {
     return HeaderState;
   }
@@ -174,8 +180,8 @@ export class MyExpensesPage implements OnInit {
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
-    private toastController: ToastController
-  ) { }
+    private snackbarProperties: SnackbarPropertiesService
+  ) {}
 
   clearText() {
     this.simpleSearchText = '';
@@ -189,9 +195,9 @@ export class MyExpensesPage implements OnInit {
   }
 
   formatTransactions(transactions) {
-    return transactions.map(transaction => {
+    return transactions.map((transaction) => {
       const formattedTxn = {};
-      Object.keys(transaction).forEach(key => {
+      Object.keys(transaction).forEach((key) => {
         formattedTxn['tx_' + key] = transaction[key];
       });
       return formattedTxn;
@@ -214,7 +220,7 @@ export class MyExpensesPage implements OnInit {
       // setting Expense amount & count stats to zero on select init
       this.allExpensesStats$ = of({
         count: 0,
-        amount: 0
+        amount: 0,
       });
     }
 
@@ -235,33 +241,33 @@ export class MyExpensesPage implements OnInit {
           await this.storageService.set('isFirstExpenseCreated', true);
         }
       });
-
     }
   }
 
   setAllExpensesCountAndAmount() {
     this.allExpensesStats$ = this.loadData$.pipe(
-      switchMap(params => {
+      switchMap((params) => {
         const queryParams = params.queryParams || {};
-
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
 
-        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          ...queryParams
-        }).pipe(
-          catchError(err => EMPTY),
-          map(stats => {
-            const count = stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
-            const amount = stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
-            return {
-              count: count.function_value,
-              amount: amount.function_value || 0
-            };
+        return this.transactionService
+          .getTransactionStats('count(tx_id),sum(tx_amount)', {
+            scalar: true,
+            ...queryParams,
           })
-        );
+          .pipe(
+            catchError((err) => EMPTY),
+            map((stats) => {
+              const count = stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
+              const amount = stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
+              return {
+                count: count.function_value,
+                amount: amount.function_value || 0,
+              };
+            })
+          );
       })
     );
   }
@@ -270,33 +276,46 @@ export class MyExpensesPage implements OnInit {
     const that = this;
     const mileageEnabled = orgSettings.mileage.enabled;
     const isPerDiemEnabled = orgSettings.per_diem.enabled;
-    that.actionSheetButtons = [{
-      text: 'Capture Receipt',
-      icon: 'assets/svg/fy-camera.svg',
-      cssClass: 'capture-receipt',
-      handler: () => {
-        this.trackingService.myExpensesActionSheetAction({
-          Asset: 'Mobile',
-          Action: 'capture receipts'
-        });
-        that.router.navigate(['/', 'enterprise', 'camera_overlay', {
-          navigate_back: true
-        }]);
-      }
-    }, {
-      text: 'Add Manually',
-      icon: 'assets/svg/fy-expense.svg',
-      cssClass: 'capture-receipt',
-      handler: () => {
-        this.trackingService.myExpensesActionSheetAction({
-          Asset: 'Mobile',
-          Action: 'Add Expense'
-        });
-        that.router.navigate(['/', 'enterprise', 'add_edit_expense', {
-          navigate_back: true
-        }]);
-      }
-    }];
+    that.actionSheetButtons = [
+      {
+        text: 'Capture Receipt',
+        icon: 'assets/svg/fy-camera.svg',
+        cssClass: 'capture-receipt',
+        handler: () => {
+          this.trackingService.myExpensesActionSheetAction({
+            Asset: 'Mobile',
+            Action: 'capture receipts',
+          });
+          that.router.navigate([
+            '/',
+            'enterprise',
+            'camera_overlay',
+            {
+              navigate_back: true,
+            },
+          ]);
+        },
+      },
+      {
+        text: 'Add Manually',
+        icon: 'assets/svg/fy-expense.svg',
+        cssClass: 'capture-receipt',
+        handler: () => {
+          this.trackingService.myExpensesActionSheetAction({
+            Asset: 'Mobile',
+            Action: 'Add Expense',
+          });
+          that.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_expense',
+            {
+              navigate_back: true,
+            },
+          ]);
+        },
+      },
+    ];
 
     if (mileageEnabled) {
       this.actionSheetButtons.push({
@@ -306,12 +325,17 @@ export class MyExpensesPage implements OnInit {
         handler: () => {
           this.trackingService.myExpensesActionSheetAction({
             Asset: 'Mobile',
-            Action: 'Add Mileage'
+            Action: 'Add Mileage',
           });
-          that.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
-            navigate_back: true
-          }]);
-        }
+          that.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_mileage',
+            {
+              navigate_back: true,
+            },
+          ]);
+        },
       });
     }
 
@@ -323,34 +347,47 @@ export class MyExpensesPage implements OnInit {
         handler: () => {
           this.trackingService.myExpensesActionSheetAction({
             Asset: 'Mobile',
-            Action: 'Add Per Diem'
+            Action: 'Add Per Diem',
           });
-          that.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
-            navigate_back: true
-          }]);
-        }
+          that.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_per_diem',
+            {
+              navigate_back: true,
+            },
+          ]);
+        },
       });
     }
   }
 
+  ionViewWillLeave() {
+    this.onPageExit$.next();
+  }
 
   ionViewWillEnter() {
-    this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
-      map(orgUserSettings => orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled)
-    );
+    this.isInstaFyleEnabled$ = this.offlineService
+      .getOrgUserSettings()
+      .pipe(
+        map(
+          (orgUserSettings) =>
+            orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled
+        )
+      );
 
-    this.isBulkFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
-      map(orgUserSettings => orgUserSettings?.bulk_fyle_settings?.enabled)
-    );
+    this.isBulkFyleEnabled$ = this.offlineService
+      .getOrgUserSettings()
+      .pipe(map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled));
 
-    this.isMileageEnabled$ = this.offlineService.getOrgSettings().pipe(
-      map(orgSettings => orgSettings.mileage.enabled)
-    );
-    this.isPerDiemEnabled$ = this.offlineService.getOrgSettings().pipe(
-      map(orgSettings => orgSettings.per_diem.enabled)
-    );
+    this.isMileageEnabled$ = this.offlineService
+      .getOrgSettings()
+      .pipe(map((orgSettings) => orgSettings.mileage.enabled));
+    this.isPerDiemEnabled$ = this.offlineService
+      .getOrgSettings()
+      .pipe(map((orgSettings) => orgSettings.per_diem.enabled));
 
-    this.offlineService.getOrgSettings().subscribe(orgSettings => {
+    this.offlineService.getOrgSettings().subscribe((orgSettings) => {
       this.setupActionSheet(orgSettings);
     });
 
@@ -359,7 +396,7 @@ export class MyExpensesPage implements OnInit {
     this.isLoading = true;
     this.reviewMode = false;
 
-    from(this.tokenService.getClusterDomain()).subscribe(clusterDomain => {
+    from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
     });
 
@@ -371,23 +408,17 @@ export class MyExpensesPage implements OnInit {
 
     this.currentPageNumber = 1;
     this.loadData$ = new BehaviorSubject({
-      pageNumber: 1
+      pageNumber: 1,
     });
 
     this.selectionMode = false;
     this.selectedElements = [];
-    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
 
-    this.syncing = true;
-    from(this.pendingTransactions).pipe(
-      switchMap(() => from(this.transactionOutboxService.sync())),
-      tap(() => this.sendFirstExpenseCreatedEvent()),
-      finalize(() => this.syncing = false)
-    ).subscribe(() => {
-      const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+    this.syncOutboxExpenses();
 
-      if (pendingTransactions.length === 0) {
-        this.doRefresh();
+    this.isConnected$.pipe(takeUntil(this.onPageExit$.asObservable())).subscribe((connected) => {
+      if (connected) {
+        this.syncOutboxExpenses();
       }
     });
 
@@ -403,7 +434,8 @@ export class MyExpensesPage implements OnInit {
         map((event: any) => event.srcElement.value as string),
         distinctUntilChanged(),
         debounceTime(400)
-      ).subscribe((searchString) => {
+      )
+      .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
         currentParams.searchString = searchString;
         this.currentPageNumber = 1;
@@ -418,26 +450,26 @@ export class MyExpensesPage implements OnInit {
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         this.isLoadingDataInInfiniteScroll = true;
         return this.transactionService.getMyExpensesCount(queryParams).pipe(
           switchMap((count) => {
-            if (count > ((params.pageNumber - 1) * 10)) {
+            if (count > (params.pageNumber - 1) * 10) {
               return this.transactionService.getMyExpenses({
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
                 queryParams,
-                order: orderByParams
+                order: orderByParams,
               });
             } else {
               return of({
-                data: []
+                data: [],
               });
             }
           })
         );
       }),
-      map(res => {
+      map((res) => {
         this.isLoadingDataInInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
@@ -445,17 +477,15 @@ export class MyExpensesPage implements OnInit {
         this.acc = this.acc.concat(res.data);
         return this.acc;
       }),
-      tap(()=> {
+      tap(() => {
         this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
 
-    this.myExpenses$ = paginatedPipe.pipe(
-      shareReplay(1)
-    );
+    this.myExpenses$ = paginatedPipe.pipe(shareReplay(1));
 
     this.count$ = this.loadData$.pipe(
-      switchMap(params => {
+      switchMap((params) => {
         let queryParams = params.queryParams || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
@@ -466,52 +496,50 @@ export class MyExpensesPage implements OnInit {
       shareReplay(1)
     );
 
-    this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(
-      map(res => res.count === 0)
-    );
+    this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(map((res) => res.count === 0));
 
     const paginatedScroll$ = this.myExpenses$.pipe(
-      switchMap(etxns => this.count$.pipe(
-        map(count => count > etxns.length)
-      ))
+      switchMap((etxns) => this.count$.pipe(map((count) => count > etxns.length)))
     );
 
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(_ => paginatedScroll$)
-    );
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
 
     this.setAllExpensesCountAndAmount();
 
     this.allExpenseCountHeader$ = this.loadData$.pipe(
-      switchMap(() => this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_state: 'in.(COMPLETE,DRAFT)',
-        tx_report_id: 'is.null'
-      })),
-      map(stats => {
-        const count = stats && stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+      switchMap(() =>
+        this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          tx_state: 'in.(COMPLETE,DRAFT)',
+          tx_report_id: 'is.null',
+        })
+      ),
+      map((stats) => {
+        const count = stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
         return count && count.function_value;
       })
     );
 
     this.draftExpensesCount$ = this.loadData$.pipe(
-      switchMap(() => this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_report_id: 'is.null',
-        tx_state: 'in.(DRAFT)'
-      })),
-      map(stats => {
-        const count = stats && stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
+      switchMap(() =>
+        this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+          scalar: true,
+          tx_report_id: 'is.null',
+          tx_state: 'in.(DRAFT)',
+        })
+      ),
+      map((stats) => {
+        const count = stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
         return count && count.function_value;
       })
     );
 
-    this.loadData$.subscribe(params => {
+    this.loadData$.subscribe((params) => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
         queryParams,
-        replaceUrl: true
+        replaceUrl: true,
       });
     });
 
@@ -529,7 +557,11 @@ export class MyExpensesPage implements OnInit {
       if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
         filters = { tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT' };
       } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
-        filters = { tx_policy_flag: 'eq.true', or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)', state: 'POLICY_VIOLATED' };
+        filters = {
+          tx_policy_flag: 'eq.true',
+          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+          state: 'POLICY_VIOLATED',
+        };
       } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
         filters = { tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT' };
       }
@@ -549,12 +581,16 @@ export class MyExpensesPage implements OnInit {
     const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
 
     this.openReports$ = this.reportService.getAllExtendedReports({ queryParams }).pipe(
-      map((openReports) => openReports.filter(openReport =>
-        // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
-        // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list
-        !openReport.report_approvals ||
-        (openReport.report_approvals && !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
-      ))
+      map((openReports) =>
+        openReports.filter(
+          (openReport) =>
+            // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
+            // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list
+            !openReport.report_approvals ||
+            (openReport.report_approvals &&
+              !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
+        )
+      )
     );
   }
 
@@ -576,22 +612,27 @@ export class MyExpensesPage implements OnInit {
     }, 1000);
   }
 
-  doRefresh(event?) {
-    const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-    if (pendingTransactions.length > 0) {
+  syncOutboxExpenses() {
+    this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+    if (this.pendingTransactions.length > 0) {
       this.syncing = true;
-      from(this.pendingTransactions).pipe(
-        switchMap(() => from(this.transactionOutboxService.sync())),
-        finalize(() => {
-          this.syncing = false;
-          const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-          if (pendingTransactions.length === 0) {
-            this.doRefresh();
-          }
-        })
-      ).subscribe(noop);
+      from(this.pendingTransactions)
+        .pipe(
+          switchMap(() => from(this.transactionOutboxService.sync())),
+          finalize(() => {
+            this.syncing = false;
+            const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+            if (pendingTransactions.length === 0) {
+              this.doRefresh();
+            }
+          })
+        )
+        .subscribe(noop);
     }
+  }
 
+  doRefresh(event?) {
+    this.syncOutboxExpenses();
     this.currentPageNumber = 1;
     this.selectedElements = [];
     if (this.selectionMode) {
@@ -628,7 +669,6 @@ export class MyExpensesPage implements OnInit {
       this.generateTypeFilterPills(filter, filterPills);
     }
 
-
     if (filter.sortParam && filter.sortDir) {
       this.generateSortFilterPills(filter, filterPills);
     }
@@ -649,13 +689,13 @@ export class MyExpensesPage implements OnInit {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
-        value: 'category - a to z'
+        value: 'category - a to z',
       });
     } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
-        value: 'category - z to a'
+        value: 'category - z to a',
       });
     }
   }
@@ -665,13 +705,13 @@ export class MyExpensesPage implements OnInit {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
-        value: 'amount - high to low'
+        value: 'amount - high to low',
       });
     } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
-        value: 'amount - low to high'
+        value: 'amount - low to high',
       });
     }
   }
@@ -681,35 +721,36 @@ export class MyExpensesPage implements OnInit {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
-        value: 'date - old to new'
+        value: 'date - old to new',
       });
     } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
-        value: 'date - new to old'
+        value: 'date - new to old',
       });
     }
   }
 
-  generateTypeFilterPills(filter,
-    filterPills: FilterPill[]) {
-    const combinedValue = filter.type.map(type => {
-      if (type === 'RegularExpenses') {
-        return 'Regular Expenses';
-      } else if (type === 'PerDiem') {
-        return 'Per Diem';
-      } else if (type === 'Mileage') {
-        return 'Mileage';
-      } else {
-        return type;
-      }
-    }).reduce((type1, type2) => `${type1}, ${type2}`);
+  generateTypeFilterPills(filter, filterPills: FilterPill[]) {
+    const combinedValue = filter.type
+      .map((type) => {
+        if (type === 'RegularExpenses') {
+          return 'Regular Expenses';
+        } else if (type === 'PerDiem') {
+          return 'Per Diem';
+        } else if (type === 'Mileage') {
+          return 'Mileage';
+        } else {
+          return type;
+        }
+      })
+      .reduce((type1, type2) => `${type1}, ${type2}`);
 
     filterPills.push({
       label: 'Expense Type',
       type: 'type',
-      value: combinedValue
+      value: combinedValue,
     });
   }
 
@@ -718,7 +759,7 @@ export class MyExpensesPage implements OnInit {
       filterPills.push({
         label: 'Date',
         type: 'date',
-        value: 'this Week'
+        value: 'this Week',
       });
     }
 
@@ -726,7 +767,7 @@ export class MyExpensesPage implements OnInit {
       filterPills.push({
         label: 'Date',
         type: 'date',
-        value: 'this Month'
+        value: 'this Month',
       });
     }
 
@@ -734,7 +775,7 @@ export class MyExpensesPage implements OnInit {
       filterPills.push({
         label: 'Date',
         type: 'date',
-        value: 'All'
+        value: 'All',
       });
     }
 
@@ -742,7 +783,7 @@ export class MyExpensesPage implements OnInit {
       filterPills.push({
         label: 'Date',
         type: 'date',
-        value: 'Last Month'
+        value: 'Last Month',
       });
     }
 
@@ -759,19 +800,19 @@ export class MyExpensesPage implements OnInit {
       filterPills.push({
         label: 'Date',
         type: 'date',
-        value: `${startDate} to ${endDate}`
+        value: `${startDate} to ${endDate}`,
       });
     } else if (startDate) {
       filterPills.push({
         label: 'Date',
         type: 'date',
-        value: `>= ${startDate}`
+        value: `>= ${startDate}`,
       });
     } else if (endDate) {
       filterPills.push({
         label: 'Date',
         type: 'date',
-        value: `<= ${endDate}`
+        value: `<= ${endDate}`,
       });
     }
   }
@@ -780,7 +821,7 @@ export class MyExpensesPage implements OnInit {
     filterPills.push({
       label: 'Receipts Attached',
       type: 'receiptsAttached',
-      value: filter.receiptsAttached.toLowerCase()
+      value: filter.receiptsAttached.toLowerCase(),
     });
   }
 
@@ -788,7 +829,9 @@ export class MyExpensesPage implements OnInit {
     filterPills.push({
       label: 'Type',
       type: 'state',
-      value: filter.state.map(state => state.replace(/_/g, ' ').toLowerCase()).reduce((state1, state2) => `${state1}, ${state2}`)
+      value: filter.state
+        .map((state) => state.replace(/_/g, ' ').toLowerCase())
+        .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
 
@@ -796,7 +839,7 @@ export class MyExpensesPage implements OnInit {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
     const newQueryParams: any = {
-      or: []
+      or: [],
     };
 
     this.generateDateParams(newQueryParams);
@@ -811,10 +854,14 @@ export class MyExpensesPage implements OnInit {
 
     currentParams.queryParams = newQueryParams;
 
-    const onlyDraftStateFilterApplied = this.filters.state && this.filters.state.length === 1 && this.filters.state.includes('DRAFT');
-    const onlyCriticalPolicyFilterApplied = this.filters.state?.length === 1 && this.filters.state.includes('CANNOT_REPORT');
-    const draftAndCriticalPolicyFilterApplied = this.filters.state?.length === 2 &&
-      this.filters.state.includes('DRAFT') && this.filters.state.includes('CANNOT_REPORT');
+    const onlyDraftStateFilterApplied =
+      this.filters.state && this.filters.state.length === 1 && this.filters.state.includes('DRAFT');
+    const onlyCriticalPolicyFilterApplied =
+      this.filters.state?.length === 1 && this.filters.state.includes('CANNOT_REPORT');
+    const draftAndCriticalPolicyFilterApplied =
+      this.filters.state?.length === 2 &&
+      this.filters.state.includes('DRAFT') &&
+      this.filters.state.includes('CANNOT_REPORT');
 
     this.reviewMode = false;
     if (onlyDraftStateFilterApplied || onlyCriticalPolicyFilterApplied || draftAndCriticalPolicyFilterApplied) {
@@ -824,9 +871,15 @@ export class MyExpensesPage implements OnInit {
     return currentParams;
   }
 
-  setSortParams(currentParams: Partial<{
-    pageNumber: number; queryParams: any; sortParam: string; sortDir: string; searchString: string;
-  }>) {
+  setSortParams(
+    currentParams: Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }>
+  ) {
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
       currentParams.sortDir = this.filters.sortDir;
@@ -842,14 +895,14 @@ export class MyExpensesPage implements OnInit {
     if (filter.state) {
       generatedFilters.push({
         name: 'Type',
-        value: filter.state
+        value: filter.state,
       });
     }
 
     if (filter.receiptsAttached) {
       generatedFilters.push({
         name: 'Receipts Attached',
-        value: filter.receiptsAttached
+        value: filter.receiptsAttached,
       });
     }
 
@@ -859,15 +912,15 @@ export class MyExpensesPage implements OnInit {
         value: filter.date,
         associatedData: {
           startDate: filter.customDateStart,
-          endDate: filter.customDateEnd
-        }
+          endDate: filter.customDateEnd,
+        },
       });
     }
 
     if (filter.type) {
       generatedFilters.push({
         name: 'Expense Type',
-        value: filter.type
+        value: filter.type,
       });
     }
 
@@ -878,16 +931,19 @@ export class MyExpensesPage implements OnInit {
     return generatedFilters;
   }
 
-  addSortToGeneatedFilters(filter: Partial<{
-    state: string[];
-    date: string;
-    customDateStart: Date;
-    customDateEnd: Date;
-    receiptsAttached: string;
-    type: string[];
-    sortParam: string;
-    sortDir: string;
-  }>, generatedFilters: SelectedFilters<any>[]) {
+  addSortToGeneatedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      receiptsAttached: string;
+      type: string[];
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
     this.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
 
     this.convertAmountSortToSelectedFilters(filter, generatedFilters);
@@ -911,12 +967,12 @@ export class MyExpensesPage implements OnInit {
     if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
-        value: 'categoryAToZ'
+        value: 'categoryAToZ',
       });
     } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
-        value: 'categoryZToA'
+        value: 'categoryZToA',
       });
     }
   }
@@ -937,12 +993,12 @@ export class MyExpensesPage implements OnInit {
     if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
-        value: 'amountHighToLow'
+        value: 'amountHighToLow',
       });
     } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
-        value: 'amountLowToHigh'
+        value: 'amountLowToHigh',
       });
     }
   }
@@ -963,12 +1019,12 @@ export class MyExpensesPage implements OnInit {
     if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
-        value: 'dateOldToNew'
+        value: 'dateOldToNew',
       });
     } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
-        value: 'dateNewToOld'
+        value: 'dateNewToOld',
       });
     }
   }
@@ -976,31 +1032,31 @@ export class MyExpensesPage implements OnInit {
   convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
     const generatedFilters: Filters = {};
 
-    const typeFilter = selectedFilters.find(filter => filter.name === 'Type');
+    const typeFilter = selectedFilters.find((filter) => filter.name === 'Type');
     if (typeFilter) {
       generatedFilters.state = typeFilter.value;
     }
 
-    const dateFilter = selectedFilters.find(filter => filter.name === 'Date');
+    const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
     if (dateFilter) {
       generatedFilters.date = dateFilter.value;
       generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
 
-    const receiptAttachedFilter = selectedFilters.find(filter => filter.name === 'Receipts Attached');
+    const receiptAttachedFilter = selectedFilters.find((filter) => filter.name === 'Receipts Attached');
 
     if (receiptAttachedFilter) {
       generatedFilters.receiptsAttached = receiptAttachedFilter.value;
     }
 
-    const expenseTypeFilter = selectedFilters.find(filter => filter.name === 'Expense Type');
+    const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense Type');
 
     if (expenseTypeFilter) {
       generatedFilters.type = expenseTypeFilter.value;
     }
 
-    const sortBy = selectedFilters.find(filter => filter.name === 'Sort By');
+    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
@@ -1054,21 +1110,21 @@ export class MyExpensesPage implements OnInit {
             options: [
               {
                 label: 'Ready To Report',
-                value: 'READY_TO_REPORT'
+                value: 'READY_TO_REPORT',
               },
               {
                 label: 'Policy Violated',
-                value: 'POLICY_VIOLATED'
+                value: 'POLICY_VIOLATED',
               },
               {
                 label: 'Cannot Report',
-                value: 'CANNOT_REPORT'
+                value: 'CANNOT_REPORT',
               },
               {
                 label: 'Draft',
-                value: 'DRAFT'
-              }
-            ]
+                value: 'DRAFT',
+              },
+            ],
           } as FilterOptions<string>,
           {
             name: 'Date',
@@ -1076,25 +1132,25 @@ export class MyExpensesPage implements OnInit {
             options: [
               {
                 label: 'All',
-                value: DateFilters.all
+                value: DateFilters.all,
               },
               {
                 label: 'This Week',
-                value: DateFilters.thisWeek
+                value: DateFilters.thisWeek,
               },
               {
                 label: 'This Month',
-                value: DateFilters.thisMonth
+                value: DateFilters.thisMonth,
               },
               {
                 label: 'Last Month',
-                value: DateFilters.lastMonth
+                value: DateFilters.lastMonth,
               },
               {
                 label: 'Custom',
-                value: DateFilters.custom
-              }
-            ]
+                value: DateFilters.custom,
+              },
+            ],
           } as FilterOptions<DateFilters>,
           {
             name: 'Receipts Attached',
@@ -1102,13 +1158,13 @@ export class MyExpensesPage implements OnInit {
             options: [
               {
                 label: 'Yes',
-                value: 'YES'
+                value: 'YES',
               },
               {
                 label: 'No',
-                value: 'NO'
-              }
-            ]
+                value: 'NO',
+              },
+            ],
           } as FilterOptions<string>,
           {
             name: 'Expense Type',
@@ -1116,17 +1172,17 @@ export class MyExpensesPage implements OnInit {
             options: [
               {
                 label: 'Mileage',
-                value: 'Mileage'
+                value: 'Mileage',
               },
               {
                 label: 'Per Diem',
-                value: 'PerDiem'
+                value: 'PerDiem',
               },
               {
                 label: 'Regular Expenses',
-                value: 'RegularExpenses'
-              }
-            ]
+                value: 'RegularExpenses',
+              },
+            ],
           } as FilterOptions<string>,
           {
             name: 'Sort By',
@@ -1134,35 +1190,35 @@ export class MyExpensesPage implements OnInit {
             options: [
               {
                 label: 'Date - New to Old',
-                value: 'dateNewToOld'
+                value: 'dateNewToOld',
               },
               {
                 label: 'Date - Old to New',
-                value: 'dateOldToNew'
+                value: 'dateOldToNew',
               },
               {
                 label: 'Amount - High to Low',
-                value: 'amountHighToLow'
+                value: 'amountHighToLow',
               },
               {
                 label: 'Amount - Low to High',
-                value: 'amountLowToHigh'
+                value: 'amountLowToHigh',
               },
               {
                 label: 'Category - A to Z',
-                value: 'categoryAToZ'
+                value: 'categoryAToZ',
               },
               {
                 label: 'Category - Z to A',
-                value: 'categoryZToA'
-              }
-            ]
-          } as FilterOptions<string>
+                value: 'categoryZToA',
+              },
+            ],
+          } as FilterOptions<string>,
         ],
         selectedFilterValues: this.generateSelectedFilters(this.filters),
-        activeFilterInitialName
+        activeFilterInitialName,
       },
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await filterPopover.present();
@@ -1176,7 +1232,7 @@ export class MyExpensesPage implements OnInit {
       this.filterPills = this.generateFilterPills(this.filters);
       this.trackingService.myExpensesFilterApplied({
         Asset: 'Mobile',
-        ...this.filters
+        ...this.filters,
       });
     }
   }
@@ -1205,32 +1261,34 @@ export class MyExpensesPage implements OnInit {
       isInstaFyleEnabled: this.isInstaFyleEnabled$,
       isMileageEnabled: this.isMileageEnabled$,
       isPerDiemEnabled: this.isPerDiemEnabled$,
-      isBulkFyleEnabled: this.isBulkFyleEnabled$
-    }).pipe(
-      finalize(() => {
-        this.openAddExpenseListLoader = false;
-      })
-    ).subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
-      const addExpensePopover = await this.popoverController.create({
-        component: AddExpensePopoverComponent,
-        componentProps: {
-          isInstaFyleEnabled,
-          isMileageEnabled,
-          isPerDiemEnabled,
-          isBulkFyleEnabled
-        },
-        cssClass: 'dialog-popover'
+      isBulkFyleEnabled: this.isBulkFyleEnabled$,
+    })
+      .pipe(
+        finalize(() => {
+          this.openAddExpenseListLoader = false;
+        })
+      )
+      .subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
+        const addExpensePopover = await this.popoverController.create({
+          component: AddExpensePopoverComponent,
+          componentProps: {
+            isInstaFyleEnabled,
+            isMileageEnabled,
+            isPerDiemEnabled,
+            isBulkFyleEnabled,
+          },
+          cssClass: 'dialog-popover',
+        });
+
+        await addExpensePopover.present();
+
+        const { data } = await addExpensePopover.onDidDismiss();
+
+        if (data && data.reload) {
+          this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
+          this.doRefresh();
+        }
       });
-
-      await addExpensePopover.present();
-
-      const { data } = await addExpensePopover.onDidDismiss();
-
-      if (data && data.reload) {
-        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-        this.doRefresh();
-      }
-    });
   }
 
   async onDeleteExpenseClick(etxn: Expense, index?: number) {
@@ -1238,45 +1296,50 @@ export class MyExpensesPage implements OnInit {
       header: 'Delete Expense',
       message: 'Are you sure you want to delete this expense?',
       primaryCta: {
-        text: 'Delete'
-      }
+        text: 'Delete',
+      },
     });
 
     if (popupResults === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense', 2500)).pipe(
-        switchMap(() => iif(() => !etxn.tx_id,
-          of(this.transactionOutboxService.deleteOfflineExpense(index)),
-          this.transactionService.delete(etxn.tx_id)
-        )),
-        tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile' })),
-        finalize(async () => {
-          await this.loaderService.hideLoader();
-          this.doRefresh();
-        })
-      ).subscribe(noop);
+      from(this.loaderService.showLoader('Deleting Expense', 2500))
+        .pipe(
+          switchMap(() =>
+            iif(
+              () => !etxn.tx_id,
+              of(this.transactionOutboxService.deleteOfflineExpense(index)),
+              this.transactionService.delete(etxn.tx_id)
+            )
+          ),
+          tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile' })),
+          finalize(async () => {
+            await this.loaderService.hideLoader();
+            this.doRefresh();
+          })
+        )
+        .subscribe(noop);
     }
   }
 
   setExpenseStatsOnSelect() {
     this.allExpensesStats$ = of({
       count: this.selectedElements.length,
-      amount: this.selectedElements.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0)
+      amount: this.selectedElements.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0),
     });
   }
 
   selectExpense(expense: Expense) {
     let isSelectedElementsIncludesExpense = false;
     if (expense.tx_id) {
-      isSelectedElementsIncludesExpense = this.selectedElements.some(txn => expense.tx_id === txn.tx_id);
+      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
     } else {
-      isSelectedElementsIncludesExpense = this.selectedElements.some(txn => isEqual(txn, expense));
+      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => isEqual(txn, expense));
     }
 
     if (isSelectedElementsIncludesExpense) {
       if (expense.tx_id) {
-        this.selectedElements = this.selectedElements.filter(txn => txn.tx_id !== expense.tx_id);
+        this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== expense.tx_id);
       } else {
-        this.selectedElements = this.selectedElements.filter(txn => !isEqual(txn, expense));
+        this.selectedElements = this.selectedElements.filter((txn) => !isEqual(txn, expense));
       }
     } else {
       this.selectedElements.push(expense);
@@ -1297,9 +1360,9 @@ export class MyExpensesPage implements OnInit {
       // eslint-disable-next-line max-len
       message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.ROUTER_API_ENDPOINT}">${this.ROUTER_API_ENDPOINT}</a>`,
       primaryCta: {
-        text: 'Close'
+        text: 'Close',
       },
-      showCancelButton: false
+      showCancelButton: false,
     });
   }
 
@@ -1329,7 +1392,7 @@ export class MyExpensesPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
   }
 
-  async openCriticalPolicyViolationPopOver(config: { title: string; message: string; report_type: string }) {
+  async openCriticalPolicyViolationPopOver(config: { title: string; message: string; reportType: string }) {
     const criticalPolicyViolationPopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
@@ -1337,14 +1400,14 @@ export class MyExpensesPage implements OnInit {
         message: config.message,
         primaryCta: {
           text: 'Exclude and Continue',
-          action: 'continue'
+          action: 'continue',
         },
         secondaryCta: {
           text: 'Cancel',
-          action: 'cancel'
-        }
+          action: 'cancel',
+        },
       },
-      cssClass: 'pop-up-in-center'
+      cssClass: 'pop-up-in-center',
     });
 
     await criticalPolicyViolationPopOver.present();
@@ -1353,7 +1416,7 @@ export class MyExpensesPage implements OnInit {
 
     if (data && data.action) {
       if (data.action === 'continue') {
-        if (config.report_type === 'oldReport') {
+        if (config.reportType === 'oldReport') {
           this.showOldReportsMatBottomSheet();
         } else {
           this.showNewReportModal();
@@ -1362,62 +1425,76 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async openCreateReportWithSelectedIds(report_type: 'oldReport' | 'newReport') {
-    if (!this.isReportableExpensesSelected) {
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        data: {
-          message: 'You can not add draft expenses and Critical policy violated expenses to a report',
-          showCloseButton: true
-        },
-        panelClass: ['mat-snack-bar-info']
-      });
-      return;
-    }
+  showNonReportableExpenseSelectedToast(message) {
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+      panelClass: ['msb-failure-with-report-btn'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
 
-    this.trackingService.addToReport({ Asset: 'Mobile' });
-
+  async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport') {
+    this.trackingService.addToReport({ Asset: 'Mobile', count: this.selectedElements.length });
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
-    selectedElements = selectedElements.filter(exp => exp.tx_id);
-
-    const expensesWithCriticalPolicyViolations = selectedElements
-      .filter((expense) => this.transactionService.getIsCriticalPolicyViolated(expense));
+    selectedElements = selectedElements.filter((exp) => exp.tx_id);
+    if (!selectedElements.length) {
+      this.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
+      return;
+    }
+    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
+      this.transactionService.getIsCriticalPolicyViolated(expense)
+    );
     const expensesInDraftState = selectedElements.filter((expense) => this.transactionService.getIsDraft(expense));
-
-    const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce((prev, current) => {
-      const amount = current.tx_amount || current.tx_user_amount;
-      return prev + amount;
-    }, 0);
 
     const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
     const noOfExpensesInDraftState = expensesInDraftState.length;
-    let title = '';
-    let message = '';
 
-    if ((noOfExpensesWithCriticalPolicyViolations > 0) || (noOfExpensesInDraftState > 0)) {
-
-      this.homeCurrency$.subscribe(homeCurrency => {
-        if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
-          // eslint-disable-next-line max-len
-          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-          // eslint-disable-next-line max-len
-          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted. Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
-        } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
-          title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
-          // eslint-disable-next-line max-len
-          message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth ${this.homeCurrencySymbol} ${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
-        } else if (noOfExpensesInDraftState > 0) {
-          title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-          message = `${noOfExpensesInDraftState} expenses are in draft states.`;
-        }
-        this.openCriticalPolicyViolationPopOver({ title, message, report_type });
-      });
-
+    if (noOfExpensesWithCriticalPolicyViolations === selectedElements.length) {
+      this.showNonReportableExpenseSelectedToast('You cannot add critical policy violated expenses to a report');
+    } else if (noOfExpensesInDraftState === selectedElements.length) {
+      this.showNonReportableExpenseSelectedToast('You cannot add draft expenses to a report');
+    } else if (!this.isReportableExpensesSelected) {
+      this.showNonReportableExpenseSelectedToast(
+        'You cannot add draft expenses and critical policy violated expenses to a report'
+      );
     } else {
-      if (report_type === 'oldReport') {
-        this.showOldReportsMatBottomSheet();
+      this.trackingService.addToReport({ Asset: 'Mobile' });
+      const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce(
+        (prev, current) => {
+          const amount = current.tx_amount || current.tx_user_amount;
+          return prev + amount;
+        },
+        0
+      );
+
+      let title = '';
+      let message = '';
+
+      if (noOfExpensesWithCriticalPolicyViolations > 0 || noOfExpensesInDraftState > 0) {
+        this.homeCurrency$.subscribe((homeCurrency) => {
+          if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
+            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
+              ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
+            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
+              ${this.homeCurrencySymbol}${totalAmountofCriticalPolicyViolationExpenses} from being submitted. \
+              Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
+          } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
+            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
+            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
+              ${this.homeCurrencySymbol}${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
+          } else if (noOfExpensesInDraftState > 0) {
+            title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
+            message = `${noOfExpensesInDraftState} expenses are in draft states.`;
+          }
+          this.openCriticalPolicyViolationPopOver({ title, message, reportType });
+        });
       } else {
-        this.showNewReportModal();
+        if (reportType === 'oldReport') {
+          this.showOldReportsMatBottomSheet();
+        } else {
+          this.showNewReportModal();
+        }
       }
     }
   }
@@ -1427,11 +1504,11 @@ export class MyExpensesPage implements OnInit {
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
       componentProps: {
-        selectedExpensesToReport: reportAbleExpenses
+        selectedExpensesToReport: reportAbleExpenses,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      ...this.modalProperties.getModalDefaultProperties(),
     });
     await addExpenseToNewReportModal.present();
 
@@ -1450,34 +1527,38 @@ export class MyExpensesPage implements OnInit {
   openReviewExpenses() {
     const allDataPipe$ = this.loadData$.pipe(
       take(1),
-      switchMap(params => {
+      switchMap((params) => {
         const queryParams = params.queryParams || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
 
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
 
-        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
 
-        return this.transactionService.getAllExpenses({
-          queryParams,
-          order: orderByParams
-        }).pipe(
-          map(expenses => expenses.filter(expense => {
-            if (params.searchString) {
-              return this.filterExpensesBySearchString(expense, params.searchString);
-            } else {
-              return true;
-            }
-          }))
-        );
+        return this.transactionService
+          .getAllExpenses({
+            queryParams,
+            order: orderByParams,
+          })
+          .pipe(
+            map((expenses) =>
+              expenses.filter((expense) => {
+                if (params.searchString) {
+                  return this.filterExpensesBySearchString(expense, params.searchString);
+                } else {
+                  return true;
+                }
+              })
+            )
+          );
       }),
-      map(etxns => etxns.map(etxn => etxn.tx_id))
+      map((etxns) => etxns.map((etxn) => etxn.tx_id))
     );
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
-          const txnIds = this.selectedElements.map(expense => expense.tx_id);
+          const txnIds = this.selectedElements.map((expense) => expense.tx_id);
           return iif(() => this.selectedElements.length === 0, allDataPipe$, of(txnIds));
         }),
         switchMap((selectedIds) => {
@@ -1487,12 +1568,13 @@ export class MyExpensesPage implements OnInit {
           return this.transactionService.getETxn(initial).pipe(
             map((etxn) => ({
               inital: etxn,
-              allIds
+              allIds,
             }))
           );
         }),
         finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(({ inital, allIds }) => {
+      )
+      .subscribe(({ inital, allIds }) => {
         let category;
 
         if (inital.tx.org_category) {
@@ -1500,49 +1582,69 @@ export class MyExpensesPage implements OnInit {
         }
 
         if (category === 'mileage') {
-          this.router.navigate(['/', 'enterprise', 'add_edit_mileage', {
-            id: inital.tx.id,
-            txnIds: JSON.stringify(allIds),
-            activeIndex: 0
-          }]);
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_mileage',
+            {
+              id: inital.tx.id,
+              txnIds: JSON.stringify(allIds),
+              activeIndex: 0,
+            },
+          ]);
         } else if (category === 'per diem') {
-          this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', {
-            id: inital.tx.id,
-            txnIds: JSON.stringify(allIds),
-            activeIndex: 0
-          }]);
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_per_diem',
+            {
+              id: inital.tx.id,
+              txnIds: JSON.stringify(allIds),
+              activeIndex: 0,
+            },
+          ]);
         } else {
-          this.router.navigate(['/', 'enterprise', 'add_edit_expense', {
-            id: inital.tx.id,
-            txnIds: JSON.stringify(allIds),
-            activeIndex: 0
-          }]);
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_expense',
+            {
+              id: inital.tx.id,
+              txnIds: JSON.stringify(allIds),
+              activeIndex: 0,
+            },
+          ]);
         }
       });
   }
 
   filterExpensesBySearchString(expense: any, searchString: string) {
     return Object.values(expense)
-      .map(value => value && value.toString().toLowerCase())
-      .filter(value => !!value)
-      .some(value => value.toLowerCase().includes(searchString.toLowerCase()));
+      .map((value) => value && value.toString().toLowerCase())
+      .filter((value) => !!value)
+      .some((value) => value.toLowerCase().includes(searchString.toLowerCase()));
   }
 
   uploadCameraOveralay() {
-    this.router.navigate(['/', 'enterprise', 'camera_overlay', {
-      from: 'my_expenses'
-    }]);
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'camera_overlay',
+      {
+        from: 'my_expenses',
+      },
+    ]);
   }
 
   async onAddTransactionToReport(event) {
     const addExpenseToReportModal = await this.modalController.create({
       component: AddTxnToReportDialogComponent,
       componentProps: {
-        txId: event.tx_id
+        txId: event.tx_id,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      ...this.modalProperties.getModalDefaultProperties(),
     });
     await addExpenseToReportModal.present();
 
@@ -1553,16 +1655,15 @@ export class MyExpensesPage implements OnInit {
   }
 
   showAddToReportSuccessToast(config: { message: string; report }) {
+    const toastMessageData = {
+      message: config.message,
+      redirectionText: 'View Report',
+    };
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      data: {
-        icon: 'tick-square-filled',
-        message: config.message,
-        redirectionText: 'View report',
-        showCloseButton: true
-      },
-      panelClass: ['mat-snack-bar-success'],
-      duration: 3000,
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
     });
+    this.trackingService.showToastMessage({ ToastContent: config.message });
 
     this.isReportableExpensesSelected = false;
     this.selectionMode = false;
@@ -1570,51 +1671,54 @@ export class MyExpensesPage implements OnInit {
     this.doRefresh();
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: config.report.rp_id || config.report.id, navigateBack: true }]);
+      this.router.navigate([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: config.report.rp_id || config.report.id, navigateBack: true },
+      ]);
     });
-
   }
 
   addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
     return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
-      switchMap(() => this.reportService.addTransactions(report.rp_id, selectedExpensesId).pipe(
-        map(() => report)
-      )),
+      switchMap(() => this.reportService.addTransactions(report.rp_id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
   }
 
   showOldReportsMatBottomSheet() {
     const reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
-    const selectedExpensesId = reportAbleExpenses.map(expenses => expenses.tx_id);
+    const selectedExpensesId = reportAbleExpenses.map((expenses) => expenses.tx_id);
 
-    this.openReports$.pipe(
-      switchMap((openReports) => {
-        const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
-          data: { openReports },
-          panelClass: ['mat-bottom-sheet-1']
-        });
-        return addTxnToReportDialog.afterDismissed();
-      }),
-      switchMap((data) => {
-        if (data && data.report) {
-          return this.addTransactionsToReport(data.report, selectedExpensesId);
-        } else {
-          return of(null);
+    this.openReports$
+      .pipe(
+        switchMap((openReports) => {
+          const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
+            data: { openReports },
+            panelClass: ['mat-bottom-sheet-1'],
+          });
+          return addTxnToReportDialog.afterDismissed();
+        }),
+        switchMap((data) => {
+          if (data && data.report) {
+            return this.addTransactionsToReport(data.report, selectedExpensesId);
+          } else {
+            return of(null);
+          }
+        })
+      )
+      .subscribe((report: ExtendedReport) => {
+        if (report) {
+          let message = '';
+          if (report.rp_state.toLowerCase() === 'draft') {
+            message = 'Expenses added to an existing draft report';
+          } else {
+            message = 'Expenses added to report successfully';
+          }
+          this.showAddToReportSuccessToast({ message, report });
         }
-      }),
-    ).subscribe((report: ExtendedReport) => {
-      if (report) {
-        let message = '';
-        if (report.rp_state.toLowerCase() === 'draft') {
-          message = 'Expenses added to an existing draft report';
-        } else {
-          message = 'Expenses added to report successfully';
-        }
-        this.showAddToReportSuccessToast({ message, report });
-      }
-    });
-
+      });
   }
 
   async openActionSheet() {
@@ -1623,7 +1727,7 @@ export class MyExpensesPage implements OnInit {
       header: 'ADD EXPENSE',
       mode: 'md',
       cssClass: 'fy-action-sheet',
-      buttons: that.actionSheetButtons
+      buttons: that.actionSheetButtons,
     });
     await actionSheet.present();
   }
@@ -1637,20 +1741,20 @@ export class MyExpensesPage implements OnInit {
         header: 'Delete Expense',
         body: `Are you sure you want to delete the ${this.selectedElements.length} expenses?`,
         deleteMethod: () => {
-          offlineExpenses = this.selectedElements.filter(exp => !exp.tx_id);
+          offlineExpenses = this.selectedElements.filter((exp) => !exp.tx_id);
 
           this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
 
-          this.selectedElements = this.selectedElements.filter(exp => exp.tx_id);
+          this.selectedElements = this.selectedElements.filter((exp) => exp.tx_id);
           if (this.selectedElements.length > 0) {
             return this.transactionService.deleteBulk(
-              this.selectedElements.map(selectedExpense => selectedExpense.tx_id)
+              this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
             );
           } else {
             return of(null);
           }
-        }
-      }
+        },
+      },
     });
 
     await deletePopover.present();
@@ -1660,28 +1764,26 @@ export class MyExpensesPage implements OnInit {
     if (data) {
       this.trackingService.myExpensesBulkDeleteExpenses({
         Asset: 'Mobile',
-        count: this.selectedElements.length
+        count: this.selectedElements.length,
       });
       if (data.status === 'success') {
+        const totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
+        const message =
+          totalNoOfSelectedExpenses === 1
+            ? '1 expense has been deleted'
+            : `${totalNoOfSelectedExpenses} expenses have been deleted`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          data: {
-            icon: 'tick-square-filled',
-            message: `${offlineExpenses.length + this.selectedElements.length} Expenses have been deleted`,
-            showCloseButton: true
-          },
-          panelClass: ['mat-snack-bar-success'],
-          duration: 3000,
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
         });
+        this.trackingService.showToastMessage({ ToastContent: message });
       } else {
+        const message = 'We could not delete the expenses. Please try again';
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          data: {
-            icon: 'tick-square-filled',
-            message: 'We could not delete the expenses. Please try again ',
-            showCloseButton: true
-          },
-          panelClass: ['mat-snack-bar-error'],
-          duration: 3000,
+          ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+          panelClass: ['msb-failure-with-camera-icon'],
         });
+        this.trackingService.showToastMessage({ ToastContent: message });
       }
 
       this.isReportableExpensesSelected = false;
@@ -1690,7 +1792,6 @@ export class MyExpensesPage implements OnInit {
 
       this.doRefresh();
     }
-
   }
 
   onSelectAll(checked: boolean) {
@@ -1699,30 +1800,35 @@ export class MyExpensesPage implements OnInit {
       if (this.pendingTransactions.length > 0) {
         this.selectedElements = this.pendingTransactions;
         this.allExpensesCount = this.selectedElements.length;
-        this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+        this.isReportableExpensesSelected =
+          this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
         this.setExpenseStatsOnSelect();
       }
 
-      this.loadData$.pipe(
-        take(1),
-        map(params => {
-          let queryParams = params.queryParams || {};
+      this.loadData$
+        .pipe(
+          take(1),
+          map((params) => {
+            let queryParams = params.queryParams || {};
 
-          queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-          queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
-          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-          return queryParams;
-        }),
-        switchMap(queryParams => this.transactionService.getAllExpenses({ queryParams }))
-      ).subscribe(allExpenses => {
-        this.selectedElements = this.selectedElements.concat(allExpenses);
-        this.allExpensesCount = this.selectedElements.length;
-        this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
-        this.setExpenseStatsOnSelect();
-      });
+            queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
+            queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+            queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+            return queryParams;
+          }),
+          switchMap((queryParams) => this.transactionService.getAllExpenses({ queryParams }))
+        )
+        .subscribe((allExpenses) => {
+          this.selectedElements = this.selectedElements.concat(allExpenses);
+          this.allExpensesCount = this.selectedElements.length;
+          this.isReportableExpensesSelected =
+            this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+          this.setExpenseStatsOnSelect();
+        });
     } else {
       this.selectedElements = [];
-      this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+      this.isReportableExpensesSelected =
+        this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
     }
   }
@@ -1761,23 +1867,26 @@ export class MyExpensesPage implements OnInit {
   onHomeClicked() {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
-      queryParams
+      queryParams,
     });
-
   }
-
 
   onTaskClicked() {
     const queryParams: Params = { state: 'tasks' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
-      queryParams
+      queryParams,
     });
   }
 
   onCameraClicked() {
-    this.router.navigate(['/', 'enterprise', 'camera_overlay', {
-      navigate_back: true
-    }]);
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'camera_overlay',
+      {
+        navigate_back: true,
+      },
+    ]);
   }
 
   generateTypeFilters(newQueryParams) {
@@ -1852,26 +1961,22 @@ export class MyExpensesPage implements OnInit {
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
       if (this.filters.date === DateFilters.thisMonth) {
         const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and =
-          `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`;
+        newQueryParams.and = `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`;
       }
 
       if (this.filters.date === DateFilters.thisWeek) {
         const thisWeek = this.dateService.getThisWeekRange();
-        newQueryParams.and =
-          `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`;
+        newQueryParams.and = `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`;
       }
 
       if (this.filters.date === DateFilters.lastMonth) {
         const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and =
-          `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
+        newQueryParams.and = `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
       }
 
       this.generateCustomDateParams(newQueryParams);
     }
   }
-
 
   generateCustomDateParams(newQueryParams: any) {
     if (this.filters.date === DateFilters.custom) {

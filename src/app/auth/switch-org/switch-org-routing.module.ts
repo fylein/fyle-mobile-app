@@ -1,13 +1,13 @@
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
-import {SwitchOrgPage} from './switch-org.page';
+import { SwitchOrgPage } from './switch-org.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: SwitchOrgPage
-  }
+    component: SwitchOrgPage,
+  },
 ];
 
 @NgModule({

@@ -1,8 +1,8 @@
-import {OrgUser} from './org-user.model';
-import {User} from './user.model';
-import {Approver} from './approver.model';
-import {BankBranch} from './bank-branch.model';
-import {Dwolla} from './dwolla.model';
+import { OrgUser } from './org-user.model';
+import { User } from './user.model';
+import { Approver } from './approver.model';
+import { BankBranch } from './bank-branch.model';
+import { Dwolla } from './dwolla.model';
 
 export interface ExtendedOrgUser {
   ou: OrgUser;

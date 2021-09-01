@@ -6,8 +6,8 @@ import { MyViewMileagePage } from './my-view-mileage.page';
 const routes: Routes = [
   {
     path: '',
-    component: MyViewMileagePage
-  }
+    component: MyViewMileagePage,
+  },
 ];
 
 @NgModule({

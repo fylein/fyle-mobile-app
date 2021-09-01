@@ -6,12 +6,12 @@ import { HelpPage } from './help.page';
 const routes: Routes = [
   {
     path: '',
-    component: HelpPage
+    component: HelpPage,
   },
   {
     path: 'support-dialog',
-    loadChildren: () => import('./support-dialog/support-dialog.module').then( m => m.SupportDialogPageModule)
-  }
+    loadChildren: () => import('./support-dialog/support-dialog.module').then((m) => m.SupportDialogPageModule),
+  },
 ];
 
 @NgModule({

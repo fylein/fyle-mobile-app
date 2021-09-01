@@ -17,11 +17,8 @@ import { MatButtonModule } from '@angular/material/button';
     TeamTripsPageRoutingModule,
     SharedModule,
     MatMenuModule,
-    MatButtonModule
+    MatButtonModule,
   ],
-  declarations: [
-    TeamTripsPage,
-    TeamTripCardComponent
-  ]
+  declarations: [TeamTripsPage, TeamTripCardComponent],
 })
 export class TeamTripsPageModule {}
