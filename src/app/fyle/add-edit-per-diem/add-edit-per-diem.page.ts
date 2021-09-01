@@ -311,12 +311,12 @@ export class AddEditPerDiemPage implements OnInit {
     ).subscribe((res) => {
       this.pointToDuplicates = true;
 
-      this.etxn$.pipe(take(1)).subscribe(etxn => {
+      this.etxn$.pipe(take(1)).subscribe(async etxn => {
         try {
           const duplicateTxnIds = res.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
           const duplicateFields = res.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
 
-          this.trackingService.duplicateDetectionAlertShown({
+          await this.trackingService.duplicateDetectionAlertShown({
             Asset: 'Mobile',
             Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
             ExpenseId: etxn.tx.id,
@@ -2104,13 +2104,19 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  setDuplicateBoxOpen(value) {
+  async setDuplicateBoxOpen(value) {
     this.duplicateBoxOpen = value;
 
     if (value) {
-      this.trackingService.duplicateDetectionUserActionExpand({ Asset: 'Mobile', Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem' });
+      await this.trackingService.duplicateDetectionUserActionExpand({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'
+      });
     } else {
-      this.trackingService.duplicateDetectionUserActionCollapse({ Asset: 'Mobile', Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'});
+      await this.trackingService.duplicateDetectionUserActionCollapse({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'
+      });
     }
   }
 }

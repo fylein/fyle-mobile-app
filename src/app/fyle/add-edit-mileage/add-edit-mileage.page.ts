@@ -370,12 +370,12 @@ export class AddEditMileagePage implements OnInit {
     ).subscribe((res) => {
       this.pointToDuplicates = true;
 
-      this.etxn$.pipe(take(1)).subscribe(etxn => {
+      this.etxn$.pipe(take(1)).subscribe(async etxn => {
         try {
           const duplicateTxnIds = res.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
           const duplicateFields = res.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
 
-          this.trackingService.duplicateDetectionAlertShown({
+          await this.trackingService.duplicateDetectionAlertShown({
             Asset: 'Mobile',
             Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage',
             ExpenseId: etxn.tx.id,
@@ -2262,13 +2262,19 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  setDuplicateBoxOpen(value) {
+  async setDuplicateBoxOpen(value) {
     this.duplicateBoxOpen = value;
 
     if (value) {
-      this.trackingService.duplicateDetectionUserActionExpand({ Asset: 'Mobile', Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mielage' });
+      await this.trackingService.duplicateDetectionUserActionExpand({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mielage'
+      });
     } else {
-      this.trackingService.duplicateDetectionUserActionCollapse({ Asset: 'Mobile', Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage'});
+      await this.trackingService.duplicateDetectionUserActionCollapse({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage'
+      });
     }
   }
 }
