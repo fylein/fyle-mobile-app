@@ -20,7 +20,7 @@
       mode="md"
       [ngClass]="{'add-edit-mileage--title__review': reviewList?.length}"
     >
-      <div *ngIf="mode === 'add'" class="add-edit-mileage--toolbar__add-mode-title">Add Mileage</div>
+      <div *ngIf="mode === 'add'" class="add-edit-mileage--toolbar__title">Add Mileage</div>
       <div *ngIf="mode === 'edit'">
         <ng-container *ngIf="reviewList?.length;else editMode">
           Review Mileage

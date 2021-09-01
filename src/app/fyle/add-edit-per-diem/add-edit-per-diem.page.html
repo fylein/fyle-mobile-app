@@ -23,7 +23,7 @@
       mode="md"
       [ngClass]="{'add-edit-per-diem--title__review': reviewList?.length}"
     >
-      <div *ngIf="mode === 'add'" class="add-edit-per-diem--toolbar__add-mode-title">Add Per Diem</div>
+      <div *ngIf="mode === 'add'" class="add-edit-per-diem--toolbar__title">Add Per Diem</div>
       <div *ngIf="mode === 'edit'">
         <div *ngIf="reviewList?.length; else EditPerDiem">Review Per Diem</div>
         <ng-template #EditPerDiem> Edit Per Diem </ng-template>
