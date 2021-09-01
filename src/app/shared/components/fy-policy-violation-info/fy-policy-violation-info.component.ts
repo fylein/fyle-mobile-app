@@ -12,8 +12,6 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   @Input() criticalPolicyViolated;
 
-  @Input() duplicates;
-
   policyViolations;
 
   showPolicyInfo: boolean;
@@ -25,7 +23,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
   ngOnInit() {
     this.policyViolations = [];
     this.policyViolations = this.estatuses.filter((estatus) => estatus.st_org_user_id === 'POLICY');
-    this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated || this.duplicates?.length > 0;
+    this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated;
   }
 
   async openPolicyViolationDetails() {

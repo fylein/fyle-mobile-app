@@ -284,8 +284,6 @@ export class AddEditExpensePage implements OnInit {
 
   taxGroupsOptions$: Observable<{ label: string; value: any }[]>;
 
-  duplicates: any;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,

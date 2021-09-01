@@ -14,10 +14,6 @@
         <li *ngIf="criticalPolicyViolated" class="policy-violation-info--content">
           This expense has a critical policy violation. It cannot be added to a report until resolved.
         </li>
-        <li *ngIf="duplicates?.length > 0">
-          <span class="policy-violation-info--content">This expense might be a duplicate of an existing expense.</span>
-          <span class="policy-violation-info--view-more">View More</span>
-        </li>
       </ul>
     </div>
   </div>
