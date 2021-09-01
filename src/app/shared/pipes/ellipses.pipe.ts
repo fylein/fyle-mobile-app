@@ -4,15 +4,15 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'ellipsis',
 })
 export class EllipsisPipe implements PipeTransform {
-  transform(val, args) {
-    if (args === undefined || val === undefined || val === null) {
-      return val;
+  transform(textContent: string, length: number) {
+    if (length === undefined || textContent === undefined || textContent === null) {
+      return textContent;
     }
 
-    if (val.length > args) {
-      return val.substring(0, args) + '...';
+    if (textContent.length > length) {
+      return textContent.substring(0, length) + '...';
     } else {
-      return val;
+      return textContent;
     }
   }
 }
