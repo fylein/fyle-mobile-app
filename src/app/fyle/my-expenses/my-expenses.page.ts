@@ -1737,9 +1737,10 @@ export class MyExpensesPage implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: `Are you sure you want to delete the ${this.selectedElements.length} expenses?`,
+        body: `Are you sure you want to delete ${this.selectedElements.length === 1 ? '1 expense?': this.selectedElements.length + ' expenses?'}`,
         deleteMethod: () => {
           offlineExpenses = this.selectedElements.filter((exp) => !exp.tx_id);
 
