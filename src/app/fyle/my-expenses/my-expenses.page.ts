@@ -154,7 +154,7 @@ export class MyExpensesPage implements OnInit {
 
   allExpensesCount: number;
 
-  isKeyboardShown = false;
+  isKeyboardHide=true;
 
   onPageExit$ = new Subject();
 
@@ -372,16 +372,14 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.keyboard.onKeyboardWillShow().subscribe(() => {
-      if(!this.isKeyboardShown) {
-        this.isKeyboardShown = true;
-      }
+    this.keyboard.onKeyboardWillShow().subscribe(()=>{
+      this.isKeyboardHide=false;
+      // console.log('SHOWK');
     });
 
-    this.keyboard.onKeyboardWillHide().subscribe(() => {
-      if(this.isKeyboardShown) {
-        this.isKeyboardShown = false;
-      }
+    this.keyboard.onKeyboardWillHide().subscribe(()=>{
+      this.isKeyboardHide=true;
+      // console.log('HIDEK');
     });
 
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(

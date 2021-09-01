@@ -204,7 +204,7 @@
   </ng-container>
 </ion-content>
 
-<ion-footer *ngIf="!isKeyboardShown">
+<ion-footer *ngIf="isKeyboardHide">
   <app-fy-footer
     *ngIf="!selectionMode"
     (homeClicked)="onHomeClicked()"
