@@ -699,38 +699,36 @@
           </ng-container>
 
           <ng-container *ngIf="txnFields$|async as txnFields">
-            <ng-container *ngIf="txnFields?.vendor_id?.is_mandatory || isExpandedView">
-              <div
-                *ngIf="txnFields?.vendor_id"
-                [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid}"
-                class="add-edit-expense--internal-block"
+            <div
+              *ngIf="txnFields?.vendor_id"
+              [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid}"
+              class="add-edit-expense--internal-block"
+            >
+              <app-fy-select-vendor
+                *ngIf="!txnFields.vendor_id?.options?.length"
+                [disabled]="!txnFields?.vendor_id?.canEdit"
+                [label]="txnFields.vendor_id?.field_name"
+                [mandatory]="txnFields?.vendor_id?.is_mandatory"
+                formControlName="vendor_id"
               >
-                <app-fy-select-vendor
-                  *ngIf="!txnFields.vendor_id?.options?.length"
-                  [disabled]="!txnFields?.vendor_id?.canEdit"
-                  [label]="txnFields.vendor_id?.field_name"
-                  [mandatory]="txnFields?.vendor_id?.is_mandatory"
-                  formControlName="vendor_id"
-                >
-                </app-fy-select-vendor>
-                <app-fy-select
-                  *ngIf="txnFields.vendor_id?.options?.length"
-                  [disabled]="!txnFields.vendor_id?.canEdit"
-                  [label]="txnFields.vendor_id?.field_name"
-                  [mandatory]="txnFields.vendor_id?.is_mandatory"
-                  [options]="txnFields.vendor_id?.options"
-                  [nullOption]="!txnFields.vendor_id?.is_mandatory"
-                  formControlName="vendor_id"
-                >
-                </app-fy-select>
-              </div>
-              <div
-                *ngIf="fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid"
-                class="add-edit-expense--error"
+              </app-fy-select-vendor>
+              <app-fy-select
+                *ngIf="txnFields.vendor_id?.options?.length"
+                [disabled]="!txnFields.vendor_id?.canEdit"
+                [label]="txnFields.vendor_id?.field_name"
+                [mandatory]="txnFields.vendor_id?.is_mandatory"
+                [options]="txnFields.vendor_id?.options"
+                [nullOption]="!txnFields.vendor_id?.is_mandatory"
+                formControlName="vendor_id"
               >
-                Please select a merchant
-              </div>
-            </ng-container>
+              </app-fy-select>
+            </div>
+            <div
+              *ngIf="fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid"
+              class="add-edit-expense--error"
+            >
+              Please select a merchant
+            </div>
           </ng-container>
 
           <ng-container *ngIf="costCenters$|async as costCenters">
