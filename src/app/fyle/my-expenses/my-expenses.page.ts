@@ -156,6 +156,8 @@ export class MyExpensesPage implements OnInit {
 
   isKeyboardHide=true;
 
+  isSearchBarFocused: boolean = false;
+
   onPageExit$ = new Subject();
 
   get HeaderState() {
@@ -193,6 +195,12 @@ export class MyExpensesPage implements OnInit {
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
+  }
+
+  onSearchBarFocus() {
+    console.log("check if search bar is focused -- before", this.isSearchBarFocused);
+    this.isSearchBarFocused = true;
+    console.log("check if search bar is focused -- after", this.isSearchBarFocused);
   }
 
   ngOnInit() {
@@ -372,15 +380,15 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.keyboard.onKeyboardWillShow().subscribe(()=>{
-      this.isKeyboardHide=false;
-      // console.log('SHOWK');
-    });
+    // this.keyboard.onKeyboardWillShow().subscribe(()=>{
+    //   this.isKeyboardHide=false;
+    //   // console.log('SHOWK');
+    // });
 
-    this.keyboard.onKeyboardWillHide().subscribe(()=>{
-      this.isKeyboardHide=true;
-      // console.log('HIDEK');
-    });
+    // this.keyboard.onKeyboardWillHide().subscribe(()=>{
+    //   this.isKeyboardHide=true;
+    //   // console.log('HIDEK');
+    // });
 
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled)
