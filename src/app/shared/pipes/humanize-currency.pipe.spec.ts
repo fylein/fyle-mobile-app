@@ -6,7 +6,7 @@ fdescribe('Humanize Currency Pipe', () => {
   const numberWithKUnit = 1234;
 
   it('should keep small numbers as is', () => {
-    expect(pipe.transform(smallNumber, 'USD',2)).toBe('$123.00');
+    expect(pipe.transform(smallNumber, 'USD', 2)).toBe('$123.00');
   });
 
   it('should add K unit to number', () => {
