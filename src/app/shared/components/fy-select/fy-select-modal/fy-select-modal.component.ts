@@ -1,5 +1,14 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
-import {from, fromEvent, Observable, of} from 'rxjs';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  Input,
+  ChangeDetectorRef,
+  TemplateRef,
+} from '@angular/core';
+import { from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual, includes } from 'lodash';
@@ -51,10 +60,9 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
     private cdr: ChangeDetectorRef,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private utilityService: UtilityService
+  ) {}
 
-  ) { }
-
-  ngOnInit() { }
+  ngOnInit() {}
 
   clearValue() {
     this.value = '';
@@ -69,12 +77,14 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       return of(this.recentlyUsed);
     } else {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) => options
-          .filter(option => option.custom || this.options.map(op => op.label).includes(option.label))
-          .map(option => {
-            option.selected = isEqual(option.value, this.currentSelection);
-            return option;
-          }))
+        map((options: any) =>
+          options
+            .filter((option) => option.custom || this.options.map((op) => op.label).includes(option.label))
+            .map((option) => {
+              option.selected = isEqual(option.value, this.currentSelection);
+              return option;
+            })
+        )
       );
     }
   }
@@ -93,40 +103,42 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
           }
 
           if (this.customInput) {
-            initial.push({ label: searchText, value: searchText, selected: false});
+            initial.push({ label: searchText, value: searchText, selected: false });
           }
           let extraOption = [];
           if (this.currentSelection && this.defaultLabelProp) {
-            const selectedOption = this.options.find(option => isEqual(option.value, this.currentSelection));
+            const selectedOption = this.options.find((option) => isEqual(option.value, this.currentSelection));
             if (!selectedOption) {
               extraOption = extraOption.concat({
                 label: this.currentSelection[this.defaultLabelProp],
                 value: this.currentSelection,
-                selected: false
+                selected: false,
               });
             }
           }
 
-          return initial.concat(this.options
-            .concat(extraOption)
-            .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
-            .sort((element1, element2) => element1.label.localeCompare(element2.label))
-            .map(option => {
-              option.selected = isEqual(option.value, this.currentSelection);
-              return option;
-            })
+          return initial.concat(
+            this.options
+              .concat(extraOption)
+              .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
+              .sort((element1, element2) => element1.label.localeCompare(element2.label))
+              .map((option) => {
+                option.selected = isEqual(option.value, this.currentSelection);
+                return option;
+              })
           );
-        }
-        )
+        })
       );
       this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
         map((event: any) => event.srcElement.value),
         startWith(''),
         distinctUntilChanged(),
-        switchMap((searchText) => this.getRecentlyUsedItems().pipe(
-          // filtering of recently used items wrt searchText is taken care in service method
-          this.utilityService.searchArrayStream(searchText)
-        ))
+        switchMap((searchText) =>
+          this.getRecentlyUsedItems().pipe(
+            // filtering of recently used items wrt searchText is taken care in service method
+            this.utilityService.searchArrayStream(searchText)
+          )
+        )
       );
     } else {
       const initial = [];
@@ -136,8 +148,8 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
       }
 
       this.filteredOptions$ = of(
-        initial.concat(this.options
-          .map(option => {
+        initial.concat(
+          this.options.map((option) => {
             option.selected = isEqual(option.value, this.currentSelection);
             return option;
           })
@@ -154,15 +166,18 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   onElementSelect(option) {
     if (this.cacheName && option.value) {
-      option.custom = !(this.options.some(internalOption => internalOption.value !== option.value));
+      option.custom = !this.options.some((internalOption) => internalOption.value !== option.value);
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
     this.modalController.dismiss(option);
   }
 
   saveToCacheAndUse() {
-    const option: any = { label: this.searchBarRef.nativeElement.value, value: this.searchBarRef.nativeElement.value, selected: false };
+    const option: any = {
+      label: this.searchBarRef.nativeElement.value,
+      value: this.searchBarRef.nativeElement.value,
+      selected: false,
+    };
     this.onElementSelect(option);
   }
-
 }

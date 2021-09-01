@@ -19,11 +19,8 @@ import { MatButtonModule } from '@angular/material/button';
     SharedModule,
     PinchZoomModule,
     PdfViewerModule,
-    MatButtonModule
+    MatButtonModule,
   ],
-  declarations: [
-    ViewTeamExpensePage,
-    RemoveExpenseReportComponent
-  ]
+  declarations: [ViewTeamExpensePage, RemoveExpenseReportComponent],
 })
 export class ViewTeamExpensePageModule {}

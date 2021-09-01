@@ -12,23 +12,22 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
   styleUrls: ['./add-txn-to-report-dialog.component.scss'],
 })
 export class AddTxnToReportDialogComponent implements OnInit {
-
   @Input() openReports;
 
   reportCurrencySymbol: string;
 
   constructor(
     private offlineService: OfflineService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: {openReports: ExtendedReport[]},
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: { openReports: ExtendedReport[] },
     private matBottomsheet: MatBottomSheet
-  ) { }
+  ) {}
 
   closeAddToReportModal() {
     this.matBottomsheet.dismiss();
   }
 
   addTransactionToReport(report: ExtendedReport) {
-    this.matBottomsheet.dismiss({report});
+    this.matBottomsheet.dismiss({ report });
   }
 
   ngOnInit() {
@@ -36,5 +35,4 @@ export class AddTxnToReportDialogComponent implements OnInit {
       this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
   }
-
 }

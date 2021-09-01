@@ -10,15 +10,15 @@
     justify-content: center;
     color: $black;
     &__inactive {
-    color: $black;
-    }
-    
-    &__disabled {
-      opacity: .4;
+      color: $black;
     }
 
     &__disabled {
-      opacity: .2;
+      opacity: 0.4;
+    }
+
+    &__disabled {
+      opacity: 0.2;
     }
   }
 

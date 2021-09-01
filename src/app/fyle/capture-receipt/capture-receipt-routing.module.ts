@@ -6,8 +6,8 @@ import { CaptureReceiptPage } from './capture-receipt.page';
 const routes: Routes = [
   {
     path: '',
-    component: CaptureReceiptPage
-  }
+    component: CaptureReceiptPage,
+  },
 ];
 
 @NgModule({

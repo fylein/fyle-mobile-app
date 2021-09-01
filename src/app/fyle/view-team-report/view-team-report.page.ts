@@ -21,7 +21,6 @@ import { NetworkService } from '../../core/services/network.service';
   styleUrls: ['./view-team-report.page.scss'],
 })
 export class ViewTeamReportPage implements OnInit {
-
   erpt$: Observable<ExtendedReport>;
 
   etxns$: Observable<any[]>;
@@ -66,10 +65,9 @@ export class ViewTeamReportPage implements OnInit {
     private popoverController: PopoverController,
     private popupService: PopupService,
     private networkService: NetworkService
-  ) { }
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -106,15 +104,15 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   getApproverEmails(reportApprovals) {
-    return reportApprovals.map(approver => approver.approver_email);
+    return reportApprovals.map((approver) => approver.approver_email);
   }
 
   getShowViolation(etxn) {
-    return etxn.tx_id &&
-      (etxn.tx_manual_flag ||
-        etxn.tx_policy_flag) &&
-      !((typeof (etxn.tx_policy_amount) === 'number')
-        && etxn.tx_policy_amount < 0.0001);
+    return (
+      etxn.tx_id &&
+      (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
+      !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
+    );
   }
 
   ionViewWillEnter() {
@@ -123,14 +121,16 @@ export class ViewTeamReportPage implements OnInit {
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
 
     this.erpt$ = this.refreshApprovals$.pipe(
-      switchMap(() => from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id))
-      )),
+      switchMap(() =>
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() => this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id))
+        )
+      ),
       shareReplay(1),
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.erpt$.subscribe(res => {
+    this.erpt$.subscribe((res) => {
       /**
        * if current user is remove from approver, erpt call will go again to fetch current report details
        * so checking if report details are available in erpt than continue execution
@@ -144,29 +144,33 @@ export class ViewTeamReportPage implements OnInit {
     });
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
-      map(pdfExports => pdfExports.results
-        .sort((a, b) => (a.created_at < b.created_at) ? 1 : ((b.created_at < a.created_at) ? -1 : 0))
-        .map((pdfExport) => pdfExport.sent_to)
-        .filter((item, index, inputArray) => inputArray.indexOf(item) === index))
+      map((pdfExports) =>
+        pdfExports.results
+          .sort((a, b) => (a.created_at < b.created_at ? 1 : b.created_at < a.created_at ? -1 : 0))
+          .map((pdfExport) => pdfExport.sent_to)
+          .filter((item, index, inputArray) => inputArray.indexOf(item) === index)
+      )
     );
 
     this.reportApprovals$ = this.refreshApprovals$.pipe(
       startWith(true),
       switchMap(() => this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id)),
-      map(reportApprovals => reportApprovals
-        .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
-        .map((approval) => {
-          if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
-            approval.approved_at = approval.updated_at;
-          }
-          return approval;
-        }))
+      map((reportApprovals) =>
+        reportApprovals
+          .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
+          .map((approval) => {
+            if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
+              approval.approved_at = approval.updated_at;
+            }
+            return approval;
+          })
+      )
     );
 
     this.etxns$ = from(this.authService.getEou()).pipe(
-      switchMap(eou => this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id, eou.ou.id)),
-      map(
-        etxns => etxns.map(etxn => {
+      switchMap((eou) => this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id, eou.ou.id)),
+      map((etxns) =>
+        etxns.map((etxn) => {
           etxn.vendor = this.getVendorName(etxn);
           etxn.violation = this.getShowViolation(etxn);
           return etxn;
@@ -175,15 +179,13 @@ export class ViewTeamReportPage implements OnInit {
       shareReplay(1)
     );
 
-    this.etxnAmountSum$ = this.etxns$.pipe(
-      map(etxns => etxns.reduce((acc, curr) => acc + curr.tx_amount, 0))
-    );
+    this.etxnAmountSum$ = this.etxns$.pipe(map((etxns) => etxns.reduce((acc, curr) => acc + curr.tx_amount, 0)));
 
     this.actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
 
-    this.canEdit$ = this.actions$.pipe(map(actions => actions.can_edit));
-    this.canDelete$ = this.actions$.pipe(map(actions => actions.can_delete));
-    this.canResubmitReport$ = this.actions$.pipe(map(actions => actions.can_resubmit));
+    this.canEdit$ = this.actions$.pipe(map((actions) => actions.can_edit));
+    this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
+    this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
     this.etxns$.subscribe(noop);
 
@@ -202,17 +204,19 @@ export class ViewTeamReportPage implements OnInit {
         </p>
       `,
       primaryCta: {
-        text: 'Delete Report'
-      }
+        text: 'Delete Report',
+      },
     });
 
     if (popupResult === 'primary') {
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
-        finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'team_reports']);
-      });
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'team_reports']);
+        });
     }
   }
 
@@ -223,10 +227,10 @@ export class ViewTeamReportPage implements OnInit {
     const popover = await this.popoverController.create({
       componentProps: {
         erpt,
-        etxns
+        etxns,
       },
       component: ApproveReportComponent,
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await popover.present();
@@ -256,8 +260,8 @@ export class ViewTeamReportPage implements OnInit {
         header: 'Cannot Edit Activity',
         message: 'Editing activity is not supported in mobile app.',
         primaryCta: {
-          text: 'Cancel'
-        }
+          text: 'Cancel',
+        },
       });
     }
 
@@ -277,7 +281,7 @@ export class ViewTeamReportPage implements OnInit {
   async shareReport(event) {
     const popover = await this.popoverController.create({
       component: ShareReportComponent,
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await popover.present();
@@ -287,7 +291,7 @@ export class ViewTeamReportPage implements OnInit {
     if (data.email) {
       const params = {
         report_ids: [this.activatedRoute.snapshot.params.id],
-        email: data.email
+        email: data.email,
       };
       this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
         const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
@@ -303,10 +307,10 @@ export class ViewTeamReportPage implements OnInit {
     const popover = await this.popoverController.create({
       componentProps: {
         erpt,
-        etxns
+        etxns,
       },
       component: SendBackComponent,
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await popover.present();

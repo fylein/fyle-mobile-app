@@ -6,8 +6,8 @@ import { MyEditReportPage } from './my-edit-report.page';
 const routes: Routes = [
   {
     path: '',
-    component: MyEditReportPage
-  }
+    component: MyEditReportPage,
+  },
 ];
 
 @NgModule({

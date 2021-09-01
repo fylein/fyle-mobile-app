@@ -1,13 +1,13 @@
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
-import {AppVersionPage} from './app-version.page';
+import { AppVersionPage } from './app-version.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: AppVersionPage
-  }
+    component: AppVersionPage,
+  },
 ];
 
 @NgModule({
