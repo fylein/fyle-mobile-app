@@ -144,6 +144,8 @@ export class MyExpensesPage implements OnInit {
 
   isReportableExpensesSelected = false;
 
+  isSearchBarFocused = false;
+
   openReports$: Observable<ExtendedReport[]>;
 
   homeCurrencySymbol: string;
@@ -188,6 +190,11 @@ export class MyExpensesPage implements OnInit {
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
+    this.isSearchBarFocused = !!this.isSearchBarFocused;
+  }
+
+  onSearchBarFocus() {
+    this.isSearchBarFocused = true;
   }
 
   ngOnInit() {
@@ -1835,6 +1842,7 @@ export class MyExpensesPage implements OnInit {
 
   onSimpleSearchCancel() {
     this.headerState = HeaderState.base;
+    this.isSearchBarFocused = !this.isSearchBarFocused;
     this.clearText();
   }
 
