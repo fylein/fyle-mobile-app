@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild, DoCheck } from '@angular/core';
 import { BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -68,7 +68,7 @@ type Filters = Partial<{
   styleUrls: ['./my-expenses.page.scss'],
   providers: [Keyboard]
 })
-export class MyExpensesPage implements OnInit {
+export class MyExpensesPage implements OnInit, DoCheck {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
 
   isConnected$: Observable<boolean>;
@@ -153,6 +153,8 @@ export class MyExpensesPage implements OnInit {
 
   isKeyboardShown = false;
 
+  deviceHeight = window.innerHeight;
+
   get HeaderState() {
     return HeaderState;
   }
@@ -193,6 +195,14 @@ export class MyExpensesPage implements OnInit {
 
   ngOnInit() {
     this.setupNetworkWatcher();
+  }
+
+  ngDoCheck() {
+    if( window.innerHeight < this.deviceHeight ) {
+      this.isKeyboardShown = true;
+    } else {
+      this.isKeyboardShown = false;
+    }
   }
 
   formatTransactions(transactions) {
@@ -342,17 +352,17 @@ export class MyExpensesPage implements OnInit {
 
 
   ionViewWillEnter() {
-    this.keyboard.onKeyboardWillShow().subscribe(() => {
-      if(!this.isKeyboardShown) {
-        this.isKeyboardShown = true;
-      }
-    });
+    // this.keyboard.onKeyboardWillShow().subscribe(() => {
+    //   if(!this.isKeyboardShown) {
+    //     this.isKeyboardShown = true;
+    //   }
+    // });
 
-    this.keyboard.onKeyboardWillHide().subscribe(() => {
-      if(this.isKeyboardShown) {
-        this.isKeyboardShown = false;
-      }
-    });
+    // this.keyboard.onKeyboardWillHide().subscribe(() => {
+    //   if(this.isKeyboardShown) {
+    //     this.isKeyboardShown = false;
+    //   }
+    // });
 
     this.isInstaFyleEnabled$ = this.offlineService.getOrgUserSettings().pipe(
       map(orgUserSettings => orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled)
