@@ -17,7 +17,7 @@ export class MyViewAdvancePage implements OnInit {
     private advanceService: AdvanceService,
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService
-  ) { }
+  ) {}
 
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
@@ -29,8 +29,5 @@ export class MyViewAdvancePage implements OnInit {
     );
   }
 
-  ngOnInit() {
-
-  }
-
+  ngOnInit() {}
 }

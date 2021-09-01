@@ -8,29 +8,27 @@ import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ExpenseFieldsService {
-
-  constructor(
-    private apiService: ApiService,
-    private authService: AuthService
-  ) { }
+  constructor(private apiService: ApiService, private authService: AuthService) {}
 
   getAllEnabled(): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => this.apiService.get('/expense_fields', {
-        params: {
-          org_id: eou.ou.org_id,
-          is_enabled: true,
-          is_custom: false
-        }
-      }))
+      switchMap((eou) =>
+        this.apiService.get('/expense_fields', {
+          params: {
+            org_id: eou.ou.org_id,
+            is_enabled: true,
+            is_custom: false,
+          },
+        })
+      )
     );
   }
 
   formatBillableFields(expenseFields: ExpenseField[]) {
-    return expenseFields.map(field => {
+    return expenseFields.map((field) => {
       if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
         field.default_value = field.default_value === 'true';
       }
@@ -52,25 +50,23 @@ export class ExpenseFieldsService {
    */
   getAllMap(): Observable<Partial<ExpenseFieldsMap>> {
     return this.getAllEnabled().pipe(
-      map(
-        expenseFields => {
-          const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
+      map((expenseFields) => {
+        const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
 
-          expenseFields = this.formatBillableFields(expenseFields);
+        expenseFields = this.formatBillableFields(expenseFields);
 
-          expenseFields.forEach(expenseField => {
-            let expenseFieldsList = [];
+        expenseFields.forEach((expenseField) => {
+          let expenseFieldsList = [];
 
-            if (expenseFieldMap[expenseField.column_name]) {
-              expenseFieldsList = expenseFieldMap[expenseField.column_name];
-            }
+          if (expenseFieldMap[expenseField.column_name]) {
+            expenseFieldsList = expenseFieldMap[expenseField.column_name];
+          }
 
-            expenseFieldsList.push(expenseField);
-            expenseFieldMap[expenseField.column_name] = expenseFieldsList;
-          });
-          return expenseFieldMap;
-        }
-      )
+          expenseFieldsList.push(expenseField);
+          expenseFieldMap[expenseField.column_name] = expenseFieldsList;
+        });
+        return expenseFieldMap;
+      })
     );
   }
 
@@ -79,60 +75,58 @@ export class ExpenseFieldsService {
   }
 
   findCommonRoles(roles): Observable<string[]> {
-    return this.getUserRoles().pipe(
-      map(userRoles => roles.filter(role => userRoles.indexOf(role) > -1))
-    );
+    return this.getUserRoles().pipe(map((userRoles) => roles.filter((role) => userRoles.indexOf(role) > -1)));
   }
 
   canEdit(roles): Observable<boolean> {
-    return this.findCommonRoles(roles).pipe(
-      map(commonRoles => (commonRoles.length > 0))
-    );
+    return this.findCommonRoles(roles).pipe(map((commonRoles) => commonRoles.length > 0));
   }
 
   filterByOrgCategoryId(tfcMap: any, fields: string[], orgCategory: any): Observable<Partial<ExpenseFieldsMap>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
-      map(fields => fields.map(field => {
-        const configurations = tfcMap[field];
-        let filteredField;
+      map((fields) =>
+        fields
+          .map((field) => {
+            const configurations = tfcMap[field];
+            let filteredField;
 
-        const fieldsIndependentOfCategory = ['project_id', 'billable'];
-        const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'];
-        if (configurations && configurations.length > 0) {
-          configurations.some((configuration) => {
-            if (orgCategoryId && fieldsIndependentOfCategory.indexOf(field) < 0) {
-              if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
-                filteredField = configuration;
+            const fieldsIndependentOfCategory = ['project_id', 'billable', 'tax_group_id'];
+            const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'];
+            if (configurations && configurations.length > 0) {
+              configurations.some((configuration) => {
+                if (orgCategoryId && fieldsIndependentOfCategory.indexOf(field) < 0) {
+                  if (configuration.org_category_ids && configuration.org_category_ids.indexOf(orgCategoryId) > -1) {
+                    filteredField = configuration;
 
-                return true;
-              }
-            } else if (defaultFields.indexOf(field) > -1 || fieldsIndependentOfCategory.indexOf(field) > -1) {
-              filteredField = configuration;
+                    return true;
+                  }
+                } else if (defaultFields.indexOf(field) > -1 || fieldsIndependentOfCategory.indexOf(field) > -1) {
+                  filteredField = configuration;
 
-              return true;
+                  return true;
+                }
+              });
             }
-          });
-        }
 
-        if (filteredField) {
-          filteredField.field = field;
-        }
-        return filteredField;
-      })
-        .filter(filteredField => !!filteredField)
-      ),
-      switchMap(fields => from(fields)),
-      concatMap(field => forkJoin({
-        canEdit: this.canEdit(field.roles_editable)
-      }).pipe(
-        map(
-          (res) => ({
-            ...field,
-            ...res
+            if (filteredField) {
+              filteredField.field = field;
+            }
+            return filteredField;
           })
+          .filter((filteredField) => !!filteredField)
+      ),
+      switchMap((fields) => from(fields)),
+      concatMap((field) =>
+        forkJoin({
+          canEdit: this.canEdit(field.roles_editable),
+        }).pipe(
+          map((res) => ({
+            ...field,
+            ...res,
+          }))
         )
-      )),
+      ),
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;

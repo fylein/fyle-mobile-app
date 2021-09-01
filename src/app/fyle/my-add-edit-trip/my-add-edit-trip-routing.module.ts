@@ -6,8 +6,8 @@ import { MyAddEditTripPage } from './my-add-edit-trip.page';
 const routes: Routes = [
   {
     path: '',
-    component: MyAddEditTripPage
-  }
+    component: MyAddEditTripPage,
+  },
 ];
 
 @NgModule({

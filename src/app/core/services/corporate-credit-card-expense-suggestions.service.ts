@@ -1,22 +1,19 @@
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import {ApiService} from './api.service';
+import { ApiService } from './api.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CorporateCreditCardExpenseSuggestionsService {
-
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) {}
 
   getSuggestions(queryParams) {
     const data: any = {
       params: {
         amount: queryParams.amount,
         txn_dt: moment(queryParams.txn_dt).format('yyyy-MM-DD'),
-      }
+      },
     };
 
     if (queryParams.orgUserId) {

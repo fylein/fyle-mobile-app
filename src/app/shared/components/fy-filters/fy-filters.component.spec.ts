@@ -9,8 +9,8 @@ describe('FyFiltersComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FyFiltersComponent ],
-      imports: [IonicModule.forRoot()]
+      declarations: [FyFiltersComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyFiltersComponent);

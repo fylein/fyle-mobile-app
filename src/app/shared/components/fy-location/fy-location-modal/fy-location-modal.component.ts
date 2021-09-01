@@ -1,6 +1,15 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef, Input } from '@angular/core';
 import { AgmGeocoder } from '@agm/core';
-import { map, startWith, distinctUntilChanged, switchMap, debounceTime, tap, finalize, catchError } from 'rxjs/operators';
+import {
+  map,
+  startWith,
+  distinctUntilChanged,
+  switchMap,
+  debounceTime,
+  tap,
+  finalize,
+  catchError,
+} from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { Observable, fromEvent, of, from, forkJoin, noop, throwError } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
@@ -17,7 +26,6 @@ const { Permissions, Geolocation } = Plugins;
   styleUrls: ['./fy-location-modal.component.scss'],
 })
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
-
   @Input() currentSelection: any;
 
   @Input() header = '';
@@ -47,23 +55,24 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     private locationService: LocationService,
     private authService: AuthService,
     private loaderService: LoaderService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-  ) { }
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+  ) {}
 
   ngOnInit() {
     this.checkPermissionStatus();
   }
 
-
   getRecentlyUsedItems() {
     // Check if recently items exists from api and set, else, set the recent items from the localStorage
     if (this.recentLocations) {
-      return of(this.recentLocations.map(recentLocation => ({ display: recentLocation })));
+      return of(this.recentLocations.map((recentLocation) => ({ display: recentLocation })));
     } else if (this.cacheName) {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: string[]) => options.map(option => ({
-          display: option
-        })))
+        map((options: string[]) =>
+          options.map((option) => ({
+            display: option,
+          }))
+        )
       );
     } else {
       return of([]);
@@ -72,7 +81,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   async checkPermissionStatus() {
     const permissionResult = await Permissions.query({
-      name: PermissionType.Geolocation
+      name: PermissionType.Geolocation,
     });
 
     this.currentGeolocationPermissionGranted = permissionResult.state === 'granted';
@@ -107,16 +116,20 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => this.getRecentlyUsedItems().pipe(
-        // filtering of recently used items wrt searchText is taken care in service method
-        map((recentrecentlyUsedItems: { display: string }[]) => {
-          if (searchText && searchText.length > 0) {
-            const searchTextLowerCase = searchText.toLowerCase();
-            return recentrecentlyUsedItems.filter(item => item.display?.toLocaleLowerCase().includes(searchTextLowerCase));
-          }
-          return recentrecentlyUsedItems;
-        })
-      ))
+      switchMap((searchText) =>
+        this.getRecentlyUsedItems().pipe(
+          // filtering of recently used items wrt searchText is taken care in service method
+          map((recentrecentlyUsedItems: { display: string }[]) => {
+            if (searchText && searchText.length > 0) {
+              const searchTextLowerCase = searchText.toLowerCase();
+              return recentrecentlyUsedItems.filter((item) =>
+                item.display?.toLocaleLowerCase().includes(searchTextLowerCase)
+              );
+            }
+            return recentrecentlyUsedItems;
+          })
+        )
+      )
     );
 
     that.filteredList$ = fromEvent(that.searchBarRef.nativeElement, 'keyup').pipe(
@@ -128,7 +141,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
           that.loader = true;
           return forkJoin({
             eou: that.authService.getEou(),
-            currentLocation: that.locationService.getCurrentLocation({ enableHighAccuracy: false })
+            currentLocation: that.locationService.getCurrentLocation({ enableHighAccuracy: false }),
           }).pipe(
             tap(() => this.checkPermissionStatus()),
             switchMap(({ eou, currentLocation }) => {
@@ -155,7 +168,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         } else {
           return of(null);
         }
-      }),
+      })
     );
 
     that.filteredList$.subscribe(noop);
@@ -165,7 +178,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   onDoneClick() {
     let value;
-    if (this.currentSelection && (this.value === this.currentSelection)) {
+    if (this.currentSelection && this.value === this.currentSelection) {
       value = this.currentSelection;
     } else if (this.value && this.value !== '') {
       value = { display: this.value };
@@ -178,7 +191,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     }
 
     this.modalController.dismiss({
-      selection: value
+      selection: value,
     });
   }
 
@@ -189,10 +202,12 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   onRecentItemSelect(location: string) {
     from(this.loaderService.showLoader('Loading location...', 5000))
       .pipe(
-        switchMap(() => forkJoin({
-          eou: this.authService.getEou(),
-          currentLocation: this.locationService.getCurrentLocation({ enableHighAccuracy: false })
-        })),
+        switchMap(() =>
+          forkJoin({
+            eou: this.authService.getEou(),
+            currentLocation: this.locationService.getCurrentLocation({ enableHighAccuracy: false }),
+          })
+        ),
         switchMap(({ eou, currentLocation }) => {
           if (currentLocation) {
             return this.locationService.getAutocompletePredictions(
@@ -204,44 +219,47 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
             return this.locationService.getAutocompletePredictions(location, eou.us.id);
           }
         }),
-        switchMap(predictedLocations => {
+        switchMap((predictedLocations) => {
           if (predictedLocations && predictedLocations.length > 0) {
-            return this.locationService.getGeocode(predictedLocations[0].place_id, predictedLocations[0].description).pipe(
-              map((location) => {
-                if (location) {
-                  return location;
-                } else {
-                  return of({ display: location });
-                }
-              })
-            );
+            return this.locationService
+              .getGeocode(predictedLocations[0].place_id, predictedLocations[0].description)
+              .pipe(
+                map((location) => {
+                  if (location) {
+                    return location;
+                  } else {
+                    return of({ display: location });
+                  }
+                })
+              );
           } else {
             return of({ display: location });
           }
         }),
         catchError(() => of({ display: location })),
         finalize(() => from(this.loaderService.hideLoader()))
-      ).subscribe(location => {
+      )
+      .subscribe((location) => {
         this.modalController.dismiss({
-          selection: location
+          selection: location,
         });
       });
   }
 
   onElementSelect(location) {
-    this.locationService.getGeocode(location.place_id, location.description).subscribe(selection => {
+    this.locationService.getGeocode(location.place_id, location.description).subscribe((selection) => {
       if (this.cacheName) {
         this.recentLocalStorageItemsService.post(this.cacheName, selection);
       }
       this.modalController.dismiss({
-        selection
+        selection,
       });
     });
   }
 
   deleteLocation() {
     this.modalController.dismiss({
-      selection: null
+      selection: null,
     });
   }
 
@@ -253,7 +271,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
     const formattedLocation: any = {
       display: currentLocation.formatted_address, // geocodeResponse doesn't return display
-      formatted_address: currentLocation.formatted_address
+      formatted_address: currentLocation.formatted_address,
     };
 
     if (currentLocation.geometry && currentLocation.geometry.location) {
@@ -278,25 +296,28 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentLocation() {
-    from(this.loaderService.showLoader('Loading current location...', 5000)).pipe(
-      switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
-      switchMap((coordinates) => this.agmGeocode.geocode({
-        location: {
-          lat: coordinates.coords.latitude,
-          lng: coordinates.coords.longitude
-        }
-      })),
-      map(this.formatGeocodeResponse),
-      catchError((err) => {
-        this.lookupFailed = true;
-        return throwError(err);
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe((selection) => {
-      this.modalController.dismiss({
-        selection
+    from(this.loaderService.showLoader('Loading current location...', 5000))
+      .pipe(
+        switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
+        switchMap((coordinates) =>
+          this.agmGeocode.geocode({
+            location: {
+              lat: coordinates.coords.latitude,
+              lng: coordinates.coords.longitude,
+            },
+          })
+        ),
+        map(this.formatGeocodeResponse),
+        catchError((err) => {
+          this.lookupFailed = true;
+          return throwError(err);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe((selection) => {
+        this.modalController.dismiss({
+          selection,
+        });
       });
-    });
   }
-
 }

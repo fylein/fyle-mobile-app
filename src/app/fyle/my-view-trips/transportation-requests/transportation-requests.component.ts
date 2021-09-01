@@ -7,17 +7,13 @@ import { ModalController } from '@ionic/angular';
   styleUrls: ['./transportation-requests.component.scss'],
 })
 export class TransportationRequestsComponent implements OnInit {
-
   @Input() transportationRequests: any[];
 
-  constructor(
-    private modalController: ModalController
-  ) { }
+  constructor(private modalController: ModalController) {}
 
   closeModal() {
     this.modalController.dismiss();
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 }

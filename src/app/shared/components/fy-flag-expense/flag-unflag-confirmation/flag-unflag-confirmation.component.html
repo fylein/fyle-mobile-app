@@ -1,11 +1,9 @@
 <ion-header mode="md">
   <ion-toolbar mode="md">
     <ion-buttons mode="md" slot="end">
-      <ion-button class="confirmation--cancel" mode="md" (click)="closeConfirmationPopup()">
-        Cancel
-      </ion-button>
+      <ion-button class="confirmation--cancel" mode="md" (click)="closeConfirmationPopup()"> Cancel </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="confirmation--title">{{title}}</ion-title>
+    <ion-title mode="md" class="confirmation--title">{{ title }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -19,9 +17,14 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-button class="confirmation--save" [disabled]="!(message.trim().length > 0)" color="fyle-primary" expand="full"
-      (click)="flagUnflag()">
-      {{title}}
+    <ion-button
+      class="confirmation--save"
+      [disabled]="!(message.trim().length > 0)"
+      color="fyle-primary"
+      expand="full"
+      (click)="flagUnflag()"
+    >
+      {{ title }}
     </ion-button>
   </ion-toolbar>
 </ion-footer>

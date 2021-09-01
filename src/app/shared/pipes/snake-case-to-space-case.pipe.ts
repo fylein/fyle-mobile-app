@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'snakeCaseToSpaceCase'
+  name: 'snakeCaseToSpaceCase',
 })
 export class SnakeCaseToSpaceCase implements PipeTransform {
   transform(input) {

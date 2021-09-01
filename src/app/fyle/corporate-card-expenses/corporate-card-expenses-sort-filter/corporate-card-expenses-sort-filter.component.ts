@@ -1,6 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ModalController, PopoverController} from '@ionic/angular';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ModalController, PopoverController } from '@ionic/angular';
 
 @Component({
   selector: 'app-corporate-card-expenses-sort-filter',
@@ -18,32 +18,25 @@ export class CorporateCardExpensesSortFilterComponent implements OnInit {
 
   fg: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private popoverController: PopoverController
-  ) { }
+  constructor(private fb: FormBuilder, private popoverController: PopoverController) {}
 
   ngOnInit() {
     this.fg = this.fb.group({
-      sortParam: [
-        this.filters && this.filters.sortParam || 'txn_dt', Validators.required
-      ],
-      sortDir: [
-        this.filters && this.filters.sortDir || 'desc', Validators.required
-      ]
+      sortParam: [(this.filters && this.filters.sortParam) || 'txn_dt', Validators.required],
+      sortDir: [(this.filters && this.filters.sortDir) || 'desc', Validators.required],
     });
   }
 
   reset() {
     this.fg.setValue({
       sortParam: 'txn_dt',
-      sortDir: 'desc'
+      sortDir: 'desc',
     });
   }
 
   save() {
     this.popoverController.dismiss({
-      sortOptions: this.fg.value
+      sortOptions: this.fg.value,
     });
   }
 

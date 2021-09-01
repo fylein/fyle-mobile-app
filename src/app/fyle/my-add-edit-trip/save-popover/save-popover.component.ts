@@ -7,24 +7,19 @@ import { PopoverController } from '@ionic/angular';
   styleUrls: ['./save-popover.component.scss'],
 })
 export class SavePopoverComponent implements OnInit {
-
   @Input() saveMode;
 
   @Input() otherRequests;
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
-
+  constructor(private popoverController: PopoverController) {}
 
   close() {
     this.popoverController.dismiss();
   }
 
   saveAsDraft() {
-    this.popoverController.dismiss({continue: true});
+    this.popoverController.dismiss({ continue: true });
   }
 
   ngOnInit() {}
-
 }

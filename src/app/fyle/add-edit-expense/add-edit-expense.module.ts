@@ -22,7 +22,7 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -42,7 +42,7 @@ import {MatButtonModule} from '@angular/material/button';
     SharedModule,
     PinchZoomModule,
     PdfViewerModule,
-    MatButtonModule
+    MatButtonModule,
   ],
   declarations: [
     AddEditExpensePage,
@@ -51,7 +51,7 @@ import {MatButtonModule} from '@angular/material/button';
     FyCurrencyExchangeRateComponent,
     PolicyViolationComponent,
     CameraOptionsPopupComponent,
-    MatchTransactionComponent
-  ]
+    MatchTransactionComponent,
+  ],
 })
-export class AddEditExpensePageModule { }
+export class AddEditExpensePageModule {}
