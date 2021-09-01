@@ -127,17 +127,17 @@ export class SignInPage implements OnInit {
         })
       );
 
-      const saml$ = checkEmailExists$.pipe(filter((res) => (res.saml ? true : false)));
+      // const saml$ = checkEmailExists$.pipe(filter((res) => (res.saml ? true : false)));
 
-      const basicSignIn$ = checkEmailExists$.pipe(filter((res) => (!res.saml ? true : false)));
+      const basicSignIn$ = checkEmailExists$.pipe(filter((res) => true));
 
       basicSignIn$.subscribe(() => {
         this.emailSet = true;
       });
 
-      saml$.subscribe((res) => {
-        this.handleSamlSignIn(res);
-      });
+      // saml$.subscribe((res) => {
+      //   this.handleSamlSignIn(res);
+      // });
     } else {
       this.fg.controls.email.markAsTouched();
     }
