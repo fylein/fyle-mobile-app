@@ -239,7 +239,7 @@ export class TransactionsOutboxService {
   }
 
   getPendingTransactions() {
-    return this.queue.map((entry) => entry.transaction);
+    return this.queue.map((entry) => ({...entry.transaction, dataUrls: entry.dataUrls}));
   }
 
   getPendingDataExtractions() {

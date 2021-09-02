@@ -184,7 +184,7 @@ export class ExpensesCardComponent implements OnInit {
 
     this.getReceipt();
 
-    this.isScanInProgress = this.getScanningReceiptCard(this.expense) || this.isOutboxExpense;
+    this.isScanInProgress = this.getScanningReceiptCard(this.expense);
 
     this.setOtherData();
   }

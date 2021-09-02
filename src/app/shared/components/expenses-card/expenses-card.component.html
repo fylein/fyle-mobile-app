@@ -41,15 +41,15 @@
 
       <ng-template #outboxExpenseDisplay>
         <ng-container *ngIf="isSycing$|async; else defaultState">
-          <div class="expenses-card--receipt-container">
+          <div class="expenses-card--receipt-container expenses-card--with-image" [ngStyle]="{'background-image': expense.tx_dataUrls.length > 0 && 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'}">
             <div class="expenses-card--spinner-placeholder">
               <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
             </div>
           </div>
         </ng-container>
         <ng-template #defaultState>
-          <div class="expenses-card--receipt-container">
-            <ion-icon class="expenses-card--receipt-icon" [src]="'../../../../assets/svg/fy-expense.svg'"></ion-icon>
+          <div class="expenses-card--receipt-container expenses-card--with-image" [ngStyle]="{'background-image': expense.tx_dataUrls.length > 0 && 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'}">
+            <ion-icon class="expenses-card--receipt-icon" *ngIf="!expense.tx_dataUrls?.length" [src]="'../../../../assets/svg/fy-expense.svg'"></ion-icon>
           </div>
         </ng-template>
       </ng-template>
