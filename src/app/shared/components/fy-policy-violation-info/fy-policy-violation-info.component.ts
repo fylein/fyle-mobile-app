@@ -8,7 +8,7 @@ import { PolicyViolationDetailsComponent } from '../policy-violation-details/pol
   styleUrls: ['./fy-policy-violation-info.component.scss'],
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
-  @Input() estatuses;
+  @Input() policyDetails;
 
   @Input() criticalPolicyViolated;
 
@@ -22,7 +22,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   ngOnInit() {
     this.policyViolations = [];
-    this.policyViolations = this.estatuses.filter((estatus) => estatus.st_org_user_id === 'POLICY');
+    this.policyViolations = this.policyDetails && this.policyDetails.map(details => details.transaction_policy_rule.description);
     this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated;
   }
 

@@ -71,8 +71,8 @@
         </div>
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="mode === 'edit' && etxn.tx.policy_flag">
-            <ng-container *ngIf="comments$|async as comments">
-              <app-fy-policy-violation-info [estatuses]="comments" [criticalPolicyViolated]="isCriticalPolicyViolated$|async"></app-fy-policy-violation-info>
+            <ng-container *ngIf="policyDetails">
+              <app-fy-policy-violation-info [policyDetails]="policyDetails" [criticalPolicyViolated]="isCriticalPolicyViolated$|async"></app-fy-policy-violation-info>
             </ng-container>
           </ng-container>
 

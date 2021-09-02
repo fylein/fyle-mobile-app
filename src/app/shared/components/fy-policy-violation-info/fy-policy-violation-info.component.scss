@@ -13,10 +13,15 @@
     display: flex;
   }
 
+  &--list-container {
+    width: 100%;
+  }
+
   &--list {
     margin: 0;
     padding-left: 28px;
     list-style-type: disc;
+    font-size: 12px;
   }
 
   &--content {
