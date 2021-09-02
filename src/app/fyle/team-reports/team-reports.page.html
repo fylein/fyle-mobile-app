@@ -92,11 +92,15 @@
 
   <ng-template #zeroState>
     <div class="reports--zero-state">
-      <app-fy-zero-state
-        [image]="'../../../assets/images/zero-states/coffee.svg'"
-        [header]="'Nothing here, grab a coffee maybe?'"
-        [message]="'Expense reports that need your approval will show up here.'"
-      ></app-fy-zero-state>
+      <img
+        alt="Create First Report"
+        class="reports--zero-state__img"
+        src="../../../assets/images/zero-states/expenses.png"
+      />
+      <div>
+        <p class="reports--zero-state__header">No Reports found !</p>
+        <div class="reports--zero-state__content">No reports submitted for your approval</div>
+      </div>
     </div>
   </ng-template>
 
