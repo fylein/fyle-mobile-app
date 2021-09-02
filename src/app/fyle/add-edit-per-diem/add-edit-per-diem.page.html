@@ -14,7 +14,7 @@
     </ion-buttons>
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
-        <ion-icon name="close" slot="icon-only"></ion-icon>
+        <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title
