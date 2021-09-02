@@ -85,6 +85,8 @@ export class ExpensesCardComponent implements OnInit {
 
   isScanCompleted: boolean;
 
+  imageTransperencyOverlay = 'linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), ';
+
   constructor(
     private transactionService: TransactionService,
     private offlineService: OfflineService,

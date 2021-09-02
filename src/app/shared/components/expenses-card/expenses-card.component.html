@@ -49,7 +49,9 @@
           <div
             class="expenses-card--receipt-container expenses-card--with-image"
             [ngStyle]="{
-              'background-image': expense.tx_dataUrls.length > 0 && 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
+              'background-image':
+                expense.tx_dataUrls.length > 0 &&
+                imageTransperencyOverlay + 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
             }"
           >
             <div class="expenses-card--spinner-placeholder">
@@ -61,7 +63,9 @@
           <div
             class="expenses-card--receipt-container expenses-card--with-image"
             [ngStyle]="{
-              'background-image': expense.tx_dataUrls.length > 0 && 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
+              'background-image':
+                expense.tx_dataUrls.length > 0 &&
+                imageTransperencyOverlay + 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
             }"
           >
             <ion-icon
@@ -117,7 +121,7 @@
             <ng-template #scanFailed>
               <div class="expenses-card--scaning-receipt__container">
                 <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">
-                  Scanning failed
+                  Scan failed
                 </div>
                 <div class="expenses-card--scaning-receipt__content">
                   <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> Add details

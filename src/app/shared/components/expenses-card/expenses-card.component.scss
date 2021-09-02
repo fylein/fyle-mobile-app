@@ -66,6 +66,11 @@
       &-failed {
         color: $red;
       }
+
+      &-scanning {
+        display: flex;
+        align-items: center;
+      }
     }
 
     &__content {
