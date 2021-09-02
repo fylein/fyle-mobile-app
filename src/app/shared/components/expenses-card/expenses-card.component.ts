@@ -238,7 +238,7 @@ export class ExpensesCardComponent implements OnInit {
     const isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
     const isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
 
-    if (!(isMileageExpense || isPerDiem || this.expense.tx_file_ids)) {
+    if (!(isMileageExpense || isPerDiem || this.expense.tx_file_ids) && !this.isSelectionModeEnabled) {
       event.stopPropagation();
       event.preventDefault();
 
