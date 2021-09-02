@@ -23,15 +23,20 @@
         </mat-checkbox>
       </div>
       <ng-container *ngIf="!receiptThumbnail && !attachmentUploadInProgress">
-        <div class="expenses-card--receipt-container" *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
-          (click)="addAttachments($event)">
+        <div
+          class="expenses-card--receipt-container"
+          *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
+          (click)="addAttachments($event)"
+        >
           <ion-icon class="expenses-card--receipt-icon" [src]="receiptIcon"></ion-icon>
         </div>
       </ng-container>
 
-      <div class="expenses-card--receipt-thumbnail-container expenses-card--with-image"
-        [ngStyle]="{'background-image': 'url(' + receiptThumbnail + ')'}" *ngIf="receiptThumbnail">
-      </div>
+      <div
+        class="expenses-card--receipt-thumbnail-container expenses-card--with-image"
+        [ngStyle]="{ 'background-image': 'url(' + receiptThumbnail + ')' }"
+        *ngIf="receiptThumbnail"
+      ></div>
 
       <div class="expenses-card--receipt-container" *ngIf="attachmentUploadInProgress">
         <div class="expenses-card--spinner-placeholder">
@@ -40,16 +45,30 @@
       </div>
 
       <ng-template #outboxExpenseDisplay>
-        <ng-container *ngIf="isSycing$|async; else defaultState">
-          <div class="expenses-card--receipt-container expenses-card--with-image" [ngStyle]="{'background-image': expense.tx_dataUrls.length > 0 && 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'}">
+        <ng-container *ngIf="isSycing$ | async; else defaultState">
+          <div
+            class="expenses-card--receipt-container expenses-card--with-image"
+            [ngStyle]="{
+              'background-image': expense.tx_dataUrls.length > 0 && 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
+            }"
+          >
             <div class="expenses-card--spinner-placeholder">
               <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
             </div>
           </div>
         </ng-container>
         <ng-template #defaultState>
-          <div class="expenses-card--receipt-container expenses-card--with-image" [ngStyle]="{'background-image': expense.tx_dataUrls.length > 0 && 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'}">
-            <ion-icon class="expenses-card--receipt-icon" *ngIf="!expense.tx_dataUrls?.length" [src]="'../../../../assets/svg/fy-expense.svg'"></ion-icon>
+          <div
+            class="expenses-card--receipt-container expenses-card--with-image"
+            [ngStyle]="{
+              'background-image': expense.tx_dataUrls.length > 0 && 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
+            }"
+          >
+            <ion-icon
+              class="expenses-card--receipt-icon"
+              *ngIf="!expense.tx_dataUrls?.length"
+              [src]="'../../../../assets/svg/fy-expense.svg'"
+            ></ion-icon>
           </div>
         </ng-template>
       </ng-template>
@@ -90,13 +109,16 @@
                   Scanning Receipt <ion-icon src="assets/svg/fy-scan.svg"></ion-icon>
                 </div>
                 <div class="expenses-card--scaning-receipt__content">
-                  <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> It takes a while. You can enter details
+                  <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> It takes a while.
+                  You can enter details
                 </div>
               </div>
             </ng-container>
             <ng-template #scanFailed>
               <div class="expenses-card--scaning-receipt__container">
-                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">Scanning failed</div>
+                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">
+                  Scanning failed
+                </div>
                 <div class="expenses-card--scaning-receipt__content">
                   <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> Add details
                 </div>

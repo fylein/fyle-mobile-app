@@ -183,5 +183,5 @@ export interface Expense {
   us_email: string;
   us_full_name: string;
   tx_categoryDisplayName: string; // custom property added in the service
-  tx_dataUrls?: string[];
+  tx_dataUrls?: {thumbnail: string}[];
 }
