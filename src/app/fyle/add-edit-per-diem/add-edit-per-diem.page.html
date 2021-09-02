@@ -716,17 +716,27 @@
     *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0 && !reviewList?.length"
   >
     <ion-toolbar mode="md" [ngClass]="{'add-edit-per-diem--footer-toolbar__offline': !(isConnected$|async)}">
-      <ion-buttons *ngIf="!reviewList">
-        <ion-button
-          (click)="savePerDiem()"
-          class="btn-primary add-edit-per-diem--primary-cta"
-          appFormButtonValidation
-          [loading]="savePerDiemLoader"
-          [loadingText]="'Saving'"
-        >
-          Save
-        </ion-button>
-      </ion-buttons>
+      <div class="add-edit-per-diem--cta-container">
+        <ion-buttons *ngIf="!reviewList">
+          <ion-button
+              (click)="close()"
+              *ngIf="mode === 'edit'"
+              [disabled]="savePerDiemLoader"
+              class="btn-secondary"
+          >
+            Cancel
+          </ion-button>
+          <ion-button
+            (click)="savePerDiem()"
+            class="btn-primary"
+            appFormButtonValidation
+            [loading]="savePerDiemLoader"
+            [loadingText]="'Saving'"
+          >
+            Save
+          </ion-button>
+        </ion-buttons>
+      </div>
     </ion-toolbar>
   </ion-footer>
 </ng-container>
