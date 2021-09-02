@@ -212,6 +212,7 @@ export class MyExpensesPage implements OnInit {
       } else {
         this.headerState = HeaderState.base;
       }
+
       this.selectedElements = [];
       this.setAllExpensesCountAndAmount();
     } else {
