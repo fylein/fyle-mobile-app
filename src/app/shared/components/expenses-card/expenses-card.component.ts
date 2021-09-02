@@ -17,6 +17,7 @@ import { map, tap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-expense-card',
@@ -82,6 +83,8 @@ export class ExpensesCardComponent implements OnInit {
 
   category: string;
 
+  isScanCompleted: boolean;
+
   constructor(
     private transactionService: TransactionService,
     private offlineService: OfflineService,
@@ -89,7 +92,7 @@ export class ExpensesCardComponent implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
-  ) {}
+  ) { }
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
@@ -139,6 +142,51 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
+  checkIfScanIsCompleted() {
+    const userHasManuallyEnteredData = this.expense.tx_amount && this.expense.tx_currency;
+    const requireExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount && this.expense.tx_extracted_data.currency;
+    const scanHasExpired = (this.expense.tx_txn_dt && moment(this.expense.tx_txn_dt).diff(moment.now(), 'day') === 1);
+    return userHasManuallyEnteredData || requireExtractedDataPresent || scanHasExpired;
+  }
+
+  pollDataExtractionStatus(callback: Function) {
+    const that = this;
+    setTimeout(() => {
+      const presentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+      if (!presentInQueue) {
+        callback();
+      } else {
+        that.pollDataExtractionStatus(callback);
+      }
+    }, 1000);
+  }
+
+  handleScanStatus() {
+    const that = this;
+    that.isScanInProgress = false;
+    that.isScanCompleted = false;
+
+    if (!that.isOutboxExpense) {
+      that.isScanCompleted = that.checkIfScanIsCompleted();
+      that.isScanInProgress = !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+      if (that.isScanInProgress) {
+        that.pollDataExtractionStatus(function () {
+          that.transactionService.getETxn(that.expense.tx_id).subscribe(etxn => {
+            const extractedData = etxn.tx.extracted_data;
+            if (extractedData?.amount && extractedData?.currency) {
+              that.isScanCompleted = true;
+              that.isScanInProgress = false;
+              that.expense.tx_extracted_data = extractedData;
+            } else {
+              that.isScanInProgress = false;
+              that.isScanCompleted = false;
+            }
+          });
+        });
+      }
+    }
+  }
+
   ngOnInit() {
     this.setupNetworkWatcher();
     this.isSycing$ = this.isConnected$.pipe(
@@ -184,7 +232,8 @@ export class ExpensesCardComponent implements OnInit {
 
     this.getReceipt();
 
-    this.isScanInProgress = this.getScanningReceiptCard(this.expense);
+
+    this.handleScanStatus();
 
     this.setOtherData();
   }
@@ -269,7 +318,7 @@ export class ExpensesCardComponent implements OnInit {
                 })
               ).subscribe(noop);
             }
-          } ),
+          }),
           switchMap((fileObj: FileObject) => {
             fileObj.transaction_id = this.expense.tx_id;
             return this.fileService.post(fileObj);

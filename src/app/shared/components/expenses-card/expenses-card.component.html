@@ -83,20 +83,32 @@
         </ng-container>
 
         <ng-template #expenseCardScanning>
-          <ng-container *ngIf="isScanInProgress && !isOutboxExpense; else expenseCardDefaultView">
-            <div class="expenses-card--scaning-receipt__container">
-              <div class="expenses-card--scaning-receipt__header">Scanning receipt</div>
-              <div class="expenses-card--scaning-receipt__content">
-                Your receipt details will be auto-extracted shortly.
-              </div>
-            </div>
-            <ng-container *ngIf="expense.isDraft">
-              <div class="expenses-card--state-container ion-text-right">
-                <span class="expenses-card--state">
-                  {{ expense.tx_state | titlecase }}
-                </span>
+          <ng-container *ngIf="!isScanCompleted; else expenseCardDefaultView">
+            <ng-container *ngIf="isScanInProgress; else scanFailed">
+              <div class="expenses-card--scaning-receipt__container">
+                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-scanning">
+                  Scanning Receipt <ion-icon src="assets/svg/fy-scan.svg"></ion-icon>
+                </div>
+                <div class="expenses-card--scaning-receipt__content">
+                  <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> It takes a while. You can enter details
+                </div>
               </div>
             </ng-container>
+            <ng-template #scanFailed>
+              <div class="expenses-card--scaning-receipt__container">
+                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">Scanning failed</div>
+                <div class="expenses-card--scaning-receipt__content">
+                  <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> Add details
+                </div>
+              </div>
+              <ng-container *ngIf="expense.isDraft">
+                <div class="expenses-card--state-container ion-text-right">
+                  <span class="expenses-card--state">
+                    {{ expense.tx_state | titlecase }}
+                  </span>
+                </div>
+              </ng-container>
+            </ng-template>
           </ng-container>
         </ng-template>
 
@@ -118,20 +130,25 @@
 
             <div
               class="expenses-card--vendor"
+              *ngIf="expense.vendorDetails"
               [ngClass]="{
                 'expenses-card--vendor__not-filled': !expense.vendorDetails,
                 'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'
               }"
             >
-              {{ expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled' }}
+              {{ expense.vendorDetails }}
             </div>
 
             <div
-              *ngIf="isProjectMandatory$ | async"
+              *ngIf="(isProjectMandatory$ | async) && expense.tx_project_name"
               class="expenses-card--project"
               [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
             >
-              {{ expense.tx_project_name ? 'Project: ' + expense.tx_project_name : 'Project not filled' }}
+              {{ expense.tx_project_name }}
+            </div>
+
+            <div class="expenses-card--edit-text" *ngIf="expense.isDraft">
+              <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> Enter details manually
             </div>
           </div>
           <div class="display-flex">
