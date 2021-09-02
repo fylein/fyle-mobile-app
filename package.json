@@ -118,7 +118,6 @@
     "bracketSpacing": true
   },
   "lint-staged": {
-    "*.js": "eslint --cache --fix",
-    "*.{js,css,md}": "prettier --write"
+    "*.{ts,scss,html}": "prettier --write"
   }
 }
