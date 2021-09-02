@@ -212,7 +212,7 @@ export class MyExpensesPage implements OnInit {
       } else {
         this.headerState = HeaderState.base;
       }
-
+      //THis is for testing
       this.selectedElements = [];
       this.setAllExpensesCountAndAmount();
     } else {
