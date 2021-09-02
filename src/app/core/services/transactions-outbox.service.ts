@@ -123,7 +123,6 @@ export class TransactionsOutboxService {
         that
           .parseReceipt(base64Image)
           .then(
-            // eslint-disable-next-line complexity
             (response: any) => {
               const parsedResponse = response.data;
 
