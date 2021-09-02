@@ -9,8 +9,8 @@ describe('FyDeleteDialogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FyDeleteDialogComponent ],
-      imports: [IonicModule.forRoot()]
+      declarations: [FyDeleteDialogComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyDeleteDialogComponent);

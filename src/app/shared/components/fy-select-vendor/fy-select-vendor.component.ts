@@ -13,9 +13,9 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FySelectVendorComponent),
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class FySelectVendorComponent implements OnInit, OnDestroy {
   @Input() options: any[];
@@ -46,14 +46,13 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
   }
 
-  ngOnDestroy() {
-  }
+  ngOnDestroy() {}
 
   get value(): any {
     return this.innerValue;
@@ -77,11 +76,11 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
     const currencyModal = await this.modalController.create({
       component: FySelectVendorModalComponent,
       componentProps: {
-        currentSelection: this.value
+        currentSelection: this.value,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await currencyModal.present();

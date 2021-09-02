@@ -10,10 +10,7 @@ import { PopoverController } from '@ionic/angular';
 export class SplitExpenseStatusComponent implements OnInit {
   isSplitSuccessful = false;
 
-  constructor(
-    private router: Router,
-    private popoverController: PopoverController
-  ) { }
+  constructor(private router: Router, private popoverController: PopoverController) {}
 
   goToMyExpenses() {
     this.popoverController.dismiss();
@@ -24,5 +21,4 @@ export class SplitExpenseStatusComponent implements OnInit {
   }
 
   ngOnInit() {}
-
 }

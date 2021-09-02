@@ -2,7 +2,7 @@
   &--container {
     height: 80vh;
     width: 90vw;
-    margin: 16px;
+    margin: 16px 16px 4px;
     border: 1px solid;
     background-color: white !important;
     border-radius: 4px;
@@ -48,17 +48,6 @@
     }
   }
 
-  &--cta-container {
-    margin: 12px;
-  }
-
-  &--delete {
-    height: 48px;
-    --border-radius: 4px !important;
-    width: 100%;
-    margin: 0;
-  }
-
   &--pdf-controls {
     position: fixed;
     bottom: 5%;
@@ -76,8 +65,10 @@
 
   &--title {
     font-weight: 400;
-    margin-left: -12px;
-    padding-right: 28px;
   }
 
+  &--footer-container {
+    height: 12px;
+    width: 100%;
+  }
 }

@@ -6,8 +6,8 @@ import { SetupAccountPage } from './setup-account.page';
 const routes: Routes = [
   {
     path: '',
-    component: SetupAccountPage
-  }
+    component: SetupAccountPage,
+  },
 ];
 
 @NgModule({

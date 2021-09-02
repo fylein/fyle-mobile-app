@@ -6,8 +6,8 @@ import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
 const routes: Routes = [
   {
     path: '',
-    component: AddEditAdvanceRequestPage
-  }
+    component: AddEditAdvanceRequestPage,
+  },
 ];
 
 @NgModule({

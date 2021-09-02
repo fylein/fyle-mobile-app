@@ -21,8 +21,6 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 
-
-
 @NgModule({
   imports: [
     CommonModule,
@@ -36,7 +34,7 @@ import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-adva
     SharedModule,
     MatCheckboxModule,
     PinchZoomModule,
-    PdfViewerModule
+    PdfViewerModule,
   ],
   declarations: [
     AddEditAdvanceRequestPage,
@@ -45,7 +43,7 @@ import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-adva
     FyCurrencyExchangeRateComponent,
     PolicyViolationDialogComponent,
     CameraOptionsPopupComponent,
-    DraftAdvanceSummaryComponent
-  ]
+    DraftAdvanceSummaryComponent,
+  ],
 })
 export class AddEditAdvanceRequestPageModule {}

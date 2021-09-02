@@ -27,8 +27,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSnackBarModule
+    MatSnackBarModule,
   ],
-  declarations: [InvitedUserPage]
+  declarations: [InvitedUserPage],
 })
 export class InvitedUserPageModule {}

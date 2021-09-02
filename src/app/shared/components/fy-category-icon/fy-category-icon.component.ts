@@ -6,12 +6,9 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./fy-category-icon.component.scss'],
 })
 export class FyCategoryIconComponent implements OnInit {
-
   @Input() category;
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }
