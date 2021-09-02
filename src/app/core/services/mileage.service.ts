@@ -1,17 +1,13 @@
-import {Injectable} from '@angular/core';
-import {LocationService} from './location.service';
-import {from, of} from 'rxjs';
-import {concatMap, reduce} from 'rxjs/operators';
-
+import { Injectable } from '@angular/core';
+import { LocationService } from './location.service';
+import { from, of } from 'rxjs';
+import { concatMap, reduce } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MileageService {
-
-  constructor(
-    private locationService: LocationService
-  ) { }
+  constructor(private locationService: LocationService) {}
 
   getDistanceInternal(fromLocation, toLocation) {
     return this.locationService.getDistance(fromLocation, toLocation);
@@ -26,7 +22,7 @@ export class MileageService {
       return of(null);
     } else {
       return from(chunks).pipe(
-        concatMap(chunk => this.getDistanceInternal(chunk[0], chunk[1])),
+        concatMap((chunk) => this.getDistanceInternal(chunk[0], chunk[1])),
         reduce((dist1, dist2) => dist1 + dist2)
       );
     }

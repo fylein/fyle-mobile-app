@@ -1,39 +1,37 @@
 <ion-header mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
-    <ion-title mode="md">
-      Policy Violated
-    </ion-title>
+    <ion-title mode="md"> Policy Violated </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-
   <div class="policy-violation--container">
     <p>This advance request falls outside the guidelines of your company’s policy.</p>
 
     <ul>
-      <li *ngFor="let violation of violatedPolicyRules; index as i">{{violation}}</li>
+      <li *ngFor="let violation of violatedPolicyRules; index as i">{{ violation }}</li>
     </ul>
 
-    <p class="policy-violation--action-description">{{policyViolationActionDescription}}</p>
+    <p class="policy-violation--action-description">{{ policyViolationActionDescription }}</p>
 
-    <textarea class="policy-violation--reason" rows="3" matInput placeholder="Please provide an explanation for policy violation" [(ngModel)]="newComment"></textarea>
+    <textarea
+      class="policy-violation--reason"
+      rows="3"
+      matInput
+      placeholder="Please provide an explanation for policy violation"
+      [(ngModel)]="newComment"
+    ></textarea>
   </div>
-
 </ion-content>
 
 <ion-footer>
   <ion-toolbar mode="md">
     <ion-buttons class="policy-violation--buttons">
-      <ion-button fill="clear" expand="full" color="accent" (click)="closePolicyModal()" >
-        Cancel
-      </ion-button>
+      <ion-button fill="clear" expand="full" color="accent" (click)="closePolicyModal()"> Cancel </ion-button>
       <ion-button fill="clear" expand="full" color="fyle-primary" (click)="continueWithPolicyViolation()">
         Continue
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>
-
-

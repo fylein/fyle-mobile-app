@@ -1,17 +1,21 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'reportState'
+  name: 'reportState',
 })
 export class ReportState implements PipeTransform {
   transform(val) {
+    if (!val) {
+      return val;
+    }
+
     const states = {
       DRAFT: 'draft',
       DRAFT_INQUIRY: 'incomplete',
       COMPLETE: 'fyled',
       APPROVER_PENDING: 'reported',
       SUBMITTED: 'reported',
-      APPROVER_INQUIRY: 'inquiry',
+      APPROVER_INQUIRY: 'sent_back',
       POLICY_INQUIRY: 'auto_flagged',
       REJECTED: 'rejected',
       APPROVED: 'approved',
@@ -22,7 +26,7 @@ export class ReportState implements PipeTransform {
       APPROVAL_PENDING: 'reported',
       APPROVAL_DONE: 'approved',
       APPROVAL_DISABLED: 'disabled',
-      APPROVAL_REJECTED: 'rejected'
+      APPROVAL_REJECTED: 'rejected',
     };
 
     return states[val];

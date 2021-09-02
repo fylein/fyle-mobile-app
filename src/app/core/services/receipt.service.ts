@@ -1,35 +1,31 @@
-import {Injectable} from '@angular/core';
-import {ApiV2Service} from './api-v2.service';
-import {ApiService} from './api.service';
+import { Injectable } from '@angular/core';
+import { ApiV2Service } from './api-v2.service';
+import { ApiService } from './api.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ReceiptService {
-
-  constructor(
-    private apiv2Service: ApiV2Service,
-    private apiService: ApiService
-  ) { }
+  constructor(private apiv2Service: ApiV2Service, private apiService: ApiService) {}
 
   getReceiptsWithNoMatchingExpensesByState(orgUserId, state) {
     const params = {
       org_user_id: 'eq.' + orgUserId,
       extraction_state: 'eq.' + state,
-      transaction_id: 'is.null'
+      transaction_id: 'is.null',
     };
     const data = {
-      params
+      params,
     };
     return this.apiv2Service.get('/receipts', data);
   }
 
   getReceiptById(receiptId) {
     const params = {
-      id: 'eq.' + receiptId
+      id: 'eq.' + receiptId,
     };
     const data = {
-      params
+      params,
     };
     return this.apiv2Service.get('/receipts', data);
   }

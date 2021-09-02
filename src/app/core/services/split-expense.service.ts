@@ -5,15 +5,10 @@ import { FileService } from './file.service';
 import { TransactionService } from './transaction.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SplitExpenseService {
-
-  constructor(
-    private transactionService: TransactionService,
-    private fileService: FileService
-  ) { }
-
+  constructor(private transactionService: TransactionService, private fileService: FileService) {}
 
   linkTxnWithFiles(data) {
     const observables = [];
@@ -38,7 +33,7 @@ export class SplitExpenseService {
     const newFileObjs: any[] = fileObjs.map((fileObj) => ({
       id: fileObj.id,
       name: fileObj.name,
-      content: ''
+      content: '',
     }));
 
     newFileObjs.forEach((fileObj) => {
@@ -67,17 +62,20 @@ export class SplitExpenseService {
       const firstSplitExpense = splitExpenses[0];
 
       return this.createTxns(sourceTxn, [firstSplitExpense], splitGroupAmount, null, splitExpenses.length).pipe(
-        map(firstTxn => {
+        map((firstTxn) => {
           splitExpenses.splice(0, 1);
           return firstTxn;
         }),
         switchMap((firstTxn: any[]) =>
-          this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, firstTxn[0].split_group_id, splitExpenses.length)
-            .pipe(
-              map(otherTxns => firstTxn.concat(otherTxns))
-            ))
+          this.createTxns(
+            sourceTxn,
+            splitExpenses,
+            splitGroupAmount,
+            firstTxn[0].split_group_id,
+            splitExpenses.length
+          ).pipe(map((otherTxns) => firstTxn.concat(otherTxns)))
+        )
       );
-
     } else {
       return this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, splitExpenses.length);
     }
@@ -112,7 +110,7 @@ export class SplitExpenseService {
       transaction.cost_center_id = splitExpense.cost_center_id || sourceTxn.cost_center_id;
       transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
       transaction.billable = this.setUpSplitExpenseBillable(sourceTxn, splitExpense);
-      transaction.tax = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
+      transaction.tax_amount = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
 
       this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
@@ -140,6 +138,6 @@ export class SplitExpenseService {
   }
 
   private setUpSplitExpenseTax(sourceTxn, splitExpense) {
-    return splitExpense.tax ? splitExpense.tax : sourceTxn.tax;
+    return splitExpense.tax_amount ? splitExpense.tax_amount : sourceTxn.tax_amount;
   }
 }

@@ -1,11 +1,21 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {forkJoin, from, fromEvent, throwError} from 'rxjs';
-import {OrgUserService} from 'src/app/core/services/org-user.service';
-import {OfflineService} from 'src/app/core/services/offline.service';
-import {LoaderService} from 'src/app/core/services/loader.service';
-import {concatMap, finalize, catchError, map, startWith, distinctUntilChanged, switchMap, tap, shareReplay} from 'rxjs/operators';
-import {globalCacheBusterNotifier} from 'ts-cacheable';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { forkJoin, from, fromEvent, throwError } from 'rxjs';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import {
+  concatMap,
+  finalize,
+  catchError,
+  map,
+  startWith,
+  distinctUntilChanged,
+  switchMap,
+  tap,
+  shareReplay,
+} from 'rxjs/operators';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 
 @Component({
@@ -29,77 +39,78 @@ export class DelegatedAccountsPage implements OnInit {
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService
-  ) {
-  }
+  ) {}
 
   switchToDelegatee(eou) {
-    from(this.loaderService.showLoader('Switching Account')).pipe(
-      concatMap(() => {
-        globalCacheBusterNotifier.next();
-        this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-        return this.orgUserService.switchToDelegator(eou.ou);
-      }),
-      finalize(async () => {
-        await this.loaderService.hideLoader();
-      })
-    ).subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-    });
+    from(this.loaderService.showLoader('Switching Account'))
+      .pipe(
+        concatMap(() => {
+          globalCacheBusterNotifier.next();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          return this.orgUserService.switchToDelegator(eou.ou);
+        }),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      )
+      .subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ionViewWillEnter() {
     this.searchInput = '';
     const switchToOwn = this.activatedRoute.snapshot.params.switchToOwn;
 
     if (switchToOwn) {
-      from(this.loaderService.showLoader('Switching Account')).pipe(
-        concatMap(() => this.orgUserService.switchToDelegatee()),
-        finalize(async () => {
-          await this.loaderService.hideLoader();
-        })
-      ).subscribe(() => {
-        globalCacheBusterNotifier.next();
-        this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-      });
+      from(this.loaderService.showLoader('Switching Account'))
+        .pipe(
+          concatMap(() => this.orgUserService.switchToDelegatee()),
+          finalize(async () => {
+            await this.loaderService.hideLoader();
+          })
+        )
+        .subscribe(() => {
+          globalCacheBusterNotifier.next();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        });
     } else {
       const delegatedAccList$ = forkJoin({
         delegatedAcc: this.orgUserService.findDelegatedAccounts(),
-        currentOrg: this.offlineService.getCurrentOrg()
-      }).pipe(
-        shareReplay(1)
-      );
+        currentOrg: this.offlineService.getCurrentOrg(),
+      }).pipe(shareReplay(1));
 
-      delegatedAccList$.subscribe(res => {
+      delegatedAccList$.subscribe((res) => {
         this.currentOrg = res.currentOrg;
       });
 
-      fromEvent(this.searchDelegatees.nativeElement, 'keyup').pipe(
-        map((event: any) => event.srcElement.value),
-        startWith(''),
-        distinctUntilChanged(),
-        switchMap((searchText) => delegatedAccList$.pipe(
-          map(
-            ({delegatedAcc}) => this.orgUserService.excludeByStatus(delegatedAcc, 'DISABLED')
-          ),
-          map(delegatees => delegatees
-            .filter(delegatee => Object.values(delegatee.us)
-              .some(delegateeProp =>
-                delegateeProp &&
-                  delegateeProp.toString() &&
-                  delegateeProp.toString()
-                    .toLowerCase()
-                    .includes(searchText.toLowerCase()))
+      fromEvent(this.searchDelegatees.nativeElement, 'keyup')
+        .pipe(
+          map((event: any) => event.srcElement.value),
+          startWith(''),
+          distinctUntilChanged(),
+          switchMap((searchText) =>
+            delegatedAccList$.pipe(
+              map(({ delegatedAcc }) => this.orgUserService.excludeByStatus(delegatedAcc, 'DISABLED')),
+              map((delegatees) =>
+                delegatees.filter((delegatee) =>
+                  Object.values(delegatee.us).some(
+                    (delegateeProp) =>
+                      delegateeProp &&
+                      delegateeProp.toString() &&
+                      delegateeProp.toString().toLowerCase().includes(searchText.toLowerCase())
+                  )
+                )
+              )
             )
           )
-        ))
-      ).subscribe(delegatees => {
-        this.delegatedAccList = delegatees;
-      });
+        )
+        .subscribe((delegatees) => {
+          this.delegatedAccList = delegatees;
+        });
     }
   }
-
 }

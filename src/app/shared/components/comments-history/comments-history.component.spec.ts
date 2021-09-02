@@ -9,8 +9,8 @@ describe('CommentsHistoryComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CommentsHistoryComponent ],
-      imports: [IonicModule.forRoot()]
+      declarations: [CommentsHistoryComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CommentsHistoryComponent);

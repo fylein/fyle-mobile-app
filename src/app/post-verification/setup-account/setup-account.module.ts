@@ -29,11 +29,8 @@ import { MatButtonModule } from '@angular/material/button';
     MatFormFieldModule,
     MatInputModule,
     MatRippleModule,
-    MatButtonModule
+    MatButtonModule,
   ],
-  declarations: [
-    SetupAccountPage,
-    SelectCurrencyComponent
-  ]
+  declarations: [SetupAccountPage, SelectCurrencyComponent],
 })
-export class SetupAccountPageModule { }
+export class SetupAccountPageModule {}

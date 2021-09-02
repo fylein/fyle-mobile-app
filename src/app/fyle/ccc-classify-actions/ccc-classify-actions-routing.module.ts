@@ -6,8 +6,8 @@ import { CccClassifyActionsPage } from './ccc-classify-actions.page';
 const routes: Routes = [
   {
     path: '',
-    component: CccClassifyActionsPage
-  }
+    component: CccClassifyActionsPage,
+  },
 ];
 
 @NgModule({

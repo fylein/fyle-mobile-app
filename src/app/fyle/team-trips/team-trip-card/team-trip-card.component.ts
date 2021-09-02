@@ -8,7 +8,6 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
   styleUrls: ['./team-trip-card.component.scss'],
 })
 export class TeamTripCardComponent implements OnInit {
-
   @Input() tripRequest: ExtendedTripRequest;
 
   @Output() tripClick: EventEmitter<ExtendedTripRequest> = new EventEmitter();
@@ -18,12 +17,10 @@ export class TeamTripCardComponent implements OnInit {
   tripTypesMap = {
     ONE_WAY: 'One Way',
     ROUND: 'Round Trip',
-    MULTI_CITY: 'Multi City'
+    MULTI_CITY: 'Multi City',
   };
 
-  constructor(
-    private tripRequestService: TripRequestsService
-  ) { }
+  constructor(private tripRequestService: TripRequestsService) {}
 
   ngOnInit() {
     this.internalState = this.tripRequestService.getInternalStateAndDisplayName(this.tripRequest);
@@ -32,5 +29,4 @@ export class TeamTripCardComponent implements OnInit {
   onTripClick() {
     this.tripClick.emit(this.tripRequest);
   }
-
 }

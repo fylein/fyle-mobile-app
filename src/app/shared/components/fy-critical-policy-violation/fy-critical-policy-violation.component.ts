@@ -7,15 +7,11 @@ import { PopoverController } from '@ionic/angular';
   styleUrls: ['./fy-critical-policy-violation.component.scss'],
 })
 export class FyCriticalPolicyViolationComponent implements OnInit {
-
   @Input() criticalViolationMessages = [];
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   cancel() {
     this.popoverController.dismiss(false);
@@ -24,5 +20,4 @@ export class FyCriticalPolicyViolationComponent implements OnInit {
   continue() {
     this.popoverController.dismiss(true);
   }
-
 }

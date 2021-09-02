@@ -6,8 +6,8 @@ import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 const routes: Routes = [
   {
     path: '',
-    component: AddEditPerDiemPage
-  }
+    component: AddEditPerDiemPage,
+  },
 ];
 
 @NgModule({

@@ -14,7 +14,6 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./resubmit-report-popover.component.scss'],
 })
 export class ResubmitReportPopoverComponent implements OnInit {
-
   @Input() erpt;
 
   @Input() etxns;
@@ -30,7 +29,7 @@ export class ResubmitReportPopoverComponent implements OnInit {
     private offlineService: OfflineService,
     private tripRequestService: TripRequestsService,
     private reportService: ReportService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.numCriticalPolicies = this.getCriticalPolicyViolations(this.etxns);
@@ -40,23 +39,16 @@ export class ResubmitReportPopoverComponent implements OnInit {
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       approvedButUnreportedTripRequests: this.tripRequestService
         .findMyUnreportedRequests()
-        .pipe(
-          map(requests => requests
-            .filter(request => request.state === 'APPROVED')
-          )
-        )
+        .pipe(map((requests) => requests.filter((request) => request.state === 'APPROVED'))),
     }).subscribe(({ orgSettings, orgUserSettings, approvedButUnreportedTripRequests }) => {
-      const canAssociateTripRequests = orgSettings.trip_requests.enabled &&
-        (
-          !orgSettings.trip_requests.enable_for_certain_employee ||
-          (
-            orgSettings.trip_requests.enable_for_certain_employee
-            && orgUserSettings.trip_request_org_user_settings.enabled
-          )
-        );
+      const canAssociateTripRequests =
+        orgSettings.trip_requests.enabled &&
+        (!orgSettings.trip_requests.enable_for_certain_employee ||
+          (orgSettings.trip_requests.enable_for_certain_employee &&
+            orgUserSettings.trip_request_org_user_settings.enabled));
       const isTripRequestsEnabled = orgSettings.trip_requests.enabled;
-      this.showTripRequestWarning = (
-        canAssociateTripRequests || !isTripRequestsEnabled) &&
+      this.showTripRequestWarning =
+        (canAssociateTripRequests || !isTripRequestsEnabled) &&
         !this.erpt.rp_trip_request_id &&
         approvedButUnreportedTripRequests &&
         approvedButUnreportedTripRequests.length > 0;
@@ -65,7 +57,7 @@ export class ResubmitReportPopoverComponent implements OnInit {
 
   getCriticalPolicyViolations(etxns) {
     let count = 0;
-    etxns.forEach((etxn)=> {
+    etxns.forEach((etxn) => {
       if (etxn.tx_policy_flag && isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001) {
         count = count + 1;
       }
@@ -111,9 +103,8 @@ export class ResubmitReportPopoverComponent implements OnInit {
 
     this.reportService.resubmit(this.erpt.rp_id).subscribe(() => {
       this.popoverController.dismiss({
-        goBack: true
+        goBack: true,
       });
     });
   }
-
 }

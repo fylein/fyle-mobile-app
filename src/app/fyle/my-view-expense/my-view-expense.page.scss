@@ -1,5 +1,4 @@
 .view-expense {
-  
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
@@ -15,7 +14,7 @@
     margin: 8px 0;
     font-size: 14px;
     color: #4a4a4a;
-  
+
     &-warning-icon {
       font-size: 18px;
       padding-top: 2px;
@@ -117,6 +116,7 @@
     color: #ababab;
     font-weight: 500;
     line-height: 1.5;
+    word-break: break-all;
   }
 
   &--element-value {

@@ -9,9 +9,7 @@ import { PopoverController } from '@ionic/angular';
 export class PullBackAdvanceRequestComponent implements OnInit {
   reason = '';
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   async cancel() {
     await this.popoverController.dismiss();
@@ -19,10 +17,9 @@ export class PullBackAdvanceRequestComponent implements OnInit {
 
   pullBackAdvanceRequest() {
     this.popoverController.dismiss({
-      reason: this.reason
+      reason: this.reason,
     });
   }
 
   ngOnInit() {}
-
 }

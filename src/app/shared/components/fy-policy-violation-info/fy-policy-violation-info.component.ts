@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-fy-policy-violation-info',
@@ -6,12 +6,11 @@ import {Component, Input, OnInit} from '@angular/core';
   styleUrls: ['./fy-policy-violation-info.component.scss'],
 })
 export class FyPolicyViolationInfoComponent implements OnInit {
-
   @Input() estatuses;
 
   policyViolations;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
     this.policyViolations = [];

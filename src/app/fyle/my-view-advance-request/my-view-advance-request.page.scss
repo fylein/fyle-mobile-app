@@ -1,5 +1,4 @@
 .view-advance-request {
-
   &--card {
     padding: 0 16px;
     margin: 16px;
@@ -11,7 +10,7 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
-  &--attachment-currency-container{
+  &--attachment-currency-container {
     margin: 12px 16px;
     display: flex;
   }
@@ -79,9 +78,9 @@
     margin-top: 20px;
     line-height: 1;
     margin-left: -4px;
-}
+  }
 
-  &--add-receipt-text{
+  &--add-receipt-text {
     display: inline-block;
     vertical-align: middle;
     margin: 20px 0 0;
@@ -120,8 +119,6 @@
     border: 0;
     background: transparent;
   }
-
-
 
   &--element {
     display: flex;
@@ -199,5 +196,4 @@
     margin: 12px;
     height: 48px;
   }
-
 }
