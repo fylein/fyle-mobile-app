@@ -140,6 +140,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   expenseStartTime;
 
+  policyDetails;
+
   navigateBack = false;
 
   savePerDiemLoader = false;
@@ -1060,6 +1062,8 @@ export class AddEditPerDiemPage implements OnInit {
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
     );
+
+    this.getPolicyDetails();
 
     combineLatest(this.fg.controls.from_dt.valueChanges, this.fg.controls.to_dt.valueChanges)
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
@@ -2284,5 +2288,13 @@ export class AddEditPerDiemPage implements OnInit {
     });
 
     this.isExpandedView = true;
+  }
+
+  getPolicyDetails() {
+    const txnId = this.activatedRoute.snapshot.params.id;
+    from(this.policyService.getPolicyRuleViolationsAndQueryParams(txnId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
   }
 }

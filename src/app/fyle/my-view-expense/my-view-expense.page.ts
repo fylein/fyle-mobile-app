@@ -49,6 +49,8 @@ export class MyViewExpensePage implements OnInit {
 
   currencyOptions;
 
+  policyDetails;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -155,6 +157,8 @@ export class MyViewExpensePage implements OnInit {
       map((etxn) => this.isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001)
     );
 
+    this.getPolicyDetails(txId);
+
     const editExpenseAttachments = this.etxn$.pipe(
       switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx_id)),
       switchMap((fileObjs) => from(fileObjs)),
@@ -226,6 +230,13 @@ export class MyViewExpensePage implements OnInit {
         });
 
         await attachmentsModal.present();
+      });
+  }
+
+  getPolicyDetails(txId) {
+    from(this.policyService.getPolicyRuleViolationsAndQueryParams(txId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
       });
   }
 }

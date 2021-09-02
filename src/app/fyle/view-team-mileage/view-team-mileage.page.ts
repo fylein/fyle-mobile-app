@@ -43,6 +43,8 @@ export class ViewTeamMileagePage implements OnInit {
 
   reportId;
 
+  policyDetails;
+
   isConnected$: Observable<boolean>;
 
   onPageExit = new Subject();
@@ -97,6 +99,13 @@ export class ViewTeamMileagePage implements OnInit {
         });
       }
     }
+  }
+
+  getPolicyDetails(txId) {
+    from(this.policyService.getPolicyRuleViolationsAndQueryParams(txId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
   }
 
   goBack() {
@@ -181,6 +190,8 @@ export class ViewTeamMileagePage implements OnInit {
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
       map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
+
+    this.getPolicyDetails(id);
 
     this.isAmountCapped$ = this.extendedMileage$.pipe(
       map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
