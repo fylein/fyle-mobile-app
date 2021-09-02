@@ -304,12 +304,9 @@
                   </ng-container>
                   <ng-container *ngIf="isAdvancesEnabled$">
                     <ng-container
-                      *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount"
-                    >
-                      <app-fy-alert
-                        [message]="'You have outstanding balance in your advance account(s)'"
-                        [type]="'information'"
-                      ></app-fy-alert>
+                      *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount">
+                      <app-fy-alert-info [message]="'You have outstanding balance in your advance account(s)'"
+                        [type]="'information'"></app-fy-alert-info>
                     </ng-container>
                   </ng-container>
 
@@ -580,12 +577,10 @@
                       <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                         <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                           <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-                            <app-fy-alert
-                              *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
+                            <app-fy-alert-info *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                               [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                              [type]="'warning'"
-                            >
-                            </app-fy-alert>
+                              [type]="'warning'">
+                            </app-fy-alert-info>
                           </ng-container>
                         </ng-container>
                       </ng-container>
