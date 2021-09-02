@@ -6,22 +6,19 @@ import { Subject } from 'rxjs';
 const costCentersCacheBuster$ = new Subject<void>();
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CostCentersService {
-
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) {}
 
   @Cacheable({
-    cacheBusterObserver: costCentersCacheBuster$
+    cacheBusterObserver: costCentersCacheBuster$,
   })
   getAllActive() {
     const data = {
       params: {
-        active_only: true
-      }
+        active_only: true,
+      },
     };
     return this.apiService.get('/cost_centers', data);
   }

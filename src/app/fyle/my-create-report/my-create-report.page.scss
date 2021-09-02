@@ -2,13 +2,12 @@ $item-border-color: #e0e0e0;
 $background-color: #fff;
 
 .my-create-report {
-
   &--header {
     background-color: $background-color;
     // height: 80px !important;
     border-bottom: 1px solid $item-border-color;
 
-    &-closebutton{
+    &-closebutton {
       height: 65px;
     }
 
@@ -124,7 +123,7 @@ $background-color: #fff;
 
   &--secondary-action {
     text-align: right;
-    color: #0077EE;
+    color: #0077ee;
     font-size: 16px;
     margin-top: 8px;
   }

@@ -17,28 +17,50 @@
   <div class="exchange-rate-modal">
     <form [formGroup]="fg">
       <div class="exchange-rate-modal--form-control">
-        <div class="exchange-rate-modal--label">
-          Expense amount in {{newCurrency}}
-        </div>
-        <input formControlName="newCurrencyAmount" class="exchange-rate-modal--input" inputmode="decimal" type="number" matInput placeholder="00.00">
+        <div class="exchange-rate-modal--label">Expense amount in {{ newCurrency }}</div>
+        <input
+          formControlName="newCurrencyAmount"
+          class="exchange-rate-modal--input"
+          inputmode="decimal"
+          type="number"
+          matInput
+          placeholder="00.00"
+        />
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">
-          Exchange rate 1 {{newCurrency}} = <span class="exchange-rate-value">{{fg.controls.exchangeRate.value}}</span> {{currentCurrency}}
+          Exchange rate 1 {{ newCurrency }} =
+          <span class="exchange-rate-value">{{ fg.controls.exchangeRate.value }}</span> {{ currentCurrency }}
         </div>
-        <input formControlName="exchangeRate" class="exchange-rate-modal--input" inputmode="decimal" type="number" matInput placeholder="00.00">
+        <input
+          formControlName="exchangeRate"
+          class="exchange-rate-modal--input"
+          inputmode="decimal"
+          type="number"
+          matInput
+          placeholder="00.00"
+        />
       </div>
       <div class="exchange-rate-modal--form-control">
-        <div class="exchange-rate-modal--label">
-          Expense amount in {{currentCurrency}}
-        </div>
-        <input formControlName="homeCurrencyAmount" class="exchange-rate-modal--input" inputmode="decimal" type="number" matInput placeholder="00.00">
+        <div class="exchange-rate-modal--label">Expense amount in {{ currentCurrency }}</div>
+        <input
+          formControlName="homeCurrencyAmount"
+          class="exchange-rate-modal--input"
+          inputmode="decimal"
+          type="number"
+          matInput
+          placeholder="00.00"
+        />
       </div>
     </form>
   </div>
   <div class="exchange-rate-info">
-    <app-fy-alert-info message='{{newCurrency}} {{fg.controls.newCurrencyAmount.value}} was converted to {{currentCurrency}}
-  {{fg.controls.homeCurrencyAmount.value}} at the exchange rate of {{fg.controls.exchangeRate.value}} {{currentCurrency}}/{{newCurrency}}.'
-  [type]="'information'"></app-fy-alert-info>
+    <app-fy-alert-info
+      message="{{ newCurrency }} {{ fg.controls.newCurrencyAmount.value }} was converted to {{ currentCurrency }}
+  {{ fg.controls.homeCurrencyAmount.value }} at the exchange rate of {{ fg.controls.exchangeRate.value }} {{
+        currentCurrency
+      }}/{{ newCurrency }}."
+      [type]="'information'"
+    ></app-fy-alert-info>
   </div>
 </ion-content>

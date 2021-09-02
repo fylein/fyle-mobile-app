@@ -1,4 +1,4 @@
-<ion-header mode="md" >
+<ion-header mode="md">
   <ion-toolbar class="notifications--toolbar">
     <ion-buttons mode="md" slot="start">
       <ion-button (click)="goBack()">
@@ -11,19 +11,14 @@
 
 <ion-content>
   <div class="notifications--container">
-    
-    <div class="notifications--notif-setting-header">
-      Set notifications you want to receive
-    </div>
+    <div class="notifications--notif-setting-header">Set notifications you want to receive</div>
 
     <form [formGroup]="notificationForm" (ngSubmit)="saveNotificationSettings()">
       <ng-container *ngIf="isDelegateePresent$|async">
         <h2>Delegatee Notification</h2>
         <mat-form-field>
           <mat-select formControlName="notifyOption" (selectionChange)="updateDelegateeNotifyPreference()">
-            <mat-option *ngFor="let option of delegationOptions" [value]="option">
-              {{option}}
-            </mat-option>
+            <mat-option *ngFor="let option of delegationOptions" [value]="option"> {{option}} </mat-option>
           </mat-select>
         </mat-form-field>
       </ng-container>
@@ -37,11 +32,17 @@
                   <div><strong>{{ feature.value.textLabel }}</strong></div>
                 </ion-col>
                 <ion-col size="2" *ngIf="$first && (orgUserSettings$|async)?.notification_settings?.push.enabled">
-                  <mat-checkbox [checked]="isAllSelected.pushEvents" (change)="toggleAllSelected('push')"></mat-checkbox>
+                  <mat-checkbox
+                    [checked]="isAllSelected.pushEvents"
+                    (change)="toggleAllSelected('push')"
+                  ></mat-checkbox>
                   <mat-icon svgIcon="fy-iphone" class="notifications--notif-type-icon"></mat-icon>
                 </ion-col>
                 <ion-col size="2" *ngIf="$first">
-                  <mat-checkbox [checked]="isAllSelected.emailEvents" (change)="toggleAllSelected('email')"></mat-checkbox>
+                  <mat-checkbox
+                    [checked]="isAllSelected.emailEvents"
+                    (change)="toggleAllSelected('email')"
+                  ></mat-checkbox>
                   <mat-icon svgIcon="fy-email" class="notifications--notif-type-icon"></mat-icon>
                 </ion-col>
               </ion-row>
@@ -70,8 +71,16 @@
         </div>
       </div>
       <div>
-        <ion-button type="submit" class="notifications--primary-cta flat-button" expand="block" fill="solid" color="fyle-primary" 
-        appFormButtonValidation [loading]="saveNotifLoading" [loadingText]="'SAVING'">
+        <ion-button
+          type="submit"
+          class="notifications--primary-cta flat-button"
+          expand="block"
+          fill="solid"
+          color="fyle-primary"
+          appFormButtonValidation
+          [loading]="saveNotifLoading"
+          [loadingText]="'SAVING'"
+        >
           Save
         </ion-button>
       </div>

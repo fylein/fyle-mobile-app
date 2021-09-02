@@ -10,9 +10,7 @@ export class FyLoadingScreenComponent implements OnInit {
 
   rows = [1, 2, 3, 4, 5];
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

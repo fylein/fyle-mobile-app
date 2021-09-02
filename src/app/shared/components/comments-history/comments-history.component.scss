@@ -1,17 +1,17 @@
 .comments-component {
-  &--common{
+  &--common {
     display: flex;
     align-items: center;
   }
-  
-  &--heading{
+
+  &--heading {
     display: inline-block;
     vertical-align: middle;
     font-size: 16px;
     margin: 0 0 0 16px;
     color: #0077ee;
   }
-  
+
   &--icon {
     font-size: 24px;
     color: #ababab;

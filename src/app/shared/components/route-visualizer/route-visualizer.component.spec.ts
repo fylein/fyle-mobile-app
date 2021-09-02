@@ -9,8 +9,8 @@ describe('RouteVisualizerComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ RouteVisualizerComponent ],
-      imports: [IonicModule.forRoot()]
+      declarations: [RouteVisualizerComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RouteVisualizerComponent);

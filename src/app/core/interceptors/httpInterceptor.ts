@@ -7,7 +7,7 @@ import {
   HttpEvent,
   HttpErrorResponse,
   HttpParams,
-  HttpParameterCodec
+  HttpParameterCodec,
 } from '@angular/common/http';
 
 import { Observable, throwError, from, forkJoin, of, iif, Subject, BehaviorSubject } from 'rxjs';
@@ -36,16 +36,11 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     private deviceService: DeviceService,
     private userEventService: UserEventService,
     private storageService: StorageService
-  ) { }
+  ) {}
 
   secureUrl(url) {
-    if (
-      url.indexOf('localhost') >= 0 ||
-      url.indexOf('.fylehq.com') >= 0 ||
-      url.indexOf('.fyle.tech') >= 0) {
-      if (
-        url.indexOf('/api/auth/') >= 0 ||
-        url.indexOf('routerapi/auth/') >= 0) {
+    if (url.indexOf('localhost') >= 0 || url.indexOf('.fylehq.com') >= 0 || url.indexOf('.fyle.tech') >= 0) {
+      if (url.indexOf('/api/auth/') >= 0 || url.indexOf('routerapi/auth/') >= 0) {
         if (url.indexOf('api/auth/logout') >= 0) {
           return true;
         }
@@ -70,18 +65,14 @@ export class HttpConfigInterceptor implements HttpInterceptor {
 
   refreshAccessToken() {
     return from(this.tokenService.getRefreshToken()).pipe(
-      concatMap(
-        refreshToken => this.routerAuthService.fetchAccessToken(refreshToken)
-      ),
-      catchError(error => {
+      concatMap((refreshToken) => this.routerAuthService.fetchAccessToken(refreshToken)),
+      catchError((error) => {
         this.userEventService.logout();
         this.storageService.clearAll();
         globalCacheBusterNotifier.next();
         return throwError(error);
       }),
-      concatMap(
-        authResponse => this.routerAuthService.newAccessToken(authResponse.access_token)
-      ),
+      concatMap((authResponse) => this.routerAuthService.newAccessToken(authResponse.access_token)),
       concatMap(() => from(this.tokenService.getAccessToken()))
     );
   }
@@ -94,7 +85,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
    */
   getAccessToken(): Observable<string> {
     return from(this.tokenService.getAccessToken()).pipe(
-      concatMap(accessToken => {
+      concatMap((accessToken) => {
         if (this.expiringSoon(accessToken)) {
           if (!this.accessTokenCallInProgress) {
             this.accessTokenCallInProgress = true;
@@ -108,7 +99,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
             );
           } else {
             return this.accessTokenSubject.pipe(
-              filter(result => result !== null),
+              filter((result) => result !== null),
               take(1),
               concatMap(() => from(this.tokenService.getAccessToken()))
             );
@@ -123,13 +114,13 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return forkJoin({
       token: iif(() => this.secureUrl(request.url), this.getAccessToken(), of(null)),
-      deviceInfo: from(this.deviceService.getDeviceInfo())
+      deviceInfo: from(this.deviceService.getDeviceInfo()),
     }).pipe(
-      concatMap(({token, deviceInfo}) => {
+      concatMap(({ token, deviceInfo }) => {
         if (token && this.secureUrl(request.url)) {
           request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + token) });
-          const params = new HttpParams({encoder: new CustomEncoder(), fromString: request.params.toString()});
-          request = request.clone({params});
+          const params = new HttpParams({ encoder: new CustomEncoder(), fromString: request.params.toString() });
+          request = request.clone({ params });
         }
         const appVersion = deviceInfo.appVersion || '0.0.0';
         const osVersion = deviceInfo.osVersion;
@@ -147,7 +138,10 @@ export class HttpConfigInterceptor implements HttpInterceptor {
                     return next.handle(request);
                   })
                 );
-              } else if ((error.status === 404 && (error.headers.get('X-Mobile-App-Blocked') === 'true')) || (error.status === 401)) {
+              } else if (
+                (error.status === 404 && error.headers.get('X-Mobile-App-Blocked') === 'true') ||
+                error.status === 401
+              ) {
                 this.userEventService.logout();
                 this.storageService.clearAll();
                 globalCacheBusterNotifier.next();

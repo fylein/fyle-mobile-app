@@ -4,27 +4,26 @@ import { map } from 'rxjs/operators';
 import { ExtendedStatus } from '../models/extended_status.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StatusService {
-
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) {}
 
   find(objectType, objectId) {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
-      map((estatuses: ExtendedStatus[]) => estatuses.map(estatus => {
-        estatus.st_created_at = new Date(estatus.st_created_at);
-        return estatus as ExtendedStatus;
-      }))
+      map((estatuses: ExtendedStatus[]) =>
+        estatuses.map((estatus) => {
+          estatus.st_created_at = new Date(estatus.st_created_at);
+          return estatus as ExtendedStatus;
+        })
+      )
     );
   }
 
   post(objectType, objectId, status, notify = false) {
     return this.apiService.post('/' + objectType + '/' + objectId + '/statuses', {
       status,
-      notify
+      notify,
     });
   }
 
@@ -197,7 +196,7 @@ export class StatusService {
   findLatestComment(id, type, orgUserId) {
     return this.find(type, id).pipe(
       map((estatuses) => {
-        const nonSystemEStatuses = estatuses.filter(eStatus => eStatus.us_full_name);
+        const nonSystemEStatuses = estatuses.filter((eStatus) => eStatus.us_full_name);
         const userComments = nonSystemEStatuses.filter((estatus) => estatus.st_org_user_id === orgUserId);
         const sortedStatus = this.sortStatusByDate(userComments);
         if (sortedStatus.length) {
