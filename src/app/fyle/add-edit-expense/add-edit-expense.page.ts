@@ -2591,6 +2591,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.setupFormInit(allCategories$);
 
+    //this is for testing
     this.transactionInReport$ = this.etxn$.pipe(
       map((etxn) => ['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx.state) > -1)
     );
