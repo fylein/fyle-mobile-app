@@ -75,31 +75,15 @@ $toolbar-border: #ababab6b;
     margin: 12px;
   }
 
+  &--content {
+    --background: #{$white};
+  }
+
   &--zero-state {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 80%;
     justify-content: center;
     text-align: center;
-
-    &__img {
-      margin: 0 50px 1px;
-    }
-
-    &__header {
-      font-size: 18px;
-      display: block;
-      color: $dark-blue;
-      line-height: 1.3;
-      font-weight: 500;
-      margin-bottom: 8px;
-    }
-
-    &__content {
-      color: $blue-black;
-      font-size: 14px;
-      font-weight: normal;
-      line-height: 1.3;
-    }
   }
 }

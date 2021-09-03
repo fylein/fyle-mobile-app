@@ -7,6 +7,11 @@
       <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
     <ion-title class="page-title" mode="md"> Reports </ion-title>
+    <ion-buttons mode="md" slot="end">
+      <ion-button class="my-expenses--header-btn" [routerLink]="['/', 'enterprise', 'my_create_report']">
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
   <ion-toolbar mode="md">
     <div class="my-reports--toolbar">
@@ -81,20 +86,18 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="my-reports--content">
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
-    <img
-      class="my-reports--zero-state__img"
-      src="../../../assets/images/zero-states/expenses.png"
-      alt="Create First Report"
-    />
-    <div>
-      <p class="my-reports--zero-state__header">You've got no report!</p>
-      <div class="my-reports--zero-state__content">Create one by clicking `+` on top</div>
-    </div>
+    <app-fy-zero-state
+      [unscaledImage]="true"
+      [useNewStyling]="true"
+      image="../../../assets/images/zero-states/expenses.png"
+      header="You've got no report!"
+      message="Create one by clicking `+` on top"
+    ></app-fy-zero-state>
   </div>
   <div *ngFor="let erpt of myReports$ | async as list; let i = index">
     <app-my-reports-card
@@ -113,28 +116,10 @@
 </ion-content>
 
 <ion-footer mode="md">
-  <ng-container *ngIf="expensesAmountStats$|async as expensesAmountStats">
-    <ion-toolbar mode="md">
-      <div class="my-reports--stats">
-        <div class="my-reports--amount">
-          <span class="my-reports--homeCurrency">{{homeCurrency$ | async}}</span>
-          {{expensesAmountStats.sum | number:'1.2-2'}}
-        </div>
-        <div class="my-reports--count">across {{expensesAmountStats.count}} unreported expenses</div>
-      </div>
-    </ion-toolbar>
-  </ng-container>
-
-  <ion-toolbar mode="md">
-    <ion-button
-      mode="md"
-      [routerLink]="['/', 'enterprise', 'my_create_report']"
-      class="my-reports--primary-cta flat-button"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
-    >
-      CREATE NEW REPORT
-    </ion-button>
-  </ion-toolbar>
+  <app-fy-footer
+    *ngIf="!selectionMode"
+    (homeClicked)="onHomeClicked()"
+    (taskClicked)="onTaskClicked()"
+    (cameraClicked)="onCameraClicked()"
+  ></app-fy-footer>
 </ion-footer>

@@ -3,7 +3,7 @@
     <ion-buttons mode="md" slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> Reports </ion-title>
+    <ion-title mode="md" class="page-title"> Reports - Team </ion-title>
   </ion-toolbar>
   <ion-toolbar mode="md">
     <div class="reports--toolbar">
@@ -73,7 +73,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="reports--content">
   <ng-container *ngIf="count$|async; else zeroState">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
@@ -92,15 +92,13 @@
 
   <ng-template #zeroState>
     <div class="reports--zero-state">
-      <img
-        alt="Create First Report"
-        class="reports--zero-state__img"
-        src="../../../assets/images/zero-states/expenses.png"
-      />
-      <div>
-        <p class="reports--zero-state__header">No Reports found !</p>
-        <div class="reports--zero-state__content">No reports submitted for your approval</div>
-      </div>
+      <app-fy-zero-state
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+        image="../../../assets/images/zero-states/expenses.png"
+        header="No Reports found !"
+        message="No reports submitted for your approval"
+      ></app-fy-zero-state>
     </div>
   </ng-template>
 
@@ -109,3 +107,12 @@
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>
+
+<ion-footer mode="md">
+  <app-fy-footer
+    *ngIf="!selectionMode"
+    (homeClicked)="onHomeClicked()"
+    (taskClicked)="onTaskClicked()"
+    (cameraClicked)="onCameraClicked()"
+  ></app-fy-footer>
+</ion-footer>
