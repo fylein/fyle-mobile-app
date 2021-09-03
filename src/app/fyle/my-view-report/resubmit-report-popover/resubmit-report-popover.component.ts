@@ -7,6 +7,7 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { map } from 'rxjs/operators';
+import { NpsService } from 'src/app/core/services/nps.service';
 
 @Component({
   selector: 'app-resubmit-report-popover',
@@ -28,7 +29,8 @@ export class ResubmitReportPopoverComponent implements OnInit {
     private popoverController: PopoverController,
     private offlineService: OfflineService,
     private tripRequestService: TripRequestsService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private npsService: NpsService
   ) {}
 
   ngOnInit() {
@@ -102,9 +104,10 @@ export class ResubmitReportPopoverComponent implements OnInit {
     event.stopPropagation();
 
     this.reportService.resubmit(this.erpt.rp_id).subscribe(() => {
-      this.popoverController.dismiss({
-        goBack: true,
-      });
+      this.npsService.startSurvey({'Action': 'Resubmit Report'});
+      // this.popoverController.dismiss({
+      //   goBack: true,
+      // });
     });
   }
 }

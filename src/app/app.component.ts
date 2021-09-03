@@ -28,6 +28,7 @@ import { TrackingService } from './core/services/tracking.service';
 import { LoginInfoService } from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
 import { OrgUserSettings } from './core/models/org_user_settings.model';
+import { NpsService } from './core/services/nps.service';
 
 const { App } = Plugins;
 const CapStatusBar = Plugins.StatusBar;
@@ -88,7 +89,8 @@ export class AppComponent implements OnInit {
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private popupService: PopupService,
-    private navController: NavController
+    private navController: NavController,
+    private npsService: NpsService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -283,6 +285,7 @@ export class AppComponent implements OnInit {
         }
 
         this.freshChatService.setupNetworkWatcher();
+        this.npsService.setupNetworkWatcher();
 
         // TODO: remove nested subscribe - mini tech debt
         this.setupSideMenu(
