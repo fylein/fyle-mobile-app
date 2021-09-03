@@ -214,7 +214,7 @@ export class ReportService {
         state: ['PAID'],
       },
       edit: {
-        state: ['DRAFT', 'APPROVER_PENDING'],
+        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
       },
       all: {
         state: [

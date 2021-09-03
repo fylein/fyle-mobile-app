@@ -18,7 +18,7 @@
             </div>
             <div class="ion-text-right">
               <div class="text-center report-list--state report-list--state__{{ report.rp_state | reportState }}">
-                {{ report.rp_state | reportState | titlecase }}
+                {{ (report.rp_state | reportState).replace('_', ' ') | titlecase }}
               </div>
             </div>
           </ion-col>
