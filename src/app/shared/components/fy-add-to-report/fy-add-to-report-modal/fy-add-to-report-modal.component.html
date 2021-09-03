@@ -30,7 +30,7 @@
           </div>
         </div>
         <div class="selection-modal--list-element-purpose">
-          ({{ selectedOption.value.rp.purpose }}) ( {{ states[selectedOption.value.rp.state] | titlecase }})
+          ({{ selectedOption.value.rp.purpose }}) ( {{ ((states[selectedOption.value.rp.state]).replace('_', ' ')) | titlecase }})
         </div>
       </div>
     </ng-container>
@@ -51,7 +51,7 @@
         </div>
       </div>
       <div class="selection-modal--list-element-purpose">
-        ({{ filteredListItem.value.rp.purpose }}) ( {{ states[filteredListItem.value.rp.state] | titlecase }})
+        ({{ filteredListItem.value.rp.purpose }}) ( {{ ((states[filteredListItem.value.rp.state]).replace('_', ' ')) | titlecase }})
       </div>
     </div>
   </div>
