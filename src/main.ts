@@ -8,13 +8,15 @@ import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import * as Sentry from '@sentry/angular';
 import 'hammerjs';
 
-import { Integrations as TracingIntegrations } from "@sentry/tracing";
+import { Integrations as TracingIntegrations } from '@sentry/tracing';
 
 Sentry.init({
   dsn: environment.SENTRY_DSN,
-  integrations: [new TracingIntegrations.BrowserTracing({
-    routingInstrumentation: Sentry.routingInstrumentation
-  })],
+  integrations: [
+    new TracingIntegrations.BrowserTracing({
+      routingInstrumentation: Sentry.routingInstrumentation,
+    }),
+  ],
   tracesSampleRate: 1.0,
   release: 'please-replace-your-git-commit-version',
   ignoreErrors: ['Non-Error exception captured'],

@@ -76,14 +76,14 @@
     border-radius: 8px;
     height: 74px;
     padding: 20px;
-  } 
-  
+  }
+
   &--receipt-thumbnail-container {
     background-color: $light-grey;
     border-radius: 8px;
     height: 74px;
     width: 90px;
-  }  
+  }
 
   &--with-image {
     background-size: cover;
@@ -95,7 +95,7 @@
     height: 35px;
     width: 35px;
     stroke: $black-light;
-  } 
+  }
 
   &--receipt-thumbnail {
     height: 74px;
@@ -221,7 +221,7 @@
     border-radius: 16px;
     padding: 4px 29px;
   }
-  
+
   &--spinner-icon {
     color: #f36;
   }
