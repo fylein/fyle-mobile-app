@@ -12,7 +12,9 @@ import { Integrations as TracingIntegrations } from "@sentry/tracing";
 
 Sentry.init({
   dsn: environment.SENTRY_DSN,
-  integrations: [new TracingIntegrations.BrowserTracing()],
+  integrations: [new TracingIntegrations.BrowserTracing({
+    routingInstrumentation: Sentry.routingInstrumentation
+  })],
   tracesSampleRate: 1.0,
   release: 'please-replace-your-git-commit-version',
   ignoreErrors: ['Non-Error exception captured'],
