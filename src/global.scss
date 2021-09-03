@@ -232,11 +232,11 @@ textarea:focus {
 .camera-options-popover {
   .popover-wrapper {
     .popover-content {
-      top: 85% !important;
+      top: 75% !important;
       left: 0 !important;
-      height: 15%;
+      height: 25%;
       width: 100%;
-      border-radius: 0;
+      border-radius: 16px 16px 0 0;
     }
   }
 
@@ -766,6 +766,7 @@ ref - https://stackoverflow.com/a/31162426
 .fy-icon-close {
   height: 20px !important;
   width: 20px !important;
+  color: $black-light;
 }
 
 .fy-modal-toolbar {

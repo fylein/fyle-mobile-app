@@ -3767,18 +3767,20 @@ export class AddEditExpensePage implements OnInit {
             this.attachedReceiptsCount = data.attachments.length;
           }
         } else {
-          this.etxn$
-            .pipe(
-              switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-              map((fileObjs) => (fileObjs && fileObjs.length) || 0)
-            )
-            .subscribe((attachedReceipts) => {
-              this.loadAttachments$.next();
-              if (this.attachedReceiptsCount === attachedReceipts) {
-                this.trackingService.viewAttachment({ Asset: 'Mobile' });
-              }
-              this.attachedReceiptsCount = attachedReceipts;
-            });
+          if ((data && data.attachments.length !== this.attachedReceiptsCount) || !data) {
+            this.etxn$
+              .pipe(
+                switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
+                map((fileObjs) => (fileObjs && fileObjs.length) || 0)
+              )
+              .subscribe((attachedReceipts) => {
+                this.loadAttachments$.next();
+                if (this.attachedReceiptsCount === attachedReceipts) {
+                  this.trackingService.viewAttachment({ Asset: 'Mobile' });
+                }
+                this.attachedReceiptsCount = attachedReceipts;
+              });
+          }
         }
       });
   }
