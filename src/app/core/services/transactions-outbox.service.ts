@@ -149,7 +149,9 @@ export class TransactionsOutboxService {
                 //   transactionUpsertPromise = that.transactionService.upsert(entry.transaction).toPromise();
                 // }
 
-                that.transactionService.upsert(entry.transaction).toPromise()
+                that.transactionService
+                  .upsert(entry.transaction)
+                  .toPromise()
                   .then(() => console.log(entry.transaction))
                   .finally(() => {
                     this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);

@@ -86,7 +86,7 @@
                 <ng-template #uploadPerDiem>
                   <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Adding Per Diem </ng-container>
                 </ng-template>
-                <ng-template #uploadDefault> Uploading receipt </ng-template>
+                <ng-template #uploadDefault> Uploading receipt... </ng-template>
               </div>
               <div class="expenses-card--scaning-receipt__content">
                 Your
@@ -110,7 +110,8 @@
             <ng-container *ngIf="isScanInProgress; else scanFailed">
               <div class="expenses-card--scaning-receipt__container">
                 <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-scanning">
-                  Scanning Receipt <ion-icon src="assets/svg/fy-scan.svg"></ion-icon>
+                  Scanning Receipt...
+                  <ion-icon class="expenses-card--scanning-icon" src="assets/svg/fy-scan.svg"></ion-icon>
                 </div>
                 <div class="expenses-card--scaning-receipt__content">
                   <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> It takes a while.

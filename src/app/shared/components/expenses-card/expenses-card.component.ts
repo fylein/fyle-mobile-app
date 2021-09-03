@@ -94,7 +94,7 @@ export class ExpensesCardComponent implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
-  ) { }
+  ) {}
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
@@ -181,32 +181,35 @@ export class ExpensesCardComponent implements OnInit {
     that.isScanCompleted = false;
 
     if (!that.isOutboxExpense) {
-      that.offlineService.getOrgUserSettings()
-        .subscribe((orgUserSettings) => {
-          if (orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled && (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')) {
-            that.isScanCompleted = that.checkIfScanIsCompleted();
-            that.isScanInProgress =
-              !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
-            if (that.isScanInProgress) {
-              that.pollDataExtractionStatus(function () {
-                that.transactionService.getETxn(that.expense.tx_id).subscribe((etxn) => {
-                  const extractedData = etxn.tx.extracted_data;
-                  if (extractedData?.amount && extractedData?.currency) {
-                    that.isScanCompleted = true;
-                    that.isScanInProgress = false;
-                    that.expense.tx_extracted_data = extractedData;
-                  } else {
-                    that.isScanInProgress = false;
-                    that.isScanCompleted = false;
-                  }
-                });
+      that.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
+        if (
+          orgUserSettings.insta_fyle_settings.allowed &&
+          orgUserSettings.insta_fyle_settings.enabled &&
+          (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
+        ) {
+          that.isScanCompleted = that.checkIfScanIsCompleted();
+          that.isScanInProgress =
+            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+          if (that.isScanInProgress) {
+            that.pollDataExtractionStatus(function () {
+              that.transactionService.getETxn(that.expense.tx_id).subscribe((etxn) => {
+                const extractedData = etxn.tx.extracted_data;
+                if (extractedData?.amount && extractedData?.currency) {
+                  that.isScanCompleted = true;
+                  that.isScanInProgress = false;
+                  that.expense.tx_extracted_data = extractedData;
+                } else {
+                  that.isScanInProgress = false;
+                  that.isScanCompleted = false;
+                }
               });
-            }
-          } else {
-            that.isScanCompleted = true;
-            that.isScanInProgress = false;
+            });
           }
-        });
+        } else {
+          that.isScanCompleted = true;
+          that.isScanInProgress = false;
+        }
+      });
     }
   }
 
@@ -222,8 +225,6 @@ export class ExpensesCardComponent implements OnInit {
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
     this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
-
-
 
     this.offlineService
       .getHomeCurrency()
