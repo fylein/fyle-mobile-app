@@ -1,11 +1,14 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'advanceState'
+  name: 'advanceState',
 })
 export class AdvanceState implements PipeTransform {
-
   transform(value) {
+    if (!value) {
+      return value;
+    }
+
     const states = {
       DRAFT: 'draft',
       SUBMITTED: 'pending',
@@ -21,5 +24,4 @@ export class AdvanceState implements PipeTransform {
 
     return states[value];
   }
-
 }

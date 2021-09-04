@@ -1,5 +1,5 @@
-@import "../../../theme/colors.scss";
-@import "../../../theme/forms.scss";
+@import '../../../theme/colors.scss';
+@import '../../../theme/forms.scss';
 
 .add-edit-mileage {
   &--toolbar {
@@ -46,7 +46,7 @@
   }
 
   &--cta-container {
-    padding: 14px 16px 14px 16px;
+    padding: 14px 16px;
     justify-content: space-between;
   }
 
@@ -76,7 +76,8 @@
     margin: 18px 0;
   }
 
-  &--form, &--violations {
+  &--form,
+  &--violations {
     padding: 0 16px 16px 16px;
   }
 

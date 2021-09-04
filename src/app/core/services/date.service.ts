@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DateService {
   today = new Date();
@@ -13,11 +13,34 @@ export class DateService {
 
   // '12:00', '12:30' has been removed since cron dosn't support 24
   // eslint-disable-next-line max-len
-  timeIntervals = ['1:00', '1:30', '2:00', '2:30', '3:00', '3:30', '4:00', '4:30', '5:00', '5:30', '6:00', '6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30'];
+  timeIntervals = [
+    '1:00',
+    '1:30',
+    '2:00',
+    '2:30',
+    '3:00',
+    '3:30',
+    '4:00',
+    '4:30',
+    '5:00',
+    '5:30',
+    '6:00',
+    '6:30',
+    '7:00',
+    '7:30',
+    '8:00',
+    '8:30',
+    '9:00',
+    '9:30',
+    '10:00',
+    '10:30',
+    '11:00',
+    '11:30',
+  ];
 
   meridians = ['AM', 'PM'];
 
-  constructor() { }
+  constructor() {}
 
   getDayShortCodeMap() {
     return {
@@ -27,7 +50,7 @@ export class DateService {
       wed: 'Wednesday',
       thu: 'Thursday',
       fri: 'Friday',
-      sat: 'Saturday'
+      sat: 'Saturday',
     };
   }
 
@@ -39,7 +62,7 @@ export class DateService {
       thu: 4,
       fri: 5,
       sat: 6,
-      sun: 7
+      sun: 7,
     };
   }
 
@@ -51,7 +74,7 @@ export class DateService {
       4: 'thu',
       5: 'fri',
       6: 'sat',
-      7: 'sun'
+      7: 'sun',
     };
   }
 
@@ -63,7 +86,7 @@ export class DateService {
       wed: 3,
       thu: 4,
       fri: 5,
-      sat: 6
+      sat: 6,
     };
   }
 
@@ -75,7 +98,7 @@ export class DateService {
       3: 'wed',
       4: 'thu',
       5: 'fri',
-      6: 'sat'
+      6: 'sat',
     };
   }
 
@@ -92,7 +115,7 @@ export class DateService {
       8: 'September',
       9: 'October',
       10: 'November',
-      11: 'December'
+      11: 'December',
     };
   }
 
@@ -226,17 +249,17 @@ export class DateService {
   }
 
   getDifferenceBetweenDates(toDate, fromDate) {
-    return (Math.ceil(Math.abs(toDate.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000))) + 1;
+    return Math.ceil(Math.abs(toDate.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
   }
 
   getAbsoluteDifferenceBetweenDates(toDate, fromDate) {
-    return (Math.ceil((fromDate.getTime() - toDate.getTime()) / (24 * 60 * 60 * 1000))) + 1;
+    return Math.ceil((fromDate.getTime() - toDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
   }
 
   addDaysToDate(fromDate, numOfDays) {
     numOfDays = parseInt(numOfDays, 10);
 
-    return new Date(fromDate.getTime() + (numOfDays * 24 * 60 * 60 * 1000));
+    return new Date(fromDate.getTime() + numOfDays * 24 * 60 * 60 * 1000);
   }
 
   getThisMonthRange() {
@@ -244,7 +267,7 @@ export class DateService {
     const lastDay = this.lastOfThisMonth();
     const range = {
       from: firstDay,
-      to: lastDay
+      to: lastDay,
     };
 
     return range;
@@ -258,13 +281,12 @@ export class DateService {
     return new Date(this.year, this.month, 0, 23, 59);
   }
 
-
   getLastMonthRange() {
     const firstDay = this.firstOfLastMonth();
     const lastDay = this.lastOfLastMonth();
     const range = {
       from: firstDay,
-      to: lastDay
+      to: lastDay,
     };
 
     return range;
@@ -281,7 +303,7 @@ export class DateService {
   getThisWeekRange() {
     return {
       from: this.firstOfThisWeek(),
-      to: this.lastOfThisWeek()
+      to: this.lastOfThisWeek(),
     };
   }
 }

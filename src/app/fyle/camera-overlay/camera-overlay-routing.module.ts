@@ -6,8 +6,8 @@ import { CameraOverlayPage } from './camera-overlay.page';
 const routes: Routes = [
   {
     path: '',
-    component: CameraOverlayPage
-  }
+    component: CameraOverlayPage,
+  },
 ];
 
 @NgModule({

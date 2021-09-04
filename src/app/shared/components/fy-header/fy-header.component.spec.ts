@@ -9,8 +9,8 @@ describe('FyHeaderComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FyHeaderComponent ],
-      imports: [IonicModule.forRoot()]
+      declarations: [FyHeaderComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyHeaderComponent);

@@ -2,7 +2,7 @@
   &--container {
     height: 80vh;
     width: 90vw;
-    margin: 16px;
+    margin: 16px 16px 4px;
     border: 1px solid;
     background-color: white !important;
     border-radius: 4px;
@@ -15,42 +15,37 @@
   }
 
   &--go-back {
-    position: absolute;
-    top: 34vh;
+    position: fixed;
+    top: 43vh;
     left: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
-    text-align: center;
-    border-radius: 50%;
-    font-size: 18px;
-    padding: 12px;
-    height: 40px;
-    width: 40px;
-    color: white;
+    padding: 20px 20px 20px 0;
+    &__btn {
+      background-color: rgba(0, 0, 0, 0.5);
+      text-align: center;
+      border-radius: 50%;
+      font-size: 18px;
+      padding: 12px;
+      height: 40px;
+      width: 40px;
+      color: white;
+    }
   }
 
   &--go-forward {
-    position: absolute;
-    top: 34vh;
+    position: fixed;
+    top: 43vh;
     right: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
-    text-align: center;
-    border-radius: 50%;
-    font-size: 18px;
-    padding: 12px;
-    height: 40px;
-    width: 40px;
-    color: white;
-  }
-
-  &--cta-container {
-    margin: 12px;
-  }
-
-  &--delete {
-    height: 48px;
-    --border-radius: 4px !important;
-    width: 100%;
-    margin: 0;
+    padding: 20px 0px 20px 20px;
+    &__btn {
+      background-color: rgba(0, 0, 0, 0.5);
+      text-align: center;
+      border-radius: 50%;
+      font-size: 18px;
+      padding: 12px;
+      height: 40px;
+      width: 40px;
+      color: white;
+    }
   }
 
   &--pdf-controls {
@@ -70,8 +65,10 @@
 
   &--title {
     font-weight: 400;
-    margin-left: -12px;
-    padding-right: 28px;
   }
 
+  &--footer-container {
+    height: 12px;
+    width: 100%;
+  }
 }

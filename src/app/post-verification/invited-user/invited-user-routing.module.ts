@@ -6,8 +6,8 @@ import { InvitedUserPage } from './invited-user.page';
 const routes: Routes = [
   {
     path: '',
-    component: InvitedUserPage
-  }
+    component: InvitedUserPage,
+  },
 ];
 
 @NgModule({

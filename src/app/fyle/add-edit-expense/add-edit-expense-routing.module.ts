@@ -6,8 +6,8 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 const routes: Routes = [
   {
     path: '',
-    component: AddEditExpensePage
-  }
+    component: AddEditExpensePage,
+  },
 ];
 
 @NgModule({

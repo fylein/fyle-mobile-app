@@ -4,27 +4,26 @@ import { map } from 'rxjs/operators';
 import { ExtendedStatus } from '../models/extended_status.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StatusService {
-
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) {}
 
   find(objectType, objectId) {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
-      map((estatuses: ExtendedStatus[]) => estatuses.map(estatus => {
-        estatus.st_created_at = new Date(estatus.st_created_at);
-        return estatus as ExtendedStatus;
-      }))
+      map((estatuses: ExtendedStatus[]) =>
+        estatuses.map((estatus) => {
+          estatus.st_created_at = new Date(estatus.st_created_at);
+          return estatus as ExtendedStatus;
+        })
+      )
     );
   }
 
   post(objectType, objectId, status, notify = false) {
     return this.apiService.post('/' + objectType + '/' + objectId + '/statuses', {
       status,
-      notify
+      notify,
     });
   }
 
@@ -59,16 +58,28 @@ export class StatusService {
         icon: 'edit'
       };
       break;
-    case lowerCaseComment.indexOf('attachment') > -1:
+    case lowerCaseComment.indexOf('added') > -1:
       statusCategory = {
         category: 'Receipt Attached',
         icon: 'attachment'
+      };
+      break;
+    case lowerCaseComment.indexOf('deleted') > -1:
+      statusCategory = {
+        category: 'Receipt Removed',
+        icon: 'no-attachment'
       };
       break;
     case lowerCaseComment.indexOf('report') > -1:
       statusCategory = {
         category: 'Report',
         icon: 'list'
+      };
+      break;
+    case lowerCaseComment.indexOf('unflagged') > -1:
+      statusCategory = {
+        category: 'Unflagged',
+        icon: 'flag'
       };
       break;
     case lowerCaseComment.indexOf('flagged') > -1:
@@ -93,6 +104,12 @@ export class StatusService {
       statusCategory = {
         category: 'Verified',
         icon: 'success-tick'
+      };
+      break;
+    case lowerCaseComment.indexOf('un-approved') > -1:
+      statusCategory = {
+        category: type + ' Sent Back',
+        icon: 'send-back'
       };
       break;
     case lowerCaseComment.indexOf('approved') > -1:
@@ -179,7 +196,7 @@ export class StatusService {
   findLatestComment(id, type, orgUserId) {
     return this.find(type, id).pipe(
       map((estatuses) => {
-        const nonSystemEStatuses = estatuses.filter(eStatus => eStatus.us_full_name);
+        const nonSystemEStatuses = estatuses.filter((eStatus) => eStatus.us_full_name);
         const userComments = nonSystemEStatuses.filter((estatus) => estatus.st_org_user_id === orgUserId);
         const sortedStatus = this.sortStatusByDate(userComments);
         if (sortedStatus.length) {

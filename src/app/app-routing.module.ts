@@ -6,32 +6,32 @@ const routes: Routes = [
   {
     path: '',
     redirectTo: 'enterprise/my_dashboard',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
   {
     path: 'auth',
-    loadChildren: () => import('./auth/auth-routing.module').then(m => m.AuthRoutingModule)
+    loadChildren: () => import('./auth/auth-routing.module').then((m) => m.AuthRoutingModule),
   },
   {
     path: 'post_verification',
-    loadChildren: () => import('./post-verification/post-verification-routing.module').then(m => m.PostVerificationRoutingModule),
-    canActivate: [AuthGuard]
+    loadChildren: () =>
+      import('./post-verification/post-verification-routing.module').then((m) => m.PostVerificationRoutingModule),
+    canActivate: [AuthGuard],
   },
   {
     path: 'enterprise',
-    loadChildren: () => import('./fyle/fyle-routing.module').then(m => m.FyleRoutingModule),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('./fyle/fyle-routing.module').then((m) => m.FyleRoutingModule),
+    canActivate: [AuthGuard],
   },
   {
     path: 'deep_link_redirection',
-    loadChildren: () => import('./deep-link-redirection/deep-link-redirection.module').then( m => m.DeepLinkRedirectionPageModule)
-  }
+    loadChildren: () =>
+      import('./deep-link-redirection/deep-link-redirection.module').then((m) => m.DeepLinkRedirectionPageModule),
+  },
 ];
 
 @NgModule({
-  imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, relativeLinkResolution: 'legacy' })
-  ],
-  exports: [RouterModule]
+  imports: [RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, relativeLinkResolution: 'legacy' })],
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

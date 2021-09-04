@@ -27,11 +27,8 @@ import { MatButtonModule } from '@angular/material/button';
     FormsModule,
     ReactiveFormsModule,
     MatMenuModule,
-    MatButtonModule
+    MatButtonModule,
   ],
-  declarations: [
-    TeamAdvancePage,
-    TeamAdvCardComponent
-  ]
+  declarations: [TeamAdvancePage, TeamAdvCardComponent],
 })
-export class TeamAdvancePageModule { }
+export class TeamAdvancePageModule {}

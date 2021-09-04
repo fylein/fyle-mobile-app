@@ -85,14 +85,15 @@ export class MyEditReportPage implements OnInit {
     private popupService: PopupService,
     private trackingService: TrackingService,
     private modalProperties: ModalPropertiesService
-  ) { }
+  ) {}
 
   goBack() {
     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   checkReportEdited() {
-    this.isReportEdited = (this.deleteExpensesIdList.length > 0) || (this.addedExpensesIdList.length > 0) || this.isPurposeChanged;
+    this.isReportEdited =
+      this.deleteExpensesIdList.length > 0 || this.addedExpensesIdList.length > 0 || this.isPurposeChanged;
   }
 
   setupNetworkWatcher() {
@@ -110,8 +111,7 @@ export class MyEditReportPage implements OnInit {
     });
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -132,16 +132,15 @@ export class MyEditReportPage implements OnInit {
     return vendorName;
   }
 
-
   async showAddExpensesToReportModal() {
     const AddExpensesToReportModal = await this.modalController.create({
       component: AddExpensesToReportComponent,
       componentProps: {
-        unReportedEtxns: this.unReportedEtxns
+        unReportedEtxns: this.unReportedEtxns,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await AddExpensesToReportModal.present();
@@ -185,7 +184,9 @@ export class MyEditReportPage implements OnInit {
     const index = this.addedExpensesIdList.indexOf(etxn.tx_id);
     this.addedExpensesIdList.splice(index, 1);
     this.selectedTotalTxns = this.selectedTotalTxns - 1;
-    this.selectedTotalAmount = !etxn.tx_skip_reimbursement ? this.selectedTotalAmount - etxn.tx_amount : this.selectedTotalAmount;
+    this.selectedTotalAmount = !etxn.tx_skip_reimbursement
+      ? this.selectedTotalAmount - etxn.tx_amount
+      : this.selectedTotalAmount;
     this.checkReportEdited();
   }
 
@@ -196,7 +197,7 @@ export class MyEditReportPage implements OnInit {
 
   removeTxnFromReport() {
     const removeTxnList$ = [];
-    this.deleteExpensesIdList.forEach(txnId => {
+    this.deleteExpensesIdList.forEach((txnId) => {
       removeTxnList$.push(this.reportService.removeTransaction(this.activatedRoute.snapshot.params.id, txnId));
     });
 
@@ -214,31 +215,32 @@ export class MyEditReportPage implements OnInit {
     const report = {
       purpose: this.reportTitle,
       id: this.activatedRoute.snapshot.params.id,
-      trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId
+      trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId,
     };
 
     // method body is same as update
     // should rename method later
-    this.reportService.createDraft(report).pipe(
-      switchMap(res => iif(
-        () => (this.addedExpensesIdList.length > 0),
-        this.reportService.addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList).pipe(
-          tap(() => this.trackingService.addToExistingReport({ Asset: 'Mobile' }))
+    this.reportService
+      .createDraft(report)
+      .pipe(
+        switchMap((res) =>
+          iif(
+            () => this.addedExpensesIdList.length > 0,
+            this.reportService
+              .addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList)
+              .pipe(tap(() => this.trackingService.addToExistingReport({ Asset: 'Mobile' }))),
+            of(false)
+          )
         ),
-        of(false)
-      )),
-      switchMap(res => iif(
-        () => (this.deleteExpensesIdList.length > 0),
-        this.removeTxnFromReport(),
-        of(false)
-      )),
-      finalize(() => {
-        this.saveReoprtLoading = false;
-        this.addedExpensesIdList = [];
-        this.deleteExpensesIdList = [];
-        this.router.navigate(['/', 'enterprise', 'my_reports']);
-      })
-    ).subscribe(noop);
+        switchMap((res) => iif(() => this.deleteExpensesIdList.length > 0, this.removeTxnFromReport(), of(false))),
+        finalize(() => {
+          this.saveReoprtLoading = false;
+          this.addedExpensesIdList = [];
+          this.deleteExpensesIdList = [];
+          this.router.navigate(['/', 'enterprise', 'my_reports']);
+        })
+      )
+      .subscribe(noop);
   }
 
   async deleteReport() {
@@ -253,41 +255,46 @@ export class MyEditReportPage implements OnInit {
         </p>
       `,
       primaryCta: {
-        text: 'DELETE'
-      }
+        text: 'DELETE',
+      },
     });
 
     if (popupResult === 'primary') {
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
-        finalize(async () => {
-          await this.loaderService.hideLoader();
-          this.router.navigate(['/', 'enterprise', 'my_reports']);
-        })
-      ).subscribe(noop);
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => this.reportService.delete(this.activatedRoute.snapshot.params.id)),
+          finalize(async () => {
+            await this.loaderService.hideLoader();
+            this.router.navigate(['/', 'enterprise', 'my_reports']);
+          })
+        )
+        .subscribe(noop);
     }
   }
 
   getTripRequests() {
     return this.tripRequestsService.findMyUnreportedRequests().pipe(
-      map(res => res.filter(request => request.state === 'APPROVED')),
-      map((tripRequests: any) => tripRequests.sort((tripA, tripB) => {
-        const tripATime = new Date(tripA.created_at).getTime();
-        const tripBTime = new Date(tripB.created_at).getTime();
-        /**
-         * If tripA's time is larger than tripB's time we keep it before tripB
-         * in the array because latest trip has to be shown at the top.
-         * Else we keep it after tripB cause it was fyled earlier.
-         * If both the dates are same (which may not be possible in the real world)
-         * we maintain the order in which tripA and tripB are present in the array.
-         */
-        return (tripATime > tripBTime) ? -1 : ((tripATime < tripBTime) ? 1 : 0);
-      })),
-      map((tripRequests: any) => tripRequests
-        .map(tripRequest => ({
+      map((res) => res.filter((request) => request.state === 'APPROVED')),
+      map((tripRequests: any) =>
+        tripRequests.sort((tripA, tripB) => {
+          const tripATime = new Date(tripA.created_at).getTime();
+          const tripBTime = new Date(tripB.created_at).getTime();
+          /**
+           * If tripA's time is larger than tripB's time we keep it before tripB
+           * in the array because latest trip has to be shown at the top.
+           * Else we keep it after tripB cause it was fyled earlier.
+           * If both the dates are same (which may not be possible in the real world)
+           * we maintain the order in which tripA and tripB are present in the array.
+           */
+          return tripATime > tripBTime ? -1 : tripATime < tripBTime ? 1 : 0;
+        })
+      ),
+      map((tripRequests: any) =>
+        tripRequests.map((tripRequest) => ({
           label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose,
-          value: tripRequest
-        })))
+          value: tripRequest,
+        }))
+      )
     );
   }
 
@@ -297,7 +304,7 @@ export class MyEditReportPage implements OnInit {
         this.selectedTripRequest = tripRequest;
         const selectedTripRequest = {
           label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose,
-          value: tripRequest
+          value: tripRequest,
         };
         this.tripRequests.push(selectedTripRequest);
       });
@@ -313,25 +320,25 @@ export class MyEditReportPage implements OnInit {
     this.deleteExpensesIdList = [];
     this.addedExpensesIdList = [];
     this.extendedReport$ = this.reportService.getReport(this.activatedRoute.snapshot.params.id);
-    const orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay(1)
-    );
+    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
     const orgUserSettings$ = this.orgUserSettingsService.get();
 
     forkJoin({
       extendedReport: this.extendedReport$,
       orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$,
-      tripRequests: this.getTripRequests()
+      tripRequests: this.getTripRequests(),
     }).subscribe(({ extendedReport, orgSettings, orgUserSettings, tripRequests }) => {
       this.reportTitle = extendedReport.rp_purpose;
       this.reportAmount = extendedReport.rp_amount;
       this.reportState = extendedReport.rp_state;
       this.noOfTxnsInReport = extendedReport.rp_num_transactions;
       this.isTripRequestsEnabled = orgSettings.trip_requests.enabled;
-      this.canAssociateTripRequests = orgSettings.trip_requests.enabled && (!orgSettings.trip_requests.enable_for_certain_employee ||
-        (orgSettings.trip_requests.enable_for_certain_employee &&
-          orgUserSettings.trip_request_org_user_settings.enabled));
+      this.canAssociateTripRequests =
+        orgSettings.trip_requests.enabled &&
+        (!orgSettings.trip_requests.enable_for_certain_employee ||
+          (orgSettings.trip_requests.enable_for_certain_employee &&
+            orgUserSettings.trip_request_org_user_settings.enabled));
       this.tripRequests = tripRequests;
       if (extendedReport.rp_trip_request_id) {
         this.getSelectedTripInfo(extendedReport.rp_trip_request_id);
@@ -339,19 +346,25 @@ export class MyEditReportPage implements OnInit {
     });
 
     this.reportedEtxns$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => from(this.authService.getEou()).pipe(
-        switchMap(eou => this.transactionService.getAllETxnc({
-          tx_org_user_id: 'eq.' + eou.ou.id,
-          tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
-          order: 'tx_txn_dt.desc,tx_id.desc'
-        })),
-        map((etxns) => cloneDeep(etxns)),
-        map((etxns: Expense[]) => etxns.map(etxn => {
-          etxn.vendorDetails = this.getVendorName(etxn);
-          return etxn as Expense;
-        })),
-        shareReplay(1)
-      )),
+      switchMap(() =>
+        from(this.authService.getEou()).pipe(
+          switchMap((eou) =>
+            this.transactionService.getAllETxnc({
+              tx_org_user_id: 'eq.' + eou.ou.id,
+              tx_report_id: 'eq.' + this.activatedRoute.snapshot.params.id,
+              order: 'tx_txn_dt.desc,tx_id.desc',
+            })
+          ),
+          map((etxns) => cloneDeep(etxns)),
+          map((etxns: Expense[]) =>
+            etxns.map((etxn) => {
+              etxn.vendorDetails = this.getVendorName(etxn);
+              return etxn as Expense;
+            })
+          ),
+          shareReplay(1)
+        )
+      ),
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
@@ -359,23 +372,25 @@ export class MyEditReportPage implements OnInit {
       tx_report_id: 'is.null',
       tx_state: 'in.(COMPLETE)',
       order: 'tx_txn_dt.desc',
-      or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)']
+      or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
     };
 
-    this.transactionService.getAllExpenses({ queryParams }).pipe(
-      map((etxns) => cloneDeep(etxns)),
-      map((etxns: Expense[]) => {
-        etxns.forEach((etxn, i) => {
-          etxn.vendorDetails = this.getVendorName(etxn);
-          etxn.showDt = true;
-          etxn.isSelected = false;
-          if (i > 0 && (etxn.tx_txn_dt === etxns[i - 1].tx_txn_dt)) {
-            etxn.showDt = false;
-          }
-        });
-        this.unReportedEtxns = etxns;
-      }),
-    ).subscribe(noop);
+    this.transactionService
+      .getAllExpenses({ queryParams })
+      .pipe(
+        map((etxns) => cloneDeep(etxns)),
+        map((etxns: Expense[]) => {
+          etxns.forEach((etxn, i) => {
+            etxn.vendorDetails = this.getVendorName(etxn);
+            etxn.showDt = true;
+            etxn.isSelected = false;
+            if (i > 0 && etxn.tx_txn_dt === etxns[i - 1].tx_txn_dt) {
+              etxn.showDt = false;
+            }
+          });
+          this.unReportedEtxns = etxns;
+        })
+      )
+      .subscribe(noop);
   }
-
 }

@@ -8,7 +8,8 @@
   font-size: 12px;
   line-height: 15px;
 
-  &--offline, &--online-message {
+  &--offline,
+  &--online-message {
     text-align: center;
     padding: 10px;
     width: 100vw;
@@ -18,7 +19,6 @@
 
   &--offline {
     background-color: $red;
-
   }
 
   &--online-message {

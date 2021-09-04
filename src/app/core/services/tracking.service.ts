@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
-import {AuthService} from './auth.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TrackingService {
   identityEmail = null;
 
-  constructor(
-    private authService: AuthService
-  ) { }
+  constructor(private authService: AuthService) {}
 
   get tracking() {
     return (window as any).analytics;
@@ -21,7 +19,7 @@ export class TrackingService {
     if (email && email !== this.identityEmail) {
       if (this.tracking) {
         this.tracking.identify(email, {
-          $email: email
+          $email: email,
         });
       }
       this.identityEmail = email;
@@ -57,13 +55,12 @@ export class TrackingService {
     }
   }
 
-  onStateChange(toState, toParams, fromState, fromParams) {
-  }
+  onStateChange(toState, toParams, fromState, fromParams) {}
 
   eventTrack(action, properties) {
     properties = {
       ...properties,
-      Asset: 'Mobile'
+      Asset: 'Mobile',
     };
     if (this.tracking) {
       this.tracking.track(action, properties);
@@ -74,7 +71,7 @@ export class TrackingService {
   onSignin(email, properties) {
     if (this.tracking) {
       this.tracking.identify(email, {
-        $email: email
+        $email: email,
       });
 
       this.identityEmail = email;
@@ -83,8 +80,7 @@ export class TrackingService {
     this.eventTrack('Signin', properties);
   }
 
-  onLogout() {
-  }
+  onLogout() {}
 
   /*** Events related to expense ***/
 
@@ -327,7 +323,6 @@ export class TrackingService {
   clickAddSecondaryEmail(properties) {
     this.eventTrack('Click Add Secondary email', properties);
   }
-
 
   /*** Events related to help page ***/
 
@@ -789,4 +784,19 @@ export class TrackingService {
     this.eventTrack('Duplicate Detection User Action Collapse', properties);
   };
 
+  showMoreClicked(properties) {
+    this.eventTrack('show more clicked', properties);
+  }
+
+  hideMoreClicked(properties) {
+    this.eventTrack('hide more clicked', properties);
+  }
+
+  footerSaveAndPrevClicked(properties) {
+    this.eventTrack('save and previous clicked inside footer', properties);
+  }
+
+  footerSaveAndNextClicked(properties) {
+    this.eventTrack('save and next clicked inside footer', properties);
+  }
 }

@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'tripState'
+  name: 'tripState',
 })
 export class TripState implements PipeTransform {
   transform(val) {
@@ -19,7 +19,7 @@ export class TripState implements PipeTransform {
       BOOKING_PENDING: 'booking_pending',
       BOOKED: 'booked',
       ON_HOLD: 'on_hold',
-      CANCEL_PENDING: 'cancellation_pending'
+      CANCEL_PENDING: 'cancellation_pending',
     };
 
     return states[val];

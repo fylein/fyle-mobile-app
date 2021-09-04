@@ -7,16 +7,18 @@ describe('ViewTeamExpensePage', () => {
   let component: ViewTeamExpensePage;
   let fixture: ComponentFixture<ViewTeamExpensePage>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ ViewTeamExpensePage ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [ViewTeamExpensePage],
+        imports: [IonicModule.forRoot()],
+      }).compileComponents();
 
-    fixture = TestBed.createComponent(ViewTeamExpensePage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+      fixture = TestBed.createComponent(ViewTeamExpensePage);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    })
+  );
 
   it('should create', () => {
     expect(component).toBeTruthy();

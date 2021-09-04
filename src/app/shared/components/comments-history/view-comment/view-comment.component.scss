@@ -1,21 +1,26 @@
-@import "../../../../../theme/colors.scss";
+@import '../../../../../theme/colors.scss';
 
-.view-comment{
+.view-comment {
   &--toolbar {
     text-align: center;
     margin-bottom: 12px;
   }
 
   &--btn-close {
-    margin: 0 16px;
+    margin: 0 8px 0 12px;
+    padding: 2px;
   }
 
-  &--btn-segment {
-    color: $blue-black;
-    font-size: 14px;
-    text-transform: capitalize;
-    font-weight: 500;
-    width: 100%;
+  &--segment-block {
+    padding-right: 16px;
+
+    &__btn {
+      color: $blue-black;
+      font-size: 14px;
+      text-transform: capitalize;
+      font-weight: 500;
+      width: 100%;
+    }
   }
 
   &--card {
@@ -41,7 +46,7 @@
     margin-left: 10px;
   }
 
-  &--name-container{
+  &--name-container {
     left: 5px;
     font-size: 14px;
     line-height: 18px;
@@ -146,12 +151,19 @@
     --overflow: hidden;
   }
 
-  &--zero-state-content {
-    color: $black-light;
-  }
-
   &--zero-state {
-    margin: 32% 0 0 38%;
-    height: 80px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+
+    &__img {
+      height: 80px;
+    }
+
+    &__content {
+      color: $black-light;
+    }
   }
 }
