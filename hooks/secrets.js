@@ -1,7 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config();
-let NATIVE_CONFIG_TEMP = '{"base": {"bundle_id": "com.ionicframework.fyle595781", "name": "Fyle"}, "name": "prod"}' ;
-const NATIVE_CONFIG = JSON.parse(NATIVE_CONFIG_TEMP);
+const NATIVE_CONFIG = JSON.parse(process.env.NATIVE_CONFIG);
 
 module.exports = {
     googleCredentialsAndroid: `
