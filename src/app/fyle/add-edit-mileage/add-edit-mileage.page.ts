@@ -403,7 +403,7 @@ export class AddEditMileagePage implements OnInit {
           try {
             const duplicateTxnIds = res.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
             const duplicateFields = res.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
-  
+
             await this.trackingService.duplicateDetectionAlertShown({
               Asset: 'Mobile',
               Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage',
