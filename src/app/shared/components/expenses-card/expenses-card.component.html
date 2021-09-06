@@ -20,7 +20,7 @@
       <ng-container *ngIf="!receiptThumbnail && !attachmentUploadInProgress">
         <div class="expenses-card--receipt-container" *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
           (click)="addAttachments($event)">
-          <ion-icon class="expenses-card--receipt-icon" [src]="receiptIcon"></ion-icon>
+          <ion-icon class="expenses-card--receipt-icon" [src]="receiptIcon" [ngClass]="{'expenses-card--receipt-icon__pdf': receiptIcon === 'assets/svg/pdf.svg'}"></ion-icon>
         </div>
       </ng-container>
 
