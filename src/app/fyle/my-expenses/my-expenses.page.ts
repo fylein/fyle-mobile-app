@@ -144,6 +144,8 @@ export class MyExpensesPage implements OnInit {
 
   isReportableExpensesSelected = false;
 
+  isSearchBarFocused = false;
+
   openReports$: Observable<ExtendedReport[]>;
 
   homeCurrencySymbol: string;
@@ -183,11 +185,20 @@ export class MyExpensesPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  clearText() {
+  clearText(isFromCancel) {
     this.simpleSearchText = '';
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
+    if (isFromCancel === 'onSimpleSearchCancel') {
+      this.isSearchBarFocused = !this.isSearchBarFocused;
+    } else {
+      this.isSearchBarFocused = !!this.isSearchBarFocused;
+    }
+  }
+
+  onSearchBarFocus() {
+    this.isSearchBarFocused = true;
   }
 
   ngOnInit() {
@@ -478,6 +489,7 @@ export class MyExpensesPage implements OnInit {
         return this.acc;
       }),
       tap(() => {
+        console.log('After data is loaded from paginated pipe');
         this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
@@ -632,7 +644,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   doRefresh(event?) {
-    this.syncOutboxExpenses();
     this.currentPageNumber = 1;
     this.selectedElements = [];
     if (this.selectionMode) {
@@ -1255,42 +1266,6 @@ export class MyExpensesPage implements OnInit {
     }, 500);
   }
 
-  async addNewExpense() {
-    this.openAddExpenseListLoader = true;
-    forkJoin({
-      isInstaFyleEnabled: this.isInstaFyleEnabled$,
-      isMileageEnabled: this.isMileageEnabled$,
-      isPerDiemEnabled: this.isPerDiemEnabled$,
-      isBulkFyleEnabled: this.isBulkFyleEnabled$,
-    })
-      .pipe(
-        finalize(() => {
-          this.openAddExpenseListLoader = false;
-        })
-      )
-      .subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
-        const addExpensePopover = await this.popoverController.create({
-          component: AddExpensePopoverComponent,
-          componentProps: {
-            isInstaFyleEnabled,
-            isMileageEnabled,
-            isPerDiemEnabled,
-            isBulkFyleEnabled,
-          },
-          cssClass: 'dialog-popover',
-        });
-
-        await addExpensePopover.present();
-
-        const { data } = await addExpensePopover.onDidDismiss();
-
-        if (data && data.reload) {
-          this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-          this.doRefresh();
-        }
-      });
-  }
-
   async onDeleteExpenseClick(etxn: Expense, index?: number) {
     const popupResults = await this.popupService.showPopup({
       header: 'Delete Expense',
@@ -1835,7 +1810,7 @@ export class MyExpensesPage implements OnInit {
 
   onSimpleSearchCancel() {
     this.headerState = HeaderState.base;
-    this.clearText();
+    this.clearText('onSimpleSearchCancel');
   }
 
   onFilterPillsClearAll() {

@@ -8,13 +8,8 @@
   </ng-container>
 </div>
 
-<div
-  class="expenses-card--body"
-  [ngClass]="{ 'expenses-card--body__with-border': !showDt }"
-  (click)="onGoToTransaction()"
-  (tap)="onTapTransaction()"
-  (press)="onSetMultiselectMode()"
->
+<div class="expenses-card--body" [ngClass]="{ 'expenses-card--body__with-border': !showDt }"
+  (click)="onGoToTransaction()" (tap)="onTapTransaction()" (press)="onSetMultiselectMode()">
   <div class="expenses-card--divider" *ngIf="!showDt"></div>
   <ng-container *ngIf="expenseFields$ | async as expenseFields">
     <div class="display-flex">
@@ -30,26 +25,39 @@
       </ng-container>
 
       <div class="expenses-card--receipt-thumbnail-container expenses-card--with-image"
-        [ngStyle]="{'background-image': 'url(' + receiptThumbnail + ')'}" *ngIf="receiptThumbnail">
-      </div>
+        [ngStyle]="{ 'background-image': 'url(' + receiptThumbnail + ')' }" *ngIf="receiptThumbnail"></div>
 
-      <div class="expenses-card--receipt-container" *ngIf="attachmentUploadInProgress">
+      <div class="expenses-card--receipt-container expenses-card--with-image" *ngIf="attachmentUploadInProgress"
+        [ngStyle]="{
+        'background-image':
+          inlineReceiptDataUrl &&
+          imageTransperencyOverlay + 'url(' + inlineReceiptDataUrl + ')'
+      }">
         <div class="expenses-card--spinner-placeholder">
           <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
         </div>
       </div>
 
       <ng-template #outboxExpenseDisplay>
-        <ng-container *ngIf="isSycing$|async; else defaultState">
-          <div class="expenses-card--receipt-container">
+        <ng-container *ngIf="isSycing$ | async; else defaultState">
+          <div class="expenses-card--receipt-container expenses-card--with-image" [ngStyle]="{
+              'background-image':
+                expense.tx_dataUrls.length > 0 &&
+                imageTransperencyOverlay + 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
+            }">
             <div class="expenses-card--spinner-placeholder">
               <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
             </div>
           </div>
         </ng-container>
         <ng-template #defaultState>
-          <div class="expenses-card--receipt-container">
-            <ion-icon class="expenses-card--receipt-icon" [src]="'../../../../assets/svg/fy-expense.svg'"></ion-icon>
+          <div class="expenses-card--receipt-container expenses-card--with-image" [ngStyle]="{
+              'background-image':
+                expense.tx_dataUrls.length > 0 &&
+                imageTransperencyOverlay + 'url(' + this.expense.tx_dataUrls[0].thumbnail + ')'
+            }">
+            <ion-icon class="expenses-card--receipt-icon" *ngIf="!expense.tx_dataUrls?.length"
+              [src]="'../../../../assets/svg/fy-expense.svg'"></ion-icon>
           </div>
         </ng-template>
       </ng-template>
@@ -63,7 +71,7 @@
                 <ng-template #uploadPerDiem>
                   <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Adding Per Diem </ng-container>
                 </ng-template>
-                <ng-template #uploadDefault> Uploading receipt </ng-template>
+                <ng-template #uploadDefault> Uploading receipt... </ng-template>
               </div>
               <div class="expenses-card--scaning-receipt__content">
                 Your
@@ -83,55 +91,64 @@
         </ng-container>
 
         <ng-template #expenseCardScanning>
-          <ng-container *ngIf="isScanInProgress && !isOutboxExpense; else expenseCardDefaultView">
-            <div class="expenses-card--scaning-receipt__container">
-              <div class="expenses-card--scaning-receipt__header">Scanning receipt</div>
-              <div class="expenses-card--scaning-receipt__content">
-                Your receipt details will be auto-extracted shortly.
-              </div>
-            </div>
-            <ng-container *ngIf="expense.isDraft">
-              <div class="expenses-card--state-container ion-text-right">
-                <span class="expenses-card--state">
-                  {{ expense.tx_state | titlecase }}
-                </span>
+          <ng-container *ngIf="!isScanCompleted; else expenseCardDefaultView">
+            <ng-container *ngIf="isScanInProgress; else scanFailed">
+              <div class="expenses-card--scaning-receipt__container">
+                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-scanning">
+                  Scanning Receipt...
+                  <ion-icon class="expenses-card--scanning-icon" src="assets/svg/fy-scan.svg"></ion-icon>
+                </div>
+                <div class="expenses-card--scaning-receipt__content">
+                  <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> It takes a while.
+                  You can enter details
+                </div>
               </div>
             </ng-container>
+            <ng-template #scanFailed>
+              <div class="expenses-card--scaning-receipt__container">
+                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">
+                  Scan failed
+                </div>
+                <div class="expenses-card--scaning-receipt__content">
+                  <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> Add details
+                </div>
+              </div>
+              <ng-container *ngIf="expense.isDraft">
+                <div class="expenses-card--state-container ion-text-right">
+                  <span class="expenses-card--state">
+                    {{ expense.tx_state | titlecase }}
+                  </span>
+                </div>
+              </ng-container>
+            </ng-template>
           </ng-container>
         </ng-template>
 
         <ng-template #expenseCardDefaultView>
           <div class="expenses-card--category-vendor-project-container">
             <div class="display-flex expenses-card--category-icon-container">
-              <div
-                class="expenses-card--category"
-                [ngClass]="{ 'expenses-card--category__small': isSelectionModeEnabled }"
-              >
+              <div class="expenses-card--category"
+                [ngClass]="{ 'expenses-card--category__small': isSelectionModeEnabled }">
                 {{ expense?.tx_org_category || 'Unspecified' }}
               </div>
-              <mat-icon
-                *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
-                class="expenses-card--policy-violated-icon"
-                >error</mat-icon
-              >
+              <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
+                class="expenses-card--policy-violated-icon">error</mat-icon>
             </div>
 
-            <div
-              class="expenses-card--vendor"
-              [ngClass]="{
+            <div class="expenses-card--vendor" [ngClass]="{
                 'expenses-card--vendor__not-filled': !expense.vendorDetails,
                 'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'
-              }"
-            >
+              }">
               {{ expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled' }}
             </div>
 
-            <div
-              *ngIf="isProjectMandatory$ | async"
-              class="expenses-card--project"
-              [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
-            >
+            <div *ngIf="isProjectMandatory$ | async" class="expenses-card--project"
+              [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }">
               {{ expense.tx_project_name ? 'Project: ' + expense.tx_project_name : 'Project not filled' }}
+            </div>
+
+            <div class="expenses-card--edit-text" *ngIf="expense.isDraft">
+              <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> Enter details manually
             </div>
           </div>
           <div class="display-flex">
@@ -140,14 +157,12 @@
                 <span class="expenses-card--currency">{{ homeCurrencySymbol }}</span>
                 <span class="expenses-card--amount">{{
                   expense.tx_amount || expense?.tx_extracted_data?.amount || 0 | humanizeCurrency: homeCurrency:2:true
-                }}</span>
+                  }}</span>
                 <mat-icon class="expenses-card--icon" svgIcon="{{ paymentModeIcon }}"></mat-icon>
               </div>
 
-              <div
-                *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
-                class="expenses-card--exchange-rate ion-text-right"
-              >
+              <div *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
+                class="expenses-card--exchange-rate ion-text-right">
                 ({{ foreignCurrencySymbol
                 }}{{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency:2:true }} at
                 {{ homeCurrencySymbol }}{{ expense.tx_amount / expense.tx_orig_amount | number: '1.0-2' }})

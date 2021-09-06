@@ -41,10 +41,20 @@
     margin-bottom: 16px;
   }
 
+  &--edit-icon {
+    stroke: $brand-primary;
+    font-size: 16px;
+  }
+
+  &--scanning-icon {
+    margin-left: 2px;
+  }
+
   &--scaning-receipt {
     &__container {
       padding: 3px 11px 0 11px;
       overflow: hidden;
+      min-width: 160px;
     }
 
     &__header {
@@ -53,8 +63,18 @@
       font-size: 18px;
       line-height: 1.3;
       white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow-x: hidden;
+      &-scanning {
+        color: $green;
+      }
+
+      &-failed {
+        color: $red;
+      }
+
+      &-scanning {
+        display: flex;
+        align-items: center;
+      }
     }
 
     &__content {
@@ -76,14 +96,14 @@
     border-radius: 8px;
     height: 74px;
     padding: 20px;
-  } 
-  
+  }
+
   &--receipt-thumbnail-container {
     background-color: $light-grey;
     border-radius: 8px;
     height: 74px;
     width: 90px;
-  }  
+  }
 
   &--with-image {
     background-size: cover;
@@ -95,7 +115,7 @@
     height: 35px;
     width: 35px;
     stroke: $black-light;
-  } 
+  }
 
   &--receipt-thumbnail {
     height: 74px;
@@ -130,11 +150,19 @@
     font-size: 20px;
   }
 
+  &--edit-text {
+    color: $blue-black;
+    font-size: 14px;
+    line-height: 1.3;
+    white-space: nowrap;
+    margin-top: 4px;
+  }
+
   &--vendor {
     color: $blue-black;
     font-size: 14px;
     line-height: 1.2;
-    margin-top: 1px;
+    margin-top: 2px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;
@@ -147,7 +175,7 @@
   &--project {
     color: $blue-black;
     font-size: 14px;
-    margin-top: 8px;
+    margin-top: 2px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;
@@ -221,9 +249,9 @@
     border-radius: 16px;
     padding: 4px 29px;
   }
-  
+
   &--spinner-icon {
-    color: #f36;
+    color: $brand-primary;
   }
 
   &--spinner-subheader {
