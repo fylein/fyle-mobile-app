@@ -73,6 +73,10 @@ export class FyViewAttachmentComponent implements OnInit {
     this.imageSlides.slidePrev();
   }
 
+  getActiveIndex() {
+    this.imageSlides.getActiveIndex().then(index => this.activeIndex = index);
+  }
+
   async deleteAttachment() {
     const activeIndex = await this.imageSlides.getActiveIndex();
     const popupResult = await this.popupService.showPopup({

@@ -138,6 +138,7 @@ export class IconModule {
     'list.svg',
     'mail.svg',
     'mileage.svg',
+    'no-attachment.svg',
     'office-supplies.svg',
     'parking.svg',
     'per_diem.svg',

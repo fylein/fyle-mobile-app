@@ -7,15 +7,20 @@
   }
 
   &--btn-close {
-    margin: 0 16px;
+    margin: 0 8px 0 12px;
+    padding: 2px;
   }
 
-  &--btn-segment {
-    color: $blue-black;
-    font-size: 14px;
-    text-transform: capitalize;
-    font-weight: 500;
-    width: 100%;
+  &--segment-block {
+    padding-right: 16px;
+
+    &__btn {
+      color: $blue-black;
+      font-size: 14px;
+      text-transform: capitalize;
+      font-weight: 500;
+      width: 100%;
+    }
   }
 
   &--card {
