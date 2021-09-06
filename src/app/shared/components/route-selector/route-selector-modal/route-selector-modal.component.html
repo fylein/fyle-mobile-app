@@ -83,12 +83,9 @@
       </ng-container>
     </div>
 
-    <app-fy-alert
-      *ngIf="mileageLocations.controls.length === 10"
-      [message]="'You can add a maximum of 10 locations'"
-      [type]="'information'"
-    >
-    </app-fy-alert>
+    <app-fy-alert-info *ngIf="mileageLocations.controls.length === 10" [message]="'You can add a maximum of 10 locations'"
+      [type]="'information'">
+    </app-fy-alert-info>
 
     <div class="route-selector-modal--internal-block" *ngIf="mileageLocations.controls.length < 3">
       <mat-checkbox [disabled]="isAmountDisabled" formControlName="roundTrip">

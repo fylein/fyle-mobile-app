@@ -114,27 +114,36 @@ export class ExpensesCardComponent implements OnInit {
       if (!this.expense.tx_file_ids) {
         this.receiptIcon = 'assets/svg/add-receipt.svg';
       } else {
-        this.fileService.getFilesWithThumbnail(this.expense.tx_id).pipe(
-          map((ThumbFiles: File[]) => {
-            if (ThumbFiles.length > 0) {
-              this.fileService.downloadThumbnailUrl(ThumbFiles[0].id).pipe(
-                map((downloadUrl: FileObject[]) => {
-                  this.receiptThumbnail = downloadUrl[0].url;
-                })
-              ).subscribe(noop);
-            } else {
-              this.fileService.downloadUrl(this.expense.tx_file_ids[0]).pipe(
-                map((downloadUrl: string) => {
-                  if (this.fileService.getReceiptDetails(downloadUrl) === 'pdf') {
-                    this.receiptIcon = 'assets/svg/pdf.svg';
-                  } else {
-                    this.receiptIcon = 'assets/svg/fy-expense.svg';
-                  }
-                })
-              ).subscribe(noop);
-            }
-          })
-        ).subscribe(noop);
+        this.fileService
+          .getFilesWithThumbnail(this.expense.tx_id)
+          .pipe(
+            map((ThumbFiles: File[]) => {
+              if (ThumbFiles.length > 0) {
+                this.fileService
+                  .downloadThumbnailUrl(ThumbFiles[0].id)
+                  .pipe(
+                    map((downloadUrl: FileObject[]) => {
+                      this.receiptThumbnail = downloadUrl[0].url;
+                    })
+                  )
+                  .subscribe(noop);
+              } else {
+                this.fileService
+                  .downloadUrl(this.expense.tx_file_ids[0])
+                  .pipe(
+                    map((downloadUrl: string) => {
+                      if (this.fileService.getReceiptDetails(downloadUrl) === 'pdf') {
+                        this.receiptIcon = 'assets/svg/pdf.svg';
+                      } else {
+                        this.receiptIcon = 'assets/svg/fy-expense.svg';
+                      }
+                    })
+                  )
+                  .subscribe(noop);
+              }
+            })
+          )
+          .subscribe(noop);
       }
     }
   }
@@ -234,7 +243,6 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   async addAttachments(event) {
-
     const isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
     const isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
 
@@ -244,7 +252,7 @@ export class ExpensesCardComponent implements OnInit {
 
       const popup = await this.popoverController.create({
         component: CameraOptionsPopupComponent,
-        cssClass: 'camera-options-popover'
+        cssClass: 'camera-options-popover',
       });
 
       await popup.present();
@@ -254,32 +262,37 @@ export class ExpensesCardComponent implements OnInit {
         this.attachmentUploadInProgress = true;
         const attachmentType = this.fileService.getAttachmentType(data.type);
 
-        from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType)).pipe(
-          tap((fileObj: FileObject) => {
-            this.expense.tx_file_ids = [];
-            this.expense.tx_file_ids.push(fileObj.id);
-            if (this.expense.tx_file_ids) {
-              this.fileService.downloadUrl(this.expense.tx_file_ids[0]).pipe(
-                map(downloadUrl => {
-                  if (attachmentType === 'pdf') {
-                    this.receiptIcon = 'assets/svg/pdf.svg';
-                  } else {
-                    this.receiptThumbnail = downloadUrl;
-                  }
-                })
-              ).subscribe(noop);
-            }
-          } ),
-          switchMap((fileObj: FileObject) => {
-            fileObj.transaction_id = this.expense.tx_id;
-            return this.fileService.post(fileObj);
-          }),
-          finalize(() => {
-            this.attachmentUploadInProgress = false;
-          })
-        ).subscribe((attachmentsCount) => {
-          this.attachedReceiptsCount = attachmentsCount;
-        });
+        from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType))
+          .pipe(
+            tap((fileObj: FileObject) => {
+              this.expense.tx_file_ids = [];
+              this.expense.tx_file_ids.push(fileObj.id);
+              if (this.expense.tx_file_ids) {
+                this.fileService
+                  .downloadUrl(this.expense.tx_file_ids[0])
+                  .pipe(
+                    map((downloadUrl) => {
+                      if (attachmentType === 'pdf') {
+                        this.receiptIcon = 'assets/svg/pdf.svg';
+                      } else {
+                        this.receiptThumbnail = downloadUrl;
+                      }
+                    })
+                  )
+                  .subscribe(noop);
+              }
+            }),
+            switchMap((fileObj: FileObject) => {
+              fileObj.transaction_id = this.expense.tx_id;
+              return this.fileService.post(fileObj);
+            }),
+            finalize(() => {
+              this.attachmentUploadInProgress = false;
+            })
+          )
+          .subscribe((attachmentsCount) => {
+            this.attachedReceiptsCount = attachmentsCount;
+          });
       }
     }
   }

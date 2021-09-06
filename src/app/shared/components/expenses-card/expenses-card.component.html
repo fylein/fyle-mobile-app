@@ -23,15 +23,20 @@
         </mat-checkbox>
       </div>
       <ng-container *ngIf="!receiptThumbnail && !attachmentUploadInProgress">
-        <div class="expenses-card--receipt-container" *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
-          (click)="addAttachments($event)">
+        <div
+          class="expenses-card--receipt-container"
+          *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
+          (click)="addAttachments($event)"
+        >
           <ion-icon class="expenses-card--receipt-icon" [src]="receiptIcon"></ion-icon>
         </div>
       </ng-container>
 
-      <div class="expenses-card--receipt-thumbnail-container expenses-card--with-image"
-        [ngStyle]="{'background-image': 'url(' + receiptThumbnail + ')'}" *ngIf="receiptThumbnail">
-      </div>
+      <div
+        class="expenses-card--receipt-thumbnail-container expenses-card--with-image"
+        [ngStyle]="{ 'background-image': 'url(' + receiptThumbnail + ')' }"
+        *ngIf="receiptThumbnail"
+      ></div>
 
       <div class="expenses-card--receipt-container" *ngIf="attachmentUploadInProgress">
         <div class="expenses-card--spinner-placeholder">
@@ -40,7 +45,7 @@
       </div>
 
       <ng-template #outboxExpenseDisplay>
-        <ng-container *ngIf="isSycing$|async; else defaultState">
+        <ng-container *ngIf="isSycing$ | async; else defaultState">
           <div class="expenses-card--receipt-container">
             <div class="expenses-card--spinner-placeholder">
               <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>

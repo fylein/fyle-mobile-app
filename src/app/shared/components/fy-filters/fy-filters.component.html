@@ -6,7 +6,7 @@
       </ion-button>
     </ion-buttons>
     <ion-title class="fy-filters--title" mode="md"> Filter and Sort </ion-title>
-    <ion-buttons mode="md" slot="end">
+    <ion-buttons *ngIf="getNoOfFilters()" mode="md" slot="end">
       <ion-button class="fy-filters--clear-all" mode="md" color="fy-primary" (click)="clearAll()">
         Clear All
       </ion-button>
