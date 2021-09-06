@@ -3,6 +3,7 @@
 </div>
 <div
   class="reports-card"
+  [ngClass]="{'reports-card__with-border': !showDate}"
   (click)="onGoToReport()"
   *ngIf="!actionOpened"
   matRipple

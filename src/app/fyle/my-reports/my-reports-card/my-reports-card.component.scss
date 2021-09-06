@@ -4,6 +4,10 @@
   padding: 16px;
   background-color: $pure-white;
 
+  &__with-border {
+    padding-top: 0;
+  }
+
   &__no-top-margin {
     margin-top: 0;
   }
