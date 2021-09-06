@@ -94,7 +94,7 @@ export class ExpensesCardComponent implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
-  ) { }
+  ) {}
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
@@ -155,18 +155,17 @@ export class ExpensesCardComponent implements OnInit {
 
   checkIfScanIsCompleted() {
     const hasUserManuallyEnteredData = this.expense.tx_amount && isNumber(this.expense.tx_amount);
-    const isRequiredExtractedDataPresent =
-      this.expense.tx_extracted_data &&
-      this.expense.tx_extracted_data.amount;
+    const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
     // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
-    const hasScanExpired = this.expense.tx_created_at && moment(this.expense.tx_created_at).diff(moment.now(), 'day') === 1;
+    const hasScanExpired =
+      this.expense.tx_created_at && moment(this.expense.tx_created_at).diff(moment.now(), 'day') === 1;
     return hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired;
   }
 
   /**
-   * This is to check if the expense is currently in data extraction queue. If the item is not in data extraction queue anymore, 
+   * This is to check if the expense is currently in data extraction queue. If the item is not in data extraction queue anymore,
    * a callback method is fired.
    *
    * The reasoning behind this is to check if scanning expenses have finished scanning
