@@ -15,6 +15,25 @@ export class FileService {
     return this.apiService.post('/files/' + fileId + '/download_url').pipe(map((res) => res.url));
   }
 
+  downloadThumbnailUrl(fileId: string): Observable<any[]> {
+    return this.apiService.post('/files/download_urls',
+      [{
+        id: fileId,
+        purpose: 'THUMBNAILx200x200'
+      }]
+    );
+  }
+
+  getFilesWithThumbnail(txnId: string): Observable<any[]> {
+    return this.apiService.get('/files', {
+      params: {
+        transaction_id: txnId,
+        skip_html: 'true',
+        purpose: 'THUMBNAILx200x200'
+      }
+    });
+  }
+
   base64Download(fileId) {
     return this.apiService.get('/files/' + fileId + '/download_b64');
   }
@@ -114,5 +133,43 @@ export class FileService {
 
   delete(fileId: string) {
     return this.apiService.delete('/files/' + fileId);
+  };
+
+
+  getAttachmentType(type: string) {
+    let attachmentType = 'image';
+    if (type === 'application/pdf' || type === 'pdf') {
+      attachmentType = 'pdf';
+    }
+    return attachmentType;
   }
+
+  getReceiptDetails(url: string) {
+    const ext = this.getReceiptExtension(url);
+    let type = '';
+
+    if (ext && (['pdf'].indexOf(ext) > -1)) {
+      type = 'pdf';
+    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+      type = 'image';
+    }
+
+    return type;
+  }
+
+  getReceiptExtension(url: string) {
+    let res = null;
+    const name = url.split('?')[0];
+    if (name) {
+      const filename = name.toLowerCase();
+      const idx = filename.lastIndexOf('.');
+
+      if (idx > -1) {
+        res = filename.substring(idx + 1, filename.length);
+      }
+    }
+
+    return res;
+  }
+
 }

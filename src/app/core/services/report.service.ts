@@ -217,7 +217,6 @@ export class ReportService {
         state: ['DRAFT', 'APPROVER_PENDING'],
       },
       all: {
-        // eslint-disable-next-line max-len
         state: [
           'DRAFT',
           'DRAFT_INQUIRY',

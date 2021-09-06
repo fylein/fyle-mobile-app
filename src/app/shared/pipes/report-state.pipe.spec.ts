@@ -24,7 +24,7 @@ fdescribe('ReportStatePipe', () => {
   });
 
   it('transforms "APPROVER_INQUIRY" state to "inquiry"', () => {
-    expect(pipe.transform('APPROVER_INQUIRY')).toBe('inquiry');
+    expect(pipe.transform('APPROVER_INQUIRY')).toBe('sent_back');
   });
 
   it('transforms "POLICY_INQUIRY" state to "auto_flagged"', () => {

@@ -11,7 +11,7 @@
     </ion-buttons>
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
-        <ion-icon name="close" slot="icon-only"></ion-icon>
+        <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title
@@ -243,12 +243,9 @@
             </ion-grid>
 
             <ng-container *ngIf="isAdvancesEnabled$">
-              <app-fy-alert
-                *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)"
-                [message]="'You have outstanding balance in your advance account(s)'"
-                [type]="'information'"
-              >
-              </app-fy-alert>
+              <app-fy-alert-info *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async)"
+                [message]="'You have outstanding balance in your advance account(s)'" [type]="'information'">
+              </app-fy-alert-info>
             </ng-container>
           </div>
 
@@ -554,12 +551,10 @@
               <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                 <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                   <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-                    <app-fy-alert
-                      *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
+                    <app-fy-alert-info *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                       [type]="'warning'"
-                      [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                    >
-                    </app-fy-alert>
+                      [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'">
+                    </app-fy-alert-info>
                   </ng-container>
                 </ng-container>
               </ng-container>
@@ -601,6 +596,14 @@
             [loadingText]="'Saving'"
           >
             Save & New
+          </ion-button>
+          <ion-button
+            (click)="close()"
+            *ngIf="mode === 'edit'"
+            [disabled]="saveMileageLoader"
+            class="btn-secondary"
+          >
+            Cancel
           </ion-button>
           <ion-button
             (click)="saveExpense()"
