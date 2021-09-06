@@ -115,7 +115,7 @@ export class InvitedUserPage implements OnInit {
           tap(() => this.trackingService.setupComplete()),
           switchMap(() => this.authService.refreshEou()),
           switchMap(() => this.orgUserService.markActive()),
-          tap(() => this.trackingService.activated(),
+          tap(() => this.trackingService.activated()),
           finalize(async () => await this.loaderService.hideLoader())
         )
         .subscribe(() => {
