@@ -7,7 +7,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { concatMap, finalize, switchMap } from 'rxjs/operators';
-import { reduce } from 'lodash';
+import { isNumber, reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
 import { PopoverController } from '@ionic/angular';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
@@ -94,7 +94,7 @@ export class ExpensesCardComponent implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
-  ) {}
+  ) { }
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
@@ -154,20 +154,30 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   checkIfScanIsCompleted() {
-    const userHasManuallyEnteredData = this.expense.tx_amount && this.expense.tx_currency;
-    const requireExtractedDataPresent =
+    const hasUserManuallyEnteredData = this.expense.tx_amount && isNumber(this.expense.tx_amount);
+    const isRequiredExtractedDataPresent =
       this.expense.tx_extracted_data &&
-      this.expense.tx_extracted_data.amount &&
-      this.expense.tx_extracted_data.currency;
-    const scanHasExpired = this.expense.tx_txn_dt && moment(this.expense.tx_txn_dt).diff(moment.now(), 'day') === 1;
-    return userHasManuallyEnteredData || requireExtractedDataPresent || scanHasExpired;
+      this.expense.tx_extracted_data.amount;
+
+    // this is to prevent the scan failed from being shown from an indefinite amount of time.
+    // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
+    const hasScanExpired = this.expense.tx_created_at && moment(this.expense.tx_created_at).diff(moment.now(), 'day') === 1;
+    return hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired;
   }
 
+  /**
+   * This is to check if the expense is currently in data extraction queue. If the item is not in data extraction queue anymore, 
+   * a callback method is fired.
+   *
+   * The reasoning behind this is to check if scanning expenses have finished scanning
+   *
+   * @param callback Callback method to be fired when item has finished scanning
+   */
   pollDataExtractionStatus(callback: Function) {
     const that = this;
     setTimeout(() => {
-      const presentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
-      if (!presentInQueue) {
+      const isPresentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+      if (!isPresentInQueue) {
         callback();
       } else {
         that.pollDataExtractionStatus(callback);
