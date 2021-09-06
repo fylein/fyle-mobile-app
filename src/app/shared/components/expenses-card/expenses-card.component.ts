@@ -153,7 +153,7 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
-  checkIfScanIsCompleted() {
+  checkIfScanIsCompleted(): boolean {
     const hasUserManuallyEnteredData = this.expense.tx_amount && isNumber(this.expense.tx_amount);
     const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
 
@@ -161,7 +161,7 @@ export class ExpensesCardComponent implements OnInit {
     // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
     const hasScanExpired =
       this.expense.tx_created_at && moment(this.expense.tx_created_at).diff(moment.now(), 'day') === 1;
-    return hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired;
+    return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
   }
 
   /**
