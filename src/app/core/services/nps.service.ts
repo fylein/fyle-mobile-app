@@ -56,7 +56,7 @@ export class NpsService {
     const eou$ = from(that.authService.getEou());
     forkJoin({
       eou: eou$,
-      homeCurrency: this.offlineService.getHomeCurrency();
+      homeCurrency: this.offlineService.getHomeCurrency()
     }).subscribe((res) => {
       const eou = res.eou;
       const homeCurrency = res.homeCurrency;
