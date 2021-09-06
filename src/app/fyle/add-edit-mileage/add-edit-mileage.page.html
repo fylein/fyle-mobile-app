@@ -584,7 +584,7 @@
   <ion-footer *ngIf="!reviewList?.length">
     <ion-toolbar
       mode="md"
-      class="add-edit-mileage--footer-toolbar"
+      class="add-edit-mileage--footer-toolbar cta-footer-toolbar"
       [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}"
     >
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">
