@@ -142,6 +142,8 @@ export class AddEditMileagePage implements OnInit {
 
   expenseStartTime;
 
+  policyDetails;
+
   navigateBack = false;
 
   saveMileageLoader = false;
@@ -1127,6 +1129,8 @@ export class AddEditMileagePage implements OnInit {
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
     );
+
+    this.getPolicyDetails();
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
@@ -2444,5 +2448,13 @@ export class AddEditMileagePage implements OnInit {
     });
 
     this.isExpandedView = true;
+  }
+
+  getPolicyDetails() {
+    const txnId = this.activatedRoute.snapshot.params.id;
+    from(this.policyService.getPolicyViolationRules(txnId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
   }
 }

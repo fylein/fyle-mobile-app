@@ -47,6 +47,7 @@ import { AuditHistoryComponent } from './components/comments-history/audit-histo
 import { StatusesDiffComponent } from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
 import { FyApporverComponent } from './components/fy-apporver/fy-apporver.component';
 import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
+import { PolicyViolationDetailsComponent } from './components/policy-violation-details/policy-violation-details.component';
 
 // directive imports
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
@@ -161,6 +162,7 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     RouteVisualizerComponent,
     RouteSelectorComponent,
     RouteSelectorModalComponent,
+    PolicyViolationDetailsComponent
   ],
   imports: [
     CommonModule,
@@ -243,6 +245,7 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     RouteVisualizerComponent,
     RouteSelectorComponent,
     MatChipsModule,
+    PolicyViolationDetailsComponent
   ],
   providers: [DecimalPipe, DatePipe],
 })

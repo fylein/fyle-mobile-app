@@ -32,7 +32,7 @@ export class CameraOptionsPopupComponent implements OnInit {
     this.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
 
     const image = await Camera.getPhoto({
-      quality: 90,
+      quality: 70,
       source: CameraSource.Camera,
       direction: CameraDirection.Rear,
       resultType: CameraResultType.DataUrl,

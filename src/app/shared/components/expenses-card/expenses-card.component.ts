@@ -1,14 +1,23 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { concat, noop, Observable } from 'rxjs';
+import { from, noop, Observable } from 'rxjs';
+import { concat } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { concatMap, finalize, switchMap } from 'rxjs/operators';
+import { isNumber, reduce } from 'lodash';
+import { FileService } from 'src/app/core/services/file.service';
+import { PopoverController } from '@ionic/angular';
+import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
+import { FileObject } from 'src/app/core/models/file_obj.model';
+import { File } from 'src/app/core/models/file.model';
 import { map, tap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-expense-card',
@@ -28,6 +37,8 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isFirstOfflineExpense: boolean;
 
+  @Input() attachments;
+
   @Input() isOutboxExpense: boolean;
 
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
@@ -36,7 +47,11 @@ export class ExpensesCardComponent implements OnInit {
 
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
+  inlineReceiptDataUrl: string;
+
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+
+  receiptIcon: string;
 
   receipt: string;
 
@@ -58,15 +73,27 @@ export class ExpensesCardComponent implements OnInit {
 
   isProjectMandatory$: Observable<boolean>;
 
+  attachmentUploadInProgress = false;
+
+  attachedReceiptsCount = 0;
+
+  receiptThumbnail: string = null;
+
   isConnected$: Observable<boolean>;
 
   isSycing$: Observable<boolean>;
 
   category: string;
 
+  isScanCompleted: boolean;
+
+  imageTransperencyOverlay = 'linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), ';
+
   constructor(
     private transactionService: TransactionService,
     private offlineService: OfflineService,
+    private fileService: FileService,
+    private popoverController: PopoverController,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
   ) {}
@@ -87,12 +114,113 @@ export class ExpensesCardComponent implements OnInit {
 
   getReceipt() {
     if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
-      this.receipt = 'assets/svg/fy-mileage.svg';
+      this.receiptIcon = 'assets/svg/fy-mileage.svg';
     } else if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem') {
-      this.receipt = 'assets/svg/fy-calendar.svg';
+      this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
-      // Todo: Get thumbnail of image in V2
-      this.receipt = 'assets/svg/fy-expense.svg';
+      if (!this.expense.tx_file_ids) {
+        this.receiptIcon = 'assets/svg/add-receipt.svg';
+      } else {
+        this.fileService
+          .getFilesWithThumbnail(this.expense.tx_id)
+          .pipe(
+            map((ThumbFiles: File[]) => {
+              if (ThumbFiles.length > 0) {
+                this.fileService
+                  .downloadThumbnailUrl(ThumbFiles[0].id)
+                  .pipe(
+                    map((downloadUrl: FileObject[]) => {
+                      this.receiptThumbnail = downloadUrl[0].url;
+                    })
+                  )
+                  .subscribe(noop);
+              } else {
+                this.fileService
+                  .downloadUrl(this.expense.tx_file_ids[0])
+                  .pipe(
+                    map((downloadUrl: string) => {
+                      if (this.fileService.getReceiptDetails(downloadUrl) === 'pdf') {
+                        this.receiptIcon = 'assets/svg/pdf.svg';
+                      } else {
+                        this.receiptIcon = 'assets/svg/fy-expense.svg';
+                      }
+                    })
+                  )
+                  .subscribe(noop);
+              }
+            })
+          )
+          .subscribe(noop);
+      }
+    }
+  }
+
+  checkIfScanIsCompleted(): boolean {
+    const hasUserManuallyEnteredData = this.expense.tx_amount && isNumber(this.expense.tx_amount);
+    const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
+
+    // this is to prevent the scan failed from being shown from an indefinite amount of time.
+    // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
+    const hasScanExpired =
+      this.expense.tx_created_at && moment(this.expense.tx_created_at).diff(moment.now(), 'day') === 1;
+    return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
+  }
+
+  /**
+   * This is to check if the expense is currently in data extraction queue. If the item is not in data extraction queue anymore,
+   * a callback method is fired.
+   *
+   * The reasoning behind this is to check if scanning expenses have finished scanning
+   *
+   * @param callback Callback method to be fired when item has finished scanning
+   */
+  pollDataExtractionStatus(callback: Function) {
+    const that = this;
+    setTimeout(() => {
+      const isPresentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+      if (!isPresentInQueue) {
+        callback();
+      } else {
+        that.pollDataExtractionStatus(callback);
+      }
+    }, 1000);
+  }
+
+  handleScanStatus() {
+    const that = this;
+    that.isScanInProgress = false;
+    that.isScanCompleted = false;
+
+    if (!that.isOutboxExpense) {
+      that.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
+        if (
+          orgUserSettings.insta_fyle_settings.allowed &&
+          orgUserSettings.insta_fyle_settings.enabled &&
+          (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
+        ) {
+          that.isScanCompleted = that.checkIfScanIsCompleted();
+          that.isScanInProgress =
+            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+          if (that.isScanInProgress) {
+            that.pollDataExtractionStatus(function () {
+              that.transactionService.getETxn(that.expense.tx_id).subscribe((etxn) => {
+                const extractedData = etxn.tx.extracted_data;
+                if (extractedData?.amount && extractedData?.currency) {
+                  that.isScanCompleted = true;
+                  that.isScanInProgress = false;
+                  that.expense.tx_extracted_data = extractedData;
+                } else {
+                  that.isScanInProgress = false;
+                  that.isScanCompleted = false;
+                }
+              });
+            });
+          }
+        } else {
+          that.isScanCompleted = true;
+          that.isScanInProgress = false;
+        }
+      });
     }
   }
 
@@ -141,7 +269,7 @@ export class ExpensesCardComponent implements OnInit {
 
     this.getReceipt();
 
-    this.isScanInProgress = this.getScanningReceiptCard(this.expense) || this.isOutboxExpense;
+    this.handleScanStatus();
 
     this.setOtherData();
   }
@@ -187,6 +315,62 @@ export class ExpensesCardComponent implements OnInit {
   onTapTransaction() {
     if (this.isSelectionModeEnabled) {
       this.cardClickedForSelection.emit(this.expense);
+    }
+  }
+
+  async addAttachments(event) {
+    const isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
+    const isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
+
+    if (!(isMileageExpense || isPerDiem || this.expense.tx_file_ids)) {
+      event.stopPropagation();
+      event.preventDefault();
+
+      const popup = await this.popoverController.create({
+        component: CameraOptionsPopupComponent,
+        cssClass: 'camera-options-popover',
+      });
+
+      await popup.present();
+
+      const { data } = await popup.onWillDismiss();
+      if (data) {
+        this.attachmentUploadInProgress = true;
+        const attachmentType = this.fileService.getAttachmentType(data.type);
+
+        this.inlineReceiptDataUrl = attachmentType !== 'pdf' && data.dataUrl;
+        from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType))
+          .pipe(
+            tap((fileObj: FileObject) => {
+              this.expense.tx_file_ids = [];
+              this.expense.tx_file_ids.push(fileObj.id);
+              if (this.expense.tx_file_ids) {
+                this.fileService
+                  .downloadUrl(this.expense.tx_file_ids[0])
+                  .pipe(
+                    map((downloadUrl) => {
+                      if (attachmentType === 'pdf') {
+                        this.receiptIcon = 'assets/svg/pdf.svg';
+                      } else {
+                        this.receiptThumbnail = downloadUrl;
+                      }
+                    })
+                  )
+                  .subscribe(noop);
+              }
+            }),
+            switchMap((fileObj: FileObject) => {
+              fileObj.transaction_id = this.expense.tx_id;
+              return this.fileService.post(fileObj);
+            }),
+            finalize(() => {
+              this.attachmentUploadInProgress = false;
+            })
+          )
+          .subscribe((attachmentsCount) => {
+            this.attachedReceiptsCount = attachmentsCount;
+          });
+      }
     }
   }
 

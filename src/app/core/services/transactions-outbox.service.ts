@@ -15,6 +15,7 @@ import { ReportService } from './report.service';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
 import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
+import { CurrencyService } from './currency.service';
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +43,8 @@ export class TransactionsOutboxService {
     private receiptService: ReceiptService,
     private reportService: ReportService,
     private offlineService: OfflineService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private currencyService: CurrencyService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -136,9 +138,21 @@ export class TransactionsOutboxService {
                 entry.transaction.extracted_data = extractedData;
                 entry.transaction.txn_dt = new Date();
 
-                this.transactionService
+                // TODO: add this to allow amout addtion to extracted expense
+                // let transactionUpsertPromise;
+
+                // if (!entry.transaction.amount) {
+                //   transactionUpsertPromise = that
+                //     .getExtractedCurrencyData(extractedData, entry)
+                //     .then((_) => that.transactionService.upsert(entry.transaction).toPromise());
+                // } else {
+                //   transactionUpsertPromise = that.transactionService.upsert(entry.transaction).toPromise();
+                // }
+
+                that.transactionService
                   .upsert(entry.transaction)
                   .toPromise()
+                  .then(() => console.log(entry.transaction))
                   .finally(() => {
                     this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
                   });
@@ -161,6 +175,56 @@ export class TransactionsOutboxService {
       loop(0);
     }
   }
+
+  // TODO: add this to allow amout addtion to extracted expense
+  // getExtractedCurrencyData(extractedData, entry) {
+  //   const that = this;
+  //   return that.offlineService
+  //     .getHomeCurrency()
+  //     .toPromise()
+  //     .then((homeCurrency) => {
+  //       if (extractedData.currency && homeCurrency !== extractedData.currency) {
+  //         return that.currencyService
+  //           .getExchangeRate(
+  //             extractedData.currency,
+  //             homeCurrency,
+  //             extractedData.date ? new Date(extractedData.date) : new Date()
+  //           )
+  //           .toPromise()
+  //           .then((exchangeRate) => ({
+  //             homeCurrency,
+  //             exchangeRate,
+  //           }));
+  //       } else {
+  //         return new Promise((resolve) => resolve({ homeCurrency }));
+  //       }
+  //     })
+  //     .then((res: { homeCurrency: string; exchangeRate: number }) => {
+  //       const { homeCurrency, exchangeRate } = res;
+  //       const currencyObj = {
+  //         amount: null,
+  //         currency: homeCurrency,
+  //         orig_amount: null,
+  //         orig_currency: null,
+  //       };
+
+  //       if (homeCurrency !== extractedData.currency && exchangeRate) {
+  //         currencyObj.orig_amount = extractedData.amount;
+  //         currencyObj.orig_currency = extractedData.currency;
+  //         currencyObj.amount = exchangeRate * extractedData.amount;
+  //         currencyObj.currency = homeCurrency;
+  //       } else {
+  //         currencyObj.amount = extractedData.amount;
+  //       }
+
+  //       entry.transaction = {
+  //         ...entry.transaction,
+  //         ...currencyObj,
+  //       };
+
+  //       return entry.transaction;
+  //     });
+  // }
 
   uploadData(uploadUrl, blob, contentType) {
     return this.httpClient.put<any>(uploadUrl, blob, {
@@ -239,7 +303,7 @@ export class TransactionsOutboxService {
   }
 
   getPendingTransactions() {
-    return this.queue.map((entry) => entry.transaction);
+    return this.queue.map((entry) => ({ ...entry.transaction, dataUrls: entry.dataUrls }));
   }
 
   getPendingDataExtractions() {

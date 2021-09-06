@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { IonContent, ModalController, Platform } from '@ionic/angular';
+import { IonContent, ModalController, Platform, PopoverController } from '@ionic/angular';
 import { from, Observable, Subject } from 'rxjs';
 import { finalize, map, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -9,6 +9,7 @@ import { Expense } from '../../../../core/models/expense.model';
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { Router } from '@angular/router';
 import { TrackingService } from '../../../../core/services/tracking.service';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import * as moment from 'moment';
 
 @Component({
@@ -55,6 +56,7 @@ export class ViewCommentComponent implements OnInit {
     private statusService: StatusService,
     private authService: AuthService,
     private modalController: ModalController,
+    private popoverController: PopoverController,
     private transactionService: TransactionService,
     private router: Router,
     private trackingService: TrackingService,
@@ -80,13 +82,40 @@ export class ViewCommentComponent implements OnInit {
     }
   }
 
-  closeCommentModal() {
-    if (this.isCommentAdded) {
-      this.trackingService.addComment();
-      this.modalController.dismiss({ updated: true });
+  async closeCommentModal() {
+    if(this.newComment) {
+      const unsavedChangesPopOver = await this.popoverController.create({
+        component: PopupAlertComponentComponent,
+        componentProps: {
+          title: 'Discard Message',
+          message: 'Are you sure you want to discard the message?',
+          primaryCta: {
+            text: 'Discard',
+            action: 'discard',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+
+      await unsavedChangesPopOver.present();
+      const { data } = await unsavedChangesPopOver.onWillDismiss();
+
+      if (data && data.action === 'discard') {
+        this.trackingService.viewComment();
+        this.modalController.dismiss();
+      }
     } else {
-      this.trackingService.viewComment();
-      this.modalController.dismiss();
+      if (this.isCommentAdded) {
+        this.trackingService.addComment();
+        this.modalController.dismiss({ updated: true });
+      } else {
+        this.trackingService.viewComment();
+        this.modalController.dismiss();
+      }
     }
   }
 

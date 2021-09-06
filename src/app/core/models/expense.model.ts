@@ -73,6 +73,7 @@ export interface Expense {
   tx_expense_number: string;
   tx_external_id?: any;
   tx_extracted_data?: any;
+  tx_file_ids?: any;
   tx_flight_journey_travel_class?: any;
   tx_flight_return_travel_class?: any;
   tx_from_dt?: Date;
@@ -182,4 +183,5 @@ export interface Expense {
   us_email: string;
   us_full_name: string;
   tx_categoryDisplayName: string; // custom property added in the service
+  tx_dataUrls?: { thumbnail: string }[];
 }

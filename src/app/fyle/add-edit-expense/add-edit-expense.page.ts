@@ -284,6 +284,8 @@ export class AddEditExpensePage implements OnInit {
 
   taxGroupsOptions$: Observable<{ label: string; value: any }[]>;
 
+  policyDetails;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2606,6 +2608,8 @@ export class AddEditExpensePage implements OnInit {
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
     );
+
+    this.getPolicyDetails();
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
@@ -3764,18 +3768,20 @@ export class AddEditExpensePage implements OnInit {
             this.attachedReceiptsCount = data.attachments.length;
           }
         } else {
-          this.etxn$
-            .pipe(
-              switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-              map((fileObjs) => (fileObjs && fileObjs.length) || 0)
-            )
-            .subscribe((attachedReceipts) => {
-              this.loadAttachments$.next();
-              if (this.attachedReceiptsCount === attachedReceipts) {
-                this.trackingService.viewAttachment();
-              }
-              this.attachedReceiptsCount = attachedReceipts;
-            });
+          if ((data && data.attachments.length !== this.attachedReceiptsCount) || !data) {
+            this.etxn$
+              .pipe(
+                switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
+                map((fileObjs) => (fileObjs && fileObjs.length) || 0)
+              )
+              .subscribe((attachedReceipts) => {
+                this.loadAttachments$.next();
+                if (this.attachedReceiptsCount === attachedReceipts) {
+                  this.trackingService.viewAttachment();
+                }
+                this.attachedReceiptsCount = attachedReceipts;
+              });
+          }
         }
       });
   }
@@ -3863,5 +3869,13 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.isExpandedView = true;
+  }
+
+  getPolicyDetails() {
+    const txnId = this.activatedRoute.snapshot.params.id;
+    from(this.policyService.getPolicyViolationRules(txnId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
   }
 }
