@@ -59,7 +59,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private popoverController: PopoverController
-  ) {}
+  ) { }
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -243,9 +243,16 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          });
+          // Single mode
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_expense',
+            {
+              dataUrl: this.base64ImagesWithSource[0].base64Image,
+              canExtractData: this.isInstafyleEnabled
+            },
+          ]);
         }
       }
     }

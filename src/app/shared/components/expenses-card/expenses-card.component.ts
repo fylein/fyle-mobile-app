@@ -6,7 +6,7 @@ import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.mode
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { concatMap, finalize, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { isNumber, reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
 import { PopoverController } from '@ionic/angular';
@@ -71,7 +71,7 @@ export class ExpensesCardComponent implements OnInit {
 
   isScanInProgress: boolean;
 
-  isProjectMandatory$: Observable<boolean>;
+  isProjectEnabled$: Observable<boolean>;
 
   attachmentUploadInProgress = false;
 
@@ -87,7 +87,13 @@ export class ExpensesCardComponent implements OnInit {
 
   isScanCompleted: boolean;
 
+  showUnspecifiedMerchant$: Observable<{ display: boolean }>;
+
   imageTransperencyOverlay = 'linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), ';
+
+  isMileageExpense: boolean;
+
+  isPerDiem: boolean;
 
   constructor(
     private transactionService: TransactionService,
@@ -96,7 +102,7 @@ export class ExpensesCardComponent implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
-  ) {}
+  ) { }
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
@@ -230,6 +236,9 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
+    this.isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
+    this.isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
+
     this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
     this.expense.isPolicyViolated = this.expense.tx_manual_flag || this.expense.tx_policy_flag;
@@ -248,15 +257,16 @@ export class ExpensesCardComponent implements OnInit {
       )
       .subscribe(noop);
 
-    this.isProjectMandatory$ = this.offlineService
+    this.isProjectEnabled$ = this.offlineService
       .getOrgSettings()
       .pipe(
         map(
           (orgSettings) =>
-            orgSettings.transaction_fields_settings &&
-            orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
-            orgSettings.transaction_fields_settings.transaction_mandatory_fields.project
-        )
+            orgSettings.projects &&
+            orgSettings.projects.allowed &&
+            orgSettings.projects.enabled
+        ),
+        shareReplay(1)
       );
 
     if (!this.expense.tx_id) {

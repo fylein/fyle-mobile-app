@@ -1615,6 +1615,7 @@ export class AddEditExpensePage implements OnInit {
 
           if (etxn.dataUrls && etxn.dataUrls.length) {
             this.newExpenseDataUrls = etxn.dataUrls;
+            this.attachedReceiptsCount = this.newExpenseDataUrls.length;
           }
 
           this.fg.controls.vendor_id.valueChanges.subscribe((vendor) => {
