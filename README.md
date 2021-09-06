@@ -33,7 +33,7 @@ Note: Do not make any changes to environment.ts file - it is to be a template fo
 
  - ionic build -c `env_name`
  - [Install Android Studio](https://developer.android.com/studio)
- - npx cap add android
+ - ~~npx cap add android~~
  - npx cap sync
  - npx cap copy
  - npx cap open android
@@ -73,40 +73,40 @@ To make google login work in your physical device you need to do some extra acti
   - You can get REVERSED_CLIENT_ID value from GoogleService-Info.plist, this value is something like `com.googleusercontent.apps.somethingRandomHash`
 
 ## Camera Overlay
-  - Add these lines in `MainActivity.java`
-    - import com.ahm.capacitor.camera.preview.CameraPreview; (After line -> package com.fylehq.production;)
-    - add(CameraPreview.class); (After this line -> // Ex: add(TotallyAwesomePlugin.class);)
-  - Add these lines in `AndroidManifest.xml`
+  - ~~Add these lines in `MainActivity.java`~~
+    - ~~import com.ahm.capacitor.camera.preview.CameraPreview; (After line -> package com.fylehq.production;)~~
+    - ~~add(CameraPreview.class); (After this line -> /~~~~/ Ex: add(TotallyAwesomePlugin.class);)~~
+  - ~~Add these lines in `AndroidManifest.xml`~~
     - android:usesCleartextTraffic="true" (After this line -> android:theme="@style/AppTheme")
-  - Remove this line from `CameraPreview.java` file
-    - Manifest.permission.RECORD_AUDIO
+  - ~~Remove this line from `CameraPreview.java` file~~
+    - ~~Manifest.permission.RECORD_AUDIO~~
 
 ## Imagepicker issue
-  - If you get issue in the file `MultiImageChooserActivaty.java` something like `android.support.v7.app.ActionBar`, please do the following
+  ~~- If you get issue in the file `MultiImageChooserActivaty.java` something like `android.support.v7.app.ActionBar`, please do the following
     - npx jetify
     - npx cap sync
-    - npx cap copy
+    - npx cap copy~~
 
 ## App icons
 
   **Android**
-    - Open android studio
-    - On Left side app -> res (Right Click) -> new -> Image Asset
-    - On path choose $pwd/resources/icon.png
-    - Trim (yes)
-    - Reduce the resize to accordingly(100% is ok for now)
-    - Background Layer -> Color -> #F36
-    - Next -> Finish
+    - ~~Open android studio~~
+    - ~~On Left side app -> res (Right Click) -> new -> Image Asset~~
+    - ~~On path choose $pwd/resources/icon.png~~
+    - ~~Trim (yes)~~
+    - ~~Reduce the resize to accordingly(100% is ok for now)~~
+    - ~~Background Layer -> Color -> #F36~~
+    - ~~Next -> Finish~~
 
 
 ## Splash Screens
-  - $npm install -g cordova-res
+  - ~~$npm install -g cordova-res~~
 
   **Android**
-  - $cordova-res android --skip-config --copy
+  - ~~$cordova-res android --skip-config --copy~~
 
   **iOS**
-  - $cordova-res ios --skip-config --copy
+  - ~~$cordova-res ios --skip-config --copy~~
 
 ## Push Notificatios
   **iOS**
