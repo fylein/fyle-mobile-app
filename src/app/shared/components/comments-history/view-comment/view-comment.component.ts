@@ -83,7 +83,7 @@ export class ViewCommentComponent implements OnInit {
   }
 
   async closeCommentModal() {
-    if (this.newComment) {
+    if(this.newComment) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
         componentProps: {

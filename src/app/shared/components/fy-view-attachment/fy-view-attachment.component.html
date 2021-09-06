@@ -20,19 +20,17 @@
 <ion-content>
   <div class="view-attachments--controls" *ngIf="attachments.length > 1">
     <div *ngIf="activeIndex !== 0" class="view-attachments--go-back" (click)="goToPrevSlide()">
-      <mat-icon class="view-attachments--go-back__btn"> arrow_back_ios </mat-icon>
+      <mat-icon class="view-attachments--go-back__btn">
+        arrow_back_ios
+      </mat-icon>
     </div>
     <div *ngIf="activeIndex !== attachments.length - 1" class="view-attachments--go-forward" (click)="goToNextSlide()">
-      <mat-icon class="view-attachments--go-forward__btn"> arrow_forward_ios </mat-icon>
+      <mat-icon class="view-attachments--go-forward__btn">
+        arrow_forward_ios
+      </mat-icon>
     </div>
   </div>
-  <ion-slides
-    #slides
-    [options]="sliderOptions"
-    zoom
-    (ionSlidesDidLoad)="getActiveIndex()"
-    (ionSlideDidChange)="getActiveIndex()"
-  >
+  <ion-slides #slides [options]="sliderOptions" zoom (ionSlidesDidLoad)="getActiveIndex()" (ionSlideDidChange)="getActiveIndex()">
     <ng-container *ngFor="let attachment of attachments">
       <ion-slide>
         <div>
