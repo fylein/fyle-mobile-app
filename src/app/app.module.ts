@@ -1,6 +1,6 @@
 import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule, HammerModule } from '@angular/platform-browser';
-import { RouteReuseStrategy } from '@angular/router';
+import { Router, RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
@@ -75,8 +75,12 @@ export class MyHammerConfig extends HammerGestureConfig {
     {
       provide: APP_INITIALIZER,
       useFactory: (configService: ConfigService) => () => configService.loadConfigurationData(),
-      deps: [ConfigService, RouterAuthService, TokenService, StorageService],
+      deps: [ConfigService, RouterAuthService, TokenService, StorageService, Sentry.TraceService],
       multi: true,
+    },
+    {
+      provide: Sentry.TraceService,
+      deps: [Router],
     },
   ],
   bootstrap: [AppComponent],
