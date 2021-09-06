@@ -38,7 +38,7 @@
             (focus)="onSearchBarFocus()"
           />
           <button
-            (click)="clearText()"
+            (click)="clearText('isFromSearchBar')"
             *ngIf="simpleSearchText"
             aria-label="Clear"
             class="my-expenses--simple-search-close"
