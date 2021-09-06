@@ -144,6 +144,8 @@ export class MyExpensesPage implements OnInit {
 
   isReportableExpensesSelected = false;
 
+  isSearchBarFocused = false;
+
   openReports$: Observable<ExtendedReport[]>;
 
   homeCurrencySymbol: string;
@@ -183,11 +185,20 @@ export class MyExpensesPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  clearText() {
+  clearText(isFromCancel) {
     this.simpleSearchText = '';
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
+    if (isFromCancel === 'onSimpleSearchCancel') {
+      this.isSearchBarFocused = !this.isSearchBarFocused;
+    } else {
+      this.isSearchBarFocused = !!this.isSearchBarFocused;
+    }
+  }
+
+  onSearchBarFocus() {
+    this.isSearchBarFocused = true;
   }
 
   ngOnInit() {
@@ -1799,7 +1810,7 @@ export class MyExpensesPage implements OnInit {
 
   onSimpleSearchCancel() {
     this.headerState = HeaderState.base;
-    this.clearText();
+    this.clearText('onSimpleSearchCancel');
   }
 
   onFilterPillsClearAll() {
