@@ -59,7 +59,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private popoverController: PopoverController
-  ) { }
+  ) {}
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -250,7 +250,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
             'add_edit_expense',
             {
               dataUrl: this.base64ImagesWithSource[0].base64Image,
-              canExtractData: this.isInstafyleEnabled
+              canExtractData: this.isInstafyleEnabled,
             },
           ]);
         }

@@ -87,8 +87,6 @@ export class ExpensesCardComponent implements OnInit {
 
   isScanCompleted: boolean;
 
-  showUnspecifiedMerchant$: Observable<{ display: boolean }>;
-
   imageTransperencyOverlay = 'linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), ';
 
   isMileageExpense: boolean;
@@ -102,7 +100,7 @@ export class ExpensesCardComponent implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
-  ) { }
+  ) {}
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
@@ -257,17 +255,10 @@ export class ExpensesCardComponent implements OnInit {
       )
       .subscribe(noop);
 
-    this.isProjectEnabled$ = this.offlineService
-      .getOrgSettings()
-      .pipe(
-        map(
-          (orgSettings) =>
-            orgSettings.projects &&
-            orgSettings.projects.allowed &&
-            orgSettings.projects.enabled
-        ),
-        shareReplay(1)
-      );
+    this.isProjectEnabled$ = this.offlineService.getOrgSettings().pipe(
+      map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
+      shareReplay(1)
+    );
 
     if (!this.expense.tx_id) {
       this.showDt = !!this.isFirstOfflineExpense;

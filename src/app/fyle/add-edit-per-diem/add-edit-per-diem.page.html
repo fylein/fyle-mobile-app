@@ -304,9 +304,12 @@
                   </ng-container>
                   <ng-container *ngIf="isAdvancesEnabled$">
                     <ng-container
-                      *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount">
-                      <app-fy-alert-info [message]="'You have outstanding balance in your advance account(s)'"
-                        [type]="'information'"></app-fy-alert-info>
+                      *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount"
+                    >
+                      <app-fy-alert-info
+                        [message]="'You have outstanding balance in your advance account(s)'"
+                        [type]="'information'"
+                      ></app-fy-alert-info>
                     </ng-container>
                   </ng-container>
 
@@ -577,9 +580,11 @@
                       <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                         <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                           <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-                            <app-fy-alert-info *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
+                            <app-fy-alert-info
+                              *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                               [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                              [type]="'warning'">
+                              [type]="'warning'"
+                            >
                             </app-fy-alert-info>
                           </ng-container>
                         </ng-container>
@@ -713,12 +718,7 @@
     <ion-toolbar mode="md" [ngClass]="{'add-edit-per-diem--footer-toolbar__offline': !(isConnected$|async)}">
       <div class="add-edit-per-diem--cta-container">
         <ion-buttons *ngIf="!reviewList">
-          <ion-button
-              (click)="close()"
-              *ngIf="mode === 'edit'"
-              [disabled]="savePerDiemLoader"
-              class="btn-secondary"
-          >
+          <ion-button (click)="close()" *ngIf="mode === 'edit'" [disabled]="savePerDiemLoader" class="btn-secondary">
             Cancel
           </ion-button>
           <ion-button
