@@ -31,7 +31,7 @@ export class PolicyService {
     return popupRules;
   }
 
-  getPolicyRuleViolationsAndQueryParams(txnId) {
+  getPolicyViolationRules(txnId) {
     const params = {
       txn_id: txnId,
     };

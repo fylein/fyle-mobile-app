@@ -70,21 +70,16 @@
           manually
         </div>
         <ng-container *ngIf="etxn$|async as etxn">
-          <ng-container *ngIf="mode === 'edit'  && etxn.tx.policy_flag">
-            <ng-container *ngIf="comments$|async as comments">
-              <app-fy-policy-violation-info [estatuses]="comments"></app-fy-policy-violation-info>
+          <ng-container *ngIf="mode === 'edit' && etxn.tx.policy_flag">
+            <ng-container *ngIf="policyDetails">
+              <app-fy-policy-violation-info [policyDetails]="policyDetails" [criticalPolicyViolated]="isCriticalPolicyViolated$|async"></app-fy-policy-violation-info>
             </ng-container>
           </ng-container>
 
           <ng-container *ngIf="isAmountCapped$|async">
-            <div class="add-edit-expense--critical-policy">
-              <ng-container *ngIf="isCriticalPolicyViolated$|async;else justAmountCapped">
-                This expense has violated a critical policy. You cannot create a report with this expense.
-              </ng-container>
-              <ng-template #justAmountCapped>
+            <div class="add-edit-expense--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
                 Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
                 '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
-              </ng-template>
             </div>
           </ng-container>
         </ng-container>

@@ -42,6 +42,8 @@ export class MyViewPerDiemPage implements OnInit {
 
   comments$: Observable<any>;
 
+  policyDetails;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
@@ -75,6 +77,13 @@ export class MyViewPerDiemPage implements OnInit {
         });
       }
     }
+  }
+
+  getPolicyDetails(txId) {
+    from(this.policyService.getPolicyViolationRules(txId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
   }
 
   setupNetworkWatcher() {
@@ -130,7 +139,7 @@ export class MyViewPerDiemPage implements OnInit {
       })
     );
 
-    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+    this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
     this.comments$ = this.statusService.find('transactions', id);
 
     // this.policyViloations$.subscribe(res => {
@@ -140,6 +149,8 @@ export class MyViewPerDiemPage implements OnInit {
     this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
       map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
+
+    this.getPolicyDetails(id);
 
     this.isAmountCapped$ = this.extendedPerDiem$.pipe(
       map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
