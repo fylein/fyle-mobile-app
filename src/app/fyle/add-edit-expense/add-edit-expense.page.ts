@@ -3754,7 +3754,6 @@ export class AddEditExpensePage implements OnInit {
           },
           mode: 'ios',
           presentingElement: await this.modalController.getTop(),
-          ...this.modalProperties.getModalDefaultProperties(),
         });
 
         await attachmentsModal.present();
