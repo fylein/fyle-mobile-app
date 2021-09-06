@@ -179,7 +179,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   billableDefaultValue: boolean;
 
-  isExpenseDeletable = true;
+  canDeleteExpense = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -216,7 +216,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   ngOnInit() {
     if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.isExpenseDeletable = this.activatedRoute.snapshot.params.remove_from_report === "true";
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === "true";
     }
   }
 
