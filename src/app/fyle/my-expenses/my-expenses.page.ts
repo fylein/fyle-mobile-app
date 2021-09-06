@@ -489,6 +489,7 @@ export class MyExpensesPage implements OnInit {
         return this.acc;
       }),
       tap(() => {
+        console.log('After data is loaded from paginated pipe');
         this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
@@ -643,7 +644,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   doRefresh(event?) {
-    this.syncOutboxExpenses();
     this.currentPageNumber = 1;
     this.selectedElements = [];
     if (this.selectionMode) {
@@ -1264,42 +1264,6 @@ export class MyExpensesPage implements OnInit {
     setTimeout(() => {
       this.isLoading = false;
     }, 500);
-  }
-
-  async addNewExpense() {
-    this.openAddExpenseListLoader = true;
-    forkJoin({
-      isInstaFyleEnabled: this.isInstaFyleEnabled$,
-      isMileageEnabled: this.isMileageEnabled$,
-      isPerDiemEnabled: this.isPerDiemEnabled$,
-      isBulkFyleEnabled: this.isBulkFyleEnabled$,
-    })
-      .pipe(
-        finalize(() => {
-          this.openAddExpenseListLoader = false;
-        })
-      )
-      .subscribe(async ({ isInstaFyleEnabled, isMileageEnabled, isPerDiemEnabled, isBulkFyleEnabled }) => {
-        const addExpensePopover = await this.popoverController.create({
-          component: AddExpensePopoverComponent,
-          componentProps: {
-            isInstaFyleEnabled,
-            isMileageEnabled,
-            isPerDiemEnabled,
-            isBulkFyleEnabled,
-          },
-          cssClass: 'dialog-popover',
-        });
-
-        await addExpensePopover.present();
-
-        const { data } = await addExpensePopover.onDidDismiss();
-
-        if (data && data.reload) {
-          this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
-          this.doRefresh();
-        }
-      });
   }
 
   async onDeleteExpenseClick(etxn: Expense, index?: number) {
