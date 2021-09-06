@@ -7,6 +7,7 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { map } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-resubmit-report-popover',
@@ -28,7 +29,8 @@ export class ResubmitReportPopoverComponent implements OnInit {
     private popoverController: PopoverController,
     private offlineService: OfflineService,
     private tripRequestService: TripRequestsService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -101,7 +103,14 @@ export class ResubmitReportPopoverComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
-    this.reportService.resubmit(this.erpt.rp_id).subscribe(() => {
+    this.reportService.resubmit(this.erpt.rp_id).subscribe(async () => {
+      var eou = await this.authService.getEou();
+      (window as any)._refiner('identifyUser', {
+        id: eou.ou.id, // Replace with your user ID
+        email: eou.us.email, // Replace with user Email
+        name: eou.us.full_name // Replace with user name
+      });
+      (window as any)._refiner('showForm', '56ed8380-0c7f-11ec-89c5-effca223424b');
       this.popoverController.dismiss({
         goBack: true,
       });
