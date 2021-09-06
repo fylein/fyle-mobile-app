@@ -1846,7 +1846,6 @@ export class MyExpensesPage implements OnInit {
 
   onSimpleSearchCancel() {
     this.headerState = HeaderState.base;
-    this.isSearchBarFocused = !this.isSearchBarFocused;
     this.clearText('onSimpleSearchCancel');
   }
 
