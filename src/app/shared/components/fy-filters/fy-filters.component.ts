@@ -62,6 +62,10 @@ export class FyFiltersComponent implements OnInit {
     }
   }
 
+  getNoOfFilters() {
+    return Object.values(this.currentFilterValueMap).filter((value) => value && value.length).length;
+  }
+
   onFilterClick(filterDefinition: FilterOptions<any>) {
     this.activeFilter = filterDefinition;
     if (this.activeFilter.optionType === FilterOptionType.date) {
