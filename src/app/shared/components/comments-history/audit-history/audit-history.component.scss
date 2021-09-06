@@ -11,6 +11,10 @@
       border-left: 0;
       margin: -6px 0 0 2px;
     }
+
+    &:only-child {
+      margin-top: 0;
+    }
   }
 
   &--icon {
