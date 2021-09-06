@@ -14,6 +14,7 @@ import { ModalController, PopoverController, IonContent } from '@ionic/angular';
 import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 import { NetworkService } from '../../core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { PolicyService } from 'src/app/core/services/policy.service';
 
 @Component({
   selector: 'app-view-team-expense',
@@ -57,6 +58,8 @@ export class ViewTeamExpensePage implements OnInit {
 
   comments$: Observable<any>;
 
+  policyDetails;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -69,7 +72,8 @@ export class ViewTeamExpensePage implements OnInit {
     private modalController: ModalController,
     private router: Router,
     private popoverController: PopoverController,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private policyService: PolicyService
   ) {}
 
   ionViewWillLeave() {
@@ -114,6 +118,13 @@ export class ViewTeamExpensePage implements OnInit {
         });
       }
     }
+  }
+
+  getPolicyDetails(txId) {
+    from(this.policyService.getPolicyViolationRules(txId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
   }
 
   getDisplayValue(customProperties) {
@@ -206,6 +217,8 @@ export class ViewTeamExpensePage implements OnInit {
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
       map((etxn) => this.isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001)
     );
+
+    this.getPolicyDetails(txId);
 
     const editExpenseAttachments = this.etxn$.pipe(
       take(1),
