@@ -87,26 +87,28 @@
 </ion-header>
 
 <ion-content class="my-reports--content">
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
-  <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
-    <app-fy-zero-state
-      [unscaledImage]="true"
-      [useNewStyling]="true"
-      image="../../../assets/images/zero-states/expenses.png"
-      header="You've got no report!"
-      message="Create one by clicking `+` on top"
-    ></app-fy-zero-state>
-  </div>
-  <div *ngFor="let erpt of myReports$ | async as list; let i = index">
-    <app-my-reports-card
-      [erpt]="erpt"
-      [prevDate]="list[i-1]?.rp_created_at"
-      (gotoReport)="onReportClick($event)"
-      (deleteReport)="onDeleteReportClick($event)"
-      (viewComments)="onViewCommentsClick($event)"
-    ></app-my-reports-card>
+  <div class="my-reports--body">
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+    <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
+      <app-fy-zero-state
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+        image="../../../assets/images/zero-states/expenses.png"
+        header="You've got no report!"
+        message="Create one by clicking `+` on top"
+      ></app-fy-zero-state>
+    </div>
+    <div *ngFor="let erpt of myReports$ | async as list; let i = index">
+      <app-my-reports-card
+        [erpt]="erpt"
+        [prevDate]="list[i-1]?.rp_created_at"
+        (gotoReport)="onReportClick($event)"
+        (deleteReport)="onDeleteReportClick($event)"
+        (viewComments)="onViewCommentsClick($event)"
+      ></app-my-reports-card>
+    </div>
   </div>
 
   <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">

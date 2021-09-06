@@ -12,6 +12,11 @@
     width: 90%;
   }
 
+  &--body {
+    padding-bottom: 20px;
+    background-color: $white;
+  }
+
   &--simple-search {
     width: 100%;
     font-size: 14px;
@@ -68,6 +73,7 @@
 
   &--content {
     --background: #{$white};
+    --padding-bottom: 82px;
   }
 
   &--zero-state {
