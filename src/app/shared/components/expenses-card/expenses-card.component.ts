@@ -338,7 +338,7 @@ export class ExpensesCardComponent implements OnInit {
         this.attachmentUploadInProgress = true;
         const attachmentType = this.fileService.getAttachmentType(data.type);
 
-        this.inlineReceiptDataUrl = data.dataUrl;
+        this.inlineReceiptDataUrl = attachmentType !== 'pdf' && data.dataUrl;
         from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType))
           .pipe(
             tap((fileObj: FileObject) => {
