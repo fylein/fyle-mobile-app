@@ -140,7 +140,7 @@ export class MyViewExpensePage implements OnInit {
       finalize(() => this.loaderService.hideLoader())
     );
 
-    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(txId);
+    this.policyViloations$ = this.policyService.getPolicyViolationRules(txId);
     this.comments$ = this.statusService.find('transactions', txId);
 
     this.isAmountCapped$ = this.etxn$.pipe(
@@ -234,7 +234,7 @@ export class MyViewExpensePage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyRuleViolationsAndQueryParams(txId)).pipe()
+    from(this.policyService.getPolicyViolationRules(txId)).pipe()
       .subscribe(details => {
         this.policyDetails = details;
       });

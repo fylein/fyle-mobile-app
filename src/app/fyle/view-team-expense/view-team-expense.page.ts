@@ -121,7 +121,7 @@ export class ViewTeamExpensePage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyRuleViolationsAndQueryParams(txId)).pipe()
+    from(this.policyService.getPolicyViolationRules(txId)).pipe()
       .subscribe(details => {
         this.policyDetails = details;
       });

@@ -78,10 +78,8 @@
 
           <ng-container *ngIf="isAmountCapped$|async">
             <div class="add-edit-expense--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
-              <div>
                 Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
                 '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
-              </div>
             </div>
           </ng-container>
         </ng-container>

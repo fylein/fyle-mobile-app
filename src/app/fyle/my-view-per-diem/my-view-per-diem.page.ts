@@ -80,7 +80,7 @@ export class MyViewPerDiemPage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyRuleViolationsAndQueryParams(txId)).pipe()
+    from(this.policyService.getPolicyViolationRules(txId)).pipe()
       .subscribe(details => {
         this.policyDetails = details;
       });
@@ -139,7 +139,7 @@ export class MyViewPerDiemPage implements OnInit {
       })
     );
 
-    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+    this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
     this.comments$ = this.statusService.find('transactions', id);
 
     // this.policyViloations$.subscribe(res => {

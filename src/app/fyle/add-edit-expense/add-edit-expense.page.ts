@@ -3878,7 +3878,7 @@ export class AddEditExpensePage implements OnInit {
 
   getPolicyDetails() {
     const txnId = this.activatedRoute.snapshot.params.id;
-    from(this.policyService.getPolicyRuleViolationsAndQueryParams(txnId)).pipe()
+    from(this.policyService.getPolicyViolationRules(txnId)).pipe()
       .subscribe(details => {
         this.policyDetails = details;
       });
