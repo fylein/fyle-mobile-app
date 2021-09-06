@@ -185,12 +185,16 @@ export class MyExpensesPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  clearText() {
+  clearText(isFromCancel) {
     this.simpleSearchText = '';
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
-    this.isSearchBarFocused = !!this.isSearchBarFocused;
+    if (isFromCancel === 'onSimpleSearchCancel') {
+      this.isSearchBarFocused = !this.isSearchBarFocused;
+    } else {
+      this.isSearchBarFocused = !!this.isSearchBarFocused;
+    }
   }
 
   onSearchBarFocus() {
@@ -1843,7 +1847,7 @@ export class MyExpensesPage implements OnInit {
   onSimpleSearchCancel() {
     this.headerState = HeaderState.base;
     this.isSearchBarFocused = !this.isSearchBarFocused;
-    this.clearText();
+    this.clearText('onSimpleSearchCancel');
   }
 
   onFilterPillsClearAll() {
