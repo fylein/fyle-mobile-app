@@ -6,7 +6,7 @@ import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.mode
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { concatMap, finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { isNumber, reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
 import { PopoverController } from '@ionic/angular';
@@ -378,6 +378,8 @@ export class ExpensesCardComponent implements OnInit {
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      startWith(true)
+    );
   }
 }
