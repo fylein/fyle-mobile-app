@@ -1,7 +1,7 @@
 name: Appflow
 
 on:
-  workflow-dispatch:
+  workflow_dispatch:
     branches: [ master ]
 
 jobs:
