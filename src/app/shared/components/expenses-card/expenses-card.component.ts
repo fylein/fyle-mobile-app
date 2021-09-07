@@ -166,7 +166,7 @@ export class ExpensesCardComponent implements OnInit {
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
     // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
     const hasScanExpired =
-      this.expense.tx_created_at && moment(this.expense.tx_created_at).diff(moment.now(), 'day') === 1;
+      this.expense.tx_created_at && moment(this.expense.tx_created_at).diff(moment.now(), 'day') < 0;
     return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
   }
 
