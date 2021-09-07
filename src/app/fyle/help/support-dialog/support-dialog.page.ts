@@ -25,12 +25,12 @@ export class SupportDialogPage implements OnInit {
   ) {}
 
   openHelpLink() {
-    this.trackingService.engageWithHelpCard({ Asset: 'Mobile' });
+    this.trackingService.engageWithHelpCard();
     Browser.open({ toolbarColor: '#280a31', url: 'https://fylehq.com/help/' });
   }
 
   openChromeExtLink() {
-    this.trackingService.engageWithHelpCard({ Asset: 'Mobile' });
+    this.trackingService.engageWithHelpCard();
     Browser.open({
       toolbarColor: '#280a31',
       url: 'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk',
@@ -38,7 +38,7 @@ export class SupportDialogPage implements OnInit {
   }
 
   openOutlookExtLink() {
-    this.trackingService.engageWithHelpCard({ Asset: 'Mobile' });
+    this.trackingService.engageWithHelpCard();
     Browser.open({
       toolbarColor: '#280a31',
       url: 'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview',

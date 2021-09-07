@@ -372,7 +372,7 @@ export class AddEditExpensePage implements OnInit {
       }
     } else {
       if (this.activatedRoute.snapshot.params.id) {
-        this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Receipt' });
+        this.trackingService.viewExpense({ Type: 'Receipt' });
       }
 
       if (this.navigateBack) {
@@ -2884,7 +2884,7 @@ export class AddEditExpensePage implements OnInit {
 
   saveAndNewExpense() {
     const that = this;
-    this.trackingService.clickSaveAddNew({ Asset: 'Mobile' });
+    this.trackingService.clickSaveAddNew();
     that
       .checkIfInvalidPaymentMode()
       .pipe(take(1))
@@ -3026,7 +3026,7 @@ export class AddEditExpensePage implements OnInit {
   trackPolicyCorrections() {
     this.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
       if (isCriticalPolicyViolated && this.fg.dirty) {
-        this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Critical', Mode: 'Edit Expense' });
+        this.trackingService.policyCorrection({ Violation: 'Critical', Mode: 'Edit Expense' });
       }
     });
 
@@ -3037,7 +3037,7 @@ export class AddEditExpensePage implements OnInit {
       )
       .subscribe((policyViolated) => {
         if (policyViolated && this.fg.dirty) {
-          this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Regular', Mode: 'Edit Expense' });
+          this.trackingService.policyCorrection({ Violation: 'Regular', Mode: 'Edit Expense' });
         }
       });
   }
@@ -3143,7 +3143,6 @@ export class AddEditExpensePage implements OnInit {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
               this.trackingService.editExpense({
-                Asset: 'Mobile',
                 Type: 'Receipt',
                 Amount: etxn.tx.amount,
                 Currency: etxn.tx.currency,
@@ -3164,7 +3163,7 @@ export class AddEditExpensePage implements OnInit {
               });
             } else {
               // tracking expense closed without editing
-              this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Receipt' });
+              this.trackingService.viewExpense({ Type: 'Receipt' });
             }
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
@@ -3177,7 +3176,7 @@ export class AddEditExpensePage implements OnInit {
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
-                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
@@ -3185,14 +3184,14 @@ export class AddEditExpensePage implements OnInit {
                   if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
-                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
-                      tap(() => this.trackingService.removeFromExistingReportEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
                   }
@@ -3274,7 +3273,6 @@ export class AddEditExpensePage implements OnInit {
     const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
     this.generateEtxnFromFg(this.etxn$, customFields$).subscribe((etxn) => {
       this.trackingService.createExpense({
-        Asset: 'Mobile',
         Type: 'Receipt',
         Amount: etxn.tx.amount,
         Currency: etxn.tx.currency,
@@ -3403,7 +3401,6 @@ export class AddEditExpensePage implements OnInit {
             const comments = [];
             const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
             this.trackingService.createExpense({
-              Asset: 'Mobile',
               Type: 'Receipt',
               Amount: etxn.tx.amount,
               Currency: etxn.tx.currency,
@@ -3780,7 +3777,7 @@ export class AddEditExpensePage implements OnInit {
               .subscribe((attachedReceipts) => {
                 this.loadAttachments$.next();
                 if (this.attachedReceiptsCount === attachedReceipts) {
-                  this.trackingService.viewAttachment({ Asset: 'Mobile' });
+                  this.trackingService.viewAttachment();
                 }
                 this.attachedReceiptsCount = attachedReceipts;
               });
@@ -3852,15 +3849,14 @@ export class AddEditExpensePage implements OnInit {
     const { data } = await modal.onDidDismiss();
 
     if (data && data.updated) {
-      this.trackingService.addComment({ Asset: 'Mobile' });
+      this.trackingService.addComment();
     } else {
-      this.trackingService.viewComment({ Asset: 'Mobile' });
+      this.trackingService.viewComment();
     }
   }
 
   hideFields() {
     this.trackingService.hideMoreClicked({
-      Asset: 'Mobile',
       source: 'Add Edit Expenses page',
     });
 
@@ -3869,7 +3865,6 @@ export class AddEditExpensePage implements OnInit {
 
   showFields() {
     this.trackingService.showMoreClicked({
-      Asset: 'Mobile',
       source: 'Add Edit Expenses page',
     });
 
