@@ -318,6 +318,23 @@ export class AddEditPerDiemPage implements OnInit {
     return this.checkForDuplicates();
   }
 
+  async trackDuplicatesShown(duplicates, etxn) {
+    try {
+      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
+      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
+
+      await this.trackingService.duplicateDetectionAlertShown({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
+        ExpenseId: etxn.tx.id,
+        DuplicateExpenses: duplicateTxnIds,
+        DuplicateFields: duplicateFields
+      });
+    } catch (err) {
+      // Ignore event tracking errors
+    }
+  }
+
   setupDuplicateDetection() {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
@@ -336,22 +353,9 @@ export class AddEditPerDiemPage implements OnInit {
           this.pointToDuplicates = false;
         }, 3000);
 
-        this.etxn$.pipe(take(1)).subscribe(async etxn => {
-          try {
-            const duplicateTxnIds = res.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
-            const duplicateFields = res.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
-
-            await this.trackingService.duplicateDetectionAlertShown({
-              Asset: 'Mobile',
-              Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
-              ExpenseId: etxn.tx.id,
-              DuplicateExpenses: duplicateTxnIds,
-              DuplicateFields: duplicateFields
-            });
-          } catch (err) {
-            // Ignore event tracking errors
-          }
-        });
+        this.etxn$
+          .pipe(take(1))
+          .subscribe(async etxn => await this.trackDuplicatesShown(res, etxn));
       });
   }
 
