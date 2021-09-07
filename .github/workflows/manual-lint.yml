@@ -1,0 +1,35 @@
+name: Lint
+
+on:
+  workflow_dispatch:
+    inputs:
+        logLevel:
+          description: 'Lint'     
+          required: true
+          default: 'warning'
+        tags:
+          description: 'Lint'  
+
+jobs:
+  run-linters:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          # Make sure the actual branch is checked out when running on pull requests
+          ref: ${{ github.head_ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      # ESLint and Prettier must be in `package.json`
+      - name: Install dependencies
+        run: npm install --save-dev
+
+      - name: Run linters
+        run: npm run lint
