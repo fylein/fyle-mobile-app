@@ -13,7 +13,7 @@ import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
@@ -258,7 +258,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          this.networkService.isOnline().subscribe((connected) => {
+          this.networkService.isOnline().pipe(take(1)).subscribe((connected) => {
             if (connected) {
               from(this.loaderService.showLoader('Saving your receipt...', 10000)).pipe(
                 switchMap(() => this.addExpenseToQueue(this.base64ImagesWithSource[0], true)),
