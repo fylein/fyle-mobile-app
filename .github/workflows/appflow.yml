@@ -1,7 +1,7 @@
 name: Appflow
 
 on:
-  pull_request:
+  workflow-dispatch:
     branches: [ master ]
 
 jobs:
