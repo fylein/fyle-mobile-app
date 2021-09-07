@@ -66,8 +66,9 @@
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
         <div *ngIf="instaFyleCancelled">
-          Extracting receipt details is taking longer than expected due to a bad network, please add the details
-          manually
+          <app-fy-alert-info [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details
+            manually'" [type]="'information'">
+          </app-fy-alert-info>
         </div>
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="mode === 'edit' && etxn.tx.policy_flag">

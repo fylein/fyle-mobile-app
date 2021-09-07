@@ -1638,6 +1638,7 @@ export class AddEditExpensePage implements OnInit {
 
           if (etxn.dataUrls && etxn.dataUrls.length) {
             this.newExpenseDataUrls = etxn.dataUrls;
+            this.attachedReceiptsCount = this.newExpenseDataUrls.length;
           }
 
           this.fg.controls.vendor_id.valueChanges.subscribe((vendor) => {
@@ -1650,6 +1651,10 @@ export class AddEditExpensePage implements OnInit {
               this.setCategoryFromVendor(vendor.default_category);
             }
           });
+
+          if (this.activatedRoute.snapshot.params.extractData && this.activatedRoute.snapshot.params.image) {
+            this.parseFile(JSON.parse(this.activatedRoute.snapshot.params.image));
+          }
         }
       );
   }
