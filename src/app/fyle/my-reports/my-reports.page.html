@@ -87,10 +87,14 @@
 </ion-header>
 
 <ion-content class="my-reports--content">
-  <div class="my-reports--body">
+  <div class="my-reports--body" [ngClass]="{'my-reports--zero-state-body': (count$ | async) === 0}">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
+    <app-fy-loading-screen
+      *ngIf="isLoading"
+      class="my-reports--shimmers"
+    ></app-fy-loading-screen>
     <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
       <app-fy-zero-state
         [unscaledImage]="true"
@@ -100,18 +104,27 @@
         message="Create one by clicking `+` on top"
       ></app-fy-zero-state>
     </div>
-    <div *ngFor="let erpt of myReports$ | async as list; let i = index">
-      <app-my-reports-card
-        [erpt]="erpt"
-        [prevDate]="list[i-1]?.rp_created_at"
-        (gotoReport)="onReportClick($event)"
-        (deleteReport)="onDeleteReportClick($event)"
-        (viewComments)="onViewCommentsClick($event)"
-      ></app-my-reports-card>
+    <div *ngIf="!isLoading">
+      <div *ngFor="let erpt of myReports$ | async as list; let i = index">
+        <app-my-reports-card
+          [erpt]="erpt"
+          [prevDate]="list[i-1]?.rp_created_at"
+          (gotoReport)="onReportClick($event)"
+          (deleteReport)="onDeleteReportClick($event)"
+          (viewComments)="onViewCommentsClick($event)"
+        ></app-my-reports-card>
+      </div>
     </div>
+    <ng-container *ngIf="isConnected$|async">
+      <ng-container *ngIf="isLoadingDataInInfiniteScroll">
+        <app-fy-loading-screen
+          class="my-expenses--shimmers"
+        ></app-fy-loading-screen>
+      </ng-container>
+    </ng-container>
   </div>
 
-  <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+  <ion-infinite-scroll *ngIf="!isLoadingDataInInfiniteScroll && (isInfiniteScrollRequired$ | async)" threshold="100px" (ionInfinite)="loadData($event)">
     <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>

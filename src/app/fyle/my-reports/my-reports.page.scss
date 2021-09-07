@@ -17,6 +17,17 @@
     background-color: $white;
   }
 
+  &--zero-state-body {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &--shimmers {
+    overflow-y: scroll;
+  }
+
   &--simple-search {
     width: 100%;
     font-size: 14px;
