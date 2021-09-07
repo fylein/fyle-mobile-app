@@ -25,16 +25,12 @@ export class ReviewFooterComponent implements OnInit {
   ngOnInit() {}
 
   onSaveAndGoToNext() {
-    this.trackingService.footerSaveAndNextClicked({
-      Asset: 'Mobile',
-    });
+    this.trackingService.footerSaveAndNextClicked();
     this.saveAndGoToNext.emit();
   }
 
   onSaveAndGoToPrev() {
-    this.trackingService.footerSaveAndPrevClicked({
-      Asset: 'Mobile',
-    });
+    this.trackingService.footerSaveAndPrevClicked();
     this.saveAndGoToPrev.emit();
   }
 }

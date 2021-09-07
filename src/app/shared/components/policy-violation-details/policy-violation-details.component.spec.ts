@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { FyAddToReportComponent } from './fy-add-to-report.component';
+import { PolicyViolationDetailsComponent } from './policy-violation-details.component';
 
-describe('FyAddToReportComponent', () => {
-  let component: FyAddToReportComponent;
-  let fixture: ComponentFixture<FyAddToReportComponent>;
+describe('PolicyViolationDetailsComponent', () => {
+  let component: PolicyViolationDetailsComponent;
+  let fixture: ComponentFixture<PolicyViolationDetailsComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [FyAddToReportComponent],
+        declarations: [PolicyViolationDetailsComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(FyAddToReportComponent);
+      fixture = TestBed.createComponent(PolicyViolationDetailsComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })

@@ -43,6 +43,8 @@ export class ViewTeamPerDiemPage implements OnInit {
 
   reportId;
 
+  policyDetails;
+
   updateFlag$ = new Subject();
 
   comments$: Observable<any>;
@@ -86,6 +88,13 @@ export class ViewTeamPerDiemPage implements OnInit {
         });
       }
     }
+  }
+
+  getPolicyDetails(txId) {
+    from(this.policyService.getPolicyViolationRules(txId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
   }
 
   ionViewWillEnter() {
@@ -141,7 +150,7 @@ export class ViewTeamPerDiemPage implements OnInit {
       })
     );
 
-    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+    this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
     this.comments$ = this.statusService.find('transactions', id);
 
     // this.policyViloations$.subscribe(res => {
@@ -151,6 +160,8 @@ export class ViewTeamPerDiemPage implements OnInit {
     this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
       map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
+
+    this.getPolicyDetails(id);
 
     this.isAmountCapped$ = this.extendedPerDiem$.pipe(
       map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))

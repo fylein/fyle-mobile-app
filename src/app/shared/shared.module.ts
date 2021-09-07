@@ -47,6 +47,7 @@ import { AuditHistoryComponent } from './components/comments-history/audit-histo
 import { StatusesDiffComponent } from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
 import { FyApporverComponent } from './components/fy-apporver/fy-apporver.component';
 import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
+import { PolicyViolationDetailsComponent } from './components/policy-violation-details/policy-violation-details.component';
 
 // directive imports
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
@@ -60,8 +61,6 @@ import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
 import { FyFlagExpenseComponent } from './components/fy-flag-expense/fy-flag-expense.component';
 import { FlagUnflagConfirmationComponent } from './components/fy-flag-expense/flag-unflag-confirmation/flag-unflag-confirmation.component';
 import { FyPolicyViolationInfoComponent } from './components/fy-policy-violation-info/fy-policy-violation-info.component';
-import { FyAddToReportComponent } from './components/fy-add-to-report/fy-add-to-report.component';
-import { FyAddToReportModalComponent } from './components/fy-add-to-report/fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { FySelectVendorComponent } from './components/fy-select-vendor/fy-select-vendor.component';
 import { FySelectVendorModalComponent } from './components/fy-select-vendor/fy-select-modal/fy-select-vendor-modal.component';
 import { FyProjectSelectModalComponent } from './components/fy-select-project/fy-select-modal/fy-select-project-modal.component';
@@ -134,8 +133,6 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     FyFlagExpenseComponent,
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
-    FyAddToReportComponent,
-    FyAddToReportModalComponent,
     FormButtonValidationDirective,
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
@@ -161,6 +158,7 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     RouteVisualizerComponent,
     RouteSelectorComponent,
     RouteSelectorModalComponent,
+    PolicyViolationDetailsComponent
   ],
   imports: [
     CommonModule,
@@ -218,7 +216,6 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     FyFlagExpenseComponent,
     FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
-    FyAddToReportComponent,
     FySelectProjectComponent,
     FyProjectSelectModalComponent,
     FyViewAttachmentComponent,
@@ -243,6 +240,7 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     RouteVisualizerComponent,
     RouteSelectorComponent,
     MatChipsModule,
+    PolicyViolationDetailsComponent
   ],
   providers: [DecimalPipe, DatePipe],
 })

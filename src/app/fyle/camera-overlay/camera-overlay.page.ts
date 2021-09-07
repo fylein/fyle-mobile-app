@@ -96,20 +96,14 @@ export class CameraOverlayPage implements OnInit, OnDestroy {
     }, 1000);
 
     if (this.isBulkMode) {
-      this.trackingService.switchedToInstafyleBulkMode({
-        Asset: 'Mobile',
-      });
+      this.trackingService.switchedToInstafyleBulkMode();
     } else {
-      this.trackingService.switchedToInstafyleSingleMode({
-        Asset: 'Mobile',
-      });
+      this.trackingService.switchedToInstafyleSingleMode();
     }
   }
 
   uploadFiles() {
-    this.trackingService.instafyleGalleryUploadOpened({
-      Asset: 'Mobile',
-    });
+    this.trackingService.instafyleGalleryUploadOpened();
 
     this.stopCamera();
     this.imagePicker.hasReadPermission().then((permission) => {
@@ -195,7 +189,6 @@ export class CameraOverlayPage implements OnInit, OnDestroy {
     const eou = await this.authService.getEou();
 
     const properties = {
-      Asset: 'Mobile',
       Page: this.activatedRoute.snapshot.params.from || 'Receipts',
       NumberOfReceipts: captureCount,
       Source: eou.ou.id,
@@ -267,7 +260,6 @@ export class CameraOverlayPage implements OnInit, OnDestroy {
     this.activeFlashMode = nextActiveFlashMode;
 
     this.trackingService.flashModeSet({
-      Asset: 'Mobile',
       FlashMode: this.activeFlashMode,
     });
   }
@@ -284,9 +276,7 @@ export class CameraOverlayPage implements OnInit, OnDestroy {
   disableInstaFyleIntro() {
     this.storageService.set('hideInstaFyleIntroGif', true);
     this.showInstaFyleIntro = false;
-    this.trackingService.instafyleIntroDisabled({
-      Asset: 'Mobile',
-    });
+    this.trackingService.instafyleIntroDisabled();
   }
 
   async showInstaFyleIntroImage() {
