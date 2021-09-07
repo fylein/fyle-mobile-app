@@ -97,11 +97,20 @@
     ></app-fy-loading-screen>
     <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
       <app-fy-zero-state
+        *ngIf="!(filters?.state || filters?.date || searchText)"
         [unscaledImage]="true"
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/expenses.png"
         header="You've got no report!"
         message="Create one by clicking `+` on top"
+      ></app-fy-zero-state>
+      <app-fy-zero-state
+        *ngIf="(filters?.state || filters?.date || searchText)"
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+        image="../../../assets/images/zero-states/search-not-found.svg"
+        header="No reports found"
+        message="We couldn't find any report that matched your search."
       ></app-fy-zero-state>
     </div>
     <div *ngIf="!isLoading">
