@@ -115,6 +115,11 @@
     height: 35px;
     width: 35px;
     stroke: $black-light;
+
+    &__pdf {
+      stroke: none;
+      color: $black-light;
+    }
   }
 
   &--receipt-thumbnail {

@@ -420,7 +420,7 @@ export class MyReportsPage implements OnInit {
       if (data && data.status === 'success') {
         from(this.loaderService.showLoader())
           .pipe(
-            tap(() => this.trackingService.deleteReport({ Asset: 'Mobile' })),
+            tap(() => this.trackingService.deleteReport()),
             finalize(async () => {
               await this.loaderService.hideLoader();
               this.doRefresh();
