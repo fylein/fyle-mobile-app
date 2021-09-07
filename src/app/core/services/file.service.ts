@@ -16,12 +16,12 @@ export class FileService {
   }
 
   downloadThumbnailUrl(fileId: string): Observable<any[]> {
-    return this.apiService.post('/files/download_urls',
-      [{
+    return this.apiService.post('/files/download_urls', [
+      {
         id: fileId,
-        purpose: 'THUMBNAILx200x200'
-      }]
-    );
+        purpose: 'THUMBNAILx200x200',
+      },
+    ]);
   }
 
   getFilesWithThumbnail(txnId: string): Observable<any[]> {
@@ -29,8 +29,8 @@ export class FileService {
       params: {
         transaction_id: txnId,
         skip_html: 'true',
-        purpose: 'THUMBNAILx200x200'
-      }
+        purpose: 'THUMBNAILx200x200',
+      },
     });
   }
 
@@ -133,8 +133,7 @@ export class FileService {
 
   delete(fileId: string) {
     return this.apiService.delete('/files/' + fileId);
-  };
-
+  }
 
   getAttachmentType(type: string) {
     let attachmentType = 'image';
@@ -148,9 +147,9 @@ export class FileService {
     const ext = this.getReceiptExtension(url);
     let type = '';
 
-    if (ext && (['pdf'].indexOf(ext) > -1)) {
+    if (ext && ['pdf'].indexOf(ext) > -1) {
       type = 'pdf';
-    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
       type = 'image';
     }
 
@@ -171,5 +170,4 @@ export class FileService {
 
     return res;
   }
-
 }

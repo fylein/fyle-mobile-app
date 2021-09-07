@@ -89,8 +89,8 @@ export class NewPasswordPage implements OnInit {
         switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
         tap(async (eou) => {
           const email = eou.us.email;
-          this.trackingService.onSignin(email, { Asset: 'Mobile' });
-          this.trackingService.resetPassword({ Asset: 'Mobile' });
+          this.trackingService.onSignin(email);
+          this.trackingService.resetPassword();
           await this.trackLoginInfo();
         }),
         finalize(() => from(this.loaderService.hideLoader()))
@@ -125,7 +125,7 @@ export class NewPasswordPage implements OnInit {
 
   async trackLoginInfo() {
     const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
-    this.trackingService.eventTrack('Added Login Info', { Asset: 'Mobile', label: deviceInfo.appVersion });
+    this.trackingService.eventTrack('Added Login Info', { label: deviceInfo.appVersion });
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 }

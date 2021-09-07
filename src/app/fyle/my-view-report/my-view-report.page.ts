@@ -177,13 +177,9 @@ export class MyViewReportPage implements OnInit {
         body: 'Are you sure you want to delete this report?',
         infoMessage: 'Deleting the report will not delete any of the expenses.',
         deleteMethod: () =>
-          this.reportService.delete(this.activatedRoute.snapshot.params.id).pipe(
-            tap(() =>
-              this.trackingService.deleteReport({
-                Asset: 'Mobile',
-              })
-            )
-          ),
+          this.reportService
+            .delete(this.activatedRoute.snapshot.params.id)
+            .pipe(tap(() => this.trackingService.deleteReport())),
       },
     });
 
@@ -289,7 +285,7 @@ export class MyViewReportPage implements OnInit {
   }
 
   async shareReport(event) {
-    this.trackingService.clickShareReport({ Asset: 'Mobile' });
+    this.trackingService.clickShareReport();
 
     const popover = await this.popoverController.create({
       component: ShareReportComponent,

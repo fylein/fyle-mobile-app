@@ -12,10 +12,9 @@
 <ion-content>
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
     <ng-container *ngIf="etxn.tx_policy_flag">
-      <ng-container *ngIf="comments$|async as comments">
+      <ng-container *ngIf="policyDetails">
         <app-fy-policy-violation-info
-          (click)="scrollCommentsIntoView()"
-          [estatuses]="comments"
+        [policyDetails]="policyDetails" [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
         ></app-fy-policy-violation-info>
       </ng-container>
     </ng-container>
