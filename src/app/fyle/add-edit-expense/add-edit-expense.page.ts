@@ -662,6 +662,23 @@ export class AddEditExpensePage implements OnInit {
     return this.checkForDuplicates();
   }
 
+  async trackDuplicatesShown(duplicates, etxn) {
+    try {
+      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
+      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
+
+      await this.trackingService.duplicateDetectionAlertShown({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
+        ExpenseId: etxn.tx.id,
+        DuplicateExpenses: duplicateTxnIds,
+        DuplicateFields: duplicateFields
+      });
+    } catch (err) {
+      // Ignore event tracking errors
+    }
+  }
+
   setupDuplicateDetection() {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
@@ -679,6 +696,10 @@ export class AddEditExpensePage implements OnInit {
         setTimeout(() => {
           this.pointToDuplicates = false;
         }, 3000);
+
+        this.etxn$
+          .pipe(take(1))
+          .subscribe(async etxn => this.trackDuplicatesShown(res, etxn));
       });
   }
 
@@ -3852,6 +3873,22 @@ export class AddEditExpensePage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
+    }
+  }
+
+  async setDuplicateBoxOpen(value) {
+    this.duplicateBoxOpen = value;
+
+    if (value) {
+      await this.trackingService.duplicateDetectionUserActionExpand({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'
+      });
+    } else {
+      await this.trackingService.duplicateDetectionUserActionCollapse({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'
+      });
     }
   }
 

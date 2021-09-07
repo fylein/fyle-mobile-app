@@ -619,14 +619,14 @@
                       <div>{{duplicates.length}} Duplicates Detected</div>
                     </div>
                     <div
-                      (click)="duplicateBoxOpen = false"
+                      (click)="setDuplicateBoxOpen(false)"
                       *ngIf="duplicateBoxOpen"
                       class="add-edit-per-diem--duplicate-cta"
                     >
                       Collapse
                     </div>
                     <div
-                      (click)="duplicateBoxOpen = true"
+                      (click)="setDuplicateBoxOpen(true)"
                       *ngIf="!duplicateBoxOpen"
                       class="add-edit-per-diem--duplicate-cta"
                     >

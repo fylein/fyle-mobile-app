@@ -320,6 +320,23 @@ export class AddEditPerDiemPage implements OnInit {
     return this.checkForDuplicates();
   }
 
+  async trackDuplicatesShown(duplicates, etxn) {
+    try {
+      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
+      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
+
+      await this.trackingService.duplicateDetectionAlertShown({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
+        ExpenseId: etxn.tx.id,
+        DuplicateExpenses: duplicateTxnIds,
+        DuplicateFields: duplicateFields
+      });
+    } catch (err) {
+      // Ignore event tracking errors
+    }
+  }
+
   setupDuplicateDetection() {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
@@ -337,6 +354,10 @@ export class AddEditPerDiemPage implements OnInit {
         setTimeout(() => {
           this.pointToDuplicates = false;
         }, 3000);
+
+        this.etxn$
+          .pipe(take(1))
+          .subscribe(async etxn => await this.trackDuplicatesShown(res, etxn));
       });
   }
 
@@ -2267,6 +2288,22 @@ export class AddEditPerDiemPage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
+    }
+  }
+
+  async setDuplicateBoxOpen(value) {
+    this.duplicateBoxOpen = value;
+
+    if (value) {
+      await this.trackingService.duplicateDetectionUserActionExpand({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'
+      });
+    } else {
+      await this.trackingService.duplicateDetectionUserActionCollapse({
+        Asset: 'Mobile',
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'
+      });
     }
   }
 

@@ -508,8 +508,8 @@
                     <div class="add-edit-mileage--duplicate-header">
                       <mat-icon> warning </mat-icon>
                       <div>{{duplicates.length}} Duplicates Detected</div>
-                      <div (click)="duplicateBoxOpen = false" *ngIf="duplicateBoxOpen">Collapse</div>
-                      <div (click)="duplicateBoxOpen = true" *ngIf="!duplicateBoxOpen">Expand</div>
+                      <div (click)="setDuplicateBoxOpen(false)" *ngIf="duplicateBoxOpen">Collapse</div>
+                      <div (click)="setDuplicateBoxOpen(true)" *ngIf="!duplicateBoxOpen">Expand</div>
                     </div>
                     <div *ngIf="duplicateBoxOpen" class="add-edit-mileage--duplicate-sub-box">
                       <div *ngFor="let duplicate of duplicates" class="add-edit-mileage--duplicate-reason">
