@@ -1,10 +1,14 @@
 name: Lint
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+        logLevel:
+          description: 'Lint'     
+          required: true
+          default: 'warning'
+        tags:
+          description: 'Lint'  
 
 jobs:
   run-linters:
