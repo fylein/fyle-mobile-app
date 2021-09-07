@@ -259,6 +259,10 @@
     margin-top: 6px;
     width: 100%;
     white-space: nowrap;
+    &__center {
+      position: relative;
+      top: 25%;
+    }
   }
 
   &--state {
