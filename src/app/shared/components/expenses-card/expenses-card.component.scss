@@ -1,4 +1,4 @@
-@import '../../../../theme/colors';
+@import "../../../../theme/colors";
 
 .expenses-card {
   &--date {
@@ -139,7 +139,8 @@
     text-overflow: ellipsis;
     &__align-vertical-center {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      justify-content: center;
     }
 
     &__error {
