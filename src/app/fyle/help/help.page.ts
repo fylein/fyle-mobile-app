@@ -62,7 +62,7 @@ export class HelpPage implements OnInit {
   }
 
   async presentSupportModal(dialogType) {
-    this.trackingService.viewHelpCard({ Asset: 'Mobile' });
+    this.trackingService.viewHelpCard();
     const modal = await this.modalController.create({
       component: SupportDialogPage,
       componentProps: {

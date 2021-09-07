@@ -191,7 +191,6 @@ export class AppComponent implements OnInit {
           const eou = await this.authService.getEou();
 
           this.trackingService.eventTrack('Auto Logged out', {
-            Asset: 'Mobile',
             lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
             user_email: eou && eou.us && eou.us.email,
             appVersion: deviceInfo.appVersion,
@@ -638,7 +637,7 @@ export class AppComponent implements OnInit {
     });
 
     this.userEventService.onLogout(() => {
-      this.trackingService.onSignOut({ Asset: 'Mobile' });
+      this.trackingService.onSignOut();
       this.freshChatService.destory();
       this.router.navigate(['/', 'auth', 'sign_in']);
     });

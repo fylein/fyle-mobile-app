@@ -122,7 +122,6 @@ export class CreateNewReportComponent implements OnInit {
         .pipe(
           tap(() =>
             this.trackingService.createReport({
-              Asset: 'Mobile',
               Expense_Count: txnIds.length,
               Report_Value: this.selectedTotalAmount,
             })
@@ -151,7 +150,6 @@ export class CreateNewReportComponent implements OnInit {
         .pipe(
           tap(() =>
             this.trackingService.createReport({
-              Asset: 'Mobile',
               Expense_Count: txnIds.length,
               Report_Value: this.selectedTotalAmount,
             })

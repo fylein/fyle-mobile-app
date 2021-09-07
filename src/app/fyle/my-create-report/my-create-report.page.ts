@@ -89,7 +89,6 @@ export class MyCreateReportPage implements OnInit {
             0
           );
           this.trackingService.createFirstReport({
-            Asset: 'Mobile',
             Expense_Count: txnIds.length,
             Report_Value: selectedTotalAmount,
           });
@@ -143,7 +142,6 @@ export class MyCreateReportPage implements OnInit {
           .pipe(
             tap(() => {
               this.trackingService.createReport({
-                Asset: 'Mobile',
                 Expense_Count: txnIds.length,
                 Report_Value: this.selectedTotalAmount,
               });
@@ -165,7 +163,6 @@ export class MyCreateReportPage implements OnInit {
           .pipe(
             tap(() =>
               this.trackingService.createReport({
-                Asset: 'Mobile',
                 Expense_Count: txnIds.length,
                 Report_Value: this.selectedTotalAmount,
               })

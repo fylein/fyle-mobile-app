@@ -142,6 +142,8 @@ export class AddEditMileagePage implements OnInit {
 
   expenseStartTime;
 
+  policyDetails;
+
   navigateBack = false;
 
   saveMileageLoader = false;
@@ -1128,6 +1130,8 @@ export class AddEditMileagePage implements OnInit {
       map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
     );
 
+    this.getPolicyDetails();
+
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
@@ -1535,7 +1539,7 @@ export class AddEditMileagePage implements OnInit {
       }
     } else {
       if (this.activatedRoute.snapshot.params.id) {
-        this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Mileage' });
+        this.trackingService.viewExpense({ Type: 'Mileage' });
       }
 
       if (this.navigateBack) {
@@ -1654,7 +1658,7 @@ export class AddEditMileagePage implements OnInit {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
             that.addExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
-              this.trackingService.clickSaveAddNew({ Asset: 'Mobile' });
+              this.trackingService.clickSaveAddNew();
               this.reloadCurrentRoute();
             });
           } else {
@@ -1925,7 +1929,7 @@ export class AddEditMileagePage implements OnInit {
   trackPolicyCorrections() {
     this.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
       if (isCriticalPolicyViolated && this.fg.dirty) {
-        this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Critical', Mode: 'Edit Expense' });
+        this.trackingService.policyCorrection({ Violation: 'Critical', Mode: 'Edit Expense' });
       }
     });
 
@@ -1936,7 +1940,7 @@ export class AddEditMileagePage implements OnInit {
       )
       .subscribe((policyViolated) => {
         if (policyViolated && this.fg.dirty) {
-          this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Regular', Mode: 'Edit Expense' });
+          this.trackingService.policyCorrection({ Violation: 'Regular', Mode: 'Edit Expense' });
         }
       });
   }
@@ -2057,7 +2061,6 @@ export class AddEditMileagePage implements OnInit {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
               this.trackingService.editExpense({
-                Asset: 'Mobile',
                 Type: 'Mileage',
                 Amount: etxn.tx.amount,
                 Currency: etxn.tx.currency,
@@ -2082,7 +2085,7 @@ export class AddEditMileagePage implements OnInit {
               });
             } else {
               // tracking expense closed without editing
-              this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Mileage' });
+              this.trackingService.viewExpense({ Type: 'Mileage' });
             }
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
@@ -2095,7 +2098,7 @@ export class AddEditMileagePage implements OnInit {
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
-                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
@@ -2103,14 +2106,14 @@ export class AddEditMileagePage implements OnInit {
                   if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
-                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
-                      tap(() => this.trackingService.removeFromExistingReportEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
                   }
@@ -2281,7 +2284,6 @@ export class AddEditMileagePage implements OnInit {
           switchMap((eou) => {
             const comments = [];
             this.trackingService.createExpense({
-              Asset: 'Mobile',
               Type: 'Mileage',
               Amount: etxn.tx.amount,
               Currency: etxn.tx.currency,
@@ -2373,7 +2375,7 @@ export class AddEditMileagePage implements OnInit {
               return this.transactionService.delete(id);
             }
           }),
-          tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile', Type: 'Mileage' })),
+          tap(() => this.trackingService.deleteExpense({ Type: 'Mileage' })),
           finalize(() => from(this.loaderService.hideLoader()))
         )
         .subscribe(() => {
@@ -2387,7 +2389,7 @@ export class AddEditMileagePage implements OnInit {
           }
         });
     } else {
-      this.trackingService.clickDeleteExpense({ Asset: 'Mobile', Type: 'Mileage' });
+      this.trackingService.clickDeleteExpense({ Type: 'Mileage' });
     }
   }
 
@@ -2426,15 +2428,14 @@ export class AddEditMileagePage implements OnInit {
     const { data } = await modal.onDidDismiss();
 
     if (data && data.updated) {
-      this.trackingService.addComment({ Asset: 'Mobile' });
+      this.trackingService.addComment();
     } else {
-      this.trackingService.viewComment({ Asset: 'Mobile' });
+      this.trackingService.viewComment();
     }
   }
 
   hideFields() {
     this.trackingService.hideMoreClicked({
-      Asset: 'Mobile',
       source: 'Add Mileage page',
     });
 
@@ -2443,10 +2444,17 @@ export class AddEditMileagePage implements OnInit {
 
   showFields() {
     this.trackingService.showMoreClicked({
-      Asset: 'Mobile',
       source: 'Add Mileage page',
     });
 
     this.isExpandedView = true;
+  }
+
+  getPolicyDetails() {
+    const txnId = this.activatedRoute.snapshot.params.id;
+    from(this.policyService.getPolicyViolationRules(txnId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
   }
 }
