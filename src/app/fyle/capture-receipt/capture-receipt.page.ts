@@ -13,8 +13,9 @@ import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 const { CameraPreview } = Plugins;
 
@@ -22,6 +23,11 @@ type Image = Partial<{
   source: string;
   base64Image: string;
 }>;
+
+type receiptTransaction = {
+  transaction: { id: string };
+  dataUrls: { url: string }[];
+};
 @Component({
   selector: 'app-capture-receipt',
   templateUrl: './capture-receipt.page.html',
@@ -58,8 +64,9 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     private imagePicker: ImagePicker,
     private networkService: NetworkService,
     private accountsService: AccountsService,
-    private popoverController: PopoverController
-  ) {}
+    private popoverController: PopoverController,
+    private loaderService: LoaderService
+  ) { }
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -81,7 +88,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     );
   }
 
-  addExpenseToQueue(base64ImagesWithSource: Image) {
+  addExpenseToQueue(base64ImagesWithSource: Image, syncImmediately = false) {
     let source = base64ImagesWithSource.source;
 
     return forkJoin({
@@ -111,14 +118,22 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
             url: base64ImagesWithSource.base64Image,
           },
         ];
-
-        return this.transactionsOutboxService.addEntry(
-          transaction,
-          attachmentUrls,
-          null,
-          null,
-          this.isInstafyleEnabled
-        );
+        if (!syncImmediately) {
+          return this.transactionsOutboxService.addEntry(
+            transaction,
+            attachmentUrls,
+            null,
+            null,
+            this.isInstafyleEnabled
+          );
+        } else {
+          return this.transactionsOutboxService.addEntryAndSync(
+            transaction,
+            attachmentUrls,
+            null,
+            null
+          );
+        }
       })
     );
   }
@@ -243,8 +258,35 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          this.networkService.isOnline().pipe(take(1)).subscribe((connected) => {
+            if (connected) {
+              from(this.loaderService.showLoader('Saving your receipt...', 10000)).pipe(
+                switchMap(() => this.addExpenseToQueue(this.base64ImagesWithSource[0], true)),
+                finalize(() => this.loaderService.hideLoader())
+              )
+                .subscribe((expense: receiptTransaction) => {
+                  this.router.navigate([
+                    '/',
+                    'enterprise',
+                    'add_edit_expense',
+                    {
+                      id: expense.transaction.id,
+                      extractData: true,
+                      image: JSON.stringify(expense.dataUrls[0])
+                    },
+                  ]);
+                });
+            } else {
+              this.router.navigate([
+                '/',
+                'enterprise',
+                'add_edit_expense',
+                {
+                  dataUrl: this.base64ImagesWithSource[0].base64Image,
+                  canExtractData: this.isInstafyleEnabled
+                },
+              ]);
+            }
           });
         }
       }
