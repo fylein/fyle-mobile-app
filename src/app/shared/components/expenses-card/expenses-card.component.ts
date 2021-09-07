@@ -160,7 +160,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   checkIfScanIsCompleted(): boolean {
-    const hasUserManuallyEnteredData = this.expense.tx_amount && isNumber(this.expense.tx_amount);
+    const hasUserManuallyEnteredData = (this.expense.tx_amount || this.expense.tx_user_amount) && isNumber(this.expense.tx_amount || this.expense.tx_user_amount);
     const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
@@ -320,10 +320,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   async addAttachments(event) {
-    const isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
-    const isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
-
-    if (!(isMileageExpense || isPerDiem || this.expense.tx_file_ids) && !this.isSelectionModeEnabled) {
+    if (!(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) && !this.isSelectionModeEnabled) {
       event.stopPropagation();
       event.preventDefault();
 
