@@ -1,72 +1,60 @@
 <ion-header mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
-  <ion-toolbar mode="md" class="fy-modal-toolbar">
-    <ion-title>
-      <div class="selection-modal--title">
-        Select Approvers
-      </div>
-    </ion-title>
-    <ion-buttons slot="start">
-      <ion-button (click)="closeApproverModal()">
-        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-buttons slot="end">
-      <ion-button class="selection-modal--cta" (click)="saveUpdatedApproveList()"> Done </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-  <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': newAddedApproverEmails?.length > 0 }">
-    <mat-form-field
-      class="selection-modal--form-container mat-form-field-no-padding"
-      appearance="none"
-      [ngClass]="{ 'selection-modal--form-container__chips': newAddedApproverEmails?.length > 0 }"
-    >
-      <mat-chip-list #chipList aria-label="Multi select">
-        <mat-chip
-          *ngFor="let approver of newAddedApproverEmails"
-          [selectable]="selectable"
-          [removable]="removable"
-          (removed)="removeApprover(approver)"
-        >
-          {{ approver }}
-          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-        </mat-chip>
-        <mat-icon
-          *ngIf="!(newAddedApproverEmails?.length > 0)"
-          class="selection-modal--search-icon"
-          matPrefix
-          svgIcon="fy-search"
-        ></mat-icon>
+  <ion-toolbar class="approver-list--toolbar fy-modal-toolbar">
+    <ion-toolbar mode="md">
+      <ion-buttons slot="start">
+        <ion-button (click)="closeApproverModal()">
+          <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-title>Select Approvers</ion-title>
+    </ion-toolbar>
+    <ion-toolbar class="approver-list--form-field-container">
+      <mat-form-field class="approver-list--form-field mat-form-field-no-padding" appearance="none">
         <input
           #searchBar
+          id="approver-list--search-input"
+          class="approver-list--search-input"
+          matInput
+          placeholder="Search"
           [(ngModel)]="value"
-          class="selection-modal--form-input"
-          [ngClass]="{ 'selection-modal--form-input__chips': newAddedApproverEmails?.length > 0 }"
-          [matChipInputFor]="chipList"
-          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-          [matChipInputAddOnBlur]="addOnBlur"
-          (matChipInputTokenEnd)="addChip($event)"
-          [placeholder]="!(newAddedApproverEmails?.length > 0) ? 'Search' : ''"
         />
-      </mat-chip-list>
-    </mat-form-field>
-    <div class="selection-modal--selected-count" *ngIf="newAddedApproverEmails?.length > 0">
-      {{ newAddedApproverEmails.length }} selected
-    </div>
+        <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </ion-toolbar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="selection-modal--container" *ngFor="let approver of searchedApprovers$ | async as approverList">
-    <div class="selection-modal--list-element">
-      <label class="selection-modal--list-element__label">
-        <mat-checkbox [checked]="approver.is_selected" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
-        <span class="selection-modal--approver-details">
-          <span class="selection-modal--approver-details__title">{{ approver.us_full_name }}</span>
-          <span class="selection-modal--approver-details__content">{{ approver.us_email }}</span>
-        </span>
-      </label>
+  <div>
+    <p class="approver-list--all-approvers">All approvers</p>
+    <div class="approver-list--list-container" *ngFor="let approver of searchedApprovers$ | async as approverList">
+      <div class="approver-list--list-element">
+        <label class="approver-list--list-element-label">
+          <mat-checkbox [checked]="approver.is_selected" (change)="onSelectApprover(approver, $event)"></mat-checkbox>
+          <span class="approver-list--approver-details">
+            <span class="approver-list--approver-details_name">{{ approver.us_full_name }}</span>
+            <span>{{ approver.us_email }}</span>
+          </span>
+        </label>
+      </div>
     </div>
   </div>
 </ion-content>
 
+<ion-footer>
+  <ion-toolbar mode="md">
+    <ion-button
+      mode="md"
+      class="approver-list--save"
+      fill="solid"
+      [disabled]="areApproversAdded"
+      color="fyle-primary"
+      (click)="saveUpdatedApproveList()"
+    >
+      Proceed
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
