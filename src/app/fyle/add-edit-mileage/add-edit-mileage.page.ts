@@ -160,6 +160,7 @@ export class AddEditMileagePage implements OnInit {
 
   recentlyUsedMileageLocations$: Observable<{
     recent_start_locations?: string[];
+    recent_end_locations?: string[];
     recent_locations?: string[];
   }>;
 
@@ -1014,6 +1015,7 @@ export class AddEditMileagePage implements OnInit {
     this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
       map((recentlyUsedValues) => ({
         recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
+        recent_end_locations: recentlyUsedValues?.recent_end_locations || [],
         recent_locations: recentlyUsedValues?.recent_locations || [],
       }))
     );
