@@ -258,36 +258,15 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          this.networkService.isOnline().pipe(take(1)).subscribe((connected) => {
-            if (connected) {
-              from(this.loaderService.showLoader('Saving your receipt...', 10000)).pipe(
-                switchMap(() => this.addExpenseToQueue(this.base64ImagesWithSource[0], true)),
-                finalize(() => this.loaderService.hideLoader())
-              )
-                .subscribe((expense: receiptTransaction) => {
-                  this.router.navigate([
-                    '/',
-                    'enterprise',
-                    'add_edit_expense',
-                    {
-                      id: expense.transaction.id,
-                      extractData: true,
-                      image: JSON.stringify(expense.dataUrls[0])
-                    },
-                  ]);
-                });
-            } else {
-              this.router.navigate([
-                '/',
-                'enterprise',
-                'add_edit_expense',
-                {
-                  dataUrl: this.base64ImagesWithSource[0].base64Image,
-                  canExtractData: this.isInstafyleEnabled
-                },
-              ]);
-            }
-          });
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_expense',
+            {
+              dataUrl: this.base64ImagesWithSource[0].base64Image,
+              canExtractData: this.isInstafyleEnabled
+            },
+          ]);
         }
       }
     }
