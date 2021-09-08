@@ -341,7 +341,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async showClosePopup() {
-    if (this.fg.touched) {
+    if (this.fg.touched || this.activatedRoute.snapshot.params.dataUrl) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
         componentProps: {
