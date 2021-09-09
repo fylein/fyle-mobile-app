@@ -23,11 +23,11 @@
   &--ion-buttons {
     margin-bottom: auto;
     min-width: 40px;
-  }
-
-  &--delete-icon {
-    width: 24px;
-    height: 24px;
+  
+    &__delete {
+      width: 24px;
+      height: 24px;
+    }
   }
 
   &--container {
