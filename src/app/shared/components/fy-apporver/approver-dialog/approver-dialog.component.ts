@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -8,15 +8,21 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { ConfirmationCommentPopoverComponent } from './confirmation-comment-popover/confirmation-comment-popover.component';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { Employee } from 'src/app/core/models/employee.model';
-import { isEqual, cloneDeep } from 'lodash';
 import { ReportService } from 'src/app/core/services/report.service';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatChipInputEvent } from '@angular/material/chips';
+
+type approverModel = {
+  name: string;
+  email: string;
+};
 
 @Component({
   selector: 'app-approver-dialog',
   templateUrl: './approver-dialog.component.html',
   styleUrls: ['./approver-dialog.component.scss'],
 })
-export class ApproverDialogComponent implements OnInit, AfterViewInit {
+export class ApproverDialogComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   @Input() approverEmailsList: string[] = [];
@@ -27,17 +33,27 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
   @Input() from;
 
-  value;
+  value: string;
 
   approverList$: Observable<any>;
 
   searchedApprovers$: Observable<Employee[]>;
 
-  intialSelectedApproverEmails: string[] = [];
+  selectedApproversList: approverModel[] = [];
 
   searchTerm;
 
   areApproversAdded = true;
+
+  selectable = true;
+
+  removable = true;
+
+  addOnBlur = true;
+
+  selectedApproversDict = {};
+
+  readonly separatorKeysCodes = this.getSeparatorKeysCodes();
 
   constructor(
     private loaderService: LoaderService,
@@ -49,19 +65,41 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     private reportService: ReportService
   ) {}
 
+  getSelectedApproversDict() {
+    return this.selectedApproversList.reduce((acc, curr) => {
+      acc[curr.email] = true;
+      return acc;
+    }, {});
+  }
+
+  clearValue() {
+    this.value = '';
+    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+    this.getSearchedUsersList();
+  }
+
+  getSeparatorKeysCodes() {
+    return [ENTER, COMMA];
+  }
+
+  addChip(event: MatChipInputEvent) {
+    if (event && event.chipInput) {
+      event.chipInput.clear();
+    }
+    this.clearValue();
+  }
+
   closeApproverModal() {
     this.modalController.dismiss();
   }
 
   async saveUpdatedApproveList() {
-    const newAddedApprovers = this.approverEmailsList.filter(
-      (approver) => this.intialSelectedApproverEmails.indexOf(approver) === -1
-    );
-
     const saveApproverConfirmationPopover = await this.popoverController.create({
       component: ConfirmationCommentPopoverComponent,
       componentProps: {
-        selectedApprovers: newAddedApprovers,
+        selectedApprovers: this.selectedApproversList.map(selectedApprover => selectedApprover.name),
       },
       cssClass: 'dialog-popover',
     });
@@ -72,7 +110,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     if (data && data.message) {
       from(this.loaderService.showLoader())
         .pipe(
-          switchMap(() => from(newAddedApprovers)),
+          switchMap(() => from(this.selectedApproversList.map(selectedApprover => selectedApprover.email))),
           concatMap((approver) => {
             if (this.from === 'TRIP_REQUEST') {
               return this.tripRequestsService.addApproverETripRequests(this.id, approver, data.message);
@@ -93,13 +131,20 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
 
   onSelectApprover(approver: Employee, event: { checked: boolean }) {
     if (event.checked) {
-      this.approverEmailsList.push(approver.us_email);
+      this.selectedApproversList.push({name: approver.us_full_name, email: approver.us_email});
     } else {
-      const index = this.approverEmailsList.indexOf(approver.us_email);
-      this.approverEmailsList.splice(index, 1);
+      this.selectedApproversList = this.selectedApproversList
+        .filter( selectedApprover => selectedApprover.email !== approver.us_email );
     }
+    this.areApproversAdded = this.selectedApproversList.length === 0;
+    this.selectedApproversDict = this.getSelectedApproversDict();
+  }
 
-    this.areApproversAdded = isEqual(this.intialSelectedApproverEmails, this.approverEmailsList);
+  removeApprover(approver) {
+    this.selectedApproversList = this.selectedApproversList
+      .filter( selectedApprover => selectedApprover.email !== approver.email );
+    this.areApproversAdded = this.selectedApproversList.length === 0;
+    this.selectedApproversDict = this.getSelectedApproversDict();
   }
 
   getDefaultUsersList() {
@@ -155,7 +200,7 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
       return this.getDefaultUsersList().pipe(
         switchMap((employees) => {
           employees = employees.filter(
-            (employee) => this.intialSelectedApproverEmails.indexOf(employee.us_email) === -1
+            (employee) => this.approverEmailsList.indexOf(employee.us_email) === -1
           );
           return this.getSearchedUsersList(null).pipe(
             map((searchedEmployees) => {
@@ -175,10 +220,6 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
     return searchedEmployees;
   }
 
-  ngOnInit() {
-    this.intialSelectedApproverEmails = cloneDeep(this.approverEmailsList);
-  }
-
   ngAfterViewInit() {
     this.searchedApprovers$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
@@ -186,12 +227,5 @@ export class ApproverDialogComponent implements OnInit, AfterViewInit {
       distinctUntilChanged(),
       switchMap((searchText: any) => this.getUsersList(searchText))
     );
-  }
-
-  clearValue() {
-    this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
-    searchInput.value = '';
-    searchInput.dispatchEvent(new Event('keyup'));
   }
 }
