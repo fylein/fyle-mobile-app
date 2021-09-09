@@ -780,7 +780,7 @@ export class AddEditExpensePage implements OnInit {
 
   ngOnInit() {
     if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === "true";
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
     }
   }
 
