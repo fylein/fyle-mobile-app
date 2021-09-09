@@ -332,7 +332,6 @@ export class AddEditPerDiemPage implements OnInit {
       const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
 
       await this.trackingService.duplicateDetectionAlertShown({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
         ExpenseId: etxn.tx.id,
         DuplicateExpenses: duplicateTxnIds,
@@ -2301,12 +2300,10 @@ export class AddEditPerDiemPage implements OnInit {
 
     if (value) {
       await this.trackingService.duplicateDetectionUserActionExpand({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'
       });
     } else {
       await this.trackingService.duplicateDetectionUserActionCollapse({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'
       });
     }

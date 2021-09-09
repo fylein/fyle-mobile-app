@@ -395,7 +395,6 @@ export class AddEditMileagePage implements OnInit {
       const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
 
       await this.trackingService.duplicateDetectionAlertShown({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage',
         ExpenseId: etxn.tx.id,
         DuplicateExpenses: duplicateTxnIds,
@@ -2465,12 +2464,10 @@ export class AddEditMileagePage implements OnInit {
 
     if (value) {
       await this.trackingService.duplicateDetectionUserActionExpand({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mielage'
       });
     } else {
       await this.trackingService.duplicateDetectionUserActionCollapse({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage'
       });
     }

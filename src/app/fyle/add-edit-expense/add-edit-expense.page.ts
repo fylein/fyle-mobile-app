@@ -285,7 +285,7 @@ export class AddEditExpensePage implements OnInit {
   taxGroupsOptions$: Observable<{ label: string; value: any }[]>;
 
   canDeleteExpense = true;
-  
+
   policyDetails;
 
   constructor(
@@ -670,7 +670,6 @@ export class AddEditExpensePage implements OnInit {
       const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
 
       await this.trackingService.duplicateDetectionAlertShown({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
         ExpenseId: etxn.tx.id,
         DuplicateExpenses: duplicateTxnIds,
@@ -3892,12 +3891,10 @@ export class AddEditExpensePage implements OnInit {
 
     if (value) {
       await this.trackingService.duplicateDetectionUserActionExpand({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'
       });
     } else {
       await this.trackingService.duplicateDetectionUserActionCollapse({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'
       });
     }
