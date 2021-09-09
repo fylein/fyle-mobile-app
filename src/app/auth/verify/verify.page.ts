@@ -38,8 +38,8 @@ export class VerifyPage implements OnInit {
       .pipe(
         switchMap((resp) => this.authService.newRefreshToken(resp.refresh_token)),
         tap((eou) => {
-          this.trackingService.emailVerified({ Asset: 'Mobile' });
-          this.trackingService.onSignin(eou.us.email, { Asset: 'Mobile' });
+          this.trackingService.emailVerified();
+          this.trackingService.onSignin(eou.us.email);
         }),
         catchError((err) => {
           this.currentPageState = VerifyPageState.error;

@@ -44,7 +44,7 @@ export class AddExpensePopoverComponent implements OnInit {
 
   async createExpense(event) {
     await this.popoverController.dismiss();
-    this.trackingService.eventTrack('Click Add Expense', { Asset: 'Mobile' });
+    this.trackingService.eventTrack('Click Add Expense');
     await this.router.navigate([
       '/',
       'enterprise',
@@ -56,7 +56,7 @@ export class AddExpensePopoverComponent implements OnInit {
   }
 
   async createMileage(event) {
-    this.trackingService.eventTrack('Click Add Mileage', { Asset: 'Mobile' });
+    this.trackingService.eventTrack('Click Add Mileage');
     await this.popoverController.dismiss();
     await this.router.navigate([
       '/',

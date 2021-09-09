@@ -228,7 +228,7 @@ export class MyEditReportPage implements OnInit {
             () => this.addedExpensesIdList.length > 0,
             this.reportService
               .addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList)
-              .pipe(tap(() => this.trackingService.addToExistingReport({ Asset: 'Mobile' }))),
+              .pipe(tap(() => this.trackingService.addToExistingReport())),
             of(false)
           )
         ),

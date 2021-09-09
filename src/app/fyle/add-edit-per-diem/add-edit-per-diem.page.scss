@@ -48,6 +48,11 @@
     }
   }
 
+  &--cta-container {
+    padding: 14px 16px;
+    justify-content: space-between;
+  }
+
   &--primary-cta,
   &--secondary-cta {
     height: 48px;

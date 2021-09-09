@@ -131,7 +131,7 @@ export class MyProfilePage implements OnInit {
       .pipe(
         concatMap(() =>
           this.authService.refreshEou().pipe(
-            tap(() => this.trackingService.activated({ Asset: 'Mobile' })),
+            tap(() => this.trackingService.activated()),
             map(() => {
               const message = 'Profile saved successfully';
               this.matSnackBar.openFromComponent(ToastMessageComponent, {
@@ -198,9 +198,9 @@ export class MyProfilePage implements OnInit {
       .pipe(
         map((res) => {
           if (this.orgUserSettings.insta_fyle_settings.enabled) {
-            this.trackingService.onEnableInstaFyle({ Asset: 'Mobile', persona: 'Enterprise' });
+            this.trackingService.onEnableInstaFyle({ persona: 'Enterprise' });
           } else {
-            this.trackingService.onDisableInstaFyle({ Asset: 'Mobile', persona: 'Enterprise' });
+            this.trackingService.onDisableInstaFyle({ persona: 'Enterprise' });
           }
         })
       )
@@ -213,9 +213,9 @@ export class MyProfilePage implements OnInit {
       .pipe(
         map((res) => {
           if (this.orgUserSettings.bulk_fyle_settings.enabled) {
-            this.trackingService.onEnableBulkFyle({ Asset: 'Mobile', persona: 'Enterprise' });
+            this.trackingService.onEnableBulkFyle({ persona: 'Enterprise' });
           } else {
-            this.trackingService.onDisableBulkFyle({ Asset: 'Mobile', persona: 'Enterprise' });
+            this.trackingService.onDisableBulkFyle({ persona: 'Enterprise' });
           }
         })
       )
