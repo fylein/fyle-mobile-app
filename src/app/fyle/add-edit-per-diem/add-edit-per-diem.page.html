@@ -552,7 +552,7 @@
                   <ng-container *ngIf="isConnected$|async">
                     <ng-container *ngIf="reports$|async as reports">
                       <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                        <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
+                        <ng-container>
                           <div class="add-edit-per-diem--internal-block">
                             <app-fy-add-to-report
                               *ngIf="reports.length > 0"
