@@ -22,6 +22,7 @@ import { UserEventService } from 'src/app/core/services/user-event.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-swicth-org',
@@ -51,7 +52,8 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
     private orgService: OrgService,
     private userEventService: UserEventService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit() {}
@@ -144,12 +146,32 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
       });
   }
 
+  trackSwitchOrg(org: Org, originalEou) {
+    from(this.authService.getEou()).subscribe(currentEou => {
+      const properties = {
+        'Asset': 'Mobile',
+        'Switch To': org.name,
+        'Is Destination Org Active': originalEou && originalEou.ou && originalEou.ou.org_id === org.id,
+        'Is Destination Org Primary': currentEou && currentEou.ou && currentEou.ou.is_primary,
+        'Is Current Org Primary': originalEou && originalEou.ou && originalEou.ou.is_primary,
+        'Source': 'User Clicked',
+        'User Email': originalEou && originalEou.us && originalEou.us.email,
+        'User Org Name': originalEou && originalEou.ou && originalEou.ou.org_name,
+        'User Org ID': originalEou && originalEou.ou && originalEou.ou.org_id,
+        'User Full Name': originalEou && originalEou.us && originalEou.us.full_name
+      }
+      this.trackingService.onSwitchOrg(properties);
+    });
+  };
+
   async switchToOrg(org: Org) {
+    var originalEou = await this.authService.getEou();
     from(this.loaderService.showLoader())
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
       .subscribe(
         () => {
           globalCacheBusterNotifier.next();
+          this.trackSwitchOrg(org, originalEou);
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
           from(this.proceed()).subscribe(noop);
         },

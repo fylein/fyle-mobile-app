@@ -471,6 +471,10 @@ export class TrackingService {
     this.eventTrack('Switch User', properties);
   }
 
+  onSwitchOrg(properties) {
+    this.eventTrack('Switch Org', properties);
+  }
+
   // switch to user toggle
   analytics(properties) {
     this.eventTrack('Analytics', properties);
