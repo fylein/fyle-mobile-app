@@ -586,7 +586,7 @@ export class MyExpensesPage implements OnInit {
       this.isLoading = false;
     }, 500);
 
-    const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
+    const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' };
 
     this.openReports$ = this.reportService.getAllExtendedReports({ queryParams }).pipe(
       map((openReports) =>
