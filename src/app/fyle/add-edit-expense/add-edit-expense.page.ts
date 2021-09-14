@@ -284,6 +284,10 @@ export class AddEditExpensePage implements OnInit {
 
   taxGroupsOptions$: Observable<{ label: string; value: any }[]>;
 
+  canDeleteExpense = true;
+
+  policyDetails;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -339,7 +343,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async showClosePopup() {
-    if (this.fg.touched) {
+    if (this.fg.touched || this.activatedRoute.snapshot.params.dataUrl) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
         componentProps: {
@@ -370,7 +374,7 @@ export class AddEditExpensePage implements OnInit {
       }
     } else {
       if (this.activatedRoute.snapshot.params.id) {
-        this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Receipt' });
+        this.trackingService.viewExpense({ Type: 'Receipt' });
       }
 
       if (this.navigateBack) {
@@ -660,6 +664,22 @@ export class AddEditExpensePage implements OnInit {
     return this.checkForDuplicates();
   }
 
+  async trackDuplicatesShown(duplicates, etxn) {
+    try {
+      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
+      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
+
+      await this.trackingService.duplicateDetectionAlertShown({
+        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
+        ExpenseId: etxn.tx.id,
+        DuplicateExpenses: duplicateTxnIds,
+        DuplicateFields: duplicateFields
+      });
+    } catch (err) {
+      // Ignore event tracking errors
+    }
+  }
+
   setupDuplicateDetection() {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
@@ -677,6 +697,10 @@ export class AddEditExpensePage implements OnInit {
         setTimeout(() => {
           this.pointToDuplicates = false;
         }, 3000);
+
+        this.etxn$
+          .pipe(take(1))
+          .subscribe(async etxn => this.trackDuplicatesShown(res, etxn));
       });
   }
 
@@ -776,7 +800,11 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
+  }
 
   getFormValidationErrors() {
     Object.keys(this.fg.controls).forEach((key) => {
@@ -1615,6 +1643,7 @@ export class AddEditExpensePage implements OnInit {
 
           if (etxn.dataUrls && etxn.dataUrls.length) {
             this.newExpenseDataUrls = etxn.dataUrls;
+            this.attachedReceiptsCount = this.newExpenseDataUrls.length;
           }
 
           this.fg.controls.vendor_id.valueChanges.subscribe((vendor) => {
@@ -1627,6 +1656,10 @@ export class AddEditExpensePage implements OnInit {
               this.setCategoryFromVendor(vendor.default_category);
             }
           });
+
+          if (this.activatedRoute.snapshot.params.extractData && this.activatedRoute.snapshot.params.image) {
+            this.parseFile(JSON.parse(this.activatedRoute.snapshot.params.image));
+          }
         }
       );
   }
@@ -2606,6 +2639,8 @@ export class AddEditExpensePage implements OnInit {
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
     );
+
+    this.getPolicyDetails();
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
@@ -2880,7 +2915,7 @@ export class AddEditExpensePage implements OnInit {
 
   saveAndNewExpense() {
     const that = this;
-    this.trackingService.clickSaveAddNew({ Asset: 'Mobile' });
+    this.trackingService.clickSaveAddNew();
     that
       .checkIfInvalidPaymentMode()
       .pipe(take(1))
@@ -3022,7 +3057,7 @@ export class AddEditExpensePage implements OnInit {
   trackPolicyCorrections() {
     this.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
       if (isCriticalPolicyViolated && this.fg.dirty) {
-        this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Critical', Mode: 'Edit Expense' });
+        this.trackingService.policyCorrection({ Violation: 'Critical', Mode: 'Edit Expense' });
       }
     });
 
@@ -3033,7 +3068,7 @@ export class AddEditExpensePage implements OnInit {
       )
       .subscribe((policyViolated) => {
         if (policyViolated && this.fg.dirty) {
-          this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Regular', Mode: 'Edit Expense' });
+          this.trackingService.policyCorrection({ Violation: 'Regular', Mode: 'Edit Expense' });
         }
       });
   }
@@ -3139,7 +3174,6 @@ export class AddEditExpensePage implements OnInit {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
               this.trackingService.editExpense({
-                Asset: 'Mobile',
                 Type: 'Receipt',
                 Amount: etxn.tx.amount,
                 Currency: etxn.tx.currency,
@@ -3160,7 +3194,7 @@ export class AddEditExpensePage implements OnInit {
               });
             } else {
               // tracking expense closed without editing
-              this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Receipt' });
+              this.trackingService.viewExpense({ Type: 'Receipt' });
             }
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
@@ -3173,7 +3207,7 @@ export class AddEditExpensePage implements OnInit {
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
-                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
@@ -3181,14 +3215,14 @@ export class AddEditExpensePage implements OnInit {
                   if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
-                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
-                      tap(() => this.trackingService.removeFromExistingReportEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
                   }
@@ -3270,7 +3304,6 @@ export class AddEditExpensePage implements OnInit {
     const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
     this.generateEtxnFromFg(this.etxn$, customFields$).subscribe((etxn) => {
       this.trackingService.createExpense({
-        Asset: 'Mobile',
         Type: 'Receipt',
         Amount: etxn.tx.amount,
         Currency: etxn.tx.currency,
@@ -3399,7 +3432,6 @@ export class AddEditExpensePage implements OnInit {
             const comments = [];
             const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
             this.trackingService.createExpense({
-              Asset: 'Mobile',
               Type: 'Receipt',
               Amount: etxn.tx.amount,
               Currency: etxn.tx.currency,
@@ -3754,7 +3786,6 @@ export class AddEditExpensePage implements OnInit {
           },
           mode: 'ios',
           presentingElement: await this.modalController.getTop(),
-          ...this.modalProperties.getModalDefaultProperties(),
         });
 
         await attachmentsModal.present();
@@ -3776,7 +3807,7 @@ export class AddEditExpensePage implements OnInit {
               .subscribe((attachedReceipts) => {
                 this.loadAttachments$.next();
                 if (this.attachedReceiptsCount === attachedReceipts) {
-                  this.trackingService.viewAttachment({ Asset: 'Mobile' });
+                  this.trackingService.viewAttachment();
                 }
                 this.attachedReceiptsCount = attachedReceipts;
               });
@@ -3790,43 +3821,43 @@ export class AddEditExpensePage implements OnInit {
     const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
     const header = reportId && removeExpenseFromReport ? 'Remove Expense' : 'Delete Expense';
-    const message =
+    const body =
       reportId && removeExpenseFromReport
         ? 'Are you sure you want to remove this expense from this report?'
         : 'Are you sure you want to delete this expense?';
-    const CTAText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
-    const loadingMessage = reportId && removeExpenseFromReport ? 'Removing Expense...' : 'Deleting Expense...';
+    const ctaText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = reportId && removeExpenseFromReport ? 'Removing' : 'Deleting';
 
-    const popupResult = await this.popupService.showPopup({
-      header,
-      message,
-      primaryCta: {
-        text: CTAText,
-      },
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header,
+        body,
+        ctaText,
+        ctaLoadingText,
+        deleteMethod: () => {
+          if (reportId && removeExpenseFromReport) {
+            return this.reportService.removeTransaction(reportId, id);
+          }
+          return this.transactionService.delete(id);
+        }
+      }
     });
 
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader(loadingMessage))
-        .pipe(
-          switchMap(() => {
-            if (reportId && removeExpenseFromReport) {
-              return this.reportService.removeTransaction(reportId, id);
-            } else {
-              return this.transactionService.delete(id);
-            }
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-            this.reviewList.splice(+this.activeIndex, 1);
-            this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
-              this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-            });
-          } else {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          }
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+        this.reviewList.splice(+this.activeIndex, 1);
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+          this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     }
   }
 
@@ -3848,15 +3879,28 @@ export class AddEditExpensePage implements OnInit {
     const { data } = await modal.onDidDismiss();
 
     if (data && data.updated) {
-      this.trackingService.addComment({ Asset: 'Mobile' });
+      this.trackingService.addComment();
     } else {
-      this.trackingService.viewComment({ Asset: 'Mobile' });
+      this.trackingService.viewComment();
+    }
+  }
+
+  async setDuplicateBoxOpen(value) {
+    this.duplicateBoxOpen = value;
+
+    if (value) {
+      await this.trackingService.duplicateDetectionUserActionExpand({
+        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'
+      });
+    } else {
+      await this.trackingService.duplicateDetectionUserActionCollapse({
+        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'
+      });
     }
   }
 
   hideFields() {
     this.trackingService.hideMoreClicked({
-      Asset: 'Mobile',
       source: 'Add Edit Expenses page',
     });
 
@@ -3865,10 +3909,17 @@ export class AddEditExpensePage implements OnInit {
 
   showFields() {
     this.trackingService.showMoreClicked({
-      Asset: 'Mobile',
       source: 'Add Edit Expenses page',
     });
 
     this.isExpandedView = true;
+  }
+
+  getPolicyDetails() {
+    const txnId = this.activatedRoute.snapshot.params.id;
+    from(this.policyService.getPolicyViolationRules(txnId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
   }
 }

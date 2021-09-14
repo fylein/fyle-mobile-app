@@ -31,6 +31,8 @@ export class StatBadgeComponent implements OnInit {
   }
 
   onBadgeClicked() {
-    this.badgeClicked.emit(this.reportState);
+    if(!this.loading) {
+      this.badgeClicked.emit(this.reportState);
+    }
   }
 }

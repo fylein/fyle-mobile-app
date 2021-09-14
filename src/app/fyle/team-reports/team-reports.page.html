@@ -3,7 +3,7 @@
     <ion-buttons mode="md" slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> Reports </ion-title>
+    <ion-title mode="md" class="page-title"> Team Reports </ion-title>
   </ion-toolbar>
   <ion-toolbar mode="md">
     <div class="reports--toolbar">
@@ -73,7 +73,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="reports--content">
   <ng-container *ngIf="count$|async; else zeroState">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
@@ -93,9 +93,11 @@
   <ng-template #zeroState>
     <div class="reports--zero-state">
       <app-fy-zero-state
-        [image]="'../../../assets/images/zero-states/coffee.svg'"
-        [header]="'Nothing here, grab a coffee maybe?'"
-        [message]="'Expense reports that need your approval will show up here.'"
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+        image="../../../assets/images/zero-states/expenses.png"
+        header="Get yourself a coffee &#9749;"
+        message="No reports pending on you for approval."
       ></app-fy-zero-state>
     </div>
   </ng-template>
@@ -105,3 +107,11 @@
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>
+
+<ion-footer mode="md">
+  <app-fy-footer
+    (homeClicked)="onHomeClicked()"
+    (taskClicked)="onTaskClicked()"
+    (cameraClicked)="onCameraClicked()"
+  ></app-fy-footer>
+</ion-footer>

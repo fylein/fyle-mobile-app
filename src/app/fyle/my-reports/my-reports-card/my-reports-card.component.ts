@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-my-reports-card',
@@ -23,12 +24,16 @@ export class MyReportsCardComponent implements OnInit {
 
   actionOpened = false;
 
+  reportCurrencySymbol = '';
+
   constructor() {}
 
   ngOnInit() {
     this.showDate =
       (this.erpt && new Date(this.erpt.rp_created_at).toDateString()) !==
       (this.prevDate && new Date(this.prevDate).toDateString());
+
+    this.reportCurrencySymbol = getCurrencySymbol(this.erpt.rp_currency, 'wide');
   }
 
   onDeleteReport() {

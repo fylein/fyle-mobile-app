@@ -112,10 +112,10 @@ export class InvitedUserPage implements OnInit {
             user.password = this.fg.controls.password.value;
             return this.orgUserService.postUser(user);
           }),
-          tap(() => this.trackingService.setupComplete({ Asset: 'Mobile' })),
+          tap(() => this.trackingService.setupComplete()),
           switchMap(() => this.authService.refreshEou()),
           switchMap(() => this.orgUserService.markActive()),
-          tap(() => this.trackingService.activated({ Asset: 'Mobile' })),
+          tap(() => this.trackingService.activated()),
           finalize(async () => await this.loaderService.hideLoader())
         )
         .subscribe(() => {

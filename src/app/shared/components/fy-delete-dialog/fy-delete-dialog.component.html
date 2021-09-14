@@ -41,9 +41,9 @@
           appFormButtonValidation
           [loaderPosition]="LoaderPosition.prefix"
           [loading]="deleteCallInProgress"
-          [loadingText]="'Deleting'"
+          [loadingText]="ctaLoadingText ? ctaLoadingText : 'Deleting'"
         >
-          Delete
+          {{ctaText ? ctaText : 'Delete'}}
         </div>
       </ion-col>
     </ion-row>
