@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
-import { Params, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { concat, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
@@ -24,7 +24,9 @@ export class PersonalCardsPage implements OnInit {
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
-    private router: Router
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+
   ) { }
 
   ngOnInit() {
