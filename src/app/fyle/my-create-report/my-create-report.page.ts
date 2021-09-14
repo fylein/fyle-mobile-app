@@ -16,6 +16,7 @@ import { ReportSummaryComponent } from './report-summary/report-summary.componen
 import { TrackingService } from '../../core/services/tracking.service';
 import { StorageService } from '../../core/services/storage.service';
 import { NgModel } from '@angular/forms';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-my-create-report',
@@ -52,6 +53,12 @@ export class MyCreateReportPage implements OnInit {
   saveReportLoading = false;
 
   showReportNameError = false;
+
+  homeCurrencySymbol: string;
+
+  homeCurrency: string;
+
+  isSelectedAll: boolean;
 
   constructor(
     private transactionService: TransactionService,
@@ -246,6 +253,7 @@ export class MyCreateReportPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isSelectedAll = true;
     this.selectedTxnIds = this.activatedRoute.snapshot.params.txn_ids
       ? JSON.parse(this.activatedRoute.snapshot.params.txn_ids)
       : [];
@@ -306,11 +314,28 @@ export class MyCreateReportPage implements OnInit {
       )
       .subscribe((res) => {
         this.readyToReportEtxns = res;
+        console.log("check ---", this.readyToReportEtxns);
         this.getReportTitle();
       });
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
   }
 
-  ngOnInit() {}
+  selectExpense(expense: Expense) {
+    const isSelectedElementsIncludesExpense = this.readyToReportEtxns.some((txn) => expense.tx_id === txn.tx_id);
+    if (isSelectedElementsIncludesExpense) {
+      this.readyToReportEtxns = this.readyToReportEtxns.filter((txn) => txn.tx_id !== expense.tx_id);
+    } else {
+      this.readyToReportEtxns.push(expense);
+    }
+    this.getReportTitle();
+    this.isSelectedAll = this.readyToReportEtxns.length === this.readyToReportEtxns.length;
+  }
+
+  ngOnInit() {
+    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+      this.homeCurrency = homeCurrency;
+      this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+    });
+  }
 }
