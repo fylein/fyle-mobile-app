@@ -1,14 +1,10 @@
-import { Component, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
 import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { switchMap, map, finalize, concatMap, reduce, startWith, distinctUntilChanged } from 'rxjs/operators';
-import { ModalController, PopoverController } from '@ionic/angular';
-import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
-import { ConfirmationCommentPopoverComponent } from './confirmation-comment-popover/confirmation-comment-popover.component';
-import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { switchMap, map, finalize, startWith, distinctUntilChanged } from 'rxjs/operators';
+import { ModalController } from '@ionic/angular';
 import { Employee } from 'src/app/core/models/employee.model';
-import { ReportService } from 'src/app/core/services/report.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 
@@ -22,16 +18,18 @@ type approverModel = {
   templateUrl: './approver-dialog.component.html',
   styleUrls: ['./approver-dialog.component.scss'],
 })
-export class ApproverDialogComponent implements AfterViewInit {
+export class ApproverDialogComponent implements AfterViewInit, OnInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() approverEmailsList: string[] = [];
+  @Input() approverEmailsList: string[];
 
   @Input() id: string;
 
   @Input() ownerEmail: string;
 
   @Input() from;
+
+  @Input() initialApproverList: approverModel[];
 
   value: string;
 
@@ -58,12 +56,13 @@ export class ApproverDialogComponent implements AfterViewInit {
   constructor(
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,
-    private modalController: ModalController,
-    private tripRequestsService: TripRequestsService,
-    private popoverController: PopoverController,
-    private advanceRequestService: AdvanceRequestService,
-    private reportService: ReportService
+    private modalController: ModalController
   ) {}
+
+  ngOnInit() {
+    this.selectedApproversList = this.initialApproverList;
+    this.selectedApproversDict = this.getSelectedApproversDict();
+  }
 
   getSelectedApproversDict() {
     return this.selectedApproversList.reduce((acc, curr) => {
@@ -96,37 +95,7 @@ export class ApproverDialogComponent implements AfterViewInit {
   }
 
   async saveUpdatedApproveList() {
-    const saveApproverConfirmationPopover = await this.popoverController.create({
-      component: ConfirmationCommentPopoverComponent,
-      componentProps: {
-        selectedApprovers: this.selectedApproversList.map(selectedApprover => selectedApprover.name),
-      },
-      cssClass: 'dialog-popover',
-    });
-
-    saveApproverConfirmationPopover.present();
-
-    const { data } = await saveApproverConfirmationPopover.onWillDismiss();
-    if (data && data.message) {
-      from(this.loaderService.showLoader())
-        .pipe(
-          switchMap(() => from(this.selectedApproversList.map(selectedApprover => selectedApprover.email))),
-          concatMap((approver) => {
-            if (this.from === 'TRIP_REQUEST') {
-              return this.tripRequestsService.addApproverETripRequests(this.id, approver, data.message);
-            } else if (this.from === 'ADVANCE_REQUEST') {
-              return this.advanceRequestService.addApprover(this.id, approver, data.message);
-            } else {
-              return this.reportService.addApprover(this.id, approver, data.message);
-            }
-          }),
-          reduce((acc, curr) => acc.concat(curr), []),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          this.modalController.dismiss({ reload: true });
-        });
-    }
+    this.modalController.dismiss({ selectedApproversList: this.selectedApproversList });
   }
 
   onSelectApprover(approver: Employee, event: { checked: boolean }) {
