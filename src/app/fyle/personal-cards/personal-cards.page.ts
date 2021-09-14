@@ -19,6 +19,8 @@ export class PersonalCardsPage implements OnInit {
 
   linkedAccountsCount$: Observable<number>;
 
+  navigateBack = false;
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -28,6 +30,12 @@ export class PersonalCardsPage implements OnInit {
   ngOnInit() {
     this.setupNetworkWatcher();
     this.linkedAccountsCount$ = this.personalCardsService.getLinkedAccountsCount();
+  }
+
+  ionViewWillEnter() {
+    this.linkedAccountsCount$ = this.personalCardsService.getLinkedAccountsCount();
+
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
   }
 
   setupNetworkWatcher() {
