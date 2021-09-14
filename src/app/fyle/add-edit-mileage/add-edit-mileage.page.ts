@@ -196,6 +196,8 @@ export class AddEditMileagePage implements OnInit {
 
   billableDefaultValue: boolean;
 
+  canDeleteExpense = true;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -229,7 +231,11 @@ export class AddEditMileagePage implements OnInit {
     private modalProperties: ModalPropertiesService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
+  }
 
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
@@ -389,7 +395,6 @@ export class AddEditMileagePage implements OnInit {
       const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
 
       await this.trackingService.duplicateDetectionAlertShown({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage',
         ExpenseId: etxn.tx.id,
         DuplicateExpenses: duplicateTxnIds,
@@ -2370,45 +2375,44 @@ export class AddEditMileagePage implements OnInit {
     const id = this.activatedRoute.snapshot.params.id;
     const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
-    const header = reportId && removeExpenseFromReport ? 'Remove Mileage' : 'Delete  Mileage';
-    const message =
+    const header = reportId && removeExpenseFromReport ? 'Remove Mileage' : 'Delete Mileage';
+    const body =
       reportId && removeExpenseFromReport
         ? 'Are you sure you want to remove this mileage expense from this report?'
         : 'Are you sure you want to delete this mileage expense?';
-    const CTAText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
-    const loadingMessage = reportId && removeExpenseFromReport ? 'Removing Mileage...' : 'Deleting Mileage...';
+    const ctaText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = reportId && removeExpenseFromReport ? 'Removing' : 'Deleting';
 
-    const popupResponse = await this.popupService.showPopup({
-      header,
-      message,
-      primaryCta: {
-        text: CTAText,
-      },
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header,
+        body,
+        ctaText,
+        ctaLoadingText,
+        deleteMethod: () => {
+          if (reportId && removeExpenseFromReport) {
+            return this.reportService.removeTransaction(reportId, id);
+          }
+          return this.transactionService.delete(id);
+        }
+      }
     });
 
-    if (popupResponse === 'primary') {
-      from(this.loaderService.showLoader(loadingMessage))
-        .pipe(
-          switchMap(() => {
-            if (reportId && removeExpenseFromReport) {
-              return this.reportService.removeTransaction(reportId, id);
-            } else {
-              return this.transactionService.delete(id);
-            }
-          }),
-          tap(() => this.trackingService.deleteExpense({ Type: 'Mileage' })),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-            this.reviewList.splice(+this.activeIndex, 1);
-            this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
-              this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-            });
-          } else {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          }
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+        this.reviewList.splice(+this.activeIndex, 1);
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+          this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     } else {
       this.trackingService.clickDeleteExpense({ Type: 'Mileage' });
     }
@@ -2460,12 +2464,10 @@ export class AddEditMileagePage implements OnInit {
 
     if (value) {
       await this.trackingService.duplicateDetectionUserActionExpand({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mielage'
       });
     } else {
       await this.trackingService.duplicateDetectionUserActionCollapse({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage'
       });
     }
