@@ -760,6 +760,19 @@ ref - https://stackoverflow.com/a/31162426
   }
 }
 
+.share-report-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    height: 182px;
+    position: absolute;
+    bottom: 0 !important;
+  }
+
+  .modal-shadow {
+    display: none;
+  }
+}
+
 .stack-modal {
   ion-backdrop {
     box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4) !important;
