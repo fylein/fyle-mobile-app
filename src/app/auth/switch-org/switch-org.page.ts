@@ -147,8 +147,8 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   trackSwitchOrg(org: Org, originalEou) {
-    const isDestinationOrgActive = originalEou && originalEou.ou && originalEou.ou.org_id === org.id;
-    const isCurrentOrgPrimary = originalEou && originalEou.ou && originalEou.ou.is_primary;
+    const isDestinationOrgActive = originalEou.ou && originalEou.ou.org_id === org.id;
+    const isCurrentOrgPrimary = originalEou.ou && originalEou.ou.is_primary;
     from(this.authService.getEou()).subscribe(currentEou => {
       const properties = {
         Asset: 'Mobile',
@@ -157,10 +157,10 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
         'Is Destination Org Primary': currentEou && currentEou.ou && currentEou.ou.is_primary,
         'Is Current Org Primary': isCurrentOrgPrimary,
         Source: 'User Clicked',
-        'User Email': originalEou && originalEou.us && originalEou.us.email,
-        'User Org Name': originalEou && originalEou.ou && originalEou.ou.org_name,
-        'User Org ID': originalEou && originalEou.ou && originalEou.ou.org_id,
-        'User Full Name': originalEou && originalEou.us && originalEou.us.full_name
+        'User Email': originalEou.us && originalEou.us.email,
+        'User Org Name': originalEou.ou && originalEou.ou.org_name,
+        'User Org ID': originalEou.ou && originalEou.ou.org_id,
+        'User Full Name': originalEou.us && originalEou.us.full_name
       };
       this.trackingService.onSwitchOrg(properties);
     });
@@ -173,7 +173,9 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
       .subscribe(
         () => {
           globalCacheBusterNotifier.next();
-          this.trackSwitchOrg(org, originalEou);
+          if (originalEou) {
+            this.trackSwitchOrg(org, originalEou);
+          }
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
           from(this.proceed()).subscribe(noop);
         },
