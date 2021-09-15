@@ -34,9 +34,16 @@ export class PersonalCardsService {
                           </script>
                           `;
     const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
-    const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=yes');
-    browser.on('loadstart').subscribe((event) => {
-      console.log(event);
+    const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=yes,beforeload=yes');
+    browser.on('beforeload').subscribe((event) => {
+      console.log(event.url);
+      console.log(event.url.substring(0,10));
+      if (event.url.substring(0,10) === 'success://') {
+         const decodedData = JSON.parse(decodeURIComponent(event.url.slice(30)));
+         console.log(decodedData);
+         browser.close();
+      }
+
     });
   }
 
