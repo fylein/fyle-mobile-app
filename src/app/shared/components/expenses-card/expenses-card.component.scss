@@ -1,4 +1,4 @@
-@import '../../../../theme/colors';
+@import "../../../../theme/colors";
 
 .expenses-card {
   &--date {
@@ -47,7 +47,8 @@
   }
 
   &--scanning-icon {
-    margin-left: 2px;
+    font-size: 24px;
+    stroke: $green;
   }
 
   &--scaning-receipt {
@@ -55,12 +56,17 @@
       padding: 3px 11px 0 11px;
       overflow: hidden;
       min-width: 160px;
+      &-error {
+        display: flex;
+        align-items: center;
+        padding-top: 0;
+      }
     }
 
     &__header {
       color: $black;
       font-weight: 500;
-      font-size: 18px;
+      font-size: 16px;
       line-height: 1.3;
       white-space: nowrap;
       &-scanning {
@@ -102,7 +108,10 @@
     background-color: $light-grey;
     border-radius: 8px;
     height: 74px;
-    width: 90px;
+    min-width: 75px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   &--with-image {
@@ -115,6 +124,11 @@
     height: 35px;
     width: 35px;
     stroke: $black-light;
+
+    &__pdf {
+      stroke: none;
+      color: $black-light;
+    }
   }
 
   &--receipt-thumbnail {
@@ -124,10 +138,22 @@
   }
 
   &--category-vendor-project-container {
-    padding: 3px 23px 4px 11px;
+    padding: 3px 20px 4px 11px;
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+    &__align-vertical-center {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    &__error {
+      color: $red;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 1.3;
+    }
   }
 
   &--category-icon-container {
@@ -136,7 +162,7 @@
 
   &--category {
     color: $black;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 500;
     line-height: 1.3;
     white-space: nowrap;
@@ -239,6 +265,10 @@
     margin-top: 6px;
     width: 100%;
     white-space: nowrap;
+    &__center {
+      position: relative;
+      top: 25%;
+    }
   }
 
   &--state {
@@ -260,5 +290,6 @@
 
   &--spinner-placeholder {
     text-align: center;
+    padding: 4px;
   }
 }

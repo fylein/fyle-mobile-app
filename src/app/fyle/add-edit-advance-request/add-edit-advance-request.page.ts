@@ -579,6 +579,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
               value = customFieldValue.value;
             }
           });
+          if (customField.type === 'BOOLEAN') {
+            customField.mandatory = false;
+            value = false;
+          }
           customFieldsFormArray.push(
             this.formBuilder.group({
               id: customField.id,

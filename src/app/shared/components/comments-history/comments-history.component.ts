@@ -52,10 +52,10 @@ export class CommentsHistoryComponent implements OnInit {
     const { data } = await modal.onDidDismiss();
 
     if (data && data.updated) {
-      this.trackingService.addComment({ Asset: 'Mobile' });
+      this.trackingService.addComment();
       this.refreshComments$.next();
     } else {
-      this.trackingService.viewComment({ Asset: 'Mobile' });
+      this.trackingService.viewComment();
     }
   }
 

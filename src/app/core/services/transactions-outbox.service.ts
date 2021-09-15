@@ -396,7 +396,7 @@ export class TransactionsOutboxService {
               .addTransactions(reportId, txnIds)
               .toPromise()
               .then((result) => {
-                this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' });
+                this.trackingService.addToExistingReportAddEditExpense();
                 return result;
               });
           }
@@ -420,8 +420,7 @@ export class TransactionsOutboxService {
           }
         })
         .catch((err) => {
-          this.trackingService.syncError({ Asset: 'Mobile', label: err });
-
+          this.trackingService.syncError({ label: err });
           reject(err);
         });
     });

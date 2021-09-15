@@ -58,7 +58,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     this.states.COMPLETE = 'fyled';
     this.states.APPROVER_PENDING = 'reported';
     this.states.SUBMITTED = 'reported';
-    this.states.APPROVER_INQUIRY = 'inquiry';
+    this.states.APPROVER_INQUIRY = 'sent_back';
     this.states.POLICY_INQUIRY = 'auto_flagged';
     this.states.REJECTED = 'rejected';
     this.states.APPROVED = 'approved';

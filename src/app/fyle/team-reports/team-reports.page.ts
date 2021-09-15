@@ -396,4 +396,22 @@ export class TeamReportsPage implements OnInit {
       }
     }
   }
+
+  onHomeClicked() {
+    const queryParams: Params = { state: 'home' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onTaskClicked() {
+    const queryParams: Params = { state: 'tasks' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onCameraClicked() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
+  }
 }
