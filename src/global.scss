@@ -802,7 +802,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .ios .segment-block {
   height: 40px;
-  padding: 2px;
+  padding: 2px !important;
   margin: 12px 0 12px 12%;
   background: $pure-white;
   border: 2px solid $pure-white;
