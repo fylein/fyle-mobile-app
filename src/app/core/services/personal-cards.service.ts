@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { ApiV2Service } from './api-v2.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 
@@ -27,7 +27,7 @@ export class PersonalCardsService {
   linkNow(url, access_token) {
     const pageContent = `<form id="fastlink-form" name="fastlink-form" action="` + url + `" method="POST">
                           <input name="accessToken" value="Bearer `+ access_token + `" hidden="true" />
-                          <input  name="extraParams" value="configName=Aggregation" hidden="true" />
+                          <input  name="extraParams" value="configName=Aggregation&callback=success://" hidden="true" />
                           </form> 
                           <script type="text/javascript">
                           document.getElementById("fastlink-form").submit();
@@ -35,9 +35,8 @@ export class PersonalCardsService {
                           `;
     const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
     const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=yes');
-    browser.on('message').subscribe((event) => {
+    browser.on('loadstart').subscribe((event) => {
       console.log(event);
-      // Event not fired on message
     });
   }
 
