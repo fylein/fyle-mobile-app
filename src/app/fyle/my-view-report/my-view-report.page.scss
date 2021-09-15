@@ -1,3 +1,5 @@
+@import '../../../theme/colors.scss';
+
 $reported-color: #4798ff;
 $approved-color: #67bc53;
 $paid-color: #64b5a6;
@@ -7,6 +9,12 @@ $inquiry-color: #4848ad;
 .view-reports {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &--btn-container {
+    &__btn {
+      color: $black-light;
+    }
   }
 
   &--body {
@@ -35,10 +43,6 @@ $inquiry-color: #4848ad;
   &--divider {
     border-top: 1px solid #e5e5e5;
     margin: 16px 0;
-  }
-
-  &--expense-container {
-    //background-color: #f7f7f5;
   }
 
   &--zero-state-header {
@@ -175,17 +179,6 @@ $inquiry-color: #4848ad;
     font-size: 16px;
     color: #0077ee;
     margin: 16px 0 0;
-  }
-
-  &--share {
-    font-size: 16px;
-    color: #ff3366;
-    font-weight: 500;
-    margin: 0 0 10px;
-  }
-
-  &--clickable {
-    color: #0077ee;
   }
 
   &--block-action-icon {

@@ -8,6 +8,13 @@
     </ion-buttons>
     <ion-title mode="md" class="page-title"> View Report </ion-title>
     <ion-buttons mode="md" slot="end">
+      <ng-container *ngIf="erpt$|async as erpt">
+        <ng-container *ngIf="erpt.rp_num_transactions">
+          <ion-button class="view-reports--btn-container__btn" (click)="shareReport()">
+            <mat-icon svgIcon="share"></mat-icon>
+          </ion-button>
+        </ng-container>
+      </ng-container>
       <button mat-button class="view-reports--edit" (click)="goToEditReport()" *ngIf="canEdit$|async">Edit</button>
     </ion-buttons>
   </ion-toolbar>
@@ -71,7 +78,7 @@
 
           <div *ngIf="!hideAllExpenses">
             <div class="view-reports--divider"></div>
-            <div *ngIf="etxns$|async;else ExpensesLoader" class="view-reports--expense-container">
+            <div *ngIf="etxns$|async;else ExpensesLoader">
               <app-my-view-report-etxn-card
                 *ngFor="let etxn of etxns$|async as etxns; let i = index;"
                 [etxn]="etxn"
@@ -83,24 +90,6 @@
             <ng-template #ExpensesLoader>
               <ion-spinner name="crescent"></ion-spinner>
             </ng-template>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="!(erpt.rp_num_transactions === 0)">
-        <div class="view-reports--card" *ngIf="sharedWith$ | async as sharedWith">
-          <div class="view-reports--share" (click)="shareReport($event)">Share this report</div>
-          <div class="view-reports--card-body">Send this report via email</div>
-          <div class="view-reports--card-body" *ngIf="sharedWith.length > 0">
-            Earlier sent to:
-            <span *ngFor="let email of  sharedWith | slice: 0:sharedWithLimit"> {{email}} </span>
-            <div
-              class="view-reports--clickable"
-              *ngIf="sharedWithLimit < sharedWith.length"
-              (click)="sharedWithLimit = sharedWithLimit + 3"
-            >
-              View more
-            </div>
           </div>
         </div>
       </div>

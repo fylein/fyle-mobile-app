@@ -17,6 +17,9 @@ import { SubmitReportPopoverComponent } from './submit-report-popover/submit-rep
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-my-view-report',
@@ -62,7 +65,9 @@ export class MyViewReportPage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private networkService: NetworkService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   setupNetworkWatcher() {
@@ -288,7 +293,7 @@ export class MyViewReportPage implements OnInit {
     }
   }
 
-  async shareReport(event) {
+  async shareReport() {
     this.trackingService.clickShareReport();
 
     const shareReportModal = await this.modalController.create({
@@ -309,8 +314,12 @@ export class MyViewReportPage implements OnInit {
         email: data.email,
       };
       this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
-        const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
-        await this.loaderService.showLoader(message);
+        const message = `PDF download link has been emailed to ${data.email}`;
+        this.matSnackBar.openFromComponent( ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-report-btn']
+        });
+        this.trackingService.showToastMessage({ ToastContent: message });
       });
     }
   }
