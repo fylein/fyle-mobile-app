@@ -234,7 +234,8 @@ export class MyViewReportPage implements OnInit {
     }
   }
 
-  goToTransaction(etxn: any) {
+  async goToTransaction(etxn: any) {
+    const erpt = await this.erpt$.toPromise();
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
 
@@ -276,7 +277,7 @@ export class MyViewReportPage implements OnInit {
         {
           id: etxn.tx_id,
           navigate_back: true,
-          remove_from_report: true,
+          remove_from_report: erpt.rp_num_transactions > 1,
         },
       ]);
     } else {

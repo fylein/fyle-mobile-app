@@ -586,7 +586,7 @@ export class MyExpensesPage implements OnInit {
       this.isLoading = false;
     }, 500);
 
-    const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING)' };
+    const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' };
 
     this.openReports$ = this.reportService.getAllExtendedReports({ queryParams }).pipe(
       map((openReports) =>
@@ -1707,9 +1707,10 @@ export class MyExpensesPage implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: `Are you sure you want to delete the ${this.selectedElements.length} expenses?`,
+        body: `Are you sure you want to delete ${this.selectedElements.length === 1 ? '1 expense?': this.selectedElements.length + ' expenses?'}`,
         deleteMethod: () => {
           offlineExpenses = this.selectedElements.filter((exp) => !exp.tx_id);
 
