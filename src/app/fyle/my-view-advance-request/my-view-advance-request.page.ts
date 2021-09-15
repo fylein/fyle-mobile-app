@@ -37,6 +37,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   customFields$: Observable<any>;
 
+  isDeviceWidthSmall = window.innerWidth < 375;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,

@@ -1,13 +1,14 @@
 <ion-header mode="md">
   <ion-toolbar class="view-advance-request--toolbar">
-    <ion-buttons mode="md" slot="start">
+    <ion-buttons mode="md" slot="start" [ngClass]="{'view-advance-request--header-btn-container-sm': isDeviceWidthSmall}">
       <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
         <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title">View Advance Request</ion-title>
+    <ion-title mode="md" class="page-title" [ngClass]="{'view-advance-request--title-sm': isDeviceWidthSmall}">View Advance Request</ion-title>
     <ion-buttons
       class="view-advance-request--header-btn-container"
+      [ngClass]="{'view-advance-request--header-btn-container-sm': isDeviceWidthSmall}"
       slot="end"
     >
       <ion-button class="view-advance-request--header-btn-container__btn" (click)="openCommentsModal()">
