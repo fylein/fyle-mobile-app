@@ -19,6 +19,10 @@ export class FyDeleteDialogComponent implements OnInit {
 
   @Input() infoMessage: string;
 
+  @Input() ctaText: string;
+
+  @Input() ctaLoadingText: string;
+
   deleteCallInProgress = false;
 
   get LoaderPosition() {

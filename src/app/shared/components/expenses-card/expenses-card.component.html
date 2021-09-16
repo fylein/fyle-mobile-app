@@ -69,11 +69,11 @@
           <ng-container *ngIf="isSycing$ | async; else expenseCardScanning">
             <div class="expenses-card--scaning-receipt__container">
               <div class="expenses-card--scaning-receipt__header">
-                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem"> Adding Mileage </ng-container>
+                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem"> Syncing Mileage </ng-container>
                 <ng-template #uploadPerDiem>
-                  <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Adding Per Diem </ng-container>
+                  <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Syncing Per Diem </ng-container>
                 </ng-template>
-                <ng-template #uploadDefault> Uploading receipt... </ng-template>
+                <ng-template #uploadDefault> {{(expense.tx_amount || expense.tx_user_amount)? 'Syncing': 'Uploading'}} receipt... </ng-template>
               </div>
               <div class="expenses-card--scaning-receipt__content">
                 Your
@@ -81,12 +81,7 @@
                   {{ category }}
                 </ng-container>
                 <ng-template #receiptContent> receipt </ng-template>
-                details will be
-                <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else autoExtractContent">
-                  added
-                </ng-container>
-                <ng-template #autoExtractContent> auto-extracted</ng-template>
-                shortly.
+                will be added shortly.
               </div>
             </div>
           </ng-container>
@@ -152,7 +147,7 @@
               <span>
                 Project:
               </span>
-              {{ expense.tx_project_name ?  + expense.tx_project_name : 'Unspecified' }}
+              {{ expense.tx_project_name ? expense.tx_project_name : 'Unspecified' }}
             </div>
 
           </div>
