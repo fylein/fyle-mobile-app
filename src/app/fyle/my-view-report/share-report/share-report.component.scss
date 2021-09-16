@@ -36,5 +36,9 @@
       padding: 6px 0;
       border-bottom: 1px solid $grey-lighter;
     }
+
+    &__input:focus {
+      border-bottom: 1px solid $blue-black;
+    }
   }
 }
