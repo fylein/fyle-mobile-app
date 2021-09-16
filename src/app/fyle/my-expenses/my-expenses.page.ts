@@ -1595,17 +1595,6 @@ export class MyExpensesPage implements OnInit {
       .some((value) => value.toLowerCase().includes(searchString.toLowerCase()));
   }
 
-  uploadCameraOveralay() {
-    this.router.navigate([
-      '/',
-      'enterprise',
-      'camera_overlay',
-      {
-        from: 'my_expenses',
-      },
-    ]);
-  }
-
   async onAddTransactionToReport(event) {
     const addExpenseToReportModal = await this.modalController.create({
       component: AddTxnToReportDialogComponent,

@@ -288,6 +288,8 @@ export class AddEditExpensePage implements OnInit {
 
   policyDetails;
 
+  source = 'MOBILE';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1069,6 +1071,8 @@ export class AddEditExpensePage implements OnInit {
             dataUrls: [],
           };
 
+          this.source = 'MOBILE';
+
           if (orgUserSettings.currency_settings && orgUserSettings.currency_settings.enabled) {
             if (orgUserSettings.currency_settings.preferred_currency) {
               etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
@@ -1179,8 +1183,9 @@ export class AddEditExpensePage implements OnInit {
             etxn.tx.org_category_id = category && category.id;
           }
 
-          etxn.tx.source = 'MOBILE_INSTA';
         }
+
+        this.source = 'MOBILE';
 
         if (imageData && imageData.url) {
           etxn.dataUrls.push({
@@ -1189,7 +1194,7 @@ export class AddEditExpensePage implements OnInit {
             thumbnail: imageData.url,
           });
           etxn.tx.num_files = etxn.dataUrls.length;
-          etxn.tx.source = 'MOBILE_INSTA';
+          this.source = 'MOBILE_DASHCAM_SINGLE';
         }
 
         return etxn;
@@ -2142,6 +2147,7 @@ export class AddEditExpensePage implements OnInit {
   getEditExpenseObservable() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       switchMap((etxn) => {
+        this.source = etxn.tx.source || 'MOBILE';
         const instaFyleSettings$ = this.orgUserSettings$.pipe(
           map((orgUserSettings) => orgUserSettings.insta_fyle_settings)
         );
@@ -2713,6 +2719,7 @@ export class AddEditExpensePage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
+            source: this.source || etxn.tx.source,
             source_account_id: this.fg.value.paymentMode.acc.id,
             billable: this.fg.value.billable,
             skip_reimbursement:
@@ -3507,8 +3514,15 @@ export class AddEditExpensePage implements OnInit {
                   fileId: this.receiptsData.fileId,
                 };
               }
-              return of(
-                this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData)
+              return this.isConnected$.pipe(
+                take(1),
+                switchMap(isConnected=> {
+                  if (!isConnected) {
+                    etxn.tx.source += '_OFFLINE';
+                  }
+
+                  return of(this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData));
+                })
               );
             }
           })
@@ -3664,6 +3678,15 @@ export class AddEditExpensePage implements OnInit {
           fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
           return fileObj;
         });
+
+        if (this.source.includes('MOBILE') && !(this.source.includes('_CAMERA') || this.source.includes('_FILE'))) {
+          if (this.newExpenseDataUrls.some(fileObj => fileObj.type === 'pdf' )) {
+            this.source = 'MOBILE_FILE';
+          } else if (this.newExpenseDataUrls.some(fileObj => fileObj.type === 'image' )){
+            this.source = 'MOBILE_CAMERA';
+          }
+        }
+
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
           if (isConnected && this.attachedReceiptsCount === 1) {
