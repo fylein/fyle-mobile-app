@@ -57,7 +57,7 @@ export class PersonalCardsPage implements OnInit {
   }
 
   linkAccount() {
-    from(this.loaderService.showLoader('Sending request to join organization...'))
+    from(this.loaderService.showLoader('Redirecting you to our banking partner...',10000))
     .pipe(
       switchMap(() => this.personalCardsService.getToken()),
       finalize(async () => {
@@ -90,7 +90,7 @@ export class PersonalCardsPage implements OnInit {
   }
 
   postAccounts(requestIds) {
-    from(this.loaderService.showLoader('Sending request to join organization...'))
+    from(this.loaderService.showLoader('Linking your card to Fyle...',30000))
     .pipe(
       switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
       finalize(async () => {
