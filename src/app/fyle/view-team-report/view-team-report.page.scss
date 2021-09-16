@@ -2,7 +2,7 @@ $reported-color: #4798ff;
 $approved-color: #67bc53;
 $paid-color: #64b5a6;
 $fyled-color: #f90;
-$sent-back-color: #da1e28;
+$inquiry-color: #4848ad;
 
 .view-reports {
   &--toolbar {
@@ -125,8 +125,8 @@ $sent-back-color: #da1e28;
     &__fyled {
       color: $fyled-color;
     }
-    &__sent_back {
-      color: $sent-back-color;
+    &__inquiry {
+      color: $inquiry-color;
     }
     &__approved {
       color: $approved-color;
@@ -154,8 +154,8 @@ $sent-back-color: #da1e28;
       background-color: #2196f3;
     }
 
-    &__sent_back {
-      background-color: #da1e28;;
+    &__inquiry {
+      background-color: #7e57c2;
     }
 
     &__approved {
