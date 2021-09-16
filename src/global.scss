@@ -176,9 +176,9 @@ textarea:focus {
 
   .popover-viewport {
     height: 100%;
-    // &.sc-ion-popover-ios {
-    //   padding-bottom: env(safe-area-inset-bottom);
-    // }
+    &.sc-ion-popover-ios {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   }
 }
 
