@@ -12,7 +12,7 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button [ngClass]="{'share-report--toolbar__btn-share--hide': !emailInput.value || emailInput.invalid}" 
+      <ion-button [disabled]="!emailInput.value || emailInput.invalid" 
       class="share-report--toolbar__btn-share" (click)="shareReport(emailInput)"> 
         Share
       </ion-button>
