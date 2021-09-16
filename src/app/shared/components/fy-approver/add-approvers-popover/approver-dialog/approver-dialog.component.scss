@@ -10,7 +10,7 @@
 
   &--cta {
     @extend %fy-select-cta;
-    color: $red-3;
+    color: $primary;
   }
 
   &--toolbar {
@@ -61,8 +61,8 @@
   &--list-element {
     padding: 18px 0;
     margin: 0 16px;
-    border-bottom: 1px solid #e0e0e0;
-    color: #ababab;
+    border-bottom: 1px solid $grey-6;
+    color: $gray-3;
 
     &__label {
       display: flex;

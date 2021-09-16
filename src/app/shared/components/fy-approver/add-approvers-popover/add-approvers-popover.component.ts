@@ -22,7 +22,7 @@ export class AddApproversPopoverComponent {
 
   @Input() ownerEmail: string;
 
-  @Input() from;
+  @Input() type;
 
   selectedApproversList = [];
 
@@ -47,12 +47,11 @@ export class AddApproversPopoverComponent {
         approverEmailsList: this.approverEmailsList.slice(),
         initialApproverList: this.selectedApproversList.slice(),
         id: this.id,
-        from: this.from,
+        type: this.type,
         ownerEmail: this.ownerEmail,
       },
       mode: 'ios',
-      ...this.modalProperties.getModalDefaultProperties(),
-      backdropDismiss: false
+      ...this.modalProperties.getModalDefaultProperties()
     });
 
     await approversListModal.present();
@@ -61,8 +60,8 @@ export class AddApproversPopoverComponent {
 
     if (data && data.selectedApproversList) {
       this.selectedApproversList = data.selectedApproversList;
-      this.displayValue = data.selectedApproversList.map(selectedApprover => selectedApprover.name).slice(0, 2).join(', ');
-      if(this.selectedApproversList.length > 2) {
+      this.displayValue = data.selectedApproversList.map(selectedApprover => selectedApprover.name).slice(0, 3).join(', ');
+      if(this.selectedApproversList && this.selectedApproversList.length > 3) {
         this.displayValue = this.displayValue +  ', ...';
       }
     }
@@ -73,9 +72,9 @@ export class AddApproversPopoverComponent {
     .pipe(
       switchMap(() => from(this.selectedApproversList.map(selectedApprover => selectedApprover.email))),
       concatMap((approver) => {
-        if (this.from === 'TRIP_REQUEST') {
+        if (this.type === 'TRIP_REQUEST') {
           return this.tripRequestsService.addApproverETripRequests(this.id, approver, this.confirmationMessage);
-        } else if (this.from === 'ADVANCE_REQUEST') {
+        } else if (this.type === 'ADVANCE_REQUEST') {
           return this.advanceRequestService.addApprover(this.id, approver, this.confirmationMessage);
         } else {
           return this.reportService.addApprover(this.id, approver, this.confirmationMessage);

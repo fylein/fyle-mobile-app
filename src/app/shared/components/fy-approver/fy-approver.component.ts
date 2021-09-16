@@ -4,18 +4,18 @@ import { PopoverController } from '@ionic/angular';
 import { AddApproversPopoverComponent } from './add-approvers-popover/add-approvers-popover.component';
 
 @Component({
-  selector: 'app-fy-apporver',
-  templateUrl: './fy-apporver.component.html',
-  styleUrls: ['./fy-apporver.component.scss'],
+  selector: 'app-fy-approver',
+  templateUrl: './fy-approver.component.html',
+  styleUrls: ['./fy-approver.component.scss'],
 })
-export class FyApporverComponent {
+export class FyApproverComponent {
   @Input() approverEmailsList;
 
   @Input() id: string;
 
   @Input() ownerEmail: string;
 
-  @Input() from;
+  @Input() type;
 
   @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
@@ -31,10 +31,10 @@ export class FyApporverComponent {
       componentProps: {
         approverEmailsList: this.approverEmailsList,
         id: this.id,
-        from: this.from,
+        type: this.type,
         ownerEmail: this.ownerEmail,
       },
-      cssClass: 'dialog-popover',
+      cssClass: 'add-approvers-popover',
       backdropDismiss: false
     });
 

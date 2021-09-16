@@ -27,7 +27,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   @Input() ownerEmail: string;
 
-  @Input() from;
+  @Input() type;
 
   @Input() initialApproverList: approverModel[];
 

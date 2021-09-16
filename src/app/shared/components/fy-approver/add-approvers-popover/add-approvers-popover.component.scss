@@ -17,7 +17,8 @@
 
     &__btn-save {
       font-size: 16px;
-      --color: $red-3;
+      color: $primary;
+      text-transform: none;
     }
   }
 
@@ -66,13 +67,15 @@
       line-height: 18px;
       color: $blue-black;
       border: none;
-      width: calc(100% - 100px);
+      width: 100%;
       padding: 0;
       text-overflow: ellipsis;
     }
 
     &__chip {
-      padding: 4px;
+      padding: 2px 8px;
+      white-space: nowrap;
+      border-radius: 4px;
     }
 
     &__icon {
