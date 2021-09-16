@@ -7,10 +7,9 @@
     <ion-buttons mode="md" slot="end">
       <ion-button class="personal-cards--header-btn" (click)="linkAccount()">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
-      </ion-button>
+      </ion-button>    
     </ion-buttons>
   </ng-container>
-
 </app-fy-header>
 <ion-content class="personal-cards--content">
   <ng-container *ngIf="!(isConnected$|async)">
@@ -26,7 +25,7 @@
     </div>
   </ng-container>
 
-  <ng-container  *ngIf="((linkedAccountsCount$ | async) === 7) && isConnected$|async" >
+  <ng-container  *ngIf="((linkedAccountsCount$ | async) === 0) && isConnected$|async" >
     <div class="personal-cards--zero-state">
       <app-fy-zero-state
         class="stats--zero-state"
@@ -44,7 +43,6 @@
     </button>
     </div>
   </ng-container>
-
 </ion-content>
 <ion-footer >
   <app-fy-footer
