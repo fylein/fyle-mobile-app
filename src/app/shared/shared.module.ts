@@ -3,6 +3,7 @@ import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
+import { SwiperModule } from 'swiper/angular';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -91,6 +92,8 @@ import { RouteSelectorComponent } from './components/route-selector/route-select
 import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { BankAccountCardsComponent } from './components/bank-account-cards/bank-account-cards.component';
+import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
 
 @NgModule({
   declarations: [
@@ -162,7 +165,9 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     RouteVisualizerComponent,
     RouteSelectorComponent,
     RouteSelectorModalComponent,
-    PolicyViolationDetailsComponent
+    PolicyViolationDetailsComponent,
+    BankAccountCardsComponent,
+    BankAccountCardComponent
   ],
   imports: [
     CommonModule,
@@ -183,6 +188,7 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     AgmCoreModule,
     AgmDirectionModule,
     MatChipsModule,
+    SwiperModule
   ],
   exports: [
     EllipsisPipe,
@@ -245,7 +251,8 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     RouteVisualizerComponent,
     RouteSelectorComponent,
     MatChipsModule,
-    PolicyViolationDetailsComponent
+    PolicyViolationDetailsComponent,
+    BankAccountCardsComponent
   ],
   providers: [DecimalPipe, DatePipe],
 })
