@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, NgZone } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BehaviorSubject, concat, from, noop, Observable, Subject } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -6,7 +6,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, repeatWhen, shareReplay, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-personal-cards',
@@ -20,7 +20,7 @@ export class PersonalCardsPage implements OnInit {
 
   linkedAccountsCount$: Observable<number>;
 
-  loadData$: BehaviorSubject<any>;
+  loadCount$ = new Subject();
 
   navigateBack = false;
 
@@ -32,7 +32,7 @@ export class PersonalCardsPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private inAppBrowser: InAppBrowser,
     private loaderService: LoaderService,
-
+    private zone: NgZone
   ) { }
 
   ngOnInit() {
@@ -42,10 +42,8 @@ export class PersonalCardsPage implements OnInit {
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.loadData$ = new BehaviorSubject({});
-    this.linkedAccountsCount$ = this.loadData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccountsCount()
-      ),
+    this.linkedAccountsCount$ = this.personalCardsService.getLinkedAccountsCount().pipe(
+      repeatWhen(() => this.loadCount$),
       shareReplay(1)
     );
   }
@@ -83,9 +81,10 @@ export class PersonalCardsPage implements OnInit {
       if (event.url.substring(0,10) === 'success://') {
          const decodedData = JSON.parse(decodeURIComponent(event.url.slice(30)));
          browser.close();
+         this.zone.run(() => {
          this.postAccounts([decodedData[0].requestId]);
+        });
       }
-
     });
   }
 
@@ -95,8 +94,8 @@ export class PersonalCardsPage implements OnInit {
       switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
       finalize(async () => {
         await this.loaderService.hideLoader();
-      })).subscribe(() => {
-        this.loadData$.next({});
+      })).subscribe((reponse) => {
+        this.loadCount$.next();
       });
       }
 
