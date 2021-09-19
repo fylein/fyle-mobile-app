@@ -142,7 +142,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnChanges, OnI
               if (this.value.currency !== this.homeCurrency) {
                 this.innerValue.amount = this.innerValue.orig_amount;
               } else {
-                var amount = (this.innerValue.orig_amount * this.exchangeRate);
+                const amount = (this.innerValue.orig_amount * this.exchangeRate);
                 this.innerValue.amount = parseFloat(amount.toFixed(2));
               }
             }
