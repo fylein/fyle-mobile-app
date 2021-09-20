@@ -17,9 +17,13 @@
 
     &__btn-save {
       font-size: 16px;
-      color: $primary;
+      --color: #{$primary};
       text-transform: none;
     }
+  }
+
+  &--content-container {
+    --keyboard-offset: 0px !important;
   }
 
   &--content {
