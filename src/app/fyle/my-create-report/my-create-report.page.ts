@@ -107,6 +107,65 @@ export class MyCreateReportPage implements OnInit {
     }
   }
 
+  ctaClickedEvent(reportActionType) {
+    this.showReportNameError = false;
+    if (this.reportTitle.trim().length <= 0) {
+      this.showReportNameError = true;
+      return;
+    }
+
+    const report = {
+      purpose: this.reportTitle,
+      source: 'MOBILE',
+      trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId
+    };
+
+    this.sendFirstReportCreated();
+
+    const txnIds = this.selectedElements.map((expense) => expense.tx_id);
+
+    if (reportActionType === 'create_draft_report') {
+      this.saveDraftReportLoading = true;
+      return this.reportService
+        .createDraft(report)
+        .pipe(
+          tap(() =>
+            this.trackingService.createReport({
+              Expense_Count: txnIds.length,
+              Report_Value: this.selectedTotalAmount,
+            })
+          ),
+          switchMap((report) => {
+            if (txnIds.length > 0) {
+              return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
+            } else {
+              return of(report);
+            }
+          }),
+          finalize(() => {
+            this.saveDraftReportLoading = false;
+            this.router.navigate(['/', 'enterprise', 'my_reports']);
+          })
+        ).subscribe(noop);
+    } else {
+      this.saveReportLoading = true;
+      this.reportService
+        .create(report, txnIds)
+        .pipe(
+          tap(() =>
+            this.trackingService.createReport({
+              Expense_Count: txnIds.length,
+              Report_Value: this.selectedTotalAmount,
+            })
+          ),
+          finalize(() => {
+            this.saveReportLoading = false;
+            this.router.navigate(['/', 'enterprise', 'my_reports']);
+          })
+        ).subscribe(noop);
+    }
+  }
+
   async showReportSummaryPopover(action) {
     this.showReportNameError = false;
     if (this.reportTitle.trim().length <= 0) {
@@ -221,7 +280,7 @@ export class MyCreateReportPage implements OnInit {
   }
 
   getReportTitle() {
-    const txnIds = this.selectedElements.filter((etxn) => etxn.isSelected);
+    const txnIds = this.selectedElements.map((etxn) => etxn.tx_id);
     this.selectedTotalAmount = this.selectedElements.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
@@ -327,13 +386,15 @@ export class MyCreateReportPage implements OnInit {
       )
       .subscribe((res) => {
         this.readyToReportEtxns = res;
-        console.log("check ---", this.readyToReportEtxns);
         this.selectedElements = this.readyToReportEtxns;
-        console.log("check what is selectedElements ", this.selectedElements, this.readyToReportEtxns);
         this.getReportTitle();
       });
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
+  }
+
+  addExpense() {
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
   }
 
   ngOnInit() {

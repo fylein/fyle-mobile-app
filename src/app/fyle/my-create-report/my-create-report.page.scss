@@ -3,7 +3,6 @@
 .my-create-report {
   &--header {
     background-color: $pure-white;
-    // height: 80px !important;
     border-bottom: 1px solid $grey-lighter;
 
     &-closebutton {
@@ -28,10 +27,6 @@
     margin-top: 4px;
   }
 
-  &--container {
-    padding: 16px;
-  }
-
   &--mandatory {
     color: $primary;
     display: inline-block;
@@ -42,6 +37,16 @@
   &--report-card {
     margin-bottom: 20px;
     border-bottom: 1px solid $grey-lighter;
+    margin: 16px;
+
+    &__trips {
+      border-bottom: 0;
+    }
+  }
+
+  &--trip-label {
+    font-size: 12px;
+    color: $black-light;
   }
 
   &--report-title {
@@ -58,110 +63,62 @@
     padding: 6px 0;
   }
 
-  &--expense-date {
-    color: #ababab;
-    font-size: 16px;
-  }
-
-  &--item-card {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
-    border-radius: 4px;
-    margin-bottom: 24px;
-    border: 1px solid $pure-white;
-    min-height: 100px;
-    padding: 10px;
-  }
-
-  &--item-card-selected {
-    border: 1px solid #0077ee;
-  }
-
-  &--item-card-checkbox {
-    margin: 18px;
-  }
-
-  &--item-card-currency {
-    color: #ababab;
-  }
-
-  &--item-card-amount {
-    font-size: 18px;
-    margin-left: 8px;
-    font-weight: 700;
-    color: #666;
-  }
-
-  &--item-card-vendor {
-    font-size: 16px;
-    color: #666;
-  }
-
-  &--item-card-category {
-    color: #ababab;
-    font-size: 16px;
-  }
-
   &--footer {
-    padding: 10px 8px 14px 8px;
+    height: 80px;
+    box-shadow: 0 -2px 12px $pink-shadow;
   }
 
-  &--footer-currency {
+  &--cta-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 35.5px;
+    bottom: 0;
+    width: 100%;
+    background-color: $pure-white;
+    z-index: 999;
+  }
+
+  &--cta-button {
+    font-weight: 500;
+  }
+
+  &--secondary-cta {
+    height: auto;
+    background-color: transparent;
+    color: $black;
     font-size: 16px;
-    color: #000;
-    font-weight: 500;
-  }
+    line-height: 1.25;
+    min-width: 40%;
 
-  &--footer-amount {
-    font-size: 24px;
-    color: #000;
-    font-weight: 500;
-  }
-
-  &--footer-summary {
-    font-size: 16px;
-    font-weight: 500;
-    color: #ababab;
+    &__disabled {
+      opacity: 0.2;
+    }
   }
 
   &--primary-cta {
-    height: 48px;
+    min-height: 52px;
+    background: $pink-gradient-1;
+    color: $pure-white;
     font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
-    --border-radius: 4px !important;
-    margin: 0 4px;
-    width: 100%;
-  }
-
-  &--secondary-action {
-    text-align: right;
-    color: #0077ee;
-    font-size: 16px;
-    margin-top: 8px;
-  }
-
-  &--select-trip {
-    padding: 16px 0;
+    line-height: 1.3;
+    border-radius: 4px;
+    padding: 10px 12px;
+    min-width: 50%;
+    &__disabled {
+      opacity: 0.8;
+    }
   }
 
   &--text-trip {
     width: 100%;
     font-size: 14px;
-    color: #4a4a4a;
+    color: $blue-black;
     border: 0;
-
-    &::placeholder {
-      color: #ababab;
-    }
+    height: 26px;
   }
 
   &--error-message {
-    color: red;
-  }
-
-  &--non-reimbursable {
-    text-decoration: line-through;
-    color: #ababab;
+    color: $red;
   }
 
   &--zero-state {
@@ -176,10 +133,10 @@
     }
 
     &-header {
-      font-size: 16px;
+      font-size: 14px;
       display: block;
       margin-bottom: 16px;
-      color: #4a4a4a;
+      color: $blue-black;
       line-height: 1.5;
       font-weight: 500;
     }
@@ -202,7 +159,7 @@
   &--add-more-container {
     padding: 16px;
     display: flex;
-    background-color: $grey-4;
+    margin-top: 12px;
   }
 
   &--add-more-icon {
