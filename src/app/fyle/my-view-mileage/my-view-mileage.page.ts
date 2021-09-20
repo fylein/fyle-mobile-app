@@ -74,7 +74,7 @@ export class MyViewMileagePage implements OnInit {
       .subscribe(details => {
         this.policyDetails = details;
       });
-    } 
+    }
   }
 
   ionViewWillEnter() {

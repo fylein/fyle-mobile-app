@@ -3945,6 +3945,6 @@ export class AddEditExpensePage implements OnInit {
       .subscribe(details => {
         this.policyDetails = details;
       });
-    } 
+    }
   }
 }

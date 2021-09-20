@@ -2496,6 +2496,6 @@ export class AddEditMileagePage implements OnInit {
       .subscribe(details => {
         this.policyDetails = details;
       });
-    } 
+    }
   }
 }

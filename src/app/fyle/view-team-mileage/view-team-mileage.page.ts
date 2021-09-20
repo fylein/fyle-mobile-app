@@ -191,7 +191,7 @@ export class ViewTeamMileagePage implements OnInit {
     } else {
       this.policyViloations$ = of(null);
     }
-    
+
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(

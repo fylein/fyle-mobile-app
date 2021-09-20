@@ -157,7 +157,7 @@ export class ViewTeamPerDiemPage implements OnInit {
     } else {
       this.policyViloations$ = of(null);
     }
-    
+
     this.comments$ = this.statusService.find('transactions', id);
 
     // this.policyViloations$.subscribe(res => {

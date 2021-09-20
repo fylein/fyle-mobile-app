@@ -2332,6 +2332,6 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe(details => {
         this.policyDetails = details;
       });
-    } 
+    }
   }
 }
