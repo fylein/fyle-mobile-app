@@ -24,6 +24,8 @@ export class ViewCommentComponent implements OnInit {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
+  @ViewChild('commentInput') commentInput: ElementRef;
+
   estatuses$: Observable<ExtendedStatus[]>;
 
   totalCommentsCount$: Observable<number>;
@@ -71,6 +73,7 @@ export class ViewCommentComponent implements OnInit {
       };
 
       this.newComment = null;
+      this.commentInput.nativeElement.focus();
       this.isCommentAdded = true;
 
       this.statusService

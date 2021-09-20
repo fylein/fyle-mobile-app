@@ -11,10 +11,6 @@ const routes: Routes = [
     loadChildren: () => import('./my-expenses/my-expenses.module').then((m) => m.MyExpensesPageModule),
   },
   {
-    path: 'camera_overlay_1',
-    loadChildren: () => import('./camera-overlay/camera-overlay.module').then((m) => m.CameraOverlayPageModule),
-  },
-  {
     path: 'my_advances',
     loadChildren: () => import('./my-advances/my-advances.module').then((m) => m.MyAdvancesPageModule),
   },

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { GalleryUploadSuccessPopupComponent } from './gallery-upload-success-popup.component';
+import { FyAddToReportComponent } from './fy-add-to-report.component';
 
-describe('GalleryUploadSuccessPopupComponent', () => {
-  let component: GalleryUploadSuccessPopupComponent;
-  let fixture: ComponentFixture<GalleryUploadSuccessPopupComponent>;
+describe('FyAddToReportComponent', () => {
+  let component: FyAddToReportComponent;
+  let fixture: ComponentFixture<FyAddToReportComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [GalleryUploadSuccessPopupComponent],
+        declarations: [FyAddToReportComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(GalleryUploadSuccessPopupComponent);
+      fixture = TestBed.createComponent(FyAddToReportComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })

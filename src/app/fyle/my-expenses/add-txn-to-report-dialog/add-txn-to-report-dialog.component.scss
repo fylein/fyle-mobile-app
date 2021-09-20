@@ -1,4 +1,5 @@
 @import '../../../../theme/colors.scss';
+$reports_sent_back_color: #da1e28;;
 
 .report-list {
   &--header {
@@ -62,6 +63,10 @@
 
     &__reported {
       background-color: $blue-1;
+    }
+
+    &__sent_back {
+      background-color: $reports_sent_back_color;
     }
   }
 }

@@ -6,11 +6,25 @@
   }
 
   &--toolbar {
-    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
-  &--actions {
-    padding: 0 16px;
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
+  }
+
+  &--title-sm {
+    padding-left: 0;
+    font-size: 17px;
+  }
+
+  &--header-btn-container-sm {
+    margin: 0 !important;
   }
 
   &--receipt-currency {
@@ -186,34 +200,6 @@
     width: 100%;
     --border-radius: 4px !important;
     text-transform: inherit;
-  }
-
-  &--common-action-block {
-    display: flex;
-    padding: 4px 0;
-    align-items: center;
-
-    p {
-      display: inline-block;
-      vertical-align: middle;
-      font-size: 16px;
-      margin: 0 0 0 16px;
-    }
-
-    &__comment {
-      color: #0077ee;
-    }
-
-    &__delete {
-      color: #f00;
-    }
-
-    mat-icon {
-      font-size: 24px;
-      color: #ababab;
-      display: inline-block;
-      vertical-align: middle;
-    }
   }
 
   &--cta-container {

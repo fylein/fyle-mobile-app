@@ -181,6 +181,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   billableDefaultValue: boolean;
 
+  canDeleteExpense = true;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -214,7 +216,11 @@ export class AddEditPerDiemPage implements OnInit {
     private modalProperties: ModalPropertiesService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
+  }
 
   get minPerDiemDate() {
     return this.fg.controls.from_dt.value && moment(this.fg.controls.from_dt.value).subtract(1, 'day').format('y-MM-D');
@@ -320,6 +326,22 @@ export class AddEditPerDiemPage implements OnInit {
     return this.checkForDuplicates();
   }
 
+  async trackDuplicatesShown(duplicates, etxn) {
+    try {
+      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
+      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
+
+      await this.trackingService.duplicateDetectionAlertShown({
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
+        ExpenseId: etxn.tx.id,
+        DuplicateExpenses: duplicateTxnIds,
+        DuplicateFields: duplicateFields
+      });
+    } catch (err) {
+      // Ignore event tracking errors
+    }
+  }
+
   setupDuplicateDetection() {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
@@ -337,6 +359,10 @@ export class AddEditPerDiemPage implements OnInit {
         setTimeout(() => {
           this.pointToDuplicates = false;
         }, 3000);
+
+        this.etxn$
+          .pipe(take(1))
+          .subscribe(async etxn => await this.trackDuplicatesShown(res, etxn));
       });
   }
 
@@ -2177,44 +2203,43 @@ export class AddEditPerDiemPage implements OnInit {
     const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
     const header = reportId && removeExpenseFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
-    const message =
+    const body =
       reportId && removeExpenseFromReport
         ? 'Are you sure you want to remove this Per Diem expense from this report?'
         : 'Are you sure you want to delete this Per Diem expense?';
-    const CTAText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
-    const loadingMessage = reportId && removeExpenseFromReport ? 'Removing Per Diem...' : 'Deleting Per Diem...';
+    const ctaText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = reportId && removeExpenseFromReport ? 'Removing' : 'Deleting';
 
-    const popupResult = await this.popupService.showPopup({
-      header,
-      message,
-      primaryCta: {
-        text: CTAText,
-      },
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header,
+        body,
+        ctaText,
+        ctaLoadingText,
+        deleteMethod: () => {
+          if (reportId && removeExpenseFromReport) {
+            return this.reportService.removeTransaction(reportId, id);
+          }
+          return this.transactionService.delete(id);
+        }
+      }
     });
 
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader(loadingMessage))
-        .pipe(
-          switchMap(() => {
-            if (reportId && removeExpenseFromReport) {
-              return this.reportService.removeTransaction(reportId, id);
-            } else {
-              return this.transactionService.delete(id);
-            }
-          }),
-          tap(() => this.trackingService.deleteExpense({ Type: 'Per Diem' })),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-            this.reviewList.splice(+this.activeIndex, 1);
-            this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
-              this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-            });
-          } else {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          }
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+        this.reviewList.splice(+this.activeIndex, 1);
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+          this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     } else {
       if (this.mode === 'add') {
         this.trackingService.clickDeleteExpense({ Type: 'Per Diem' });
@@ -2267,6 +2292,20 @@ export class AddEditPerDiemPage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
+    }
+  }
+
+  async setDuplicateBoxOpen(value) {
+    this.duplicateBoxOpen = value;
+
+    if (value) {
+      await this.trackingService.duplicateDetectionUserActionExpand({
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'
+      });
+    } else {
+      await this.trackingService.duplicateDetectionUserActionCollapse({
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'
+      });
     }
   }
 

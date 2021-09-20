@@ -6,7 +6,7 @@ import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.mode
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { concatMap, finalize, switchMap } from 'rxjs/operators';
+import { concatMap, finalize, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { isNumber, reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
 import { PopoverController } from '@ionic/angular';
@@ -71,7 +71,7 @@ export class ExpensesCardComponent implements OnInit {
 
   isScanInProgress: boolean;
 
-  isProjectMandatory$: Observable<boolean>;
+  isProjectEnabled$: Observable<boolean>;
 
   attachmentUploadInProgress = false;
 
@@ -89,6 +89,10 @@ export class ExpensesCardComponent implements OnInit {
 
   imageTransperencyOverlay = 'linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), ';
 
+  isMileageExpense: boolean;
+
+  isPerDiem: boolean;
+
   constructor(
     private transactionService: TransactionService,
     private offlineService: OfflineService,
@@ -96,7 +100,7 @@ export class ExpensesCardComponent implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
-  ) {}
+  ) { }
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
@@ -156,13 +160,13 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   checkIfScanIsCompleted(): boolean {
-    const hasUserManuallyEnteredData = this.expense.tx_amount && isNumber(this.expense.tx_amount);
+    const hasUserManuallyEnteredData = (this.expense.tx_amount || this.expense.tx_user_amount) && isNumber(this.expense.tx_amount || this.expense.tx_user_amount);
     const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
     // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
     const hasScanExpired =
-      this.expense.tx_created_at && moment(this.expense.tx_created_at).diff(moment.now(), 'day') === 1;
+      this.expense.tx_created_at && moment(this.expense.tx_created_at).diff(moment.now(), 'day') < 0;
     return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
   }
 
@@ -230,6 +234,9 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
+    this.isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
+    this.isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
+
     this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
     this.expense.isPolicyViolated = this.expense.tx_manual_flag || this.expense.tx_policy_flag;
@@ -248,16 +255,10 @@ export class ExpensesCardComponent implements OnInit {
       )
       .subscribe(noop);
 
-    this.isProjectMandatory$ = this.offlineService
-      .getOrgSettings()
-      .pipe(
-        map(
-          (orgSettings) =>
-            orgSettings.transaction_fields_settings &&
-            orgSettings.transaction_fields_settings.transaction_mandatory_fields &&
-            orgSettings.transaction_fields_settings.transaction_mandatory_fields.project
-        )
-      );
+    this.isProjectEnabled$ = this.offlineService.getOrgSettings().pipe(
+      map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
+      shareReplay(1)
+    );
 
     if (!this.expense.tx_id) {
       this.showDt = !!this.isFirstOfflineExpense;
@@ -319,10 +320,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   async addAttachments(event) {
-    const isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
-    const isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
-
-    if (!(isMileageExpense || isPerDiem || this.expense.tx_file_ids)) {
+    if (!(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) && !this.isSelectionModeEnabled) {
       event.stopPropagation();
       event.preventDefault();
 
@@ -377,6 +375,8 @@ export class ExpensesCardComponent implements OnInit {
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      startWith(true)
+    );
   }
 }

@@ -24,6 +24,8 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { TrackingService } from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -69,6 +71,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   saveAdvanceLoading = false;
 
+  isDeviceWidthSmall = window.innerWidth < 375;
+
   constructor(
     private offlineService: OfflineService,
     private activatedRoute: ActivatedRoute,
@@ -87,7 +91,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private fileService: FileService,
     private popupService: PopupService,
     private networkService: NetworkService,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private trackingService: TrackingService
   ) {}
 
   currencyObjValidator(c: FormControl): ValidationErrors {
@@ -455,6 +460,27 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
   }
 
+  async openCommentsModal() {
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'advance_requests',
+        objectId: this.id,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment();
+    } else {
+      this.trackingService.viewComment();
+    }
+  }
+
   async delete() {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -579,6 +605,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
               value = customFieldValue.value;
             }
           });
+          if (customField.type === 'BOOLEAN') {
+            customField.mandatory = false;
+            value = false;
+          }
           customFieldsFormArray.push(
             this.formBuilder.group({
               id: customField.id,

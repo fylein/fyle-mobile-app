@@ -7,6 +7,11 @@
       <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
     <ion-title class="page-title" mode="md"> Reports </ion-title>
+    <ion-buttons mode="md" slot="end">
+      <ion-button class="my-expenses--header-btn" [routerLink]="['/', 'enterprise', 'my_create_report']">
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
   <ion-toolbar mode="md">
     <div class="my-reports--toolbar">
@@ -60,7 +65,7 @@
         <span [ngSwitch]="filters?.state">
           <span *ngSwitchCase="'DRAFT'">Draft</span>
           <span *ngSwitchCase="'APPROVER_PENDING'">Reported</span>
-          <span *ngSwitchCase="'APPROVER_INQUIRY'">Inquiry</span>
+          <span *ngSwitchCase="'APPROVER_INQUIRY'">Sent Back</span>
           <span *ngSwitchCase="'APPROVED'">Approved</span>
           <span *ngSwitchCase="'PAYMENT_PENDING'">Payments Queue</span>
           <span *ngSwitchCase="'PAID'">Paid</span>
@@ -81,72 +86,63 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
-  <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
-    <img
-      class="my-reports--zero-state-img"
-      src="../../../assets/images/zero-states/reports.svg"
-      alt="Create First Reports"
-    />
-    <div *ngIf="!(filters?.state || filters?.date || searchText)" class="my-reports--zero-state-header">
-      This is the home to all your Reports
+<ion-content class="my-reports--content">
+  <div class="my-reports--body" [ngClass]="{'my-reports--zero-state-body': (count$ | async) === 0}">
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+    <app-fy-loading-screen
+      *ngIf="isLoading"
+      class="my-reports--shimmers"
+    ></app-fy-loading-screen>
+    <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
+      <app-fy-zero-state
+        *ngIf="!(filters?.state || filters?.date || searchText)"
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+        image="../../../assets/images/zero-states/expenses.png"
+        header="You've got no report!"
+        message="Create one by clicking `+` on top"
+      ></app-fy-zero-state>
+      <app-fy-zero-state
+        *ngIf="(filters?.state || filters?.date || searchText)"
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+        image="../../../assets/images/zero-states/search-not-found.svg"
+        header="No reports found"
+        message="We couldn't find any report that matched your search."
+      ></app-fy-zero-state>
     </div>
-    <div *ngIf="!(filters?.state || filters?.date || searchText)" class="my-reports--zero-state-subheader">
-      Create your first report to see how it looks
+    <div *ngIf="!isLoading">
+      <div *ngFor="let erpt of myReports$ | async as list; let i = index">
+        <app-my-reports-card
+          [erpt]="erpt"
+          [prevDate]="list[i-1]?.rp_created_at"
+          (gotoReport)="onReportClick($event)"
+          (deleteReport)="onDeleteReportClick($event)"
+          (viewComments)="onViewCommentsClick($event)"
+        ></app-my-reports-card>
+      </div>
     </div>
-    <div
-      *ngIf="!(filters?.state || filters?.date || searchText)"
-      class="my-reports--zero-state-action-button-container"
-    >
-      <div class="my-reports--zero-state-action-button">Create Report</div>
-    </div>
-
-    <div *ngIf="(filters?.state || filters?.date || searchText)" class="my-reports--zero-state-header">
-      You do not have any reports for the selected filter(s)
-    </div>
+    <ng-container *ngIf="isConnected$|async">
+      <ng-container *ngIf="isLoadingDataInInfiniteScroll">
+        <app-fy-loading-screen
+          class="my-expenses--shimmers"
+        ></app-fy-loading-screen>
+      </ng-container>
+    </ng-container>
   </div>
-  <div *ngFor="let erpt of myReports$ | async as list; let i = index">
-    <app-my-reports-card
-      [erpt]="erpt"
-      [prevDate]="list[i-1]?.rp_created_at"
-      (gotoReport)="onReportClick($event)"
-      (deleteReport)="onDeleteReportClick($event)"
-      (viewComments)="onViewCommentsClick($event)"
-    ></app-my-reports-card>
-  </div>
 
-  <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+  <ion-infinite-scroll *ngIf="!isLoadingDataInInfiniteScroll && (isInfiniteScrollRequired$ | async)" threshold="100px" (ionInfinite)="loadData($event)">
     <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>
 
 <ion-footer mode="md">
-  <ng-container *ngIf="expensesAmountStats$|async as expensesAmountStats">
-    <ion-toolbar mode="md">
-      <div class="my-reports--stats">
-        <div class="my-reports--amount">
-          <span class="my-reports--homeCurrency">{{homeCurrency$ | async}}</span>
-          {{expensesAmountStats.sum | number:'1.2-2'}}
-        </div>
-        <div class="my-reports--count">across {{expensesAmountStats.count}} unreported expenses</div>
-      </div>
-    </ion-toolbar>
-  </ng-container>
-
-  <ion-toolbar mode="md">
-    <ion-button
-      mode="md"
-      [routerLink]="['/', 'enterprise', 'my_create_report']"
-      class="my-reports--primary-cta flat-button"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
-    >
-      CREATE NEW REPORT
-    </ion-button>
-  </ion-toolbar>
+  <app-fy-footer
+    (homeClicked)="onHomeClicked()"
+    (taskClicked)="onTaskClicked()"
+    (cameraClicked)="onCameraClicked()"
+  ></app-fy-footer>
 </ion-footer>

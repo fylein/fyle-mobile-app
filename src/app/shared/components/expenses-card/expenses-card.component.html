@@ -25,7 +25,9 @@
       </ng-container>
 
       <div class="expenses-card--receipt-thumbnail-container expenses-card--with-image"
-        [ngStyle]="{ 'background-image': 'url(' + receiptThumbnail + ')' }" *ngIf="receiptThumbnail"></div>
+        [ngStyle]="{ 'background-image': (isScanInProgress? imageTransperencyOverlay: '') + 'url(' + receiptThumbnail + ')' }" *ngIf="receiptThumbnail">
+        <ion-icon *ngIf="isScanInProgress" class="expenses-card--scanning-icon" src="assets/svg/fy-scan.svg"></ion-icon>
+      </div>
 
       <div class="expenses-card--receipt-container expenses-card--with-image" *ngIf="attachmentUploadInProgress"
         [ngStyle]="{
@@ -67,11 +69,11 @@
           <ng-container *ngIf="isSycing$ | async; else expenseCardScanning">
             <div class="expenses-card--scaning-receipt__container">
               <div class="expenses-card--scaning-receipt__header">
-                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem"> Adding Mileage </ng-container>
+                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem"> Syncing Mileage </ng-container>
                 <ng-template #uploadPerDiem>
-                  <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Adding Per Diem </ng-container>
+                  <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Syncing Per Diem </ng-container>
                 </ng-template>
-                <ng-template #uploadDefault> Uploading receipt... </ng-template>
+                <ng-template #uploadDefault> {{(expense.tx_amount || expense.tx_user_amount)? 'Syncing': 'Uploading'}} receipt... </ng-template>
               </div>
               <div class="expenses-card--scaning-receipt__content">
                 Your
@@ -79,12 +81,7 @@
                   {{ category }}
                 </ng-container>
                 <ng-template #receiptContent> receipt </ng-template>
-                details will be
-                <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else autoExtractContent">
-                  added
-                </ng-container>
-                <ng-template #autoExtractContent> auto-extracted</ng-template>
-                shortly.
+                will be added shortly.
               </div>
             </div>
           </ng-container>
@@ -96,25 +93,20 @@
               <div class="expenses-card--scaning-receipt__container">
                 <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-scanning">
                   Scanning Receipt...
-                  <ion-icon class="expenses-card--scanning-icon" src="assets/svg/fy-scan.svg"></ion-icon>
                 </div>
                 <div class="expenses-card--scaning-receipt__content">
-                  <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> It takes a while.
-                  You can enter details
+                  This takes a short while
                 </div>
               </div>
             </ng-container>
             <ng-template #scanFailed>
-              <div class="expenses-card--scaning-receipt__container">
+              <div class="expenses-card--scaning-receipt__container expenses-card--scaning-receipt__container-error">
                 <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">
                   Scan failed
                 </div>
-                <div class="expenses-card--scaning-receipt__content">
-                  <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> Add details
-                </div>
               </div>
               <ng-container *ngIf="expense.isDraft">
-                <div class="expenses-card--state-container ion-text-right">
+                <div class="expenses-card--state-container ion-text-right expenses-card--state-container__center">
                   <span class="expenses-card--state">
                     {{ expense.tx_state | titlecase }}
                   </span>
@@ -125,11 +117,16 @@
         </ng-template>
 
         <ng-template #expenseCardDefaultView>
-          <div class="expenses-card--category-vendor-project-container">
+          <div *ngIf="!expense.isDraft" class="expenses-card--category-vendor-project-container">
             <div class="display-flex expenses-card--category-icon-container">
               <div class="expenses-card--category"
                 [ngClass]="{ 'expenses-card--category__small': isSelectionModeEnabled }">
-                {{ expense?.tx_org_category || 'Unspecified' }}
+                <ng-container *ngIf="expense?.tx_org_category && expense?.tx_org_category.toLowerCase() !== 'unspecified'; else unspecifiedCategory">
+                  {{expense?.tx_org_category}}
+                </ng-container>
+                <ng-template #unspecifiedCategory>
+                  Unspecified Category
+                </ng-template>
               </div>
               <mat-icon *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
                 class="expenses-card--policy-violated-icon">error</mat-icon>
@@ -139,16 +136,27 @@
                 'expenses-card--vendor__not-filled': !expense.vendorDetails,
                 'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'
               }">
-              {{ expense.vendorDetails || expenseFields.vendor_id[0].field_name + ' not filled' }}
+              {{ expense.vendorDetails }}
             </div>
 
-            <div *ngIf="isProjectMandatory$ | async" class="expenses-card--project"
+            <div class="expenses-card--vendor" *ngIf="!(isMileageExpense || isPerDiem) && !expense.vendorDetails && expenseFields?.vendor_id[0] && !expenseFields?.vendor_id[0].is_mandatory">
+              Unspecified {{expenseFields?.vendor_id[0].field_name}}
+            </div>
+            <div *ngIf="isProjectEnabled$ | async" class="expenses-card--project"
               [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }">
-              {{ expense.tx_project_name ? 'Project: ' + expense.tx_project_name : 'Project not filled' }}
+              <span>
+                Project:
+              </span>
+              {{ expense.tx_project_name ? expense.tx_project_name : 'Unspecified' }}
             </div>
 
-            <div class="expenses-card--edit-text" *ngIf="expense.isDraft">
-              <ion-icon class="expenses-card--edit-icon" src="assets/svg/fy-edit.svg"></ion-icon> Enter details manually
+          </div>
+          <div *ngIf="expense.isDraft" class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error">
+            <div>
+              Expense information 
+            </div>
+            <div>
+              missing
             </div>
           </div>
           <div class="display-flex">
