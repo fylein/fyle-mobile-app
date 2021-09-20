@@ -28,6 +28,10 @@
 @import 'assets/fonts/font.css';
 @import 'theme/colors';
 
+@import 'swiper/scss';
+@import 'swiper/scss/navigation';
+@import 'swiper/scss/pagination';
+
 $header-input-interior: #eeeeee;
 
 :root {
