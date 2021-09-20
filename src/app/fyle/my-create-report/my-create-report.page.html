@@ -9,7 +9,7 @@
       <div class="my-create-report--title-container text-center">
         <div class="my-create-report--title">Create New Report</div>
         <div class="my-create-report--sub-title">
-          {{ selectedTotalTxns }} {{ selectedTotalTxns > 1 ? 'Expenses' : 'Expense' }} -
+          {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }} -
           {{ homeCurrencySymbol }} {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency:2:true }}
         </div>
       </div>
@@ -72,45 +72,12 @@
       />
     </div>
 
-    <!-- <div *ngFor="let etxn of readyToReportEtxns as list; let i = index">
-      <p class="my-create-report--expense-date" *ngIf="etxn.showDt">
-        <span>{{etxn.tx_txn_dt | date: 'EEEE, MMM dd, yyyy'}}</span>
-      </p>
-      <ion-grid
-        class="my-create-report--item-card"
-        [ngClass]="{'my-create-report--item-card-selected': etxn.isSelected}"
-        (click)="toggleTransaction(etxn)"
-      >
-        <ion-row>
-          <ion-col size="3">
-            <ion-checkbox
-              mode="ios"
-              class="my-create-report--item-card-checkbox"
-              checked="{{etxn.isSelected}}"
-            ></ion-checkbox>
-          </ion-col>
-          <ion-col size="9">
-            <ion-row>
-              <span
-                class="my-create-report--item-card-currency"
-                [ngClass]="{'my-create-report--non-reimbursable': etxn.tx_skip_reimbursement}"
-                >{{etxn.tx_currency}}</span
-              >
-              <span
-                class="my-create-report--item-card-amount"
-                [ngClass]="{'my-create-report--non-reimbursable': etxn.tx_skip_reimbursement}"
-                >{{etxn.tx_amount}}</span
-              >
-            </ion-row>
-            <ion-row class="my-create-report--item-card-vendor">{{etxn.vendorDetails}}</ion-row>
-            <ion-row class="my-create-report--item-card-category">{{etxn.tx_org_category}}</ion-row>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div> -->
     <div class="my-create-report--heading">EXPENSES</div>
     <div class="my-create-report--select-all-checkbox">
-      <mat-checkbox class="custom-mat-checkbox create-new-report--checkbox" (change)="toggleSelectAll(true)" [checked]="isSelectedAll">Select all</mat-checkbox>
+      <mat-checkbox class="custom-mat-checkbox create-new-report--checkbox" 
+      [(ngModel)]="isSelectedAll"
+      (ngModelChange)="toggleSelectAll($event)">
+      Select all</mat-checkbox>
     </div>
 
     <div *ngIf="readyToReportEtxns">
@@ -120,7 +87,7 @@
           [previousExpenseTxnDate]="readyToReportEtxns[i - 1]?.tx_txn_dt"
           [previousExpenseCreatedAt]="readyToReportEtxns[i - 1]?.tx_created_at"
           [isSelectionModeEnabled]="true"
-          [selectedElements]="readyToReportEtxns"
+          [selectedElements]="selectedElements"
           (cardClickedForSelection)="selectExpense($event)"
         >
         </app-expense-card>

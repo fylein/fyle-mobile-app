@@ -28,6 +28,8 @@ export class MyCreateReportPage implements OnInit {
 
   readyToReportEtxns: Expense[];
 
+  selectedElements: Expense[];
+
   reportTitle = '';
 
   homeCurrency$: Observable<string>;
@@ -183,10 +185,23 @@ export class MyCreateReportPage implements OnInit {
     }
   }
 
+  selectExpense(expense: Expense) {
+    const isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
+    if (isSelectedElementsIncludesExpense) {
+      this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== expense.tx_id);
+    } else {
+      this.selectedElements.push(expense);
+    }
+    this.getReportTitle();
+    this.isSelectedAll = this.selectedElements.length === this.readyToReportEtxns.length;
+  }
+
   toggleSelectAll(value: boolean) {
-    this.readyToReportEtxns.forEach((etxn) => {
-      etxn.isSelected = value;
-    });
+    if (value) {
+      this.selectedElements = this.readyToReportEtxns;
+    } else {
+      this.selectedElements = [];
+    }
     this.getReportTitle();
   }
 
@@ -206,10 +221,8 @@ export class MyCreateReportPage implements OnInit {
   }
 
   getReportTitle() {
-    const etxns = this.readyToReportEtxns.filter((etxn) => etxn.isSelected);
-    const txnIds = etxns.map((etxn) => etxn.tx_id);
-    this.selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
-    this.selectedTotalTxns = txnIds.length;
+    const txnIds = this.selectedElements.filter((etxn) => etxn.isSelected);
+    this.selectedTotalAmount = this.selectedElements.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
       return this.reportService
@@ -315,21 +328,12 @@ export class MyCreateReportPage implements OnInit {
       .subscribe((res) => {
         this.readyToReportEtxns = res;
         console.log("check ---", this.readyToReportEtxns);
+        this.selectedElements = this.readyToReportEtxns;
+        console.log("check what is selectedElements ", this.selectedElements, this.readyToReportEtxns);
         this.getReportTitle();
       });
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-  }
-
-  selectExpense(expense: Expense) {
-    const isSelectedElementsIncludesExpense = this.readyToReportEtxns.some((txn) => expense.tx_id === txn.tx_id);
-    if (isSelectedElementsIncludesExpense) {
-      this.readyToReportEtxns = this.readyToReportEtxns.filter((txn) => txn.tx_id !== expense.tx_id);
-    } else {
-      this.readyToReportEtxns.push(expense);
-    }
-    this.getReportTitle();
-    this.isSelectedAll = this.readyToReportEtxns.length === this.readyToReportEtxns.length;
   }
 
   ngOnInit() {
