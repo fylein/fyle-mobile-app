@@ -179,7 +179,7 @@ export class AppComponent implements OnInit {
         switchMap((deviceInfo) => {
           const data = {
             app_version: deviceInfo.appVersion,
-            device_os: deviceInfo.appVersion,
+            device_os: deviceInfo.platform,
           };
 
           return this.appVersionService.isSupported(data);
