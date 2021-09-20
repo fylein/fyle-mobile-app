@@ -10,6 +10,24 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
+  }
+
+  &--title-sm {
+    padding-left: 0;
+    font-size: 17px;
+  }
+
+  &--header-btn-container-sm {
+    margin: 0 !important;
+  }
+
   &--attachment-currency-container {
     margin: 12px 16px;
     display: flex;
@@ -167,10 +185,6 @@
 
     &__comment {
       color: #0077ee;
-    }
-
-    &__delete {
-      color: #f00;
     }
 
     mat-icon {

@@ -27,11 +27,13 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-buttons class="policy-violation--buttons">
-      <ion-button fill="clear" expand="full" color="accent" (click)="closePolicyModal()"> Cancel </ion-button>
-      <ion-button fill="clear" expand="full" color="fyle-primary" (click)="continueWithPolicyViolation()">
-        Continue
-      </ion-button>
-    </ion-buttons>
+    <div class="policy-violation--footer-toolbar">
+      <ion-buttons class="policy-violation--buttons">
+        <ion-button class="btn-secondary" (click)="closePolicyModal()"> Cancel </ion-button>
+        <ion-button class="btn-primary" (click)="continueWithPolicyViolation()">
+          Continue
+        </ion-button>
+      </ion-buttons>
+    </div>
   </ion-toolbar>
 </ion-footer>

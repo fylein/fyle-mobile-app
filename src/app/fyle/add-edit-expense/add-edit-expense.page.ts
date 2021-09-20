@@ -284,7 +284,11 @@ export class AddEditExpensePage implements OnInit {
 
   taxGroupsOptions$: Observable<{ label: string; value: any }[]>;
 
+  canDeleteExpense = true;
+
   policyDetails;
+
+  source = 'MOBILE';
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -668,7 +672,6 @@ export class AddEditExpensePage implements OnInit {
       const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
 
       await this.trackingService.duplicateDetectionAlertShown({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
         ExpenseId: etxn.tx.id,
         DuplicateExpenses: duplicateTxnIds,
@@ -799,7 +802,11 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
+  }
 
   getFormValidationErrors() {
     Object.keys(this.fg.controls).forEach((key) => {
@@ -1064,6 +1071,8 @@ export class AddEditExpensePage implements OnInit {
             dataUrls: [],
           };
 
+          this.source = 'MOBILE';
+
           if (orgUserSettings.currency_settings && orgUserSettings.currency_settings.enabled) {
             if (orgUserSettings.currency_settings.preferred_currency) {
               etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
@@ -1174,8 +1183,9 @@ export class AddEditExpensePage implements OnInit {
             etxn.tx.org_category_id = category && category.id;
           }
 
-          etxn.tx.source = 'MOBILE_INSTA';
         }
+
+        this.source = 'MOBILE';
 
         if (imageData && imageData.url) {
           etxn.dataUrls.push({
@@ -1184,7 +1194,7 @@ export class AddEditExpensePage implements OnInit {
             thumbnail: imageData.url,
           });
           etxn.tx.num_files = etxn.dataUrls.length;
-          etxn.tx.source = 'MOBILE_INSTA';
+          this.source = 'MOBILE_DASHCAM_SINGLE';
         }
 
         return etxn;
@@ -2137,6 +2147,7 @@ export class AddEditExpensePage implements OnInit {
   getEditExpenseObservable() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       switchMap((etxn) => {
+        this.source = etxn.tx.source || 'MOBILE';
         const instaFyleSettings$ = this.orgUserSettings$.pipe(
           map((orgUserSettings) => orgUserSettings.insta_fyle_settings)
         );
@@ -2708,6 +2719,7 @@ export class AddEditExpensePage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
+            source: this.source || etxn.tx.source,
             source_account_id: this.fg.value.paymentMode.acc.id,
             billable: this.fg.value.billable,
             skip_reimbursement:
@@ -3502,8 +3514,15 @@ export class AddEditExpensePage implements OnInit {
                   fileId: this.receiptsData.fileId,
                 };
               }
-              return of(
-                this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData)
+              return this.isConnected$.pipe(
+                take(1),
+                switchMap(isConnected=> {
+                  if (!isConnected) {
+                    etxn.tx.source += '_OFFLINE';
+                  }
+
+                  return of(this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData));
+                })
               );
             }
           })
@@ -3659,6 +3678,15 @@ export class AddEditExpensePage implements OnInit {
           fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
           return fileObj;
         });
+
+        if (this.source.includes('MOBILE') && !(this.source.includes('_CAMERA') || this.source.includes('_FILE'))) {
+          if (this.newExpenseDataUrls.some(fileObj => fileObj.type === 'pdf' )) {
+            this.source = 'MOBILE_FILE';
+          } else if (this.newExpenseDataUrls.some(fileObj => fileObj.type === 'image' )){
+            this.source = 'MOBILE_CAMERA';
+          }
+        }
+
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
           if (isConnected && this.attachedReceiptsCount === 1) {
@@ -3781,7 +3809,6 @@ export class AddEditExpensePage implements OnInit {
           },
           mode: 'ios',
           presentingElement: await this.modalController.getTop(),
-          ...this.modalProperties.getModalDefaultProperties(),
         });
 
         await attachmentsModal.present();
@@ -3817,43 +3844,43 @@ export class AddEditExpensePage implements OnInit {
     const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
     const header = reportId && removeExpenseFromReport ? 'Remove Expense' : 'Delete Expense';
-    const message =
+    const body =
       reportId && removeExpenseFromReport
         ? 'Are you sure you want to remove this expense from this report?'
         : 'Are you sure you want to delete this expense?';
-    const CTAText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
-    const loadingMessage = reportId && removeExpenseFromReport ? 'Removing Expense...' : 'Deleting Expense...';
+    const ctaText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = reportId && removeExpenseFromReport ? 'Removing' : 'Deleting';
 
-    const popupResult = await this.popupService.showPopup({
-      header,
-      message,
-      primaryCta: {
-        text: CTAText,
-      },
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header,
+        body,
+        ctaText,
+        ctaLoadingText,
+        deleteMethod: () => {
+          if (reportId && removeExpenseFromReport) {
+            return this.reportService.removeTransaction(reportId, id);
+          }
+          return this.transactionService.delete(id);
+        }
+      }
     });
 
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader(loadingMessage))
-        .pipe(
-          switchMap(() => {
-            if (reportId && removeExpenseFromReport) {
-              return this.reportService.removeTransaction(reportId, id);
-            } else {
-              return this.transactionService.delete(id);
-            }
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-            this.reviewList.splice(+this.activeIndex, 1);
-            this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
-              this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-            });
-          } else {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          }
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+        this.reviewList.splice(+this.activeIndex, 1);
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+          this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     }
   }
 
@@ -3886,12 +3913,10 @@ export class AddEditExpensePage implements OnInit {
 
     if (value) {
       await this.trackingService.duplicateDetectionUserActionExpand({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'
       });
     } else {
       await this.trackingService.duplicateDetectionUserActionCollapse({
-        Asset: 'Mobile',
         Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'
       });
     }
