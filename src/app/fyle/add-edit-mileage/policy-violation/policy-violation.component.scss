@@ -1,7 +1,11 @@
+@import '../../../../theme/colors.scss';
+
 .policy-violation {
   &--toolbar {
-    border: none;
-    line-height: 1.2;
+    &__title {
+      color: $black;
+      padding-left: 15px;
+    }
   }
 
   &--body {
@@ -21,15 +25,16 @@
     margin-bottom: 25px;
     border-radius: 4px;
     padding: 10px;
-    background-color: #eee;
+    background-color: $grey-6;
   }
 
   &--textarea {
     width: 100%;
     padding: 5px;
-    border: 1px solid #fafafa;
+    border: 1px solid $grey-light;
     border-radius: 4px;
     min-height: 75px;
+    padding: 8px 11px
   }
 
   &--buttons {
