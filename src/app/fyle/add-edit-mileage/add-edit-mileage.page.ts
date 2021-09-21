@@ -1539,7 +1539,7 @@ export class AddEditMileagePage implements OnInit {
         component: PopupAlertComponentComponent,
         componentProps: {
           title: 'Unsaved Changes',
-          message: 'Your changes will be lost if you do not save the expense.',
+          message: 'You have unsaved information that will be lost if you discard this expense.',
           primaryCta: {
             text: 'Discard',
             action: 'continue',
