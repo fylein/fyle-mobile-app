@@ -1,17 +1,16 @@
-<ion-header class="add-approvers-popover--header">
+<ion-header mode="ios" class="add-approvers-popover--header">
   <ion-toolbar class="add-approvers-popover--toolbar">
     <ion-buttons slot="start">
       <ion-button (click)="closeAddApproversPopover()">
-          <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="add-approvers-popover--toolbar__title">
-      Add Approvers
-    </ion-title>
+    <ion-title class="add-approvers-popover--toolbar__title"> Add Approvers </ion-title>
     <ion-buttons slot="end">
-      <ion-button class="add-approvers-popover--toolbar__btn-save" 
-      [disabled]="!(selectedApproversList.length && confirmationMessage.trim().length)"
-      (click)="saveUpdatedApproversList()"
+      <ion-button
+        class="add-approvers-popover--toolbar__btn-save"
+        [disabled]="!(selectedApproversList.length && confirmationMessage.trim().length)"
+        (click)="saveUpdatedApproversList()"
       >
         Save
       </ion-button>
@@ -23,9 +22,7 @@
   <div class="add-approvers-popover--content">
     <label class="add-approvers-popover--label">
       <div class="add-approvers-popover--label__content">
-        <span>
-          Approver(s) to be added
-        </span>
+        <span> Approver(s) to be added </span>
         <span class="add-approvers-popover--label__mandatory"> * </span>
       </div>
       <div class="add-approvers-popover--input-container">
@@ -37,22 +34,20 @@
           (click)="openModal()"
           readonly
         />
-        <mat-chip *ngIf="selectedApproversList && selectedApproversList.length > 3" class="add-approvers-popover--input-container__chip">
+        <mat-chip
+          *ngIf="selectedApproversList && selectedApproversList.length > 3"
+          class="add-approvers-popover--input-container__chip"
+        >
           +{{ selectedApproversList.length - 3 }} more
         </mat-chip>
-        <mat-icon
-          class="add-approvers-popover--input-container__icon"
-          svgIcon="fy-arrow-down"
-        ></mat-icon>
+        <mat-icon class="add-approvers-popover--input-container__icon" svgIcon="fy-arrow-down"></mat-icon>
       </div>
     </label>
 
     <div class="add-approvers-popover--content__div">
       <label class="add-approvers-popover--label">
         <div class="add-approvers-popover--label__content">
-          <span>
-            Reason for adding approver(s)
-          </span>
+          <span> Reason for adding approver(s) </span>
           <span class="add-approvers-popover--label__mandatory"> * </span>
         </div>
         <div class="add-approvers-popover--message-box-container">
@@ -66,8 +61,13 @@
     </div>
 
     <div>
-      <app-fy-alert-info [message]="'You are adding additional approver(s) to the report. Note that the report
-        will not be moved to the next stage until all approvers have approved it.'" [type]="'information'">
+      <app-fy-alert-info
+        [message]="
+          'You are adding additional approver(s) to the report. Note that the report
+        will not be moved to the next stage until all approvers have approved it.'
+        "
+        [type]="'information'"
+      >
       </app-fy-alert-info>
     </div>
   </div>
