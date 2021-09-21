@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController, IonContent } from '@ionic/angular';
-import { concat, from, Observable, Subject } from 'rxjs';
+import { concat, from, Observable, of, Subject } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -80,10 +80,12 @@ export class MyViewPerDiemPage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyViolationRules(txId)).pipe()
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId)).pipe()
       .subscribe(details => {
         this.policyDetails = details;
       });
+    }
   }
 
   setupNetworkWatcher() {
@@ -139,7 +141,12 @@ export class MyViewPerDiemPage implements OnInit {
       })
     );
 
-    this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    if (id) {
+      this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    } else {
+      this.policyViloations$ = of(null);
+    }
+
     this.comments$ = this.statusService.find('transactions', id);
 
     // this.policyViloations$.subscribe(res => {
