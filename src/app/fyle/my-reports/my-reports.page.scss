@@ -5,6 +5,11 @@
     border-bottom: 1px solid #e6e6e6;
   }
 
+  &--header-btn {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+  }
+
   &--toolbar {
     align-items: center;
     display: inline-flex;
@@ -15,6 +20,28 @@
   &--body {
     padding-bottom: 20px;
     background-color: $white;
+  }
+
+  &--simple-search {
+    width: 100%;
+    font-size: 14px;
+
+    &-icon {
+      font-size: 18px;
+      margin: auto 8px auto 0;
+      color: $black-light;
+      height: auto;
+    }
+
+    &-close {
+      margin: -10px;
+      font-size: 18px;
+    }
+  }
+
+  &--simple-search-block {
+    display: flex;
+    vertical-align: baseline;
   }
 
   &--zero-state-body {

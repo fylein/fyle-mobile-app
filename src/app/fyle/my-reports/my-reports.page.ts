@@ -29,7 +29,24 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
+import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import { FilterOptions } from '../../shared/components/fy-filters/filter-options.interface';
+import { FilterOptionType } from '../../shared/components/fy-filters/filter-option-type.enum';
+import { DateFilters } from '../../shared/components/fy-filters/date-filters.enum';
+import { SelectedFilters } from '../../shared/components/fy-filters/selected-filters.interface';
+import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
 
+type Filters = Partial<{
+  state: string[];
+  date: string;
+  customDateStart: Date;
+  customDateEnd: Date;
+  receiptsAttached: string;
+  type: string[];
+  sortParam: string;
+  sortDir: string;
+}>;
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
@@ -60,14 +77,9 @@ export class MyReportsPage implements OnInit {
 
   acc = [];
 
-  filters: Partial<{
-    state: string;
-    date: string;
-    customDateStart: Date;
-    customDateEnd: Date;
-    sortParam: string;
-    sortDir: string;
-  }>;
+  filters: Filters;
+
+  filterPills = [];
 
   homeCurrency$: Observable<string>;
 
@@ -82,9 +94,19 @@ export class MyReportsPage implements OnInit {
 
   isLoading = false;
 
+  isSearchBarFocused = false;
+
+  simpleSearchText = '';
+
   isLoadingDataInInfiniteScroll: boolean;
 
   onPageExit = new Subject();
+
+  headerState: HeaderState = HeaderState.base;
+
+  get HeaderState() {
+    return HeaderState;
+  }
 
   constructor(
     private networkService: NetworkService,
@@ -98,7 +120,8 @@ export class MyReportsPage implements OnInit {
     private transactionService: TransactionService,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
-    private apiV2Service: ApiV2Service
+    private apiV2Service: ApiV2Service,
+    private modalController: ModalController
   ) {}
 
   ngOnInit() {}
@@ -107,16 +130,26 @@ export class MyReportsPage implements OnInit {
     this.onPageExit.next();
   }
 
-  clearText() {
-    this.searchText = '';
+  clearText(isFromCancel) {
+    this.simpleSearchText = '';
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
+    if (isFromCancel === 'onSimpleSearchCancel') {
+      this.isSearchBarFocused = !this.isSearchBarFocused;
+    } else {
+      this.isSearchBarFocused = !!this.isSearchBarFocused;
+    }
+  }
+
+  onSearchBarFocus() {
+    this.isSearchBarFocused = true;
   }
 
   ionViewWillEnter() {
     this.isLoading = true;
     this.setupNetworkWatcher();
+    this.headerState = HeaderState.base;
 
     this.searchText = '';
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
@@ -299,47 +332,217 @@ export class MyReportsPage implements OnInit {
   addNewFiltersToParams() {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: any = {};
+    const newQueryParams: any = {
+      or: [],
+    };
 
-    if (this.filters.state) {
-      if (this.filters.state === 'ALL') {
-        newQueryParams.rp_state =
-          'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
-      } else {
-        newQueryParams.rp_state = `in.(${this.filters.state})`;
-      }
-    }
+    this.generateDateParams(newQueryParams);
 
-    if (this.filters.date) {
-      if (this.filters.date === 'THISMONTH') {
-        const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and = `(rp_created_at.gte.${thisMonth.from.toISOString()},rp_created_at.lt.${thisMonth.to.toISOString()})`;
-      } else if (this.filters.date === 'LASTMONTH') {
-        const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and = `(rp_created_at.gte.${lastMonth.from.toISOString()},rp_created_at.lt.${lastMonth.to.toISOString()})`;
-      } else if (this.filters.date === 'CUSTOMDATE') {
-        newQueryParams.and = `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
-      }
-    }
+    this.generateReceiptAttachedParams(newQueryParams);
 
-    if (this.filters.sortParam && this.filters.sortDir) {
-      currentParams.sortParam = this.filters.sortParam;
-      currentParams.sortDir = this.filters.sortDir;
-    } else {
-      currentParams.sortParam = 'rp_created_at';
-      currentParams.sortDir = 'desc';
-    }
+    this.generateStateFilters(newQueryParams);
+
+    this.generateTypeFilters(newQueryParams);
+
+    this.setSortParams(currentParams);
 
     currentParams.queryParams = newQueryParams;
+
+    const onlyDraftStateFilterApplied =
+      this.filters.state && this.filters.state.length === 1 && this.filters.state.includes('DRAFT');
+    const onlyCriticalPolicyFilterApplied =
+      this.filters.state?.length === 1 && this.filters.state.includes('CANNOT_REPORT');
+    const draftAndCriticalPolicyFilterApplied =
+      this.filters.state?.length === 2 &&
+      this.filters.state.includes('DRAFT') &&
+      this.filters.state.includes('CANNOT_REPORT');
+
+    this.reviewMode = false;
+    if (onlyDraftStateFilterApplied || onlyCriticalPolicyFilterApplied || draftAndCriticalPolicyFilterApplied) {
+      this.reviewMode = true;
+    }
 
     return currentParams;
   }
 
-  async openFilters() {
-    const filterPopover = await this.popoverController.create({
-      component: MyReportsSearchFilterComponent,
+  setSortParams(
+    currentParams: Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }>
+  ) {
+    if (this.filters.sortParam && this.filters.sortDir) {
+      currentParams.sortParam = this.filters.sortParam;
+      currentParams.sortDir = this.filters.sortDir;
+    } else {
+      currentParams.sortParam = 'tx_txn_dt';
+      currentParams.sortDir = 'desc';
+    }
+  }
+
+  generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
+    const generatedFilters: SelectedFilters<any>[] = [];
+
+    if (filter.state) {
+      generatedFilters.push({
+        name: 'Type',
+        value: filter.state,
+      });
+    }
+
+    if (filter.receiptsAttached) {
+      generatedFilters.push({
+        name: 'Receipts Attached',
+        value: filter.receiptsAttached,
+      });
+    }
+
+    if (filter.date) {
+      generatedFilters.push({
+        name: 'Date',
+        value: filter.date,
+        associatedData: {
+          startDate: filter.customDateStart,
+          endDate: filter.customDateEnd,
+        },
+      });
+    }
+
+    if (filter.type) {
+      generatedFilters.push({
+        name: 'Expense Type',
+        value: filter.type,
+      });
+    }
+
+    if (filter.sortParam && filter.sortDir) {
+      this.addSortToGeneratedFilters(filter, generatedFilters);
+    }
+
+    return generatedFilters;
+  }
+
+  async openFilters(activeFilterInitialName?: string) {
+    const filterPopover = await this.modalController.create({
+      component: FyFiltersComponent,
       componentProps: {
-        filters: this.filters,
+        filterOptions: [
+          {
+            name: 'Type',
+            optionType: FilterOptionType.multiselect,
+            options: [
+              {
+                label: 'Ready To Report',
+                value: 'READY_TO_REPORT',
+              },
+              {
+                label: 'Policy Violated',
+                value: 'POLICY_VIOLATED',
+              },
+              {
+                label: 'Cannot Report',
+                value: 'CANNOT_REPORT',
+              },
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+            ],
+          } as FilterOptions<string>,
+          {
+            name: 'Date',
+            optionType: FilterOptionType.date,
+            options: [
+              {
+                label: 'All',
+                value: DateFilters.all,
+              },
+              {
+                label: 'This Week',
+                value: DateFilters.thisWeek,
+              },
+              {
+                label: 'This Month',
+                value: DateFilters.thisMonth,
+              },
+              {
+                label: 'Last Month',
+                value: DateFilters.lastMonth,
+              },
+              {
+                label: 'Custom',
+                value: DateFilters.custom,
+              },
+            ],
+          } as FilterOptions<DateFilters>,
+          {
+            name: 'Receipts Attached',
+            optionType: FilterOptionType.singleselect,
+            options: [
+              {
+                label: 'Yes',
+                value: 'YES',
+              },
+              {
+                label: 'No',
+                value: 'NO',
+              },
+            ],
+          } as FilterOptions<string>,
+          {
+            name: 'Expense Type',
+            optionType: FilterOptionType.multiselect,
+            options: [
+              {
+                label: 'Mileage',
+                value: 'Mileage',
+              },
+              {
+                label: 'Per Diem',
+                value: 'PerDiem',
+              },
+              {
+                label: 'Regular Expenses',
+                value: 'RegularExpenses',
+              },
+            ],
+          } as FilterOptions<string>,
+          {
+            name: 'Sort By',
+            optionType: FilterOptionType.singleselect,
+            options: [
+              {
+                label: 'Date - New to Old',
+                value: 'dateNewToOld',
+              },
+              {
+                label: 'Date - Old to New',
+                value: 'dateOldToNew',
+              },
+              {
+                label: 'Amount - High to Low',
+                value: 'amountHighToLow',
+              },
+              {
+                label: 'Amount - Low to High',
+                value: 'amountLowToHigh',
+              },
+              {
+                label: 'Category - A to Z',
+                value: 'categoryAToZ',
+              },
+              {
+                label: 'Category - Z to A',
+                value: 'categoryZToA',
+              },
+            ],
+          } as FilterOptions<string>,
+        ],
+        selectedFilterValues: this.generateSelectedFilters(this.filters),
+        activeFilterInitialName,
       },
       cssClass: 'dialog-popover',
     });
@@ -348,10 +551,14 @@ export class MyReportsPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      this.filters = Object.assign({}, this.filters, data.filters);
+      this.filters = this.convertFilters(data);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
+      this.trackingService.myExpensesFilterApplied({
+        ...this.filters,
+      });
     }
   }
 
@@ -449,7 +656,16 @@ export class MyReportsPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
-  onViewCommentsClick(event) {
-    // TODO: Add when view comments is done
+  onSimpleSearchCancel() {
+    this.headerState = HeaderState.base;
+    this.clearText('onSimpleSearchCancel');
+  }
+
+  searchClick() {
+    this.headerState = HeaderState.simpleSearch;
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    setTimeout(() => {
+      searchInput.focus();
+    }, 300);
   }
 }

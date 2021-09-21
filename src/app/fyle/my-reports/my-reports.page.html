@@ -1,3 +1,56 @@
+<app-fy-header
+  [currentState]="headerState"
+  [navigateBack]="navigateBack"
+  [title]="'Reports'"
+  (simpleSearchCancel)="onSimpleSearchCancel()"
+>
+  <ng-container base>
+    <ion-buttons mode="md" slot="end">
+      <ion-button class="my-reports--header-btn" (click)="searchClick()">
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
+      </ion-button>
+      <ion-button class="my-reports--header-btn" (click)="openFilters()">
+        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+        </ng-container>
+        <ng-template #noFilterAppliedIcon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+        </ng-template>
+      </ion-button>
+      <ion-button class="my-reports--header-btn" [routerLink]="['/', 'enterprise', 'my_create_report']">
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ng-container>
+
+  <ng-container simpleSearch>
+    <div class="expense-report-search my-reports--simple-search-container">
+      <mat-form-field appearance="outline" class="mat-form-field-no-padding my-reports--simple-search">
+        <div class="my-reports--simple-search-block">
+          <mat-icon class="my-reports--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+          <input
+            #simpleSearchInput
+            [(ngModel)]="simpleSearchText"
+            class="my-reports--simple-search-input"
+            matInput
+            placeholder="Search"
+            (focus)="onSearchBarFocus()"
+          />
+          <button
+            (click)="clearText('isFromSearchBar')"
+            *ngIf="simpleSearchText"
+            aria-label="Clear"
+            class="my-reports--simple-search-close"
+            mat-button
+            mat-icon-button
+            matSuffix
+          >
+            <mat-icon svgIcon="fy-clear"></mat-icon>
+          </button>
+        </div>
+      </mat-form-field>
+    </div>
+  </ng-container>
 <ion-header mode="md">
   <ion-toolbar mode="md" class="my-reports--toolbar-header">
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
