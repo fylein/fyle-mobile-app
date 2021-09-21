@@ -1,17 +1,17 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { CameraOverlayPage } from './camera-overlay.page';
+import { PersonalCardsPage } from './personal-cards.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: CameraOverlayPage,
-  },
+    component: PersonalCardsPage
+  }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class CameraOverlayPageRoutingModule {}
+export class PersonalCardsPageRoutingModule {}
