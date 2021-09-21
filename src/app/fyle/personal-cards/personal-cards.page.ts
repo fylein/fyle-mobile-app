@@ -6,7 +6,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { finalize, repeatWhen, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, shareReplay, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-personal-cards',
@@ -20,7 +20,7 @@ export class PersonalCardsPage implements OnInit {
 
   linkedAccountsCount$: Observable<number>;
 
-  loadCount$ = new Subject();
+  loadData$: BehaviorSubject<any>;
 
   navigateBack = false;
 
@@ -42,8 +42,10 @@ export class PersonalCardsPage implements OnInit {
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.linkedAccountsCount$ = this.personalCardsService.getLinkedAccountsCount().pipe(
-      repeatWhen(() => this.loadCount$),
+    this.loadData$ = new BehaviorSubject({});
+    this.linkedAccountsCount$ = this.loadData$.pipe(
+      switchMap(() => this.personalCardsService.getLinkedAccountsCount()
+      ),
       shareReplay(1)
     );
   }
@@ -95,7 +97,7 @@ export class PersonalCardsPage implements OnInit {
       finalize(async () => {
         await this.loaderService.hideLoader();
       })).subscribe((reponse) => {
-        this.loadCount$.next();
+        this.loadData$.next({});
       });
       }
 

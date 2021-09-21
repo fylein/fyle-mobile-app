@@ -30,10 +30,10 @@ export class PersonalCardsService {
    return this.expenseAggregationService.get('/yodlee/access_token');
   }
 
-  postBankAccounts(request_ids): Observable<any> {
+  postBankAccounts(requestIds): Observable<any> {
     return this.expenseAggregationService.post('/yodlee/bank_accounts', {
         aggregator: 'yodlee',
-        request_ids
+        request_ids: requestIds
     });
   }
 
