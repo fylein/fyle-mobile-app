@@ -13,7 +13,7 @@ export class AdvanceState implements PipeTransform {
       DRAFT: 'draft',
       SUBMITTED: 'pending',
       APPROVED: 'approved',
-      INQUIRY: 'inquiry',
+      INQUIRY: 'sent back',
       PAID: 'issued',
       APPROVAL_PENDING: 'pending',
       APPROVAL_DONE: 'approved',

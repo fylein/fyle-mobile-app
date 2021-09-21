@@ -38,7 +38,7 @@
           </span>
         </div>
         <div class="view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}">
-          {{erpt.rp_state | reportState | uppercase}}
+          {{erpt.rp_state | reportState | uppercase | snakeCaseToSpaceCase}}
         </div>
       </div>
 

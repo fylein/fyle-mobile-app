@@ -128,6 +128,7 @@ export class MyCreateReportPage implements OnInit {
       const report = {
         purpose: this.reportTitle,
         source: 'MOBILE',
+        type: ((this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId) ? 'TRIP' : 'EXPENSE',
         trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId,
       };
       const etxns = this.readyToReportEtxns.filter((etxn) => etxn.isSelected);
