@@ -20,7 +20,7 @@
     </ng-container>
 
     <div class="view-expense--policy-container" *ngIf="isAmountCapped$|async">
-      <div [ngIf]="!(isCriticalPolicyViolated$|async)">
+      <div *ngIf="!(isCriticalPolicyViolated$|async)">
         <div>
           <span class="info-text m-0">
             Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to {{

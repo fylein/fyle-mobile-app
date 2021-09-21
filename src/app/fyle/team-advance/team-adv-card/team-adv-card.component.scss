@@ -1,6 +1,6 @@
 $advance_draft_color: #464d57;
 $advance_pulled_back_color: #979797;
-$advance_inquiry_color: #7e57c2;
+$advance_inquiry_color: #da1e28;
 $advance_pending_approval_color: #1ab6bb;
 $advance_approved_color: #66bb6a;
 $advance_paid_color: darken(#5cb85c, 15%);
@@ -58,6 +58,10 @@ $advance_rejected_color: #d50000;
     }
 
     &__inquiry {
+      background: $advance_inquiry_color;
+    }
+
+    &_sent_back {
       background: $advance_inquiry_color;
     }
 

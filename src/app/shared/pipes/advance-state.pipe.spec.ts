@@ -19,8 +19,8 @@ fdescribe('AdvanceStatePipe', () => {
     expect(pipe.transform('APPROVED')).toBe('approved');
   });
 
-  it('transforms "INQUIRY" state to "inquiry"', () => {
-    expect(pipe.transform('INQUIRY')).toBe('inquiry');
+  it('transforms "INQUIRY" state to "sent back"', () => {
+    expect(pipe.transform('INQUIRY')).toBe('sent back');
   });
 
   it('transforms "PAID" state to "issued"', () => {

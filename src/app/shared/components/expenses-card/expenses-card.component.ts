@@ -41,6 +41,8 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isOutboxExpense: boolean;
 
+  @Input() isFromReports: boolean;
+
   @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
 
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
