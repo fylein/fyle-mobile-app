@@ -398,7 +398,7 @@ export class AddEditMileagePage implements OnInit {
         Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage',
         ExpenseId: etxn.tx.id,
         DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields
+        DuplicateFields: duplicateFields,
       });
     } catch (err) {
       // Ignore event tracking errors
@@ -423,9 +423,7 @@ export class AddEditMileagePage implements OnInit {
           this.pointToDuplicates = false;
         }, 3000);
 
-        this.etxn$
-          .pipe(take(1))
-          .subscribe(async etxn => await this.trackDuplicatesShown(res, etxn));
+        this.etxn$.pipe(take(1)).subscribe(async (etxn) => await this.trackDuplicatesShown(res, etxn));
       });
   }
 
@@ -1534,7 +1532,9 @@ export class AddEditMileagePage implements OnInit {
   }
 
   async showClosePopup() {
-    if (this.fg.touched) {
+    const isAutofilled =
+      this.presetProjectId || this.presetCostCenterId || this.presetVehicleType || this.presetLocation;
+    if (this.fg.touched || isAutofilled) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
         componentProps: {
@@ -2397,8 +2397,8 @@ export class AddEditMileagePage implements OnInit {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
-        }
-      }
+        },
+      },
     });
 
     await deletePopover.present();
@@ -2407,7 +2407,7 @@ export class AddEditMileagePage implements OnInit {
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
-        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else {
@@ -2464,11 +2464,11 @@ export class AddEditMileagePage implements OnInit {
 
     if (value) {
       await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mielage'
+        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mielage',
       });
     } else {
       await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage'
+        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage',
       });
     }
   }
@@ -2491,8 +2491,9 @@ export class AddEditMileagePage implements OnInit {
 
   getPolicyDetails() {
     const txnId = this.activatedRoute.snapshot.params.id;
-    from(this.policyService.getPolicyViolationRules(txnId)).pipe()
-      .subscribe(details => {
+    from(this.policyService.getPolicyViolationRules(txnId))
+      .pipe()
+      .subscribe((details) => {
         this.policyDetails = details;
       });
   }
