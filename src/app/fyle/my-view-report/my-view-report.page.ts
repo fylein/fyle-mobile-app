@@ -16,6 +16,7 @@ import { SubmitReportPopoverComponent } from './submit-report-popover/submit-rep
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 
 @Component({
   selector: 'app-my-view-report',
@@ -165,6 +166,29 @@ export class MyViewReportPage implements OnInit {
 
   goToEditReport() {
     this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
+  }
+
+  async editReportName() {
+    const erpt = await this.erpt$.toPromise();
+    const editReportNamePopover = await this.popoverController.create({
+      component: EditReportNamePopoverComponent,
+      componentProps: {
+        reportName: erpt.rp_purpose,
+      },
+      cssClass: 'edit-report-name-popover',
+    });
+
+    await editReportNamePopover.present();
+    const { data } = await editReportNamePopover.onWillDismiss();
+
+    if (data && data.reportName) {
+      // erpt.rp_purpose = data.reportName;
+      // from(this.loaderService.showLoader()).pipe(
+      //   switchMap(() =>  this.reportService.updateReportDetails(erpt)),
+      //   finalize(() => this.loaderService.hideLoader()),
+      //   shareReplay(1)
+      // ).subscribe(data => console.log(data));
+    }
   }
 
   async deleteReport() {

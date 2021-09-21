@@ -193,6 +193,13 @@ export class ReportService {
     return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
   }
 
+  // @CacheBuster({
+  //   cacheBusterNotifier: reportsCacheBuster$,
+  // })
+  // updateReportDetails(erpt) {
+  //   return this.apiService.post('/reports', erpt).pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+  // }
+
   getUserReportParams(state: string) {
     const stateMap = {
       draft: {
