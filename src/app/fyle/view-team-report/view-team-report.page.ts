@@ -310,7 +310,7 @@ export class ViewTeamReportPage implements OnInit {
   async sendBack() {
     const popover = await this.popoverController.create({
       component: SendBackComponent,
-      cssClass: 'send-back-report-popover',
+      cssClass: 'fy-dialog-popover',
     });
 
     await popover.present();

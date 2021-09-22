@@ -34,7 +34,7 @@ export class FyApproverComponent {
         type: this.type,
         ownerEmail: this.ownerEmail,
       },
-      cssClass: 'add-approvers-popover',
+      cssClass: 'fy-dialog-popover',
       backdropDismiss: false
     });
 
