@@ -133,11 +133,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnChanges, OnI
 
   ngOnChanges(changes: SimpleChanges) {
     if (this.fg && changes.txnDt && !isEqual(changes.txnDt.previousValue, changes.txnDt.currentValue)) {
-      const updatedExchangeRate = from(this.currencyService
+      from(this.currencyService
         .getExchangeRate(this.fg.value.currency, this.homeCurrency, this.txnDt || new Date()))
-        .pipe(
-          map((newExchangeRate) => {
-            this.exchangeRate = newExchangeRate;
+        .pipe().subscribe(newExchangeRate => {
+          this.exchangeRate = newExchangeRate;
             if (this.innerValue.orig_amount) {
               if (this.value.currency !== this.homeCurrency) {
                 this.innerValue.amount = this.innerValue.orig_amount;
@@ -146,8 +145,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnChanges, OnI
                 this.innerValue.amount = parseFloat(amount.toFixed(2));
               }
             }
-          })
-        ).subscribe(noop);
+        });
     }
   }
 
