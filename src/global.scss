@@ -162,6 +162,26 @@ textarea:focus {
   }
 }
 
+.send-back-report-popover {
+  .popover-wrapper {
+    .popover-content {
+      bottom: 0 !important;
+      top: auto !important;
+      left: 0 !important;
+      height: auto;
+      width: 100%;
+      border-radius: 16px 16px 0 0;
+    }
+  }
+
+  .popover-viewport {
+    height: 100%;
+    &.sc-ion-popover-ios {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+}
+
 .modal-wrapper {
   &.sc-ion-modal-ios {
     margin-bottom: env(safe-area-inset-bottom);
@@ -765,6 +785,19 @@ ref - https://stackoverflow.com/a/31162426
     box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4) !important;
     opacity: 0.4 !important;
     pointer-events: all !important;
+  }
+}
+
+.flag-unflag-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    height: 190px;
+    position: absolute;
+    bottom: 0 !important;
+  }
+
+  .modal-shadow {
+    display: none;
   }
 }
 

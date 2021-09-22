@@ -7,7 +7,6 @@ import { ViewTeamExpensePage } from './view-team-expense.page';
 import { SharedModule } from '../../shared/shared.module';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
-import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
@@ -21,6 +20,6 @@ import { MatButtonModule } from '@angular/material/button';
     PdfViewerModule,
     MatButtonModule,
   ],
-  declarations: [ViewTeamExpensePage, RemoveExpenseReportComponent],
+  declarations: [ViewTeamExpensePage],
 })
 export class ViewTeamExpensePageModule {}
