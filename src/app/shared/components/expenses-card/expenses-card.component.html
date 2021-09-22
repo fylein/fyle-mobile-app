@@ -1,4 +1,4 @@
-<div *ngIf="showDt" class="expenses-card--date">
+<div *ngIf="showDt" class="expenses-card--date" [ngClass]="{'expenses-card--date__from-reports': isFromReports}">
   <ng-container *ngIf="{ isConnected: isConnected$ | async } as data">
     <ng-container *ngIf="expense.tx_id && data.isConnected; else isOffline">
       {{ expense.tx_txn_dt || expense.tx_created_at | dateFormat }}

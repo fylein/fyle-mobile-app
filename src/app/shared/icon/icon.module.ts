@@ -82,6 +82,7 @@ export class IconModule {
     'fy-expense.svg',
     'fy-expenses-new.svg',
     'fy-filter.svg',
+    'fy-flag-2.svg',
     'fy-help-new.svg',
     'fy-home-solid.svg',
     'fy-home.svg',
