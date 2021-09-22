@@ -8,7 +8,7 @@ import { Employee } from 'src/app/core/models/employee.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 
-type approverModel = {
+type Approver = {
   name: string;
   email: string;
 };
@@ -29,7 +29,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   @Input() type;
 
-  @Input() initialApproverList: approverModel[];
+  @Input() initialApproverList: Approver[];
 
   value: string;
 
@@ -37,7 +37,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   searchedApprovers$: Observable<Employee[]>;
 
-  selectedApproversList: approverModel[] = [];
+  selectedApproversList: Approver[] = [];
 
   searchTerm;
 
