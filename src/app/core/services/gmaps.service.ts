@@ -14,14 +14,6 @@ export class GmapsService {
   ) {
   }
 
-  // isApiLoaded() {
-  //   return this.httpClient.jsonp('https://maps.googleapis.com/maps/api/js?key=AIzaSyCb7vB5EUfVz7WrxrRvFKk1W45IQV_bvXQ', 'callback')
-  //     .pipe(
-  //       map(() => true),
-  //       catchError(() => of(false)),
-  //     );
-  // }
-
   getGeocode(latitude: number, longitude: number): Observable<MapGeocoderResponse> {
     return this.geocoder.geocode({
       location: {

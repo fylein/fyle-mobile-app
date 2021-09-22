@@ -38,9 +38,6 @@ export class MyHammerConfig extends HammerGestureConfig {
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    // AgmCoreModule.forRoot({
-    //   apiKey: environment.GOOGLE_MAPS_API_KEY
-    // }),
     GoogleMapsModule,
     SharedModule,
     HammerModule,
