@@ -1,5 +1,5 @@
-@import "../../../theme/colors.scss";
-@import "../../../theme/forms.scss";
+@import '../../../theme/colors.scss';
+@import '../../../theme/forms.scss';
 
 .add-edit-mileage {
   &--toolbar {
@@ -7,12 +7,20 @@
     &__review {
       min-height: 80px;
     }
+
+    &__title {
+      padding-right: 60px;
+      text-align: center;
+    }
   }
 
-  &--header-button {
-    --padding-start: 8px !important;
-    --padding-end: 8px !important;
-    width: auto !important;
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
   }
 
   &--sub-header {
@@ -46,7 +54,7 @@
   }
 
   &--cta-container {
-    padding: 14px 16px 14px 16px;
+    padding: 14px 16px;
     justify-content: space-between;
   }
 
@@ -76,7 +84,8 @@
     margin: 18px 0;
   }
 
-  &--form, &--violations {
+  &--form,
+  &--violations {
     padding: 0 16px 16px 16px;
   }
 

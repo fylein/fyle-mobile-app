@@ -13,6 +13,7 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   imports: [
@@ -24,14 +25,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatButtonModule,
     MatRippleModule,
     SharedModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatSnackBarModule
   ],
   declarations: [
     ViewTeamReportPage,
     ViewTeamReportEtxnCardComponent,
     ShareReportComponent,
     SendBackComponent,
-    ApproveReportComponent
-  ]
+    ApproveReportComponent,
+  ],
 })
 export class ViewTeamReportPageModule {}

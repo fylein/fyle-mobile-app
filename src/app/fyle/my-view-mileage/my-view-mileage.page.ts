@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, IonContent } from '@ionic/angular';
-import { from, Observable } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -18,7 +18,6 @@ import { StatusService } from 'src/app/core/services/status.service';
   styleUrls: ['./my-view-mileage.page.scss'],
 })
 export class MyViewMileagePage implements OnInit {
-
   @ViewChild('comments') commentsContainer: ElementRef;
 
   extendedMileage$: Observable<Expense>;
@@ -35,6 +34,8 @@ export class MyViewMileagePage implements OnInit {
 
   comments$: Observable<any>;
 
+  policyDetails;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -44,7 +45,7 @@ export class MyViewMileagePage implements OnInit {
     private policyService: PolicyService,
     private navController: NavController,
     private statusService: StatusService
-  ) { }
+  ) {}
 
   isNumber(val) {
     return typeof val === 'number';
@@ -61,9 +62,18 @@ export class MyViewMileagePage implements OnInit {
         commentsContainer.scrollIntoView({
           behavior: 'smooth',
           block: 'nearest',
-          inline: 'start'
+          inline: 'start',
         });
       }
+    }
+  }
+
+  getPolicyDetails(txId) {
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
     }
   }
 
@@ -76,33 +86,38 @@ export class MyViewMileagePage implements OnInit {
       shareReplay(1)
     );
 
-    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      shareReplay(1)
-    );
+    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
 
     this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      switchMap(res => this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)),
-      map(res => res.map(customProperties => {
-        customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-        return customProperties;
-      }))
+      switchMap((res) =>
+        this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)
+      ),
+      map((res) =>
+        res.map((customProperties) => {
+          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+          return customProperties;
+        })
+      )
     );
 
-    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+    if (id) {
+      this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    } else {
+      this.policyViloations$ = of(null);
+    }
+
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
-      map(res => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+      map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
+
+    this.getPolicyDetails(id);
 
     this.isAmountCapped$ = this.extendedMileage$.pipe(
-      map(res => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+      map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
-
   }
 
-
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

@@ -29,14 +29,14 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
-    SharedModule
+    SharedModule,
   ],
   declarations: [
     AddEditPerDiemPage,
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
-    PolicyViolationComponent
-  ]
+    PolicyViolationComponent,
+  ],
 })
 export class AddEditPerDiemPageModule {}

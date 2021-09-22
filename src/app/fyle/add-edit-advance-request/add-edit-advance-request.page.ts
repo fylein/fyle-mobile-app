@@ -23,6 +23,9 @@ import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-adva
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { TrackingService } from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -30,7 +33,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   styleUrls: ['./add-edit-advance-request.page.scss'],
 })
 export class AddEditAdvanceRequestPage implements OnInit {
-
   @ViewChild('formContainer') formContainer: ElementRef;
 
   isConnected$: Observable<boolean>;
@@ -69,6 +71,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   saveAdvanceLoading = false;
 
+  isDeviceWidthSmall = window.innerWidth < 375;
 
   constructor(
     private offlineService: OfflineService,
@@ -88,15 +91,16 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private fileService: FileService,
     private popupService: PopupService,
     private networkService: NetworkService,
-    private modalProperties: ModalPropertiesService
-  ) { }
+    private modalProperties: ModalPropertiesService,
+    private trackingService: TrackingService
+  ) {}
 
   currencyObjValidator(c: FormControl): ValidationErrors {
     if (c.value && c.value.amount && c.value.currency) {
       return null;
     }
     return {
-      required: false
+      required: false,
     };
   }
 
@@ -114,7 +118,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     if (!this.id) {
       this.advanceActions = {
         can_save: true,
-        can_submit: true
+        can_submit: true,
       };
     }
   }
@@ -132,12 +136,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return this.advanceRequestService.testPolicy(advanceRequest);
   }
 
-  submitAdvanceRequest(advanceRequest){
+  submitAdvanceRequest(advanceRequest) {
     const fileObjPromises = this.fileAttachments();
     return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest, fileObjPromises);
   }
 
-  saveDraftAdvanceRequest(advanceRequest){
+  saveDraftAdvanceRequest(advanceRequest) {
     const fileObjPromises = this.fileAttachments();
     return this.advanceRequestService.saveDraftAdvReqWithFiles(advanceRequest, fileObjPromises);
   }
@@ -150,22 +154,27 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
-  async showPolicyModal(violatedPolicyRules: string[], policyViolationActionDescription: string, event: string, advanceRequest) {
+  async showPolicyModal(
+    violatedPolicyRules: string[],
+    policyViolationActionDescription: string,
+    event: string,
+    advanceRequest
+  ) {
     return iif(
       () => advanceRequest && advanceRequest.id && advanceRequest.org_user_id,
       this.statusService.findLatestComment(advanceRequest.id, 'advance_requests', advanceRequest.org_user_id),
       of(null)
-    ).subscribe(async latestComment => {
+    ).subscribe(async (latestComment) => {
       const policyViolationModal = await this.modalController.create({
         component: PolicyViolationDialogComponent,
         componentProps: {
           latestComment,
           violatedPolicyRules,
-          policyViolationActionDescription
+          policyViolationActionDescription,
         },
         mode: 'ios',
         presentingElement: await this.modalController.getTop(),
-        ...this.modalProperties.getModalDefaultProperties()
+        ...this.modalProperties.getModalDefaultProperties(),
       });
 
       await policyViolationModal.present();
@@ -173,27 +182,31 @@ export class AddEditAdvanceRequestPage implements OnInit {
       const { data } = await policyViolationModal.onWillDismiss();
       if (data) {
         // this.loaderService.showLoader('Creating Advance Request...');
-        return this.saveAndSubmit(event, advanceRequest).pipe(
-          switchMap(res => iif(
-            () => data.reason && data.reason !== latestComment,
-            this.statusService.post('advance_requests', res.advanceReq.id, {comment: data.reason}, true),
-            of(null)
-          )),
-          finalize(() => {
-            this.fg.reset();
-            // this.loaderService.hideLoader();
-            if (event === 'draft') {
-              this.saveDraftAdvanceLoading = false;
-            } else {
-              this.saveAdvanceLoading = false;
-            }
-            if (this.from === 'TEAM_ADVANCE') {
-              return this.router.navigate(['/', 'enterprise', 'team_advance']);
-            } else {
-              return this.router.navigate(['/', 'enterprise', 'my_advances']);
-            }
-          })
-        ).subscribe(noop);
+        return this.saveAndSubmit(event, advanceRequest)
+          .pipe(
+            switchMap((res) =>
+              iif(
+                () => data.reason && data.reason !== latestComment,
+                this.statusService.post('advance_requests', res.advanceReq.id, { comment: data.reason }, true),
+                of(null)
+              )
+            ),
+            finalize(() => {
+              this.fg.reset();
+              // this.loaderService.hideLoader();
+              if (event === 'draft') {
+                this.saveDraftAdvanceLoading = false;
+              } else {
+                this.saveAdvanceLoading = false;
+              }
+              if (this.from === 'TEAM_ADVANCE') {
+                return this.router.navigate(['/', 'enterprise', 'team_advance']);
+              } else {
+                return this.router.navigate(['/', 'enterprise', 'my_advances']);
+              }
+            })
+          )
+          .subscribe(noop);
       } else {
         if (event === 'draft') {
           this.saveDraftAdvanceLoading = false;
@@ -208,7 +221,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     if (this.fg.valid) {
       const advanceSummaryPopover = await this.popoverController.create({
         component: DraftAdvanceSummaryComponent,
-        cssClass: 'dialog-popover'
+        cssClass: 'dialog-popover',
       });
 
       await advanceSummaryPopover.present();
@@ -225,7 +238,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         const invalidElement = formContainer.querySelector('.ng-invalid');
         if (invalidElement) {
           invalidElement.scrollIntoView({
-            behavior: 'smooth'
+            behavior: 'smooth',
           });
         }
       }
@@ -240,49 +253,49 @@ export class AddEditAdvanceRequestPage implements OnInit {
       } else {
         this.saveAdvanceLoading = true;
       }
-      this.generateAdvanceRequestFromFg(this.extendedAdvanceRequest$).pipe(
-        switchMap(advanceRequest => {
-          const policyViolations$ = this.checkPolicyViolation(advanceRequest).pipe(
-            shareReplay(1)
-          );
+      this.generateAdvanceRequestFromFg(this.extendedAdvanceRequest$)
+        .pipe(
+          switchMap((advanceRequest) => {
+            const policyViolations$ = this.checkPolicyViolation(advanceRequest).pipe(shareReplay(1));
 
-          let policyViolationActionDescription = '';
-          return policyViolations$.pipe(
-            map(policyViolations => {
-              policyViolationActionDescription = policyViolations.advance_request_desired_state.action_description;
-              return this.advanceRequestPolicyService.getPolicyRules(policyViolations);
-            }),
-            catchError(err => {
-              if (err.status === 500) {
-                return of([]);
-              } else {
-                return throwError(err);
-              }
-            }),
-            switchMap((policyRules: string[]) => {
-              if (policyRules.length > 0) {
-                return this.showPolicyModal(policyRules, policyViolationActionDescription, event, advanceRequest);
-              } else {
-                return this.saveAndSubmit(event, advanceRequest).pipe(
-                  finalize(() => {
-                    this.fg.reset();
-                    if (event === 'draft') {
-                      this.saveDraftAdvanceLoading = false;
-                    } else {
-                      this.saveAdvanceLoading = false;
-                    }
-                    if (this.from === 'TEAM_ADVANCE') {
-                      return this.router.navigate(['/', 'enterprise', 'team_advance']);
-                    } else {
-                      return this.router.navigate(['/', 'enterprise', 'my_advances']);
-                    }
-                  })
-                );
-              }
-            }),
-          );
-        })
-      ).subscribe(noop);
+            let policyViolationActionDescription = '';
+            return policyViolations$.pipe(
+              map((policyViolations) => {
+                policyViolationActionDescription = policyViolations.advance_request_desired_state.action_description;
+                return this.advanceRequestPolicyService.getPolicyRules(policyViolations);
+              }),
+              catchError((err) => {
+                if (err.status === 500) {
+                  return of([]);
+                } else {
+                  return throwError(err);
+                }
+              }),
+              switchMap((policyRules: string[]) => {
+                if (policyRules.length > 0) {
+                  return this.showPolicyModal(policyRules, policyViolationActionDescription, event, advanceRequest);
+                } else {
+                  return this.saveAndSubmit(event, advanceRequest).pipe(
+                    finalize(() => {
+                      this.fg.reset();
+                      if (event === 'draft') {
+                        this.saveDraftAdvanceLoading = false;
+                      } else {
+                        this.saveAdvanceLoading = false;
+                      }
+                      if (this.from === 'TEAM_ADVANCE') {
+                        return this.router.navigate(['/', 'enterprise', 'team_advance']);
+                      } else {
+                        return this.router.navigate(['/', 'enterprise', 'my_advances']);
+                      }
+                    })
+                  );
+                }
+              })
+            );
+          })
+        )
+        .subscribe(noop);
     } else {
       this.fg.markAllAsTouched();
       const formContainer = this.formContainer.nativeElement as HTMLElement;
@@ -290,7 +303,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         const invalidElement = formContainer.querySelector('.ng-invalid');
         if (invalidElement) {
           invalidElement.scrollIntoView({
-            behavior: 'smooth'
+            behavior: 'smooth',
           });
         }
       }
@@ -299,9 +312,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   generateAdvanceRequestFromFg(extendedAdvanceRequest$) {
     return forkJoin({
-      extendedAdvanceRequest: extendedAdvanceRequest$
+      extendedAdvanceRequest: extendedAdvanceRequest$,
     }).pipe(
-      map(res => {
+      map((res) => {
         const advanceRequest: any = res.extendedAdvanceRequest;
 
         return {
@@ -313,20 +326,21 @@ export class AddEditAdvanceRequestPage implements OnInit {
           org_user_id: advanceRequest.org_user_id,
           notes: this.fg.value.notes,
           source: 'MOBILE',
-          custom_field_values: this.fg.value.custom_field_values
+          custom_field_values: this.fg.value.custom_field_values,
         };
       })
     );
   }
 
   modifyAdvanceRequestCustomFields(customFields): CustomField[] {
-    customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
-    customFields = customFields.map(customField => {
+    customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
+    customFields = customFields.map((customField) => {
       if (customField.type === 'DATE' && customField.value) {
         const updatedDate = new Date(customField.value);
-        customField.value = updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
+        customField.value =
+          updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
       }
-      return {id: customField.id, name: customField.name, value: customField.value};
+      return { id: customField.id, name: customField.name, value: customField.value };
     });
     this.customFieldValues = customFields;
     return this.customFieldValues;
@@ -334,18 +348,14 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   fileAttachments() {
     const fileObjs = [];
-    this.dataUrls.map(dataUrl => {
-      dataUrl.type = (dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf') ? 'pdf' : 'image';
+    this.dataUrls.map((dataUrl) => {
+      dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
       if (!dataUrl.id) {
         fileObjs.push(from(this.transactionsOutboxService.fileUpload(dataUrl.url, dataUrl.type)));
       }
     });
 
-    return iif(
-      () => fileObjs.length !== 0,
-      forkJoin(fileObjs),
-      of(null)
-    );
+    return iif(() => fileObjs.length !== 0, forkJoin(fileObjs), of(null));
   }
 
   async addAttachments(event) {
@@ -354,7 +364,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     const cameraOptionsPopup = await this.popoverController.create({
       component: CameraOptionsPopupComponent,
-      cssClass: 'camera-options-popover'
+      cssClass: 'camera-options-popover',
     });
 
     await cameraOptionsPopup.present();
@@ -365,19 +375,17 @@ export class AddEditAdvanceRequestPage implements OnInit {
       this.dataUrls.push({
         type: data.type,
         url: data.dataUrl,
-        thumbnail: data.dataUrl
+        thumbnail: data.dataUrl,
       });
     }
-
   }
 
   async viewAttachments() {
-
     let attachments = this.dataUrls;
 
-    attachments = attachments.map(attachment => {
+    attachments = attachments.map((attachment) => {
       if (!attachment.id) {
-        attachment.type = (attachment.type === 'application/pdf' || attachment.type === 'pdf') ? 'pdf' : 'image';
+        attachment.type = attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image';
       }
       return attachment;
     });
@@ -385,11 +393,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
       component: FyViewAttachmentComponent,
       componentProps: {
         attachments,
-        canEdit: true
+        canEdit: true,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await attachmentsModal.present();
@@ -420,13 +428,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const ext = this.getReceiptExtension(file.name);
     const res = {
       type: 'unknown',
-      thumbnail: 'img/fy-receipt.svg'
+      thumbnail: 'img/fy-receipt.svg',
     };
 
-    if (ext && (['pdf'].indexOf(ext) > -1)) {
+    if (ext && ['pdf'].indexOf(ext) > -1) {
       res.type = 'pdf';
       res.thumbnail = 'img/fy-pdf.svg';
-    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
       res.type = 'image';
       res.thumbnail = file.url;
     }
@@ -436,35 +444,61 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   getAttachedReceipts(id) {
     return this.fileService.findByAdvanceRequestId(id).pipe(
-      switchMap(fileObjs => from(fileObjs)),
-      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
-        map(downloadUrl => {
-          fileObj.url = downloadUrl;
-          const details = this.getReceiptDetails(fileObj);
-          fileObj.type = details.type;
-          fileObj.thumbnail = details.thumbnail;
-          return fileObj;
-        })
-      )),
-      reduce((acc, curr) => acc.concat(curr), []),
+      switchMap((fileObjs) => from(fileObjs)),
+      concatMap((fileObj: any) =>
+        this.fileService.downloadUrl(fileObj.id).pipe(
+          map((downloadUrl) => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        )
+      ),
+      reduce((acc, curr) => acc.concat(curr), [])
     );
   }
 
-  async delete() {
-    const id = this.activatedRoute.snapshot.params.id;
-
-    const popupResults = await this.popupService.showPopup({
-      header: 'Delete Advance Request',
-      message: 'Are you sure you want to delete this request ?',
-      primaryCta: {
-        text: 'DELETE'
-      }
+  async openCommentsModal() {
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'advance_requests',
+        objectId: this.id,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
-    if (popupResults === 'primary') {
-      this.advanceRequestService.delete(id).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_advances']);
-      });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment();
+    } else {
+      this.trackingService.viewComment();
+    }
+  }
+
+  async delete() {
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header: 'Delete Advance Request',
+        body: 'Are you sure you want to delete this request?',
+        deleteMethod: () => this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id),
+      },
+    });
+
+    await deletePopover.present();
+
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      this.router.navigate(['/', 'enterprise', 'my_advances']);
     }
   }
 
@@ -477,22 +511,22 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.dataUrls = [];
     this.customFieldValues = [];
     if (this.mode === 'edit') {
-      this.actions$ = this.advanceRequestService.getActions(this.activatedRoute.snapshot.params.id).pipe(
-        shareReplay(1)
-      );
+      this.actions$ = this.advanceRequestService
+        .getActions(this.activatedRoute.snapshot.params.id)
+        .pipe(shareReplay(1));
 
-      this.actions$.subscribe(res => {
+      this.actions$.subscribe((res) => {
         this.advanceActions = res;
       });
     }
 
     const editAdvanceRequestPipe$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id)),
-      map(res => {
+      map((res) => {
         this.fg.patchValue({
           currencyObj: {
             currency: res.areq.currency,
-            amount: res.areq.amount
+            amount: res.areq.amount,
           },
           purpose: res.areq.purpose,
           notes: res.areq.notes,
@@ -500,9 +534,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
         if (res.areq.project_id) {
           const projectId = res.areq.project_id;
-          this.projectService.getbyId(projectId).subscribe(selectedProject => {
+          this.projectService.getbyId(projectId).subscribe((selectedProject) => {
             this.fg.patchValue({
-              project: selectedProject
+              project: selectedProject,
             });
           });
         }
@@ -510,7 +544,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         if (res.areq.custom_field_values) {
           this.modifyAdvanceRequestCustomFields(res.areq.custom_field_values);
         }
-        this.getAttachedReceipts(this.activatedRoute.snapshot.params.id).subscribe(files => {
+        this.getAttachedReceipts(this.activatedRoute.snapshot.params.id).subscribe((files) => {
           this.dataUrls = files;
         });
         return res.areq;
@@ -522,54 +556,64 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const newAdvanceRequestPipe$ = forkJoin({
       orgUserSettings: orgUserSettings$,
       homeCurrency: this.homeCurrency$,
-      eou: eou$
+      eou: eou$,
     }).pipe(
-      map(res => {
+      map((res) => {
         const { orgUserSettings, homeCurrency, eou } = res;
         const advanceRequest = {
           org_user_id: eou.ou.id,
           currency: orgUserSettings.currency_settings.preferred_currency || homeCurrency,
           source: 'MOBILE',
-          created_at: new Date()
+          created_at: new Date(),
         };
         return advanceRequest;
       })
     );
 
-    this.extendedAdvanceRequest$ = iif(() => this.activatedRoute.snapshot.params.id, editAdvanceRequestPipe$, newAdvanceRequestPipe$);
+    this.extendedAdvanceRequest$ = iif(
+      () => this.activatedRoute.snapshot.params.id,
+      editAdvanceRequestPipe$,
+      newAdvanceRequestPipe$
+    );
     this.isProjectsEnabled$ = orgSettings$.pipe(
-      map(orgSettings => orgSettings.projects && orgSettings.projects.enabled)
+      map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
     );
     this.projects$ = this.offlineService.getProjects();
 
     this.isProjectsVisible$ = this.offlineService.getOrgSettings().pipe(
-      switchMap((orgSettings) => iif(
-        () => orgSettings.advanced_projects.enable_individual_projects,
-        this.offlineService.getOrgUserSettings().pipe(
-          map((orgUserSettings: any) => orgUserSettings.project_ids || [])
-        ),
-        this.projects$
-      )),
-      map(projects => projects.length > 0)
+      switchMap((orgSettings) =>
+        iif(
+          () => orgSettings.advanced_projects.enable_individual_projects,
+          this.offlineService
+            .getOrgUserSettings()
+            .pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
+          this.projects$
+        )
+      ),
+      map((projects) => projects.length > 0)
     );
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
       map((customFields: any[]) => {
         const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
         customFieldsFormArray.clear();
-        customFields.sort((a, b) => (a.id > b.id) ? 1 : -1);
+        customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
         for (const customField of customFields) {
           let value;
-          this.customFieldValues.filter(customFieldValue => {
+          this.customFieldValues.filter((customFieldValue) => {
             if (customFieldValue.id === customField.id) {
               value = customFieldValue.value;
             }
           });
+          if (customField.type === 'BOOLEAN') {
+            customField.mandatory = false;
+            value = false;
+          }
           customFieldsFormArray.push(
             this.formBuilder.group({
               id: customField.id,
               name: customField.name,
-              value: [value, customField.mandatory && Validators.required]
+              value: [value, customField.mandatory && Validators.required],
             })
           );
         }
@@ -578,7 +622,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
           customField.control = customFieldsFormArray.at(i);
 
           if (customField.options) {
-            customField.options = customField.options.map(option => ({ label: option, value: option }));
+            customField.options = customField.options.map((option) => ({ label: option, value: option }));
           }
           return customField;
         });
@@ -598,5 +642,4 @@ export class AddEditAdvanceRequestPage implements OnInit {
       }
     });
   }
-
 }

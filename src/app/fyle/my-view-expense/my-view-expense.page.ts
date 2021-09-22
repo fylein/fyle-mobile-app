@@ -1,9 +1,9 @@
-import {Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef} from '@angular/core';
-import {from, forkJoin, Observable, concat, Subject} from 'rxjs';
+import { Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { from, forkJoin, Observable, concat, Subject, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import {ActivatedRoute, Router} from '@angular/router';
-import {switchMap, finalize, map, shareReplay, concatMap, tap, reduce, takeUntil} from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
+import { switchMap, finalize, map, shareReplay, concatMap, tap, reduce, takeUntil } from 'rxjs/operators';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
@@ -11,7 +11,7 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { ModalController, NavController, IonContent } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { StatusService } from 'src/app/core/services/status.service';
-import {NetworkService} from '../../core/services/network.service';
+import { NetworkService } from '../../core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
@@ -21,7 +21,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   styleUrls: ['./my-view-expense.page.scss'],
 })
 export class MyViewExpensePage implements OnInit {
-
   @ViewChild('comments') commentsContainer: ElementRef;
 
   etxn$: Observable<Expense>;
@@ -50,6 +49,8 @@ export class MyViewExpensePage implements OnInit {
 
   currencyOptions;
 
+  policyDetails;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -64,7 +65,7 @@ export class MyViewExpensePage implements OnInit {
     private networkService: NetworkService,
     private modalProperties: ModalPropertiesService,
     private router: Router
-  ) { }
+  ) {}
 
   isNumber(val) {
     return typeof val === 'number';
@@ -85,7 +86,7 @@ export class MyViewExpensePage implements OnInit {
         commentsContainer.scrollIntoView({
           behavior: 'smooth',
           block: 'nearest',
-          inline: 'start'
+          inline: 'start',
         });
       }
     }
@@ -110,14 +111,13 @@ export class MyViewExpensePage implements OnInit {
     this.onPageExit.next();
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
     const txId = this.activatedRoute.snapshot.params.id;
     this.currencyOptions = {
-      disabled: true
+      disabled: true,
     };
 
     this.etxnWithoutCustomProperties$ = from(this.loaderService.showLoader()).pipe(
@@ -126,52 +126,58 @@ export class MyViewExpensePage implements OnInit {
     );
 
     this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap(etxn => this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)),
+      concatMap((etxn) =>
+        this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)
+      ),
       shareReplay(1)
     );
 
-    this.etxn$ = forkJoin(
-      [
-        this.etxnWithoutCustomProperties$,
-        this.customProperties$
-      ]).pipe(
-      map(res => {
+    this.etxn$ = forkJoin([this.etxnWithoutCustomProperties$, this.customProperties$]).pipe(
+      map((res) => {
         res[0].tx_custom_properties = res[1];
         return res[0];
       }),
       finalize(() => this.loaderService.hideLoader())
     );
 
-    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(txId);
+    if (txId) {
+      this.policyViloations$ = this.policyService.getPolicyViolationRules(txId);
+    } else {
+      this.policyViloations$ = of(null);
+    }
+
     this.comments$ = this.statusService.find('transactions', txId);
 
     this.isAmountCapped$ = this.etxn$.pipe(
-      map(etxn => this.isNumber(etxn.tx_admin_amount) || this.isNumber(etxn.tx_policy_amount))
+      map((etxn) => this.isNumber(etxn.tx_admin_amount) || this.isNumber(etxn.tx_policy_amount))
     );
 
     const orgSettings$ = this.offlineService.getOrgSettings();
 
-    orgSettings$.subscribe(orgSettings => {
+    orgSettings$.subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
     });
 
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
-      map(etxn => this.isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001),
+      map((etxn) => this.isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001)
     );
 
+    this.getPolicyDetails(txId);
 
     const editExpenseAttachments = this.etxn$.pipe(
-      switchMap(etxn => this.fileService.findByTransactionId(etxn.tx_id)),
-      switchMap(fileObjs => from(fileObjs)),
-      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
-        map(downloadUrl => {
-          fileObj.url = downloadUrl;
-          const details = this.getReceiptDetails(fileObj);
-          fileObj.type = details.type;
-          fileObj.thumbnail = details.thumbnail;
-          return fileObj;
-        })
-      )),
+      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx_id)),
+      switchMap((fileObjs) => from(fileObjs)),
+      concatMap((fileObj: any) =>
+        this.fileService.downloadUrl(fileObj.id).pipe(
+          map((downloadUrl) => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        )
+      ),
       reduce((acc, curr) => acc.concat(curr), [])
     );
 
@@ -197,13 +203,13 @@ export class MyViewExpensePage implements OnInit {
     const ext = this.getReceiptExtension(file.name);
     const res = {
       type: 'unknown',
-      thumbnail: 'img/fy-receipt.svg'
+      thumbnail: 'img/fy-receipt.svg',
     };
 
-    if (ext && (['pdf'].indexOf(ext) > -1)) {
+    if (ext && ['pdf'].indexOf(ext) > -1) {
       res.type = 'pdf';
       res.thumbnail = 'img/fy-pdf.svg';
-    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
       res.type = 'image';
       res.thumbnail = file.url;
     }
@@ -212,21 +218,32 @@ export class MyViewExpensePage implements OnInit {
   }
 
   viewAttachments() {
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.attachments$),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(async (attachments) => {
-      const attachmentsModal = await this.modalController.create({
-        component: FyViewAttachmentComponent,
-        componentProps: {
-          attachments
-        },
-        mode: 'ios',
-        presentingElement: await this.modalController.getTop(),
-        ...this.modalProperties.getModalDefaultProperties()
-      });
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.attachments$),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(async (attachments) => {
+        const attachmentsModal = await this.modalController.create({
+          component: FyViewAttachmentComponent,
+          componentProps: {
+            attachments,
+          },
+          mode: 'ios',
+          presentingElement: await this.modalController.getTop(),
+          ...this.modalProperties.getModalDefaultProperties(),
+        });
 
-      await attachmentsModal.present();
-    });
+        await attachmentsModal.present();
+      });
+  }
+
+  getPolicyDetails(txId) {
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId)).pipe()
+      .subscribe(details => {
+        this.policyDetails = details;
+      });
+    }
   }
 }

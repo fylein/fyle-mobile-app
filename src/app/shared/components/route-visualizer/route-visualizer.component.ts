@@ -10,7 +10,6 @@ import { MileageLocation } from './mileage-locations';
   styleUrls: ['./route-visualizer.component.scss'],
 })
 export class RouteVisualizerComponent implements OnInit, OnChanges {
-
   @Input() mileageLocations: MileageLocation[];
 
   @Output() mapClick = new EventEmitter<void>();
@@ -44,11 +43,11 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    this.locationService.getCurrentLocation().subscribe(geoLocationPosition => {
+    this.locationService.getCurrentLocation().subscribe((geoLocationPosition) => {
       if (geoLocationPosition) {
         this.currentLocation = {
           lat: geoLocationPosition.coords?.latitude,
-          lng: geoLocationPosition.coords?.longitude
+          lng: geoLocationPosition.coords?.longitude,
         };
       }
     });
@@ -56,9 +55,9 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.showEmptyMap = false;
-    const transformedLocations = this.mileageLocations.map(mileageLocation => ({
+    const transformedLocations = this.mileageLocations.map((mileageLocation) => ({
       lat: mileageLocation?.latitude,
-      lng: mileageLocation?.longitude
+      lng: mileageLocation?.longitude,
     }));
 
     this.directionsResults$ = of(null);
@@ -68,10 +67,12 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
       this.destination = null;
       this.waypoints = null;
 
-      if (transformedLocations.every(location => !location.lat || !location.lng) || transformedLocations.length === 0) {
+      if (
+        transformedLocations.every((location) => !location.lat || !location.lng) ||
+        transformedLocations.length === 0
+      ) {
         this.showEmptyMap = true;
       }
-
     } else {
       if (transformedLocations?.length >= 2) {
         this.origin = transformedLocations[0];
@@ -80,7 +81,7 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
           const copyOfMileageLocations = cloneDeep(transformedLocations);
           copyOfMileageLocations.shift();
           copyOfMileageLocations.pop();
-          this.waypoints = copyOfMileageLocations.map(loc => ({ location: { ...loc } }));
+          this.waypoints = copyOfMileageLocations.map((loc) => ({ location: { ...loc } }));
         } else {
           this.waypoints = [];
         }

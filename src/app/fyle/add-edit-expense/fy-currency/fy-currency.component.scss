@@ -18,6 +18,7 @@
     border: none;
     width: 100%;
     margin: 6px 0;
+    padding-left: 0;
   }
 
   &--input-invalid {
@@ -43,6 +44,7 @@
 
   &--amount {
     font-size: 20px;
+    line-height: 1.2;
     font-weight: 500;
     margin-top: 0;
   }
@@ -66,10 +68,11 @@
     border: 1px solid $grey-lighter;
     border-radius: 8px;
     padding: 8px;
+    margin-top: 16px;
   }
-  
+
   &--exchange-rate-container.expanded {
-    margin: 20px 0 0 -29%;;
+    margin: 20px 0 0 -29%;
   }
 
   &--exchange-rate-icon {

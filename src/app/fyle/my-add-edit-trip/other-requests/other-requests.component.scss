@@ -1,7 +1,6 @@
-@import "../../../../theme/colors.scss";
+@import '../../../../theme/colors.scss';
 
 .other-details {
-
   &--container {
     padding: 4px 16px;
   }
@@ -14,7 +13,6 @@
     &:last-child {
       margin: 16px 0 76px 0;
     }
-
   }
 
   &--element-container {

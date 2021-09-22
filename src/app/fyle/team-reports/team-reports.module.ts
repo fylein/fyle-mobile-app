@@ -16,7 +16,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 
-
 @NgModule({
   imports: [
     CommonModule,
@@ -32,13 +31,13 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     ReactiveFormsModule,
     MatRippleModule,
     MatNativeDateModule,
-    MatDatepickerModule
+    MatDatepickerModule,
   ],
   declarations: [
     TeamReportsPage,
     TeamReportCardComponent,
     TeamReportsSortFilterComponent,
-    TeamReportsSearchFilterComponent
-  ]
+    TeamReportsSearchFilterComponent,
+  ],
 })
 export class TeamReportsPageModule {}

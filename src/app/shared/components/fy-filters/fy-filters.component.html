@@ -5,10 +5,8 @@
         <ion-icon [src]="'../../../../assets/svg/fy-chevron-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="fy-filters--title" mode="md">
-      Filter and Sort
-    </ion-title>
-    <ion-buttons mode="md" slot="end">
+    <ion-title class="fy-filters--title" mode="md"> Filter and Sort </ion-title>
+    <ion-buttons *ngIf="getNoOfFilters()" mode="md" slot="end">
       <ion-button class="fy-filters--clear-all" mode="md" color="fy-primary" (click)="clearAll()">
         Clear All
       </ion-button>
@@ -19,21 +17,43 @@
   <ion-grid class="fy-filters--grid">
     <ion-row class="fy-filters--row">
       <ion-col size="6" class="fy-filters--filter-col">
-        <ion-item mode="md" class="fy-filters--filter-item" [ngClass]="{'fy-filters--filter-item__active': activeFilter.name === filterDefinition.name}" *ngFor="let filterDefinition of filterOptions" button (click)="onFilterClick(filterDefinition)">
+        <ion-item
+          mode="md"
+          class="fy-filters--filter-item"
+          [ngClass]="{ 'fy-filters--filter-item__active': activeFilter.name === filterDefinition.name }"
+          *ngFor="let filterDefinition of filterOptions"
+          button
+          (click)="onFilterClick(filterDefinition)"
+        >
           <ion-label>
             <div class="fy-filters--filter-item-label">
               <div>
-                {{filterDefinition.name}}
+                {{ filterDefinition.name }}
               </div>
               <div>
-                <ng-container *ngIf="filterDefinition.optionType === FilterOptionType.singleselect && currentFilterValueMap[filterDefinition.name]">
+                <ng-container
+                  *ngIf="
+                    filterDefinition.optionType === FilterOptionType.singleselect &&
+                    currentFilterValueMap[filterDefinition.name]
+                  "
+                >
                   1
                 </ng-container>
-                <ng-container *ngIf="filterDefinition.optionType === FilterOptionType.date && currentFilterValueMap[filterDefinition.name]">
+                <ng-container
+                  *ngIf="
+                    filterDefinition.optionType === FilterOptionType.date &&
+                    currentFilterValueMap[filterDefinition.name]
+                  "
+                >
                   1
                 </ng-container>
-                <ng-container *ngIf="filterDefinition.optionType === FilterOptionType.multiselect && currentFilterValueMap[filterDefinition.name]?.length">
-                  {{currentFilterValueMap[filterDefinition.name]?.length}}
+                <ng-container
+                  *ngIf="
+                    filterDefinition.optionType === FilterOptionType.multiselect &&
+                    currentFilterValueMap[filterDefinition.name]?.length
+                  "
+                >
+                  {{ currentFilterValueMap[filterDefinition.name]?.length }}
                 </ng-container>
               </div>
             </div>
@@ -43,51 +63,71 @@
 
       <ion-col size="6">
         <ng-container *ngIf="activeFilter.optionType === FilterOptionType.multiselect">
-          <ion-item class="fy-filters--filter-option" mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
-            <ng-container *ngIf="currentFilterValueMap[activeFilter.name]?.includes(option.value); else uncheckedCheckbox">
+          <ion-item
+            class="fy-filters--filter-option"
+            mode="md"
+            *ngFor="let option of activeFilter.options"
+            button
+            (click)="switchFilter(activeFilter, option)"
+          >
+            <ng-container
+              *ngIf="currentFilterValueMap[activeFilter.name]?.includes(option.value); else uncheckedCheckbox"
+            >
               <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/fy-checkbox-checked.svg"></ion-icon>
             </ng-container>
             <ng-template #uncheckedCheckbox>
               <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/fy-checkbox-unchecked.svg"></ion-icon>
             </ng-template>
-            {{option.label}}
+            {{ option.label }}
           </ion-item>
         </ng-container>
 
         <ng-container *ngIf="activeFilter.optionType === FilterOptionType.singleselect">
-          <ion-item class="fy-filters--filter-option" mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
+          <ion-item
+            class="fy-filters--filter-option"
+            mode="md"
+            *ngFor="let option of activeFilter.options"
+            button
+            (click)="switchFilter(activeFilter, option)"
+          >
             <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === option.value; else uncheckedSSRadioBtn">
               <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-checked.svg"></ion-icon>
             </ng-container>
             <ng-template #uncheckedSSRadioBtn>
               <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-unchecked.svg"></ion-icon>
             </ng-template>
-            {{option.label}}
+            {{ option.label }}
           </ion-item>
         </ng-container>
 
         <ng-container *ngIf="activeFilter.optionType === FilterOptionType.date">
-          <ion-item class="fy-filters--filter-option" mode="md" *ngFor="let option of activeFilter.options" button (click)="switchFilter(activeFilter, option)">
+          <ion-item
+            class="fy-filters--filter-option"
+            mode="md"
+            *ngFor="let option of activeFilter.options"
+            button
+            (click)="switchFilter(activeFilter, option)"
+          >
             <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === option.value; else uncheckedSSRadioBtn">
               <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-checked.svg"></ion-icon>
             </ng-container>
             <ng-template #uncheckedSSRadioBtn>
               <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-unchecked.svg"></ion-icon>
             </ng-template>
-            {{option.label}}
+            {{ option.label }}
           </ion-item>
           <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === 'custom'">
             <div class="fy-filters--custom-date-filters">
               <mat-form-field>
                 <mat-label>Start date</mat-label>
-                <input matInput [(ngModel)]="startDate" (ngModelChange)="onDateChange()" [matDatepicker]="picker1">
+                <input matInput [(ngModel)]="startDate" (ngModelChange)="onDateChange()" [matDatepicker]="picker1" />
                 <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                 <mat-datepicker #picker1></mat-datepicker>
               </mat-form-field>
 
               <mat-form-field>
                 <mat-label>End date</mat-label>
-                <input matInput [(ngModel)]="endDate" (ngModelChange)="onDateChange()" [matDatepicker]="picker2">
+                <input matInput [(ngModel)]="endDate" (ngModelChange)="onDateChange()" [matDatepicker]="picker2" />
                 <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
                 <mat-datepicker #picker2></mat-datepicker>
               </mat-form-field>
@@ -101,10 +141,14 @@
 <ion-footer>
   <ion-toolbar class="footer-safe-area">
     <div class="fy-filters--footer-toolbar">
-      <ion-button class="fy-filters--cancel text-capitalize" (click)="cancel()" fill="clear">
-        Cancel
-      </ion-button>
-      <ion-button class="fy-filters--save text-capitalize" (click)="save()" expand="block" color="fyle-primary" fill="solid">
+      <ion-button class="fy-filters--cancel text-capitalize" (click)="cancel()" fill="clear"> Cancel </ion-button>
+      <ion-button
+        class="fy-filters--save text-capitalize"
+        (click)="save()"
+        expand="block"
+        color="fyle-primary"
+        fill="solid"
+      >
         Save
       </ion-button>
     </div>

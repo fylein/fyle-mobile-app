@@ -1,23 +1,37 @@
+@import '../../../../theme/colors.scss';
+
 .policy-violation-info {
-
   &--container {
-    border-radius: 6px;
-    background: #f2f2f2;
-    padding: 8px 16px;
-    margin-bottom: 8px;
-    margin-top: 8px;
+    border-radius: 8px;
+    background: $pure-white;
+    border: 1px solid $grey-lighter;
+    padding: 12px 10px;
+    margin: 8px 0;
   }
 
-  &--icon {
-    font-size: 16px;
-    color: #ababab;
-    position: relative;
-    top: 2px;
+  &--block {
+    display: flex;
   }
 
-  &--text {
-    font-size: 14px;
-    color: #4a4a4a;
+  &--list-container {
+    width: 100%;
   }
 
+  &--list {
+    margin: 0;
+    padding-left: 28px;
+    list-style-type: disc;
+    font-size: 12px;
+  }
+
+  &--content {
+    font-size: 12px;
+    color: $blue-black;
+  }
+
+  &--view-more {
+    color: $primary;
+    margin-left: 4px;
+    font-size: 12px;
+  }
 }

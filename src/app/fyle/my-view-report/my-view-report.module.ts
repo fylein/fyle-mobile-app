@@ -29,14 +29,14 @@ import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubm
     MatButtonModule,
     MatRippleModule,
     MatInputModule,
-    MatFormFieldModule
+    MatFormFieldModule,
   ],
   declarations: [
     MyViewReportPage,
     MyViewReportEtxnCardComponent,
     ShareReportComponent,
     SubmitReportPopoverComponent,
-    ResubmitReportPopoverComponent
-  ]
+    ResubmitReportPopoverComponent,
+  ],
 })
-export class MyViewReportPageModule { }
+export class MyViewReportPageModule {}

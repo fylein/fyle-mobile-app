@@ -2,13 +2,14 @@ $black: #161528 !default;
 $black-light: #5a5d72 !default;
 $black-2: #161528 !default;
 $grey-light: #a9acbc !default;
+$grey-light-2: #4a4a4a !default;
 $white: #fafafa !default;
 $grey-lightest: #e6e6e6 !default;
 $pure-white: #fff !default;
 $blue-black: #2c304e !default;
 $translucent-white: #ffffff66 !default;
 $translucent-white-2: #ffffff99 !default;
-$translucent-black: rgba(0, 0, 0, 0.2)!default;
+$translucent-black: rgba(0, 0, 0, 0.2) !default;
 $grey: #dfdfe2 !default;
 $translucent-grey: #dfdfe280 !default;
 $grey-2: rgba(223, 223, 226, 0.7) !default;
@@ -46,12 +47,11 @@ $black-3: #0000004d !default;
 $black-4: rgba(0, 0, 0, 0.3) !default;
 $dark-grey: #414562 !default;
 $transparent-grey: rgba(255, 255, 255, 0.12) !default;
-$transparent-pearl-grey: rgba(215, 215, 215, 0.5) !default; 
+$transparent-pearl-grey: rgba(215, 215, 215, 0.5) !default;
 
 $pure-black: #000 !default;
 
-
 $pink-gradient: linear-gradient(137.88deg, $brand-primary 14.22%, $brand-primary-light 85.5%);
-$pink-gradient-1: linear-gradient(162.38deg, #FF3366 3.01%, #FE5196 111.5%);
+$pink-gradient-1: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
 $pink-gradient-2: linear-gradient(162.38deg, $brand-primary 3.01%, $brand-primary-light 111.5%);
-$pink-gradient-3: linear-gradient(90deg, #FF758C 0%, #FF7EB3 100%);
+$pink-gradient-3: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);

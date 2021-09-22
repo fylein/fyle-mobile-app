@@ -1,7 +1,20 @@
-<div *ngIf="policyViolations.length > 0" class="policy-violation-info--container">
-  <mat-icon class="policy-violation-info--icon">warning</mat-icon>
-  <span class="policy-violation-info--text" *ngIf="policyViolations.length === 1">
-    {{policyViolations[0]?.st_comment }}
-  </span>
-  <span class="policy-violation-info--text" *ngIf="policyViolations.length > 1">{{policyViolations.length}} policy violations with this expense</span>
+<div *ngIf="showPolicyInfo" class="policy-violation-info--container">
+  <div class="policy-violation-info--block">
+    <mat-icon class="icon--alert-warning" svgIcon="danger"></mat-icon>
+    <div class="policy-violation-info--list-container">
+      <ul class="policy-violation-info--list">
+        <li *ngIf="policyViolations.length === 1">
+          <span class="policy-violation-info--content">{{policyViolations.length}} policy is violated by this expense.</span>
+          <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View details</span>
+        </li>
+        <li *ngIf="policyViolations.length > 1">
+          <span class="policy-violation-info--content">{{policyViolations.length}} policies were violated by this expense.</span>
+          <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View details</span>
+        </li>
+        <li *ngIf="criticalPolicyViolated" class="policy-violation-info--content">
+          This expense has a critical policy violation. It cannot be added to a report until resolved.
+        </li>
+      </ul>
+    </div>
+  </div>
 </div>

@@ -6,8 +6,8 @@ import { ViewTeamAdvancePage } from './view-team-advance.page';
 const routes: Routes = [
   {
     path: '',
-    component: ViewTeamAdvancePage
-  }
+    component: ViewTeamAdvancePage,
+  },
 ];
 
 @NgModule({

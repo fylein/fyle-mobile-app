@@ -17,13 +17,11 @@ export class ReportSummaryComponent implements OnInit {
 
   @Input() action;
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   createReport() {
     this.popoverController.dismiss({
-      saveReport: true
+      saveReport: true,
     });
   }
 
@@ -31,5 +29,5 @@ export class ReportSummaryComponent implements OnInit {
     this.popoverController.dismiss();
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 }

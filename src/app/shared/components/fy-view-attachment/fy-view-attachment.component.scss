@@ -1,11 +1,40 @@
+@import '../../../../theme/colors.scss';
+
 .view-attachments {
+  &--toolbar {
+    border-bottom: 1px solid $grey-lighter;
+    margin-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  &--title {
+    font-size: 20px;
+    line-height: 1.3;
+    color: $black;
+  }
+
+  &--sub-title {
+    font-size: 12px;
+    color: $black-light;
+    line-height: 1.25;
+    margin-top: 8px;
+  }
+
+  &--ion-buttons {
+    margin-bottom: auto;
+    min-width: 40px;
+  
+    &__delete {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
   &--container {
     height: 80vh;
     width: 90vw;
-    margin: 16px;
-    border: 1px solid;
+    margin: 16px 16px 4px;
     background-color: white !important;
-    border-radius: 4px;
     z-index: 12;
   }
 
@@ -15,42 +44,37 @@
   }
 
   &--go-back {
-    position: absolute;
-    top: 34vh;
+    position: fixed;
+    top: 50vh;
     left: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
-    text-align: center;
-    border-radius: 50%;
-    font-size: 18px;
-    padding: 12px;
-    height: 40px;
-    width: 40px;
-    color: white;
+    padding: 20px 20px 20px 0;
+    &__btn {
+      background-color: rgba(0, 0, 0, 0.5);
+      text-align: center;
+      border-radius: 50%;
+      font-size: 18px;
+      padding: 12px;
+      height: 40px;
+      width: 40px;
+      color: white;
+    }
   }
 
   &--go-forward {
-    position: absolute;
-    top: 34vh;
+    position: fixed;
+    top: 50vh;
     right: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
-    text-align: center;
-    border-radius: 50%;
-    font-size: 18px;
-    padding: 12px;
-    height: 40px;
-    width: 40px;
-    color: white;
-  }
-
-  &--cta-container {
-    margin: 12px;
-  }
-
-  &--delete {
-    height: 48px;
-    --border-radius: 4px !important;
-    width: 100%;
-    margin: 0;
+    padding: 20px 0px 20px 20px;
+    &__btn {
+      background-color: rgba(0, 0, 0, 0.5);
+      text-align: center;
+      border-radius: 50%;
+      font-size: 18px;
+      padding: 12px;
+      height: 40px;
+      width: 40px;
+      color: white;
+    }
   }
 
   &--pdf-controls {
@@ -68,10 +92,8 @@
     color: #4a4a4a;
   }
 
-  &--title {
-    font-weight: 400;
-    margin-left: -12px;
-    padding-right: 28px;
+  &--footer-container {
+    height: 12px;
+    width: 100%;
   }
-
 }

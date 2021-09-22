@@ -8,10 +8,12 @@
     "start": "ng serve",
     "build": "ng build",
     "appflow": "sh build_appflow.sh",
-    "test": "ng test",
+    "test": "ng test --watch=false --browsers=ChromeHeadless",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "postinstall": "npx jetify"
+    "postinstall": "npx jetify",
+    "format:check": "prettier --write ./src",
+    "prepare": "husky install"
   },
   "resolutions": {
     "webpack": "^5.0.0"
@@ -42,9 +44,10 @@
     "@ionic-native/status-bar": "^5.0.0",
     "@ionic/angular": "^5.6.9",
     "@ionic/pwa-elements": "^3.0.1",
-    "@sentry/angular": "^6.7.2",
+    "@sentry/angular": "^6.12.0",
     "@sentry/cli": "^1.68.0",
-    "@sentry/tracing": "^6.7.2",
+    "@sentry/tracing": "^6.12.0",
+    "@types/googlemaps": "3.39.12",
     "@types/hammerjs": "^2.0.39",
     "cordova-plugin-googleplus": "^8.5.0",
     "cordova-plugin-inappbrowser": "^4.0.0",
@@ -87,6 +90,7 @@
     "eslint-plugin-jsdoc": "latest",
     "eslint-plugin-max-params-no-constructor": "^0.0.4",
     "eslint-plugin-prefer-arrow": "latest",
+    "husky": "^7.0.2",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~6.3.4",
@@ -94,6 +98,8 @@
     "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
+    "lint-staged": "^11.1.2",
+    "prettier": "^2.3.2",
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "typescript": "~4.2.4"
@@ -101,5 +107,16 @@
   "description": "An Ionic project",
   "config": {
     "ionic_generate_source_map": "true"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "singleQuote": true,
+    "useTabs": false,
+    "tabWidth": 2,
+    "semi": true,
+    "bracketSpacing": true
+  },
+  "lint-staged": {
+    "*.{ts,scss,html}": "prettier --write"
   }
 }

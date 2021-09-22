@@ -1,13 +1,13 @@
-import {EventEmitter, Injectable} from '@angular/core';
-import {Plugins} from '@capacitor/core';
-import {concat, from, of} from 'rxjs';
-import {delay, map, pairwise, shareReplay, startWith, switchMap} from 'rxjs/operators';
-import {Observable} from 'rxjs/internal/Observable';
-import {ConnectionMessageStatus} from '../../shared/components/fy-connection/connection-status.enum';
+import { EventEmitter, Injectable } from '@angular/core';
+import { Plugins } from '@capacitor/core';
+import { concat, from, of } from 'rxjs';
+import { delay, map, pairwise, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { Observable } from 'rxjs/internal/Observable';
+import { ConnectionMessageStatus } from '../../shared/components/fy-connection/connection-status.enum';
 const { Network } = Plugins;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NetworkService {
   isConnected$: Observable<boolean>;
@@ -17,9 +17,7 @@ export class NetworkService {
   }
 
   isOnline() {
-    return from(Network.getStatus()).pipe(
-      map(networkStatus => networkStatus.connected)
-    );
+    return from(Network.getStatus()).pipe(map((networkStatus) => networkStatus.connected));
   }
 
   connectivityWatcher(emitter: EventEmitter<boolean>) {
@@ -42,9 +40,7 @@ export class NetworkService {
         if (previousConnectionStatus === false && currentConnectionStatus === true) {
           return concat(
             of(ConnectionMessageStatus.onlineMessageShown),
-            of(ConnectionMessageStatus.onlineMessageHidden).pipe(
-              delay(3000)
-            )
+            of(ConnectionMessageStatus.onlineMessageHidden).pipe(delay(3000))
           );
         } else if (previousConnectionStatus === true && currentConnectionStatus === true) {
           return of(ConnectionMessageStatus.onlineMessageHidden);
