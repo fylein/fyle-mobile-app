@@ -27,7 +27,6 @@ export class PersonalCardsPage implements OnInit {
 
   navigateBack = false;
 
-
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -36,7 +35,7 @@ export class PersonalCardsPage implements OnInit {
     private inAppBrowser: InAppBrowser,
     private loaderService: LoaderService,
     private zone: NgZone
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.setupNetworkWatcher();
@@ -47,13 +46,11 @@ export class PersonalCardsPage implements OnInit {
 
     this.loadData$ = new BehaviorSubject({});
     this.linkedAccountsCount$ = this.loadData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccountsCount()
-      ),
+      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
       shareReplay(1)
     );
-     this.linkedAccounts$ = this.loadData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccounts()
-      ),
+    this.linkedAccounts$ = this.loadData$.pipe(
+      switchMap(() => this.personalCardsService.getLinkedAccounts()),
       shareReplay(1)
     );
   }
@@ -65,23 +62,29 @@ export class PersonalCardsPage implements OnInit {
   }
 
   linkAccount() {
-    from(this.loaderService.showLoader('Redirecting you to our banking partner...',10000))
-    .pipe(
-      switchMap(() => this.personalCardsService.getToken()),
-      finalize(async () => {
-        await this.loaderService.hideLoader();
-      })).subscribe((accessToken) => {
-          this.openYoodle(accessToken.fast_link_url, accessToken.access_token);
-        });
+    from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
+      .pipe(
+        switchMap(() => this.personalCardsService.getToken()),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      )
+      .subscribe((accessToken) => {
+        this.openYoodle(accessToken.fast_link_url, accessToken.access_token);
+      });
   }
-
 
   openYoodle(url, access_token) {
     const successContent = `<h1>Success<h1>`;
     const successContentUrl = 'data:text/html;base64,' + btoa(successContent);
 
-    const pageContent = `<form id="fastlink-form" name="fastlink-form" action="` + url + `" method="POST">
-                          <input name="accessToken" value="Bearer `+ access_token + `" hidden="true" />
+    const pageContent =
+      `<form id="fastlink-form" name="fastlink-form" action="` +
+      url +
+      `" method="POST">
+                          <input name="accessToken" value="Bearer ` +
+      access_token +
+      `" hidden="true" />
                           <input  name="extraParams" value="configName=Aggregation&callback=https://www.fylehq.com" hidden="true" />
                           </form> 
                           <script type="text/javascript">
@@ -91,26 +94,28 @@ export class PersonalCardsPage implements OnInit {
     const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
     const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=yes');
     browser.on('loadstart').subscribe((event) => {
-      if (event.url.substring(0,22) === 'https://www.fylehq.com') {
-         browser.close();
-         this.zone.run(() => {
-         const decodedData = JSON.parse(decodeURIComponent(event.url.slice(43)));
-         this.postAccounts([decodedData[0].requestId]);
+      if (event.url.substring(0, 22) === 'https://www.fylehq.com') {
+        browser.close();
+        this.zone.run(() => {
+          const decodedData = JSON.parse(decodeURIComponent(event.url.slice(43)));
+          this.postAccounts([decodedData[0].requestId]);
         });
       }
     });
   }
 
   postAccounts(requestIds) {
-    from(this.loaderService.showLoader('Linking your card to Fyle...',30000))
-    .pipe(
-      switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
-      finalize(async () => {
-        await this.loaderService.hideLoader();
-      })).subscribe((reponse) => {
+    from(this.loaderService.showLoader('Linking your card to Fyle...', 30000))
+      .pipe(
+        switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      )
+      .subscribe((reponse) => {
         this.loadData$.next({});
       });
-      }
+  }
 
   onHomeClicked() {
     const queryParams: Params = { state: 'home' };
@@ -136,5 +141,4 @@ export class PersonalCardsPage implements OnInit {
       },
     ]);
   }
-
 }
