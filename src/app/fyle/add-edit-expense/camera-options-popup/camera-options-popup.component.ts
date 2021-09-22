@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, Platform } from '@ionic/angular';
 import { Plugins, CameraResultType, CameraSource, CameraDirection } from '@capacitor/core';
 const { Camera } = Plugins;
 import { from } from 'rxjs';
@@ -19,7 +19,8 @@ export class CameraOptionsPopupComponent implements OnInit {
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private fileService: FileService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    public platform: Platform
   ) {}
 
   ngOnInit() {}

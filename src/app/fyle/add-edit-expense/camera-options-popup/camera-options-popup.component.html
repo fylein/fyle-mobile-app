@@ -4,7 +4,7 @@
       ADD MORE USING
     </div>
   </div>
-  <div class="camera-options--element camera-options--element-first" matRipple (click)="getImageFromPicture()">
+  <div *ngIf="!platform.is('ios')" class="camera-options--element camera-options--element-first" matRipple (click)="getImageFromPicture()">
     <div class="camera-options--icon-container">
       <mat-icon class="camera-options--icon-container__icon camera-options--icon-container__icon--camera" svgIcon="fy-camera"></mat-icon>
     </div>
