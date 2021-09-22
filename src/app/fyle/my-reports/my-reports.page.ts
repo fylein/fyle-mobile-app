@@ -29,6 +29,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { TasksService } from 'src/app/core/services/tasks.service';
 
 @Component({
   selector: 'app-my-reports',
@@ -86,6 +87,8 @@ export class MyReportsPage implements OnInit {
 
   onPageExit = new Subject();
 
+  reportsTaskCount = 0;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -98,7 +101,8 @@ export class MyReportsPage implements OnInit {
     private transactionService: TransactionService,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
-    private apiV2Service: ApiV2Service
+    private apiV2Service: ApiV2Service,
+    private tasksService: TasksService
   ) {}
 
   ngOnInit() {}
@@ -115,6 +119,10 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.tasksService.getReportsTaskCount().subscribe(reportsTaskCount => {
+      this.reportsTaskCount = reportsTaskCount;
+    });
+
     this.isLoading = true;
     this.setupNetworkWatcher();
 
@@ -439,7 +447,7 @@ export class MyReportsPage implements OnInit {
   }
 
   onTaskClicked() {
-    const queryParams: Params = { state: 'tasks' };
+    const queryParams: Params = { state: 'tasks', tasksFilters: 'reports' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });

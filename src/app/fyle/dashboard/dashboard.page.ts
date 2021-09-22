@@ -12,6 +12,8 @@ import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TasksComponent } from './tasks/tasks.component';
+import { TasksService } from 'src/app/core/services/tasks.service';
 
 enum DashboardState {
   home,
@@ -25,6 +27,8 @@ enum DashboardState {
 })
 export class DashboardPage implements OnInit {
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
+
+  @ViewChild(TasksComponent) tasksComponent: TasksComponent;
 
   orgUserSettings$: Observable<OrgUserSettings>;
 
@@ -40,6 +44,16 @@ export class DashboardPage implements OnInit {
 
   actionSheetButtons = [];
 
+  taskCount = 0;
+
+  get displayedTaskCount() {
+    if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
+      return this.tasksComponent?.taskCount;
+    } else {
+      return this.taskCount;
+    }
+  }
+
   constructor(
     private offlineService: OfflineService,
     private transactionService: TransactionService,
@@ -49,7 +63,8 @@ export class DashboardPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private trackingService: TrackingService,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private tasksService: TasksService,
   ) {}
 
   ionViewWillLeave() {
@@ -78,6 +93,7 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
     if (currentState === DashboardState.tasks) {
@@ -91,6 +107,7 @@ export class DashboardPage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency().pipe(shareReplay(1));
 
     this.statsComponent.init();
+    this.tasksComponent.init();
     /**
      * What does the _ mean in the subscribe block?
      * It means the response is not being used.
@@ -103,6 +120,10 @@ export class DashboardPage implements OnInit {
     })
       .pipe(filter(({ isGetStartedPopupShown, totalCount }) => !isGetStartedPopupShown && totalCount.count === 0))
       .subscribe((_) => this.showGetStartedPopup());
+
+    this.tasksService.getTotalTaskCount().subscribe(taskCount => {
+      this.taskCount = taskCount;
+    });
   }
 
   ngOnInit() {
@@ -123,6 +144,10 @@ export class DashboardPage implements OnInit {
       relativeTo: this.activatedRoute,
       queryParams,
     });
+  }
+
+  openFilters() {
+    this.tasksComponent.openFilters();
   }
 
   onCameraClicked() {

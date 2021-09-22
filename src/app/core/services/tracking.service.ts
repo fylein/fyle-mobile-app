@@ -803,4 +803,9 @@ export class TrackingService {
   footerSaveAndNextClicked(properties = {}) {
     this.eventTrack('save and next clicked inside footer', properties);
   }
+
+  // Tasks
+  async tasksFiltersApplied(properties = {}) {
+    this.eventTrack('filters applied in tasks', properties);
+  }
 }

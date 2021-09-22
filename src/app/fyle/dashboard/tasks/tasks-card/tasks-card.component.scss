@@ -1,0 +1,71 @@
+@import "../../../../../theme/colors.scss";
+
+.task {
+  background-color: $pure-white;
+  &--icon {
+    font-size: 24px;
+    &__warning {
+      fill: $grey-light;
+      position: relative;
+      top: -2px;
+      left: 3px;
+    }
+
+    &__expense {
+      stroke: $grey-light;
+      font-size: 32px;
+      position: relative;
+      top: -6px;
+      left: -2px;
+    }
+  }
+
+  &--icon-col {
+    padding-left: 0;
+  }
+
+  &--header-col {
+    padding-top: 0;
+  }
+
+  &--card {
+    border-bottom: 1px solid $grey-lighter;
+    margin: 0 16px;
+  }
+
+  &--count {
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 500;
+    color: $dark-blue;
+  }
+
+  &--amount {
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: 500;
+    color: $dark-blue;
+  }
+
+  &--header {
+    font-size: 18px;
+    line-height: 23px;
+    font-weight: 500;
+    color: $dark-blue;
+    white-space: nowrap;
+  }
+
+  &--subheader {
+    font-size: 16px;
+    line-height: 20px;
+    color: $blue-black;
+  }
+
+  &--cta {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    color: $brand-primary;
+    white-space: nowrap;
+  }
+}

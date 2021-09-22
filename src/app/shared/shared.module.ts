@@ -247,6 +247,10 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     MatChipsModule,
     PolicyViolationDetailsComponent
   ],
-  providers: [DecimalPipe, DatePipe],
+  providers: [
+    DecimalPipe,
+    DatePipe,
+    HumanizeCurrencyPipe
+  ]
 })
-export class SharedModule {}
+export class SharedModule { }

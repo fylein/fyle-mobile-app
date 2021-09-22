@@ -1,0 +1,37 @@
+<div class="task">
+  <div class="task--card">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="1" class="task--icon-col">
+          <ion-row>
+            <ion-col class="task--icon-col">
+              <ion-icon class="task--icon"
+                [ngClass]="{'task--icon__warning':task.icon === 'fy-warning', 'task--icon__expense': task.icon === 'fy-expense'}"
+                [src]="'../../../../../assets/svg/' + task.icon + '.svg'"></ion-icon>
+            </ion-col>
+          </ion-row>
+        </ion-col>
+        <ion-col size="11">
+          <ion-row class="ion-justify-content-between">
+            <ion-col size="8" class="task--header task--header-col">
+              {{task.header}}
+            </ion-col>
+            <ion-col *ngIf="homeCurrency$|async as homeCurrency" size="4" class="ion-text-end task--amount task--header-col">
+              {{task.amount}}
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="task--subheader">
+              {{task.subheader}}
+            </ion-col>
+          </ion-row>
+          <ion-row class="ion-justify-content-between">
+            <ion-col size="6" *ngFor="let cta of task.ctas" class="task--cta" (click)="taskCtaClicked(cta)">
+              {{cta.content}}
+            </ion-col>
+          </ion-row>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+</div>

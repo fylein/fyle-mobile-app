@@ -18,6 +18,8 @@ export class FooterComponent implements OnInit {
 
   @Output() taskClicked = new EventEmitter();
 
+  @Input() taskCount = 0;
+
   @Input() activeState: FooterState;
 
   connectionState$: Observable<ConnectionMessageStatus>;

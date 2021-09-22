@@ -1,4 +1,4 @@
-@import '../../../../theme/colors';
+@import "../../../../theme/colors";
 
 .tasks {
   &--toolbar {
@@ -20,5 +20,75 @@
 
   &--container-row {
     height: 100%;
+  }
+}
+
+.task-list {
+  margin-bottom: 120px;
+  &--filter-pills {
+    position: fixed;
+    width: 100%;
+    background-color: #fafafab0;
+    z-index: 99;
+  }
+
+  &--filter-pills-container {
+    display: block;
+    min-height: 52px;
+  }
+}
+
+.task-skeleton {
+  background-color: $pure-white;
+  &--icon {
+    height: 24px;
+    width: 24px;
+  }
+
+  &--icon-col {
+    padding-left: 0;
+  }
+
+  &--card {
+    border-bottom: 1px solid $grey-lighter;
+    margin: 0 16px;
+  }
+
+  &--count {
+    .task-skeleton-text {
+      width: 24px;
+      height: 24px;
+    }
+    line-height: 28px;
+  }
+
+  &--amount {
+    .task-skeleton-text {
+      margin-left: auto;
+      line-height: 28px;
+      height: 24px;
+      width: 48px;
+    }
+  }
+
+  &--header {
+    .task-skeleton-text {
+      height: 18px;
+      line-height: 23px;
+    }
+  }
+
+  &--subheader {
+    .task-skeleton-text {
+      height: 16px;
+      line-height: 20px;
+    }
+  }
+
+  &--cta {
+    .task-skeleton-text {
+      height: 14px;
+      line-height: 20px;
+    }
   }
 }
