@@ -18,9 +18,9 @@
     <div>
       <div class="view-reports--card">
         <div class="view-reports--card-header">
-          {{erpt.rp_purpose}}
+          {{reportName}}
           <ion-icon
-            *ngIf="canEdit$|async"
+            *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY')"
             [src]="'../../../../assets/svg/edit.svg'"
             slot="icon-only"
             (click)="editReportName()"

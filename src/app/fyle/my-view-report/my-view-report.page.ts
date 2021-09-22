@@ -50,6 +50,8 @@ export class MyViewReportPage implements OnInit {
 
   onPageExit = new Subject();
 
+  reportName: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -114,6 +116,8 @@ export class MyViewReportPage implements OnInit {
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
       finalize(() => from(this.loaderService.hideLoader()))
     );
+
+    this.erpt$.subscribe((erpt) => (this.reportName = erpt.rp_purpose));
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
       map((pdfExports) =>
@@ -182,12 +186,16 @@ export class MyViewReportPage implements OnInit {
     const { data } = await editReportNamePopover.onWillDismiss();
 
     if (data && data.reportName) {
-      // erpt.rp_purpose = data.reportName;
-      // from(this.loaderService.showLoader()).pipe(
-      //   switchMap(() =>  this.reportService.updateReportDetails(erpt)),
-      //   finalize(() => this.loaderService.hideLoader()),
-      //   shareReplay(1)
-      // ).subscribe(data => console.log(data));
+      erpt.rp_purpose = data.reportName;
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => this.reportService.updateReportDetails(erpt)),
+          finalize(() => this.loaderService.hideLoader()),
+          shareReplay(1)
+        )
+        .subscribe(() => {
+          this.reportName = data.reportName;
+        });
     }
   }
 
