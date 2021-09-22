@@ -1,5 +1,5 @@
 <div class="report-list--container">
-  <div class="report-list--header text-uppercase">Add to Reprot</div>
+  <div class="report-list--header text-uppercase">Add to Report</div>
   <div class="report-list--list" *ngFor="let report of data.openReports; index as i">
     <div mat-ripple (click)="addTransactionToReport(report)">
       <div *ngIf="i > 0" class="report-list--divider"></div>
@@ -7,7 +7,9 @@
         <ion-row>
           <ion-col size="8.5" class="ion-no-padding">
             <div class="report-list--purpose">{{ report.rp_purpose }}</div>
-            <div class="report-list--count">{{ report.rp_num_transactions }} Expenses</div>
+            <div class="report-list--count">
+              {{ report.rp_num_transactions }} Expense{{ report.rp_num_transactions > 1 ? 's' : '' }}
+            </div>
           </ion-col>
           <ion-col size="3.5" class="ion-no-padding ion-text-right">
             <div class="report-list--currency-amount-container">
