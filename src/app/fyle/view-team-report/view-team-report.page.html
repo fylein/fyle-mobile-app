@@ -1,16 +1,21 @@
 <ion-header mode="md">
   <ion-toolbar class="view-reports--toolbar">
     <ion-buttons mode="md" slot="start">
-      <button *ngIf="!navigateBack" mat-icon-button [routerLink]="['/','enterprise','team_reports']">
-        <mat-icon> keyboard_backspace </mat-icon>
-      </button>
-      <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
+      <ion-button *ngIf="navigateBack" mat-icon-button [routerLink]="['/','enterprise','team_reports']">
+        <ion-icon
+          class="icon--navigate-left"
+          [src]="'../../../../assets/svg/navigate-left.svg'"
+          slot="icon-only"
+        ></ion-icon>
+      </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> View Report </ion-title>
+    <ng-container *ngIf="erpt$ | async as erpt">
+      <ion-title mode="md" class="page-title"> {{erpt.rp_purpose}} </ion-title>
+    </ng-container>
     <ion-buttons mode="md" slot="end">
-      <button mat-button class="view-reports--send-back" *ngIf="isReportReported" (click)="sendBack()">
-        Send Back
-      </button>
+      <ion-button *ngIf="isReportReported" (click)="sendBack()">
+        <ion-icon [src]="'../../../assets/svg/send-back.svg'" class="view-reports--send-back" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -137,16 +142,6 @@
         text="Comments"
         [showCommentsCount]="true"
       ></app-comments-history>
-    </div>
-
-    <div
-      class="view-reports--card view-reports--card__block-action"
-      *ngIf="canDelete$ | async"
-      (click)="deleteReport()"
-      matRipple
-    >
-      <mat-icon class="view-reports--block-action-icon">delete</mat-icon>
-      <div class="view-reports--block-action view-reports--block-action__delete">Delete Report</div>
     </div>
   </div>
 </ion-content>
