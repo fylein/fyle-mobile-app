@@ -1,11 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { PopoverController } from '@ionic/angular';
-import { FlagUnflagConfirmationComponent } from './flag-unflag-confirmation/flag-unflag-confirmation.component';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { from, noop } from 'rxjs';
-import { switchMap, concatMap, finalize } from 'rxjs/operators';
-import { StatusService } from 'src/app/core/services/status.service';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-fy-flag-expense',
@@ -13,52 +7,25 @@ import { StatusService } from 'src/app/core/services/status.service';
   styleUrls: ['./fy-flag-expense.component.scss'],
 })
 export class FyFlagExpenseComponent implements OnInit {
-  @Input() etxn;
+  @Input() isExpenseFlagged: boolean;
 
-  @Output() notify: EventEmitter<any> = new EventEmitter<any>();
+  title: string;
+
+  message = '';
 
   constructor(
-    private transactionService: TransactionService,
-    private popoverController: PopoverController,
-    private loaderService: LoaderService,
-    private statusService: StatusService
+    private modalController: ModalController
   ) {}
 
-  async flagUnflag() {
-    const confirmationPopup = await this.popoverController.create({
-      component: FlagUnflagConfirmationComponent,
-      componentProps: {
-        title: this.etxn.tx_manual_flag ? 'Unflag' : 'Flag',
-      },
-      cssClass: 'dialog-popover',
-    });
-
-    confirmationPopup.present();
-
-    const { data } = await confirmationPopup.onDidDismiss();
-    if (data && data.message) {
-      from(this.loaderService.showLoader('Please wait'))
-        .pipe(
-          switchMap(() => {
-            const comment = {
-              comment: data.message,
-            };
-            return this.statusService.post('transactions', this.etxn.tx_id, comment, true);
-          }),
-          concatMap(() =>
-            // eslint-disable-next-line max-len
-            this.etxn.tx_manual_flag
-              ? this.transactionService.manualUnflag(this.etxn.tx_id)
-              : this.transactionService.manualFlag(this.etxn.tx_id)
-          ),
-          finalize(() => {
-            this.notify.emit(true);
-            this.loaderService.hideLoader();
-          })
-        )
-        .subscribe(noop);
-    }
+  closeModal() {
+    this.modalController.dismiss();
   }
 
-  ngOnInit() {}
+  flagUnflag() {
+    this.modalController.dismiss({ message: this.message });
+  }
+
+  ngOnInit() {
+    this.title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
+  }
 }
