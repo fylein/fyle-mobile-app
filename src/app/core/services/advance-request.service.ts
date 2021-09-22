@@ -328,7 +328,7 @@ export class AdvanceRequestService {
     if (advanceRequest.areq_state === 'INQUIRY') {
       state = {
         state: 'inquiry',
-        name: 'Inquiry',
+        name: 'Sent Back',
       };
     }
 
@@ -378,7 +378,7 @@ export class AdvanceRequestService {
       } else if (advanceRequest.areq_is_sent_back) {
         state = {
           state: 'inquiry',
-          name: 'Inquiry',
+          name: 'Sent Back',
         };
       }
     }

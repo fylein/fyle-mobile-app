@@ -153,10 +153,12 @@ export class ViewTeamExpensePage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyViolationRules(txId)).pipe()
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId)).pipe()
       .subscribe(details => {
         this.policyDetails = details;
       });
+    }
   }
 
   getDisplayValue(customProperties) {

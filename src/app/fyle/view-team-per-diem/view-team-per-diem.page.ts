@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, noop } from 'rxjs';
+import { Observable, from, Subject, noop, of } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -96,10 +96,12 @@ export class ViewTeamPerDiemPage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyViolationRules(txId)).pipe()
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId)).pipe()
       .subscribe(details => {
         this.policyDetails = details;
       });
+    }
   }
 
   async openCommentsModal() {
@@ -177,7 +179,12 @@ export class ViewTeamPerDiemPage implements OnInit {
       })
     );
 
-    this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    if (id) {
+      this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    } else {
+      this.policyViloations$ = of(null);
+    }
+
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(

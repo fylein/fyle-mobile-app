@@ -1,5 +1,5 @@
-import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, concat, noop } from 'rxjs';
+import { Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Observable, from, Subject, concat, noop, of } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -113,10 +113,12 @@ export class ViewTeamMileagePage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyViolationRules(txId)).pipe()
+    if(txId) {
+      from(this.policyService.getPolicyViolationRules(txId)).pipe()
       .subscribe(details => {
         this.policyDetails = details;
       });
+    }
   }
 
   goBack() {
@@ -257,7 +259,12 @@ export class ViewTeamMileagePage implements OnInit {
       })
     );
 
-    this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    if (id) {
+      this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    } else {
+      this.policyViloations$ = of(null);
+    }
+
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
