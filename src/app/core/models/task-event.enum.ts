@@ -1,6 +1,6 @@
 export enum TASKEVENT {
 	expensesCreateNewReport,
-  expensesAddToReport,
+	expensesAddToReport,
 	openSentBackReport,
 	reviewExpenses,
 	openDraftReports
