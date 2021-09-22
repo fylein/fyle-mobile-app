@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, concat, of } from 'rxjs';
+import { Observable, from, Subject, concat, noop, of } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,10 +10,14 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, concatMap, tap, takeUntil } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
-import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
-import { PopoverController, IonContent } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyFlagExpenseComponent } from 'src/app/shared/components/fy-flag-expense/fy-flag-expense.component';
 
 @Component({
   selector: 'app-view-team-mileage',
@@ -51,6 +55,10 @@ export class ViewTeamMileagePage implements OnInit {
 
   comments$: Observable<any>;
 
+  isDeviceWidthSmall = window.innerWidth < 330;
+
+  isExpenseFlagged: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -62,7 +70,10 @@ export class ViewTeamMileagePage implements OnInit {
     private popoverController: PopoverController,
     private router: Router,
     private networkService: NetworkService,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private trackingService: TrackingService,
   ) {}
 
   ionViewWillLeave() {
@@ -114,29 +125,91 @@ export class ViewTeamMileagePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId }]);
   }
 
-  onUpdateFlag(event) {
-    if (event) {
-      this.updateFlag$.next();
+  async openCommentsModal() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'transactions',
+        objectId: etxn.tx_id,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment();
+    } else {
+      this.trackingService.viewComment();
     }
   }
 
   async removeExpenseFromReport() {
     const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-    const popover = await this.popoverController.create({
-      component: RemoveExpenseReportComponent,
+
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
-        etxn,
-      },
-      cssClass: 'dialog-popover',
+        header: 'Remove Expense',
+        body: 'Are you sure you want to remove this expense from the report?',
+        infoMessage: 'The report amount will be adjusted accordingly.',
+        ctaText: 'Remove',
+        ctaLoadingText: 'Removing',
+        deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id)
+      }
     });
 
-    await popover.present();
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
 
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.goBack) {
+    if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
     }
+  }
+
+  async flagUnflagExpense() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const flagUnflagModal = await this.modalController.create({
+      component: FyFlagExpenseComponent,
+      componentProps: {
+        isExpenseFlagged: this.isExpenseFlagged
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+      cssClass: 'flag-unflag-modal'
+    });
+
+    await flagUnflagModal.present();
+    const { data } = await flagUnflagModal.onWillDismiss();
+
+    if (data && data.message) {
+      from(this.loaderService.showLoader('Please wait'))
+        .pipe(
+          switchMap(() => {
+            const comment = {
+              comment: data.message,
+            };
+            return this.statusService.post('transactions', etxn.tx_id, comment, true);
+          }),
+          concatMap(() =>
+            etxn.tx_manual_flag
+              ? this.transactionService.manualUnflag(etxn.tx_id)
+              : this.transactionService.manualFlag(etxn.tx_id)
+          ),
+          finalize(() => {
+            this.updateFlag$.next();
+            this.loaderService.hideLoader();
+          })
+        )
+        .subscribe(noop);
+    }
+    this.isExpenseFlagged = etxn.tx_manual_flag;
   }
 
   ionViewWillEnter() {
@@ -203,6 +276,10 @@ export class ViewTeamMileagePage implements OnInit {
     this.isAmountCapped$ = this.extendedMileage$.pipe(
       map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
+
+    this.extendedMileage$.subscribe((etxn) => {
+      this.isExpenseFlagged = etxn.tx_manual_flag;
+    });
 
     this.updateFlag$.next();
   }
