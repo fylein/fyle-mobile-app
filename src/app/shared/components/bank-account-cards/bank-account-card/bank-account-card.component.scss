@@ -3,6 +3,12 @@
 $ccc-bank-name: #c4cae8;
 
 .stats {
+  &--top {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+
   &--menu-button {
     padding: 8px;
   }
@@ -153,10 +159,8 @@ $ccc-bank-name: #c4cae8;
 
   &--ccc-card-details {
     position: relative;
-    left: 50%;
-    transform: translate(-50%, 0);
     min-height: 85px;
-    width: calc(100% - 32px);
+    width: 100%;
     background: url('../../../../../assets/images/personal-card-bg.png') no-repeat bottom;
     background-size: 100% 100%;
     box-shadow: 0px 2px 8px $transparent-pearl-grey;
@@ -169,7 +173,7 @@ $ccc-bank-name: #c4cae8;
     font-size: 18px;
     line-height: 20px;
     color: $pure-white;
-    padding-bottom: 0;
+    padding: 6px;
     flex-flow: wrap;
   }
 
@@ -217,7 +221,7 @@ $ccc-bank-name: #c4cae8;
   }
 
   &--ccc-container {
-    padding: 8px 12px 6px;
+    padding: 8px 3px 12px 6px;
   }
 
   &--ccc-block {

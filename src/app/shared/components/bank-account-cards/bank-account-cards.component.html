@@ -1,13 +1,13 @@
-<swiper
-[slidesPerView]="1"
-[spaceBetween]="50"
-(swiper)="onSwiper($event)"
-(slideChange)="onSlideChange()"
+<br /><swiper
+  *ngIf="linkedAccounts"
+  [slidesPerView]="1.1"
+  [spaceBetween]="5"
+  (swiper)="onSwiper($event)"
+  (slideChange)="onSlideChange()"
+  [centeredSlides]="true"
+  [pagination]="false"
 >
-<ng-template swiperSlide>
-<app-bank-account-card> </app-bank-account-card>
-</ng-template>
-<ng-template swiperSlide>
-<app-bank-account-card> </app-bank-account-card>
-</ng-template>
+  <ng-template *ngFor="let linkedAccount of linkedAccounts" swiperSlide>
+    <app-bank-account-card [accountDetails]="linkedAccount"> </app-bank-account-card>
+  </ng-template>
 </swiper>

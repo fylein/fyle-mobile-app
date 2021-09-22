@@ -51,7 +51,7 @@
     "@types/hammerjs": "^2.0.39",
     "agm-direction": "^0.8.9",
     "cordova-plugin-googleplus": "^8.5.0",
-    "cordova-plugin-inappbrowser": "^4.0.0",
+    "cordova-plugin-inappbrowser": "^5.0.0",
     "cordova-plugin-screen-orientation": "^3.0.2",
     "cordova-plugin-telerik-imagepicker": "^2.3.5",
     "dotenv": "^10.0.0",

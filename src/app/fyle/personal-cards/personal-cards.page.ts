@@ -7,6 +7,7 @@ import { HeaderState } from '../../shared/components/fy-header/header-state.enum
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { PersonalCard } from 'src/app/core/models/personal_card.model';
 
 @Component({
   selector: 'app-personal-cards',
@@ -19,6 +20,8 @@ export class PersonalCardsPage implements OnInit {
   isConnected$: Observable<boolean>;
 
   linkedAccountsCount$: Observable<number>;
+
+  linkedAccounts$: Observable<PersonalCard[]>;
 
   loadData$: BehaviorSubject<any>;
 
@@ -48,6 +51,11 @@ export class PersonalCardsPage implements OnInit {
       ),
       shareReplay(1)
     );
+     this.linkedAccounts$ = this.loadData$.pipe(
+      switchMap(() => this.personalCardsService.getLinkedAccounts()
+      ),
+      shareReplay(1)
+    );
   }
 
   setupNetworkWatcher() {
@@ -69,21 +77,24 @@ export class PersonalCardsPage implements OnInit {
 
 
   openYoodle(url, access_token) {
+    const successContent = `<h1>Success<h1>`;
+    const successContentUrl = 'data:text/html;base64,' + btoa(successContent);
+
     const pageContent = `<form id="fastlink-form" name="fastlink-form" action="` + url + `" method="POST">
                           <input name="accessToken" value="Bearer `+ access_token + `" hidden="true" />
-                          <input  name="extraParams" value="configName=Aggregation&callback=success://" hidden="true" />
+                          <input  name="extraParams" value="configName=Aggregation&callback=https://www.fylehq.com" hidden="true" />
                           </form> 
                           <script type="text/javascript">
                           document.getElementById("fastlink-form").submit();
                           </script>
                           `;
     const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
-    const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=yes,beforeload=yes');
-    browser.on('beforeload').subscribe((event) => {
-      if (event.url.substring(0,10) === 'success://') {
-         const decodedData = JSON.parse(decodeURIComponent(event.url.slice(30)));
+    const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=yes');
+    browser.on('loadstart').subscribe((event) => {
+      if (event.url.substring(0,22) === 'https://www.fylehq.com') {
          browser.close();
          this.zone.run(() => {
+         const decodedData = JSON.parse(decodeURIComponent(event.url.slice(43)));
          this.postAccounts([decodedData[0].requestId]);
         });
       }

@@ -1,26 +1,24 @@
 <div class="stats--ccc-card-details">
-    <div class="stats--ccc-bank-name1">
-      <ion-grid class="stats--ccc-container">
-        <ion-row class="stats--ccc-block">
-          <ion-col class="stats--ccc-bank-name" size="8">
-            <div>
-              Fyle Bank
-            </div>
-          </ion-col>
-          <ion-col size="4">
-            <div class="stats--ccc-card-info">Corporate Card</div>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col class="stats--ccc-account-info">
-            <span class="stats--ccc-account-info__type"> CREDIT </span>
-            <span class="stats--ccc-account-info__mask">XXXXX8988</span>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-    <div class="stats--ccc-sync-detail" >
-      <!-- Last synced: {{ cardTransactionsAndDetails.ba_last_synced_at | date: 'MMM d, y | h:mm a' }} -->
-      Last synced: sdhjshdjshjd dksjdk
-    </div>
+  <div class="stats--ccc-bank-name1">
+    <ion-grid class="stats--ccc-container">
+      <div class="stats--top">
+        <div class="stats--ccc-bank-name">
+          {{ accountDetails.bank_name }}
+        </div>
+        <ion-icon
+          [src]="'assets/svg/action-menu.svg'"
+          size="medium"
+          slot="icon-only"
+          style="font-size: 18px; margin-top: 4px"
+        ></ion-icon>
+      </div>
+      <ion-row>
+        <ion-col class="stats--ccc-account-info">
+          <span class="stats--ccc-account-info__type"> {{ accountDetails.account_type }} </span>
+          <span class="stats--ccc-account-info__mask">{{ accountDetails.account_number }}</span>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </div>
+  <div class="stats--ccc-sync-detail">Last fetch: {{ accountDetails.last_synced_at | date: 'MMM d, y | h:mm a' }}</div>
+</div>
