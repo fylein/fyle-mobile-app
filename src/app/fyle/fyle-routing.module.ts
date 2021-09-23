@@ -159,6 +159,10 @@ const routes: Routes = [
     path: 'camera_overlay',
     loadChildren: () => import('./capture-receipt/capture-receipt.module').then((m) => m.CaptureReceiptPageModule),
   },
+  {
+    path: 'personal_cards',
+    loadChildren: () => import('./personal-cards/personal-cards.module').then( m => m.PersonalCardsPageModule)
+  },
 ];
 
 @NgModule({
