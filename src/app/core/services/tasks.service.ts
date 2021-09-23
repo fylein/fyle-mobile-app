@@ -16,10 +16,9 @@ import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TasksService {
-
   totalTaskCount$: BehaviorSubject<number> = new BehaviorSubject(0);
 
   expensesTaskCount$: BehaviorSubject<number> = new BehaviorSubject(0);
@@ -31,7 +30,7 @@ export class TasksService {
     private transactionService: TransactionService,
     private humanizeCurrency: HumanizeCurrencyPipe,
     private offlineService: OfflineService,
-    private userEventService: UserEventService,
+    private userEventService: UserEventService
   ) {
     this.userEventService.onTaskCacheClear(() => {
       this.getTasks().subscribe(noop);
@@ -63,47 +62,44 @@ export class TasksService {
       sentBackReports: this.getSentBackReportTasks(),
       unreportedExpenses: this.getUnreportedExpensesTasks(),
       unsubmittedReports: this.getUnsubmittedReportsTasks(),
-      draftExpenses: this.getDraftExpensesTasks()
+      draftExpenses: this.getDraftExpensesTasks(),
     }).pipe(
-      map(
-        ({
-          sentBackReports,
-          unreportedExpenses,
-          unsubmittedReports,
-          draftExpenses
-        }) => {
-          this.totalTaskCount$.next(sentBackReports.length + draftExpenses.length + unsubmittedReports.length + unreportedExpenses.length);
-          this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length);
-          this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
+      map(({ sentBackReports, unreportedExpenses, unsubmittedReports, draftExpenses }) => {
+        this.totalTaskCount$.next(
+          sentBackReports.length + draftExpenses.length + unsubmittedReports.length + unreportedExpenses.length
+        );
+        this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length);
+        this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
 
-          if (!filters?.draftExpenses && !filters?.draftReports && !filters?.sentBackReports && !filters?.unreportedExpenses) {
-            return sentBackReports
-              .concat(draftExpenses)
-              .concat(unsubmittedReports)
-              .concat(unreportedExpenses);
-          } else {
-            let tasks = [];
+        if (
+          !filters?.draftExpenses &&
+          !filters?.draftReports &&
+          !filters?.sentBackReports &&
+          !filters?.unreportedExpenses
+        ) {
+          return sentBackReports.concat(draftExpenses).concat(unsubmittedReports).concat(unreportedExpenses);
+        } else {
+          let tasks = [];
 
-            if (filters?.sentBackReports) {
-              tasks = tasks.concat(sentBackReports);
-            }
-
-            if (filters?.draftExpenses) {
-              tasks = tasks.concat(draftExpenses);
-            }
-
-            if (filters?.draftReports) {
-              tasks = tasks.concat(unsubmittedReports);
-            }
-
-            if (filters?.unreportedExpenses) {
-              tasks = tasks.concat(unreportedExpenses);
-            }
-
-            return tasks;
+          if (filters?.sentBackReports) {
+            tasks = tasks.concat(sentBackReports);
           }
+
+          if (filters?.draftExpenses) {
+            tasks = tasks.concat(draftExpenses);
+          }
+
+          if (filters?.draftReports) {
+            tasks = tasks.concat(unsubmittedReports);
+          }
+
+          if (filters?.unreportedExpenses) {
+            tasks = tasks.concat(unreportedExpenses);
+          }
+
+          return tasks;
         }
-      )
+      })
     );
   }
 
@@ -115,42 +111,36 @@ export class TasksService {
   getSentBackReportTasks(): Observable<DashboardTask[]> {
     return forkJoin({
       extendedReports: this.getSentBackReports(),
-      homeCurrency: this.offlineService.getHomeCurrency()
-    }).pipe(
-      map(({ extendedReports, homeCurrency }) => this.mapSentBackReportsToTasks(extendedReports, homeCurrency))
-    );
+      homeCurrency: this.offlineService.getHomeCurrency(),
+    }).pipe(map(({ extendedReports, homeCurrency }) => this.mapSentBackReportsToTasks(extendedReports, homeCurrency)));
   }
 
   getUnsubmittedReportsStats() {
     return this.reportService.getReportStatsData({
       scalar: true,
       aggregates: 'count(rp_id),sum(rp_amount)',
-      rp_state: 'in.(DRAFT)'
+      rp_state: 'in.(DRAFT)',
     });
   }
 
   getUnsubmittedReportsTasks() {
     return forkJoin({
       reportsStats: this.getUnsubmittedReportsStats(),
-      homeCurrency: this.offlineService.getHomeCurrency()
+      homeCurrency: this.offlineService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }) => this
-        .mapAggregateToUnsubmittedReportTask(
-          this.mapScalarReportStatsResponse(reportsStats),
-          homeCurrency
-        )
+      map(({ reportsStats, homeCurrency }) =>
+        this.mapAggregateToUnsubmittedReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
   }
 
   getUnreportedExpensesStats() {
-    return this.transactionService
-      .getTransactionStats('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_state: 'in.(COMPLETE)',
-        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-        tx_report_id: 'is.null',
-      });
+    return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+      scalar: true,
+      tx_state: 'in.(COMPLETE)',
+      or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+      tx_report_id: 'is.null',
+    });
   }
 
   generateSelectedFilters(filters: TaskFilters): SelectedFilters<any>[] {
@@ -166,49 +156,48 @@ export class TasksService {
     if (filters.draftReports) {
       selectedFilters.push({
         name: 'Reports',
-        value: ['DRAFT']
+        value: ['DRAFT'],
       });
     }
 
     if (filters.sentBackReports) {
       selectedFilters.push({
         name: 'Reports',
-        value: ['SENT_BACK']
+        value: ['SENT_BACK'],
       });
     }
 
     if (filters.unreportedExpenses) {
       selectedFilters.push({
         name: 'Expenses',
-        value: ['UNREPORTED']
+        value: ['UNREPORTED'],
       });
     }
 
     return selectedFilters;
   }
 
-
   convertFilters(selectedFilters: SelectedFilters<any>[]): TaskFilters {
     const generatedFilters: TaskFilters = {
       draftExpenses: false,
       draftReports: false,
       sentBackReports: false,
-      unreportedExpenses: false
+      unreportedExpenses: false,
     };
 
-    if (selectedFilters.some(filter => filter.name === 'Expenses' && filter.value.includes('UNREPORTED'))) {
+    if (selectedFilters.some((filter) => filter.name === 'Expenses' && filter.value.includes('UNREPORTED'))) {
       generatedFilters.unreportedExpenses = true;
     }
 
-    if (selectedFilters.some(filter => filter.name === 'Expenses' && filter.value.includes('DRAFT'))) {
+    if (selectedFilters.some((filter) => filter.name === 'Expenses' && filter.value.includes('DRAFT'))) {
       generatedFilters.draftExpenses = true;
     }
 
-    if (selectedFilters.some(filter => filter.name === 'Reports' && filter.value.includes('SENT_BACK'))) {
+    if (selectedFilters.some((filter) => filter.name === 'Reports' && filter.value.includes('SENT_BACK'))) {
       generatedFilters.sentBackReports = true;
     }
 
-    if (selectedFilters.some(filter => filter.name === 'Reports' && filter.value.includes('DRAFT'))) {
+    if (selectedFilters.some((filter) => filter.name === 'Reports' && filter.value.includes('DRAFT'))) {
       generatedFilters.draftReports = true;
     }
 
@@ -218,7 +207,7 @@ export class TasksService {
   getExpensePill(filters: TaskFilters): FilterPill {
     const draftExpensesContent = filters.draftExpenses ? 'Draft' : '';
     const unreportedExpensesContent = filters.unreportedExpenses ? 'Unreported' : '';
-    const comma = (draftExpensesContent && unreportedExpensesContent) ? ', ' : '';
+    const comma = draftExpensesContent && unreportedExpensesContent ? ', ' : '';
     return {
       label: 'Expenses',
       type: 'Expenses',
@@ -229,11 +218,11 @@ export class TasksService {
   getReportsPill(filters: TaskFilters): FilterPill {
     const draftReportsContent = filters.draftReports ? 'Draft' : '';
     const sentBackReportsContent = filters.sentBackReports ? 'Sent Back' : '';
-    const comma = (draftReportsContent && sentBackReportsContent) ? ', ' : '';
+    const comma = draftReportsContent && sentBackReportsContent ? ', ' : '';
     return {
       label: 'Reports',
       type: 'Reports',
-      value: `${draftReportsContent}${comma}${sentBackReportsContent}`
+      value: `${draftReportsContent}${comma}${sentBackReportsContent}`,
     };
   }
 
@@ -252,132 +241,173 @@ export class TasksService {
   }
 
   getUnreportedExpensesTasks() {
+    const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' };
+
+    const openReports$ = this.reportService.getAllExtendedReports({ queryParams }).pipe(
+      map((openReports) =>
+        openReports.filter(
+          (openReport) =>
+            // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
+            // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list
+            !openReport.report_approvals ||
+            (openReport.report_approvals &&
+              !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
+        )
+      )
+    );
     return forkJoin({
       transactionStats: this.getUnreportedExpensesStats(),
-      homeCurrency: this.offlineService.getHomeCurrency()
+      homeCurrency: this.offlineService.getHomeCurrency(),
+      openReports: openReports$,
     }).pipe(
-      map(
-        ({ transactionStats, homeCurrency }) => this.mapAggregateToUnreportedExpensesTask(
+      map(({ transactionStats, homeCurrency, openReports }) =>
+        this.mapAggregateToUnreportedExpensesTask(
           this.mapScalarStatsResponse(transactionStats),
-          homeCurrency
+          homeCurrency,
+          openReports
         )
       )
     );
   }
 
   getDraftExpensesStats() {
-    return this.transactionService
-      .getTransactionStats('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_state: 'in.(DRAFT)',
-        tx_report_id: 'is.null',
-      });
+    return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
+      scalar: true,
+      tx_state: 'in.(DRAFT)',
+      tx_report_id: 'is.null',
+    });
   }
 
   getDraftExpensesTasks() {
     return forkJoin({
       transactionStats: this.getDraftExpensesStats(),
-      homeCurrency: this.offlineService.getHomeCurrency()
-    }).pipe(map(
-      ({ transactionStats, homeCurrency }) => this.mapAggregateToDraftExpensesTask(
-        this.mapScalarStatsResponse(transactionStats),
-        homeCurrency
+      homeCurrency: this.offlineService.getHomeCurrency(),
+    }).pipe(
+      map(({ transactionStats, homeCurrency }) =>
+        this.mapAggregateToDraftExpensesTask(this.mapScalarStatsResponse(transactionStats), homeCurrency)
       )
-    ));
+    );
   }
 
   private getAmountString(amount: number, currency: string): string {
-    return (amount > 0) ? ` worth ${this.humanizeCurrency.transform(amount, currency, 2)} ` : '';
+    return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency, 2)} ` : '';
   }
 
   private mapSentBackReportsToTasks(extendedReports: ExtendedReport[], homeCurrency: string): DashboardTask[] {
-    return extendedReports.map((extendedReport => ({
-      amount: this.humanizeCurrency.transform(extendedReport.rp_amount, homeCurrency, 2),
-      count: extendedReport.rp_num_transactions,
-      header: `Report sent back!`,
-      subheader: 'Please check comments made by your approver',
-      icon: TaskIcon.WARNING,
-      ctas: [
+    return extendedReports.map(
+      (extendedReport) =>
+        ({
+          amount: this.humanizeCurrency.transform(extendedReport.rp_amount, homeCurrency, 2),
+          count: extendedReport.rp_num_transactions,
+          header: `Report sent back!`,
+          subheader: 'Please check comments made by your approver',
+          icon: TaskIcon.WARNING,
+          ctas: [
+            {
+              content: 'View Report',
+              event: TASKEVENT.openSentBackReport,
+            },
+          ],
+          data: extendedReport,
+        } as DashboardTask)
+    );
+  }
+
+  private mapAggregateToUnsubmittedReportTask(
+    aggregate: { totalCount: number; totalAmount: number },
+    homeCurrency: string
+  ): DashboardTask[] {
+    if (aggregate.totalCount > 0) {
+      return [
         {
-          content: 'View Report',
-          event: TASKEVENT.openSentBackReport
-        }
-      ],
-      data: extendedReport
-    } as DashboardTask)));
-  }
-
-  private mapAggregateToUnsubmittedReportTask(aggregate: { totalCount: number; totalAmount: number }, homeCurrency: string): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
-      return [{
-        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2),
-        count: aggregate.totalCount,
-        header: `Unsubmitted reports`,
-        subheader: `${aggregate.totalCount} reports ${this.getAmountString(aggregate.totalAmount, homeCurrency)} remain in draft state`,
-        icon: TaskIcon.REPORT,
-        ctas: [
-          {
-            content: 'Submit Reports',
-            event: TASKEVENT.openDraftReports
-          }
-        ]
-      } as DashboardTask];
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2),
+          count: aggregate.totalCount,
+          header: `Unsubmitted reports`,
+          subheader: `${aggregate.totalCount} reports ${this.getAmountString(
+            aggregate.totalAmount,
+            homeCurrency
+          )} remain in draft state`,
+          icon: TaskIcon.REPORT,
+          ctas: [
+            {
+              content: 'Submit Reports',
+              event: TASKEVENT.openDraftReports,
+            },
+          ],
+        } as DashboardTask,
+      ];
     } else {
       return [];
     }
   }
 
-  private mapAggregateToDraftExpensesTask(aggregate: { totalCount: number; totalAmount: number }, homeCurrency: string): DashboardTask[] {
+  private mapAggregateToDraftExpensesTask(
+    aggregate: { totalCount: number; totalAmount: number },
+    homeCurrency: string
+  ): DashboardTask[] {
     if (aggregate.totalCount > 0) {
-      return [{
-        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2),
-        count: aggregate.totalCount,
-        header: `Incomplete expenses`,
-        subheader: `${aggregate.totalCount} expenses ${this.getAmountString(aggregate.totalAmount, homeCurrency)} require additional information`,
-        icon: TaskIcon.WARNING,
-        ctas: [
-          {
-            content: 'Review Expenses',
-            event: TASKEVENT.reviewExpenses
-          }
-        ]
-      } as DashboardTask];
+      return [
+        {
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2),
+          count: aggregate.totalCount,
+          header: `Incomplete expenses`,
+          subheader: `${aggregate.totalCount} expenses ${this.getAmountString(
+            aggregate.totalAmount,
+            homeCurrency
+          )} require additional information`,
+          icon: TaskIcon.WARNING,
+          ctas: [
+            {
+              content: 'Review Expenses',
+              event: TASKEVENT.reviewExpenses,
+            },
+          ],
+        } as DashboardTask,
+      ];
     } else {
       return [];
     }
   }
 
-  private mapAggregateToUnreportedExpensesTask(aggregate: { totalCount: number; totalAmount: number }, homeCurrency: string): DashboardTask[] {
+  private mapAggregateToUnreportedExpensesTask(
+    aggregate: { totalCount: number; totalAmount: number },
+    homeCurrency: string,
+    openReports: ExtendedReport[]
+  ): DashboardTask[] {
     if (aggregate.totalCount > 0) {
-      return [{
+      const task = {
         amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2),
         count: aggregate.totalCount,
         header: `Ready to Report`,
-        subheader: `${aggregate.totalCount} expenses ${this.getAmountString(aggregate.totalAmount, homeCurrency)} can be added to a report`,
+        subheader: `${aggregate.totalCount} expenses ${this.getAmountString(
+          aggregate.totalAmount,
+          homeCurrency
+        )} can be added to a report`,
         icon: TaskIcon.REPORT,
         ctas: [
           {
             content: 'Create New Report',
-            event: TASKEVENT.expensesCreateNewReport
+            event: TASKEVENT.expensesCreateNewReport,
           },
-          {
-            content: 'Add to Existing Report',
-            event: TASKEVENT.expensesAddToReport
-          }
-        ]
-      } as DashboardTask];
+        ],
+      } as DashboardTask;
+
+      if (openReports.length > 0) {
+        task.ctas.push({
+          content: 'Add to Existing Report',
+          event: TASKEVENT.expensesAddToReport,
+        });
+      }
+
+      return [task];
     } else {
       return [];
     }
   }
 
   private getStatsFromResponse(statsResponse: StatsResponse, countName: string, sumName: string) {
-    const countAggregate = statsResponse[0]?.aggregates.find(
-      (aggregate) => aggregate.function_name === countName
-    ) || 0;
-    const amountAggregate = statsResponse[0]?.aggregates.find(
-      (aggregate) => aggregate.function_name === sumName
-    ) || 0;
+    const countAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === countName) || 0;
+    const amountAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === sumName) || 0;
     return {
       totalCount: countAggregate && countAggregate.function_value,
       totalAmount: amountAggregate && amountAggregate.function_value,

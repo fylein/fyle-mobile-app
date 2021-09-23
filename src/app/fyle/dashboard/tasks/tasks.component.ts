@@ -29,14 +29,13 @@ import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-repo
   styleUrls: ['./tasks.component.scss'],
 })
 export class TasksComponent implements OnInit {
-
   tasks$: Observable<DashboardTask[]>;
 
   loadData$: BehaviorSubject<TaskFilters> = new BehaviorSubject({
     sentBackReports: false,
     draftReports: false,
     draftExpenses: false,
-    unreportedExpenses: false
+    unreportedExpenses: false,
   });
 
   filterPills = [];
@@ -56,15 +55,14 @@ export class TasksComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute
-  ) { }
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   init() {
     this.tasks$ = this.loadData$.pipe(
-      switchMap(taskFilters => this.taskService.getTasks(taskFilters)),
-      tap(tasks => this.taskCount = tasks.length)
+      switchMap((taskFilters) => this.taskService.getTasks(taskFilters)),
+      tap((tasks) => (this.taskCount = tasks.length))
     );
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
@@ -73,7 +71,7 @@ export class TasksComponent implements OnInit {
         draftExpenses: true,
         unreportedExpenses: true,
         draftReports: false,
-        sentBackReports: false
+        sentBackReports: false,
       });
     }
 
@@ -82,7 +80,7 @@ export class TasksComponent implements OnInit {
         draftExpenses: false,
         unreportedExpenses: false,
         draftReports: true,
-        sentBackReports: true
+        sentBackReports: true,
       });
     }
 
@@ -90,10 +88,7 @@ export class TasksComponent implements OnInit {
   }
 
   doRefresh(event?) {
-    forkJoin([
-      this.transactionService.clearCache(),
-      this.reportService.clearCache()
-    ]).subscribe(() => {
+    forkJoin([this.transactionService.clearCache(), this.reportService.clearCache()]).subscribe(() => {
       this.loadData$.next(this.loadData$.getValue());
       if (event) {
         setTimeout(() => {
@@ -124,7 +119,7 @@ export class TasksComponent implements OnInit {
               {
                 label: 'Draft',
                 value: 'DRAFT',
-              }
+              },
             ],
           } as FilterOptions<string>,
           {
@@ -138,7 +133,7 @@ export class TasksComponent implements OnInit {
               {
                 label: 'Unsubmitted',
                 value: 'DRAFT',
-              }
+              },
             ],
           } as FilterOptions<string>,
         ],
@@ -161,13 +156,12 @@ export class TasksComponent implements OnInit {
     }
   }
 
-
   onFilterClose(filterPillType: string) {
     if (filterPillType === 'Expenses') {
       this.applyFilters({
         ...this.loadData$.getValue(),
         draftExpenses: false,
-        unreportedExpenses: false
+        unreportedExpenses: false,
       });
     }
 
@@ -175,7 +169,7 @@ export class TasksComponent implements OnInit {
       this.applyFilters({
         ...this.loadData$.getValue(),
         draftReports: false,
-        sentBackReports: false
+        sentBackReports: false,
       });
     }
 
@@ -191,7 +185,7 @@ export class TasksComponent implements OnInit {
       draftExpenses: false,
       draftReports: false,
       sentBackReports: false,
-      unreportedExpenses: false
+      unreportedExpenses: false,
     });
 
     this.filterPills = this.taskService.generateFilterPills(this.loadData$.getValue());
@@ -224,67 +218,69 @@ export class TasksComponent implements OnInit {
       tx_state: 'in.(DRAFT)',
       tx_report_id: 'is.null',
     };
-    from(this.loaderService.showLoader('please wait while we load your expenses', 3000)).pipe(
-      switchMap(() => this.transactionService
-        .getAllExpenses({
-          queryParams
-        })
-      ),
-      map((etxns) => etxns.map((etxn) => etxn.tx_id)),
-      switchMap((selectedIds) => {
-        const initial = selectedIds[0];
-        const allIds = selectedIds;
+    from(this.loaderService.showLoader('please wait while we load your expenses', 3000))
+      .pipe(
+        switchMap(() =>
+          this.transactionService.getAllExpenses({
+            queryParams,
+          })
+        ),
+        map((etxns) => etxns.map((etxn) => etxn.tx_id)),
+        switchMap((selectedIds) => {
+          const initial = selectedIds[0];
+          const allIds = selectedIds;
 
-        return this.transactionService.getETxn(initial).pipe(
-          map((etxn) => ({
-            inital: etxn,
-            allIds,
-          }))
-        );
-      }),
-      finalize(() => this.loaderService.hideLoader())
-    ).subscribe(({ inital, allIds }) => {
-      let category;
+          return this.transactionService.getETxn(initial).pipe(
+            map((etxn) => ({
+              inital: etxn,
+              allIds,
+            }))
+          );
+        }),
+        finalize(() => this.loaderService.hideLoader())
+      )
+      .subscribe(({ inital, allIds }) => {
+        let category;
 
-      if (inital.tx.org_category) {
-        category = inital.tx.org_category.toLowerCase();
-      }
+        if (inital.tx.org_category) {
+          category = inital.tx.org_category.toLowerCase();
+        }
 
-      if (category === 'mileage') {
-        this.router.navigate([
-          '/',
-          'enterprise',
-          'add_edit_mileage',
-          {
-            id: inital.tx.id,
-            txnIds: JSON.stringify(allIds),
-            activeIndex: 0,
-          },
-        ]);
-      } else if (category === 'per diem') {
-        this.router.navigate([
-          '/',
-          'enterprise',
-          'add_edit_per_diem',
-          {
-            id: inital.tx.id,
-            txnIds: JSON.stringify(allIds),
-            activeIndex: 0,
-          },
-        ]);
-      } else {
-        this.router.navigate([
-          '/',
-          'enterprise',
-          'add_edit_expense',
-          {
-            id: inital.tx.id,
-            txnIds: JSON.stringify(allIds),
-            activeIndex: 0,
-          },
-        ]);
-      }
-    });
+        if (category === 'mileage') {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_mileage',
+            {
+              id: inital.tx.id,
+              txnIds: JSON.stringify(allIds),
+              activeIndex: 0,
+            },
+          ]);
+        } else if (category === 'per diem') {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_per_diem',
+            {
+              id: inital.tx.id,
+              txnIds: JSON.stringify(allIds),
+              activeIndex: 0,
+            },
+          ]);
+        } else {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'add_edit_expense',
+            {
+              id: inital.tx.id,
+              txnIds: JSON.stringify(allIds),
+              activeIndex: 0,
+            },
+          ]);
+        }
+      });
   }
 
   onSentBackReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
@@ -293,15 +289,11 @@ export class TasksComponent implements OnInit {
   }
 
   onOpenDraftReportsTaskClick(taskCta: TaskCta, task: DashboardTask) {
-    this.router.navigate([
-      '/', 'enterprise', 'my_reports', { state: ['DRAFT'] }
-    ]);
+    this.router.navigate(['/', 'enterprise', 'my_reports', { state: ['DRAFT'] }]);
   }
 
   onCreateReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
-    this.router.navigate([
-      '/', 'enterprise', 'my_create_report'
-    ]);
+    this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
 
   addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
@@ -336,53 +328,58 @@ export class TasksComponent implements OnInit {
 
   showOldReportsMatBottomSheet() {
     const readyToReportEtxns$ = from(this.authService.getEou()).pipe(
-      switchMap((eou) => this.transactionService.getAllETxnc({
-        tx_org_user_id: 'eq.' + eou.ou.id,
-        tx_state: 'in.(COMPLETE)',
-        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-        tx_report_id: 'is.null',
-      })),
-      map(expenses => expenses.map((expenses) => expenses.tx_id))
+      switchMap((eou) =>
+        this.transactionService.getAllETxnc({
+          tx_org_user_id: 'eq.' + eou.ou.id,
+          tx_state: 'in.(COMPLETE)',
+          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+          tx_report_id: 'is.null',
+        })
+      ),
+      map((expenses) => expenses.map((expenses) => expenses.tx_id))
     );
 
-    this.reportService.getAllExtendedReports({ queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' } }).pipe(
-      map((openReports) =>
-        openReports.filter(
-          (openReport) =>
-            // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
-            // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list
-            !openReport.report_approvals ||
-            (openReport.report_approvals &&
-              !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
-        )
-      ),
-      switchMap((openReports) => {
-        const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
-          data: { openReports },
-          panelClass: ['mat-bottom-sheet-1'],
-        });
-        return addTxnToReportDialog.afterDismissed();
-      }),
-      switchMap((data) => {
-        if (data && data.report) {
-          return readyToReportEtxns$.pipe(
-            switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId))
-          );
-        } else {
-          return of(null);
+    this.reportService
+      .getAllExtendedReports({ queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' } })
+      .pipe(
+        map((openReports) =>
+          openReports.filter(
+            (openReport) =>
+              // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
+              // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list
+              !openReport.report_approvals ||
+              (openReport.report_approvals &&
+                !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
+          )
+        ),
+        switchMap((openReports) => {
+          const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
+            data: { openReports },
+            panelClass: ['mat-bottom-sheet-1'],
+          });
+          return addTxnToReportDialog.afterDismissed();
+        }),
+        switchMap((data) => {
+          if (data && data.report) {
+            return readyToReportEtxns$.pipe(
+              switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId))
+            );
+          } else {
+            return of(null);
+          }
+        })
+      )
+      .subscribe((report: ExtendedReport) => {
+        if (report) {
+          let message = '';
+          if (report.rp_state.toLowerCase() === 'draft') {
+            message = 'Expenses added to an existing draft report';
+          } else {
+            message = 'Expenses added to report successfully';
+          }
+          this.showAddToReportSuccessToast({ message, report });
         }
-      })
-    ).subscribe((report: ExtendedReport) => {
-      if (report) {
-        let message = '';
-        if (report.rp_state.toLowerCase() === 'draft') {
-          message = 'Expenses added to an existing draft report';
-        } else {
-          message = 'Expenses added to report successfully';
-        }
-        this.showAddToReportSuccessToast({ message, report });
-      }
-    });
+      });
   }
 
   onExpensesToReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
