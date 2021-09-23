@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, Injector, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, Injector, SimpleChanges } from '@angular/core';
 
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
 import { noop, of, from } from 'rxjs';
@@ -22,7 +22,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     },
   ],
 })
-export class FyCurrencyComponent implements ControlValueAccessor, OnChanges, OnInit {
+export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   @Input() txnDt: Date;
 
   @Input() homeCurrency: string;
