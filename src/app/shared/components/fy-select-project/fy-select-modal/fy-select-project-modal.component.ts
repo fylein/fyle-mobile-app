@@ -57,6 +57,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     pageNumber: 1,
   });
 
+  projects = [];
+
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
@@ -69,7 +71,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {}
 
-  getProjects(searchNameText) {
+  getProjects(searchNameText, pageNumber) {
     // set isLoading to true
     this.isLoading = true;
     // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
@@ -107,7 +109,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
                 orgCategoryIds: this.categoryIds,
                 projectIds: allowedProjectIds,
                 searchNameText,
-                offset: searchNameText ? 0 : this.clickedToLoadMore*20,
+                offset: searchNameText ? 0 : (pageNumber - 1) * 20,
                 limit: 20
               }),
               projectsCount: this.projectService.getByParamsUnformattedCount({
@@ -129,7 +131,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
         if (this.defaultValue) {
           return defaultProject$.pipe(
             map((defaultProject) => {
-              if (defaultProject && !projects.some((project) => project.project_id === defaultProject.project_id)) {
+              if (defaultProject && !projects.some((project) => project.project_id === defaultProject.project_id) && this.loadMore$.getValue().pageNumber === 1) {
                 projects.push(defaultProject);
               }
 
@@ -152,9 +154,13 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
           });
         }
 
-        return [{ label: 'None', value: null }]
+        if (this.loadMore$.getValue().pageNumber === 1) {
+          return [{ label: 'None', value: null }]
           .concat(currentElement)
           .concat(projects.map((project) => ({ label: project.project_name, value: project })));
+        } else {
+          return projects.map((project) => ({ label: project.project_name, value: project }));
+        }
       }),
       finalize(() => {
         // set isLoading to false
@@ -188,13 +194,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  loadMoreProjects(shouldIncrement) {
-    if (shouldIncrement) {
-      this.clickedToLoadMore += 1;
-    }
-    this.allProjects$ = this.filteredOptions$.pipe(
-      concatMap(() => this.getProjects(null))
-    );
+  loadMoreProjects() {
+    this.loadMore$.next({pageNumber: this.loadMore$.getValue().pageNumber + 1});
   }
 
   ngAfterViewInit() {
@@ -202,7 +203,17 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => this.getProjects(searchText)),
+      switchMap((searchText) => {
+        this.projects = [];
+        this.loadMore$.next({pageNumber: 1});
+        return this.loadMore$.pipe(
+          switchMap(({pageNumber}) => this.getProjects(searchText, pageNumber)),
+          map((newProjects) => {
+            this.projects = this.projects.concat(newProjects);
+            return this.projects;
+          })
+        )
+      }),
       map((projects: any[]) =>
         projects.map((project) => {
           if (isEqual(project.value, this.currentSelection)) {
@@ -224,8 +235,6 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
         )
       )
     );
-
-    this.loadMoreProjects(false);
 
     this.cdr.detectChanges();
   }

@@ -78,16 +78,16 @@
     <div
       matRipple
       class="selection-modal--list-element"
-      *ngFor="let filteredListItem of allProjects$ | async as list"
+      *ngFor="let filteredListItem of filteredOptions$ | async as list"
       (click)="onElementSelect(filteredListItem)"
     >
       <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
       <mat-icon *ngIf="filteredListItem.selected" class="selection-modal--check"> check </mat-icon>
     </div>
-    <div class="selection-modal--list-element" (click)="loadMoreProjects(true)" #loadMore *ngIf="clickedToLoadMore !== 5 && this.projectsCount > 20">
+    <div class="selection-modal--list-element" (click)="loadMoreProjects()" #loadMore *ngIf="clickedToLoadMore !== 5 && this.projectsCount > 20">
       <p class="font-italic m-0"><span class="primary-text">Show more projects...</span> (or you can try searching!)</p>
     </div>
-    <div class="selection-modal--list-element" *ngIf="clickedToLoadMore === 5 && this.projectsCount > 20">
+    <div class="selection-modal--list-element" *ngIf="loadMore$.getValue().pageNumber === 5 && projectsCount > 20">
       <p class="font-italic m-0">Not able to find your project? Try searching for it.</p>
     </div>
   </div>
