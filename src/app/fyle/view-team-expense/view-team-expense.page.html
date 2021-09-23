@@ -1,11 +1,34 @@
 <ion-header mode="md">
   <ion-toolbar class="view-expense--toolbar">
-    <ion-buttons *ngIf="this.reportId" mode="md" slot="end">
+    <ion-buttons *ngIf="this.reportId" mode="md" slot="start">
       <ion-button (click)="goBack()">
-        <mat-icon>close</mat-icon>
+        <ion-icon
+          class="icon--navigate-left"
+          [src]="'../../../../assets/svg/navigate-left.svg'"
+          slot="icon-only"
+        ></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title">View Expense</ion-title>
+    <ion-title mode="md" class="page-title" [ngClass]="{'view-expense--title-sm': isDeviceWidthSmall}">View Expense</ion-title>
+    <ion-buttons class="view-expense--header-btn-container" slot="end">
+      <ion-button class="view-expense--header-btn-container__btn" (click)="openCommentsModal()">
+        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+
+      <ng-container *ngIf="canFlagOrUnflag$|async">
+        <ion-button class="view-expense--header-btn-container__btn" (click)="flagUnflagExpense()"
+          [ngClass]="isExpenseFlagged ? 'icon--flagged' : 'icon--unflagged'" 
+        >
+          <ion-icon [src]="'../../../assets/svg/fy-flag-2.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+
+      <ng-container *ngIf="canDelete$|async">
+        <ion-button class="view-expense--header-btn-container__btn" (click)="removeExpenseFromReport()">
+          <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -170,33 +193,6 @@
       <div class="view-expense--element">
         <div class="view-expense--element-label">Reimbursable</div>
         <div class="view-expense--element-value">{{ etxn.tx_skip_reimbursement ? 'No' : 'Yes' }}</div>
-      </div>
-    </div>
-
-    <div class="view-expense--card">
-      <div #comments class="view-expense--card-action" id="commentsSection">
-        <app-comments-history
-          objectType="transactions"
-          [objectId]="etxn.tx_id"
-          text="Comments"
-          [showCommentsCount]="true"
-        ></app-comments-history>
-      </div>
-    </div>
-
-    <div class="view-expense--card" *ngIf="canFlagOrUnflag$|async">
-      <app-fy-flag-expense [etxn]="etxn" (notify)="onUpdateFlag($event)"></app-fy-flag-expense>
-    </div>
-
-    <div class="view-expense--card" *ngIf="canDelete$|async">
-      <div class="view-expense--card-action" (click)="removeExpenseFromReport()">
-        <mat-icon class="view-expense--card-action-icon">delete</mat-icon>
-        <div class="view-expense--card-action-text__comment">
-          <div class="view-expense--card-action-text view-expense--card-action-text__delete">Remove</div>
-          <div class="view-expense--delete-warning view-expense--card-action-text__helper-comment">
-            remove from report
-          </div>
-        </div>
       </div>
     </div>
   </div>

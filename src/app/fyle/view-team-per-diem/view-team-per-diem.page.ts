@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, of } from 'rxjs';
+import { Observable, from, Subject, noop, of } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,9 +11,13 @@ import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, concatMap } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
-import { PopoverController } from '@ionic/angular';
-import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyFlagExpenseComponent } from 'src/app/shared/components/fy-flag-expense/fy-flag-expense.component';
 
 @Component({
   selector: 'app-view-team-per-diem',
@@ -49,6 +53,10 @@ export class ViewTeamPerDiemPage implements OnInit {
 
   comments$: Observable<any>;
 
+  isDeviceWidthSmall = window.innerWidth < 330;
+
+  isExpenseFlagged: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
@@ -60,7 +68,10 @@ export class ViewTeamPerDiemPage implements OnInit {
     private reportService: ReportService,
     private router: Router,
     private popoverController: PopoverController,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private trackingService: TrackingService,
   ) {}
 
   isNumber(val) {
@@ -69,12 +80,6 @@ export class ViewTeamPerDiemPage implements OnInit {
 
   goBack() {
     this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId }]);
-  }
-
-  onUpdateFlag(event) {
-    if (event) {
-      this.updateFlag$.next();
-    }
   }
 
   scrollCommentsIntoView() {
@@ -96,6 +101,28 @@ export class ViewTeamPerDiemPage implements OnInit {
       .subscribe(details => {
         this.policyDetails = details;
       });
+    }
+  }
+
+  async openCommentsModal() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'transactions',
+        objectId: etxn.tx_id,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment();
+    } else {
+      this.trackingService.viewComment();
     }
   }
 
@@ -160,10 +187,6 @@ export class ViewTeamPerDiemPage implements OnInit {
 
     this.comments$ = this.statusService.find('transactions', id);
 
-    // this.policyViloations$.subscribe(res => {
-    //   debugger;
-    // })
-
     this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
       map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
@@ -174,26 +197,76 @@ export class ViewTeamPerDiemPage implements OnInit {
       map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
 
+    this.extendedPerDiem$.subscribe((etxn) => {
+      this.isExpenseFlagged = etxn.tx_manual_flag;
+    });
+
     this.updateFlag$.next();
   }
 
   async removeExpenseFromReport() {
     const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-    const popover = await this.popoverController.create({
-      component: RemoveExpenseReportComponent,
+
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
-        etxn,
-      },
-      cssClass: 'dialog-popover',
+        header: 'Remove Expense',
+        body: 'Are you sure you want to remove this expense from the report?',
+        infoMessage: 'The report amount will be adjusted accordingly.',
+        ctaText: 'Remove',
+        ctaLoadingText: 'Removing',
+        deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id)
+      }
     });
 
-    await popover.present();
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
 
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.goBack) {
+    if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
     }
+  }
+
+  async flagUnflagExpense() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const flagUnflagModal = await this.modalController.create({
+      component: FyFlagExpenseComponent,
+      componentProps: {
+        isExpenseFlagged: this.isExpenseFlagged
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+      cssClass: 'flag-unflag-modal'
+    });
+
+    await flagUnflagModal.present();
+    const { data } = await flagUnflagModal.onWillDismiss();
+
+    if (data && data.message) {
+      from(this.loaderService.showLoader('Please wait'))
+        .pipe(
+          switchMap(() => {
+            const comment = {
+              comment: data.message,
+            };
+            return this.statusService.post('transactions', etxn.tx_id, comment, true);
+          }),
+          concatMap(() =>
+            etxn.tx_manual_flag
+              ? this.transactionService.manualUnflag(etxn.tx_id)
+              : this.transactionService.manualFlag(etxn.tx_id)
+          ),
+          finalize(() => {
+            this.updateFlag$.next();
+            this.loaderService.hideLoader();
+          })
+        )
+        .subscribe(noop);
+    }
+    this.isExpenseFlagged = etxn.tx_manual_flag;
   }
 
   ngOnInit() {}
