@@ -38,6 +38,14 @@ export class TasksService {
     });
   }
 
+  /**
+   * What is this asObservable?
+   * So, when we are returning a Behavior Subject, Subject or a ReplaySubject -
+   * it is considered best practice to return it as an Observable. Ref: https://eliteionic.com/tutorials/using-behaviorsubject-to-handle-asynchronous-loading-in-ionic/
+   * Why?
+   * Generally, we want to make sure we are only calling next on our BehaviorSubject from one place (this service) so
+   * we don't want to give out the subject to other parts of the application which could then call its next method.
+   */
   getTotalTaskCount() {
     return this.totalTaskCount$.asObservable();
   }
@@ -117,7 +125,7 @@ export class TasksService {
     return this.reportService.getReportStatsData({
       scalar: true,
       aggregates: 'count(rp_id),sum(rp_amount)',
-      rp_state: 'in.(DRAFT,DRAFT_INQUIRY)'
+      rp_state: 'in.(DRAFT)'
     });
   }
 
