@@ -1,24 +1,24 @@
-<div class="stats--ccc-card-details">
-  <div class="stats--ccc-bank-name1">
-    <ion-grid class="stats--ccc-container">
-      <div class="stats--top">
-        <div class="stats--ccc-bank-name">
-          {{ accountDetails.bank_name }}
-        </div>
-        <ion-icon
-          [src]="'assets/svg/action-menu.svg'"
-          size="medium"
-          slot="icon-only"
-          style="font-size: 18px; margin-top: 4px"
-        ></ion-icon>
+<div class="perosnal-card--card-details">
+  <ion-grid class="perosnal-card--container">
+    <div class="perosnal-card--header">
+      <div class="perosnal-card--bank-name">
+        {{ accountDetails.bank_name }}
       </div>
-      <ion-row>
-        <ion-col class="stats--ccc-account-info">
-          <span class="stats--ccc-account-info__type"> {{ accountDetails.account_type }} </span>
-          <span class="stats--ccc-account-info__mask">{{ accountDetails.account_number }}</span>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+      <ion-icon
+        (click)="presentPopover($event)"
+        [src]="'assets/svg/action-menu.svg'"
+        slot="icon-only"
+        class="perosnal-card--action-icon"
+      ></ion-icon>
+    </div>
+    <ion-row>
+      <ion-col class="perosnal-card--account-info">
+        <span class="perosnal-card--account-info__type"> {{ accountDetails.account_type }} </span>
+        <span class="perosnal-card--account-info__mask">{{ accountDetails.account_number }}</span>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <div class="perosnal-card--sync-detail">
+    Last fetch: {{ accountDetails.last_synced_at | date: 'MMM d, y | h:mm a' }}
   </div>
-  <div class="stats--ccc-sync-detail">Last fetch: {{ accountDetails.last_synced_at | date: 'MMM d, y | h:mm a' }}</div>
 </div>

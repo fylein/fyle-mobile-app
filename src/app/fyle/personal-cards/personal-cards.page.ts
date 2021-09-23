@@ -6,9 +6,11 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { finalize, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
-
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 @Component({
   selector: 'app-personal-cards',
   templateUrl: './personal-cards.page.html',
@@ -23,9 +25,11 @@ export class PersonalCardsPage implements OnInit {
 
   linkedAccounts$: Observable<PersonalCard[]>;
 
-  loadData$: BehaviorSubject<any>;
+  loadCardData$: BehaviorSubject<any>;
 
   navigateBack = false;
+
+  isLoading = true;
 
   constructor(
     private personalCardsService: PersonalCardsService,
@@ -34,7 +38,9 @@ export class PersonalCardsPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private inAppBrowser: InAppBrowser,
     private loaderService: LoaderService,
-    private zone: NgZone
+    private zone: NgZone,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {
@@ -44,13 +50,21 @@ export class PersonalCardsPage implements OnInit {
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.loadData$ = new BehaviorSubject({});
-    this.linkedAccountsCount$ = this.loadData$.pipe(
+    this.isLoading = true;
+
+    this.loadCardData$ = new BehaviorSubject({});
+    this.linkedAccountsCount$ = this.loadCardData$.pipe(
       switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
       shareReplay(1)
     );
-    this.linkedAccounts$ = this.loadData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccounts()),
+    this.linkedAccounts$ = this.loadCardData$.pipe(
+      switchMap(() => {
+        this.isLoading = true;
+        return this.personalCardsService.getLinkedAccounts();
+      }),
+      tap(() => {
+        this.isLoading = false;
+      }),
       shareReplay(1)
     );
   }
@@ -92,7 +106,7 @@ export class PersonalCardsPage implements OnInit {
                           </script>
                           `;
     const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
-    const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=yes');
+    const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=no');
     browser.on('loadstart').subscribe((event) => {
       if (event.url.substring(0, 22) === 'https://www.fylehq.com') {
         browser.close();
@@ -112,9 +126,19 @@ export class PersonalCardsPage implements OnInit {
           await this.loaderService.hideLoader();
         })
       )
-      .subscribe((reponse) => {
-        this.loadData$.next({});
+      .subscribe((data) => {
+        const message =
+          data.length === 1 ? '1 card successfully added to Fyle!' : `${data.length} cards successfully added to Fyle!`;
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success'],
+        });
+        this.loadCardData$.next({});
       });
+  }
+
+  onDeleted() {
+    this.loadCardData$.next({});
   }
 
   onHomeClicked() {

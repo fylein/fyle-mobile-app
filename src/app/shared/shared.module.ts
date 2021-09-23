@@ -37,6 +37,7 @@ import { FyMenuIconComponent } from './components/fy-menu-icon/fy-menu-icon.comp
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
 import { FyLoadingScreenComponent } from './components/fy-loading-screen/fy-loading-screen.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -167,7 +168,7 @@ import { BankAccountCardComponent } from './components/bank-account-cards/bank-a
     RouteSelectorModalComponent,
     PolicyViolationDetailsComponent,
     BankAccountCardsComponent,
-    BankAccountCardComponent
+    BankAccountCardComponent,
   ],
   imports: [
     CommonModule,
@@ -188,7 +189,8 @@ import { BankAccountCardComponent } from './components/bank-account-cards/bank-a
     AgmCoreModule,
     AgmDirectionModule,
     MatChipsModule,
-    SwiperModule
+    SwiperModule,
+    MatSnackBarModule,
   ],
   exports: [
     EllipsisPipe,
@@ -252,7 +254,7 @@ import { BankAccountCardComponent } from './components/bank-account-cards/bank-a
     RouteSelectorComponent,
     MatChipsModule,
     PolicyViolationDetailsComponent,
-    BankAccountCardsComponent
+    BankAccountCardsComponent,
   ],
   providers: [DecimalPipe, DatePipe],
 })
