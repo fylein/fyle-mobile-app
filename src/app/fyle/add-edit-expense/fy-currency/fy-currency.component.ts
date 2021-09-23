@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, Injector, SimpleChanges, OnChanges } from '@angular/core';
 
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
 import { noop, of, from } from 'rxjs';
@@ -22,7 +22,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     },
   ],
 })
-export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
+export class FyCurrencyComponent implements ControlValueAccessor, OnChanges, OnInit {
   @Input() txnDt: Date;
 
   @Input() homeCurrency: string;
@@ -129,6 +129,24 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
           this.value = value;
         }
       });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (this.fg && changes.txnDt && !isEqual(changes.txnDt.previousValue, changes.txnDt.currentValue)) {
+      from(this.currencyService
+        .getExchangeRate(this.fg.value.currency, this.homeCurrency, this.txnDt || new Date()))
+        .pipe().subscribe(newExchangeRate => {
+          this.exchangeRate = newExchangeRate;
+            if (this.innerValue.orig_amount) {
+              if (this.value.currency !== this.homeCurrency) {
+                this.innerValue.amount = this.innerValue.orig_amount;
+              } else {
+                const amount = (this.innerValue.orig_amount * this.exchangeRate);
+                this.innerValue.amount = parseFloat(amount.toFixed(2));
+              }
+            }
+        });
+    }
   }
 
   convertInnerValueToFormValue(innerVal) {
