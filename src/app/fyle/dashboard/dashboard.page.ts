@@ -137,6 +137,10 @@ export class DashboardPage implements OnInit {
     return FooterState;
   }
 
+  get filterPills() {
+    return this.tasksComponent?.filterPills;
+  }
+
   onTaskClicked() {
     this.currentStateIndex = 1;
     const queryParams: Params = { state: 'tasks' };
