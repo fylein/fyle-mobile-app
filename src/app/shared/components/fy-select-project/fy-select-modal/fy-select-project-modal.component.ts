@@ -8,7 +8,7 @@ import {
   ChangeDetectorRef,
   TemplateRef,
 } from '@angular/core';
-import { Observable, fromEvent, iif, of, from } from 'rxjs';
+import { Observable, fromEvent, iif, of, from, combineLatest, BehaviorSubject, Subject, forkJoin } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, tap, concatMap, finalize } from 'rxjs/operators';
 import { isEqual } from 'lodash';
@@ -30,6 +30,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @Input() currentSelection: any;
 
   @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+  
+  @Input() allProjects$: Observable<{ label: string; value: any; selected?: boolean }[]>;
 
   @Input() cacheName;
 
@@ -46,6 +48,14 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   value;
 
   isLoading = false;
+
+  clickedToLoadMore = 0
+
+  projectsCount = 0;
+
+  loadMore$ = new BehaviorSubject({
+    pageNumber: 1,
+  });
 
   constructor(
     private modalController: ModalController,
@@ -88,21 +98,34 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       concatMap((allowedProjectIds) =>
         from(this.authService.getEou()).pipe(
           switchMap((eou) =>
-            this.projectService.getByParamsUnformatted({
-              orgId: eou.ou.org_id,
-              active: true,
-              sortDirection: 'asc',
-              sortOrder: 'project_name',
-              orgCategoryIds: this.categoryIds,
-              projectIds: allowedProjectIds,
-              searchNameText,
-              offset: 0,
-              limit: 20,
+            forkJoin({
+              projects: this.projectService.getByParamsUnformatted({
+                orgId: eou.ou.org_id,
+                active: true,
+                sortDirection: 'asc',
+                sortOrder: 'project_name',
+                orgCategoryIds: this.categoryIds,
+                projectIds: allowedProjectIds,
+                searchNameText,
+                offset: searchNameText ? 0 : this.clickedToLoadMore*20,
+                limit: 20
+              }),
+              projectsCount: this.projectService.getByParamsUnformattedCount({
+                orgId: eou.ou.org_id,
+                active: true,
+                sortDirection: 'asc',
+                sortOrder: 'project_name',
+                orgCategoryIds: this.categoryIds,
+                projectIds: allowedProjectIds,
+                searchNameText
+              })
             })
-          )
+          ),
         )
       ),
-      switchMap((projects) => {
+      switchMap((res) => {
+        const projects = res.projects;
+        this.projectsCount = res.projectsCount.count;
         if (this.defaultValue) {
           return defaultProject$.pipe(
             map((defaultProject) => {
@@ -165,6 +188,15 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     }
   }
 
+  loadMoreProjects(shouldIncrement) {
+    if (shouldIncrement) {
+      this.clickedToLoadMore += 1;
+    }
+    this.allProjects$ = this.filteredOptions$.pipe(
+      concatMap(() => this.getProjects(null))
+    );
+  }
+
   ngAfterViewInit() {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
@@ -192,6 +224,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
         )
       )
     );
+
+    this.loadMoreProjects(false);
 
     this.cdr.detectChanges();
   }

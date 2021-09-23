@@ -1,6 +1,7 @@
 @import '../../../../../assets/styles/fy_select';
 
 $list-element-color: #333;
+$primary: #ff3636;
 
 .selection-modal {
   color: black;
@@ -11,6 +12,10 @@ $list-element-color: #333;
     @extend %fy-select-list-element-default-border-color-font;
     // list-item-layout
     @extend %fy-select-list-element-layout;
+
+    .primary-text {
+      color: $primary;
+    }
   }
 
   &--title {
@@ -54,9 +59,19 @@ $list-element-color: #333;
 
   &--container {
     @extend %flex-layout-column;
+    &---label {
+      padding: 8px 16px;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 18px;
+      text-transform: uppercase;
+      color: $grey-light;
+
+    }
   }
 
   &--recently-used-block {
+    margin-top: 12px;
     margin-bottom: 20px;
   }
 

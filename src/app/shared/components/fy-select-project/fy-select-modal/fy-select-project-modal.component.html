@@ -46,8 +46,9 @@
   <div class="selection-modal--container">
     <div
       class="selection-modal--recently-used-block"
-      *ngIf="cacheName && (recentrecentlyUsedItems$ | async)?.length > 0"
+      *ngIf="cacheName && (recentrecentlyUsedItems$ | async)?.length > 0 && !this.value"
     >
+      <label class="selection-modal--container---label">Recently Used</label>
       <div
         matRipple
         class="selection-modal--list-element"
@@ -73,14 +74,21 @@
       </div>
     </div>
 
+    <label class="selection-modal--container---label" *ngIf="!this.value && this.projectsCount > 0">All Projects</label>
     <div
       matRipple
       class="selection-modal--list-element"
-      *ngFor="let filteredListItem of filteredOptions$ | async as list"
+      *ngFor="let filteredListItem of allProjects$ | async as list"
       (click)="onElementSelect(filteredListItem)"
     >
       <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
       <mat-icon *ngIf="filteredListItem.selected" class="selection-modal--check"> check </mat-icon>
+    </div>
+    <div class="selection-modal--list-element" (click)="loadMoreProjects(true)" #loadMore *ngIf="clickedToLoadMore !== 5 && this.projectsCount > 20">
+      <p class="font-italic m-0"><span class="primary-text">Show more projects...</span> (or you can try searching!)</p>
+    </div>
+    <div class="selection-modal--list-element" *ngIf="clickedToLoadMore === 5 && this.projectsCount > 20">
+      <p class="font-italic m-0">Not able to find your project? Try searching for it.</p>
     </div>
   </div>
 </ion-content>

@@ -304,7 +304,7 @@ textarea:focus {
 }
 
 .m-0 {
-  margin: 0;
+  margin: 0 !important; // !important because `.mat-typography p` overriding margin when class is m-0
 }
 
 .p-0 {
@@ -897,4 +897,8 @@ ion-modal.auto-height {
 
 .no-pointer-events {
   pointer-events: none;
+}
+
+.font-italic         {
+  font-style: italic;
 }

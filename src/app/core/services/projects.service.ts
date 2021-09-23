@@ -166,4 +166,50 @@ export class ProjectsService {
       })
       .pipe(map((res) => res.data[0]));
   }
+
+  @Cacheable()
+  getByParamsUnformattedCount(
+    projectParams: Partial<{
+      orgId;
+      active;
+      orgCategoryIds;
+      searchNameText;
+      limit;
+      offset;
+      sortOrder;
+      sortDirection;
+      projectIds;
+    }>
+  ): Observable<any> {
+    // eslint-disable-next-line prefer-const
+    let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
+      projectParams;
+    sortOrder = sortOrder || 'project_updated_at';
+    sortDirection = sortDirection || 'desc';
+
+    const params: any = {
+      project_org_id: 'eq.' + orgId,
+      order: sortOrder + '.' + sortDirection,
+      limit: limit || 200,
+      offset: offset || 0
+    };
+
+    // `active` can be optional
+    this.addActiveFilter(active, params);
+
+    // `orgCategoryIds` can be optional
+    this.addOrgCategoryIdsFilter(orgCategoryIds, params);
+
+    // `projectIds` can be optional
+    this.addProjectIdsFilter(projectIds, params);
+
+    // `searchNameText` can be optional
+    this.addNameSearchFilter(searchNameText, params);
+
+    return this.apiV2Service
+      .get('/projects', {
+        params,
+      })
+      .pipe(map((res) => res));
+  };
 }
