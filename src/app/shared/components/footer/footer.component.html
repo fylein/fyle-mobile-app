@@ -32,6 +32,7 @@
           'fy-footer--button__inactive': activeState !== FooterState.TASKS,
           'fy-footer--button__disabled': connectionState === ConnectionMessageStatus.disconnected
         }"
+        [disabled]="connectionState === ConnectionMessageStatus.disconnected"
         expand="full"
         (click)="goToTasks()"
       >
@@ -40,7 +41,7 @@
           [svgIcon]="activeState === FooterState.TASKS ? 'fy-notification-solid' : 'fy-notification'"
         ></mat-icon>
         <div *ngIf="taskCount > 0" class="fy-footer--icon-pill">
-          {{taskCount}}
+          {{ taskCount }}
         </div>
         Tasks
       </div>

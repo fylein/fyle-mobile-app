@@ -1,7 +1,7 @@
-import { Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { concat, forkJoin, from, Observable, Subject } from 'rxjs';
-import { filter, shareReplay, takeUntil } from 'rxjs/operators';
+import { concat, forkJoin, from, Observable, of, Subject } from 'rxjs';
+import { filter, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { ActionSheetController, PopoverController } from '@ionic/angular';
@@ -64,7 +64,7 @@ export class DashboardPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
-    private tasksService: TasksService,
+    private tasksService: TasksService
   ) {}
 
   ionViewWillLeave() {
@@ -93,6 +93,7 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
     this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
@@ -121,8 +122,16 @@ export class DashboardPage implements OnInit {
       .pipe(filter(({ isGetStartedPopupShown, totalCount }) => !isGetStartedPopupShown && totalCount.count === 0))
       .subscribe((_) => this.showGetStartedPopup());
 
-    this.tasksService.getTotalTaskCount().subscribe(taskCount => {
-      this.taskCount = taskCount;
+    this.isConnected$
+      .pipe(switchMap((isConnected) => (isConnected ? this.tasksService.getTotalTaskCount() : of(0))))
+      .subscribe((taskCount) => {
+        this.taskCount = taskCount;
+      });
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_dashboard', { state: 'home' }]);
+      }
     });
   }
 
