@@ -127,7 +127,7 @@
                   [formControl]="fg?.controls?.currencyObj"
                   [homeCurrency]="homeCurrency"
                   [recentlyUsed]="recentCurrencies"
-                  [txnDt]="fg?.controls?.dateOfSpend?.value"
+                  [txnDt]="etxn?.tx?.txn_dt"
                   [expanded]="attachedReceiptsCount === 0"
                 >
                 </app-fy-currency>
