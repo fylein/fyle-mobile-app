@@ -30,7 +30,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @Input() currentSelection: any;
 
   @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
-  
+
   @Input() allProjects$: Observable<{ label: string; value: any; selected?: boolean }[]>;
 
   @Input() cacheName;
@@ -49,7 +49,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   isLoading = false;
 
-  clickedToLoadMore = 0
+  clickedToLoadMore = 0;
 
   projectsCount = 0;
 
@@ -212,7 +212,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
             this.projects = this.projects.concat(newProjects);
             return this.projects;
           })
-        )
+        );
       }),
       map((projects: any[]) =>
         projects.map((project) => {
