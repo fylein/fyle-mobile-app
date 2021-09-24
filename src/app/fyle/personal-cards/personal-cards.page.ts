@@ -6,7 +6,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
@@ -50,21 +50,20 @@ export class PersonalCardsPage implements OnInit {
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.isLoading = true;
-
     this.loadCardData$ = new BehaviorSubject({});
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
       switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
       shareReplay(1)
     );
     this.linkedAccounts$ = this.loadCardData$.pipe(
-      switchMap(() => {
-        this.isLoading = true;
-        return this.personalCardsService.getLinkedAccounts();
-      }),
-      tap(() => {
-        this.isLoading = false;
-      }),
+      tap(() => (this.isLoading = true)),
+      switchMap(() =>
+        this.personalCardsService.getLinkedAccounts().pipe(
+          finalize(() => {
+            this.isLoading = false;
+          })
+        )
+      ),
       shareReplay(1)
     );
   }

@@ -9,27 +9,7 @@ import { finalize, switchMap } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from '../../../../core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-
-@Component({
-  selector: 'app-delete-button',
-  template:
-    '<div (click)="parent.confirmPopup()" class="delete-button"><ion-icon src="assets/svg/delete.svg" class="icon" slot="icon-only"></ion-icon> Delete Card</div>',
-  styles: [
-    `
-      .delete-button {
-        font-size: 16px;
-      }
-      .icon {
-        vertical-align: middle;
-        font-size: 14px;
-        margin-top: -4px;
-      }
-    `,
-  ],
-})
-export class DeleteButtonComponent {
-  @Input() parent;
-}
+import { DeleteButtonComponent } from './delete-button/delete-button-component';
 @Component({
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',

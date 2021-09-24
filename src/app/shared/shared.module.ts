@@ -94,11 +94,8 @@ import { RouteSelectorModalComponent } from './components/route-selector/route-s
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 import { BankAccountCardsComponent } from './components/bank-account-cards/bank-account-cards.component';
-import {
-  BankAccountCardComponent,
-  DeleteButtonComponent,
-} from './components/bank-account-cards/bank-account-card/bank-account-card.component';
-
+import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
+import { DeleteButtonComponent } from './components/bank-account-cards/bank-account-card/delete-button/delete-button-component';
 @NgModule({
   declarations: [
     AdvanceState,
