@@ -5,7 +5,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, switchMap, finalize, map, scan, shareReplay, tap, take } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
-import { Router } from '@angular/router';
+import { Params, Router } from '@angular/router';
 
 @Component({
   selector: 'app-team-advance',
@@ -133,5 +133,23 @@ export class TeamAdvancePage implements OnInit {
     this.currentPageNumber = 1;
     this.state = state;
     this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
+  }
+
+  onHomeClicked() {
+    const queryParams: Params = { state: 'home' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onTaskClicked() {
+    const queryParams: Params = { state: 'tasks' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onCameraClicked() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 }
