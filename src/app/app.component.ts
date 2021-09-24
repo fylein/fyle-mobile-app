@@ -499,6 +499,12 @@ export class AppComponent implements OnInit {
         route: ['/', 'enterprise', 'corporate_card_expenses'],
       },
       {
+        title: 'Personal Cards',
+        isVisible: environment.ROOT_URL === 'https://staging.fyle.tech',
+        icon: 'fy-cards-new',
+        route: ['/', 'enterprise', 'personal_cards'],
+      },
+      {
         title: 'Reports',
         isVisible: true,
         icon: 'fy-reports-new',
