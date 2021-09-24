@@ -60,12 +60,14 @@ export class FooterComponent implements OnInit {
     this.cameraClicked.emit();
   }
 
-  goToTasks() {
-    this.trackingService.footerButtonClicked({
-      Action: 'Tasks',
-      Url: this.router.url,
-    });
+  goToTasks(connectionState: ConnectionMessageStatus) {
+    if (connectionState !== ConnectionMessageStatus.disconnected) {
+      this.trackingService.footerButtonClicked({
+        Action: 'Tasks',
+        Url: this.router.url,
+      });
 
-    this.taskClicked.emit();
+      this.taskClicked.emit();
+    }
   }
 }

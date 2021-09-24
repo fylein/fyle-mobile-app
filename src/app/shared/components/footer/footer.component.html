@@ -32,9 +32,8 @@
           'fy-footer--button__inactive': activeState !== FooterState.TASKS,
           'fy-footer--button__disabled': connectionState === ConnectionMessageStatus.disconnected
         }"
-        [disabled]="connectionState === ConnectionMessageStatus.disconnected"
         expand="full"
-        (click)="goToTasks()"
+        (click)="goToTasks(connectionState)"
       >
         <mat-icon
           class="fy-footer--icon"
