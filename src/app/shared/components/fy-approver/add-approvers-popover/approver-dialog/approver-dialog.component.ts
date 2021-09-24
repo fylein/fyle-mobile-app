@@ -100,18 +100,20 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   onSelectApprover(approver: Employee, event: { checked: boolean }) {
     if (event.checked) {
-      this.selectedApproversList.push({name: approver.us_full_name, email: approver.us_email});
+      this.selectedApproversList.push({ name: approver.us_full_name, email: approver.us_email });
     } else {
-      this.selectedApproversList = this.selectedApproversList
-        .filter( selectedApprover => selectedApprover.email !== approver.us_email );
+      this.selectedApproversList = this.selectedApproversList.filter(
+        (selectedApprover) => selectedApprover.email !== approver.us_email
+      );
     }
     this.areApproversAdded = this.selectedApproversList.length === 0;
     this.selectedApproversDict = this.getSelectedApproversDict();
   }
 
   removeApprover(approver) {
-    this.selectedApproversList = this.selectedApproversList
-      .filter( selectedApprover => selectedApprover.email !== approver.email );
+    this.selectedApproversList = this.selectedApproversList.filter(
+      (selectedApprover) => selectedApprover.email !== approver.email
+    );
     this.areApproversAdded = this.selectedApproversList.length === 0;
     this.selectedApproversDict = this.getSelectedApproversDict();
   }
@@ -168,9 +170,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     } else {
       return this.getDefaultUsersList().pipe(
         switchMap((employees) => {
-          employees = employees.filter(
-            (employee) => this.approverEmailsList.indexOf(employee.us_email) === -1
-          );
+          employees = employees.filter((employee) => this.approverEmailsList.indexOf(employee.us_email) === -1);
           return this.getSearchedUsersList(null).pipe(
             map((searchedEmployees) => {
               searchedEmployees = this.getSearchedEmployees(searchedEmployees, employees);

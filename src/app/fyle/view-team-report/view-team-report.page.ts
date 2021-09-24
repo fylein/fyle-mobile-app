@@ -317,16 +317,14 @@ export class ViewTeamReportPage implements OnInit {
     const { data } = await popover.onWillDismiss();
 
     if (data && data.statusPayload) {
-      this.reportService
-        .inquire(this.activatedRoute.snapshot.params.id, data.statusPayload)
-        .subscribe(() => {
-          const message = 'Report Sent Back successfully';
-          this.matSnackBar.openFromComponent( ToastMessageComponent, {
-            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-            panelClass: ['msb-success-with-camera-icon']
-          });
-          this.trackingService.showToastMessage({ ToastContent: message });
+      this.reportService.inquire(this.activatedRoute.snapshot.params.id, data.statusPayload).subscribe(() => {
+        const message = 'Report Sent Back successfully';
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
         });
+        this.trackingService.showToastMessage({ ToastContent: message });
+      });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
   }

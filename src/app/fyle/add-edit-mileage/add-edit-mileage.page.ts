@@ -2492,10 +2492,11 @@ export class AddEditMileagePage implements OnInit {
   getPolicyDetails() {
     const txnId = this.activatedRoute.snapshot.params.id;
     if (txnId) {
-      from(this.policyService.getPolicyViolationRules(txnId)).pipe()
-      .subscribe(details => {
-        this.policyDetails = details;
-      });
+      from(this.policyService.getPolicyViolationRules(txnId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
     }
   }
 }

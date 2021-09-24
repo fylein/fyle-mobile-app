@@ -15,7 +15,6 @@ import { ReportService } from 'src/app/core/services/report.service';
   styleUrls: ['./add-approvers-popover.component.scss'],
 })
 export class AddApproversPopoverComponent {
-
   @Input() approverEmailsList;
 
   @Input() id: string;
@@ -37,7 +36,7 @@ export class AddApproversPopoverComponent {
     private advanceRequestService: AdvanceRequestService,
     private reportService: ReportService,
     private loaderService: LoaderService,
-    private tripRequestsService: TripRequestsService,
+    private tripRequestsService: TripRequestsService
   ) {}
 
   async openModal() {
@@ -51,7 +50,7 @@ export class AddApproversPopoverComponent {
         ownerEmail: this.ownerEmail,
       },
       mode: 'ios',
-      ...this.modalProperties.getModalDefaultProperties()
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await approversListModal.present();
@@ -60,32 +59,35 @@ export class AddApproversPopoverComponent {
 
     if (data && data.selectedApproversList) {
       this.selectedApproversList = data.selectedApproversList;
-      this.displayValue = data.selectedApproversList.map(selectedApprover => selectedApprover.name).slice(0, 3).join(', ');
-      if(this.selectedApproversList && this.selectedApproversList.length > 3) {
-        this.displayValue = this.displayValue +  ', ...';
+      this.displayValue = data.selectedApproversList
+        .map((selectedApprover) => selectedApprover.name)
+        .slice(0, 3)
+        .join(', ');
+      if (this.selectedApproversList && this.selectedApproversList.length > 3) {
+        this.displayValue = this.displayValue + ', ...';
       }
     }
   }
 
   saveUpdatedApproversList() {
     from(this.loaderService.showLoader())
-    .pipe(
-      switchMap(() => from(this.selectedApproversList.map(selectedApprover => selectedApprover.email))),
-      concatMap((approver) => {
-        if (this.type === 'TRIP_REQUEST') {
-          return this.tripRequestsService.addApproverETripRequests(this.id, approver, this.confirmationMessage);
-        } else if (this.type === 'ADVANCE_REQUEST') {
-          return this.advanceRequestService.addApprover(this.id, approver, this.confirmationMessage);
-        } else {
-          return this.reportService.addApprover(this.id, approver, this.confirmationMessage);
-        }
-      }),
-      reduce((acc, curr) => acc.concat(curr), []),
-      finalize(() => from(this.loaderService.hideLoader()))
-    )
-    .subscribe(() => {
-      this.popoverController.dismiss({ reload: true });
-    });
+      .pipe(
+        switchMap(() => from(this.selectedApproversList.map((selectedApprover) => selectedApprover.email))),
+        concatMap((approver) => {
+          if (this.type === 'TRIP_REQUEST') {
+            return this.tripRequestsService.addApproverETripRequests(this.id, approver, this.confirmationMessage);
+          } else if (this.type === 'ADVANCE_REQUEST') {
+            return this.advanceRequestService.addApprover(this.id, approver, this.confirmationMessage);
+          } else {
+            return this.reportService.addApprover(this.id, approver, this.confirmationMessage);
+          }
+        }),
+        reduce((acc, curr) => acc.concat(curr), []),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(() => {
+        this.popoverController.dismiss({ reload: true });
+      });
   }
 
   closeAddApproversPopover() {

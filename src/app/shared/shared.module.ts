@@ -160,7 +160,7 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
     RouteSelectorComponent,
     RouteSelectorModalComponent,
     PolicyViolationDetailsComponent,
-    AddApproversPopoverComponent
+    AddApproversPopoverComponent,
   ],
   imports: [
     CommonModule,
@@ -241,7 +241,7 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
     RouteVisualizerComponent,
     RouteSelectorComponent,
     MatChipsModule,
-    PolicyViolationDetailsComponent
+    PolicyViolationDetailsComponent,
   ],
   providers: [DecimalPipe, DatePipe],
 })

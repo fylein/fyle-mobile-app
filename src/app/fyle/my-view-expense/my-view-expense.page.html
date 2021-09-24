@@ -14,7 +14,8 @@
     <ng-container *ngIf="etxn.tx_policy_flag">
       <ng-container *ngIf="policyDetails">
         <app-fy-policy-violation-info
-          [policyDetails]="policyDetails" [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+          [policyDetails]="policyDetails"
+          [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
         ></app-fy-policy-violation-info>
       </ng-container>
     </ng-container>

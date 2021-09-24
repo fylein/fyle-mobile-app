@@ -8,9 +8,8 @@ describe('AddApproversPopoverComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AddApproversPopoverComponent ]
-    })
-    .compileComponents();
+      declarations: [AddApproversPopoverComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

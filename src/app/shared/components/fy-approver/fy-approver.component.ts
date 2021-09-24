@@ -21,9 +21,7 @@ export class FyApproverComponent {
 
   approverList$: Observable<any>;
 
-  constructor(
-    private popoverController: PopoverController
-  ) {}
+  constructor(private popoverController: PopoverController) {}
 
   async openApproverListDialog() {
     const addApproversPopover = await this.popoverController.create({
@@ -35,13 +33,13 @@ export class FyApproverComponent {
         ownerEmail: this.ownerEmail,
       },
       cssClass: 'fy-dialog-popover',
-      backdropDismiss: false
+      backdropDismiss: false,
     });
 
     await addApproversPopover.present();
     const { data } = await addApproversPopover.onWillDismiss();
 
-    if(data) {
+    if (data) {
       this.notify.emit(data);
     }
   }

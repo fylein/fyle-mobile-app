@@ -9,8 +9,8 @@
       <div class="my-create-report--title-container text-center">
         <div class="my-create-report--title">Create New Report</div>
         <div class="my-create-report--sub-title">
-          {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }} -
-          {{ homeCurrencySymbol }} {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency:2:true }}
+          {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }} - {{
+          homeCurrencySymbol }} {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency:2:true }}
         </div>
       </div>
     </ion-toolbar>
@@ -38,7 +38,7 @@
       class="my-create-report--report-card my-create-report--report-card__trips"
       *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)"
     >
-    <span class="my-create-report--trip-label">Select a trip to associate with report:</span>
+      <span class="my-create-report--trip-label">Select a trip to associate with report:</span>
       <app-fy-select
         [options]="tripRequests"
         [(ngModel)]="selectedTripRequest"
@@ -73,10 +73,13 @@
 
     <div *ngIf="readyToReportEtxns?.length > 0" class="my-create-report--heading">EXPENSES</div>
     <div *ngIf="readyToReportEtxns?.length > 0" class="my-create-report--select-all-checkbox">
-      <mat-checkbox class="custom-mat-checkbox create-new-report--checkbox" 
-      [(ngModel)]="isSelectedAll"
-      (ngModelChange)="toggleSelectAll($event)">
-      Select all</mat-checkbox>
+      <mat-checkbox
+        class="custom-mat-checkbox create-new-report--checkbox"
+        [(ngModel)]="isSelectedAll"
+        (ngModelChange)="toggleSelectAll($event)"
+      >
+        Select all</mat-checkbox
+      >
     </div>
 
     <div *ngIf="readyToReportEtxns">
@@ -100,29 +103,29 @@
   <ion-toolbar mode="md" class="my-create-report--footer">
     <div class="my-create-report--cta-container">
       <button
-      class="my-create-report--cta-button my-create-report--secondary-cta text-center"
-      fill="outline"
-      color="fyle-primary"
-      (click)="ctaClickedEvent('create_draft_report')"
-      appFormButtonValidation
-      [loading]="saveDraftReportLoading"
-      [loadingText]="'Saving Report'"
-      [disabled]="saveDraftReportLoading || saveReportLoading"
-    >
-      Save Draft
-    </button>
-    <button
-      class="my-create-report--cta-button my-create-report--primary-cta text-center"
-      fill="solid"
-      color="fyle-primary"
-      (click)="ctaClickedEvent('submit_report')"
-      appFormButtonValidation
-      [loading]="saveReportLoading"
-      [loadingText]="'Submitting Report'"
-      [disabled]="(this.selectedElements?.length === 0) || saveDraftReportLoading  || saveReportLoading"
-    >
-      Submit Report
-    </button>
+        class="my-create-report--cta-button my-create-report--secondary-cta text-center"
+        fill="outline"
+        color="fyle-primary"
+        (click)="ctaClickedEvent('create_draft_report')"
+        appFormButtonValidation
+        [loading]="saveDraftReportLoading"
+        [loadingText]="'Saving Report'"
+        [disabled]="saveDraftReportLoading || saveReportLoading"
+      >
+        Save Draft
+      </button>
+      <button
+        class="my-create-report--cta-button my-create-report--primary-cta text-center"
+        fill="solid"
+        color="fyle-primary"
+        (click)="ctaClickedEvent('submit_report')"
+        appFormButtonValidation
+        [loading]="saveReportLoading"
+        [loadingText]="'Submitting Report'"
+        [disabled]="(this.selectedElements?.length === 0) || saveDraftReportLoading  || saveReportLoading"
+      >
+        Submit Report
+      </button>
     </div>
   </ion-toolbar>
 </ion-footer>
