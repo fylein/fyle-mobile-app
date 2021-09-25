@@ -91,6 +91,7 @@ import { RouteSelectorComponent } from './components/route-selector/route-select
 import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-view-report-info.component';
 
 @NgModule({
   declarations: [
@@ -162,7 +163,8 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     RouteVisualizerComponent,
     RouteSelectorComponent,
     RouteSelectorModalComponent,
-    PolicyViolationDetailsComponent
+    PolicyViolationDetailsComponent,
+    FyViewReportInfoComponent,
   ],
   imports: [
     CommonModule,
@@ -245,7 +247,7 @@ import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-t
     RouteVisualizerComponent,
     RouteSelectorComponent,
     MatChipsModule,
-    PolicyViolationDetailsComponent
+    PolicyViolationDetailsComponent,
   ],
   providers: [DecimalPipe, DatePipe],
 })

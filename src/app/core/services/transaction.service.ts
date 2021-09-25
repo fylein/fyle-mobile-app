@@ -620,4 +620,105 @@ export class TransactionService {
   getIsDraft(expense: Expense): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
+
+  isEtxnInPaymentMode(etxn, paymentMode) {
+    let etxnInPaymentMode = false;
+    const isAdvanceOrCCCEtxn =
+      etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' ||
+      etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+    if (paymentMode === 'reimbursable') {
+      etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'nonReimbursable') {
+      etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'advance') {
+      etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT';
+    } else if (paymentMode === 'ccc') {
+      etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+    }
+    return etxnInPaymentMode;
+  }
+
+  getPaymentModeWiseSummary(etxns) {
+    const paymentModes = [
+      {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+      },
+      {
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
+      },
+    ];
+
+    const paymentMap = {};
+
+    etxns.forEach((etxn) => {
+      paymentModes.forEach((paymentMode) => {
+        if (this.isEtxnInPaymentMode(etxn, paymentMode.key)) {
+          if (paymentMap.hasOwnProperty(paymentMode.key)) {
+            paymentMap[paymentMode.key].name = paymentMode.name;
+            paymentMap[paymentMode.key].key = paymentMode.key;
+            paymentMap[paymentMode.key].amount += etxn.tx_amount;
+            paymentMap[paymentMode.key].count++;
+          } else {
+            paymentMap[paymentMode.key] = {
+              name: paymentMode.name,
+              key: paymentMode.key,
+              amount: etxn.tx_amount,
+              count: 1,
+            };
+          }
+        }
+      });
+    });
+    return paymentMap;
+  }
+
+  getCurrenyWiseSummary(etxns) {
+    const currencyMap = {};
+
+    etxns.forEach(function (etxn) {
+      if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
+        if (currencyMap.hasOwnProperty(etxn.tx_currency)) {
+          currencyMap[etxn.tx_currency].origAmount += etxn.tx_amount;
+          currencyMap[etxn.tx_currency].amount += etxn.tx_amount;
+          currencyMap[etxn.tx_currency].count++;
+        } else {
+          currencyMap[etxn.tx_currency] = {
+            name: etxn.tx_currency,
+            currency: etxn.tx_currency,
+            origAmount: etxn.tx_amount,
+            amount: etxn.tx_amount,
+            count: 1,
+          };
+        }
+      } else {
+        if (currencyMap.hasOwnProperty(etxn.tx_orig_currency)) {
+          currencyMap[etxn.tx_orig_currency].origAmount += etxn.tx_orig_amount;
+          currencyMap[etxn.tx_orig_currency].amount += etxn.tx_amount;
+          currencyMap[etxn.tx_orig_currency].count++;
+        } else {
+          currencyMap[etxn.tx_orig_currency] = {
+            name: etxn.tx_orig_currency,
+            currency: etxn.tx_orig_currency,
+            amount: etxn.tx_amount,
+            origAmount: etxn.tx_orig_amount,
+            count: 1,
+          };
+        }
+      }
+    });
+
+    return Object.keys(currencyMap)
+      .map((currency) => currencyMap[currency])
+      .sort((a, b) => (a.amount < b.amount ? 1 : -1));
+  }
 }

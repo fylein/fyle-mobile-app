@@ -7,13 +7,15 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
 import { NetworkService } from '../../core/services/network.service';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 
 @Component({
   selector: 'app-view-team-report',
@@ -64,7 +66,9 @@ export class ViewTeamReportPage implements OnInit {
     private router: Router,
     private popoverController: PopoverController,
     private popupService: PopupService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService
   ) {}
 
   ngOnInit() {}
@@ -320,5 +324,22 @@ export class ViewTeamReportPage implements OnInit {
     if (data && data.goBack) {
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
+  }
+
+  async openViewReportInfoModal() {
+    const viewInfoModal = await this.modalController.create({
+      component: FyViewReportInfoComponent,
+      componentProps: {
+        erpt$: this.erpt$,
+        etxns$: this.etxns$,
+        isTeamReport: true,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await viewInfoModal.present();
+    await viewInfoModal.onWillDismiss();
   }
 }

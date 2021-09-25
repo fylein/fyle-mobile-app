@@ -40,6 +40,10 @@
         <div class="view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}">
           {{erpt.rp_state | reportState | uppercase | snakeCaseToSpaceCase}}
         </div>
+        <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
+          <mat-icon class="view-reports--view-info__icon" svgIcon="fy-info-gradient"></mat-icon>
+          <span class="view-reports--view-info__content">View Info</span>
+        </div>
       </div>
 
       <!-- Display Associated trip request info, if there is one. Otherwise don't display this block at all -->
