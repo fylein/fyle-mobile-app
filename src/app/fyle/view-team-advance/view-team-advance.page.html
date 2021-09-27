@@ -3,7 +3,7 @@
     <ion-buttons
       mode="md"
       slot="start"
-      [ngClass]="{'view-advance-request--header-btn-container-sm': isDeviceWidthSmall}"
+      [ngClass]="{'view-advance-request--header-btn-container__sm': isDeviceWidthSmall}"
     >
       <ion-button [routerLink]="['/','enterprise','team_advance']">
         <ion-icon class="fy-icon-close" src="../../../../assets/svg/fy-close.svg" slot="icon-only"></ion-icon>
@@ -14,7 +14,7 @@
     </ion-title>
     <ion-buttons
       class="view-advance-request--header-btn-container"
-      [ngClass]="{'view-advance-request--header-btn-container-sm': isDeviceWidthSmall}"
+      [ngClass]="{'view-advance-request--header-btn-container__sm': isDeviceWidthSmall}"
       slot="end"
     >
       <ion-button (click)="openCommentsModal()" class="view-advance-request--header-btn-container__btn">

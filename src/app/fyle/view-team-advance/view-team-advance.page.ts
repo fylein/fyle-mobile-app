@@ -278,7 +278,6 @@ export class ViewTeamAdvancePage implements OnInit {
     if (data && data.updated) {
       this.trackingService.addComment();
     } else {
-      console.log('hi');
       this.trackingService.viewComment();
     }
   }
