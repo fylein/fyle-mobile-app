@@ -107,7 +107,7 @@ export class FyViewReportInfoComponent implements OnInit {
     });
   }
 
-  originalOrder = (a: KeyValue<number, string>, b: KeyValue<number, string>): number => 0;
+  originalOrder = (a: KeyValue<string, string>, b: KeyValue<string, string>): number => 0;
 
   closeModal() {
     this.modalController.dismiss();
