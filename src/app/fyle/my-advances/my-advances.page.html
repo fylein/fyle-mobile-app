@@ -1,16 +1,18 @@
-<ion-header class="ion-no-border">
-  <div class="my-advances--header">
-    <ion-toolbar class="my-advances--toolbar-header">
-      <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
-        <app-fy-menu-icon></app-fy-menu-icon>
-      </ion-buttons>
-      <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
-        <ion-back-button mode="md"></ion-back-button>
-      </ion-buttons>
-
-      <ion-title mode="md" class="page-title">Advances</ion-title>
-    </ion-toolbar>
-  </div>
+<ion-header mode="md">
+  <ion-toolbar mode="md" class="my-advances--toolbar-header">
+    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
+      <app-fy-menu-icon></app-fy-menu-icon>
+    </ion-buttons>
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="page-title" mode="md"> Advances </ion-title>
+    <ion-buttons mode="md" slot="end">
+      <ion-button class="my-advances--header-btn" [routerLink]="['/', 'enterprise', 'add_edit_advance_request']">
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
@@ -23,15 +25,12 @@
       <ng-container *ngIf="advances?.length === 0">
         <div class="my-advances--zero-state">
           <app-fy-zero-state
-            [image]="'../../../assets/images/zero-states/reports.svg'"
-            [header]="'This is the home to all your Advance Requests'"
-            [message]="'Your advance request logs will show up here. Request your first advance to see how it looks.'"
-          >
-          </app-fy-zero-state>
-        </div>
-
-        <div class="my-advances--zero-state-action-button-container">
-          <div class="my-advances--zero-state-action-button">Request First Advance</div>
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+            image="../../../assets/images/zero-states/expenses.png"
+            header="You've got no advances!"
+            message="Create one by clicking `+` on top"
+          ></app-fy-zero-state>
         </div>
       </ng-container>
     </ng-container>
@@ -42,16 +41,10 @@
   </div>
 </ion-content>
 
-<ion-footer>
-  <ion-toolbar mode="md">
-    <ion-button
-      [routerLink]="['/', 'enterprise', 'add_edit_advance_request']"
-      class="my-advances--primary-cta"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
-    >
-      REQUEST NEW ADVANCE
-    </ion-button>
-  </ion-toolbar>
+<ion-footer mode="md">
+  <app-fy-footer
+    (homeClicked)="onHomeClicked()"
+    (taskClicked)="onTaskClicked()"
+    (cameraClicked)="onCameraClicked()"
+  ></app-fy-footer>
 </ion-footer>
