@@ -297,7 +297,7 @@ export class TasksService {
     return extendedReports.map(
       (extendedReport) =>
         ({
-          amount: this.humanizeCurrency.transform(extendedReport.rp_amount, homeCurrency, 2),
+          amount: this.humanizeCurrency.transform(extendedReport.rp_amount, homeCurrency, 2, true),
           count: extendedReport.rp_num_transactions,
           header: `Report sent back!`,
           subheader: 'Please check comments made by your approver',
@@ -320,7 +320,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
           count: aggregate.totalCount,
           header: `Unsubmitted reports`,
           subheader: `${aggregate.totalCount} reports ${this.getAmountString(
@@ -348,7 +348,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
           count: aggregate.totalCount,
           header: `Incomplete expenses`,
           subheader: `${aggregate.totalCount} expenses ${this.getAmountString(
@@ -376,7 +376,7 @@ export class TasksService {
   ): DashboardTask[] {
     if (aggregate.totalCount > 0) {
       const task = {
-        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2),
+        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
         count: aggregate.totalCount,
         header: `Ready to Report`,
         subheader: `${aggregate.totalCount} expenses ${this.getAmountString(

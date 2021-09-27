@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { Observable, BehaviorSubject, forkJoin, from, of } from 'rxjs';
-import { finalize, map, switchMap, tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, forkJoin, from, of, concat } from 'rxjs';
+import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
@@ -12,6 +12,7 @@ import { TaskFilters } from 'src/app/core/models/task-filters.model';
 import { DashboardTask } from 'src/app/core/models/task.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { NetworkService } from 'src/app/core/services/network.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -38,6 +39,8 @@ export class TasksComponent implements OnInit {
     unreportedExpenses: false,
   });
 
+  isConnected$: Observable<boolean>;
+
   filterPills = [];
 
   taskCount = 0;
@@ -54,15 +57,29 @@ export class TasksComponent implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private authService: AuthService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private networkService: NetworkService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.setupNetworkWatcher();
+  }
+
+  trackTasks(tasks: DashboardTask[]): void {
+    tasks?.forEach((task) => {
+      this.trackingService.tasksShown({
+        Asset: 'Mobile',
+        header: task.header,
+      });
+    });
+  }
 
   init() {
     this.tasks$ = this.loadData$.pipe(
       switchMap((taskFilters) => this.taskService.getTasks(taskFilters)),
-      tap((tasks) => (this.taskCount = tasks.length))
+      tap((tasks) => this.trackTasks(tasks)),
+      tap((tasks) => (this.taskCount = tasks.length)),
+      shareReplay(1)
     );
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
@@ -85,6 +102,14 @@ export class TasksComponent implements OnInit {
     }
 
     this.filterPills = this.taskService.generateFilterPills(this.loadData$.getValue());
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      shareReplay(1)
+    );
   }
 
   doRefresh(event?) {
@@ -174,10 +199,18 @@ export class TasksComponent implements OnInit {
     }
 
     this.filterPills = this.taskService.generateFilterPills(this.loadData$.getValue());
+    this.trackingService.tasksFilterPillClicked({
+      Asset: 'Mobile',
+      filterPillType,
+    });
   }
 
   onFilterClick(filterPillType: string) {
     this.openFilters(filterPillType);
+    this.trackingService.tasksFilterPillClicked({
+      Asset: 'Mobile',
+      filterPillType,
+    });
   }
 
   onFilterPillsClearAll() {
@@ -189,9 +222,18 @@ export class TasksComponent implements OnInit {
     });
 
     this.filterPills = this.taskService.generateFilterPills(this.loadData$.getValue());
+
+    this.trackingService.tasksFilterClearAllClicked({
+      Asset: 'Mobile',
+      appliedFilters: this.loadData$.getValue(),
+    });
   }
 
   onTaskClicked(taskCta: TaskCta, task: DashboardTask): void {
+    this.trackingService.tasksClicked({
+      Asset: 'Mobile',
+      header: task.header,
+    });
     switch (taskCta.event) {
       case TASKEVENT.expensesAddToReport:
         this.onExpensesToReportTaskClick(taskCta, task);

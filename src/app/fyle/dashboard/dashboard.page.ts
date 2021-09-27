@@ -130,7 +130,8 @@ export class DashboardPage implements OnInit {
 
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_dashboard', { state: 'home' }]);
+        const queryParams: Params = { state: 'home' };
+        this.router.navigate(['/', 'enterprise', 'my_dashboard', { queryParams }]);
       }
     });
   }
@@ -156,6 +157,10 @@ export class DashboardPage implements OnInit {
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'Dashboard',
     });
   }
 

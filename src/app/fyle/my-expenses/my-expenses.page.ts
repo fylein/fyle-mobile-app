@@ -378,7 +378,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.tasksService.getExpensesTaskCount().subscribe(expensesTaskCount => {
+    this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
     });
 
@@ -1707,7 +1707,9 @@ export class MyExpensesPage implements OnInit {
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: `Are you sure you want to delete ${this.selectedElements.length === 1 ? '1 expense?': this.selectedElements.length + ' expenses?'}`,
+        body: `Are you sure you want to delete ${
+          this.selectedElements.length === 1 ? '1 expense?' : this.selectedElements.length + ' expenses?'
+        }`,
         deleteMethod: () => {
           offlineExpenses = this.selectedElements.filter((exp) => !exp.tx_id);
 
@@ -1842,6 +1844,10 @@ export class MyExpensesPage implements OnInit {
     const queryParams: Params = { state: 'tasks', tasksFilters: 'expenses' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'My Expenses',
     });
   }
 

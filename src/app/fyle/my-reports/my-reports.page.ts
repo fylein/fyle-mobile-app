@@ -119,7 +119,7 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.tasksService.getReportsTaskCount().subscribe(reportsTaskCount => {
+    this.tasksService.getReportsTaskCount().subscribe((reportsTaskCount) => {
       this.reportsTaskCount = reportsTaskCount;
     });
 
@@ -450,6 +450,10 @@ export class MyReportsPage implements OnInit {
     const queryParams: Params = { state: 'tasks', tasksFilters: 'reports' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'My Reports',
     });
   }
 
