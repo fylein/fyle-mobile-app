@@ -46,6 +46,7 @@ $sent-back-color: #da1e28;
   }
 
   &--view-info {
+    display: flex;
     float: right;
     padding: 1px 4px;
     font-size: 12px;

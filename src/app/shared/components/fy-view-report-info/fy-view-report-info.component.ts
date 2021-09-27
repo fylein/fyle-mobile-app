@@ -4,8 +4,8 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable } from 'rxjs';
 import { KeyValue, DatePipe } from '@angular/common';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-fy-view-report-info',
@@ -45,8 +45,8 @@ export class FyViewReportInfoComponent implements OnInit {
     private modalController: ModalController,
     private transactionService: TransactionService,
     private datePipe: DatePipe,
-    private offlineService: OfflineService,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   ngOnInit(): void {}
@@ -61,33 +61,29 @@ export class FyViewReportInfoComponent implements OnInit {
       };
       this.reportCurrency = erpt.rp_currency;
 
-      // let allowedCostCenters;
-      // this.offlineService.getOrgSettings().subscribe(orgSettings => {
-      //   if(orgSettings.cost_centers.enabled) {
-      //     this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
-      //       console.log('Org user settings-------', orgUserSettings);
-      //       this.offlineService.getAllowedCostCenters(orgUserSettings).subscribe((costCenters) => {
-      //         console.log('Cost centers-------', costCenters);
-      //         allowedCostCenters = costCenters;
-      //       });
-      //     });
-      //   }
-      // });
+      let allowedCostCenters;
+      this.orgUserService.getUserById(erpt.ou_id).subscribe((user) => {
+        this.orgUserSettingsService.getUserSettings(user.ou_settings_id).subscribe((orgUserSettings) => {
+          this.orgUserSettingsService.getAllowedCostCenteres(orgUserSettings).subscribe((costCenters) => {
+            allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
 
-      if (this.isTeamReport) {
-        this.employeeDetails = {
-          'Employee ID': erpt.ou_employee_id,
-          Organization: erpt.ou_org_name,
-          Department: erpt.ou_department,
-          'Sub Department': erpt.ou_sub_department,
-          Location: erpt.ou_location,
-          Level: erpt.ou_level,
-          'Employee Title': erpt.ou_title,
-          'Business Unit': erpt.ou_business_unit,
-          Mobile: erpt.ou_mobile,
-          'Allowed Cost Centers': 'This is yet to be done',
-        };
-      }
+            if (this.isTeamReport) {
+              this.employeeDetails = {
+                'Employee ID': erpt.ou_employee_id,
+                Organization: erpt.ou_org_name,
+                Department: erpt.ou_department,
+                'Sub Department': erpt.ou_sub_department,
+                Location: erpt.ou_location,
+                Level: erpt.ou_level,
+                'Employee Title': erpt.ou_title,
+                'Business Unit': erpt.ou_business_unit,
+                Mobile: erpt.ou_mobile,
+                'Allowed Cost Centers': allowedCostCenters,
+              };
+            }
+          });
+        });
+      });
     });
 
     this.etxns$.subscribe((etxns) => {

@@ -28,6 +28,10 @@ export class OrgUserSettingsService {
     return this.apiService.post('/org_user_settings', data);
   }
 
+  getUserSettings(userSettingsId: string) {
+    return this.apiService.get('/org_user_settings/' + userSettingsId).pipe(map((res) => res as OrgUserSettings));
+  }
+
   getEmailEvents() {
     const featuresList = {
       features: {
