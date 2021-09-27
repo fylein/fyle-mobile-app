@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { File } from 'src/app/core/models/file.model';
@@ -21,6 +21,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -46,7 +47,7 @@ export class ViewTeamAdvancePage implements OnInit {
 
   customFields$: Observable<any>;
 
-  isDeviceWidthSmall = window.innerWidth < 375;
+  isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -60,7 +61,8 @@ export class ViewTeamAdvancePage implements OnInit {
     private authService: AuthService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
   ionViewWillEnter() {
