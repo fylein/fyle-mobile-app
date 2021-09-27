@@ -21,7 +21,7 @@
           {{reportName}}
           <ion-icon
             *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY')"
-            [src]="'../../../../assets/svg/edit.svg'"
+            [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
             slot="icon-only"
             (click)="editReportName()"
             class="view-reports--card-header__icon"

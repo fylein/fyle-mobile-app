@@ -74,6 +74,7 @@ $sent-back-color: #da1e28;
   }
 
   &--card-header {
+    display: flex;
     font-size: 16px;
     color: #4a4a4a;
     border-bottom: 1px solid #e0e0e0;
@@ -81,7 +82,7 @@ $sent-back-color: #da1e28;
     margin-bottom: 8px;
 
     &__icon {
-      color: $pink-gradient-3;
+      padding-left: 6px;
     }
   }
 
