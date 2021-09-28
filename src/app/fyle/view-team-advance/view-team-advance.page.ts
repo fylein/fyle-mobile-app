@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { File } from 'src/app/core/models/file.model';
@@ -10,7 +10,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { from, Subject, forkJoin } from 'rxjs';
 import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith, take, tap } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { AdvanceActionsComponent } from './advance-actions/advance-actions.component';
 import { ApproveAdvanceComponent } from './approve-advance/approve-advance.component';
 import { SendBackAdvanceComponent } from './send-back-advance/send-back-advance.component';
@@ -18,6 +18,10 @@ import { RejectAdvanceComponent } from './reject-advance/reject-advance.componen
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { TrackingService } from '../../core/services/tracking.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -43,6 +47,8 @@ export class ViewTeamAdvancePage implements OnInit {
 
   customFields$: Observable<any>;
 
+  isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private advanceRequestService: AdvanceRequestService,
@@ -52,7 +58,11 @@ export class ViewTeamAdvancePage implements OnInit {
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private trackingService: TrackingService,
+    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
   ionViewWillEnter() {
@@ -249,6 +259,28 @@ export class ViewTeamAdvancePage implements OnInit {
 
     if (data && data.goBack) {
       this.router.navigate(['/', 'enterprise', 'team_advance']);
+    }
+  }
+
+  async openCommentsModal() {
+    const advanceRequestId = this.activatedRoute.snapshot.params.id;
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'advance_requests',
+        objectId: advanceRequestId,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment();
+    } else {
+      this.trackingService.viewComment();
     }
   }
 

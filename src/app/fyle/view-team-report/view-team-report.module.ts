@@ -26,7 +26,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatRippleModule,
     SharedModule,
     MatFormFieldModule,
-    MatSnackBarModule
+    MatSnackBarModule,
   ],
   declarations: [
     ViewTeamReportPage,

@@ -73,7 +73,7 @@ export class ViewTeamMileagePage implements OnInit {
     private statusService: StatusService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService,
+    private trackingService: TrackingService
   ) {}
 
   ionViewWillLeave() {
@@ -113,11 +113,12 @@ export class ViewTeamMileagePage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    if(txId) {
-      from(this.policyService.getPolicyViolationRules(txId)).pipe()
-      .subscribe(details => {
-        this.policyDetails = details;
-      });
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
     }
   }
 
@@ -160,8 +161,8 @@ export class ViewTeamMileagePage implements OnInit {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id)
-      }
+        deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
+      },
     });
 
     await deletePopover.present();
@@ -177,12 +178,12 @@ export class ViewTeamMileagePage implements OnInit {
     const flagUnflagModal = await this.modalController.create({
       component: FyFlagExpenseComponent,
       componentProps: {
-        isExpenseFlagged: this.isExpenseFlagged
+        isExpenseFlagged: this.isExpenseFlagged,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
-      cssClass: 'flag-unflag-modal'
+      cssClass: 'flag-unflag-modal',
     });
 
     await flagUnflagModal.present();
