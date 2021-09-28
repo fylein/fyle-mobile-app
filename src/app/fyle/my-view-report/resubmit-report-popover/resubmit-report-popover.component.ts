@@ -108,7 +108,14 @@ export class ResubmitReportPopoverComponent implements OnInit {
       (window as any)._refiner('identifyUser', {
         id: eou.ou.id, // Replace with your user ID
         email: eou.us.email, // Replace with user Email
-        name: eou.us.full_name // Replace with user name
+        name: eou.us.full_name, // Replace with user name,
+        properties: {
+          source: 'Mobile',
+          region: 'America',
+          action: 'Resubmit Report',
+          lite: 'F',
+          admin: 'F'
+        }
       });
       (window as any)._refiner('showForm', '56ed8380-0c7f-11ec-89c5-effca223424b');
       this.popoverController.dismiss({
