@@ -104,15 +104,22 @@ export class TasksService {
   }
 
   getSentBackReports() {
-    const queryParams = { rp_state: 'in.(APPROVER_INQUIRY)' };
-    return this.reportService.getAllExtendedReports({ queryParams });
+    return this.reportService.getReportStatsData({
+      scalar: true,
+      aggregates: 'count(rp_id),sum(rp_amount)',
+      rp_state: 'in.(APPROVER_INQUIRY)',
+    });
   }
 
   getSentBackReportTasks(): Observable<DashboardTask[]> {
     return forkJoin({
-      extendedReports: this.getSentBackReports(),
+      reportsStats: this.getSentBackReports(),
       homeCurrency: this.offlineService.getHomeCurrency(),
-    }).pipe(map(({ extendedReports, homeCurrency }) => this.mapSentBackReportsToTasks(extendedReports, homeCurrency)));
+    }).pipe(
+      map(({ reportsStats, homeCurrency }) =>
+        this.mapSentBackReportsToTasks(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
+      )
+    );
   }
 
   getUnsubmittedReportsStats() {
@@ -293,24 +300,32 @@ export class TasksService {
     return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency, 2)} ` : '';
   }
 
-  private mapSentBackReportsToTasks(extendedReports: ExtendedReport[], homeCurrency: string): DashboardTask[] {
-    return extendedReports.map(
-      (extendedReport) =>
-        ({
-          amount: this.humanizeCurrency.transform(extendedReport.rp_amount, homeCurrency, 2, true),
-          count: extendedReport.rp_num_transactions,
-          header: `Report sent back!`,
-          subheader: 'Please check comments made by your approver',
-          icon: TaskIcon.WARNING,
+  private mapSentBackReportsToTasks(
+    aggregate: { totalCount: number; totalAmount: number },
+    homeCurrency: string
+  ): DashboardTask[] {
+    if (aggregate.totalCount > 0) {
+      return [
+        {
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
+          count: aggregate.totalCount,
+          header: `Report${aggregate.totalCount === 1 ? '' : 's'} sent back!`,
+          subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
+            aggregate.totalAmount,
+            homeCurrency
+          )} ${aggregate.totalCount === 1 ? 'was' : 'were'} sent back by your approver`,
+          icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: 'View Report',
+              content: 'View Reports',
               event: TASKEVENT.openSentBackReport,
             },
           ],
-          data: extendedReport,
-        } as DashboardTask)
-    );
+        } as DashboardTask,
+      ];
+    } else {
+      return [];
+    }
   }
 
   private mapAggregateToUnsubmittedReportTask(
@@ -322,8 +337,8 @@ export class TasksService {
         {
           amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
           count: aggregate.totalCount,
-          header: `Unsubmitted reports`,
-          subheader: `${aggregate.totalCount} reports ${this.getAmountString(
+          header: `Unsubmitted report${aggregate.totalCount === 1 ? '' : 's'}`,
+          subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
             aggregate.totalAmount,
             homeCurrency
           )} remain in draft state`,
@@ -350,8 +365,8 @@ export class TasksService {
         {
           amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
           count: aggregate.totalCount,
-          header: `Incomplete expenses`,
-          subheader: `${aggregate.totalCount} expenses ${this.getAmountString(
+          header: `Incomplete expense${aggregate.totalCount === 1 ? '' : 's'}`,
+          subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
             aggregate.totalAmount,
             homeCurrency
           )} require additional information`,
@@ -379,7 +394,7 @@ export class TasksService {
         amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
         count: aggregate.totalCount,
         header: `Ready to Report`,
-        subheader: `${aggregate.totalCount} expenses ${this.getAmountString(
+        subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(
           aggregate.totalAmount,
           homeCurrency
         )} can be added to a report`,

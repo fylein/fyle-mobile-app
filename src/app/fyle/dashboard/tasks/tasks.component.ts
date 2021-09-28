@@ -326,8 +326,22 @@ export class TasksComponent implements OnInit {
   }
 
   onSentBackReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
-    const report = task.data as ExtendedReport;
-    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.rp_id, navigateBack: true }]);
+    if (task.count === 1) {
+      const queryParams = {
+        rp_state: 'in.(APPROVER_INQUIRY)',
+      };
+
+      from(this.loaderService.showLoader('Opening your report...'))
+        .pipe(
+          switchMap(() => this.reportService.getMyReports({ queryParams, offset: 0, limit: 1 })),
+          finalize(() => this.loaderService.hideLoader())
+        )
+        .subscribe((res) => {
+          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
+        });
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_reports', { state: ['APPROVER_INQUIRY'] }]);
+    }
   }
 
   onOpenDraftReportsTaskClick(taskCta: TaskCta, task: DashboardTask) {
