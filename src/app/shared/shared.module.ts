@@ -243,6 +243,6 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
     MatChipsModule,
     PolicyViolationDetailsComponent,
   ],
-  providers: [DecimalPipe, DatePipe],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
 })
 export class SharedModule {}
