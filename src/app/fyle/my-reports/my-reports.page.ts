@@ -80,6 +80,10 @@ export class MyReportsPage implements OnInit {
     count: number;
   }>;
 
+  isLoading = false;
+
+  isLoadingDataInInfiniteScroll: boolean;
+
   onPageExit = new Subject();
 
   constructor(
@@ -111,7 +115,7 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.loaderService.showLoader('Loading reports...', 1000);
+    this.isLoading = true;
     this.setupNetworkWatcher();
 
     this.searchText = '';
@@ -147,6 +151,7 @@ export class MyReportsPage implements OnInit {
         };
         const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        this.isLoadingDataInInfiniteScroll = true;
         return this.reportService.getMyReportsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
@@ -165,6 +170,7 @@ export class MyReportsPage implements OnInit {
         );
       }),
       map((res) => {
+        this.isLoadingDataInInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
@@ -247,6 +253,10 @@ export class MyReportsPage implements OnInit {
     } else {
       this.clearFilters();
     }
+
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 500);
   }
 
   setupNetworkWatcher() {
@@ -410,7 +420,7 @@ export class MyReportsPage implements OnInit {
       if (data && data.status === 'success') {
         from(this.loaderService.showLoader())
           .pipe(
-            tap(() => this.trackingService.deleteReport({ Asset: 'Mobile' })),
+            tap(() => this.trackingService.deleteReport()),
             finalize(async () => {
               await this.loaderService.hideLoader();
               this.doRefresh();
@@ -419,6 +429,24 @@ export class MyReportsPage implements OnInit {
           .subscribe(noop);
       }
     }
+  }
+
+  onHomeClicked() {
+    const queryParams: Params = { state: 'home' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onTaskClicked() {
+    const queryParams: Params = { state: 'tasks' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onCameraClicked() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
   onViewCommentsClick(event) {

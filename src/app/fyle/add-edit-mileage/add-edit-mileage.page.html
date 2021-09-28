@@ -20,7 +20,7 @@
       mode="md"
       [ngClass]="{'add-edit-mileage--title__review': reviewList?.length}"
     >
-      <div *ngIf="mode === 'add'">Add Mileage</div>
+      <div *ngIf="mode === 'add'" class="add-edit-mileage--toolbar__title">Add Mileage</div>
       <div *ngIf="mode === 'edit'">
         <ng-container *ngIf="reviewList?.length;else editMode">
           Review Mileage
@@ -33,12 +33,12 @@
         </ng-template>
       </div>
     </ion-title>
-    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" slot="end">
-      <ion-button class="add-edit-mileage--header-button" (click)="openCommentsModal()">
+    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" class="add-edit-mileage--header-btn-container" slot="end">
+      <ion-button class="add-edit-mileage--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
-      <ng-container *ngIf="etxn$|async as etxn">
-        <ion-button class="add-edit-mileage--header-button" (click)="deleteExpense(etxn.tx.report_id)">
+      <ng-container *ngIf="canDeleteExpense && etxn$|async as etxn">
+        <ion-button class="add-edit-mileage--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
           <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
         </ion-button>
       </ng-container>
@@ -61,22 +61,19 @@
         <ng-container *ngIf="(isAmountCapped$|async) || (etxn.tx.policy_flag && mode === 'edit')">
           <div class="add-edit-mileage--violations">
             <ng-container *ngIf="etxn.tx.policy_flag && mode === 'edit'">
-              <ng-container *ngIf="comments$|async as comments">
-                <app-fy-policy-violation-info [estatuses]="comments" (click)="scrollCommentsIntoView()">
+              <ng-container *ngIf="policyDetails">
+                <app-fy-policy-violation-info [policyDetails]="policyDetails" [criticalPolicyViolated]="isCriticalPolicyViolated$|async">
                 </app-fy-policy-violation-info>
               </ng-container>
             </ng-container>
 
             <ng-container *ngIf="isAmountCapped$|async">
-              <div class="add-edit-mileage--critical-policy">
-                <ng-container *ngIf="isCriticalPolicyViolated$|async;else justAmountCapped">
-                  This mileage has violated a critical policy. You cannot create a report with this mileage.
-                </ng-container>
-                <ng-template #justAmountCapped>
+              <div class="add-edit-mileage--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
+                <div>
                   Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: 'symbol-narrow'}} was capped to
                   {{etxn.tx.amount | currency: etxn.tx.currency: 'symbol-narrow'}} due to policy
                   <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
-                </ng-template>
+                </div>
               </div>
             </ng-container>
           </div>
@@ -484,7 +481,7 @@
               <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
               <ng-container *ngIf="reports$|async as reports">
                 <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                  <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
+                  <ng-container>
                     <div class="add-edit-mileage--internal-block">
                       <app-fy-add-to-report
                         *ngIf="reports.length > 0"
@@ -511,8 +508,8 @@
                     <div class="add-edit-mileage--duplicate-header">
                       <mat-icon> warning </mat-icon>
                       <div>{{duplicates.length}} Duplicates Detected</div>
-                      <div (click)="duplicateBoxOpen = false" *ngIf="duplicateBoxOpen">Collapse</div>
-                      <div (click)="duplicateBoxOpen = true" *ngIf="!duplicateBoxOpen">Expand</div>
+                      <div (click)="setDuplicateBoxOpen(false)" *ngIf="duplicateBoxOpen">Collapse</div>
+                      <div (click)="setDuplicateBoxOpen(true)" *ngIf="!duplicateBoxOpen">Expand</div>
                     </div>
                     <div *ngIf="duplicateBoxOpen" class="add-edit-mileage--duplicate-sub-box">
                       <div *ngFor="let duplicate of duplicates" class="add-edit-mileage--duplicate-reason">
@@ -584,7 +581,7 @@
   <ion-footer *ngIf="!reviewList?.length">
     <ion-toolbar
       mode="md"
-      class="add-edit-mileage--footer-toolbar"
+      class="add-edit-mileage--footer-toolbar cta-footer-toolbar"
       [ngClass]="{'add-edit-mileage--footer-toolbar__offline': !(isConnected$|async)}"
     >
       <div *ngIf="!reviewList" class="add-edit-mileage--cta-container">

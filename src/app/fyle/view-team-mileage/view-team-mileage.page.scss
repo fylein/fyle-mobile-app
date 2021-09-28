@@ -7,6 +7,19 @@
     padding: 5px 16px 0 16px;
   }
 
+  &--title-sm {
+    padding-left: 0;
+  }
+
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
+  }
+
   &--policy-info-container {
     border-radius: 6px;
     background: #f2f2f2;
@@ -133,25 +146,5 @@
   &--card-action-icon {
     color: #ababab;
     margin-right: 16px;
-  }
-
-  &--card-action-text {
-    font-size: 16px;
-
-    &__comment {
-      color: #0077ee;
-      display: inline-block;
-    }
-
-    &__delete {
-      color: #f00;
-    }
-
-    &__helper-comment {
-      vertical-align: bottom;
-      font-weight: 400;
-      font-size: 12px;
-      color: #ababab;
-    }
   }
 }

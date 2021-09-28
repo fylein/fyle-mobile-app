@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, IonContent } from '@ionic/angular';
-import { from, Observable } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -33,6 +33,8 @@ export class MyViewMileagePage implements OnInit {
   policyViloations$: Observable<any>;
 
   comments$: Observable<any>;
+
+  policyDetails;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -66,6 +68,16 @@ export class MyViewMileagePage implements OnInit {
     }
   }
 
+  getPolicyDetails(txId) {
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
+    }
+  }
+
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
 
@@ -89,12 +101,19 @@ export class MyViewMileagePage implements OnInit {
       )
     );
 
-    this.policyViloations$ = this.policyService.getPolicyRuleViolationsAndQueryParams(id);
+    if (id) {
+      this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    } else {
+      this.policyViloations$ = of(null);
+    }
+
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
       map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
     );
+
+    this.getPolicyDetails(id);
 
     this.isAmountCapped$ = this.extendedMileage$.pipe(
       map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))

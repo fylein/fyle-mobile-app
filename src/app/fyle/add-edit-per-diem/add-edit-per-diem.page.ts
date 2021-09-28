@@ -140,6 +140,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   expenseStartTime;
 
+  policyDetails;
+
   navigateBack = false;
 
   savePerDiemLoader = false;
@@ -179,6 +181,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   billableDefaultValue: boolean;
 
+  canDeleteExpense = true;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -212,7 +216,11 @@ export class AddEditPerDiemPage implements OnInit {
     private modalProperties: ModalPropertiesService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
+  }
 
   get minPerDiemDate() {
     return this.fg.controls.from_dt.value && moment(this.fg.controls.from_dt.value).subtract(1, 'day').format('y-MM-D');
@@ -223,12 +231,13 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   async showClosePopup() {
-    if (this.fg.touched) {
+    const isAutofilled = this.presetProjectId || this.presetCostCenterId;
+    if (this.fg.touched || isAutofilled) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
         componentProps: {
           title: 'Unsaved Changes',
-          message: 'Your changes will be lost if you do not save the expense.',
+          message: 'You have unsaved information that will be lost if you discard this expense.',
           primaryCta: {
             text: 'Discard',
             action: 'continue',
@@ -254,7 +263,7 @@ export class AddEditPerDiemPage implements OnInit {
       }
     } else {
       if (this.activatedRoute.snapshot.params.id) {
-        this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Per Diem' });
+        this.trackingService.viewExpense({ Type: 'Per Diem' });
       }
 
       if (this.navigateBack) {
@@ -318,6 +327,22 @@ export class AddEditPerDiemPage implements OnInit {
     return this.checkForDuplicates();
   }
 
+  async trackDuplicatesShown(duplicates, etxn) {
+    try {
+      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
+      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
+
+      await this.trackingService.duplicateDetectionAlertShown({
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
+        ExpenseId: etxn.tx.id,
+        DuplicateExpenses: duplicateTxnIds,
+        DuplicateFields: duplicateFields,
+      });
+    } catch (err) {
+      // Ignore event tracking errors
+    }
+  }
+
   setupDuplicateDetection() {
     this.duplicates$ = this.fg.valueChanges.pipe(
       debounceTime(1000),
@@ -335,6 +360,8 @@ export class AddEditPerDiemPage implements OnInit {
         setTimeout(() => {
           this.pointToDuplicates = false;
         }, 3000);
+
+        this.etxn$.pipe(take(1)).subscribe(async (etxn) => await this.trackDuplicatesShown(res, etxn));
       });
   }
 
@@ -1061,6 +1088,8 @@ export class AddEditPerDiemPage implements OnInit {
       map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
     );
 
+    this.getPolicyDetails();
+
     combineLatest(this.fg.controls.from_dt.valueChanges, this.fg.controls.to_dt.valueChanges)
       .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
       .subscribe(([fromDt, toDt]) => {
@@ -1725,7 +1754,6 @@ export class AddEditPerDiemPage implements OnInit {
           switchMap((eou) => {
             const comments = [];
             this.trackingService.createExpense({
-              Asset: 'Mobile',
               Type: 'Receipt',
               Amount: etxn.tx.amount,
               Currency: etxn.tx.currency,
@@ -1778,7 +1806,7 @@ export class AddEditPerDiemPage implements OnInit {
   trackPolicyCorrections() {
     this.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
       if (isCriticalPolicyViolated && this.fg.dirty) {
-        this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Critical', Mode: 'Edit Expense' });
+        this.trackingService.policyCorrection({ Violation: 'Critical', Mode: 'Edit Expense' });
       }
     });
 
@@ -1789,7 +1817,7 @@ export class AddEditPerDiemPage implements OnInit {
       )
       .subscribe((policyViolated) => {
         if (policyViolated && this.fg.dirty) {
-          this.trackingService.policyCorrection({ Asset: 'Mobile', Violation: 'Regular', Mode: 'Edit Expense' });
+          this.trackingService.policyCorrection({ Violation: 'Regular', Mode: 'Edit Expense' });
         }
       });
   }
@@ -1889,7 +1917,6 @@ export class AddEditPerDiemPage implements OnInit {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
               this.trackingService.editExpense({
-                Asset: 'Mobile',
                 Type: 'Per Diem',
                 Amount: etxn.tx.amount,
                 Currency: etxn.tx.currency,
@@ -1904,7 +1931,7 @@ export class AddEditPerDiemPage implements OnInit {
               });
             } else {
               // tracking expense closed without editing
-              this.trackingService.viewExpense({ Asset: 'Mobile', Type: 'Per Diem' });
+              this.trackingService.viewExpense({ Type: 'Per Diem' });
             }
 
             return this.transactionService.upsert(etxn.tx).pipe(
@@ -1916,7 +1943,7 @@ export class AddEditPerDiemPage implements OnInit {
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
-                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
@@ -1924,14 +1951,14 @@ export class AddEditPerDiemPage implements OnInit {
                   if (txnCopy.tx.report_id && selectedReportId && selectedReportId !== txnCopy.tx.report_id) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
-                      tap(() => this.trackingService.addToExistingReportAddEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
-                      tap(() => this.trackingService.removeFromExistingReportEditExpense({ Asset: 'Mobile' })),
+                      tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
                   }
@@ -2175,47 +2202,46 @@ export class AddEditPerDiemPage implements OnInit {
     const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
     const header = reportId && removeExpenseFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
-    const message =
+    const body =
       reportId && removeExpenseFromReport
         ? 'Are you sure you want to remove this Per Diem expense from this report?'
         : 'Are you sure you want to delete this Per Diem expense?';
-    const CTAText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
-    const loadingMessage = reportId && removeExpenseFromReport ? 'Removing Per Diem...' : 'Deleting Per Diem...';
+    const ctaText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = reportId && removeExpenseFromReport ? 'Removing' : 'Deleting';
 
-    const popupResult = await this.popupService.showPopup({
-      header,
-      message,
-      primaryCta: {
-        text: CTAText,
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header,
+        body,
+        ctaText,
+        ctaLoadingText,
+        deleteMethod: () => {
+          if (reportId && removeExpenseFromReport) {
+            return this.reportService.removeTransaction(reportId, id);
+          }
+          return this.transactionService.delete(id);
+        },
       },
     });
 
-    if (popupResult === 'primary') {
-      from(this.loaderService.showLoader(loadingMessage))
-        .pipe(
-          switchMap(() => {
-            if (reportId && removeExpenseFromReport) {
-              return this.reportService.removeTransaction(reportId, id);
-            } else {
-              return this.transactionService.delete(id);
-            }
-          }),
-          tap(() => this.trackingService.deleteExpense({ Asset: 'Mobile', Type: 'Per Diem' })),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
-            this.reviewList.splice(+this.activeIndex, 1);
-            this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
-              this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
-            });
-          } else {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          }
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
+        this.reviewList.splice(+this.activeIndex, 1);
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
+          this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
     } else {
       if (this.mode === 'add') {
-        this.trackingService.clickDeleteExpense({ Asset: 'Mobile', Type: 'Per Diem' });
+        this.trackingService.clickDeleteExpense({ Type: 'Per Diem' });
       }
     }
   }
@@ -2262,15 +2288,28 @@ export class AddEditPerDiemPage implements OnInit {
     const { data } = await modal.onDidDismiss();
 
     if (data && data.updated) {
-      this.trackingService.addComment({ Asset: 'Mobile' });
+      this.trackingService.addComment();
     } else {
-      this.trackingService.viewComment({ Asset: 'Mobile' });
+      this.trackingService.viewComment();
+    }
+  }
+
+  async setDuplicateBoxOpen(value) {
+    this.duplicateBoxOpen = value;
+
+    if (value) {
+      await this.trackingService.duplicateDetectionUserActionExpand({
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
+      });
+    } else {
+      await this.trackingService.duplicateDetectionUserActionCollapse({
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
+      });
     }
   }
 
   hideFields() {
     this.trackingService.hideMoreClicked({
-      Asset: 'Mobile',
       source: 'Add Edit Per Diem page',
     });
 
@@ -2279,10 +2318,20 @@ export class AddEditPerDiemPage implements OnInit {
 
   showFields() {
     this.trackingService.showMoreClicked({
-      Asset: 'Mobile',
       source: 'Add Edit Per Diem page',
     });
 
     this.isExpandedView = true;
+  }
+
+  getPolicyDetails() {
+    const txnId = this.activatedRoute.snapshot.params.id;
+    if (txnId) {
+      from(this.policyService.getPolicyViolationRules(txnId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
+    }
   }
 }

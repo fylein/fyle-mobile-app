@@ -191,7 +191,6 @@ export class AppComponent implements OnInit {
           const eou = await this.authService.getEou();
 
           this.trackingService.eventTrack('Auto Logged out', {
-            Asset: 'Mobile',
             lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
             user_email: eou && eou.us && eou.us.email,
             appVersion: deviceInfo.appVersion,
@@ -500,6 +499,12 @@ export class AppComponent implements OnInit {
         route: ['/', 'enterprise', 'corporate_card_expenses'],
       },
       {
+        title: 'Personal Cards',
+        isVisible: environment.ROOT_URL === 'https://staging.fyle.tech',
+        icon: 'fy-cards-new',
+        route: ['/', 'enterprise', 'personal_cards'],
+      },
+      {
         title: 'Reports',
         isVisible: true,
         icon: 'fy-reports-new',
@@ -638,7 +643,7 @@ export class AppComponent implements OnInit {
     });
 
     this.userEventService.onLogout(() => {
-      this.trackingService.onSignOut({ Asset: 'Mobile' });
+      this.trackingService.onSignOut();
       this.freshChatService.destory();
       this.router.navigate(['/', 'auth', 'sign_in']);
     });

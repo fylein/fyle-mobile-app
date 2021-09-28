@@ -12,24 +12,23 @@
 <ion-content>
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
     <ng-container *ngIf="etxn.tx_policy_flag">
-      <ng-container *ngIf="comments$|async as comments">
+      <ng-container *ngIf="policyDetails">
         <app-fy-policy-violation-info
-          (click)="scrollCommentsIntoView()"
-          [estatuses]="comments"
+          [policyDetails]="policyDetails"
+          [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
         ></app-fy-policy-violation-info>
       </ng-container>
     </ng-container>
 
     <div class="view-expense--policy-container" *ngIf="isAmountCapped$|async">
-      <ng-template [ngIf]="isCriticalPolicyViolated$|async" [ngIfElse]="crititcalPolicyNotiolated">
-        <span> This expense has violated a critical policy. You cannot create a report with this expense. </span>
-      </ng-template>
-      <ng-template #crititcalPolicyNotiolated>
-        <span class="info-text m-0">
-          Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to {{
-          etxn.tx_amount | currency:etxn.tx_currency: 'symbol-narrow'}} due to policy.
-        </span>
-      </ng-template>
+      <div *ngIf="!(isCriticalPolicyViolated$|async)">
+        <div>
+          <span class="info-text m-0">
+            Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to {{
+            etxn.tx_amount | currency:etxn.tx_currency: 'symbol-narrow'}} due to policy.
+          </span>
+        </div>
+      </div>
     </div>
 
     <div class="view-expense--attachment-currency-block">

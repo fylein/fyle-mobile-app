@@ -23,7 +23,7 @@
       mode="md"
       [ngClass]="{'add-edit-per-diem--title__review': reviewList?.length}"
     >
-      <div *ngIf="mode === 'add'">Add Per Diem</div>
+      <div *ngIf="mode === 'add'" class="add-edit-per-diem--toolbar__title">Add Per Diem</div>
       <div *ngIf="mode === 'edit'">
         <div *ngIf="reviewList?.length; else EditPerDiem">Review Per Diem</div>
         <ng-template #EditPerDiem> Edit Per Diem </ng-template>
@@ -32,12 +32,12 @@
         </div>
       </div>
     </ion-title>
-    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" slot="end">
-      <ion-button class="add-edit-per-diem--header-button" (click)="openCommentsModal()">
+    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" class="add-edit-per-diem--header-btn-container" slot="end">
+      <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
-      <ng-container *ngIf="etxn$|async as etxn">
-        <ion-button class="add-edit-per-diem--header-button" (click)="deleteExpense(etxn.tx.report_id)">
+      <ng-container *ngIf="canDeleteExpense && etxn$|async as etxn">
+        <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
           <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
         </ion-button>
       </ng-container>
@@ -61,21 +61,18 @@
           <ng-container *ngIf="(allowedPerDiemRateOptions$|async)?.length > 0; else AdminKoBoloPerDiemAssignKare">
             <ng-container *ngIf="etxn$|async as etxn">
               <ng-container *ngIf="mode === 'edit'">
-                <ng-container *ngIf="comments$|async as comments">
-                  <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments">
+                <ng-container *ngIf="policyDetails">
+                  <app-fy-policy-violation-info [policyDetails]="policyDetails" [criticalPolicyViolated]="isCriticalPolicyViolated$|async">
                   </app-fy-policy-violation-info>
                 </ng-container>
               </ng-container>
 
               <ng-container *ngIf="isAmountCapped$|async">
-                <div class="add-edit-per-diem--critical-policy">
-                  <ng-container *ngIf="isCriticalPolicyViolated$|async;else justAmountCapped">
-                    This expense has violated a critical policy. You cannot create a report with this expense.
-                  </ng-container>
-                  <ng-template #justAmountCapped>
+                <div class="add-edit-per-diem--critical-policy"  *ngIf="!(isCriticalPolicyViolated$|async)">
+                  <div>
                     Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
                     '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
-                  </ng-template>
+                  </div>
                 </div>
               </ng-container>
 
@@ -555,7 +552,7 @@
                   <ng-container *ngIf="isConnected$|async">
                     <ng-container *ngIf="reports$|async as reports">
                       <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                        <ng-container *ngIf="etxn.tx.state !== 'DRAFT'">
+                        <ng-container>
                           <div class="add-edit-per-diem--internal-block">
                             <app-fy-add-to-report
                               *ngIf="reports.length > 0"
@@ -622,14 +619,14 @@
                       <div>{{duplicates.length}} Duplicates Detected</div>
                     </div>
                     <div
-                      (click)="duplicateBoxOpen = false"
+                      (click)="setDuplicateBoxOpen(false)"
                       *ngIf="duplicateBoxOpen"
                       class="add-edit-per-diem--duplicate-cta"
                     >
                       Collapse
                     </div>
                     <div
-                      (click)="duplicateBoxOpen = true"
+                      (click)="setDuplicateBoxOpen(true)"
                       *ngIf="!duplicateBoxOpen"
                       class="add-edit-per-diem--duplicate-cta"
                     >

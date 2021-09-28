@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { forkJoin, from, Observable } from 'rxjs';
@@ -16,6 +16,9 @@ import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advanc
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { TrackingService } from '../../core/services/tracking.service';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -35,6 +38,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   customFields$: Observable<any>;
 
+  isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -45,7 +50,9 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private popupService: PopupService,
     private modalController: ModalController,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private trackingService: TrackingService,
+    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
   getReceiptExtension(name) {
@@ -197,6 +204,28 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_advances']);
+    }
+  }
+
+  async openCommentsModal() {
+    const advanceRequest = await this.advanceRequest$.toPromise();
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'advance_requests',
+        objectId: advanceRequest.areq_id,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment();
+    } else {
+      this.trackingService.viewComment();
     }
   }
 
