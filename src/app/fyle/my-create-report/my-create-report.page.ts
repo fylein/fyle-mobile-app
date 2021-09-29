@@ -117,7 +117,7 @@ export class MyCreateReportPage implements OnInit {
     const report = {
       purpose: this.reportTitle,
       source: 'MOBILE',
-      trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId
+      trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId,
     };
 
     this.sendFirstReportCreated();
@@ -146,7 +146,8 @@ export class MyCreateReportPage implements OnInit {
             this.saveDraftReportLoading = false;
             this.router.navigate(['/', 'enterprise', 'my_reports']);
           })
-        ).subscribe(noop);
+        )
+        .subscribe(noop);
     } else {
       this.saveReportLoading = true;
       this.reportService
@@ -162,7 +163,8 @@ export class MyCreateReportPage implements OnInit {
             this.saveReportLoading = false;
             this.router.navigate(['/', 'enterprise', 'my_reports']);
           })
-        ).subscribe(noop);
+        )
+        .subscribe(noop);
     }
   }
 
@@ -196,7 +198,7 @@ export class MyCreateReportPage implements OnInit {
       const report = {
         purpose: this.reportTitle,
         source: 'MOBILE',
-        type: ((this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId) ? 'TRIP' : 'EXPENSE',
+        type: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId ? 'TRIP' : 'EXPENSE',
         trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId,
       };
       const etxns = this.readyToReportEtxns.filter((etxn) => etxn.isSelected);
@@ -282,7 +284,10 @@ export class MyCreateReportPage implements OnInit {
 
   getReportTitle() {
     const txnIds = this.selectedElements.map((etxn) => etxn.tx_id);
-    this.selectedTotalAmount = this.selectedElements.reduce((acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount), 0);
+    this.selectedTotalAmount = this.selectedElements.reduce(
+      (acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount),
+      0
+    );
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
       return this.reportService

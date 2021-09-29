@@ -91,10 +91,7 @@
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
-    <app-fy-loading-screen
-      *ngIf="isLoading"
-      class="my-reports--shimmers"
-    ></app-fy-loading-screen>
+    <app-fy-loading-screen *ngIf="isLoading" class="my-reports--shimmers"></app-fy-loading-screen>
     <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
       <app-fy-zero-state
         *ngIf="!(filters?.state || filters?.date || searchText)"
@@ -126,14 +123,16 @@
     </div>
     <ng-container *ngIf="isConnected$|async">
       <ng-container *ngIf="isLoadingDataInInfiniteScroll">
-        <app-fy-loading-screen
-          class="my-expenses--shimmers"
-        ></app-fy-loading-screen>
+        <app-fy-loading-screen class="my-expenses--shimmers"></app-fy-loading-screen>
       </ng-container>
     </ng-container>
   </div>
 
-  <ion-infinite-scroll *ngIf="!isLoadingDataInInfiniteScroll && (isInfiniteScrollRequired$ | async)" threshold="100px" (ionInfinite)="loadData($event)">
+  <ion-infinite-scroll
+    *ngIf="!isLoadingDataInInfiniteScroll && (isInfiniteScrollRequired$ | async)"
+    threshold="100px"
+    (ionInfinite)="loadData($event)"
+  >
     <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
@@ -144,5 +143,6 @@
     (homeClicked)="onHomeClicked()"
     (taskClicked)="onTaskClicked()"
     (cameraClicked)="onCameraClicked()"
+    [taskCount]="reportsTaskCount"
   ></app-fy-footer>
 </ion-footer>
