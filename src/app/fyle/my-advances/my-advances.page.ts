@@ -7,6 +7,8 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NetworkService } from '../../core/services/network.service';
 
 @Component({
@@ -23,6 +25,8 @@ export class MyAdvancesPage implements OnInit {
 
   navigateBack = false;
 
+  totalTaskCount = 0;
+
   refreshAdvances$: Subject<void> = new Subject();
 
   advances$: Observable<any>;
@@ -38,7 +42,9 @@ export class MyAdvancesPage implements OnInit {
     private router: Router,
     private advanceService: AdvanceService,
     private networkService: NetworkService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private tasksService: TasksService,
+    private trackingService: TrackingService
   ) {}
 
   ionViewWillLeave() {
@@ -63,6 +69,7 @@ export class MyAdvancesPage implements OnInit {
   ionViewWillEnter() {
     this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.tasksService.getTotalTaskCount().subscribe((totalTaskCount) => (this.totalTaskCount = totalTaskCount));
 
     this.myAdvancerequests$ = this.advanceRequestService
       .getMyAdvanceRequestsCount({
@@ -205,6 +212,10 @@ export class MyAdvancesPage implements OnInit {
     const queryParams: Params = { state: 'tasks' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'My Advances',
     });
   }
 
