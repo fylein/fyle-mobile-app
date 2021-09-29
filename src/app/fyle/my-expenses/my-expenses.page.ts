@@ -50,6 +50,7 @@ import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.
 import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
 
 type Filters = Partial<{
   state: string[];
@@ -156,6 +157,8 @@ export class MyExpensesPage implements OnInit {
 
   onPageExit$ = new Subject();
 
+  expensesTaskCount = 0;
+
   get HeaderState() {
     return HeaderState;
   }
@@ -182,7 +185,8 @@ export class MyExpensesPage implements OnInit {
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private tasksService: TasksService
   ) {}
 
   clearText(isFromCancel) {
@@ -374,6 +378,10 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
+      this.expensesTaskCount = expensesTaskCount;
+    });
+
     this.isInstaFyleEnabled$ = this.offlineService
       .getOrgUserSettings()
       .pipe(
@@ -1699,7 +1707,9 @@ export class MyExpensesPage implements OnInit {
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: `Are you sure you want to delete ${this.selectedElements.length === 1 ? '1 expense?': this.selectedElements.length + ' expenses?'}`,
+        body: `Are you sure you want to delete ${
+          this.selectedElements.length === 1 ? '1 expense?' : this.selectedElements.length + ' expenses?'
+        }`,
         deleteMethod: () => {
           offlineExpenses = this.selectedElements.filter((exp) => !exp.tx_id);
 
@@ -1831,9 +1841,13 @@ export class MyExpensesPage implements OnInit {
   }
 
   onTaskClicked() {
-    const queryParams: Params = { state: 'tasks' };
+    const queryParams: Params = { state: 'tasks', tasksFilters: 'expenses' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'My Expenses',
     });
   }
 

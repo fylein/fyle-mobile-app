@@ -4,6 +4,18 @@
       <app-fy-menu-icon></app-fy-menu-icon>
     </ion-buttons>
     <ion-title mode="md"> Tasks </ion-title>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-button class="tasks--header-btn" (click)="openFilters()">
+          <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+            <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+          </ng-container>
+          <ng-template #noFilterAppliedIcon>
+            <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+          </ng-template>
+        </ion-button>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -27,7 +39,7 @@
       <app-stats #stats></app-stats>
     </mat-tab>
     <mat-tab label="tasks">
-      <app-tasks></app-tasks>
+      <app-tasks #tasks></app-tasks>
     </mat-tab>
   </mat-tab-group>
 </ion-content>
@@ -37,6 +49,7 @@
     (homeClicked)="onHomeClicked()"
     (taskClicked)="onTaskClicked()"
     (cameraClicked)="onCameraClicked()"
+    [taskCount]="displayedTaskCount"
     [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"
   ></app-fy-footer>
 </ion-footer>
