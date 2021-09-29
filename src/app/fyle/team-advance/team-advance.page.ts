@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, Subject, from, noop } from 'rxjs';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, switchMap, finalize, map, scan, shareReplay, tap, take } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { Params, Router } from '@angular/router';
+import { TasksService } from 'src/app/core/services/tasks.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-team-advance',
@@ -19,6 +20,8 @@ export class TeamAdvancePage implements OnInit {
 
   count$: Observable<number>;
 
+  totalTaskCount = 0;
+
   currentPageNumber = 1;
 
   isInfiniteScrollRequired$: Observable<boolean>;
@@ -28,12 +31,16 @@ export class TeamAdvancePage implements OnInit {
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
-    private router: Router
+    private router: Router,
+    private tasksService: TasksService,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit() {}
 
   ionViewWillEnter() {
+    this.tasksService.getTotalTaskCount().subscribe((totalTaskCount) => (this.totalTaskCount = totalTaskCount));
+
     this.currentPageNumber = 1;
     this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
@@ -146,6 +153,10 @@ export class TeamAdvancePage implements OnInit {
     const queryParams: Params = { state: 'tasks' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'Team Advances',
     });
   }
 
