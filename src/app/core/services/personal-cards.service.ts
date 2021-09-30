@@ -25,6 +25,19 @@ export class PersonalCardsService {
     return this.expenseAggregationService.get('/yodlee/access_token');
   }
 
+  htmlFormUrl(url, access_token) {
+    const pageContent = `<form id="fastlink-form" name="fastlink-form" action="${url}" method="POST">
+                          <input name="accessToken" value="Bearer ${access_token}" hidden="true" />
+                          <input  name="extraParams" value="configName=Aggregation&callback=https://www.fylehq.com" hidden="true" />
+                          </form> 
+                          <script type="text/javascript">
+                          document.getElementById("fastlink-form").submit();
+                          </script>
+                          `;
+    const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
+    return pageContentUrl;
+  }
+
   postBankAccounts(requestIds): Observable<any> {
     return this.expenseAggregationService.post('/yodlee/bank_accounts', {
       aggregator: 'yodlee',

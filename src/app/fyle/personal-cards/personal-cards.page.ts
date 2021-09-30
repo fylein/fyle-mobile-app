@@ -94,23 +94,7 @@ export class PersonalCardsPage implements OnInit {
   }
 
   openYoodle(url, access_token) {
-    const successContent = `<h1>Success<h1>`;
-    const successContentUrl = 'data:text/html;base64,' + btoa(successContent);
-
-    const pageContent =
-      `<form id="fastlink-form" name="fastlink-form" action="` +
-      url +
-      `" method="POST">
-                          <input name="accessToken" value="Bearer ` +
-      access_token +
-      `" hidden="true" />
-                          <input  name="extraParams" value="configName=Aggregation&callback=https://www.fylehq.com" hidden="true" />
-                          </form> 
-                          <script type="text/javascript">
-                          document.getElementById("fastlink-form").submit();
-                          </script>
-                          `;
-    const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
+    const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
     const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=no');
     browser.on('loadstart').subscribe((event) => {
       if (event.url.substring(0, 22) === 'https://www.fylehq.com') {
