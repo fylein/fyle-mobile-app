@@ -36,6 +36,7 @@ import { FilterOptionType } from '../../shared/components/fy-filters/filter-opti
 import { DateFilters } from '../../shared/components/fy-filters/date-filters.enum';
 import { SelectedFilters } from '../../shared/components/fy-filters/selected-filters.interface';
 import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
+import { TasksService } from 'src/app/core/services/tasks.service';
 
 type Filters = Partial<{
   state: string[];
@@ -47,6 +48,7 @@ type Filters = Partial<{
   sortParam: string;
   sortDir: string;
 }>;
+
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
@@ -107,6 +109,7 @@ export class MyReportsPage implements OnInit {
   get HeaderState() {
     return HeaderState;
   }
+  reportsTaskCount = 0;
 
   constructor(
     private networkService: NetworkService,
@@ -121,7 +124,8 @@ export class MyReportsPage implements OnInit {
     private popoverController: PopoverController,
     private trackingService: TrackingService,
     private apiV2Service: ApiV2Service,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private tasksService: TasksService
   ) {}
 
   ngOnInit() {}
@@ -147,6 +151,10 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.tasksService.getReportsTaskCount().subscribe((reportsTaskCount) => {
+      this.reportsTaskCount = reportsTaskCount;
+    });
+
     this.isLoading = true;
     this.setupNetworkWatcher();
     this.headerState = HeaderState.base;
@@ -646,9 +654,13 @@ export class MyReportsPage implements OnInit {
   }
 
   onTaskClicked() {
-    const queryParams: Params = { state: 'tasks' };
+    const queryParams: Params = { state: 'tasks', tasksFilters: 'reports' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'My Reports',
     });
   }
 

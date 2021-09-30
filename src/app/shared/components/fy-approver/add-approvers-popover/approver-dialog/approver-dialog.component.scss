@@ -1,0 +1,90 @@
+@import '../../../../../../theme/colors.scss';
+@import '../../../../../../assets/styles/fy_select';
+
+.selection-modal {
+  &--title {
+    @extend %fy-select-title;
+    padding: 0;
+    margin-left: 0;
+  }
+
+  &--cta {
+    @extend %fy-select-cta;
+    color: $primary;
+  }
+
+  &--toolbar {
+    box-shadow: 0px 4px 4px rgba(215, 215, 215, 0.2);
+  }
+
+  &--form-container {
+    display: flex;
+    border: 1px solid $grey-lighter;
+    border-radius: 4px;
+    margin: 8px 16px;
+    font-size: 12px;
+    padding: 4px;
+
+    &__chips {
+      padding: 3px 4px 3px 8px;
+    }
+  }
+
+  &--form-input {
+    margin-top: -4px !important;
+    font-size: 14px;
+    color: $black-2;
+    margin-left: 6px !important;
+
+    &__chips {
+      margin-top: 4px !important;
+    }
+  }
+
+  &--selected-count {
+    color: $grey-light;
+    text-align: left;
+    margin: 0 16px 10px;
+  }
+
+  &--search-icon {
+    @extend %fy-select-search-icon;
+    margin-top: -12px;
+  }
+
+  &--container {
+    display: flex;
+    flex-direction: column;
+    padding: 0 10px;
+  }
+
+  &--list-element {
+    padding: 18px 0;
+    margin: 0 16px;
+    border-bottom: 1px solid $grey-6;
+    color: $gray-3;
+
+    &__label {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  &--approver-details {
+    margin-left: 16px;
+    max-width: 280px;
+    line-height: 1.3;
+    font-weight: 400;
+
+    &__title {
+      font-size: 16px;
+      display: block;
+      color: $black;
+    }
+
+    &__content {
+      font-size: 12px;
+      color: $grey-light;
+    }
+  }
+}

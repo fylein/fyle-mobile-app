@@ -35,9 +35,8 @@
   }
 
   &--report-card {
-    margin-bottom: 20px;
     border-bottom: 1px solid $grey-lighter;
-    margin: 16px;
+    margin: 16px 16px 2px;
 
     &__trips {
       border-bottom: 0;
@@ -118,6 +117,8 @@
   }
 
   &--error-message {
+    font-size: 12px;
+    margin: 0 16px;
     color: $red;
   }
 

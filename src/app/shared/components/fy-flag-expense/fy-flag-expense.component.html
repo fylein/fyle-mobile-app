@@ -7,13 +7,14 @@
       </ion-button>
     </ion-buttons>
     <ion-title>
-      <div class="flag-expense--toolbar__title">
-        {{title}} Expense
-      </div>
+      <div class="flag-expense--toolbar__title">{{ title }} Expense</div>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button [disabled]="!message?.trim().length" 
-      class="flag-expense--toolbar__btn-flagUnflag" (click)="flagUnflag()"> 
+      <ion-button
+        [disabled]="!message?.trim().length"
+        class="flag-expense--toolbar__btn-flagUnflag"
+        (click)="flagUnflag()"
+      >
         {{ title }}
       </ion-button>
     </ion-buttons>
@@ -22,7 +23,7 @@
 
 <div class="flag-expense--input-container">
   <div class="flag-expense--input-container__label">
-    <span> Reason for {{title|lowercase}}ing expense </span>
+    <span> Reason for {{ title | lowercase }}ing expense </span>
     <span class="flag-expense--input-container__mandatory"> * </span>
   </div>
   <textarea

@@ -13,9 +13,7 @@ export class FyFlagExpenseComponent implements OnInit {
 
   message = '';
 
-  constructor(
-    private modalController: ModalController
-  ) {}
+  constructor(private modalController: ModalController) {}
 
   closeModal() {
     this.modalController.dismiss();

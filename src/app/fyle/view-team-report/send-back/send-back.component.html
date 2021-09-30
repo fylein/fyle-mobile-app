@@ -6,13 +6,10 @@
       </ion-button>
     </ion-buttons>
     <ion-title>
-      <div class="send-back--toolbar__title">
-        Send Back
-      </div>
+      <div class="send-back--toolbar__title">Send Back</div>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button [disabled]="!sendBackReason?.trim().length" 
-      class="send-back--toolbar__btn" (click)="sendBack()"> 
+      <ion-button [disabled]="!sendBackReason?.trim().length" class="send-back--toolbar__btn" (click)="sendBack()">
         Done
       </ion-button>
     </ion-buttons>
