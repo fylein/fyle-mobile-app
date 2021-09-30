@@ -72,6 +72,12 @@ export class PersonalCardsPage implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      }
+    });
   }
 
   linkAccount() {

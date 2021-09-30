@@ -9,18 +9,6 @@
 </app-fy-header>
 
 <ion-content class="personal-cards--content">
-  <ng-container *ngIf="!(isConnected$|async)">
-    <div class="personal-cards--zero-state">
-      <app-fy-zero-state
-        class="stats--zero-state"
-        image="../../../../assets/images/no-internet.svg"
-        header="You're Offline!"
-        message="Fear not, you can still add expenses offline."
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-      ></app-fy-zero-state>
-    </div>
-  </ng-container>
   <ng-container *ngIf="isLoading">
     <div class="ion-padding">
       <ion-skeleton-text class="personal-cards--bank-account-shimmer" animated></ion-skeleton-text>
