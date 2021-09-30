@@ -56,7 +56,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     private authService: AuthService,
     private loaderService: LoaderService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.checkPermissionStatus();
@@ -296,19 +296,23 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   getCurrentLocation() {
-    from(this.loaderService.showLoader('Loading current location...', 5000)).pipe(
-      switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
-      switchMap((coordinates) => this.gmapsService.getGeocode(coordinates.coords.latitude, coordinates.coords.longitude)),
-      map(this.formatGeocodeResponse),
-      catchError((err) => {
-        this.lookupFailed = true;
-        return throwError(err);
-      }),
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe((selection) => {
-      this.modalController.dismiss({
-        selection
+    from(this.loaderService.showLoader('Loading current location...', 5000))
+      .pipe(
+        switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
+        switchMap((coordinates) =>
+          this.gmapsService.getGeocode(coordinates.coords.latitude, coordinates.coords.longitude)
+        ),
+        map(this.formatGeocodeResponse),
+        catchError((err) => {
+          this.lookupFailed = true;
+          return throwError(err);
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe((selection) => {
+        this.modalController.dismiss({
+          selection,
+        });
       });
-    }
   }
 }
