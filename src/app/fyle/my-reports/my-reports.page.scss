@@ -1,3 +1,5 @@
+@import '../../../theme/colors';
+
 .my-reports {
   &--toolbar-header {
     border-bottom: 1px solid #e6e6e6;
@@ -8,6 +10,22 @@
     display: inline-flex;
     margin: 8px 16px;
     width: 90%;
+  }
+
+  &--body {
+    padding-bottom: 20px;
+    background-color: $white;
+  }
+
+  &--zero-state-body {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &--shimmers {
+    overflow-y: scroll;
   }
 
   &--simple-search {
@@ -48,14 +66,14 @@
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
     border-radius: 4px;
     margin-left: 9px;
-    
+
     &-icon {
       fill: #1978f7;
     }
 
     &__applied {
       ::after {
-        content: "•";
+        content: '•';
         font-size: 48px;
         position: absolute;
         top: -8px;
@@ -64,112 +82,16 @@
     }
   }
 
-  &--primary-cta {
-    height: 48px;
-    display: block;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: #fff;
-    background: #FF3366;
-    border-radius: 8px;
-    margin: 14px;
-  }
-
-  &--stats {
-    margin: 12px;
-    position: relative;
-    top: 8px;
-  }
-
-  &--amount {
-    font-size: 24px;
-    font-weight: 500;
-  }
-
-  &--homeCurrency {
-    font-size: 18px;
-    font-weight: 500;
-  }
-
-  &--count {
-    font-size: 16px;
-    font-weight: 500;
-    color: #ababab;
-    margin-bottom: 16px;
+  &--content {
+    --background: #{$white};
+    --padding-bottom: 82px;
   }
 
   &--zero-state {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    align-items: center;
+    height: 80%;
+    justify-content: center;
     text-align: center;
-
-    &-img {
-      margin: 32px;
-    }
-
-    &-header {
-      margin: 12px;
-      font-size: 16px;
-      display: block;
-      margin-bottom: 16px;
-      color: #4a4a4a;
-      line-height: 1.5;
-      font-weight: 500;
-    }
-
-    &-subheader {
-      color: #ababab;
-      display: block;
-      font-size: 16px;
-      font-weight: 300;
-      line-height: 1.5;
-      margin-bottom: 24px;
-      padding: 0 8px;
-    }
-
-    &-action-button-container {
-      margin-top: auto;
-    }
-
-    &-action-button {
-      padding: 24px 16px;
-      border-radius: 6px;
-      color: #f36;
-      font-size: 18px;
-      font-weight: 500;
-      width: 275px;
-      margin: 0 auto 20px;
-      position: relative;
-      background: white;
-      border: 1px solid #f36;
-
-      &:after,
-      &:before {
-        top: 100%;
-        left: 50%;
-        border: solid transparent;
-        content: " ";
-        height: 0;
-        width: 0;
-        position: absolute;
-        pointer-events: none;
-      }
-
-      &:after {
-        border-color: rgba(255, 255, 255, 0);
-        border-top-color: white;
-        border-width: 20px;
-        margin-left: -20px;
-      }
-      &:before {
-        border-color: rgba(255, 51, 102, 0);
-        border-top-color: #f36;
-        border-width: 21px;
-        margin-left: -21px;
-      }
-    }
   }
 }

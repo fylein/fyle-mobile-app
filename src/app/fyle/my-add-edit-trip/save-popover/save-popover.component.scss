@@ -1,7 +1,6 @@
 $details-color: #ababab;
 
 .save-trip {
-
   &--header {
     --background: #f8f8f8 !important;
   }
@@ -46,7 +45,7 @@ $details-color: #ababab;
 
   &--request-list {
     list-style-type: disc;
-    color: #666
+    color: #666;
   }
 
   &--cta-container {

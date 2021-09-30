@@ -1,36 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ionic App</title>
 
-<head>
-  <meta charset="utf-8" />
-  <title>Ionic App</title>
+    <base href="/" />
 
-  <base href="/" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="viewport"
+      content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
 
-  <meta name="color-scheme" content="light dark" />
-  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="format-detection" content="telephone=no" />
-  <meta name="msapplication-tap-highlight" content="no" />
+    <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
 
-  <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
-
-  <!-- add to homescreen for ios -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <script src="https://wchat.freshchat.com/js/widget.js" async></script>
-  <script type="text/javascript">
+    <!-- add to homescreen for ios -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <script src="https://wchat.freshchat.com/js/widget.js" async></script>
+    <script type="text/javascript">
       // segment.io
-      !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
-          analytics.load("7qjsgnL7fUFk7L3yGUbRHsepubPrWhxw");
-          analytics.page();
-      }}();
-  </script>
-</head>
+      !(function () {
+        var analytics = (window.analytics = window.analytics || []);
+        if (!analytics.initialize)
+          if (analytics.invoked) window.console && console.error && console.error('Segment snippet included twice.');
+          else {
+            analytics.invoked = !0;
+            analytics.methods = [
+              'trackSubmit',
+              'trackClick',
+              'trackLink',
+              'trackForm',
+              'pageview',
+              'identify',
+              'reset',
+              'group',
+              'track',
+              'ready',
+              'alias',
+              'debug',
+              'page',
+              'once',
+              'off',
+              'on',
+            ];
+            analytics.factory = function (t) {
+              return function () {
+                var e = Array.prototype.slice.call(arguments);
+                e.unshift(t);
+                analytics.push(e);
+                return analytics;
+              };
+            };
+            for (var t = 0; t < analytics.methods.length; t++) {
+              var e = analytics.methods[t];
+              analytics[e] = analytics.factory(e);
+            }
+            analytics.load = function (t, e) {
+              var n = document.createElement('script');
+              n.type = 'text/javascript';
+              n.async = !0;
+              n.src = 'https://cdn.segment.com/analytics.js/v1/' + t + '/analytics.min.js';
+              var a = document.getElementsByTagName('script')[0];
+              a.parentNode.insertBefore(n, a);
+              analytics._loadOptions = e;
+            };
+            analytics.SNIPPET_VERSION = '4.1.0';
+            analytics.load('7qjsgnL7fUFk7L3yGUbRHsepubPrWhxw');
+            analytics.page();
+          }
+      })();
+    </script>
+  </head>
 
-<body class="mat-typography">
-  <app-root></app-root>
-</body>
-
+  <body class="mat-typography">
+    <app-root></app-root>
+  </body>
 </html>

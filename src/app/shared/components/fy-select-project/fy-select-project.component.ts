@@ -1,8 +1,8 @@
-import {Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef, ElementRef} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
-import {noop} from 'rxjs';
-import {ModalController} from '@ionic/angular';
-import {FyProjectSelectModalComponent} from './fy-select-modal/fy-select-project-modal.component';
+import { Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef, ElementRef } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { noop } from 'rxjs';
+import { ModalController } from '@ionic/angular';
+import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
@@ -14,12 +14,11 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FySelectProjectComponent),
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class FySelectProjectComponent implements OnInit, ControlValueAccessor, OnDestroy {
-
   @Input() mandatory = false;
 
   @Input() label = 'Project';
@@ -56,14 +55,13 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
   }
 
-  ngOnDestroy(): void {
-  }
+  ngOnDestroy(): void {}
 
   get value(): any {
     return this.innerValue;
@@ -92,11 +90,11 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
         selectionElement: this.selectionElement,
         categoryIds: this.categoryIds,
         defaultValue: this.defaultValue,
-        recentlyUsed: this.recentlyUsed
+        recentlyUsed: this.recentlyUsed,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties()
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await projectModal.present();

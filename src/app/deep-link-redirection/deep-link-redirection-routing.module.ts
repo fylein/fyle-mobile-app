@@ -6,8 +6,8 @@ import { DeepLinkRedirectionPage } from './deep-link-redirection.page';
 const routes: Routes = [
   {
     path: '',
-    component: DeepLinkRedirectionPage
-  }
+    component: DeepLinkRedirectionPage,
+  },
 ];
 
 @NgModule({

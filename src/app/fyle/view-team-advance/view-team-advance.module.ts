@@ -22,14 +22,14 @@ import { SendBackAdvanceComponent } from './send-back-advance/send-back-advance.
     MatIconModule,
     MatButtonModule,
     MatRippleModule,
-    SharedModule
+    SharedModule,
   ],
   declarations: [
     ViewTeamAdvancePage,
     AdvanceActionsComponent,
     ApproveAdvanceComponent,
     RejectAdvanceComponent,
-    SendBackAdvanceComponent
-  ]
+    SendBackAdvanceComponent,
+  ],
 })
 export class ViewTeamAdvancePageModule {}

@@ -9,45 +9,35 @@ import { User } from '../models/user.model';
 import { UserProperty } from '../models/v1/user-property.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
-
-  constructor(
-    private authService: AuthService,
-    private httpClient: HttpClient,
-    private apiService: ApiService
-  ) { }
+  constructor(private authService: AuthService, private httpClient: HttpClient, private apiService: ApiService) {}
 
   getCurrent(): Observable<User> {
     return this.apiService.get('/users/current');
   }
 
   isPendingDetails() {
-    return from(this.authService.getEou()).pipe(
-      map(eou => eou.ou.status === 'PENDING_DETAILS')
-    );
+    return from(this.authService.getEou()).pipe(map((eou) => eou.ou.status === 'PENDING_DETAILS'));
   }
 
   getCountryFromIp(): Observable<string> {
     const url = 'https://ipfind.co/me';
     const data = {
       params: {
-        auth: environment.IP_FIND_KEY
-      }
+        auth: environment.IP_FIND_KEY,
+      },
     };
 
     return this.httpClient.get(url, data).pipe(
       map((response: any) => response.country),
-      catchError(err => of(null)
-      )
+      catchError((err) => of(null))
     );
   }
 
   getProperties(): Observable<UserProperty> {
-    return this.getCurrent().pipe(
-      switchMap((user) => this.apiService.get('/users/' + user.id + '/properties'))
-    );
+    return this.getCurrent().pipe(switchMap((user) => this.apiService.get('/users/' + user.id + '/properties')));
   }
 
   upsertProperties(userProperties: UserProperty) {

@@ -10,6 +10,7 @@ import { MyCreateReportPage } from './my-create-report.page';
 import { MatIconModule } from '@angular/material/icon';
 import { ReportSummaryComponent } from './report-summary/report-summary.component';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   imports: [
@@ -18,11 +19,9 @@ import { SharedModule } from 'src/app/shared/shared.module';
     IonicModule,
     MyCreateReportPageRoutingModule,
     MatIconModule,
-    SharedModule
+    SharedModule,
+    MatCheckboxModule,
   ],
-  declarations: [
-    MyCreateReportPage,
-    ReportSummaryComponent
-  ]
+  declarations: [MyCreateReportPage, ReportSummaryComponent],
 })
 export class MyCreateReportPageModule {}

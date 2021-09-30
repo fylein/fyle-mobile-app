@@ -1,7 +1,7 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {CorporateCardExpense} from '../../../core/models/v2/corporate-card-expense.model';
-import {ModalController} from '@ionic/angular';
-import {PopupService} from '../../../core/services/popup.service';
+import { Component, Input, OnInit } from '@angular/core';
+import { CorporateCardExpense } from '../../../core/models/v2/corporate-card-expense.model';
+import { ModalController } from '@ionic/angular';
+import { PopupService } from '../../../core/services/popup.service';
 
 @Component({
   selector: 'app-match-transaction',
@@ -9,19 +9,15 @@ import {PopupService} from '../../../core/services/popup.service';
   styleUrls: ['./match-transaction.component.scss'],
 })
 export class MatchTransactionComponent implements OnInit {
-
   @Input() matchingCCCTransactions: CorporateCardExpense[];
 
   @Input() mode: string;
 
   @Input() selectedCCCTransaction: CorporateCardExpense;
 
-  constructor(
-    private modalController: ModalController,
-    private popupService: PopupService
-  ) { }
+  constructor(private modalController: ModalController, private popupService: PopupService) {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   onDoneClick() {
     this.modalController.dismiss();
@@ -29,18 +25,18 @@ export class MatchTransactionComponent implements OnInit {
 
   selectCCCExpense(cccExpense: CorporateCardExpense) {
     this.modalController.dismiss({
-      selectedCCCExpense: cccExpense
+      selectedCCCExpense: cccExpense,
     });
   }
 
   selectNotInList() {
     if (this.mode === 'edit') {
       this.modalController.dismiss({
-        unMatchedExpense: true
+        unMatchedExpense: true,
       });
-    } else{
+    } else {
       this.modalController.dismiss({
-        selectedCCCExpense: null
+        selectedCCCExpense: null,
       });
     }
   }

@@ -112,7 +112,7 @@
 
     &__applied {
       ::after {
-        content: "•";
+        content: '•';
         font-size: 48px;
         position: absolute;
         top: -8px;
@@ -158,12 +158,10 @@
   }
 
   &--syncing-image {
-
     width: 36px;
     display: inline-block;
     vertical-align: middle;
     margin-left: 8px;
-
   }
 
   &--syncing-icon {
@@ -225,7 +223,7 @@
         top: 100%;
         left: 50%;
         border: solid transparent;
-        content: " ";
+        content: ' ';
         height: 0;
         width: 0;
         position: absolute;
@@ -251,4 +249,3 @@
     margin-top: 80px;
   }
 }
-

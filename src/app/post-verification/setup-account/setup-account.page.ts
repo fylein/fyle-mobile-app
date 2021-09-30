@@ -14,7 +14,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
-import {TrackingService} from '../../core/services/tracking.service';
+import { TrackingService } from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-setup-account',
@@ -22,7 +22,6 @@ import {TrackingService} from '../../core/services/tracking.service';
   styleUrls: ['./setup-account.page.scss'],
 })
 export class SetupAccountPage implements OnInit {
-
   isConnected$: Observable<boolean>;
 
   eou$: Observable<ExtendedOrgUser>;
@@ -58,8 +57,7 @@ export class SetupAccountPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private router: Router,
     private trackingService: TrackingService
-  ) { }
-
+  ) {}
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -70,7 +68,7 @@ export class SetupAccountPage implements OnInit {
 
   async openCurrenySelectionModal() {
     const modal = await this.modalController.create({
-      component: SelectCurrencyComponent
+      component: SelectCurrencyComponent,
     });
 
     await modal.present();
@@ -83,7 +81,7 @@ export class SetupAccountPage implements OnInit {
 
   postUser() {
     return this.eou$.pipe(
-      concatMap(eou => {
+      concatMap((eou) => {
         const us = eou.us;
         us.password = this.fg.controls.password.value;
         return this.orgUserService.postUser(us);
@@ -93,7 +91,7 @@ export class SetupAccountPage implements OnInit {
 
   postOrg() {
     return this.org$.pipe(
-      concatMap(org => {
+      concatMap((org) => {
         org.name = this.fg.controls.companyName.value;
         org.currency = this.fg.controls.homeCurrency.value;
         return this.orgService.updateOrg(org);
@@ -104,15 +102,15 @@ export class SetupAccountPage implements OnInit {
   saveGuessedMileage() {
     return forkJoin({
       orgSettings: this.offlineService.getOrgSettings(),
-      org: this.org$
+      org: this.org$,
     }).pipe(
       concatMap(({ orgSettings, org }) => {
         orgSettings.mileage.enabled = true;
         if (org.currency === 'USD') {
           // Googled these rates for the US
           orgSettings.mileage.unit = 'MILES';
-          orgSettings.mileage.four_wheeler = 0.580;
-          orgSettings.mileage.two_wheeler = 0.580;
+          orgSettings.mileage.four_wheeler = 0.58;
+          orgSettings.mileage.two_wheeler = 0.58;
         } else {
           orgSettings.mileage.unit = 'KM';
           orgSettings.mileage.four_wheeler = 8.0;
@@ -127,28 +125,26 @@ export class SetupAccountPage implements OnInit {
     this.fg.markAllAsTouched();
     if (this.fg.valid) {
       // do valid shit
-      from(this.loaderService.showLoader()).pipe(
-        concatMap(() => forkJoin([
-          this.postUser(),
-          this.postOrg(),
-          this.saveGuessedMileage()
-        ])),
-        finalize(async () => await this.loaderService.hideLoader()),
-        concatMap(() => this.authService.refreshEou())
-      ).subscribe(() => {
-        this.trackingService.setupHalf({ Asset: 'Mobile' });
-        // // setting up company details in clevertap profile
-        this.trackingService.updateSegmentProfile({
-          'Company Name': this.fg.controls.companyName.value
-        });
+      from(this.loaderService.showLoader())
+        .pipe(
+          concatMap(() => forkJoin([this.postUser(), this.postOrg(), this.saveGuessedMileage()])),
+          finalize(async () => await this.loaderService.hideLoader()),
+          concatMap(() => this.authService.refreshEou())
+        )
+        .subscribe(() => {
+          this.trackingService.setupHalf();
+          // // setting up company details in clevertap profile
+          this.trackingService.updateSegmentProfile({
+            'Company Name': this.fg.controls.companyName.value,
+          });
 
-        this.router.navigate(['/', 'post_verification', 'setup_account_preferences']);
-      });
+          this.router.navigate(['/', 'post_verification', 'setup_account_preferences']);
+        });
     } else {
       const toast = await this.toastController.create({
         message: 'Please fill all required fields to proceed',
         color: 'danger',
-        duration: 1200
+        duration: 1200,
       });
 
       await toast.present();
@@ -158,27 +154,23 @@ export class SetupAccountPage implements OnInit {
   ngOnInit() {
     this.setupNetworkWatcher();
     this.eou$ = from(this.authService.getEou());
-    this.fullname$ = this.eou$.pipe(
-      map(
-        eou => eou.us.full_name
-      )
-    );
+    this.fullname$ = this.eou$.pipe(map((eou) => eou.us.full_name));
 
     this.fg = this.fb.group({
       companyName: ['', Validators.required],
       homeCurrency: ['', Validators.required],
-      password: ['',
-        Validators.compose(
-          [
-            Validators.required,
-            Validators.minLength(12),
-            Validators.maxLength(32),
-            Validators.pattern(/[A-Z]/),
-            Validators.pattern(/[a-z]/),
-            Validators.pattern(/[0-9]/),
-            Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/)]
-        )
-      ]
+      password: [
+        '',
+        Validators.compose([
+          Validators.required,
+          Validators.minLength(12),
+          Validators.maxLength(32),
+          Validators.pattern(/[A-Z]/),
+          Validators.pattern(/[a-z]/),
+          Validators.pattern(/[0-9]/),
+          Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/),
+        ]),
+      ],
     });
 
     this.org$ = this.orgService.setCurrencyBasedOnIp().pipe(
@@ -191,33 +183,22 @@ export class SetupAccountPage implements OnInit {
     });
 
     this.lengthValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => password && password.length >= 12 && password.length <= 32
-      )
+      map((password) => password && password.length >= 12 && password.length <= 32)
     );
 
     this.uppercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[A-Z]/.test(password))
-      )
+      map((password) => /[A-Z]/.test(password))
     );
 
     this.numberValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[0-9]/.test(password))
-      )
+      map((password) => /[0-9]/.test(password))
     );
 
     this.lowercaseValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[a-z]/.test(password))
-      )
+      map((password) => /[a-z]/.test(password))
     );
     this.specialCharValidationDisplay$ = this.fg.controls.password.valueChanges.pipe(
-      map(
-        password => (/[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
-      )
+      map((password) => /[!@#$%^&*()+\-:;<=>{}|~?]/.test(password))
     );
   }
-
 }

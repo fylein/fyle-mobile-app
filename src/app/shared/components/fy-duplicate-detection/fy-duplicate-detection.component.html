@@ -1,14 +1,10 @@
 <label class="fy-select--label">
   <div class="fy-select--label-content">
     <span>
-      {{label}}
+      {{ label }}
     </span>
-    <span *ngIf="mandatory">
-      *
-    </span>
+    <span *ngIf="mandatory"> * </span>
   </div>
-  <input class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()">
-  <mat-icon>
-    chevron_right
-  </mat-icon>
+  <input class="fy-select" type="text" [ngModel]="displayValue" (blur)="onBlur()" (click)="openModal()" />
+  <mat-icon> chevron_right </mat-icon>
 </label>
