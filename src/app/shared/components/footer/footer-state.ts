@@ -1,4 +1,4 @@
 export enum FooterState {
   HOME,
-  TASKS
+  TASKS,
 }

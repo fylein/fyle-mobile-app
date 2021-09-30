@@ -2,13 +2,12 @@ $item-border-color: #e0e0e0;
 $background-color: #fff;
 
 .my-edit-report {
-
   &--header {
     background-color: $background-color;
     // height: 80px !important;
     border-bottom: 1px solid $item-border-color;
 
-    &-closebutton{
+    &-closebutton {
       color: #0077ee;
       text-transform: capitalize;
       font-weight: 400;
@@ -27,7 +26,6 @@ $background-color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
-    
 
     &-img {
       margin-top: 34px;
@@ -81,7 +79,7 @@ $background-color: #fff;
     margin-left: 10px;
     margin-top: 2px;
   }
-  
+
   &--report-info {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
     border-radius: 4px;
@@ -89,7 +87,7 @@ $background-color: #fff;
     padding: 16px;
     border: 1px solid #e0e0e0;
   }
-  
+
   &--report-info-currency {
     font-size: 16px;
     color: #ababab;
@@ -124,7 +122,7 @@ $background-color: #fff;
   }
 
   &--expense-card-info-hidden {
-    opacity: .3;
+    opacity: 0.3;
   }
 
   &--expense-card-icon {
@@ -183,7 +181,7 @@ $background-color: #fff;
   &--expense-card-removed-undo-action {
     padding: 6px;
     font-size: 16px;
-    background: #4798FF;
+    background: #4798ff;
     color: #fff;
     width: 76px;
     margin: 14px auto 0;
@@ -211,6 +209,4 @@ $background-color: #fff;
     border-radius: 8px;
     margin: 14px;
   }
-
-  
 }

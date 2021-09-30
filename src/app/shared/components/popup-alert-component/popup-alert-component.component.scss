@@ -19,12 +19,15 @@ $small-screen: 700px;
   &--cta-container {
     display: flex;
     justify-content: space-between;
+    &__single-content {
+      justify-content: center;
+    }
   }
 
   &--cta-button {
     font-weight: 500;
     &__disabled {
-      opacity: .2;
+      opacity: 0.2;
     }
   }
 
@@ -51,5 +54,4 @@ $small-screen: 700px;
       background: $red;
     }
   }
-
 }

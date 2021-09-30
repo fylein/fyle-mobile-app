@@ -1,11 +1,23 @@
 .view-expense {
-  
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
   &--container {
     padding: 0 16px;
+  }
+
+  &--title-sm {
+    padding-left: 0;
+  }
+
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
   }
 
   &--policy-container {
@@ -15,7 +27,7 @@
     margin: 8px 0;
     font-size: 14px;
     color: #4a4a4a;
-  
+
     &-warning-icon {
       font-size: 18px;
       padding-top: 2px;
@@ -145,22 +157,5 @@
   &--card-action-icon {
     color: #ababab;
     margin-right: 12px;
-  }
-
-  &--card-action-text {
-    
-    &__comment {
-      color: #0077ee;
-      display: inline-block;
-    }
-    &__delete {
-      color: #f00;
-    }
-    &__helper-comment {
-      vertical-align: bottom;
-      font-weight: 400;
-      font-size: 12px;
-      color: #ababab;
-    }
   }
 }

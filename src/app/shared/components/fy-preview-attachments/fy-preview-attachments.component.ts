@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { FileService } from 'src/app/core/services/file.service';
 import { switchMap, tap, concatMap, map, reduce } from 'rxjs/operators';
-import {DomSanitizer} from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-fy-preview-attachments',
@@ -10,7 +10,6 @@ import {DomSanitizer} from '@angular/platform-browser';
   styleUrls: ['./fy-preview-attachments.component.scss'],
 })
 export class FyPreviewAttachmentsComponent implements OnInit {
-
   @Input() txnId: string;
 
   @ViewChild('slides') imageSlides: any;
@@ -23,11 +22,7 @@ export class FyPreviewAttachmentsComponent implements OnInit {
 
   zoomScale: number;
 
-
-  constructor(
-    private fileService: FileService,
-    private sanitizer: DomSanitizer
-  ) { }
+  constructor(private fileService: FileService, private sanitizer: DomSanitizer) {}
 
   getReceiptExtension(name) {
     let res = null;
@@ -48,13 +43,13 @@ export class FyPreviewAttachmentsComponent implements OnInit {
     const ext = this.getReceiptExtension(file.name);
     const res = {
       type: 'unknown',
-      thumbnail: 'img/fy-receipt.svg'
+      thumbnail: 'img/fy-receipt.svg',
     };
 
-    if (ext && (['pdf'].indexOf(ext) > -1)) {
+    if (ext && ['pdf'].indexOf(ext) > -1) {
       res.type = 'pdf';
       res.thumbnail = 'img/fy-pdf.svg';
-    } else if (ext && (['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1)) {
+    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
       res.type = 'image';
       res.thumbnail = file.url;
     }
@@ -83,17 +78,19 @@ export class FyPreviewAttachmentsComponent implements OnInit {
     };
 
     this.attachments$ = this.fileService.findByTransactionId(this.txnId).pipe(
-      switchMap(fileObjs => from(fileObjs)),
-      concatMap((fileObj: any) => this.fileService.downloadUrl(fileObj.id).pipe(
-        map(downloadUrl => {
-          fileObj.url = downloadUrl;
-          this.sanitizer.bypassSecurityTrustUrl(fileObj.url);
-          const details = this.getReceiptDetails(fileObj);
-          fileObj.type = details.type;
-          fileObj.thumbnail = details.thumbnail;
-          return fileObj;
-        })
-      )),
+      switchMap((fileObjs) => from(fileObjs)),
+      concatMap((fileObj: any) =>
+        this.fileService.downloadUrl(fileObj.id).pipe(
+          map((downloadUrl) => {
+            fileObj.url = downloadUrl;
+            this.sanitizer.bypassSecurityTrustUrl(fileObj.url);
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
+          })
+        )
+      ),
       reduce((acc, curr) => acc.concat(curr), [])
     );
   }

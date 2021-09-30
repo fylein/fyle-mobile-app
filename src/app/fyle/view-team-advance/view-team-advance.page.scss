@@ -18,7 +18,7 @@
     }
 
     &__edit {
-      padding: 8px 16px
+      padding: 8px 16px;
     }
 
     &_external-component {
@@ -27,12 +27,30 @@
     }
   }
 
+  &--title-sm {
+    padding-left: 0;
+    font-size: 17px;
+  }
+
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
+  }
+
+  &--header-btn-container__sm {
+    margin: 0 !important;
+  }
+
   &--content-header {
     font-size: 14px;
     margin: 5px 0 -2px 0;
   }
 
-  &--attachment-currency-container{
+  &--attachment-currency-container {
     margin: 0 16px;
     display: flex;
   }
@@ -96,9 +114,9 @@
     margin-top: 20px;
     line-height: 1;
     margin-left: -4px;
-}
+  }
 
-  &--add-receipt-text{
+  &--add-receipt-text {
     margin: 0;
     display: inline-block;
     vertical-align: middle;
@@ -137,8 +155,6 @@
     font-weight: 500;
     border: 0;
   }
-
-
 
   &--element {
     display: flex;

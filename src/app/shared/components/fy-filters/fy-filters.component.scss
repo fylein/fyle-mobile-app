@@ -9,7 +9,7 @@
     line-height: 26px;
     color: $black;
     font-weight: 400;
-    padding-left: 12px;
+    padding: 18px 12px;
   }
 
   &--clear-all {
@@ -45,7 +45,8 @@
     }
   }
 
-  &--checkbox, &--radio {
+  &--checkbox,
+  &--radio {
     font-size: 20px;
     margin-right: 16px;
     fill: $black;

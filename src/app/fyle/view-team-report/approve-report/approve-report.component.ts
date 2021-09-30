@@ -19,10 +19,7 @@ export class ApproveReportComponent implements OnInit {
 
   approveReportLoading = false;
 
-  constructor(
-    private popoverController: PopoverController,
-    private reportService: ReportService
-  ) { }
+  constructor(private popoverController: PopoverController, private reportService: ReportService) {}
 
   ngOnInit() {
     this.numIssues = this.getNumIssues(this.etxns);
@@ -52,18 +49,17 @@ export class ApproveReportComponent implements OnInit {
     return count;
   }
 
-
   approve(event) {
     this.approveReportLoading = true;
     event.stopPropagation();
     event.preventDefault();
 
-    this.reportService.approve(this.erpt.rp_id)
-      .pipe(
-        finalize(() => this.approveReportLoading = false)
-      ).subscribe(() => {
+    this.reportService
+      .approve(this.erpt.rp_id)
+      .pipe(finalize(() => (this.approveReportLoading = false)))
+      .subscribe(() => {
         this.popoverController.dismiss({
-          goBack: true
+          goBack: true,
         });
       });
   }

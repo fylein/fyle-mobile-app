@@ -6,8 +6,8 @@ import { SplitExpensePage } from './split-expense.page';
 const routes: Routes = [
   {
     path: '',
-    component: SplitExpensePage
-  }
+    component: SplitExpensePage,
+  },
 ];
 
 @NgModule({

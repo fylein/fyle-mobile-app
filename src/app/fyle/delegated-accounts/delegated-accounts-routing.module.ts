@@ -6,8 +6,8 @@ import { DelegatedAccountsPage } from './delegated-accounts.page';
 const routes: Routes = [
   {
     path: '',
-    component: DelegatedAccountsPage
-  }
+    component: DelegatedAccountsPage,
+  },
 ];
 
 @NgModule({

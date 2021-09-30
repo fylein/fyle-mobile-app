@@ -12,12 +12,13 @@ import { Observable } from 'rxjs/internal/Observable';
   styleUrls: ['./footer.component.scss'],
 })
 export class FooterComponent implements OnInit {
-
   @Output() homeClicked = new EventEmitter();
 
   @Output() cameraClicked = new EventEmitter();
 
   @Output() taskClicked = new EventEmitter();
+
+  @Input() taskCount = 0;
 
   @Input() activeState: FooterState;
 
@@ -35,7 +36,7 @@ export class FooterComponent implements OnInit {
     private networkService: NetworkService,
     private trackingService: TrackingService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.connectionState$ = this.networkService.getConnectionStatus();
@@ -43,9 +44,8 @@ export class FooterComponent implements OnInit {
 
   goToHome() {
     this.trackingService.footerButtonClicked({
-      Asset: 'Mobile',
       Action: 'Home',
-      Url: this.router.url
+      Url: this.router.url,
     });
 
     this.homeClicked.emit();
@@ -53,21 +53,21 @@ export class FooterComponent implements OnInit {
 
   goToCameraMode() {
     this.trackingService.footerButtonClicked({
-      Asset: 'Mobile',
       Action: 'Camera',
-      Url: this.router.url
+      Url: this.router.url,
     });
 
     this.cameraClicked.emit();
   }
 
-  goToTasks() {
-    this.trackingService.footerButtonClicked({
-      Asset: 'Mobile',
-      Action: 'Tasks',
-      Url: this.router.url
-    });
+  goToTasks(connectionState: ConnectionMessageStatus) {
+    if (connectionState !== ConnectionMessageStatus.disconnected) {
+      this.trackingService.footerButtonClicked({
+        Action: 'Tasks',
+        Url: this.router.url,
+      });
 
-    this.taskClicked.emit();
+      this.taskClicked.emit();
+    }
   }
 }

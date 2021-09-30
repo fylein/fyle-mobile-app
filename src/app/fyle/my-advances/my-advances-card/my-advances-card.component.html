@@ -1,22 +1,27 @@
 <div class="advance-card">
   <div class="advance-card--header">
-    <span class="day">{{advanceRequest.created_at | date: 'EEEE'}}</span>,
-    <span class="month-year">{{advanceRequest.created_at | date: 'MMM dd, yyyy'}}</span>
+    <span class="day">{{ advanceRequest.created_at | date: 'EEEE' }}</span
+    >,
+    <span class="month-year">{{ advanceRequest.created_at | date: 'MMM dd, yyyy' }}</span>
   </div>
   <div class="advance-card--body" (click)="onAdvanceClick()">
     <div class="advance-card--info">
       <div>
-        <span class="advance-card--currency">{{advanceRequest.orig_currency || advanceRequest.currency || '-'}}</span>
-        <span class="advance-card--amount">{{(advanceRequest.orig_amount || advanceRequest.amount) | number:'1.2-2' || '-'}}</span>
+        <span class="advance-card--currency">{{ advanceRequest.orig_currency || advanceRequest.currency || '-' }}</span>
+        <span class="advance-card--amount">{{
+          advanceRequest.orig_amount || advanceRequest.amount | number: '1.2-2' || '-'
+        }}</span>
       </div>
-      <p>{{advanceRequest.purpose | ellipsis: 30}}</p>
+      <p>{{ advanceRequest.purpose | ellipsis: 30 }}</p>
     </div>
 
     <div class="advance-card--status">
-      <div *ngIf="advanceRequest.areq_approved_at" class="advance-card--approval">Approved on {{advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'}}</div>
-      <div class="advance-card--pill" [class]="'advance-card--pill__'+internalState.state">{{internalState.name}}</div>
+      <div *ngIf="advanceRequest.areq_approved_at" class="advance-card--approval">
+        Approved on {{ advanceRequest.areq_approved_at | date: 'MMM dd, yyyy' }}
+      </div>
+      <div class="advance-card--pill" [class]="'advance-card--pill__' + internalState.state">
+        {{ internalState.name }}
+      </div>
     </div>
-
   </div>
-
 </div>

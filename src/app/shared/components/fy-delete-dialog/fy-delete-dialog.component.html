@@ -3,26 +3,47 @@
     <ion-row>
       <ion-col>
         <div class="fy-delete-dialog--header">
-          {{header}}
+          {{ header }}
         </div>
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col>
         <div class="fy-delete-dialog--body">
-          {{body}}
+          {{ body }}
         </div>
       </ion-col>
     </ion-row>
-    <ion-row>
+    <ion-row *ngIf="infoMessage" class="fy-delete-dialog--info-container">
+      <ion-col size="1">
+        <mat-icon class="fy-delete-dialog--info-container__icon" svgIcon="fy-info"></mat-icon>
+      </ion-col>
+      <ion-col>
+        <div class="fy-delete-dialog--info-container__message">
+          {{ infoMessage }}
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row class="fy-delete-dialog--cta-container">
       <ion-col size="6">
-        <div [ngClass]="{'fy-delete-dialog--cancel__disabled': deleteCallInProgress}" class="fy-delete-dialog--cancel" (click)="cancel()">
+        <div
+          [ngClass]="{ 'fy-delete-dialog--cancel__disabled': deleteCallInProgress }"
+          class="fy-delete-dialog--cancel"
+          (click)="cancel()"
+        >
           Cancel
         </div>
       </ion-col>
       <ion-col size="6">
-        <div class="fy-delete-dialog--delete" (click)="delete()" appFormButtonValidation [loaderPosition]="LoaderPosition.postfix" [loading]="deleteCallInProgress">
-          Delete
+        <div
+          class="fy-delete-dialog--delete"
+          (click)="delete()"
+          appFormButtonValidation
+          [loaderPosition]="LoaderPosition.prefix"
+          [loading]="deleteCallInProgress"
+          [loadingText]="ctaLoadingText ? ctaLoadingText : 'Deleting'"
+        >
+          {{ ctaText ? ctaText : 'Delete' }}
         </div>
       </ion-col>
     </ion-row>

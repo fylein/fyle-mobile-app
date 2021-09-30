@@ -10,7 +10,6 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
   styleUrls: ['./add-expenses-to-report.component.scss'],
 })
 export class AddExpensesToReportComponent implements OnInit {
-
   @Input() unReportedEtxns: Expense[];
 
   homeCurrency$: Observable<string>;
@@ -21,10 +20,7 @@ export class AddExpensesToReportComponent implements OnInit {
 
   selectedTxnIds: string[];
 
-  constructor(
-    private modalController: ModalController,
-    private currencyService: CurrencyService
-  ) { }
+  constructor(private modalController: ModalController, private currencyService: CurrencyService) {}
 
   close() {
     this.modalController.dismiss();
@@ -34,16 +30,15 @@ export class AddExpensesToReportComponent implements OnInit {
     this.modalController.dismiss({
       selectedTxnIds: this.selectedTxnIds,
       selectedTotalAmount: this.selectedTotalAmount,
-      selectedTotalTxns: this.selectedTotalTxns
+      selectedTotalTxns: this.selectedTotalTxns,
     });
   }
 
   toggleTransaction(etxn) {
     etxn.isSelected = !etxn.isSelected;
-    const etxns = this.unReportedEtxns.filter(etxn => etxn.isSelected);
-    this.selectedTxnIds = etxns.map(etxn => etxn.tx_id);
-    this.selectedTotalAmount = etxns.reduce((acc, obj) =>
-    {
+    const etxns = this.unReportedEtxns.filter((etxn) => etxn.isSelected);
+    this.selectedTxnIds = etxns.map((etxn) => etxn.tx_id);
+    this.selectedTotalAmount = etxns.reduce((acc, obj) => {
       if (!obj.tx_skip_reimbursement) {
         return acc + obj.tx_amount;
       } else {
@@ -57,7 +52,5 @@ export class AddExpensesToReportComponent implements OnInit {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
   }
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

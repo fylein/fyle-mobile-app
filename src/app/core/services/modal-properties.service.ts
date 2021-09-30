@@ -2,13 +2,10 @@ import { Injectable } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ModalPropertiesService {
-
-  constructor(
-    private modalController: ModalController
-  ) { }
+  constructor(private modalController: ModalController) {}
 
   getModalDefaultProperties() {
     const properties = {
@@ -31,5 +28,4 @@ export class ModalPropertiesService {
     };
     return properties;
   }
-
 }

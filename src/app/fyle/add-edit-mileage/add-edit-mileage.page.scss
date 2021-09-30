@@ -1,5 +1,5 @@
-@import "../../../theme/colors.scss";
-@import "../../../theme/forms.scss";
+@import '../../../theme/colors.scss';
+@import '../../../theme/forms.scss';
 
 .add-edit-mileage {
   &--toolbar {
@@ -7,12 +7,20 @@
     &__review {
       min-height: 80px;
     }
+
+    &__title {
+      padding-right: 60px;
+      text-align: center;
+    }
   }
 
-  &--header-button {
-    --padding-start: 8px !important;
-    --padding-end: 8px !important;
-    width: auto !important;
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
   }
 
   &--sub-header {
@@ -46,18 +54,8 @@
   }
 
   &--cta-container {
-    padding: 14px 16px 14px 16px;
+    padding: 14px 16px;
     justify-content: space-between;
-  }
-
-  &--primary-cta, &--secondary-cta {
-    height: 48px;
-    font-size: 14px;
-    text-transform: inherit;
-    font-weight: 600;
-    --border-radius: 4px !important;
-    width: 100%;
-    margin: 0 4px;
   }
 
   &--receipt-currency {
@@ -86,7 +84,8 @@
     margin: 18px 0;
   }
 
-  &--form, &--violations {
+  &--form,
+  &--violations {
     padding: 0 16px 16px 16px;
   }
 
@@ -293,11 +292,11 @@
 
   &--amount-value {
     font-size: 22px;
+    margin-right: 12px;
   }
 
   &--rate-value {
     font-size: 16px;
-    margin-right: 12px;
   }
 
   &--remove-stop {

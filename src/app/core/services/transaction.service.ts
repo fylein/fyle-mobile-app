@@ -4,7 +4,7 @@ import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
-import {from, Observable, range, concat, forkJoin, Subject, of} from 'rxjs';
+import { from, Observable, range, concat, forkJoin, Subject, of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
@@ -15,13 +15,13 @@ import { FileService } from 'src/app/core/services/file.service';
 import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { UserEventService } from './user-event.service';
 
 const transactionsCacheBuster$ = new Subject<void>();
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TransactionService {
-
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
@@ -34,36 +34,43 @@ export class TransactionService {
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private fileService: FileService,
-    private policyApiService: PolicyApiService
-  ) { }
+    private policyApiService: PolicyApiService,
+    private userEventService: UserEventService
+  ) {
+    transactionsCacheBuster$.subscribe(() => {
+      this.userEventService.clearTaskCache();
+    });
+  }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
+    cacheBusterNotifier: transactionsCacheBuster$,
   })
   clearCache() {
     return of(null);
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
+    cacheBusterObserver: transactionsCacheBuster$,
   })
   get(txnId) {
     // TODO api v2
-    return this.apiService.get('/transactions/' + txnId).pipe(
-      map((transaction) => this.dateService.fixDates(transaction))
-    );
+    return this.apiService
+      .get('/transactions/' + txnId)
+      .pipe(map((transaction) => this.dateService.fixDates(transaction)));
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
+    cacheBusterObserver: transactionsCacheBuster$,
   })
   getEtxn(txnId) {
     // TODO api v2
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((transaction) => {
-
         let categoryDisplayName = transaction.tx_org_category;
-        if (transaction.tx_sub_category && transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
+        if (
+          transaction.tx_sub_category &&
+          transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()
+        ) {
           categoryDisplayName += ' / ' + transaction.tx_sub_category;
         }
         transaction.tx_categoryDisplayName = categoryDisplayName;
@@ -74,144 +81,154 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
+    cacheBusterNotifier: transactionsCacheBuster$,
   })
   manualFlag(txnId) {
     return this.apiService.post('/transactions/' + txnId + '/manual_flag');
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
+    cacheBusterNotifier: transactionsCacheBuster$,
   })
   manualUnflag(txnId) {
     return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
+    cacheBusterObserver: transactionsCacheBuster$,
   })
   getMyETxnc(params: { offset: number; limit: number; tx_org_user_id: string }) {
-    return this.apiV2Service.get('/expenses', {
-      params
-    }).pipe(
-      map(
-        (etxns) => etxns.data
-      )
-    );
+    return this.apiV2Service
+      .get('/expenses', {
+        params,
+      })
+      .pipe(map((etxns) => etxns.data));
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
+    cacheBusterObserver: transactionsCacheBuster$,
   })
   getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
-      switchMap(res => {
+      switchMap((res) => {
         const count = res.count > 50 ? res.count / 50 : 1;
         return range(0, count);
       }),
-      concatMap(page => this.getETxnc({ offset: 50 * page, limit: 50, params })),
+      concatMap((page) => this.getETxnc({ offset: 50 * page, limit: 50, params })),
       reduce((acc, curr) => acc.concat(curr))
     );
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
+    cacheBusterObserver: transactionsCacheBuster$,
   })
   getAllMyETxnc() {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => this.getMyETxncCount('eq.' + eou.ou.id).pipe(
-        switchMap(res => {
-          const count = res.count > 50 ? res.count / 50 : 1;
-          return range(0, count);
-        }),
-        concatMap(page => this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id })),
-        reduce((acc, curr) => acc.concat(curr))
-      ))
+      switchMap((eou) =>
+        this.getMyETxncCount('eq.' + eou.ou.id).pipe(
+          switchMap((res) => {
+            const count = res.count > 50 ? res.count / 50 : 1;
+            return range(0, count);
+          }),
+          concatMap((page) => this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id })),
+          reduce((acc, curr) => acc.concat(curr))
+        )
+      )
     );
   }
 
-
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
+    cacheBusterObserver: transactionsCacheBuster$,
   })
-  getMyExpenses(config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
+  getMyExpenses(
+    config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
+      offset: 0,
+      limit: 10,
+      queryParams: {},
+    }
+  ) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => this.apiV2Service.get('/expenses', {
-        params: {
-          offset: config.offset,
-          limit: config.limit,
-          order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-          tx_org_user_id: 'eq.' + eou.ou.id,
-          ...config.queryParams
-        }
-      })),
-      map(res => res as {
-        count: number;
-        data: any[];
-        limit: number;
-        offset: number;
-        url: string;
-      }),
-      map(res => ({
+      switchMap((eou) =>
+        this.apiV2Service.get('/expenses', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
+            tx_org_user_id: 'eq.' + eou.ou.id,
+            ...config.queryParams,
+          },
+        })
+      ),
+      map(
+        (res) =>
+          res as {
+            count: number;
+            data: any[];
+            limit: number;
+            offset: number;
+            url: string;
+          }
+      ),
+      map((res) => ({
         ...res,
-        data: res.data.map(datum => this.dateService.fixDatesV2(datum))
+        data: res.data.map((datum) => this.dateService.fixDatesV2(datum)),
       }))
     );
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
+    cacheBusterObserver: transactionsCacheBuster$,
   })
   getAllExpenses(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyExpensesCount(config.queryParams).pipe(
-      switchMap(count => {
+      switchMap((count) => {
         count = count > 50 ? count / 50 : 1;
         return range(0, count);
       }),
-      concatMap(page => this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })),
-      map(res => res.data),
+      concatMap((page) =>
+        this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })
+      ),
+      map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as any[])
     );
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$
+    cacheBusterObserver: transactionsCacheBuster$,
   })
   getTransactionStats(aggregates: string, queryParams = {}) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => this.apiV2Service.get('/expenses/stats', {
-        params: {
-          aggregates,
-          tx_org_user_id: 'eq.' + eou.ou.id,
-          ...queryParams
-        }
-      })),
-      map(res => res.data)
+      switchMap((eou) =>
+        this.apiV2Service.get('/expenses/stats', {
+          params: {
+            aggregates,
+            tx_org_user_id: 'eq.' + eou.ou.id,
+            ...queryParams,
+          },
+        })
+      ),
+      map((res) => res.data)
     );
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
+    cacheBusterNotifier: transactionsCacheBuster$,
   })
   delete(txnId: string) {
     return this.apiService.delete('/transactions/' + txnId);
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
+    cacheBusterNotifier: transactionsCacheBuster$,
   })
   deleteBulk(txnIds: string[]) {
     const chunkSize = 10;
     const count = txnIds.length > chunkSize ? txnIds.length / chunkSize : 1;
     return range(0, count).pipe(
-      concatMap(page => {
+      concatMap((page) => {
         const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
         return this.apiService.post('/transactions/delete/bulk', {
-          txn_ids: filteredtxnIds
+          txn_ids: filteredtxnIds,
         });
       }),
       reduce((acc, curr) => acc.concat(curr), [] as any[])
@@ -219,7 +236,7 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
+    cacheBusterNotifier: transactionsCacheBuster$,
   })
   upsert(transaction) {
     /** Only these fields will be of type text & custom fields */
@@ -233,11 +250,18 @@ export class TransactionService {
     // FYLE-6148. Don't send custom_attributes.
     transaction.custom_attributes = null;
 
+    if (transaction.tax) {
+      delete transaction.tax;
+    }
+
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         const offset = orgUserSettings.locale.offset;
 
-        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset);
+        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(
+          transaction.custom_properties,
+          offset
+        );
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (transaction.txn_dt) {
           transaction.txn_dt.setHours(12);
@@ -271,32 +295,38 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
+    cacheBusterNotifier: transactionsCacheBuster$,
   })
   createTxnWithFiles(txn, fileUploads$: Observable<any>) {
     return fileUploads$.pipe(
-      switchMap((fileObjs: any[]) => this.upsert(txn).pipe(
-        switchMap(transaction => from(fileObjs.map(fileObj => {
-          fileObj.transaction_id = transaction.id;
-          return fileObj;
-        })).pipe(
-          concatMap(fileObj => this.fileService.post(fileObj)),
-          reduce((acc, curr) => acc.concat([curr]), []),
-          map(() => transaction)
-        ))
-      )),
+      switchMap((fileObjs: any[]) =>
+        this.upsert(txn).pipe(
+          switchMap((transaction) =>
+            from(
+              fileObjs.map((fileObj) => {
+                fileObj.transaction_id = transaction.id;
+                return fileObj;
+              })
+            ).pipe(
+              concatMap((fileObj) => this.fileService.post(fileObj)),
+              reduce((acc, curr) => acc.concat([curr]), []),
+              map(() => transaction)
+            )
+          )
+        )
+      )
     );
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$
+    cacheBusterNotifier: transactionsCacheBuster$,
   })
   removeTxnsFromRptInBulk(txnIds, comment?) {
     const count = txnIds.length > 50 ? txnIds.length / 50 : 1;
     return range(0, count).pipe(
-      concatMap(page => {
+      concatMap((page) => {
         const data: any = {
-          ids: txnIds.slice((page) * 50, (page + 1) * 50)
+          ids: txnIds.slice(page * 50, (page + 1) * 50),
         };
 
         if (comment) {
@@ -312,7 +342,7 @@ export class TransactionService {
   parseRaw(etxnsRaw) {
     const etxns = [];
 
-    etxnsRaw.forEach(element => {
+    etxnsRaw.forEach((element) => {
       const etxn = this.dataTransformService.unflatten(element);
 
       this.dateService.fixDates(etxn.tx);
@@ -342,32 +372,31 @@ export class TransactionService {
     return count;
   }
 
-
   getUserTransactionParams(state: string) {
     const stateMap = {
       draft: {
-        state: ['DRAFT']
+        state: ['DRAFT'],
       },
       all: {
         state: ['COMPLETE'],
-        policy_amount: ['is:null', 'gt:0.0001']
+        policy_amount: ['is:null', 'gt:0.0001'],
       },
       flagged: {
         policy_flag: true,
-        policy_amount: ['is:null', 'gt:0.0001']
+        policy_amount: ['is:null', 'gt:0.0001'],
       },
       critical: {
-        policy_amount: ['lt:0.0001']
+        policy_amount: ['lt:0.0001'],
       },
       unreported: {
-        state: ['COMPLETE', 'DRAFT']
+        state: ['COMPLETE', 'DRAFT'],
       },
       recurrence: {
-        source: ['RECURRENCE_WEBAPP']
+        source: ['RECURRENCE_WEBAPP'],
       },
       needsReceipt: {
-        tx_receipt_required: true
-      }
+        tx_receipt_required: true,
+      },
     };
 
     return stateMap[state];
@@ -379,76 +408,62 @@ export class TransactionService {
 
   getPaginatedETxncCount(params?) {
     return this.networkService.isOnline().pipe(
-      switchMap(
-        isOnline => {
-          if (isOnline) {
-            return this.apiService.get('/etxns/count', { params }).pipe(
-              tap((res) => {
-                this.storageService.set('etxncCount' + JSON.stringify(params), res);
-              })
-            );
-          } else {
-            return from(this.storageService.get('etxncCount' + JSON.stringify(params)));
-          }
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.apiService.get('/etxns/count', { params }).pipe(
+            tap((res) => {
+              this.storageService.set('etxncCount' + JSON.stringify(params), res);
+            })
+          );
+        } else {
+          return from(this.storageService.get('etxncCount' + JSON.stringify(params)));
         }
-      )
+      })
     );
   }
 
   getMyETxncCount(tx_org_user_id: string): Observable<{ count: number }> {
-    return this.apiV2Service.get('/expenses', { params: { offset: 0, limit: 1, tx_org_user_id } }).pipe(
-      map(
-        res => res as { count: number }
-      )
-    );
+    return this.apiV2Service
+      .get('/expenses', { params: { offset: 0, limit: 1, tx_org_user_id } })
+      .pipe(map((res) => res as { count: number }));
   }
 
   getETxnc(params: { offset: number; limit: number; params: any }) {
-    return this.apiV2Service.get('/expenses', {
-      ...params
-    }).pipe(
-      map(
-        (etxns) => etxns.data
-      )
-    );
+    return this.apiV2Service
+      .get('/expenses', {
+        ...params,
+      })
+      .pipe(map((etxns) => etxns.data));
   }
 
   getETxnCount(params: any) {
-    return this.apiV2Service.get('/expenses', { params }).pipe(
-      map(
-        res => res as { count: number }
-      )
-    );
+    return this.apiV2Service.get('/expenses', { params }).pipe(map((res) => res as { count: number }));
   }
 
   getMyExpensesCount(queryParams = {}) {
     return this.getMyExpenses({
       offset: 0,
       limit: 1,
-      queryParams
-    }).pipe(
-      map(res => res.count)
-    );
+      queryParams,
+    }).pipe(map((res) => res.count));
   }
 
   getTotalNoCurrency(etxns) {
     let total = 0;
-    etxns.forEach(etxn => {
+    etxns.forEach((etxn) => {
       total = total + etxn.tx_amount;
     });
     return total;
   }
 
   getExpenseV2(id: string): Observable<any> {
-    return this.apiV2Service.get('/expenses', {
-      params: {
-        tx_id: `eq.${id}`
-      }
-    }).pipe(
-      map(
-        res => this.fixDates(res.data[0]) as Expense
-      )
-    );
+    return this.apiV2Service
+      .get('/expenses', {
+        params: {
+          tx_id: `eq.${id}`,
+        },
+      })
+      .pipe(map((res) => this.fixDates(res.data[0]) as Expense));
   }
 
   fixDates(data: Expense) {
@@ -469,11 +484,12 @@ export class TransactionService {
     return data;
   }
 
-
-
   testPolicy(etxn) {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
+        if (etxn.tx_tax) {
+          delete etxn.tx_tax;
+        }
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (etxn.tx_txn_dt) {
           etxn.tx_txn_dt.setHours(12);
@@ -527,7 +543,7 @@ export class TransactionService {
   matchCCCExpense(txnId, corporateCreditCardExpenseId) {
     const data = {
       transaction_id: txnId,
-      corporate_credit_card_expense_id: corporateCreditCardExpenseId
+      corporate_credit_card_expense_id: corporateCreditCardExpenseId,
     };
 
     return this.apiService.post('/transactions/match', data);
@@ -548,24 +564,23 @@ export class TransactionService {
   uploadBase64File(txnId, name, base64Content) {
     const data = {
       content: base64Content,
-      name
+      name,
     };
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
   getSplitExpenses(txnSplitGroupId: string) {
     const data = {
-      tx_split_group_id: 'eq.' + txnSplitGroupId
+      tx_split_group_id: 'eq.' + txnSplitGroupId,
     };
 
     return this.getAllETxnc(data);
   }
 
-
   unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string) {
     const data = {
       transaction_id: txnId,
-      corporate_credit_card_expense_id: corporateCreditCardExpenseId
+      corporate_credit_card_expense_id: corporateCreditCardExpenseId,
     };
 
     return this.apiService.post('/transactions/unmatch', data);
@@ -574,8 +589,8 @@ export class TransactionService {
   getTransactionByExpenseNumber(expenseNumber: string) {
     return this.apiService.get('/transactions', {
       params: {
-        expense_number: expenseNumber
-      }
+        expense_number: expenseNumber,
+      },
     });
   }
 
@@ -593,18 +608,19 @@ export class TransactionService {
       } else {
         vendorDisplayName += ' Day';
       }
-
     }
 
     return vendorDisplayName;
   }
 
   getReportableExpenses(expenses: Expense[]): Expense[] {
-    return expenses.filter(expense => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id);
+    return expenses.filter(
+      (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
+    );
   }
 
-  getIsCriticalPolicyViolated(expense: Expense): boolean{
-    return (typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001);
+  getIsCriticalPolicyViolated(expense: Expense): boolean {
+    return typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001;
   }
 
   getIsDraft(expense: Expense): boolean {

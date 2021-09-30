@@ -7,21 +7,17 @@ import { PopoverController } from '@ionic/angular';
   styleUrls: ['./draft-advance-summary.component.scss'],
 })
 export class DraftAdvanceSummaryComponent implements OnInit {
-
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
   ngOnInit() {}
 
   createAdvanceRequest() {
     this.popoverController.dismiss({
-      saveAdvanceRequest: true
+      saveAdvanceRequest: true,
     });
   }
 
   close() {
     this.popoverController.dismiss();
   }
-
 }

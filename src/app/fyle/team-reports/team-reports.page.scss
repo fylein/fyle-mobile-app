@@ -1,3 +1,5 @@
+@import '../../../theme/colors';
+
 $item-border-color: #e0e0e0;
 $background-color: #fff;
 $menu-botton-color: #000;
@@ -60,7 +62,7 @@ $toolbar-border: #ababab6b;
 
     &__applied {
       ::after {
-        content: "•";
+        content: '•';
         font-size: 48px;
         position: absolute;
         top: -8px;
@@ -73,7 +75,16 @@ $toolbar-border: #ababab6b;
     margin: 12px;
   }
 
+  &--content {
+    --background: #{$white};
+    --padding-bottom: 82px;
+  }
+
   &--zero-state {
-    padding-top: 80px;
+    display: flex;
+    flex-direction: column;
+    height: 80%;
+    justify-content: center;
+    text-align: center;
   }
 }

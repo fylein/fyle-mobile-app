@@ -8,10 +8,9 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DuplicateDetectionService {
-
   ROOT_ENDPOINT: string;
 
   constructor(
@@ -40,10 +39,14 @@ export class DuplicateDetectionService {
 
   getPossibleDuplicates(transaction) {
     return this.orgUserSettingsService.get().pipe(
-      switchMap(orgUserSettings => {
+      switchMap((orgUserSettings) => {
         const localeOffset = orgUserSettings.locale.offset;
 
         const transactionCopy = cloneDeep(transaction);
+
+        if (transactionCopy.tax) {
+          delete transactionCopy.tax;
+        }
 
         transactionCopy.txn_dt.setHours(12);
         transactionCopy.txn_dt.setMinutes(0);

@@ -3,7 +3,7 @@ $note-container-color: #f1f1f1;
 
 .support {
   text-align: center;
-    
+
   &--header {
     position: sticky;
     top: 0;
@@ -17,11 +17,10 @@ $note-container-color: #f1f1f1;
     font-weight: bold;
   }
 
-
- &--content {
-   overflow: scroll;
-   margin: 30px;
- }
+  &--content {
+    overflow: scroll;
+    margin: 30px;
+  }
 
   &--helpLinkBtn {
     width: 100%;
@@ -40,7 +39,7 @@ $note-container-color: #f1f1f1;
   }
 
   &--page-divider {
-    border-top:  1px solid $gray;
+    border-top: 1px solid $gray;
     margin: 20px;
   }
 

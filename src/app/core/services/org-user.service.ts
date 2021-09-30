@@ -1,26 +1,25 @@
-import {Injectable} from '@angular/core';
-import {JwtHelperService} from './jwt-helper.service';
-import {TokenService} from './token.service';
-import {ApiService} from './api.service';
-import {User} from '../models/user.model';
-import {concatMap, map, reduce, switchMap, tap} from 'rxjs/operators';
-import {AuthService} from './auth.service';
-import {Observable, range, Subject, from} from 'rxjs';
-import {ExtendedOrgUser} from '../models/extended-org-user.model';
-import {DataTransformService} from './data-transform.service';
-import {StorageService} from './storage.service';
-import {Cacheable, globalCacheBusterNotifier, CacheBuster} from 'ts-cacheable';
-import {TrackingService} from './tracking.service';
+import { Injectable } from '@angular/core';
+import { JwtHelperService } from './jwt-helper.service';
+import { TokenService } from './token.service';
+import { ApiService } from './api.service';
+import { User } from '../models/user.model';
+import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
+import { AuthService } from './auth.service';
+import { Observable, range, Subject, from } from 'rxjs';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { DataTransformService } from './data-transform.service';
+import { StorageService } from './storage.service';
+import { Cacheable, globalCacheBusterNotifier, CacheBuster } from 'ts-cacheable';
+import { TrackingService } from './tracking.service';
 import { ApiV2Service } from './api-v2.service';
 import { Employee } from '../models/employee.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class OrgUserService {
-
   constructor(
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
@@ -30,36 +29,34 @@ export class OrgUserService {
     private storageService: StorageService,
     private trackingService: TrackingService,
     private apiV2Service: ApiV2Service
-  ) { }
-
+  ) {}
 
   @Cacheable()
   getCurrent() {
-    return this.apiService.get('/eous/current').pipe(
-      map(eou => this.dataTransformService.unflatten(eou))
-    );
+    return this.apiService.get('/eous/current').pipe(map((eou) => this.dataTransformService.unflatten(eou)));
   }
 
   // TODO: move to v2
   @Cacheable({
-    cacheBusterObserver: orgUsersCacheBuster$
+    cacheBusterObserver: orgUsersCacheBuster$,
   })
   getEmployeesByParams(params): Observable<{
     count: number;
     data: Employee[];
     limit: number;
     offset: number;
-    url: string;}> {
-    return this.apiV2Service.get('/employees', {params});
+    url: string;
+  }> {
+    return this.apiV2Service.get('/employees', { params });
   }
 
   @CacheBuster({
-    cacheBusterNotifier: orgUsersCacheBuster$
+    cacheBusterNotifier: orgUsersCacheBuster$,
   })
   switchToDelegator(orgUser) {
-    return this.apiService.post('/orgusers/delegator_refresh_token', orgUser).pipe(
-      switchMap(data => this.authService.newRefreshToken(data.refresh_token))
-    );
+    return this.apiService
+      .post('/orgusers/delegator_refresh_token', orgUser)
+      .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 
   postUser(user: User) {
@@ -75,18 +72,17 @@ export class OrgUserService {
   markActive() {
     return this.apiService.post('/orgusers/current/mark_active').pipe(
       switchMap(() => this.authService.refreshEou()),
-      tap(() => this.trackingService.activated({Asset: 'Mobile'}))
+      tap(() => this.trackingService.activated())
     );
   }
 
-
-  getEmployees(params): Observable<Employee[]>{
-    return this.getEmployeesByParams({...params, limit: 1}).pipe(
-      switchMap(res => {
+  getEmployees(params): Observable<Employee[]> {
+    return this.getEmployeesByParams({ ...params, limit: 1 }).pipe(
+      switchMap((res) => {
         const count = res.count > 200 ? res.count / 200 : 1;
         return range(0, count);
       }),
-      concatMap(page => this.getEmployeesByParams({ ...params, offset: 200 * page, limit: 200 })),
+      concatMap((page) => this.getEmployeesByParams({ ...params, offset: 200 * page, limit: 200 })),
       reduce((acc, curr) => acc.concat(curr.data), [] as Employee[])
     );
   }
@@ -99,11 +95,8 @@ export class OrgUserService {
     }
     return this.getEmployeesByParams({
       ...params,
-    }).pipe(
-      map(res => res.data)
-    );
+    }).pipe(map((res) => res.data));
   }
-
 
   exclude(eous: ExtendedOrgUser[], userIds: string[]) {
     return eous.filter((eou) => userIds.indexOf(eou.ou.id) === -1);
@@ -112,8 +105,10 @@ export class OrgUserService {
   // TODO: move to v2
   findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
-      map(delegatedAccounts => {
-        delegatedAccounts = delegatedAccounts.map((delegatedAccount) => this.dataTransformService.unflatten(delegatedAccount));
+      map((delegatedAccounts) => {
+        delegatedAccounts = delegatedAccounts.map((delegatedAccount) =>
+          this.dataTransformService.unflatten(delegatedAccount)
+        );
 
         return delegatedAccounts;
       })
@@ -132,19 +127,21 @@ export class OrgUserService {
   }
 
   filterByRoles(eous: ExtendedOrgUser[], role) {
-    const filteredEous = eous.filter(eou => role.some(userRole => {
-      if (eou.ou.roles.indexOf(userRole) > -1) {
-        return true;
-      }
-    }));
+    const filteredEous = eous.filter((eou) =>
+      role.some((userRole) => {
+        if (eou.ou.roles.indexOf(userRole) > -1) {
+          return true;
+        }
+      })
+    );
 
     return filteredEous;
   }
 
   switchToDelegatee() {
-    return this.apiService.post('/orgusers/delegatee_refresh_token').pipe(
-      switchMap(data => this.authService.newRefreshToken(data.refresh_token))
-    );
+    return this.apiService
+      .post('/orgusers/delegatee_refresh_token')
+      .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 
   async isSwitchedToDelegator() {

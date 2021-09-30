@@ -1,17 +1,17 @@
-import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import {IonicModule} from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 
-import {RequestInvitationPageRoutingModule} from './request-invitation-routing.module';
+import { RequestInvitationPageRoutingModule } from './request-invitation-routing.module';
 
-import {RequestInvitationPage} from './request-invitation.page';
+import { RequestInvitationPage } from './request-invitation.page';
 
-import {MatFormFieldModule} from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
-import {MatInputModule} from '@angular/material/input';
-import {MatButtonModule} from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -23,8 +23,8 @@ import {MatButtonModule} from '@angular/material/button';
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
   ],
-  declarations: [RequestInvitationPage]
+  declarations: [RequestInvitationPage],
 })
-export class RequestInvitationPageModule { }
+export class RequestInvitationPageModule {}

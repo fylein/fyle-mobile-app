@@ -1,12 +1,10 @@
-import {Directive, ElementRef, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {LoaderPosition} from './loader-position.enum';
+import { Directive, ElementRef, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { LoaderPosition } from './loader-position.enum';
 
 @Directive({
-  selector: '[appFormButtonValidation]'
+  selector: '[appFormButtonValidation]',
 })
-
-export class FormButtonValidationDirective implements OnInit, OnChanges{
-
+export class FormButtonValidationDirective implements OnInit, OnChanges {
   @Input() loadingText: string;
 
   @Input() buttonType: string;
@@ -38,13 +36,10 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
     'Set Exchange Rate': 'Setting Exchange Rate',
     'Sign In': 'Signing In',
     'Sign Up': 'Signing Up',
-    'Get Started': 'Getting Started'
+    'Get Started': 'Getting Started',
   };
 
-  constructor(
-    private elementRef: ElementRef
-  ) { }
-
+  constructor(private elementRef: ElementRef) {}
 
   ngOnChanges(changes: SimpleChanges) {
     this.onLoading(this.loading);
@@ -73,9 +68,9 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
     cssClass = this.buttonType && this.buttonType === 'secondary' ? 'secondary-loader' : 'primary-loader';
     this.elementRef.nativeElement.classList.add('disabled');
     if (this.loaderPosition === LoaderPosition.postfix) {
-      this.elementRef.nativeElement.innerHTML = (`${this.elementRef.nativeElement.innerHTML} <div class="${cssClass}"></div>`);
+      this.elementRef.nativeElement.innerHTML = `${this.elementRef.nativeElement.innerHTML} <div class="${cssClass}"></div>`;
     } else {
-      this.elementRef.nativeElement.innerHTML = (`<div class="${cssClass}"></div>${this.elementRef.nativeElement.innerHTML}`);
+      this.elementRef.nativeElement.innerHTML = `<div class="${cssClass}"></div>${this.elementRef.nativeElement.innerHTML}`;
     }
 
     this.loaderAdded = true;
@@ -90,7 +85,6 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
   }
 
   onLoading(loading) {
-
     if (loading) {
       this.disableButton();
       this.getButtonText();
@@ -102,5 +96,4 @@ export class FormButtonValidationDirective implements OnInit, OnChanges{
   }
 
   ngOnInit() {}
-
 }
