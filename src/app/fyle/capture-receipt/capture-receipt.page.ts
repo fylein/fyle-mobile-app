@@ -269,7 +269,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
   async review() {
     setTimeout(() => {
       this.stopCamera();
-    }, 1000);
+    }, 500);
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
