@@ -30,7 +30,7 @@ import { FyDuplicateDetectionComponent } from './components/fy-duplicate-detecti
 import { FyDuplicateDetectionModalComponent } from './components/fy-duplicate-detection/fy-duplicate-detection-modal/fy-duplicate-detection-modal.component';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
-import { ApproverDialogComponent } from './components/fy-apporver/approver-dialog/approver-dialog.component';
+import { ApproverDialogComponent } from './components/fy-approver/add-approvers-popover/approver-dialog/approver-dialog.component';
 import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
 import { FyMenuIconComponent } from './components/fy-menu-icon/fy-menu-icon.component';
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
@@ -45,8 +45,7 @@ import { CommentsHistoryComponent } from './components/comments-history/comments
 import { ViewCommentComponent } from './components/comments-history/view-comment/view-comment.component';
 import { AuditHistoryComponent } from './components/comments-history/audit-history/audit-history.component';
 import { StatusesDiffComponent } from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
-import { FyApporverComponent } from './components/fy-apporver/fy-apporver.component';
-import { ConfirmationCommentPopoverComponent } from './components/fy-apporver/approver-dialog/confirmation-comment-popover/confirmation-comment-popover.component';
+import { FyApproverComponent } from './components/fy-approver/fy-approver.component';
 import { PolicyViolationDetailsComponent } from './components/policy-violation-details/policy-violation-details.component';
 
 // directive imports
@@ -59,7 +58,6 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
 import { FyFlagExpenseComponent } from './components/fy-flag-expense/fy-flag-expense.component';
-import { FlagUnflagConfirmationComponent } from './components/fy-flag-expense/flag-unflag-confirmation/flag-unflag-confirmation.component';
 import { FyPolicyViolationInfoComponent } from './components/fy-policy-violation-info/fy-policy-violation-info.component';
 import { FyAddToReportComponent } from './components/fy-add-to-report/fy-add-to-report.component';
 import { FyAddToReportModalComponent } from './components/fy-add-to-report/fy-add-to-report-modal/fy-add-to-report-modal.component';
@@ -92,6 +90,7 @@ import { RouteSelectorModalComponent } from './components/route-selector/route-s
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-view-report-info.component';
+import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
 
 @NgModule({
   declarations: [
@@ -127,14 +126,12 @@ import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-v
     FyZeroStateComponent,
     FyPreviewAttachmentsComponent,
     FyPopupComponent,
-    FyApporverComponent,
+    FyApproverComponent,
     ApproverDialogComponent,
-    ConfirmationCommentPopoverComponent,
     FyPreviewAttachmentsComponent,
     FyCategoryIconComponent,
     FyMenuIconComponent,
     FyFlagExpenseComponent,
-    FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
     FyAddToReportModalComponent,
@@ -165,6 +162,7 @@ import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-v
     RouteSelectorModalComponent,
     PolicyViolationDetailsComponent,
     FyViewReportInfoComponent,
+    AddApproversPopoverComponent,
   ],
   imports: [
     CommonModule,
@@ -214,13 +212,11 @@ import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-v
     FyZeroStateComponent,
     FyPreviewAttachmentsComponent,
     FyPopupComponent,
-    FyApporverComponent,
-    ConfirmationCommentPopoverComponent,
+    FyApproverComponent,
     FyPreviewAttachmentsComponent,
     FyCategoryIconComponent,
     FyMenuIconComponent,
     FyFlagExpenseComponent,
-    FlagUnflagConfirmationComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
     FySelectProjectComponent,
@@ -249,6 +245,6 @@ import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-v
     MatChipsModule,
     PolicyViolationDetailsComponent,
   ],
-  providers: [DecimalPipe, DatePipe],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
 })
 export class SharedModule {}

@@ -24,7 +24,6 @@ export class PersonalCardsPage implements OnInit {
 
   navigateBack = false;
 
-
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -33,7 +32,7 @@ export class PersonalCardsPage implements OnInit {
     private inAppBrowser: InAppBrowser,
     private loaderService: LoaderService,
     private zone: NgZone
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.setupNetworkWatcher();
@@ -44,8 +43,7 @@ export class PersonalCardsPage implements OnInit {
 
     this.loadData$ = new BehaviorSubject({});
     this.linkedAccountsCount$ = this.loadData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccountsCount()
-      ),
+      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
       shareReplay(1)
     );
   }
@@ -57,20 +55,26 @@ export class PersonalCardsPage implements OnInit {
   }
 
   linkAccount() {
-    from(this.loaderService.showLoader('Redirecting you to our banking partner...',10000))
-    .pipe(
-      switchMap(() => this.personalCardsService.getToken()),
-      finalize(async () => {
-        await this.loaderService.hideLoader();
-      })).subscribe((accessToken) => {
-          this.openYoodle(accessToken.fast_link_url, accessToken.access_token);
-        });
+    from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
+      .pipe(
+        switchMap(() => this.personalCardsService.getToken()),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      )
+      .subscribe((accessToken) => {
+        this.openYoodle(accessToken.fast_link_url, accessToken.access_token);
+      });
   }
 
-
   openYoodle(url, access_token) {
-    const pageContent = `<form id="fastlink-form" name="fastlink-form" action="` + url + `" method="POST">
-                          <input name="accessToken" value="Bearer `+ access_token + `" hidden="true" />
+    const pageContent =
+      `<form id="fastlink-form" name="fastlink-form" action="` +
+      url +
+      `" method="POST">
+                          <input name="accessToken" value="Bearer ` +
+      access_token +
+      `" hidden="true" />
                           <input  name="extraParams" value="configName=Aggregation&callback=success://" hidden="true" />
                           </form> 
                           <script type="text/javascript">
@@ -80,26 +84,28 @@ export class PersonalCardsPage implements OnInit {
     const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
     const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=yes,beforeload=yes');
     browser.on('beforeload').subscribe((event) => {
-      if (event.url.substring(0,10) === 'success://') {
-         const decodedData = JSON.parse(decodeURIComponent(event.url.slice(30)));
-         browser.close();
-         this.zone.run(() => {
-         this.postAccounts([decodedData[0].requestId]);
+      if (event.url.substring(0, 10) === 'success://') {
+        const decodedData = JSON.parse(decodeURIComponent(event.url.slice(30)));
+        browser.close();
+        this.zone.run(() => {
+          this.postAccounts([decodedData[0].requestId]);
         });
       }
     });
   }
 
   postAccounts(requestIds) {
-    from(this.loaderService.showLoader('Linking your card to Fyle...',30000))
-    .pipe(
-      switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
-      finalize(async () => {
-        await this.loaderService.hideLoader();
-      })).subscribe((reponse) => {
+    from(this.loaderService.showLoader('Linking your card to Fyle...', 30000))
+      .pipe(
+        switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        })
+      )
+      .subscribe((reponse) => {
         this.loadData$.next({});
       });
-      }
+  }
 
   onHomeClicked() {
     const queryParams: Params = { state: 'home' };
@@ -125,5 +131,4 @@ export class PersonalCardsPage implements OnInit {
       },
     ]);
   }
-
 }

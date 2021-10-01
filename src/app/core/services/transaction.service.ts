@@ -15,6 +15,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { UserEventService } from './user-event.service';
 
 const transactionsCacheBuster$ = new Subject<void>();
 @Injectable({
@@ -33,8 +34,13 @@ export class TransactionService {
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private fileService: FileService,
-    private policyApiService: PolicyApiService
-  ) {}
+    private policyApiService: PolicyApiService,
+    private userEventService: UserEventService
+  ) {
+    transactionsCacheBuster$.subscribe(() => {
+      this.userEventService.clearTaskCache();
+    });
+  }
 
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { FlagUnflagConfirmationComponent } from './flag-unflag-confirmation.component';
+import { FyApproverComponent } from './fy-approver.component';
 
-describe('FlagUnflagConfirmationComponent', () => {
-  let component: FlagUnflagConfirmationComponent;
-  let fixture: ComponentFixture<FlagUnflagConfirmationComponent>;
+describe('FyApproverComponent', () => {
+  let component: FyApproverComponent;
+  let fixture: ComponentFixture<FyApproverComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [FlagUnflagConfirmationComponent],
+        declarations: [FyApproverComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(FlagUnflagConfirmationComponent);
+      fixture = TestBed.createComponent(FyApproverComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })
