@@ -139,14 +139,6 @@ To make google login work in your physical device you need to do some extra acti
     - Follow these two articles if you face any issue
       - https://devdactic.com/push-notifications-ionic-capacitor/
       - https://capacitorjs.com/docs/guides/push-notifications-firebase
-    
-
-
-
-
-
-
-
 
 ## Running Appflow workflow manually on a private branch
 
