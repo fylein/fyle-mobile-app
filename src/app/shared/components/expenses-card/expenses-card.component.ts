@@ -102,7 +102,7 @@ export class ExpensesCardComponent implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
-  ) { }
+  ) {}
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
@@ -162,7 +162,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   checkIfScanIsCompleted(): boolean {
-    const hasUserManuallyEnteredData = (this.expense.tx_amount || this.expense.tx_user_amount) && isNumber(this.expense.tx_amount || this.expense.tx_user_amount);
+    const hasUserManuallyEnteredData =
+      (this.expense.tx_amount || this.expense.tx_user_amount) &&
+      isNumber(this.expense.tx_amount || this.expense.tx_user_amount);
     const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.

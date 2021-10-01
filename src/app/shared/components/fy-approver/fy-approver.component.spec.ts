@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { FyApporverComponent } from './fy-apporver.component';
+import { FyApproverComponent } from './fy-approver.component';
 
-describe('FyApporverComponent', () => {
-  let component: FyApporverComponent;
-  let fixture: ComponentFixture<FyApporverComponent>;
+describe('FyApproverComponent', () => {
+  let component: FyApproverComponent;
+  let fixture: ComponentFixture<FyApproverComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [FyApporverComponent],
+        declarations: [FyApproverComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(FyApporverComponent);
+      fixture = TestBed.createComponent(FyApproverComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })
