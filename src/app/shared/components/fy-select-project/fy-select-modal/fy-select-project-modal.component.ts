@@ -101,7 +101,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
         from(this.authService.getEou()).pipe(
           switchMap((eou) =>
             forkJoin({
-              projects: this.projectService.getByParamsUnformatted({
+              projectsList: this.projectService.getByParamsUnformatted({
                 orgId: eou.ou.org_id,
                 active: true,
                 sortDirection: 'asc',
@@ -125,9 +125,9 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
           ),
         )
       ),
-      switchMap((res) => {
-        const projects = res.projects;
-        this.projectsCount = res.projectsCount.count;
+      switchMap(({ projectsList, projectsCount }) => {
+        const projects = projectsList;
+        this.projectsCount = projectsCount.count;
         if (this.defaultValue) {
           return defaultProject$.pipe(
             map((defaultProject) => {
