@@ -321,7 +321,6 @@ export class MyViewReportPage implements OnInit {
         etxns$: this.etxns$,
         isTeamReport: false,
       },
-      mode: 'ios',
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });

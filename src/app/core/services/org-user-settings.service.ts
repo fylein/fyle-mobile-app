@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { CostCentersService } from './cost-centers.service';
-import { finalize, map } from 'rxjs/operators';
+import { finalize, map, switchMap } from 'rxjs/operators';
 import { forkJoin, Subject, of } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { OrgUserSettings } from '../models/org_user_settings.model';
+import { OrgUserService } from './org-user.service';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -12,7 +13,11 @@ const orgUserSettingsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class OrgUserSettingsService {
-  constructor(private apiService: ApiService, private costCentersService: CostCentersService) {}
+  constructor(
+    private apiService: ApiService,
+    private costCentersService: CostCentersService,
+    private orgUserService: OrgUserService
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: orgUserSettingsCacheBuster$,
@@ -30,6 +35,16 @@ export class OrgUserSettingsService {
 
   getUserSettings(userSettingsId: string) {
     return this.apiService.get('/org_user_settings/' + userSettingsId).pipe(map((res) => res as OrgUserSettings));
+  }
+
+  getOrgUserSettingsById(ouId: string) {
+    return this.orgUserService.getUserById(ouId).pipe(switchMap((user) => this.getUserSettings(user.ou_settings_id)));
+  }
+
+  getAllowedCostCentersByOuId(ouId: string) {
+    return this.getOrgUserSettingsById(ouId).pipe(
+      switchMap((orgUserSettings) => this.getAllowedCostCenteres(orgUserSettings))
+    );
   }
 
   getEmailEvents() {

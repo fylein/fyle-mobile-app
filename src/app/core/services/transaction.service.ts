@@ -621,24 +621,33 @@ export class TransactionService {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 
-  isEtxnInPaymentMode(etxn, paymentMode) {
+  getPaymentModeForEtxn(etxn: Expense, paymentModes: any[]) {
+    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key));
+  }
+
+  isEtxnInPaymentMode(etxn: Expense, paymentMode: string) {
     let etxnInPaymentMode = false;
     const isAdvanceOrCCCEtxn =
       etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' ||
       etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+
     if (paymentMode === 'reimbursable') {
+      //Paid by Employee: reimbursable
       etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
     } else if (paymentMode === 'nonReimbursable') {
+      //Paid by Company: not reimbursable
       etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
     } else if (paymentMode === 'advance') {
+      //Paid from Advance account: not reimbursable
       etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT';
     } else if (paymentMode === 'ccc') {
+      //Paid from CCC: not reimbursable
       etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
     }
     return etxnInPaymentMode;
   }
 
-  getPaymentModeWiseSummary(etxns) {
+  getPaymentModeWiseSummary(etxns: Expense[]) {
     const paymentModes = [
       {
         name: 'Reimbursable',
@@ -658,62 +667,52 @@ export class TransactionService {
       },
     ];
 
-    const paymentMap = {};
-
-    etxns.forEach((etxn) => {
-      paymentModes.forEach((paymentMode) => {
-        if (this.isEtxnInPaymentMode(etxn, paymentMode.key)) {
-          if (paymentMap.hasOwnProperty(paymentMode.key)) {
-            paymentMap[paymentMode.key].name = paymentMode.name;
-            paymentMap[paymentMode.key].key = paymentMode.key;
-            paymentMap[paymentMode.key].amount += etxn.tx_amount;
-            paymentMap[paymentMode.key].count++;
-          } else {
-            paymentMap[paymentMode.key] = {
-              name: paymentMode.name,
-              key: paymentMode.key,
-              amount: etxn.tx_amount,
-              count: 1,
-            };
-          }
+    return etxns
+      .map((etxn) => ({
+        ...etxn,
+        paymentMode: this.getPaymentModeForEtxn(etxn, paymentModes),
+      }))
+      .reduce((paymentMap, etxnData) => {
+        if (paymentMap.hasOwnProperty(etxnData.paymentMode.key)) {
+          paymentMap[etxnData.paymentMode.key].name = etxnData.paymentMode.name;
+          paymentMap[etxnData.paymentMode.key].key = etxnData.paymentMode.key;
+          paymentMap[etxnData.paymentMode.key].amount += etxnData.tx_amount;
+          paymentMap[etxnData.paymentMode.key].count++;
+        } else {
+          paymentMap[etxnData.paymentMode.key] = {
+            name: etxnData.paymentMode.name,
+            key: etxnData.paymentMode.key,
+            amount: etxnData.tx_amount,
+            count: 1,
+          };
         }
-      });
-    });
-    return paymentMap;
+        return paymentMap;
+      }, {});
   }
 
-  getCurrenyWiseSummary(etxns) {
-    const currencyMap = {};
+  addEtxnToCurrencyMap(currencyMap: {}, txCurrency: string, txAmount: number, txOrigAmount: number = null) {
+    if (currencyMap.hasOwnProperty(txCurrency)) {
+      currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
+      currencyMap[txCurrency].amount += txAmount;
+      currencyMap[txCurrency].count++;
+    } else {
+      currencyMap[txCurrency] = {
+        name: txCurrency,
+        currency: txCurrency,
+        amount: txAmount,
+        origAmount: txOrigAmount ? txOrigAmount : txAmount,
+        count: 1,
+      };
+    }
+  }
 
-    etxns.forEach(function (etxn) {
+  getCurrenyWiseSummary(etxns: Expense[]) {
+    const currencyMap = {};
+    etxns.forEach((etxn) => {
       if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
-        if (currencyMap.hasOwnProperty(etxn.tx_currency)) {
-          currencyMap[etxn.tx_currency].origAmount += etxn.tx_amount;
-          currencyMap[etxn.tx_currency].amount += etxn.tx_amount;
-          currencyMap[etxn.tx_currency].count++;
-        } else {
-          currencyMap[etxn.tx_currency] = {
-            name: etxn.tx_currency,
-            currency: etxn.tx_currency,
-            origAmount: etxn.tx_amount,
-            amount: etxn.tx_amount,
-            count: 1,
-          };
-        }
+        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_currency, etxn.tx_amount);
       } else {
-        if (currencyMap.hasOwnProperty(etxn.tx_orig_currency)) {
-          currencyMap[etxn.tx_orig_currency].origAmount += etxn.tx_orig_amount;
-          currencyMap[etxn.tx_orig_currency].amount += etxn.tx_amount;
-          currencyMap[etxn.tx_orig_currency].count++;
-        } else {
-          currencyMap[etxn.tx_orig_currency] = {
-            name: etxn.tx_orig_currency,
-            currency: etxn.tx_orig_currency,
-            amount: etxn.tx_amount,
-            origAmount: etxn.tx_orig_amount,
-            count: 1,
-          };
-        }
+        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_orig_currency, etxn.tx_amount, etxn.tx_orig_amount);
       }
     });
 

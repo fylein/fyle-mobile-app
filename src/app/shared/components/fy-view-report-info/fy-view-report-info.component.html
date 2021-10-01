@@ -1,5 +1,5 @@
 <ion-header>
-  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <mat-icon *ngIf="platform.is('ios')" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar view-info--toolbar">
     <ion-buttons slot="start">
       <ion-button (click)="closeModal()">
@@ -17,18 +17,9 @@
       (ionChange)="segmentChanged($event)"
       value="report"
     >
-      <ion-segment-button value="report" #ReportBtn class="view-info--segment-block-container__btn">
-        Report
-      </ion-segment-button>
-      <ion-segment-button value="amount" #AmountBtn class="view-info--segment-block-container__btn">
-        Amount
-      </ion-segment-button>
-      <ion-segment-button
-        *ngIf="isTeamReport"
-        value="employee"
-        #EmployeeBtn
-        class="view-info--segment-block-container__btn"
-      >
+      <ion-segment-button value="report" class="view-info--segment-block-container__btn"> Report </ion-segment-button>
+      <ion-segment-button value="amount" class="view-info--segment-block-container__btn"> Amount </ion-segment-button>
+      <ion-segment-button *ngIf="isTeamReport" value="employee" class="view-info--segment-block-container__btn">
         Employee
       </ion-segment-button>
     </ion-segment>
@@ -88,8 +79,11 @@
         </ion-col>
         <ion-col size="7">
           <div class="view-info--body-container__value">
-            {{ item.currency }} {{ item.origAmount | number: '1.2-2' }} = {{ reportCurrency }}
-            {{ item.amount | number: '1.2-2' }}
+            <ng-container *ngIf="item.currency !== reportCurrency; else origAmountOnly">
+              {{ item.currency }} {{ item.origAmount | number: '1.2-2' }} = {{ reportCurrency }}
+              {{ item.amount | number: '1.2-2' }}
+            </ng-container>
+            <ng-template #origAmountOnly> {{ item.currency }} {{ item.origAmount | number: '1.2-2' }} </ng-template>
           </div>
         </ion-col>
       </ion-row>

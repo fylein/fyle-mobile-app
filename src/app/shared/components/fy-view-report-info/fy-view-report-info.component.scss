@@ -14,8 +14,12 @@
   &--segment-block-container {
     --border-width: 0 !important;
 
-    &__segment {
+    &__segment.ios {
       margin: 12px auto;
+    }
+
+    &__segment.md {
+      padding: 0 16px 8px;
     }
 
     &__btn {

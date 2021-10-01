@@ -86,7 +86,7 @@ export class ViewCommentComponent implements OnInit {
   }
 
   async closeCommentModal() {
-    if(this.newComment) {
+    if (this.newComment) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
         componentProps: {
@@ -128,14 +128,14 @@ export class ViewCommentComponent implements OnInit {
 
   swipeRightToHistory(event) {
     if (event && event.direction === 2) {
-      const historyBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--btn-segment')[1];
+      const historyBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--segment-block__btn')[1];
       historyBtn.click();
     }
   }
 
   swipeLeftToComments(event) {
     if (event && event.direction === 4) {
-      const commentsBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--btn-segment')[0];
+      const commentsBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--segment-block__btn')[0];
       commentsBtn.click();
     }
   }
