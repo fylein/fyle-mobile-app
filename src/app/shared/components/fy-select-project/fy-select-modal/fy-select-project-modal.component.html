@@ -46,7 +46,7 @@
   <div class="selection-modal--container">
     <div
       class="selection-modal--recently-used-block"
-      *ngIf="cacheName && (recentrecentlyUsedItems$ | async)?.length > 0 && !this.value"
+      *ngIf="cacheName && (recentrecentlyUsedItems$ | async)?.length > 0 && !value"
     >
       <label class="selection-modal--container---label">Recently Used</label>
       <div
@@ -74,7 +74,7 @@
       </div>
     </div>
 
-    <label class="selection-modal--container---label" *ngIf="!this.value && this.projectsCount > 0">All Projects</label>
+    <label class="selection-modal--container---label" *ngIf="!value && this.projectsCount > 0">All Projects</label>
     <div
       matRipple
       class="selection-modal--list-element"
