@@ -428,25 +428,6 @@ export class MyReportsPage implements OnInit {
     return currentParams;
   }
 
-  async openSort() {
-    const sortPopover = await this.popoverController.create({
-      component: MyReportsSortFilterComponent,
-      componentProps: {
-        filters: this.filters,
-      },
-      cssClass: 'dialog-popover',
-    });
-
-    await sortPopover.present();
-    const { data } = await sortPopover.onWillDismiss();
-    if (data) {
-      this.filters = Object.assign({}, this.filters, data.sortOptions);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-    }
-  }
-
   clearFilters() {
     this.filters = {};
     this.currentPageNumber = 1;
@@ -1015,7 +996,7 @@ export class MyReportsPage implements OnInit {
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
-      this.trackingService.myExpensesFilterApplied({
+      this.trackingService.myReportsFilterApplied({
         ...this.filters,
       });
     }

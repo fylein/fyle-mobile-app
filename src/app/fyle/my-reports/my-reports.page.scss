@@ -76,38 +76,6 @@
     vertical-align: baseline;
   }
 
-  &--filters {
-    margin: 0 16px 16px 16px;
-    padding: 8px;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
-    border-radius: 4px;
-    background-color: #5c98e5;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  &--filter-button {
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
-    border-radius: 4px;
-    margin-left: 9px;
-
-    &-icon {
-      fill: #1978f7;
-    }
-
-    &__applied {
-      ::after {
-        content: '•';
-        font-size: 48px;
-        position: absolute;
-        top: -8px;
-        color: #f36;
-      }
-    }
-  }
-
   &--content {
     --background: #{$white};
     --padding-bottom: 82px;
