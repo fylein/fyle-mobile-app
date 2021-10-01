@@ -263,7 +263,7 @@ export class MyReportsPage implements OnInit {
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
     } else if (this.activatedRoute.snapshot.params.state) {
-      let filters = {
+      const filters = {
         rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
         state: this.activatedRoute.snapshot.params.state.toUpperCase(),
       };
@@ -568,8 +568,8 @@ export class MyReportsPage implements OnInit {
 
   onFilterClose(filterType: string) {
     if (filterType === 'sort') {
-      delete this.filters['sortDir'];
-      delete this.filters['sortParam'];
+      delete this.filters.sortDir;
+      delete this.filters.sortParam;
     } else {
       delete this.filters[filterType];
     }
