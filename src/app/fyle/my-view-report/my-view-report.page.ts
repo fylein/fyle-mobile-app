@@ -179,7 +179,7 @@ export class MyViewReportPage implements OnInit {
       componentProps: {
         reportName: erpt.rp_purpose,
       },
-      cssClass: 'edit-report-name-popover',
+      cssClass: 'fy-dialog-popover',
     });
 
     await editReportNamePopover.present();
