@@ -27,6 +27,24 @@
     }
   }
 
+  &--title-sm {
+    padding-left: 0;
+    font-size: 17px;
+  }
+
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
+  }
+
+  &--header-btn-container__sm {
+    margin: 0 !important;
+  }
+
   &--content-header {
     font-size: 14px;
     margin: 5px 0 -2px 0;

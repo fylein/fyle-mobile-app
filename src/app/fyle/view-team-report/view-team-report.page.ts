@@ -14,6 +14,10 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
 import { NetworkService } from '../../core/services/network.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -64,7 +68,10 @@ export class ViewTeamReportPage implements OnInit {
     private router: Router,
     private popoverController: PopoverController,
     private popupService: PopupService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private trackingService: TrackingService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {}
@@ -301,23 +308,23 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   async sendBack() {
-    const erpt = await this.erpt$.pipe(take(1)).toPromise();
-    const etxns = await this.etxns$.toPromise();
-
     const popover = await this.popoverController.create({
-      componentProps: {
-        erpt,
-        etxns,
-      },
       component: SendBackComponent,
-      cssClass: 'dialog-popover',
+      cssClass: 'fy-dialog-popover',
     });
 
     await popover.present();
-
     const { data } = await popover.onWillDismiss();
 
-    if (data && data.goBack) {
+    if (data && data.statusPayload) {
+      this.reportService.inquire(this.activatedRoute.snapshot.params.id, data.statusPayload).subscribe(() => {
+        const message = 'Report Sent Back successfully';
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
+        this.trackingService.showToastMessage({ ToastContent: message });
+      });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
   }

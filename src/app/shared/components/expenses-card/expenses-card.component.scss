@@ -1,4 +1,4 @@
-@import "../../../../theme/colors";
+@import '../../../../theme/colors';
 
 .expenses-card {
   &--date {
@@ -7,6 +7,10 @@
     padding: 16px 0 12px 16px;
     background-color: $white;
     font-weight: 500;
+
+    &__from-reports {
+      background-color: $pure-white;
+    }
   }
 
   &--body {

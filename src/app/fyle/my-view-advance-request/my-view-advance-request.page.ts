@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { forkJoin, from, Observable } from 'rxjs';
@@ -18,6 +18,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -37,7 +38,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   customFields$: Observable<any>;
 
-  isDeviceWidthSmall = window.innerWidth < 375;
+  isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -50,7 +51,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private modalController: ModalController,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
   getReceiptExtension(name) {

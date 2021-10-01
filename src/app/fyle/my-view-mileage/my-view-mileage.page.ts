@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, IonContent } from '@ionic/angular';
-import { from, Observable } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -69,10 +69,13 @@ export class MyViewMileagePage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyViolationRules(txId)).pipe()
-      .subscribe(details => {
-        this.policyDetails = details;
-      });
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
+    }
   }
 
   ionViewWillEnter() {
@@ -98,7 +101,12 @@ export class MyViewMileagePage implements OnInit {
       )
     );
 
-    this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    if (id) {
+      this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    } else {
+      this.policyViloations$ = of(null);
+    }
+
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
