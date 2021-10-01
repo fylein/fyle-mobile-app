@@ -116,7 +116,8 @@ export class ProjectsService {
       project_org_id: 'eq.' + orgId,
       order: sortOrder + '.' + sortDirection,
       limit: limit || 200,
-      offset: offset || 0
+      offset: offset || 0,
+      select: 'count'
     };
 
     // `active` can be optional
@@ -135,7 +136,7 @@ export class ProjectsService {
       .get('/projects', {
         params,
       })
-      .pipe(map((res) => res));
+      .pipe(map((res) => res.data));
   };
 
   addNameSearchFilter(searchNameText: any, params: any) {
