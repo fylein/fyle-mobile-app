@@ -140,3 +140,20 @@ To make google login work in your physical device you need to do some extra acti
       - https://devdactic.com/push-notifications-ionic-capacitor/
       - https://capacitorjs.com/docs/guides/push-notifications-firebase
     
+
+
+
+
+
+
+
+
+## Running Appflow workflow manually on a private branch
+
+ - Click on [Actions](https://github.com/fylein/fyle-mobile-app2/actions) Tab
+ - From Workflows List, Select `Manual Workflow - Appflow`
+ - On the right hand side you can see the list of workflow run.
+ - In the list view you can see a `Run Workflow` button. Click on that button
+ - Select the branch on which you want to run the workflow from the dropdown available for `Use workflow from`
+ - Click on `Run Workflow`
+ - This will now run the workflow on your private branch and the diawi apk link and ipa links will be shared on slack
