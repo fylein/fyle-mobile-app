@@ -1,7 +1,11 @@
 <ion-header mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
-  <ion-toolbar class="policy-violation--toolbar fy-modal-toolbar">
-    <ion-title mode="md"> Policy Violated </ion-title>
+  <ion-toolbar class="text-center policy-violation--toolbar fy-modal-toolbar">
+    <ion-title>
+      <div class="policy-violation--toolbar__title">
+        Policy Violated
+      </div>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -32,9 +36,11 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-buttons class="policy-violation--buttons">
-      <ion-button expand="full" color="medium" (click)="cancel()"> Cancel </ion-button>
-      <ion-button expand="full" color="fyle-primary" (click)="continue()"> Continue </ion-button>
-    </ion-buttons>
+    <div class="policy-violation--footer-toolbar">
+      <ion-buttons class="policy-violation--buttons">
+        <ion-button class="btn-secondary" (click)="cancel()"> Cancel </ion-button>
+        <ion-button class="btn-primary" (click)="continue()"> Continue </ion-button>
+      </ion-buttons>
+    </div>
   </ion-toolbar>
 </ion-footer>

@@ -288,6 +288,8 @@ export class AddEditExpensePage implements OnInit {
 
   policyDetails;
 
+  source = 'MOBILE';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -343,12 +345,14 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async showClosePopup() {
-    if (this.fg.touched || this.activatedRoute.snapshot.params.dataUrl) {
+    const isAutofilled =
+      this.presetCategoryId || this.presetProjectId || this.presetCostCenterId || this.presetCurrency;
+    if (this.fg.touched || this.activatedRoute.snapshot.params.dataUrl || isAutofilled) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
         componentProps: {
           title: 'Unsaved Changes',
-          message: 'Your changes will be lost if you do not save the expense.',
+          message: 'You have unsaved information that will be lost if you discard this expense.',
           primaryCta: {
             text: 'Discard',
             action: 'continue',
@@ -673,7 +677,7 @@ export class AddEditExpensePage implements OnInit {
         Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
         ExpenseId: etxn.tx.id,
         DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields
+        DuplicateFields: duplicateFields,
       });
     } catch (err) {
       // Ignore event tracking errors
@@ -698,9 +702,7 @@ export class AddEditExpensePage implements OnInit {
           this.pointToDuplicates = false;
         }, 3000);
 
-        this.etxn$
-          .pipe(take(1))
-          .subscribe(async etxn => this.trackDuplicatesShown(res, etxn));
+        this.etxn$.pipe(take(1)).subscribe(async (etxn) => this.trackDuplicatesShown(res, etxn));
       });
   }
 
@@ -1069,6 +1071,8 @@ export class AddEditExpensePage implements OnInit {
             dataUrls: [],
           };
 
+          this.source = 'MOBILE';
+
           if (orgUserSettings.currency_settings && orgUserSettings.currency_settings.enabled) {
             if (orgUserSettings.currency_settings.preferred_currency) {
               etxn.tx.currency = orgUserSettings.currency_settings.preferred_currency;
@@ -1178,9 +1182,9 @@ export class AddEditExpensePage implements OnInit {
             const category = categories.find((orgCategory) => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
           }
-
-          etxn.tx.source = 'MOBILE_INSTA';
         }
+
+        this.source = 'MOBILE';
 
         if (imageData && imageData.url) {
           etxn.dataUrls.push({
@@ -1189,7 +1193,7 @@ export class AddEditExpensePage implements OnInit {
             thumbnail: imageData.url,
           });
           etxn.tx.num_files = etxn.dataUrls.length;
-          etxn.tx.source = 'MOBILE_INSTA';
+          this.source = 'MOBILE_DASHCAM_SINGLE';
         }
 
         return etxn;
@@ -2142,6 +2146,7 @@ export class AddEditExpensePage implements OnInit {
   getEditExpenseObservable() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       switchMap((etxn) => {
+        this.source = etxn.tx.source || 'MOBILE';
         const instaFyleSettings$ = this.orgUserSettings$.pipe(
           map((orgUserSettings) => orgUserSettings.insta_fyle_settings)
         );
@@ -2713,6 +2718,7 @@ export class AddEditExpensePage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
+            source: this.source || etxn.tx.source,
             source_account_id: this.fg.value.paymentMode.acc.id,
             billable: this.fg.value.billable,
             skip_reimbursement:
@@ -3507,8 +3513,24 @@ export class AddEditExpensePage implements OnInit {
                   fileId: this.receiptsData.fileId,
                 };
               }
-              return of(
-                this.transactionOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, receiptsData)
+              return this.isConnected$.pipe(
+                take(1),
+                switchMap((isConnected) => {
+                  if (!isConnected) {
+                    etxn.tx.source += '_OFFLINE';
+                  }
+
+                  return of(
+                    this.transactionOutboxService.addEntry(
+                      etxn.tx,
+                      etxn.dataUrls,
+                      comments,
+                      reportId,
+                      null,
+                      receiptsData
+                    )
+                  );
+                })
               );
             }
           })
@@ -3664,6 +3686,15 @@ export class AddEditExpensePage implements OnInit {
           fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
           return fileObj;
         });
+
+        if (this.source.includes('MOBILE') && !(this.source.includes('_CAMERA') || this.source.includes('_FILE'))) {
+          if (this.newExpenseDataUrls.some((fileObj) => fileObj.type === 'pdf')) {
+            this.source = 'MOBILE_FILE';
+          } else if (this.newExpenseDataUrls.some((fileObj) => fileObj.type === 'image')) {
+            this.source = 'MOBILE_CAMERA';
+          }
+        }
+
         this.attachedReceiptsCount = this.newExpenseDataUrls.length;
         this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
           if (isConnected && this.attachedReceiptsCount === 1) {
@@ -3842,8 +3873,8 @@ export class AddEditExpensePage implements OnInit {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
-        }
-      }
+        },
+      },
     });
 
     await deletePopover.present();
@@ -3852,7 +3883,7 @@ export class AddEditExpensePage implements OnInit {
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
-        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else {
@@ -3890,11 +3921,11 @@ export class AddEditExpensePage implements OnInit {
 
     if (value) {
       await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'
+        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
       });
     } else {
       await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense'
+        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
       });
     }
   }
@@ -3917,9 +3948,12 @@ export class AddEditExpensePage implements OnInit {
 
   getPolicyDetails() {
     const txnId = this.activatedRoute.snapshot.params.id;
-    from(this.policyService.getPolicyViolationRules(txnId)).pipe()
-      .subscribe(details => {
-        this.policyDetails = details;
-      });
+    if (txnId) {
+      from(this.policyService.getPolicyViolationRules(txnId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
+    }
   }
 }

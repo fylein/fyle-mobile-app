@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { from, forkJoin, Observable, concat, Subject } from 'rxjs';
+import { from, forkJoin, Observable, concat, Subject, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -140,7 +140,12 @@ export class MyViewExpensePage implements OnInit {
       finalize(() => this.loaderService.hideLoader())
     );
 
-    this.policyViloations$ = this.policyService.getPolicyViolationRules(txId);
+    if (txId) {
+      this.policyViloations$ = this.policyService.getPolicyViolationRules(txId);
+    } else {
+      this.policyViloations$ = of(null);
+    }
+
     this.comments$ = this.statusService.find('transactions', txId);
 
     this.isAmountCapped$ = this.etxn$.pipe(
@@ -234,9 +239,12 @@ export class MyViewExpensePage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyViolationRules(txId)).pipe()
-      .subscribe(details => {
-        this.policyDetails = details;
-      });
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
+    }
   }
 }

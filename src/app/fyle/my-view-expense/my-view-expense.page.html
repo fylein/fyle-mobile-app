@@ -14,13 +14,14 @@
     <ng-container *ngIf="etxn.tx_policy_flag">
       <ng-container *ngIf="policyDetails">
         <app-fy-policy-violation-info
-          [policyDetails]="policyDetails" [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+          [policyDetails]="policyDetails"
+          [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
         ></app-fy-policy-violation-info>
       </ng-container>
     </ng-container>
 
     <div class="view-expense--policy-container" *ngIf="isAmountCapped$|async">
-      <div [ngIf]="!(isCriticalPolicyViolated$|async)">
+      <div *ngIf="!(isCriticalPolicyViolated$|async)">
         <div>
           <span class="info-text m-0">
             Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to {{
