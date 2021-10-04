@@ -8,14 +8,18 @@ import { map, switchMap, finalize, shareReplay, takeUntil, tap } from 'rxjs/oper
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
 import { SubmitReportPopoverComponent } from './submit-report-popover/submit-report-popover.component';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-my-view-report',
@@ -58,8 +62,12 @@ export class MyViewReportPage implements OnInit {
     private router: Router,
     private popupService: PopupService,
     private popoverController: PopoverController,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private networkService: NetworkService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   setupNetworkWatcher() {
@@ -285,17 +293,20 @@ export class MyViewReportPage implements OnInit {
     }
   }
 
-  async shareReport(event) {
+  async shareReport() {
     this.trackingService.clickShareReport();
 
-    const popover = await this.popoverController.create({
+    const shareReportModal = await this.modalController.create({
       component: ShareReportComponent,
-      cssClass: 'dialog-popover',
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+      cssClass: 'share-report-modal'
     });
 
-    await popover.present();
+    await shareReportModal.present();
 
-    const { data } = await popover.onWillDismiss();
+    const { data } = await shareReportModal.onWillDismiss();
 
     if (data && data.email) {
       const params = {
@@ -303,8 +314,12 @@ export class MyViewReportPage implements OnInit {
         email: data.email,
       };
       this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
-        const message = `We will send ${data.email} a link to download the PDF <br> when it is generated and send you a copy.`;
-        await this.loaderService.showLoader(message);
+        const message = `PDF download link has been emailed to ${data.email}`;
+        this.matSnackBar.openFromComponent( ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-report-btn']
+        });
+        this.trackingService.showToastMessage({ ToastContent: message });
       });
     }
   }

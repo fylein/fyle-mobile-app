@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-share-report',
@@ -9,10 +9,10 @@ import { PopoverController } from '@ionic/angular';
 export class ShareReportComponent implements OnInit {
   email = '';
 
-  constructor(private popoverController: PopoverController) {}
+  constructor(private modalController: ModalController) {}
 
   async cancel() {
-    await this.popoverController.dismiss();
+    await this.modalController.dismiss();
   }
 
   shareReport(emailInput) {
@@ -21,7 +21,7 @@ export class ShareReportComponent implements OnInit {
     }
 
     if (emailInput.valid) {
-      this.popoverController.dismiss({
+      this.modalController.dismiss({
         email: this.email,
       });
     } else {

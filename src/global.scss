@@ -117,6 +117,14 @@ textarea:focus {
   padding: 12px 8px !important;
 }
 
+.msb-success-with-report-btn {
+  color: $pure-white;
+  background-color: $green;
+  border-radius: 8px !important;
+  margin: 0 16px 84px !important;
+  padding: 12px 8px !important;
+}
+
 .msb-failure-with-report-btn {
   color: $pure-white;
   background-color: $red;
@@ -773,6 +781,19 @@ ref - https://stackoverflow.com/a/31162426
     max-height: 90%;
     position: absolute;
     top: 10%;
+  }
+
+  .modal-shadow {
+    display: none;
+  }
+}
+
+.share-report-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    height: 182px;
+    position: absolute;
+    bottom: 0 !important;
   }
 
   .modal-shadow {
