@@ -7,8 +7,8 @@ fdescribe('ExpenseStatePipe', () => {
     expect(pipe.transform('')).toBe('');
   });
 
-  it('transforms "DRAFT" state to "draft"', () => {
-    expect(pipe.transform('DRAFT')).toBe('draft');
+  it('transforms "DRAFT" state to "incomplete"', () => {
+    expect(pipe.transform('DRAFT')).toBe('incomplete');
   });
 
   it('transforms "COMPLETE" state to "fyled"', () => {

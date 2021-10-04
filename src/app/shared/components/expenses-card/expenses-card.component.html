@@ -135,7 +135,7 @@
               <ng-container *ngIf="expense.isDraft">
                 <div class="expenses-card--state-container ion-text-right expenses-card--state-container__center">
                   <span class="expenses-card--state">
-                    {{ expense.tx_state | titlecase }}
+                    {{ expense.tx_state | expenseState | titlecase }}
                   </span>
                 </div>
               </ng-container>
@@ -229,7 +229,7 @@
 
               <div *ngIf="expense.isDraft" class="expenses-card--state-container ion-text-right">
                 <span class="expenses-card--state">
-                  {{ expense.tx_state | titlecase }}
+                  {{ expense.tx_state | expenseState | titlecase }}
                 </span>
               </div>
 
