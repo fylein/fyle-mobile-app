@@ -18,6 +18,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 
 @Component({
   selector: 'app-my-view-report',
@@ -50,6 +51,8 @@ export class MyViewReportPage implements OnInit {
   isConnected$: Observable<boolean>;
 
   onPageExit = new Subject();
+
+  reportName: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -118,6 +121,8 @@ export class MyViewReportPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
+    this.erpt$.subscribe((erpt) => (this.reportName = erpt.rp_purpose));
+
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
       map((pdfExports) =>
         pdfExports.results
@@ -169,6 +174,37 @@ export class MyViewReportPage implements OnInit {
 
   goToEditReport() {
     this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
+  }
+
+  updateReportName(erpt: ExtendedReport, reportName: string) {
+    erpt.rp_purpose = reportName;
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.reportService.updateReportDetails(erpt)),
+        finalize(() => this.loaderService.hideLoader()),
+        shareReplay(1)
+      )
+      .subscribe(() => {
+        this.reportName = reportName;
+      });
+  }
+
+  async editReportName() {
+    const erpt = await this.erpt$.toPromise();
+    const editReportNamePopover = await this.popoverController.create({
+      component: EditReportNamePopoverComponent,
+      componentProps: {
+        reportName: erpt.rp_purpose,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await editReportNamePopover.present();
+    const { data } = await editReportNamePopover.onWillDismiss();
+
+    if (data && data.reportName) {
+      this.updateReportName(erpt, data.reportName);
+    }
   }
 
   async deleteReport() {

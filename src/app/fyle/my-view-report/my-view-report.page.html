@@ -17,7 +17,16 @@
   <div class="view-reports--body" *ngIf="erpt$|async as erpt">
     <div>
       <div class="view-reports--card">
-        <div class="view-reports--card-header">{{erpt.rp_purpose}}</div>
+        <div class="view-reports--card-header">
+          {{reportName}}
+          <ion-icon
+            *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY')"
+            [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
+            slot="icon-only"
+            (click)="editReportName()"
+            class="view-reports--card-header__icon"
+          ></ion-icon>
+        </div>
         <div class="view-reports--card-body">Reported on {{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
