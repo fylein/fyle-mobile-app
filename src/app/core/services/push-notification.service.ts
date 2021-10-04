@@ -77,16 +77,12 @@ export class PushNotificationService {
           id: deviceInfo?.uuid,
           fcm_token: token,
         };
-        userProperties.devices = userProperties.devices.filter((userDevice) => {
-          return userDevice.id !== currenctDevice.id;
-        });
+        userProperties.devices = userProperties.devices.filter((userDevice) => userDevice.id !== currenctDevice.id);
 
         userProperties.devices = userProperties.devices.concat(currenctDevice);
         return userProperties;
       }),
-      switchMap((userProperties) => {
-        return this.userService.upsertProperties(userProperties);
-      })
+      switchMap((userProperties) => this.userService.upsertProperties(userProperties))
     );
   }
 
@@ -103,17 +99,13 @@ export class PushNotificationService {
 
   updateNotificationStatusAndRedirect(notificationData, wasTapped?: boolean) {
     return this.updateDeliveryStatus(notificationData.notification_id).pipe(
-      concatMap(() => {
-        return iif(
+      concatMap(() =>
+        iif(
           () => wasTapped,
           this.updateReadStatus(notificationData.notification_id),
-          of(null).pipe(
-            map(() => {
-              return notificationData;
-            })
-          )
-        );
-      })
+          of(null).pipe(map(() => notificationData))
+        )
+      )
     );
   }
 }

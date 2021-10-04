@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { concat, from, Observable, of } from 'rxjs';
-import { delay, map, pairwise, startWith, switchMap } from 'rxjs/operators';
+import { delay, map, pairwise, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { Network } from '@capacitor/network';
 import { ConnectionMessageStatus } from 'src/app/shared/components/fy-connection/connection-status.enum';
 

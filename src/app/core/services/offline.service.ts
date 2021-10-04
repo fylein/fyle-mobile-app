@@ -441,7 +441,7 @@ export class OfflineService {
     const taxGroups$ = this.getEnabledTaxGroups();
 
     this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
-      if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
+      if (deviceInfo?.platform.toLowerCase() === 'ios' || deviceInfo?.platform.toLowerCase() === 'android') {
         this.appVersionService.load();
       }
     });

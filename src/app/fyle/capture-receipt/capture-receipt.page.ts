@@ -1,7 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
-import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
-import { Capacitor, Plugins } from '@capacitor/core';
-import '@capacitor-community/camera-preview';
+import { Capacitor } from '@capacitor/core';
+import { CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -16,8 +15,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
-
-const { CameraPreview } = Plugins;
+import '@capacitor-community/camera-preview';
 
 type Image = Partial<{
   source: string;
@@ -331,8 +329,9 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
         quality: 70,
       };
 
-      const result = await CameraPreview.capture(cameraPreviewPictureOptions);
+      const result: any = await CameraPreview.capture(cameraPreviewPictureOptions);
       await this.stopCamera();
+
       const base64PictureData = 'data:image/jpeg;base64,' + result.value;
       this.lastImage = base64PictureData;
       if (!this.isBulkMode) {
