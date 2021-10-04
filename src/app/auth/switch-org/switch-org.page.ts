@@ -149,7 +149,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
   trackSwitchOrg(org: Org, originalEou) {
     const isDestinationOrgActive = originalEou.ou && originalEou.ou.org_id === org.id;
     const isCurrentOrgPrimary = originalEou.ou && originalEou.ou.is_primary;
-    from(this.authService.getEou()).subscribe(currentEou => {
+    from(this.authService.getEou()).subscribe((currentEou) => {
       const properties = {
         Asset: 'Mobile',
         'Switch To': org.name,
@@ -160,11 +160,11 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
         'User Email': originalEou.us && originalEou.us.email,
         'User Org Name': originalEou.ou && originalEou.ou.org_name,
         'User Org ID': originalEou.ou && originalEou.ou.org_id,
-        'User Full Name': originalEou.us && originalEou.us.full_name
+        'User Full Name': originalEou.us && originalEou.us.full_name,
       };
       this.trackingService.onSwitchOrg(properties);
     });
-  };
+  }
 
   async switchToOrg(org: Org) {
     const originalEou = await this.authService.getEou();
@@ -176,6 +176,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
           if (originalEou) {
             this.trackSwitchOrg(org, originalEou);
           }
+          this.userEventService.clearTaskCache();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
           from(this.proceed()).subscribe(noop);
         },

@@ -1,7 +1,7 @@
-import { Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { concat, forkJoin, from, Observable, Subject } from 'rxjs';
-import { filter, shareReplay, takeUntil } from 'rxjs/operators';
+import { concat, forkJoin, from, Observable, of, Subject } from 'rxjs';
+import { filter, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { ActionSheetController, PopoverController } from '@ionic/angular';
@@ -12,6 +12,8 @@ import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TasksComponent } from './tasks/tasks.component';
+import { TasksService } from 'src/app/core/services/tasks.service';
 
 enum DashboardState {
   home,
@@ -25,6 +27,8 @@ enum DashboardState {
 })
 export class DashboardPage implements OnInit {
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
+
+  @ViewChild(TasksComponent) tasksComponent: TasksComponent;
 
   orgUserSettings$: Observable<OrgUserSettings>;
 
@@ -40,6 +44,16 @@ export class DashboardPage implements OnInit {
 
   actionSheetButtons = [];
 
+  taskCount = 0;
+
+  get displayedTaskCount() {
+    if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
+      return this.tasksComponent?.taskCount;
+    } else {
+      return this.taskCount;
+    }
+  }
+
   constructor(
     private offlineService: OfflineService,
     private transactionService: TransactionService,
@@ -49,7 +63,8 @@ export class DashboardPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private trackingService: TrackingService,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private tasksService: TasksService
   ) {}
 
   ionViewWillLeave() {
@@ -78,6 +93,8 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
+    this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
     if (currentState === DashboardState.tasks) {
@@ -91,6 +108,7 @@ export class DashboardPage implements OnInit {
     this.homeCurrency$ = this.offlineService.getHomeCurrency().pipe(shareReplay(1));
 
     this.statsComponent.init();
+    this.tasksComponent.init();
     /**
      * What does the _ mean in the subscribe block?
      * It means the response is not being used.
@@ -103,6 +121,19 @@ export class DashboardPage implements OnInit {
     })
       .pipe(filter(({ isGetStartedPopupShown, totalCount }) => !isGetStartedPopupShown && totalCount.count === 0))
       .subscribe((_) => this.showGetStartedPopup());
+
+    this.isConnected$
+      .pipe(switchMap((isConnected) => (isConnected ? this.tasksService.getTotalTaskCount() : of(0))))
+      .subscribe((taskCount) => {
+        this.taskCount = taskCount;
+      });
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        const queryParams: Params = { state: 'home' };
+        this.router.navigate(['/', 'enterprise', 'my_dashboard', { queryParams }]);
+      }
+    });
   }
 
   ngOnInit() {
@@ -116,6 +147,10 @@ export class DashboardPage implements OnInit {
     return FooterState;
   }
 
+  get filterPills() {
+    return this.tasksComponent?.filterPills;
+  }
+
   onTaskClicked() {
     this.currentStateIndex = 1;
     const queryParams: Params = { state: 'tasks' };
@@ -123,6 +158,14 @@ export class DashboardPage implements OnInit {
       relativeTo: this.activatedRoute,
       queryParams,
     });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+  }
+
+  openFilters() {
+    this.tasksComponent.openFilters();
   }
 
   onCameraClicked() {

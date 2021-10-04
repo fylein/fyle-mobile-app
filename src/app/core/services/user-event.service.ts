@@ -17,6 +17,8 @@ export class UserEventService {
 
   tokenSubject = new Subject();
 
+  taskCacheClearSubject = new Subject();
+
   constructor() {}
 
   onLogout(callback) {
@@ -33,6 +35,14 @@ export class UserEventService {
 
   setToken() {
     return this.tokenSubject.next();
+  }
+
+  clearTaskCache() {
+    return this.taskCacheClearSubject.next();
+  }
+
+  onTaskCacheClear(callback) {
+    return this.taskCacheClearSubject.subscribe(callback);
   }
 
   onInternalError(callback) {

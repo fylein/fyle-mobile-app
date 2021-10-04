@@ -4,48 +4,49 @@
 <ion-content class="matched-expenses">
   <div class="matched-expenses--body">
     <div class="matched-expenses--transaction">
-      <div class="matched-expenses--title"> Transaction Details </div>
+      <div class="matched-expenses--title">Transaction Details</div>
       <div class="matched-expenses--transaction-details">
         <div class="matched-expenses--main-info">
           <div class="matched-expenses--purpose-amount-block">
             <div class="matched-expenses--purpose">
-              <span>SUBWAY FOODS LTD.</span>
+              <span>{{txnDetails.btxn_description}}</span>
             </div>
             <div class="matched-expenses--amount-block">
-              <span class="matched-expenses--currency">$</span>
-              <span class="matched-expenses--amount">
-                12.00
+              <span
+                class="matched-expenses--currency"
+                [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
+                >$</span
+              >
+              <span
+                class="matched-expenses--amount"
+                [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
+              >
+                {{txnDetails.btxn_amount}}
               </span>
-              <span class="matched-expenses--type">
-                DR
+              <span
+                class="matched-expenses--type"
+                [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
+              >
+                <ng-container *ngIf="txnDetails.btxn_transaction_type === 'debit'">DR</ng-container>
+                <ng-container *ngIf="txnDetails.btxn_transaction_type === 'credit'">CR</ng-container>
               </span>
             </div>
           </div>
         </div>
-        <div class="matched-expenses--date">
-          Jan 25, 2021
-        </div>
+        <div class="matched-expenses--date">{{txnDetails.btxn_transaction_dt | date: 'MMM dd, yyyy'}}</div>
       </div>
     </div>
 
     <div class="matched-expenses--action-content">
-      <div class="matched-expenses--action-title">
-        Select a matching expense
-      </div>
-      <div class="matched-expenses--action-title">
-        In case ther is no match
-      </div>
+      <div class="matched-expenses--action-title">Select a matching expense</div>
+      <div class="matched-expenses--action-title">In case ther is no match</div>
       <div class="matched-expenses--action-card">
         <div class="matched-expenses--block-action">
           <div class="matched-expenses--common">
-            <ion-icon class="matched-expenses--icon" [src]="'assets/svg/list.svg'" slot="icon-only">
-            </ion-icon>
-            <p class="matched-expenses--heading">
-              Create Expense
-            </p>
+            <ion-icon class="matched-expenses--icon" [src]="'assets/svg/list.svg'" slot="icon-only"> </ion-icon>
+            <p class="matched-expenses--heading">Create Expense</p>
           </div>
-          <ion-icon class="matched-expenses--icon" [src]="'assets/svg/arrow.svg'" slot="icon-only">
-          </ion-icon>
+          <ion-icon class="matched-expenses--icon" [src]="'assets/svg/arrow.svg'" slot="icon-only"> </ion-icon>
         </div>
       </div>
     </div>

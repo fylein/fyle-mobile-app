@@ -14,9 +14,8 @@ $sent-back-color: #da1e28;
   }
 
   &--send-back {
-    font-weight: normal;
-    font-size: 16px;
-    color: red;
+    height: 24px;
+    width: 24px;
   }
 
   &--card {
@@ -155,7 +154,7 @@ $sent-back-color: #da1e28;
     }
 
     &__sent_back {
-      background-color: #da1e28;;
+      background-color: #da1e28;
     }
 
     &__approved {

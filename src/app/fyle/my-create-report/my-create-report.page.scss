@@ -1,155 +1,125 @@
-$item-border-color: #e0e0e0;
-$background-color: #fff;
+@import '../../../theme/colors.scss';
 
 .my-create-report {
   &--header {
-    background-color: $background-color;
-    // height: 80px !important;
-    border-bottom: 1px solid $item-border-color;
+    background-color: $pure-white;
+    border-bottom: 1px solid $grey-lighter;
 
     &-closebutton {
       height: 65px;
     }
-
-    &-title {
-      color: #4a4a4a;
-      font-size: 20px;
-      font-weight: 700;
-    }
   }
 
-  &--container {
-    padding: 16px;
+  &--title-container {
+    color: $black;
+    font-weight: 500;
+    margin-left: -10%;
+  }
+
+  &--title {
+    font-size: 20px;
+    line-height: 1.28;
+  }
+
+  &--sub-title {
+    font-size: 14px;
+    line-height: 1.28;
+    margin-top: 4px;
+  }
+
+  &--mandatory {
+    color: $primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &--report-card {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
-    border-radius: 4px;
-    margin-bottom: 24px;
-    border: 1px solid $background-color;
-    padding: 10px;
+    border-bottom: 1px solid $grey-lighter;
+    margin: 16px 16px 2px;
+
+    &__trips {
+      border-bottom: 0;
+    }
+  }
+
+  &--trip-label {
+    font-size: 12px;
+    color: $black-light;
   }
 
   &--report-title {
-    color: #ababab;
-    font-size: 16px;
+    color: $black-light;
+    font-size: 12px;
+    display: contents;
   }
 
   &--report-name {
     width: 100%;
-    font-size: 20px;
-    color: #4a4a4a;
+    font-size: 14px;
+    color: $blue-black;
     border: 0;
-
-    &::placeholder {
-      color: #ababab;
-    }
-  }
-
-  &--expense-date {
-    color: #ababab;
-    font-size: 16px;
-  }
-
-  &--item-card {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
-    border-radius: 4px;
-    margin-bottom: 24px;
-    border: 1px solid $background-color;
-    min-height: 100px;
-    padding: 10px;
-  }
-
-  &--item-card-selected {
-    border: 1px solid #0077ee;
-  }
-
-  &--item-card-checkbox {
-    margin: 18px;
-  }
-
-  &--item-card-currency {
-    color: #ababab;
-  }
-
-  &--item-card-amount {
-    font-size: 18px;
-    margin-left: 8px;
-    font-weight: 700;
-    color: #666;
-  }
-
-  &--item-card-vendor {
-    font-size: 16px;
-    color: #666;
-  }
-
-  &--item-card-category {
-    color: #ababab;
-    font-size: 16px;
+    padding: 6px 0;
   }
 
   &--footer {
-    padding: 10px 8px 14px 8px;
+    height: 80px;
+    box-shadow: 0 -2px 12px $pink-shadow;
   }
 
-  &--footer-currency {
+  &--cta-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 35.5px;
+    bottom: 0;
+    width: 100%;
+    background-color: $pure-white;
+    z-index: 999;
+  }
+
+  &--cta-button {
+    font-weight: 500;
+  }
+
+  &--secondary-cta {
+    height: auto;
+    background-color: transparent;
+    color: $black;
     font-size: 16px;
-    color: #000;
-    font-weight: 500;
-  }
+    line-height: 1.25;
+    min-width: 40%;
 
-  &--footer-amount {
-    font-size: 24px;
-    color: #000;
-    font-weight: 500;
-  }
-
-  &--footer-summary {
-    font-size: 16px;
-    font-weight: 500;
-    color: #ababab;
+    &__disabled {
+      opacity: 0.2;
+    }
   }
 
   &--primary-cta {
-    height: 48px;
+    min-height: 52px;
+    background: $pink-gradient-1;
+    color: $pure-white;
     font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
-    --border-radius: 4px !important;
-    margin: 0 4px;
-    width: 100%;
-  }
-
-  &--secondary-action {
-    text-align: right;
-    color: #0077ee;
-    font-size: 16px;
-    margin-top: 8px;
-  }
-
-  &--select-trip {
-    padding: 16px 0;
+    line-height: 1.3;
+    border-radius: 4px;
+    padding: 10px 12px;
+    min-width: 50%;
+    &__disabled {
+      opacity: 0.8;
+    }
   }
 
   &--text-trip {
     width: 100%;
     font-size: 14px;
-    color: #4a4a4a;
+    color: $blue-black;
     border: 0;
-
-    &::placeholder {
-      color: #ababab;
-    }
+    height: 26px;
   }
 
   &--error-message {
-    color: red;
-  }
-
-  &--non-reimbursable {
-    text-decoration: line-through;
-    color: #ababab;
+    font-size: 12px;
+    margin: 0 16px;
+    color: $red;
   }
 
   &--zero-state {
@@ -164,12 +134,45 @@ $background-color: #fff;
     }
 
     &-header {
-      font-size: 16px;
+      font-size: 14px;
       display: block;
       margin-bottom: 16px;
-      color: #4a4a4a;
+      color: $blue-black;
       line-height: 1.5;
       font-weight: 500;
     }
+  }
+
+  &--heading {
+    color: $grey-light;
+    font-size: 14px;
+    padding: 16px 16px;
+    background-color: $white;
+    font-weight: 500;
+  }
+
+  &--select-all-checkbox {
+    font-size: 14px;
+    padding: 16px 16px;
+    background-color: $pure-white;
+  }
+
+  &--add-more-container {
+    padding: 16px;
+    display: flex;
+    margin-top: 12px;
+  }
+
+  &--add-more-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+
+  &--add-more-text {
+    margin-left: 5px;
+    color: $black-light;
+    font-weight: 500;
+    font-size: 14px;
   }
 }

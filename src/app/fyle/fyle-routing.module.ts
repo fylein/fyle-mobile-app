@@ -161,7 +161,14 @@ const routes: Routes = [
   },
   {
     path: 'personal_cards_matched_expenses',
-    loadChildren: () => import('./personal-cards-matched-expenses/personal-cards-matched-expenses.module').then( m => m.PersonalCardsMatchedExpensesPageModule)
+    loadChildren: () =>
+      import('./personal-cards-matched-expenses/personal-cards-matched-expenses.module').then(
+        (m) => m.PersonalCardsMatchedExpensesPageModule
+      ),
+  },
+  {
+    path: 'personal_cards',
+    loadChildren: () => import('./personal-cards/personal-cards.module').then((m) => m.PersonalCardsPageModule),
   },
 ];
 

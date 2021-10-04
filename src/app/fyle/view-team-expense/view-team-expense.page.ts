@@ -1,5 +1,5 @@
-import { Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, forkJoin, Subject, combineLatest, concat, noop } from 'rxjs';
+import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Observable, from, Subject, combineLatest, concat, noop } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -11,10 +11,14 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ModalController, PopoverController, IonContent } from '@ionic/angular';
-import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
 import { NetworkService } from '../../core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { PolicyService } from 'src/app/core/services/policy.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyFlagExpenseComponent } from 'src/app/shared/components/fy-flag-expense/fy-flag-expense.component';
 
 @Component({
   selector: 'app-view-team-expense',
@@ -60,6 +64,10 @@ export class ViewTeamExpensePage implements OnInit {
 
   policyDetails;
 
+  isDeviceWidthSmall = window.innerWidth < 330;
+
+  isExpenseFlagged: boolean;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -73,7 +81,9 @@ export class ViewTeamExpensePage implements OnInit {
     private router: Router,
     private popoverController: PopoverController,
     private networkService: NetworkService,
-    private policyService: PolicyService
+    private policyService: PolicyService,
+    private modalProperties: ModalPropertiesService,
+    private trackingService: TrackingService
   ) {}
 
   ionViewWillLeave() {
@@ -103,6 +113,28 @@ export class ViewTeamExpensePage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId }]);
   }
 
+  async openCommentsModal() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'transactions',
+        objectId: etxn.tx_id,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment();
+    } else {
+      this.trackingService.viewComment();
+    }
+  }
+
   isPolicyComment(estatus) {
     return estatus.st_org_user_id === 'POLICY';
   }
@@ -121,20 +153,17 @@ export class ViewTeamExpensePage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyViolationRules(txId)).pipe()
-      .subscribe(details => {
-        this.policyDetails = details;
-      });
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
+    }
   }
 
   getDisplayValue(customProperties) {
     return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-  }
-
-  onUpdateFlag(event) {
-    if (event) {
-      this.updateFlag$.next();
-    }
   }
 
   goBack() {
@@ -177,6 +206,10 @@ export class ViewTeamExpensePage implements OnInit {
       finalize(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
+
+    this.etxn$.subscribe((etxn) => {
+      this.isExpenseFlagged = etxn.tx_manual_flag;
+    });
 
     this.policyViloations$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap((etxn) => this.statusService.find('transactions', etxn.tx_id)),
@@ -278,21 +311,67 @@ export class ViewTeamExpensePage implements OnInit {
 
   async removeExpenseFromReport() {
     const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-    const popover = await this.popoverController.create({
-      component: RemoveExpenseReportComponent,
+
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
-        etxn,
+        header: 'Remove Expense',
+        body: 'Are you sure you want to remove this expense from the report?',
+        infoMessage: 'The report amount will be adjusted accordingly.',
+        ctaText: 'Remove',
+        ctaLoadingText: 'Removing',
+        deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
       },
-      cssClass: 'dialog-popover',
     });
 
-    await popover.present();
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
 
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.goBack) {
+    if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
     }
+  }
+
+  async flagUnflagExpense() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const flagUnflagModal = await this.modalController.create({
+      component: FyFlagExpenseComponent,
+      componentProps: {
+        isExpenseFlagged: this.isExpenseFlagged,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+      cssClass: 'flag-unflag-modal',
+    });
+
+    await flagUnflagModal.present();
+    const { data } = await flagUnflagModal.onWillDismiss();
+
+    if (data && data.message) {
+      from(this.loaderService.showLoader('Please wait'))
+        .pipe(
+          switchMap(() => {
+            const comment = {
+              comment: data.message,
+            };
+            return this.statusService.post('transactions', etxn.tx_id, comment, true);
+          }),
+          concatMap(() =>
+            etxn.tx_manual_flag
+              ? this.transactionService.manualUnflag(etxn.tx_id)
+              : this.transactionService.manualFlag(etxn.tx_id)
+          ),
+          finalize(() => {
+            this.updateFlag$.next();
+            this.loaderService.hideLoader();
+          })
+        )
+        .subscribe(noop);
+    }
+    this.isExpenseFlagged = etxn.tx_manual_flag;
   }
 
   viewAttachments() {

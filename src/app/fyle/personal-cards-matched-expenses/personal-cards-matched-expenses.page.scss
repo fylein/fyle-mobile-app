@@ -1,4 +1,4 @@
-@import "../../../theme/colors";
+@import '../../../theme/colors';
 
 .matched-expenses {
   &--body {
@@ -8,7 +8,7 @@
 
   &--action-card {
     background-color: white;
-    border: 1px solid #DFDFE2;
+    border: 1px solid #dfdfe2;
     margin: 0 20px;
     padding: 16px;
     border-radius: 8px;
@@ -29,8 +29,7 @@
     vertical-align: middle;
     font-size: 16px;
     margin: 0 0 0 16px;
-    color: #2C304E;
-    ;
+    color: #2c304e;
   }
 
   &--icon {
@@ -52,19 +51,19 @@
     font-size: 14px;
     padding: 16px 50px 16px 16px;
     font-weight: 400;
-    color: #A9ACBC;
+    color: #a9acbc;
   }
 
   &--date {
     height: 14px;
-    color: #5A5D72;
+    color: #5a5d72;
   }
 
   &--action-title {
     font-size: 14px;
     padding: 16px 50px 16px 16px;
     font-weight: 500;
-    color: #5A5D72;
+    color: #5a5d72;
   }
 
   &--deatils-block {
@@ -110,11 +109,15 @@
   }
 
   &--type {
-    color: #A9ACBC;
+    color: #a9acbc;
     font-size: 12px;
     line-height: 1.3;
     font-weight: 400;
     margin-left: -5px;
+  }
+
+  &--green {
+    color: #24a148;
   }
 
   &--purpose {
@@ -123,5 +126,8 @@
     font-size: 18px;
     font-weight: 500;
     max-width: 60%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 }

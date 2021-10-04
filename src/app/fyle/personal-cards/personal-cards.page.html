@@ -1,0 +1,43 @@
+<app-fy-header [currentState]="headerState" [navigateBack]="navigateBack" [title]="'Personal Cards'">
+  <ng-container base>
+    <ion-buttons mode="md" slot="end">
+      <ion-button class="personal-cards--header-btn" (click)="linkAccount()">
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ng-container>
+</app-fy-header>
+
+<ion-content class="personal-cards--content">
+  <ng-container *ngIf="!(isConnected$|async)">
+    <div class="personal-cards--zero-state">
+      <app-fy-zero-state
+        class="stats--zero-state"
+        image="../../../../assets/images/no-internet.svg"
+        header="You're Offline!"
+        message="Fear not, you can still add expenses offline."
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+      ></app-fy-zero-state>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="((linkedAccountsCount$ | async) === 0) && isConnected$|async">
+    <div class="personal-cards--zero-state">
+      <app-fy-zero-state
+        class="stats--zero-state"
+        image="../../../../assets/images/no-card.svg"
+        message="Paying your work bills using your personal card? View your transactions here by linking your account."
+        [unscaledImage]="true"
+        [useNewStyling]="true"
+      ></app-fy-zero-state>
+      <button type="submit" class="personal-cards--link-card-button text-center" (click)="linkAccount()">
+        Link your card
+      </button>
+    </div>
+  </ng-container>
+</ion-content>
+<ion-footer>
+  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()">
+  </app-fy-footer>
+</ion-footer>
