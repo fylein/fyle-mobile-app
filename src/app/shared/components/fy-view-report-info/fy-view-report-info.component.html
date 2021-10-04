@@ -17,9 +17,17 @@
       (ionChange)="segmentChanged($event)"
       value="report"
     >
-      <ion-segment-button value="report" class="view-info--segment-block-container__btn"> Report </ion-segment-button>
-      <ion-segment-button value="amount" class="view-info--segment-block-container__btn"> Amount </ion-segment-button>
-      <ion-segment-button *ngIf="isTeamReport" value="employee" class="view-info--segment-block-container__btn">
+      <ion-segment-button value="report" class="view-info--segment-block-container__btn text-capitalize">
+        Report
+      </ion-segment-button>
+      <ion-segment-button value="amount" class="view-info--segment-block-container__btn text-capitalize">
+        Amount
+      </ion-segment-button>
+      <ion-segment-button
+        *ngIf="view === 'Team'"
+        value="employee"
+        class="view-info--segment-block-container__btn text-capitalize"
+      >
         Employee
       </ion-segment-button>
     </ion-segment>
@@ -91,7 +99,7 @@
   </div>
 </ion-content>
 
-<ion-content *ngIf="isTeamReport && isEmployeeView && !isReportView" (swipe)="onSwipeEmployee($event)">
+<ion-content *ngIf="view === 'Team' && isEmployeeView && !isReportView" (swipe)="onSwipeEmployee($event)">
   <ion-grid class="view-info--body-container">
     <ng-container *ngFor="let item of employeeDetails | keyvalue: originalOrder">
       <ion-row *ngIf="item && item.value && item.value.length" class="view-info--body-container__content">

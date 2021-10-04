@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { CostCentersService } from './cost-centers.service';
-import { finalize, map, switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { forkJoin, Subject, of } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { OrgUserSettings } from '../models/org_user_settings.model';
@@ -43,7 +43,7 @@ export class OrgUserSettingsService {
 
   getAllowedCostCentersByOuId(ouId: string) {
     return this.getOrgUserSettingsById(ouId).pipe(
-      switchMap((orgUserSettings) => this.getAllowedCostCenteres(orgUserSettings))
+      switchMap((orgUserSettings) => this.getAllowedCostCenteres(orgUserSettings, true))
     );
   }
 
@@ -327,7 +327,7 @@ export class OrgUserSettingsService {
     return featuresList;
   }
 
-  getAllowedCostCenteres(orgUserSettings) {
+  getAllowedCostCenteres(orgUserSettings, isUserSpecific = false) {
     return this.costCentersService.getAllActive().pipe(
       map((costCenters) => {
         let allowedCostCenters = [];
@@ -335,7 +335,7 @@ export class OrgUserSettingsService {
           allowedCostCenters = costCenters.filter(
             (costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1
           );
-        } else {
+        } else if (!isUserSpecific) {
           allowedCostCenters = costCenters;
         }
         return allowedCostCenters;

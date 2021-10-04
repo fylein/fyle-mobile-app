@@ -1,10 +1,12 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { ModalController, Platform } from '@ionic/angular';
 import { ExtendedReport } from 'src/app/core/models/report.model';
+import { Expense } from 'src/app/core/models/expense.model';
 import { Observable, combineLatest } from 'rxjs';
 import { KeyValue, DatePipe } from '@angular/common';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-fy-view-report-info',
@@ -14,9 +16,9 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 export class FyViewReportInfoComponent implements OnInit {
   @Input() erpt$: Observable<ExtendedReport>;
 
-  @Input() etxns$: Observable<any[]>;
+  @Input() etxns$: Observable<Expense[]>;
 
-  @Input() isTeamReport: boolean;
+  @Input() view: 'Team' | 'Individual';
 
   isReportView = true;
 
@@ -34,13 +36,16 @@ export class FyViewReportInfoComponent implements OnInit {
 
   employeeDetails = {};
 
+  isSwipe = false;
+
   constructor(
     private modalController: ModalController,
     private transactionService: TransactionService,
     private datePipe: DatePipe,
     private orgUserSettingsService: OrgUserSettingsService,
     public platform: Platform,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit(): void {}
@@ -55,7 +60,7 @@ export class FyViewReportInfoComponent implements OnInit {
       };
       this.reportCurrency = erpt.rp_currency;
 
-      if (this.isTeamReport) {
+      if (this.view === 'Team') {
         this.createEmployeeDetails(erpt);
       }
     });
@@ -90,32 +95,58 @@ export class FyViewReportInfoComponent implements OnInit {
       } else if (event.detail.value === 'amount') {
         this.isReportView = false;
         this.isEmployeeView = false;
-      } else if (this.isTeamReport && event.detail.value === 'employee') {
+      } else if (this.view === 'Team' && event.detail.value === 'employee') {
         this.isReportView = false;
         this.isEmployeeView = true;
       }
+
+      if (!this.isSwipe) {
+        this.trackingService.viewReportInfo({
+          view: this.view,
+          action: 'click',
+          segment: event.detail.value,
+        });
+      }
+      this.isSwipe = false;
     }
   }
 
   onSwipeReport(event) {
+    this.isSwipe = true;
     if (event && event.direction === 2) {
       this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[1].click();
+      this.trackingService.viewReportInfo({
+        view: this.view,
+        action: 'swipe',
+        segment: 'report',
+      });
     }
   }
 
   onSwipeAmount(event) {
+    this.isSwipe = true;
     if (event && event.direction === 4) {
       this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[0].click();
     }
-
-    if (this.isTeamReport && event && event.direction === 2) {
+    if (this.view === 'Team' && event && event.direction === 2) {
       this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[2].click();
     }
+    this.trackingService.viewReportInfo({
+      view: this.view,
+      action: 'swipe',
+      segment: 'amount',
+    });
   }
 
   onSwipeEmployee(event) {
+    this.isSwipe = true;
     if (event && event.direction === 4) {
       this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[1].click();
+      this.trackingService.viewReportInfo({
+        view: this.view,
+        action: 'swipe',
+        segment: 'employee',
+      });
     }
   }
 

@@ -18,6 +18,12 @@ import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 
 const transactionsCacheBuster$ = new Subject<void>();
+
+type PaymentMode = {
+  name: string;
+  key: string;
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -627,7 +633,7 @@ export class TransactionService {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 
-  getPaymentModeForEtxn(etxn: Expense, paymentModes: any[]) {
+  getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]) {
     return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key));
   }
 

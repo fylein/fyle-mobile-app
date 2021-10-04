@@ -319,7 +319,7 @@ export class MyViewReportPage implements OnInit {
       componentProps: {
         erpt$: this.erpt$,
         etxns$: this.etxns$,
-        isTeamReport: false,
+        view: 'Individual',
       },
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
@@ -327,6 +327,8 @@ export class MyViewReportPage implements OnInit {
 
     await viewInfoModal.present();
     await viewInfoModal.onWillDismiss();
+
+    this.trackingService.clickViewReportInfo({ view: 'Individual' });
   }
 
   canEditTxn(txState) {

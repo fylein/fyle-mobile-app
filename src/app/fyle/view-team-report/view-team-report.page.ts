@@ -339,7 +339,7 @@ export class ViewTeamReportPage implements OnInit {
       componentProps: {
         erpt$: this.erpt$,
         etxns$: this.etxns$,
-        isTeamReport: true,
+        view: 'Team',
       },
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
@@ -347,5 +347,7 @@ export class ViewTeamReportPage implements OnInit {
 
     await viewInfoModal.present();
     await viewInfoModal.onWillDismiss();
+
+    this.trackingService.clickViewReportInfo({ view: 'Team' });
   }
 }
