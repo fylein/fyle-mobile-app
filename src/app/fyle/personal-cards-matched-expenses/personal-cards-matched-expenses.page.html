@@ -40,7 +40,7 @@
     <div class="matched-expenses--action-content">
       <div class="matched-expenses--action-title">Select a matching expense</div>
       <div class="matched-expenses--action-title">In case ther is no match</div>
-      <div class="matched-expenses--action-card">
+      <div class="matched-expenses--action-card" (click)="createExpense()">
         <div class="matched-expenses--block-action">
           <div class="matched-expenses--common">
             <ion-icon class="matched-expenses--icon" [src]="'assets/svg/list.svg'" slot="icon-only"> </ion-icon>

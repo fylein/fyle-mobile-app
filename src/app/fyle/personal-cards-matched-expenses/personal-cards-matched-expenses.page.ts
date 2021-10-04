@@ -75,4 +75,13 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
 
     this.matchedExpenses$.subscribe(noop());
   }
+
+  createExpense() {
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'add_edit_expense',
+      { bankTxn: JSON.stringify(this.txnDetails), navigate_back: true },
+    ]);
+  }
 }
