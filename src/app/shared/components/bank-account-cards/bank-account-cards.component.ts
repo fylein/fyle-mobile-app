@@ -18,7 +18,7 @@ export class BankAccountCardsComponent implements OnInit {
 
   pagination = {
     renderBullet(index, className) {
-      return '<span class="fyle ' + className + '"> </span>';
+      return `<span class="fyle ${className}"> </span>`;
     },
   };
 
