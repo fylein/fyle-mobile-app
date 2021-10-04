@@ -1,8 +1,10 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {fromEvent, Observable} from 'rxjs';
-import {ModalController} from '@ionic/angular';
-import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
-import {isEqual} from 'lodash';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { fromEvent, Observable } from 'rxjs';
+import { ModalController } from '@ionic/angular';
+import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
+import { isEqual } from 'lodash';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
   selector: 'app-fy-multiselect-modal',
@@ -11,17 +13,28 @@ import {isEqual} from 'lodash';
 })
 export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
-  @Input() options: { label: string, value: any, selected?: boolean }[] = [];
+
+  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+
   @Input() currentSelections: any[] = [];
-  @Input() filteredOptions$: Observable<{ label: string, value: any, selected?: boolean }[]>;
+
+  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+
   @Input() selectModalHeader = 'Select Items';
+
   @Input() subheader = 'All Items';
+
   value;
 
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef
-  ) { }
+  selectable = true;
+
+  removable = true;
+
+  addOnBlur = true;
+
+  readonly separatorKeysCodes = this.getSeparatorKeysCodes();
+
+  constructor(private modalController: ModalController, private cdr: ChangeDetectorRef) {}
 
   clearValue() {
     this.value = '';
@@ -30,22 +43,42 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  ngOnInit() { }
+  getSeparatorKeysCodes() {
+    return [ENTER, COMMA];
+  }
+
+  addChip(event: MatChipInputEvent) {
+    if (event && event.chipInput) {
+      event.chipInput.clear();
+    }
+  }
+
+  removeChip(item) {
+    const updatedItem = {
+      label: item,
+      selected: false,
+      value: item,
+    };
+    this.onElementSelected(updatedItem);
+  }
+
+  ngOnInit() {}
 
   ngAfterViewInit() {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      map((searchText) => this.options
-        .filter(option => option.label.toLowerCase().includes(searchText.toLowerCase()))
-        .map(option => {
-          if (this.currentSelections) {
-            option.selected = this.currentSelections.includes(option.value);
-          }
-          return option;
-        })
-      ),
+      map((searchText) =>
+        this.options
+          .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
+          .map((option) => {
+            if (this.currentSelections) {
+              option.selected = this.currentSelections.includes(option.value);
+            }
+            return option;
+          })
+      )
     );
     this.cdr.detectChanges();
   }
@@ -55,22 +88,19 @@ export class FyMultiselectModalComponent implements OnInit, AfterViewInit {
   }
 
   onElementSelected(selectedOption) {
-    this.options = this.options.map(option => {
+    this.options = this.options.map((option) => {
       if (isEqual(option.value, selectedOption.value)) {
         option.selected = selectedOption.selected;
       }
       return option;
     });
 
-    this.currentSelections = this.options
-                                  .filter(option => option.selected)
-                                  .map(option => option.value);
+    this.currentSelections = this.options.filter((option) => option.selected).map((option) => option.value);
   }
 
   useSelected() {
     this.modalController.dismiss({
-      selected: this.options.filter(option => option.selected)
+      selected: this.options.filter((option) => option.selected),
     });
   }
-
 }

@@ -13,13 +13,18 @@ import { Router, ActivatedRoute } from '@angular/router';
   styleUrls: ['./my-trips.page.scss'],
 })
 export class MyTripsPage implements OnInit {
-
   isConnected$: Observable<boolean>;
+
   myTripRequests$: Observable<ExtendedTripRequest[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
+
   loadData$: Subject<number> = new Subject();
+
   currentPageNumber = 1;
+
   navigateBack = false;
 
   constructor(
@@ -28,28 +33,26 @@ export class MyTripsPage implements OnInit {
     private networkService: NetworkService,
     private activatedRoute: ActivatedRoute,
     private router: Router
-  ) { }
+  ) {}
 
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.currentPageNumber = 1;
 
     this.myTripRequests$ = this.loadData$.pipe(
-      concatMap(pageNumber => {
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.tripRequestsService.getMyTrips({
+      concatMap((pageNumber) =>
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() =>
+            this.tripRequestsService.getMyTrips({
               offset: (pageNumber - 1) * 10,
               limit: 10,
-              queryParams: { order: 'trp_created_at.desc,trp_id.desc' }
-            });
-          }),
-          finalize(() => {
-            return from(this.loaderService.hideLoader());
-          })
-        );
-      }),
-      map(res => res.data),
+              queryParams: { order: 'trp_created_at.desc,trp_id.desc' },
+            })
+          ),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+      ),
+      map((res) => res.data),
       scan((acc, curr) => {
         if (this.currentPageNumber === 1) {
           return curr;
@@ -59,16 +62,10 @@ export class MyTripsPage implements OnInit {
       shareReplay(1)
     );
 
-    this.count$ = this.tripRequestsService.getMyTripsCount().pipe(
-      shareReplay(1)
-    );
+    this.count$ = this.tripRequestsService.getMyTripsCount().pipe(shareReplay(1));
 
     this.isInfiniteScrollRequired$ = this.myTripRequests$.pipe(
-      concatMap(myTrips => {
-        return this.count$.pipe(map(count => {
-          return count > myTrips.length;
-        }));
-      })
+      concatMap((myTrips) => this.count$.pipe(map((count) => count > myTrips.length)))
     );
 
     this.loadData$.subscribe(noop);
@@ -80,7 +77,7 @@ export class MyTripsPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;
@@ -100,7 +97,7 @@ export class MyTripsPage implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     });
   }

@@ -10,20 +10,17 @@ import { RejectAdvanceComponent } from '../reject-advance/reject-advance.compone
   styleUrls: ['./advance-actions.component.scss'],
 })
 export class AdvanceActionsComponent implements OnInit {
-
   @Input() actions;
+
   @Input() areq;
 
-  constructor(
-    private popoverController: PopoverController
-  ) { }
+  constructor(private popoverController: PopoverController) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   openAnotherPopover(command) {
     this.popoverController.dismiss({
-      command
+      command,
     });
   }
 }

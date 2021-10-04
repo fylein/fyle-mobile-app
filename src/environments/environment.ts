@@ -12,7 +12,7 @@ export const environment = {
   ANDROID_CLIENT_ID: '',
   GOOGLE_MAPS_API_KEY: '',
   FRESHCHAT_TOKEN: '',
-  SENTRY_DSN: ''
+  SENTRY_DSN: '',
 };
 
 /*
@@ -22,4 +22,4 @@ export const environment = {
  * This import should be commented out in production mode because it will have a negative impact
  * on performance if an error is thrown.
  */
-// import 'zone.js/dist/zone-error';  // Included with Angular CLI.
+// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.

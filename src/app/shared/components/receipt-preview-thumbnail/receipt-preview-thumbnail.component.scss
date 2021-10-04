@@ -1,0 +1,139 @@
+@import '../../../../theme/colors';
+
+.receipt-preview-thumbnail {
+  &--actions {
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    color: $black-light;
+  }
+
+  &--add-more {
+    display: flex;
+    align-items: center;
+  }
+
+  &--icon {
+    margin: 5px;
+    font-size: 16px;
+    display: block;
+    color: $primary;
+    font-weight: normal;
+  }
+
+  &--add-more-text {
+    margin-top: 2px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &--receipt-index {
+    font-size: 12px;
+    color: $black-light;
+    margin-top: 10px;
+  }
+
+  &--container {
+    height: 220px;
+    width: 100%;
+    padding: 0px;
+    border-radius: 4px;
+  }
+
+  &--slide {
+    width: auto !important;
+  }
+
+  &--image {
+    height: 220px;
+  }
+
+  &--pdf-viewer {
+    display: block;
+    height: 220px;
+  }
+
+  &--slider-container {
+    position: relative;
+    border: 1px solid $translucent-black;
+    height: 100%;
+    width: 100%;
+  }
+
+  &--controls {
+    position: absolute;
+    z-index: 99;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  &--go-back {
+    position: absolute;
+    top: 30%;
+    left: 3%;
+    padding: 20px 20px 20px 0;
+    pointer-events: auto;
+
+    &__btn {
+      background-color: $translucent-black;
+      text-align: center;
+      border-radius: 50%;
+      font-size: 18px;
+      padding: 12px;
+      height: 40px;
+      width: 40px;
+      color: white;
+    }
+  }
+
+  &--go-forward {
+    position: absolute;
+    top: 30%;
+    right: 3%;
+    padding: 20px 0 20px 20px;
+    pointer-events: auto;
+
+    &__btn {
+      background-color: $translucent-black;
+      text-align: center;
+      border-radius: 50%;
+      font-size: 18px;
+      padding: 12px;
+      height: 40px;
+      width: 40px;
+      color: white;
+    }
+  }
+
+  &--spinner-overlay {
+    background-color: $translucent-white-2;
+    position: absolute;
+    height: 240px;
+    width: 100%;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &--spinner-container {
+    width: 80%;
+    position: relative;
+    text-align: center;
+  }
+
+  &--spinner {
+    zoom: 3;
+    color: $brand-primary-light;
+    width: 100%;
+  }
+
+  &--spinner-text {
+    margin: 3px;
+    font-size: 14px;
+    color: $blue-black;
+    font-weight: 500;
+  }
+}

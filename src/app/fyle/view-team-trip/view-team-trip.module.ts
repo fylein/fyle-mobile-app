@@ -14,7 +14,6 @@ import { ActionPopoverComponent } from './action-popover/action-popover.componen
 import { MatRippleModule } from '@angular/material/core';
 import { ActionConfirmationPopoverComponent } from './action-confirmation-popover/action-confirmation-popover.component';
 
-
 @NgModule({
   imports: [
     CommonModule,
@@ -24,7 +23,7 @@ import { ActionConfirmationPopoverComponent } from './action-confirmation-popove
     MatIconModule,
     MatButtonModule,
     SharedModule,
-    MatRippleModule
+    MatRippleModule,
   ],
   declarations: [
     ViewTeamTripPage,
@@ -32,7 +31,7 @@ import { ActionConfirmationPopoverComponent } from './action-confirmation-popove
     AdvanceRequestComponent,
     HotelRequestComponent,
     ActionPopoverComponent,
-    ActionConfirmationPopoverComponent
-  ]
+    ActionConfirmationPopoverComponent,
+  ],
 })
 export class ViewTeamTripPageModule {}

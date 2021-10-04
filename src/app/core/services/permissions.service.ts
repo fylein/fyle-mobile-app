@@ -4,14 +4,9 @@ import { filter, map, switchMap } from 'rxjs/operators';
 import { throwError, of, iif } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PermissionsService {
-
-  constructor(
-    private authService: AuthService
-  ) { }
-
   // can check roleActionMap[role]['company']['view'] for whether he is allowed company view.
   // transportation, hotel keys are only for list pages, not for any create and edit page, need to fix later
   roleActionMap = {
@@ -31,7 +26,7 @@ export class PermissionsService {
         super_edit: true,
         verify: true,
         export: true,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -50,7 +45,7 @@ export class PermissionsService {
         share: false,
         add_approver: true,
         audit: false,
-        review: true
+        review: true,
       },
       advances: {
         request: false,
@@ -67,19 +62,19 @@ export class PermissionsService {
         refund: true,
         add_approver: true,
         audit: false,
-        view_requests: true
+        view_requests: true,
       },
       ccc: {
         upload: true,
         match: true,
         assign: true,
         export: true,
-        delete: true
+        delete: true,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: false,
@@ -100,27 +95,27 @@ export class PermissionsService {
         reject_cancellation: true,
         assign: true,
         create_expense: true,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: true,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: true
+        ask_questions: true,
       },
       hotel: {
         view: true,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: true
+        ask_questions: true,
       },
       mis_reporting: {
-        view: true
+        view: true,
       },
       analytics: {
-        view: true
+        view: true,
       },
       employees: {
         view: true,
@@ -128,20 +123,20 @@ export class PermissionsService {
         edit: true,
         disable: true,
         export: true,
-        invite: true
+        invite: true,
       },
       settings: {
         view: true,
         edit: true,
         create_org: true,
         policy_rules: true,
-        accounting: true
+        accounting: true,
       },
       accounting: {
-        exports: true
+        exports: true,
       },
       integration_exports: {
-        exports: true
+        exports: true,
       },
       payments: {
         view: true,
@@ -152,32 +147,32 @@ export class PermissionsService {
         export: true,
         export_accounting: true,
         audit: false,
-        view_advances: true
+        view_advances: true,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: true,
-        cost_center: true
+        cost_center: true,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     admin: {
       expenses: {
@@ -195,7 +190,7 @@ export class PermissionsService {
         super_edit: true,
         verify: true,
         export: true,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -217,7 +212,7 @@ export class PermissionsService {
         round_off_amount: true,
         add_approver: true,
         audit: false,
-        review: true
+        review: true,
       },
       advances: {
         request: false,
@@ -234,19 +229,19 @@ export class PermissionsService {
         refund: true,
         add_approver: true,
         audit: false,
-        view_requests: true
+        view_requests: true,
       },
       ccc: {
         upload: true,
         match: true,
         assign: true,
         export: true,
-        delete: true
+        delete: true,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: false,
@@ -267,27 +262,27 @@ export class PermissionsService {
         reject_cancellation: true,
         assign: true,
         create_expense: true,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: true,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: true
+        ask_questions: true,
       },
       hotel: {
         view: true,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: true
+        ask_questions: true,
       },
       mis_reporting: {
-        view: true
+        view: true,
       },
       analytics: {
-        view: true
+        view: true,
       },
       employees: {
         view: true,
@@ -295,20 +290,20 @@ export class PermissionsService {
         edit: true,
         disable: true,
         export: true,
-        invite: true
+        invite: true,
       },
       settings: {
         view: true,
         edit: true,
         create_org: true,
         policy_rules: true,
-        accounting: true
+        accounting: true,
       },
       accounting: {
-        exports: true
+        exports: true,
       },
       integration_exports: {
-        exports: true
+        exports: true,
       },
       payments: {
         view: true,
@@ -319,32 +314,32 @@ export class PermissionsService {
         export: true,
         export_accounting: true,
         audit: false,
-        view_advances: true
+        view_advances: true,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: true,
-        cost_center: true
+        cost_center: true,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     finance: {
       expenses: {
@@ -362,7 +357,7 @@ export class PermissionsService {
         super_edit: true,
         verify: true,
         export: true,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -384,7 +379,7 @@ export class PermissionsService {
         round_off_amount: true,
         add_approver: true,
         audit: false,
-        review: true
+        review: true,
       },
       advances: {
         request: false,
@@ -401,19 +396,19 @@ export class PermissionsService {
         refund: true,
         add_approver: true,
         audit: false,
-        view_requests: true
+        view_requests: true,
       },
       ccc: {
         upload: true,
         match: true,
         assign: true,
         export: true,
-        delete: true
+        delete: true,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: false,
@@ -434,27 +429,27 @@ export class PermissionsService {
         reject_cancellation: true,
         assign: true,
         create_expense: true,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       hotel: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       mis_reporting: {
-        view: true
+        view: true,
       },
       analytics: {
-        view: true
+        view: true,
       },
       employees: {
         view: false,
@@ -462,20 +457,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: true,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: true
+        exports: true,
       },
       integration_exports: {
-        exports: true
+        exports: true,
       },
       payments: {
         view: true,
@@ -486,32 +481,32 @@ export class PermissionsService {
         export: true,
         export_accounting: true,
         audit: false,
-        view_advances: true
+        view_advances: true,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     fyler: {
       expenses: {
@@ -529,7 +524,7 @@ export class PermissionsService {
         super_edit: false,
         verify: false,
         export: false,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: true,
@@ -551,7 +546,7 @@ export class PermissionsService {
         round_off_amount: false,
         add_approver: true,
         audit: false,
-        review: false
+        review: false,
       },
       advances: {
         request: true,
@@ -569,19 +564,19 @@ export class PermissionsService {
         refund: false,
         add_approver: true,
         audit: false,
-        view_requests: true
+        view_requests: true,
       },
       ccc: {
         upload: false,
         match: true,
         assign: false,
         export: true,
-        delete: false
+        delete: false,
       },
       receipts: {
         upload: true,
         match: true,
-        delete: true
+        delete: true,
       },
       summary: {
         team: false,
@@ -602,27 +597,27 @@ export class PermissionsService {
         reject_cancellation: false,
         assign: false,
         create_expense: false,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       hotel: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       mis_reporting: {
-        view: false
+        view: false,
       },
       analytics: {
-        view: false
+        view: false,
       },
       employees: {
         view: false,
@@ -630,20 +625,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: true,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: false
+        exports: false,
       },
       integration_exports: {
-        exports: false
+        exports: false,
       },
       payments: {
         view: true,
@@ -654,32 +649,32 @@ export class PermissionsService {
         export: false,
         export_accounting: false,
         audit: false,
-        view_advances: false
+        view_advances: false,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: true,
         upload: true,
-        match: true
+        match: true,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: true
-      }
+        view: true,
+      },
     },
     approver: {
       expenses: {
@@ -697,7 +692,7 @@ export class PermissionsService {
         super_edit: true,
         verify: false,
         export: false,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -719,7 +714,7 @@ export class PermissionsService {
         round_off_amount: false,
         add_approver: true,
         audit: false,
-        review: false
+        review: false,
       },
       advances: {
         request: false,
@@ -736,19 +731,20 @@ export class PermissionsService {
         refund: false,
         add_approver: true,
         audit: false,
-        view_requests: true
+        view_requests: true,
       },
       ccc: {
         upload: false,
         match: false,
         assign: false,
         export: false,
-        delete: false
+        delete: false,
       },
-      receipts: { // approver
+      receipts: {
+        // approver
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: true,
@@ -769,28 +765,28 @@ export class PermissionsService {
         reject_cancellation: false,
         assign: false,
         create_expense: false,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       hotel: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       mis_reporting: {
-        view: false
+        view: false,
       },
       analytics: {
         view: false,
-        team: true
+        team: true,
       },
       employees: {
         view: false,
@@ -798,20 +794,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: true,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: false
+        exports: false,
       },
       integration_exports: {
-        exports: false
+        exports: false,
       },
       payments: {
         view: false,
@@ -822,32 +818,32 @@ export class PermissionsService {
         export: false,
         export_accounting: false,
         audit: false,
-        view_advances: false
+        view_advances: false,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     transcriber: {
       expenses: {
@@ -865,7 +861,7 @@ export class PermissionsService {
         super_edit: false,
         verify: false,
         export: false,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -887,7 +883,7 @@ export class PermissionsService {
         round_off_amount: false,
         add_approver: false,
         audit: false,
-        review: true
+        review: true,
       },
       advances: {
         request: false,
@@ -904,19 +900,19 @@ export class PermissionsService {
         refund: false,
         add_approver: false,
         audit: false,
-        view_requests: false
+        view_requests: false,
       },
       ccc: {
         upload: false,
         match: false,
         assign: false,
         export: false,
-        delete: false
+        delete: false,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: false,
@@ -937,27 +933,27 @@ export class PermissionsService {
         reject_cancellation: false,
         assign: false,
         create_expense: false,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       hotel: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       mis_reporting: {
-        view: false
+        view: false,
       },
       analytics: {
-        view: false
+        view: false,
       },
       employees: {
         view: false,
@@ -965,20 +961,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: false,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: false
+        exports: false,
       },
       integration_exports: {
-        exports: false
+        exports: false,
       },
       payments: {
         view: false,
@@ -989,32 +985,32 @@ export class PermissionsService {
         export: false,
         export_accounting: false,
         audit: false,
-        view_advances: false
+        view_advances: false,
       },
       transcription: {
         view: true,
         add: true,
         edit: true,
-        delete: true
+        delete: true,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     travel_admin: {
       expenses: {
@@ -1032,7 +1028,7 @@ export class PermissionsService {
         super_edit: false,
         verify: false,
         export: false,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -1054,7 +1050,7 @@ export class PermissionsService {
         round_off_amount: false,
         add_approver: false,
         audit: false,
-        review: false
+        review: false,
       },
       advances: {
         request: false,
@@ -1071,19 +1067,19 @@ export class PermissionsService {
         refund: false,
         add_approver: false,
         audit: false,
-        view_requests: false
+        view_requests: false,
       },
       ccc: {
         upload: false,
         match: false,
         assign: false,
         export: false,
-        delete: false
+        delete: false,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: false,
@@ -1104,27 +1100,27 @@ export class PermissionsService {
         reject_cancellation: false,
         assign: true,
         create_expense: true,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: true,
         assign: true,
         book: true,
         cancel: true,
-        ask_questions: true
+        ask_questions: true,
       },
       hotel: {
         view: true,
         assign: true,
         book: true,
         cancel: true,
-        ask_questions: true
+        ask_questions: true,
       },
       mis_reporting: {
-        view: false
+        view: false,
       },
       analytics: {
-        view: false
+        view: false,
       },
       employees: {
         view: false,
@@ -1132,20 +1128,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: false,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: false
+        exports: false,
       },
       integration_exports: {
-        exports: false
+        exports: false,
       },
       payments: {
         view: false,
@@ -1156,32 +1152,32 @@ export class PermissionsService {
         export: false,
         export_accounting: false,
         audit: false,
-        view_advances: false
+        view_advances: false,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     travel_agent: {
       expenses: {
@@ -1199,7 +1195,7 @@ export class PermissionsService {
         super_edit: false,
         verify: false,
         export: false,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -1221,7 +1217,7 @@ export class PermissionsService {
         round_off_amount: false,
         add_approver: false,
         audit: false,
-        review: false
+        review: false,
       },
       advances: {
         request: false,
@@ -1238,19 +1234,19 @@ export class PermissionsService {
         refund: false,
         add_approver: false,
         audit: false,
-        view_requests: false
+        view_requests: false,
       },
       ccc: {
         upload: false,
         match: false,
         assign: false,
         export: false,
-        delete: false
+        delete: false,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: false,
@@ -1271,27 +1267,27 @@ export class PermissionsService {
         reject_cancellation: false,
         assign: true,
         create_expense: true,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: true,
         assign: true,
         book: true,
         cancel: true,
-        ask_questions: true
+        ask_questions: true,
       },
       hotel: {
         view: true,
         assign: true,
         book: true,
         cancel: true,
-        ask_questions: true
+        ask_questions: true,
       },
       mis_reporting: {
-        view: false
+        view: false,
       },
       analytics: {
-        view: false
+        view: false,
       },
       employees: {
         view: false,
@@ -1299,20 +1295,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: false,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: false
+        exports: false,
       },
       integration_exports: {
-        exports: false
+        exports: false,
       },
       payments: {
         view: false,
@@ -1323,32 +1319,32 @@ export class PermissionsService {
         export: false,
         export_accounting: false,
         audit: false,
-        view_advances: false
+        view_advances: false,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     verifier: {
       expenses: {
@@ -1366,7 +1362,7 @@ export class PermissionsService {
         super_edit: true,
         verify: true,
         export: false,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -1388,7 +1384,7 @@ export class PermissionsService {
         round_off_amount: true,
         add_approver: false,
         audit: false,
-        review: true
+        review: true,
       },
       advances: {
         request: false,
@@ -1405,19 +1401,19 @@ export class PermissionsService {
         refund: false,
         add_approver: false,
         audit: false,
-        view_requests: false
+        view_requests: false,
       },
       ccc: {
         upload: false,
         match: false,
         assign: false,
         export: false,
-        delete: false
+        delete: false,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: false,
@@ -1438,27 +1434,27 @@ export class PermissionsService {
         reject_cancellation: false,
         assign: false,
         create_expense: false,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       hotel: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       mis_reporting: {
-        view: false
+        view: false,
       },
       analytics: {
-        view: false
+        view: false,
       },
       employees: {
         view: false,
@@ -1466,20 +1462,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: false,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: false
+        exports: false,
       },
       integration_exports: {
-        exports: false
+        exports: false,
       },
       payments: {
         view: false,
@@ -1490,32 +1486,32 @@ export class PermissionsService {
         export: false,
         export_accounting: false,
         audit: false,
-        view_advances: false
+        view_advances: false,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     payment_processor: {
       expenses: {
@@ -1533,7 +1529,7 @@ export class PermissionsService {
         super_edit: false,
         verify: false,
         export: false,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -1555,7 +1551,7 @@ export class PermissionsService {
         round_off_amount: true,
         add_approver: false,
         audit: false,
-        review: true
+        review: true,
       },
       advances: {
         request: false,
@@ -1572,19 +1568,19 @@ export class PermissionsService {
         refund: true,
         add_approver: false,
         audit: false,
-        view_requests: false
+        view_requests: false,
       },
       ccc: {
         upload: false,
         match: false,
         assign: false,
         export: false,
-        delete: false
+        delete: false,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: false,
@@ -1605,27 +1601,27 @@ export class PermissionsService {
         reject_cancellation: false,
         assign: false,
         create_expense: false,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: true,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       hotel: {
         view: true,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       mis_reporting: {
-        view: false
+        view: false,
       },
       analytics: {
-        view: false
+        view: false,
       },
       employees: {
         view: false,
@@ -1633,20 +1629,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: false,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: false
+        exports: false,
       },
       integration_exports: {
-        exports: false
+        exports: false,
       },
       payments: {
         view: true,
@@ -1657,32 +1653,32 @@ export class PermissionsService {
         export: true,
         export_accounting: true,
         audit: false,
-        view_advances: true
+        view_advances: true,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     auditor: {
       expenses: {
@@ -1700,7 +1696,7 @@ export class PermissionsService {
         super_edit: false,
         verify: false,
         export: true,
-        audit: true
+        audit: true,
       },
       reports: {
         delete: false,
@@ -1722,7 +1718,7 @@ export class PermissionsService {
         round_off_amount: false,
         add_approver: false,
         audit: true,
-        review: false
+        review: false,
       },
       advances: {
         request: false,
@@ -1739,19 +1735,19 @@ export class PermissionsService {
         refund: false,
         add_approver: false,
         audit: true,
-        view_requests: false
+        view_requests: false,
       },
       ccc: {
         upload: false,
         match: false,
         assign: false,
         export: false,
-        delete: false
+        delete: false,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: false,
@@ -1772,27 +1768,27 @@ export class PermissionsService {
         reject_cancellation: false,
         assign: false,
         create_expense: false,
-        audit: true
+        audit: true,
       },
       transportation: {
         view: true,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       hotel: {
         view: true,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       mis_reporting: {
-        view: false
+        view: false,
       },
       analytics: {
-        view: false
+        view: false,
       },
       employees: {
         view: false,
@@ -1800,20 +1796,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: false,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: false
+        exports: false,
       },
       integration_exports: {
-        exports: false
+        exports: false,
       },
       payments: {
         view: true,
@@ -1824,32 +1820,32 @@ export class PermissionsService {
         export: true,
         export_accounting: false,
         audit: true,
-        view_advances: true
+        view_advances: true,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     hod: {
       expenses: {
@@ -1867,7 +1863,7 @@ export class PermissionsService {
         super_edit: true,
         verify: false,
         export: false,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -1889,7 +1885,7 @@ export class PermissionsService {
         round_off_amount: false,
         add_approver: true,
         audit: false,
-        review: false
+        review: false,
       },
       advances: {
         request: false,
@@ -1906,19 +1902,19 @@ export class PermissionsService {
         refund: false,
         add_approver: true,
         audit: false,
-        view_requests: true
+        view_requests: true,
       },
       ccc: {
         upload: false,
         match: false,
         assign: false,
         export: false,
-        delete: false
+        delete: false,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: true,
@@ -1939,28 +1935,28 @@ export class PermissionsService {
         reject_cancellation: false,
         assign: false,
         create_expense: false,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       hotel: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       mis_reporting: {
-        view: false
+        view: false,
       },
       analytics: {
         view: false,
-        team: true
+        team: true,
       },
       employees: {
         view: false,
@@ -1968,20 +1964,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: true,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: false
+        exports: false,
       },
       integration_exports: {
-        exports: false
+        exports: false,
       },
       payments: {
         view: false,
@@ -1992,32 +1988,32 @@ export class PermissionsService {
         export: false,
         export_accounting: false,
         audit: false,
-        view_advances: false
+        view_advances: false,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: false
-      }
+        view: false,
+      },
     },
     hop: {
       expenses: {
@@ -2035,7 +2031,7 @@ export class PermissionsService {
         super_edit: true,
         verify: false,
         export: false,
-        audit: false
+        audit: false,
       },
       reports: {
         delete: false,
@@ -2057,7 +2053,7 @@ export class PermissionsService {
         round_off_amount: false,
         add_approver: true,
         audit: false,
-        review: false
+        review: false,
       },
       advances: {
         request: false,
@@ -2074,19 +2070,19 @@ export class PermissionsService {
         refund: false,
         add_approver: true,
         audit: false,
-        view_requests: true
+        view_requests: true,
       },
       ccc: {
         upload: false,
         match: false,
         assign: false,
         export: false,
-        delete: false
+        delete: false,
       },
       receipts: {
         upload: false,
         match: false,
-        delete: false
+        delete: false,
       },
       summary: {
         team: true,
@@ -2107,28 +2103,28 @@ export class PermissionsService {
         reject_cancellation: false,
         assign: false,
         create_expense: false,
-        audit: false
+        audit: false,
       },
       transportation: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       hotel: {
         view: false,
         assign: false,
         book: false,
         cancel: false,
-        ask_questions: false
+        ask_questions: false,
       },
       mis_reporting: {
-        view: false
+        view: false,
       },
       analytics: {
         view: false,
-        team: true
+        team: true,
       },
       employees: {
         view: false,
@@ -2136,20 +2132,20 @@ export class PermissionsService {
         edit: false,
         disable: false,
         export: false,
-        invite: false
+        invite: false,
       },
       settings: {
         view: false,
         edit: false,
         create_org: false,
         policy_rules: true,
-        accounting: false
+        accounting: false,
       },
       accounting: {
-        exports: false
+        exports: false,
       },
       integration_exports: {
-        exports: false
+        exports: false,
       },
       payments: {
         view: false,
@@ -2160,43 +2156,45 @@ export class PermissionsService {
         export: false,
         export_accounting: false,
         audit: false,
-        view_advances: false
+        view_advances: false,
       },
       transcription: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       personal_cards: {
         view: false,
         upload: false,
-        match: false
+        match: false,
       },
       vendors: {
         view: false,
         add: false,
         edit: false,
-        delete: false
+        delete: false,
       },
       bulk_upload: {
         category: false,
-        cost_center: false
+        cost_center: false,
       },
       recurrences: {
-        view: false
-      }
-    }
+        view: false,
+      },
+    },
   };
+
+  constructor(private authService: AuthService) {}
 
   allowedActions(resource, actions, orgSettings) {
     const roles$ = this.authService.getRoles();
     const allowedActions: any = {
-      allowedRouteAccess: false
+      allowedRouteAccess: false,
     };
 
     const filteredRoles$ = roles$.pipe(
-      map(roles => {
+      map((roles) => {
         if (roles.indexOf('SUPER_ADMIN') > -1) {
           roles.splice(roles.indexOf('SUPER_ADMIN'), 1);
         }
@@ -2206,42 +2204,39 @@ export class PermissionsService {
     );
 
     const allowedActions$ = filteredRoles$.pipe(
-      map(
-        filteredRoles => {
-          if (this.allowedAccess(resource, orgSettings)) {
-            for (const currentRole of filteredRoles) {
-              const role = currentRole.toLowerCase();
-              for (const action of actions) {
-                if (!allowedActions.hasOwnProperty(action) || !allowedActions[action]) {
-                  allowedActions[action] = this.roleActionMap[role][resource][action];
-                  if (allowedActions[action]) {
-                    allowedActions.allowedRouteAccess = true;
-                  }
-                }
-              }
-            }
-          }
-          return allowedActions;
-        }
-      ),
-      switchMap(
-        currentAllowedActions => {
-          if (currentAllowedActions.allowedRouteAccess) {
-            return of(currentAllowedActions);
-          } else {
-            return throwError('no route access');
+      map((filteredRoles) => {
+        if (this.allowedAccess(resource, orgSettings)) {
+          for (const currentRole of filteredRoles) {
+            const role = currentRole.toLowerCase();
+            this.setAllowedActions(actions, allowedActions, role, resource);
           }
         }
-      )
+        return allowedActions;
+      }),
+      switchMap((currentAllowedActions) => {
+        if (currentAllowedActions.allowedRouteAccess) {
+          return of(currentAllowedActions);
+        } else {
+          return throwError('no route access');
+        }
+      })
     );
 
     return filteredRoles$.pipe(
-      switchMap(filteredRoles => {
-        return iif(() => filteredRoles.length > 0, allowedActions$, of(null));
-      })
+      switchMap((filteredRoles) => iif(() => filteredRoles.length > 0, allowedActions$, of(null)))
     );
   }
 
+  setAllowedActions(actions: any, allowedActions: any, role: any, resource: any) {
+    for (const action of actions) {
+      if (!allowedActions.hasOwnProperty(action) || !allowedActions[action]) {
+        allowedActions[action] = this.roleActionMap[role][resource][action];
+        if (allowedActions[action]) {
+          allowedActions.allowedRouteAccess = true;
+        }
+      }
+    }
+  }
 
   allowedAccess(resource, orgSettings) {
     let allowed = true;
@@ -2258,21 +2253,27 @@ export class PermissionsService {
   isTravelAdmin() {
     const roles$ = this.authService.getRoles();
     return roles$.pipe(
-      map(roles => (roles.indexOf('TRAVEL_ADMIN') > -1) && (roles.indexOf('ADMIN') === -1) && (roles.indexOf('FINANCE') === -1))
+      map(
+        (roles) =>
+          roles.indexOf('TRAVEL_ADMIN') > -1 && roles.indexOf('ADMIN') === -1 && roles.indexOf('FINANCE') === -1
+      )
     );
   }
 
   isTravelAgent() {
     const roles$ = this.authService.getRoles();
     return roles$.pipe(
-      map(roles => (roles.indexOf('TRAVEL_AGENT') > -1) && (roles.indexOf('ADMIN') === -1) && (roles.indexOf('FINANCE') === -1))
+      map(
+        (roles) =>
+          roles.indexOf('TRAVEL_AGENT') > -1 && roles.indexOf('ADMIN') === -1 && roles.indexOf('FINANCE') === -1
+      )
     );
   }
 
   isAuditor() {
     const roles$ = this.authService.getRoles();
     return roles$.pipe(
-      map(roles => (roles.indexOf('AUDITOR') > -1) && (roles.indexOf('ADMIN') === -1) && (roles.indexOf('FINANCE') === -1))
+      map((roles) => roles.indexOf('AUDITOR') > -1 && roles.indexOf('ADMIN') === -1 && roles.indexOf('FINANCE') === -1)
     );
   }
 }

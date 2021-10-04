@@ -9,18 +9,17 @@ import { finalize } from 'rxjs/operators';
   styleUrls: ['./reject-advance.component.scss'],
 })
 export class RejectAdvanceComponent implements OnInit {
-  rejectReason = '';
-  showReasonError = false;
-  rejectLoading = false;
-
   @Input() areq;
 
-  constructor(
-    private popoverController: PopoverController,
-    private advanceRequestService: AdvanceRequestService
-  ) { }
+  rejectReason = '';
 
-  ngOnInit() { }
+  showReasonError = false;
+
+  rejectLoading = false;
+
+  constructor(private popoverController: PopoverController, private advanceRequestService: AdvanceRequestService) {}
+
+  ngOnInit() {}
 
   cancel() {
     this.popoverController.dismiss();
@@ -29,24 +28,24 @@ export class RejectAdvanceComponent implements OnInit {
   reject(event) {
     this.showReasonError = false;
     if (this.rejectReason.trim().length > 0) {
-
       this.rejectLoading = true;
       const status = {
-        comment: this.rejectReason
+        comment: this.rejectReason,
       };
 
       const statusPayload = {
         status,
-        notify: false
+        notify: false,
       };
 
-      this.advanceRequestService.reject(this.areq.areq_id, statusPayload).pipe(
-        finalize(() => this.rejectLoading = false)
-      ).subscribe(_ => {
-        this.popoverController.dismiss({
-          goBack: true
+      this.advanceRequestService
+        .reject(this.areq.areq_id, statusPayload)
+        .pipe(finalize(() => (this.rejectLoading = false)))
+        .subscribe((_) => {
+          this.popoverController.dismiss({
+            goBack: true,
+          });
         });
-      });
     } else {
       this.showReasonError = true;
     }

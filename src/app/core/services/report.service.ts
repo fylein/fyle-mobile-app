@@ -1,27 +1,27 @@
-import {Injectable} from '@angular/core';
-import {ApiService} from './api.service';
-import {NetworkService} from './network.service';
-import {StorageService} from './storage.service';
-import {concatMap, map, reduce, shareReplay, switchMap, tap} from 'rxjs/operators';
-import {from, of, range, Subject} from 'rxjs';
-import {AuthService} from './auth.service';
-import {ApiV2Service} from './api-v2.service';
-import {DateService} from './date.service';
-import {ExtendedReport} from '../models/report.model';
-import {OfflineService} from 'src/app/core/services/offline.service';
-import {isEqual} from 'lodash';
-import {DataTransformService} from './data-transform.service';
-import {Cacheable, CacheBuster} from 'ts-cacheable';
-import {TransactionService} from './transaction.service';
-import {StatsResponse} from "../models/v2/stats-response.model";
+import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
+import { NetworkService } from './network.service';
+import { StorageService } from './storage.service';
+import { concatMap, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { from, of, range, Subject } from 'rxjs';
+import { AuthService } from './auth.service';
+import { ApiV2Service } from './api-v2.service';
+import { DateService } from './date.service';
+import { ExtendedReport } from '../models/report.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { isEqual } from 'lodash';
+import { DataTransformService } from './data-transform.service';
+import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { TransactionService } from './transaction.service';
+import { StatsResponse } from '../models/v2/stats-response.model';
+import { UserEventService } from './user-event.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ReportService {
-
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
@@ -29,51 +29,222 @@ export class ReportService {
     private authService: AuthService,
     private apiv2Service: ApiV2Service,
     private dateService: DateService,
-    private offlineService: OfflineService,
     private dataTransformService: DataTransformService,
-    private transactionService: TransactionService
-  ) { }
+    private transactionService: TransactionService,
+    private userEventService: UserEventService
+  ) {
+    reportsCacheBuster$.subscribe(() => {
+      this.userEventService.clearTaskCache();
+    });
+  }
 
   @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
+    cacheBusterNotifier: reportsCacheBuster$,
   })
   clearCache() {
     return of(null);
   }
 
   @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
+    cacheBusterNotifier: reportsCacheBuster$,
   })
   clearTransactionCache() {
     return this.transactionService.clearCache();
   }
 
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$,
+  })
+  getMyReportsCount(queryParams = {}) {
+    return this.getMyReports({
+      offset: 0,
+      limit: 1,
+      queryParams,
+    }).pipe(map((res) => res.count));
+  }
+
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$,
+  })
+  getPaginatedERptc(offset, limit, params) {
+    const data = {
+      params: {
+        offset,
+        limit,
+      },
+    };
+
+    Object.keys(params).forEach((param) => {
+      data.params[param] = params[param];
+    });
+
+    return this.apiService
+      .get('/erpts', data)
+      .pipe(map((erptcs) => erptcs.map((erptc) => this.dataTransformService.unflatten(erptc))));
+  }
+
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$,
+  })
+  getERpt(rptId) {
+    return this.apiService.get('/erpts/' + rptId).pipe(
+      map((data) => {
+        const erpt = this.dataTransformService.unflatten(data);
+        this.dateService.fixDates(erpt.rp);
+        if (erpt && erpt.rp && erpt.rp.created_at) {
+          erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
+        }
+        return erpt;
+      })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  addTransactions(rptId, txnIds) {
+    return this.apiService
+      .post('/reports/' + rptId + '/txns', {
+        ids: txnIds,
+      })
+      .pipe(
+        tap(() => {
+          this.clearTransactionCache();
+        })
+      );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  createDraft(report) {
+    return this.apiService
+      .post('/reports', report)
+      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  create(report, txnIds) {
+    return this.createDraft(report).pipe(
+      switchMap((newReport) =>
+        this.apiService
+          .post('/reports/' + newReport.id + '/txns', { ids: txnIds })
+          .pipe(switchMap((res) => this.submit(newReport.id).pipe(map(() => newReport))))
+      )
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  removeTransaction(rptId, txnId, comment?) {
+    const aspy = {
+      status: {
+        comment,
+      },
+    };
+    return this.apiService
+      .post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy)
+      .pipe(tap(() => this.clearTransactionCache()));
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  submit(rptId) {
+    return this.apiService
+      .post('/reports/' + rptId + '/submit')
+      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  resubmit(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/resubmit');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  inquire(rptId, addStatusPayload) {
+    return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  approve(rptId) {
+    return this.apiService.post('/reports/' + rptId + '/approve');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  addApprover(rptId, approverEmail, comment) {
+    const data = {
+      approver_email: approverEmail,
+      comment,
+    };
+    return this.apiService.post('/reports/' + rptId + '/approvals', data);
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  removeApprover(rptId, approvalId) {
+    return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  updateReportDetails(erpt) {
+    const reportData = this.dataTransformService.unflatten(erpt);
+    return this.apiService
+      .post('/reports', reportData.rp)
+      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+  }
+
   getUserReportParams(state: string) {
     const stateMap = {
       draft: {
-        state: ['DRAFT', 'DRAFT_INQUIRY']
+        state: ['DRAFT', 'DRAFT_INQUIRY'],
       },
       pending: {
-        state: ['APPROVER_PENDING']
+        state: ['APPROVER_PENDING'],
       },
       inquiry: {
-        state: ['APPROVER_INQUIRY']
+        state: ['APPROVER_INQUIRY'],
       },
       approved: {
-        state: ['APPROVED']
+        state: ['APPROVED'],
       },
       payment_queue: {
-        state: ['PAYMENT_PENDING']
+        state: ['PAYMENT_PENDING'],
       },
       paid: {
-        state: ['PAID']
+        state: ['PAID'],
       },
       edit: {
-        state: ['DRAFT', 'APPROVER_PENDING']
+        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
       },
       all: {
-        state: ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVED', 'APPROVER_PENDING', 'APPROVER_INQUIRY', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID', 'REJECTED']
-      }
+        state: [
+          'DRAFT',
+          'DRAFT_INQUIRY',
+          'COMPLETE',
+          'APPROVED',
+          'APPROVER_PENDING',
+          'APPROVER_INQUIRY',
+          'PAYMENT_PENDING',
+          'PAYMENT_PROCESSING',
+          'PAID',
+          'REJECTED',
+        ],
+      },
     };
 
     return stateMap[state];
@@ -85,62 +256,52 @@ export class ReportService {
 
   getPaginatedERptcCount(params) {
     return this.networkService.isOnline().pipe(
-      switchMap(
-        isOnline => {
-          if (isOnline) {
-            return this.apiService.get('/erpts/count', { params }).pipe(
-              tap((res) => {
-                this.storageService.set('erpts-count' + JSON.stringify(params), res);
-              })
-            );
-          } else {
-            return from(this.storageService.get('erpts-count' + JSON.stringify(params)));
-          }
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.apiService.get('/erpts/count', { params }).pipe(
+            tap((res) => {
+              this.storageService.set('erpts-count' + JSON.stringify(params), res);
+            })
+          );
+        } else {
+          return from(this.storageService.get('erpts-count' + JSON.stringify(params)));
         }
-      )
+      })
     );
   }
 
-  @Cacheable({
-    cacheBusterObserver: reportsCacheBuster$
-  })
-  getMyReportsCount(queryParams = {}) {
-    return this.getMyReports({
+  getMyReports(
+    config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
       offset: 0,
-      limit: 1,
-      queryParams
-    }).pipe(
-      map(res => res.count)
-    );
-  }
-
-  getMyReports(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
+      limit: 10,
+      queryParams: {},
+    }
+  ) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiv2Service.get('/reports', {
+      switchMap((eou) =>
+        this.apiv2Service.get('/reports', {
           params: {
             offset: config.offset,
             limit: config.limit,
             order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
             rp_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams
+            ...config.queryParams,
+          },
+        })
+      ),
+      map(
+        (res) =>
+          res as {
+            count: number;
+            data: ExtendedReport[];
+            limit: number;
+            offset: number;
+            url: string;
           }
-        });
-      }),
-      map(res => res as {
-        count: number,
-        data: ExtendedReport[],
-        limit: number,
-        offset: number,
-        url: string
-      }),
-      map(res => ({
+      ),
+      map((res) => ({
         ...res,
-        data: res.data.map(datum => this.dateService.fixDates(datum))
+        data: res.data.map((datum) => this.dateService.fixDates(datum)),
       }))
     );
   }
@@ -149,40 +310,42 @@ export class ReportService {
     return this.getTeamReports({
       offset: 0,
       limit: 1,
-      queryParams
-    }).pipe(
-      map(res => res.count)
-    );
+      queryParams,
+    }).pipe(map((res) => res.count));
   }
 
-  getTeamReports(config: Partial<{ offset: number, limit: number, order: string, queryParams: any }> = {
-    offset: 0,
-    limit: 10,
-    queryParams: {}
-  }) {
-
+  getTeamReports(
+    config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
+      offset: 0,
+      limit: 10,
+      queryParams: {},
+    }
+  ) {
     return from(this.authService.getEou()).pipe(
-      switchMap(eou => {
-        return this.apiv2Service.get('/reports', {
+      switchMap((eou) =>
+        this.apiv2Service.get('/reports', {
           params: {
             offset: config.offset,
             limit: config.limit,
             approved_by: 'cs.{' + eou.ou.id + '}',
             order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
-            ...config.queryParams
+            ...config.queryParams,
+          },
+        })
+      ),
+      map(
+        (res) =>
+          res as {
+            count: number;
+            data: ExtendedReport[];
+            limit: number;
+            offset: number;
+            url: string;
           }
-        });
-      }),
-      map(res => res as {
-        count: number,
-        data: ExtendedReport[],
-        limit: number,
-        offset: number,
-        url: string
-      }),
-      map(res => ({
+      ),
+      map((res) => ({
         ...res,
-        data: res.data.map(datum => this.dateService.fixDates(datum))
+        data: res.data.map((datum) => this.dateService.fixDates(datum)),
       }))
     );
   }
@@ -192,13 +355,9 @@ export class ReportService {
       offset: 0,
       limit: 1,
       queryParams: {
-        rp_id: `eq.${id}`
-      }
-    }).pipe(
-      map(
-        res => res.data[0]
-      )
-    );
+        rp_id: `eq.${id}`,
+      },
+    }).pipe(map((res) => res.data[0]));
   }
 
   getTeamReport(id: string) {
@@ -206,13 +365,9 @@ export class ReportService {
       offset: 0,
       limit: 1,
       queryParams: {
-        rp_id: `eq.${id}`
-      }
-    }).pipe(
-      map(
-        res => res.data[0]
-      )
-    );
+        rp_id: `eq.${id}`,
+      },
+    }).pipe(map((res) => res.data[0]));
   }
 
   actions(rptId: string) {
@@ -228,62 +383,51 @@ export class ReportService {
   }
 
   delete(rptId) {
-    return this.apiService.delete('/reports/' + rptId).pipe(
-     switchMap((res) => {
-       return this.clearTransactionCache().pipe(
-         map(() => {
-           return res;
-         })
-       );
-     })
-    );
+    return this.apiService
+      .delete('/reports/' + rptId)
+      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
   }
 
-  downloadSummaryPdfUrl(data: { report_ids: string[], email: string }) {
+  downloadSummaryPdfUrl(data: { report_ids: string[]; email: string }) {
     return this.apiService.post('/reports/summary/download', data);
   }
 
-
-  getAllExtendedReports(config: Partial<{ order: string, queryParams: any }>) {
+  getAllExtendedReports(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyReportsCount(config.queryParams).pipe(
-      switchMap(count => {
+      switchMap((count) => {
         count = count > 50 ? count / 50 : 1;
         return range(0, count);
       }),
-      concatMap(page => {
-        return this.getMyReports({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order });
-      }),
-      map(res => res.data),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [] as ExtendedReport[])
+      concatMap((page) =>
+        this.getMyReports({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })
+      ),
+      map((res) => res.data),
+      reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
     );
   }
 
   getAllOpenReportsCount() {
     return this.getMyReportsCount({
-      rp_state: 'in.(DRAFT,APPROVER_PENDING)'
-    }).pipe(
-      shareReplay(1)
-    );
+      rp_state: 'in.(DRAFT,APPROVER_PENDING)',
+    }).pipe(shareReplay(1));
   }
 
-  getAllTeamExtendedReports(config: Partial<{ order: string, queryParams: any }> = {
-    order: '',
-    queryParams: {}
-  }) {
+  getAllTeamExtendedReports(
+    config: Partial<{ order: string; queryParams: any }> = {
+      order: '',
+      queryParams: {},
+    }
+  ) {
     return this.getTeamReportsCount().pipe(
-      switchMap(count => {
+      switchMap((count) => {
         count = count > 50 ? count / 50 : 1;
         return range(0, count);
       }),
-      concatMap(page => {
-        return this.getTeamReports({ offset: 50 * page, limit: 50, ...config.queryParams, order: config.order });
-      }),
-      map(res => res.data),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [] as ExtendedReport[])
+      concatMap((page) =>
+        this.getTeamReports({ offset: 50 * page, limit: 50, ...config.queryParams, order: config.order })
+      ),
+      map((res) => res.data),
+      reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
     );
   }
 
@@ -305,7 +449,6 @@ export class ReportService {
   }
 
   userReportsSearchParamsGenerator(params, search) {
-
     const searchParams = this.getUserReportParams(search.state);
 
     let dateParams = null;
@@ -330,57 +473,15 @@ export class ReportService {
       }
 
       dateParams = {
-        created_at: ['gte:' + (new Date(fromDate)).toISOString(), 'lte:' + (new Date(toDate)).toISOString()]
+        created_at: ['gte:' + new Date(fromDate).toISOString(), 'lte:' + new Date(toDate).toISOString()],
       };
     }
 
     return Object.assign({}, params, searchParams, dateParams);
   }
 
-  @Cacheable({
-    cacheBusterObserver: reportsCacheBuster$
-  })
-  getPaginatedERptc(offset, limit, params) {
-    const data = {
-      params: {
-        offset,
-        limit
-      }
-    };
-
-    Object.keys(params).forEach((param) => {
-      data.params[param] = params[param];
-    });
-
-    return this.apiService.get('/erpts', data).pipe(
-      map((erptcs) => {
-        return erptcs.map(erptc => this.dataTransformService.unflatten(erptc));
-      })
-    );
-  }
-
   getReportPurpose(reportPurpose) {
-    return this.apiService.post('/reports/purpose', reportPurpose).pipe(
-      map(res => {
-        return res.purpose;
-      })
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: reportsCacheBuster$
-  })
-  getERpt(rptId) {
-    return this.apiService.get('/erpts/' + rptId).pipe(
-      map(data => {
-        const erpt = this.dataTransformService.unflatten(data);
-        this.dateService.fixDates(erpt.rp);
-        if (erpt && erpt.rp && erpt.rp.created_at) {
-          erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
-        }
-        return erpt;
-      })
-    );
+    return this.apiService.post('/reports/purpose', reportPurpose).pipe(map((res) => res.purpose));
   }
 
   getApproversInBulk(rptIds) {
@@ -388,16 +489,10 @@ export class ReportService {
       return of([]);
     }
     const count = rptIds.length > 50 ? rptIds.length / 50 : 1;
-    return range(0,  count).pipe(
-      map(page => {
-        return rptIds.slice((page) * 50, (page + 1) * 50);
-      }),
-      concatMap(rptIds => {
-        return this.apiService.get('/reports/approvers', { params: {report_ids: rptIds} });
-      }),
-      reduce((acc, curr) => {
-        return acc.concat(curr);
-      }, [])
+    return range(0, count).pipe(
+      map((page) => rptIds.slice(page * 50, (page + 1) * 50)),
+      concatMap((rptIds) => this.apiService.get('/reports/approvers', { params: { report_ids: rptIds } })),
+      reduce((acc, curr) => acc.concat(curr), [])
     );
   }
 
@@ -418,152 +513,47 @@ export class ReportService {
     });
   }
 
+  getReportStatsData(params) {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) =>
+        this.apiv2Service.get('/reports/stats', {
+          params: {
+            rp_org_user_id: `eq.${eou.ou.id}`,
+            ...params,
+          },
+        })
+      ),
+      map((rawStatsResponse) => rawStatsResponse.data)
+    );
+  }
+
   getFilteredPendingReports(searchParams) {
     const params = this.searchParamsGenerator(searchParams);
 
     return this.getPaginatedERptcCount(params).pipe(
-      switchMap((results) => {
+      switchMap((results) =>
         // getting all results -> offset = 0, limit = count
-        return this.getPaginatedERptc(0, results.count, params);
-      }),
+        this.getPaginatedERptc(0, results.count, params)
+      ),
       switchMap((erpts) => {
-        const rptIds = erpts.map((erpt) => {
-          return erpt.rp.id;
-        });
+        const rptIds = erpts.map((erpt) => erpt.rp.id);
 
         return this.getApproversInBulk(rptIds).pipe(
-          map(approvals => {
-            return this.addApprovers(erpts, approvals).filter(erpt => {
-              return !erpt.rp.approvals || (erpt.rp.approvals && !erpt.rp.approvals.some((approval) => {
-                return approval.state === 'APPROVAL_DONE';
-              }));
-            });
-          })
-        );
-      }),
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  addTransactions(rptId, txnIds) {
-    return this.apiService.post('/reports/' + rptId + '/txns', {
-      ids: txnIds
-    }).pipe(
-      tap(() => {
-        this.clearTransactionCache();
-      })
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  createDraft(report) {
-    return this.apiService.post('/reports', report).pipe(
-      switchMap((res) => {
-        return this.clearTransactionCache().pipe(
-          map(() => {
-            return res;
-          })
-        );
-      })
-    )
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  create(report, txnIds) {
-    return this.createDraft(report).pipe(
-      switchMap(newReport => {
-        return this.apiService.post('/reports/' + newReport.id + '/txns', { ids: txnIds }).pipe(
-          switchMap(res => {
-            return this.submit(newReport.id);
-          })
+          map((approvals) =>
+            this.addApprovers(erpts, approvals).filter(
+              (erpt) =>
+                !erpt.rp.approvals ||
+                (erpt.rp.approvals && !erpt.rp.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
+            )
+          )
         );
       })
     );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  removeTransaction(rptId, txnId, comment?) {
-    const aspy = {
-      status: {
-        comment
-      }
-    };
-    return this.apiService.post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy).pipe(
-      switchMap((res) => {
-        return this.clearTransactionCache().pipe(
-          map(() => {
-            return res;
-          })
-        );
-      })
-    );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  submit(rptId) {
-    return this.apiService.post('/reports/' + rptId + '/submit').pipe(
-      switchMap((res) => {
-        return this.clearTransactionCache().pipe(
-          map(() => {
-            return res;
-          })
-        );
-      })
-    )
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  resubmit(rptId) {
-    return this.apiService.post('/reports/' + rptId + '/resubmit');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  inquire(rptId, addStatusPayload) {
-    return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  approve(rptId) {
-    return this.apiService.post('/reports/' + rptId + '/approve');
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  addApprover(rptId, approverEmail, comment) {
-    const data = {
-      approver_email: approverEmail,
-      comment
-    };
-    return this.apiService.post('/reports/' + rptId + '/approvals', data);
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$
-  })
-  removeApprover(rptId, approvalId) {
-    return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
   }
 
   getReportETxnc(rptId, orgUserId) {
     const data: any = {
-      params: {}
+      params: {},
     };
 
     if (orgUserId) {
@@ -575,15 +565,15 @@ export class ReportService {
 
   getReportStats(params) {
     return from(this.authService.getEou()).pipe(
-        switchMap(eou => {
-          return this.apiv2Service.get('/reports/stats', {
-            params: {
-              rp_org_user_id: `eq.${eou.ou.id}`,
-              ...params
-            }
-          });
-        }),
-        map(rawStatsResponse => new StatsResponse(rawStatsResponse))
+      switchMap((eou) =>
+        this.apiv2Service.get('/reports/stats', {
+          params: {
+            rp_org_user_id: `eq.${eou.ou.id}`,
+            ...params,
+          },
+        })
+      ),
+      map((rawStatsResponse) => new StatsResponse(rawStatsResponse))
     );
   }
 }

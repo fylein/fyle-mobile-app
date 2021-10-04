@@ -13,7 +13,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 
 @NgModule({
@@ -30,15 +29,14 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
-    SharedModule
+    SharedModule,
   ],
   declarations: [
     AddEditPerDiemPage,
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
-    CriticalPolicyViolationComponent,
-    PolicyViolationComponent
-  ]
+    PolicyViolationComponent,
+  ],
 })
 export class AddEditPerDiemPageModule {}

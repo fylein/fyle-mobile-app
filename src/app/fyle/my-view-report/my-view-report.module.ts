@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { SubmitReportPopoverComponent } from './submit-report-popover/submit-report-popover.component';
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
+import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 
 @NgModule({
   imports: [
@@ -29,14 +30,15 @@ import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubm
     MatButtonModule,
     MatRippleModule,
     MatInputModule,
-    MatFormFieldModule
+    MatFormFieldModule,
   ],
   declarations: [
     MyViewReportPage,
     MyViewReportEtxnCardComponent,
     ShareReportComponent,
     SubmitReportPopoverComponent,
-    ResubmitReportPopoverComponent
-  ]
+    ResubmitReportPopoverComponent,
+    EditReportNamePopoverComponent,
+  ],
 })
-export class MyViewReportPageModule { }
+export class MyViewReportPageModule {}

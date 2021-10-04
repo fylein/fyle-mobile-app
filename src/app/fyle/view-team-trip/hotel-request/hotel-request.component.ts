@@ -7,19 +7,13 @@ import { ModalController } from '@ionic/angular';
   styleUrls: ['./hotel-request.component.scss'],
 })
 export class HotelRequestComponent implements OnInit {
-
   @Input() hotelRequests: any[];
 
-  constructor(
-    private modalController: ModalController
-  ) { }
+  constructor(private modalController: ModalController) {}
 
   closeModal() {
     this.modalController.dismiss();
   }
 
-  ngOnInit() {
-  }
-
-
+  ngOnInit() {}
 }

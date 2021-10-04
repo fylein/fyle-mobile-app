@@ -9,16 +9,13 @@ import { finalize } from 'rxjs/operators';
   styleUrls: ['./approve-advance.component.scss'],
 })
 export class ApproveAdvanceComponent implements OnInit {
-
   @Input() areq;
+
   approveAdvanceLoading = false;
 
-  constructor(
-    private popoverController: PopoverController,
-    private advanceRequestService: AdvanceRequestService
-  ) { }
+  constructor(private popoverController: PopoverController, private advanceRequestService: AdvanceRequestService) {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   cancel() {
     this.popoverController.dismiss();
@@ -26,12 +23,13 @@ export class ApproveAdvanceComponent implements OnInit {
 
   approveAdvanceAfterReview(event) {
     this.approveAdvanceLoading = true;
-    this.advanceRequestService.approve(this.areq.areq_id).pipe(
-      finalize(() => this.approveAdvanceLoading = false)
-    ).subscribe(_ => {
-      this.popoverController.dismiss({
-        goBack: true
-      })
-    });
+    this.advanceRequestService
+      .approve(this.areq.areq_id)
+      .pipe(finalize(() => (this.approveAdvanceLoading = false)))
+      .subscribe((_) => {
+        this.popoverController.dismiss({
+          goBack: true,
+        });
+      });
   }
 }

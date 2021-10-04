@@ -1,12 +1,23 @@
-import {Component, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, iif, of } from 'rxjs';
-import {ActivatedRoute, Params, Router} from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import {concatMap, switchMap, finalize, map, scan, shareReplay, distinctUntilChanged, tap, debounceTime, takeUntil} from 'rxjs/operators';
+import {
+  concatMap,
+  switchMap,
+  finalize,
+  map,
+  scan,
+  shareReplay,
+  distinctUntilChanged,
+  tap,
+  debounceTime,
+  takeUntil,
+} from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import {ModalController, PopoverController} from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter/my-reports-sort-filter.component';
 import { MyReportsSearchFilterComponent } from './my-reports-search-filter/my-reports-search-filter.component';
 import { DateService } from 'src/app/core/services/date.service';
@@ -14,28 +25,42 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
-import {TrackingService} from '../../core/services/tracking.service';
+import { TrackingService } from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { TasksService } from 'src/app/core/services/tasks.service';
 
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
-  styleUrls: ['./my-reports.page.scss']
+  styleUrls: ['./my-reports.page.scss'],
 })
 export class MyReportsPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   isConnected$: Observable<boolean>;
+
   myReports$: Observable<ExtendedReport[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
-  loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
-  }>>;
+
+  loadData$: BehaviorSubject<
+    Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }>
+  >;
+
   currentPageNumber = 1;
+
   acc = [];
+
   filters: Partial<{
     state: string;
     date: string;
@@ -44,23 +69,30 @@ export class MyReportsPage implements OnInit {
     sortParam: string;
     sortDir: string;
   }>;
+
   homeCurrency$: Observable<string>;
+
   navigateBack = false;
+
   searchText = '';
+
   expensesAmountStats$: Observable<{
-    sum: number,
-    count: number
+    sum: number;
+    count: number;
   }>;
+
+  isLoading = false;
+
+  isLoadingDataInInfiniteScroll: boolean;
 
   onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  reportsTaskCount = 0;
 
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
     private reportService: ReportService,
-    private modalController: ModalController,
     private dateService: DateService,
     private router: Router,
     private currencyService: CurrencyService,
@@ -69,11 +101,11 @@ export class MyReportsPage implements OnInit {
     private transactionService: TransactionService,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
-    private apiV2Service: ApiV2Service
-  ) { }
+    private apiV2Service: ApiV2Service,
+    private tasksService: TasksService
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -87,27 +119,30 @@ export class MyReportsPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.loaderService.showLoader('Loading reports...', 1000);
+    this.tasksService.getReportsTaskCount().subscribe((reportsTaskCount) => {
+      this.reportsTaskCount = reportsTaskCount;
+    });
+
+    this.isLoading = true;
     this.setupNetworkWatcher();
 
     this.searchText = '';
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-    console.log(this.navigateBack);
     this.acc = [];
 
     this.currentPageNumber = 1;
     this.loadData$ = new BehaviorSubject({
-      pageNumber: 1
+      pageNumber: 1,
     });
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event: any) => event.srcElement.value as string),
-        tap(console.log),
         distinctUntilChanged(),
         debounceTime(1000)
-      ).subscribe((searchString) => {
+      )
+      .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
         currentParams.searchString = searchString;
         this.currentPageNumber = 1;
@@ -119,27 +154,31 @@ export class MyReportsPage implements OnInit {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
-        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+        let queryParams = params.queryParams || {
+          rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        };
+        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        this.isLoadingDataInInfiniteScroll = true;
         return this.reportService.getMyReportsCount(queryParams).pipe(
-          switchMap(count => {
-            if (count > ((params.pageNumber - 1) * 10)) {
+          switchMap((count) => {
+            if (count > (params.pageNumber - 1) * 10) {
               return this.reportService.getMyReports({
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
                 queryParams,
-                order: orderByParams
+                order: orderByParams,
               });
             } else {
               return of({
-                data: []
+                data: [],
               });
             }
           })
         );
       }),
-      map(res => {
+      map((res) => {
+        this.isLoadingDataInInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
@@ -148,13 +187,13 @@ export class MyReportsPage implements OnInit {
       })
     );
 
-    this.myReports$ = paginatedPipe.pipe(
-      shareReplay(1)
-    );
+    this.myReports$ = paginatedPipe.pipe(shareReplay(1));
 
     this.count$ = this.loadData$.pipe(
-      switchMap(params => {
-        let queryParams = params.queryParams || { rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)' };
+      switchMap((params) => {
+        let queryParams = params.queryParams || {
+          rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        };
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getMyReportsCount(queryParams);
       }),
@@ -162,46 +201,42 @@ export class MyReportsPage implements OnInit {
     );
 
     const paginatedScroll$ = this.myReports$.pipe(
-      switchMap(erpts => {
-        return this.count$.pipe(
-          map(count => {
-            return count > erpts.length;
-          }));
-      })
+      switchMap((erpts) => this.count$.pipe(map((count) => count > erpts.length)))
     );
 
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(_ => {
-        return paginatedScroll$;
-      })
-    );
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
 
-    this.loadData$.subscribe(params => {
+    this.loadData$.subscribe((params) => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
-        queryParams
+        queryParams,
+        replaceUrl: true,
       });
     });
 
     this.expensesAmountStats$ = this.loadData$.pipe(
-      switchMap(_ => {
-        return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE)',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'
-        }).pipe(
-          map(stats => {
-            const sum = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'sum(tx_amount)');
-            const count = stats &&  stats[0] && stats[0].aggregates.find(stat => stat.function_name === 'count(tx_id)');
-            return {
-              sum: sum && sum.function_value || 0,
-              count: count && count.function_value || 0
-            };
+      switchMap((_) =>
+        this.transactionService
+          .getTransactionStats('count(tx_id),sum(tx_amount)', {
+            scalar: true,
+            tx_report_id: 'is.null',
+            tx_state: 'in.(COMPLETE)',
+            or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
           })
-        );
-      })
+          .pipe(
+            map((stats) => {
+              const sum =
+                stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
+              const count =
+                stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
+              return {
+                sum: (sum && sum.function_value) || 0,
+                count: (count && count.function_value) || 0,
+              };
+            })
+          )
+      )
     );
 
     this.myReports$.subscribe(noop);
@@ -216,7 +251,8 @@ export class MyReportsPage implements OnInit {
     } else if (this.activatedRoute.snapshot.params.state) {
       const filters = {
         rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
-        state: this.activatedRoute.snapshot.params.state.toUpperCase()};
+        state: this.activatedRoute.snapshot.params.state.toUpperCase(),
+      };
 
       this.filters = Object.assign({}, this.filters, filters);
       this.currentPageNumber = 1;
@@ -225,6 +261,10 @@ export class MyReportsPage implements OnInit {
     } else {
       this.clearFilters();
     }
+
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 500);
   }
 
   setupNetworkWatcher() {
@@ -237,7 +277,7 @@ export class MyReportsPage implements OnInit {
 
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     });
   }
@@ -274,21 +314,19 @@ export class MyReportsPage implements OnInit {
         newQueryParams.rp_state =
           'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
       } else {
-        newQueryParams.rp_state =
-          `in.(${this.filters.state})`;
+        newQueryParams.rp_state = `in.(${this.filters.state})`;
       }
     }
 
     if (this.filters.date) {
       if (this.filters.date === 'THISMONTH') {
-        newQueryParams.and =
-          `(rp_created_at.gte.${this.dateService.getThisMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
+        const thisMonth = this.dateService.getThisMonthRange();
+        newQueryParams.and = `(rp_created_at.gte.${thisMonth.from.toISOString()},rp_created_at.lt.${thisMonth.to.toISOString()})`;
       } else if (this.filters.date === 'LASTMONTH') {
-        newQueryParams.and =
-          `(rp_created_at.gte.${this.dateService.getLastMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
+        const lastMonth = this.dateService.getLastMonthRange();
+        newQueryParams.and = `(rp_created_at.gte.${lastMonth.from.toISOString()},rp_created_at.lt.${lastMonth.to.toISOString()})`;
       } else if (this.filters.date === 'CUSTOMDATE') {
-        newQueryParams.and =
-          `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
+        newQueryParams.and = `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
       }
     }
 
@@ -309,9 +347,9 @@ export class MyReportsPage implements OnInit {
     const filterPopover = await this.popoverController.create({
       component: MyReportsSearchFilterComponent,
       componentProps: {
-        filters: this.filters
+        filters: this.filters,
       },
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await filterPopover.present();
@@ -325,14 +363,13 @@ export class MyReportsPage implements OnInit {
     }
   }
 
-
   async openSort() {
     const sortPopover = await this.popoverController.create({
       component: MyReportsSortFilterComponent,
       componentProps: {
-        filters: this.filters
+        filters: this.filters,
       },
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await sortPopover.present();
@@ -357,45 +394,71 @@ export class MyReportsPage implements OnInit {
   }
 
   async onDeleteReportClick(erpt: ExtendedReport) {
-
     if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
-      await this.popupService.showPopup({
-        header: 'Cannot Delete Report',
-        message: `${capitalize(replace(erpt.rp_state, '_', ' '))} report cannot be deleted`,
-        primaryCta: {
-          text: 'CLOSE'
+      const cannotDeleteReportPopOver = await this.popoverController.create({
+        component: PopupAlertComponentComponent,
+        componentProps: {
+          title: 'Cannot Delete Report',
+          message: `${capitalize(replace(erpt.rp_state, '_', ' '))} report cannot be deleted.`,
+          primaryCta: {
+            text: 'Close',
+            action: 'continue',
+          },
         },
-        showCancelButton: false
-      });
-    } else {
-      const popupResults = await this.popupService.showPopup({
-        header: 'Delete Report?',
-        message: `
-          <p class="highlight-info">
-            On deleting this report, all the associated expenses will be moved to <strong>My Expenses</strong> list.
-          </p>
-          <p>
-            Are you sure, you want to delete this report?
-          </p>
-        `,
-        primaryCta: {
-          text: 'Delete'
-        }
+        cssClass: 'pop-up-in-center',
       });
 
-      if (popupResults === 'primary') {
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.delete(erpt.rp_id);
-          }),
-          tap(() => this.trackingService.deleteReport({Asset: 'Mobile'})),
-          finalize(async () => {
-            await this.loaderService.hideLoader();
-            this.doRefresh();
-          })
-        ).subscribe(noop);
+      await cannotDeleteReportPopOver.present();
+    } else {
+      const deleteReportPopover = await this.popoverController.create({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Delete Report',
+          body: 'Are you sure you want to delete this report?',
+          infoMessage: 'Deleting the report will not delete any of the expenses.',
+          deleteMethod: () => this.reportService.delete(erpt.rp_id),
+        },
+      });
+
+      await deleteReportPopover.present();
+      const { data } = await deleteReportPopover.onDidDismiss();
+
+      if (data && data.status === 'success') {
+        from(this.loaderService.showLoader())
+          .pipe(
+            tap(() => this.trackingService.deleteReport()),
+            finalize(async () => {
+              await this.loaderService.hideLoader();
+              this.doRefresh();
+            })
+          )
+          .subscribe(noop);
       }
     }
+  }
+
+  onHomeClicked() {
+    const queryParams: Params = { state: 'home' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onTaskClicked() {
+    const queryParams: Params = { state: 'tasks', tasksFilters: 'reports' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'My Reports',
+    });
+  }
+
+  onCameraClicked() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
   onViewCommentsClick(event) {

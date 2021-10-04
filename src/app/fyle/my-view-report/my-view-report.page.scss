@@ -1,8 +1,10 @@
+@import '../../../theme/colors.scss';
+
 $reported-color: #4798ff;
 $approved-color: #67bc53;
 $paid-color: #64b5a6;
 $fyled-color: #f90;
-$inquiry-color: #4848ad;
+$sent-back-color: #da1e28;
 
 .view-reports {
   &--toolbar {
@@ -72,11 +74,16 @@ $inquiry-color: #4848ad;
   }
 
   &--card-header {
+    display: flex;
     font-size: 16px;
     color: #4a4a4a;
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 8px;
     margin-bottom: 8px;
+
+    &__icon {
+      padding-left: 6px;
+    }
   }
 
   &--card-body {
@@ -97,8 +104,8 @@ $inquiry-color: #4848ad;
     &__fyled {
       color: $fyled-color;
     }
-    &__inquiry {
-      color: $inquiry-color;
+    &_sent_back {
+      color: $sent-back-color;
     }
     &__approved {
       color: $approved-color;
@@ -129,8 +136,8 @@ $inquiry-color: #4848ad;
       background-color: #2196f3;
     }
 
-    &__inquiry {
-      background-color: #7e57c2;
+    &__sent_back {
+      background-color: #da1e28;
     }
 
     &__approved {

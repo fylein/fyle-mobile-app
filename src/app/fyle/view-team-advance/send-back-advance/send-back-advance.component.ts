@@ -1,8 +1,8 @@
-import {Component, OnInit, Input} from '@angular/core';
-import {AdvanceRequestService} from 'src/app/core/services/advance-request.service';
-import {PopoverController} from '@ionic/angular';
-import {finalize} from 'rxjs/operators';
-import {NgModel} from '@angular/forms';
+import { Component, OnInit, Input } from '@angular/core';
+import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { PopoverController } from '@ionic/angular';
+import { finalize } from 'rxjs/operators';
+import { NgModel } from '@angular/forms';
 
 @Component({
   selector: 'app-send-back-advance',
@@ -10,20 +10,15 @@ import {NgModel} from '@angular/forms';
   styleUrls: ['./send-back-advance.component.scss'],
 })
 export class SendBackAdvanceComponent implements OnInit {
-
-  sendBackReason = '';
-  sendBackLoading = false;
-
   @Input() areq;
 
-  constructor(
-    private popoverController: PopoverController,
-    private advanceRequestService: AdvanceRequestService
-  ) {
-  }
+  sendBackReason = '';
 
-  ngOnInit() {
-  }
+  sendBackLoading = false;
+
+  constructor(private popoverController: PopoverController, private advanceRequestService: AdvanceRequestService) {}
+
+  ngOnInit() {}
 
   cancel() {
     this.popoverController.dismiss();
@@ -33,21 +28,22 @@ export class SendBackAdvanceComponent implements OnInit {
     if (sendBackInput.valid) {
       this.sendBackLoading = true;
       const status = {
-        comment: this.sendBackReason
+        comment: this.sendBackReason,
       };
 
       const statusPayload = {
         status,
-        notify: false
+        notify: false,
       };
 
-      this.advanceRequestService.sendBack(this.areq.areq_id, statusPayload).pipe(
-        finalize(() => this.sendBackLoading = false)
-      ).subscribe(() => {
-        this.popoverController.dismiss({
-          goBack: true
+      this.advanceRequestService
+        .sendBack(this.areq.areq_id, statusPayload)
+        .pipe(finalize(() => (this.sendBackLoading = false)))
+        .subscribe(() => {
+          this.popoverController.dismiss({
+            goBack: true,
+          });
         });
-      });
     } else {
       sendBackInput.control.markAsTouched();
     }

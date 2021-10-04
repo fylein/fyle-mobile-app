@@ -1,135 +1,198 @@
 <ion-header class="ion-no-border">
   <div class="split-expense--header">
     <ion-toolbar class="ion-no-border split-expense--header-toolbar">
-      <ion-buttons mode="md" slot="end">
+      <ion-buttons mode="md" slot="start">
         <ion-button class="split-expense--header-closebutton" (click)="goBack()" [disabled]="saveSplitExpenseLoading">
-          <mat-icon>close</mat-icon>
+          <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
         </ion-button>
       </ion-buttons>
 
-      <ion-title class="split-expense--header-title" mode="md">Split Expense</ion-title>
+      <div class="split-expense--header-block">
+        <div class="split-expense--header-title" mode="md">Split by {{ splitType }}</div>
+        <div
+          class="split-expense--header-save text-right"
+          [ngClass]="{'no-pointer-events': saveSplitExpenseLoading}"
+          (click)="save()"
+          appFormButtonValidation
+        >
+          Save
+        </div>
+      </div>
     </ion-toolbar>
   </div>
 </ion-header>
 
+<div class="split-expense--top-bar">
+  <app-fy-alert-info [type]="'warning'" [message]="'Split expense cannot be undone'"></app-fy-alert-info>
+
+  <div class="split-expense--amount-block" *ngIf="amount">
+    <div class="split-expense--amount-block__label">
+      Total:
+      <div class="split-expense--split-amount">{{ currency }} {{totalSplitAmount}}</div>
+    </div>
+    <div class="split-expense--amount-block__label">
+      Remaining:
+      <div class="split-expense--split-amount">{{ currency }} {{ remainingAmount }}</div>
+    </div>
+  </div>
+</div>
+
 <ion-content>
   <div class="split-expense--container">
-
-    <p class="split-expense--message">You are splitting across {{ splitType }}. <span *ngIf="currency && amount">The splits must total upto {{ currency }} {{ amount  }}.</span></p>
-    <p class="split-expense--warning">Splitting an expense cannot be undone</p>
-
-
     <div class="split-expense--card" *ngFor="let splitExpenseForm of splitExpensesFormArray.controls; index as i">
-
       <div class="split-expense--card-header">
-        <p class="split-expense--index">Split {{ i + 1 }}</p>
-        <button type="button" class="split-expense--remove-card-button" *ngIf="splitExpensesFormArray.controls.length > 2" (click)="remove(i)">
-          <mat-icon>close</mat-icon>
-        </button>
+        <p
+          class="split-expense--index"
+          [ngClass]="{'split-expense--remove': splitExpensesFormArray.controls.length > 2}"
+        >
+          SPLIT {{ i + 1 }}
+        </p>
+        <mat-icon
+          class="split-expense--remove-icon"
+          *ngIf="splitExpensesFormArray.controls.length > 2"
+          (click)="remove(i)"
+          svgIcon="fy-delete"
+        ></mat-icon>
       </div>
 
       <ng-container [formGroup]="splitExpenseForm">
-        <div class="split-expense--internal-block" *ngIf="splitType === 'categories'">
-          <div *ngIf="categories$|async as categories">
-            <app-fy-select 
-              [label]="splitExpenseForm.controls.category.value? 'Category' : 'Select Category'"
-              formControlName="category" 
-              [options]="categories"
-              [mandatory]="true"
-              [cacheName]="'splitExpenseCategoryCache'">
-            </app-fy-select>
-          </div>
-        </div>
-
-        <div class="split-expense--internal-block" *ngIf="splitType === 'projects'">
-          <app-fy-select-project 
-            [label]="splitExpenseForm.controls.project.value? 'Project' : 'Select Project'"
-            formControlName="project"
-            [mandatory]="true"
-            [cacheName]="'splitExpenseProjectCache'">
-          </app-fy-select-project>
-        </div>
-
-        <div class="split-expense--internal-block" *ngIf="splitType === 'cost centers'">
-          <div *ngIf="costCenters$|async as costCenters">
-            <app-fy-select 
-              [label]="splitExpenseForm.controls.cost_center.value? 'Cost Centers' : 'Select Cost Centers'"
-              formControlName="cost_center" 
-              [options]="costCenters"
-              [mandatory]="true"
-              [cacheName]="'splitExpenseCostCenterCache'">
-            </app-fy-select>
-          </div>
-        </div>
-
-        <div class="split-expense--item split-expense--date">
-          <div class="split-expense--label split-expense--date-label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid}">Date*</div>
-          <input appFormatDate class="split-expense--input split-expense--date-input date-input__format" type="date" formControlName="txn_dt" [min]="minDate" [max]="maxDate">
-        </div>
-
-        <div class="split-expense--label-invalid" *ngIf="splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid">
-          Please select a valid date
-        </div>
-
         <div class="split-expense--amount-percentage">
           <div class="split-expense--item">
-            <span class="split-expense--label" [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid || (splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async))}">{{currency}}*</span>
-            <input inputmode="decimal" [min]="(isCorporateCardsEnabled$|async) ? null : 0.01" type="number" class="split-expense--input" formControlName="amount" (ngModelChange)="onChangeAmount(splitExpenseForm, i)">
+            <span
+              class="split-expense--label"
+              [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid || (splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async))}"
+              >Amount</span
+            >
+            <span class="split-expense--mandatory">*</span>
+            <input
+              inputmode="decimal"
+              [min]="(isCorporateCardsEnabled$|async) ? null : 0.01"
+              type="number"
+              class="split-expense--input"
+              formControlName="amount"
+              (ngModelChange)="onChangeAmount(splitExpenseForm, i)"
+            />
           </div>
 
-          <div class="split-expense--item">
-            <span class="split-expense--label">%</span>
-            <input inputmode="decimal" type="number" class="split-expense--input" formControlName="percentage" [min]="0.01" (ngModelChange)="onChangePercentage(splitExpenseForm, i)">
+          <div class="split-expense--item split-expense--percentage">
+            <span class="split-expense--label">Percentage</span>
+            <input
+              inputmode="decimal"
+              type="number"
+              class="split-expense--input"
+              formControlName="percentage"
+              [min]="0.01"
+              (ngModelChange)="onChangePercentage(splitExpenseForm, i)"
+            />
           </div>
         </div>
-        
-        <div class="split-expense--label-invalid" *ngIf="splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async)"></div>
+
+        <div class="split-expense--main-block">
+          <div class="split-expense--internal-block" *ngIf="splitType === 'categories'">
+            <div *ngIf="categories$|async as categories">
+              <app-fy-select
+                [label]="'Category'"
+                formControlName="category"
+                [options]="categories"
+                [mandatory]="true"
+                [cacheName]="'splitExpenseCategoryCache'"
+              >
+              </app-fy-select>
+            </div>
+            <div
+              *ngIf="splitExpenseForm.controls.category.touched && !splitExpenseForm.controls.category.valid"
+              class="split-expense--error"
+            >
+              Please select a category.
+            </div>
+          </div>
+
+          <div class="split-expense--internal-block" *ngIf="splitType === 'projects'">
+            <app-fy-select-project
+              [label]="'Project'"
+              formControlName="project"
+              [mandatory]="true"
+              [cacheName]="'splitExpenseProjectCache'"
+            >
+            </app-fy-select-project>
+            <div
+              *ngIf="splitExpenseForm.controls.project.touched && !splitExpenseForm.controls.project.valid"
+              class="split-expense--error"
+            >
+              Please select a project.
+            </div>
+          </div>
+
+          <div class="split-expense--internal-block" *ngIf="splitType === 'cost centers'">
+            <div *ngIf="costCenters$|async as costCenters">
+              <app-fy-select
+                [label]="'Cost Center'"
+                formControlName="cost_center"
+                [options]="costCenters"
+                [mandatory]="true"
+                [cacheName]="'splitExpenseCostCenterCache'"
+              >
+              </app-fy-select>
+            </div>
+            <div
+              *ngIf="splitExpenseForm.controls.cost_center.touched && !splitExpenseForm.controls.cost_center.valid"
+              class="split-expense--error"
+            >
+              Please select a cost center.
+            </div>
+          </div>
+
+          <div class="split-expense--internal-block">
+            <div
+              class="split-expense--item split-expense--date"
+              [ngClass]="{'split-expense--date-invalid': splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid}"
+            >
+              <div class="split-expense--label split-expense--date-label">Date</div>
+              <span class="split-expense--mandatory">*</span>
+              <input
+                appFormatDate
+                class="split-expense--date-input date-input__format"
+                type="date"
+                formControlName="txn_dt"
+                [min]="minDate"
+                [max]="maxDate"
+              />
+            </div>
+            <div
+              class="split-expense--error"
+              *ngIf="splitExpenseForm.controls.txn_dt.touched && !splitExpenseForm.controls.txn_dt.valid"
+            >
+              Please select a valid date.
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="split-expense--label-invalid"
+          *ngIf="splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async)"
+        ></div>
       </ng-container>
     </div>
 
-    <div class="split-expense--add-more" *ngIf="splitExpensesFormArray.controls.length < 10">
-      <button type="button" class="split-expense--add-more-button" (click)="add()">
-        <mat-icon class="split-expense--add-more-icon">add</mat-icon>
-      </button>
-      <p class="text-center split-expense--add-more-label">Split More</p>
+    <div class="split-expense--add-more" *ngIf="splitExpensesFormArray.controls.length < 10" (click)="add()">
+      <mat-icon class="split-expense--add-more-icon" svgIcon="plus"></mat-icon>
+      <div class="text-center split-expense--add-more-label">Add Split</div>
     </div>
+  </div>
 
+  <div class="split-expense--limit" *ngIf="splitExpensesFormArray.controls.length === 10">
+    <app-fy-alert-info
+      [type]="'warning'"
+      [message]="'Limit Reached: You cannot split an expense into more than 10 parts.'"
+    ></app-fy-alert-info>
   </div>
 </ion-content>
 
-<ion-footer class="ion-no-border">
-  <ion-toolbar mode="md">
-    <div class="split-expense--error-message-block" *ngIf="showErrorBlock">
+<ion-footer *ngIf="showErrorBlock" class="split-expense--footer">
+  <div class="split-expense--error-container">
+    <div class="split-expense--error-message-block">
+      <mat-icon class="split-expense--error-icon" svgIcon="error"></mat-icon>
       <p class="split-expense--error-message">{{errorMessage}}</p>
     </div>
-
-    <div class="split-expense--sub-footer" *ngIf="amount">
-      <div class="split-expense--sub-footer__total">Total:
-        <span class="split-expense--split-amount">{{ currency }} {{totalSplitAmount}}/{{amount}}</span>
-      </div>
-      <div class="split-expense--sub-footer__remaining">Remaining:
-        <span class="split-expense--split-amount">{{ currency }} {{ remainingAmount }}</span>
-      </div>
-    </div>
-
-    <div class="split-expense--cta-container">
-      <ion-grid>
-        <ion-row>
-          <ion-col size="6">
-            <ion-button class="split-expense--primary-cta" fill="outline" color="fyle-primary" (click)="goBack()"
-              [disabled]="saveSplitExpenseLoading">
-              CANCEL
-            </ion-button>
-          </ion-col>
-          <ion-col size="6">
-            <ion-button class="split-expense--primary-cta" fill="solid" color="fyle-primary" (click)="save()"
-            appFormButtonValidation [loading]="saveSplitExpenseLoading" [loadingText]="'SPLITTING'">
-              SPLIT
-            </ion-button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-
-  </ion-toolbar>
+  </div>
 </ion-footer>

@@ -9,14 +9,11 @@ import { Observable } from 'rxjs';
   styleUrls: ['./advance-request.component.scss'],
 })
 export class AdvanceRequestComponent implements OnInit {
-
   @Input() advanceRequests: any[];
-  homeCurrency$: Observable<string>
 
-  constructor(
-    private modalController: ModalController,
-    private offlineService: OfflineService
-  ) { }
+  homeCurrency$: Observable<string>;
+
+  constructor(private modalController: ModalController, private offlineService: OfflineService) {}
 
   closeModal() {
     this.modalController.dismiss();
@@ -25,5 +22,4 @@ export class AdvanceRequestComponent implements OnInit {
   ngOnInit() {
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
   }
-
 }

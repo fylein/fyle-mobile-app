@@ -1,27 +1,56 @@
 <ion-header mode="md">
   <ion-toolbar class="view-expense--toolbar">
-    <ion-buttons mode="md" slot="end">
+    <ion-buttons *ngIf="this.reportId" mode="md" slot="start">
       <ion-button (click)="goBack()">
-        <mat-icon>close</mat-icon>
+        <ion-icon
+          class="icon--navigate-left"
+          [src]="'../../../../assets/svg/navigate-left.svg'"
+          slot="icon-only"
+        ></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title">View Expense</ion-title>
+    <ion-title mode="md" class="page-title" [ngClass]="{'view-expense--title-sm': isDeviceWidthSmall}"
+      >View Expense</ion-title
+    >
+    <ion-buttons class="view-expense--header-btn-container" slot="end">
+      <ion-button class="view-expense--header-btn-container__btn" (click)="openCommentsModal()">
+        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+
+      <ng-container *ngIf="canFlagOrUnflag$|async">
+        <ion-button
+          class="view-expense--header-btn-container__btn"
+          (click)="flagUnflagExpense()"
+          [ngClass]="isExpenseFlagged ? 'icon--flagged' : 'icon--unflagged'"
+        >
+          <ion-icon [src]="'../../../assets/svg/fy-flag-2.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+
+      <ng-container *ngIf="canDelete$|async">
+        <ion-button class="view-expense--header-btn-container__btn" (click)="removeExpenseFromReport()">
+          <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="view-expense--container" *ngIf="etxn$|async as etxn">
-
     <ng-container *ngIf="etxn.tx_policy_flag">
-      <ng-container *ngIf="comments$|async as comments">
-        <app-fy-policy-violation-info (click)="scrollCommentsIntoView()" [estatuses]="comments"></app-fy-policy-violation-info>
+      <ng-container *ngIf="policyDetails">
+        <app-fy-policy-violation-info
+          [policyDetails]="policyDetails"
+          [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+        ></app-fy-policy-violation-info>
       </ng-container>
     </ng-container>
 
     <div class="view-expense--policy-container" *ngIf="(isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)">
       <span class="info-text m-0">
-        Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to
-        {{ etxn.tx_amount | currency:etxn.tx_currency: 'symbol-narrow'}} due to policy.
+        Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to {{
+        etxn.tx_amount | currency:etxn.tx_currency: 'symbol-narrow'}} due to policy.
       </span>
     </div>
 
@@ -35,7 +64,7 @@
 
           <div *ngIf="attachments.length > 0" (click)="viewAttachments()">
             <div class="view-expense--receipt">
-              <img src="assets/svg/fy-attachment.svg" alt="attachment">
+              <img src="assets/svg/fy-attachment.svg" alt="attachment" />
             </div>
             <div class="view-expense--receipt-count">
               <span class="view-expense--receipt-count-number">{{ etxn.tx_num_files }}</span>
@@ -62,7 +91,9 @@
       </div>
       <div class="view-expense--element">
         <div class="view-expense--element-label">Date</div>
-        <div class="view-expense--element-value view-expense--element-value_date">{{ etxn.tx_txn_dt | date: 'MMM dd, yyyy' }}</div>
+        <div class="view-expense--element-value view-expense--element-value_date">
+          {{ etxn.tx_txn_dt | date: 'MMM dd, yyyy' }}
+        </div>
       </div>
       <div class="view-expense--element">
         <div class="view-expense--element-label">Merchant</div>
@@ -70,7 +101,9 @@
       </div>
       <div class="view-expense--element" *ngIf="orgSettings?.tax_settings?.enabled && orgSettings?.tax_settings?.name">
         <div class="view-expense--element-label">{{orgSettings.tax_settings.name}}</div>
-        <div class="view-expense--element-value">{{ (etxn.tx_tax | currency:etxn.tx_currency: 'symbol-narrow') || '-' }}</div>
+        <div class="view-expense--element-value">
+          {{ (etxn.tx_tax | currency:etxn.tx_currency: 'symbol-narrow') || '-' }}
+        </div>
       </div>
       <div class="view-expense--element">
         <div class="view-expense--element-label">Purpose</div>
@@ -78,7 +111,9 @@
       </div>
     </div>
 
-    <div *ngIf="etxn.tx_fyle_category === 'Hotel' && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)">
+    <div
+      *ngIf="etxn.tx_fyle_category === 'Hotel' && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)"
+    >
       hotel
       <div class="view-expense--element-block">
         <div class="view-expense--element" *ngIf="etxn.tx_locations[0]?.display">
@@ -97,15 +132,17 @@
     </div>
 
     <div *ngIf="etxn.tx_fyle_category === 'Flight'">
-      <div class="view-expense--element-block"
-        *ngIf="etxn.tx_from_dt || etxn.tx_to_dt || etxn.tx_flight_journey_travel_class || etxn.tx_flight_return_travel_class">
+      <div
+        class="view-expense--element-block"
+        *ngIf="etxn.tx_from_dt || etxn.tx_to_dt || etxn.tx_flight_journey_travel_class || etxn.tx_flight_return_travel_class"
+      >
         <div class="view-expense--element" *ngIf="etxn.tx_from_dt">
           <div class="view-expense--element-label">Check-In</div>
-          <div class="view-expense--element-value">{{ etxn.tx_from_dt | date: 'MMM dd, yyyy'  }}</div>
+          <div class="view-expense--element-value">{{ etxn.tx_from_dt | date: 'MMM dd, yyyy' }}</div>
         </div>
         <div class="view-expense--element" *ngIf="etxn.tx_to_dt">
           <div class="view-expense--element-label">Check-Out</div>
-          <div class="view-expense--element-value">{{ etxn.tx_to_dt | date: 'MMM dd, yyyy'  }}</div>
+          <div class="view-expense--element-value">{{ etxn.tx_to_dt | date: 'MMM dd, yyyy' }}</div>
         </div>
         <div class="view-expense--element" *ngIf="etxn.tx_flight_journey_travel_class">
           <div class="view-expense--element-label">Onward Class</div>
@@ -163,27 +200,5 @@
         <div class="view-expense--element-value">{{ etxn.tx_skip_reimbursement ? 'No' : 'Yes' }}</div>
       </div>
     </div>
-
-    <div class="view-expense--card">
-      <div #comments class="view-expense--card-action" id="commentsSection">
-        <app-comments objectType="transactions" [objectId]="etxn.tx_id" mode="edit" text="Comments" [showCommentsCount]="true"></app-comments>
-      </div>
-    </div>
-
-    <div class="view-expense--card" *ngIf="canFlagOrUnflag$|async">
-      <app-fy-flag-expense [etxn]="etxn" (notify)='onUpdateFlag($event)'></app-fy-flag-expense>
-    </div>
-
-    <div class="view-expense--card" *ngIf="canDelete$|async">
-      <div class="view-expense--card-action" (click)="removeExpenseFromReport()">
-        <mat-icon class="view-expense--card-action-icon">delete</mat-icon>
-        <div class="view-expense--card-action-text__comment">
-          <div class="view-expense--card-action-text view-expense--card-action-text__delete">Remove</div>
-          <div class="view-expense--delete-warning view-expense--card-action-text__helper-comment">remove from report
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
-
 </ion-content>

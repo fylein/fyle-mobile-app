@@ -1,18 +1,25 @@
-import {Injectable} from '@angular/core';
-import {Subject} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserEventService {
   destroySubject = new Subject();
+
   logoutSubject = new Subject();
+
   internalSubject = new Subject();
+
   outdatedClientSubject = new Subject();
+
   clearCacheSubject = new Subject();
+
   tokenSubject = new Subject();
 
-  constructor() { }
+  taskCacheClearSubject = new Subject();
+
+  constructor() {}
 
   onLogout(callback) {
     return this.logoutSubject.subscribe(callback);
@@ -28,6 +35,14 @@ export class UserEventService {
 
   setToken() {
     return this.tokenSubject.next();
+  }
+
+  clearTaskCache() {
+    return this.taskCacheClearSubject.next();
+  }
+
+  onTaskCacheClear(callback) {
+    return this.taskCacheClearSubject.subscribe(callback);
   }
 
   onInternalError(callback) {

@@ -1,6 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {PopoverController} from '@ionic/angular';
-import {Router} from '@angular/router';
+import { Component, Input, OnInit } from '@angular/core';
+import { PopoverController } from '@ionic/angular';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-error',
@@ -8,14 +8,11 @@ import {Router} from '@angular/router';
   styleUrls: ['./error.component.scss'],
 })
 export class ErrorComponent implements OnInit {
-
   @Input() header = 'Account dosent Exist';
+
   @Input() error;
 
-  constructor(
-    private popoverController: PopoverController,
-    private router: Router
-  ) { }
+  constructor(private popoverController: PopoverController, private router: Router) {}
 
   ngOnInit() {}
 
@@ -23,9 +20,8 @@ export class ErrorComponent implements OnInit {
     await this.popoverController.dismiss();
   }
 
-  async routeTo(route: string[]){
+  async routeTo(route: string[]) {
     this.router.navigate(route);
     await this.popoverController.dismiss();
   }
-
 }

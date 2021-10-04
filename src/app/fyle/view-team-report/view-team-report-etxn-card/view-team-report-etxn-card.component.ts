@@ -6,19 +6,20 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./view-team-report-etxn-card.component.scss'],
 })
 export class ViewTeamReportEtxnCardComponent implements OnInit {
-
   @Input() etxn: any;
+
   @Input() prevDate: Date;
 
   @Output() goToTransaciton: EventEmitter<any> = new EventEmitter();
 
   showDate = true;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
     this.showDate =
-      (this.etxn && (new Date(this.etxn.tx_txn_dt)).toDateString()) !== (this.prevDate && (new Date(this.prevDate)).toDateString());
+      (this.etxn && new Date(this.etxn.tx_txn_dt).toDateString()) !==
+      (this.prevDate && new Date(this.prevDate).toDateString());
   }
 
   goToTransactionClicked() {

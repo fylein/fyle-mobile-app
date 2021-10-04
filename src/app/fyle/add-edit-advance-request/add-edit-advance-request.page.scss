@@ -1,14 +1,30 @@
+@import '../../../theme/colors.scss';
+
 .add-edit-advance-request {
   &--form {
     padding: 0 16px;
   }
 
   &--toolbar {
-    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
-  &--actions {
-    padding: 0 16px;
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
+  }
+
+  &--title-sm {
+    padding-left: 0;
+    font-size: 17px;
+  }
+
+  &--header-btn-container-sm {
+    margin: 0 !important;
   }
 
   &--receipt-currency {
@@ -27,7 +43,6 @@
     float: left;
     position: relative;
     margin: 12px 16px 0 0;
-
   }
 
   &--receipt-text {
@@ -36,7 +51,7 @@
 
   &--receipt-image-icon {
     font-size: 32px;
-    color: #ff3366;
+    color: $primary;
     position: absolute;
     left: 20px;
     bottom: -8px;
@@ -85,19 +100,17 @@
 
   &--primary-block {
     margin: 16px 0;
-    padding: 0 16px;
-    border: 1px solid #e5e5e5;
     border-radius: 4px;
   }
 
   &--internal-block {
-    padding: 16px 0;
+    padding: 8px 0;
     background: #fff;
-    border: 0;
     line-height: 1;
-    border-bottom: 1px solid #e0e0e0;
-    &:last-child {
-      border-bottom: 0;
+    margin-bottom: 12px;
+
+    &__invalid {
+      border-color: $red;
     }
   }
 
@@ -106,40 +119,37 @@
     background: #fff;
     border: 0;
     line-height: 1;
-    border-bottom: 1px solid #e0e0e0;
-    &:last-child {
-      border-bottom: 0;
-    }
   }
 
   &--text {
-    display: flex;
-    align-items: center;
+    border-bottom: 1px solid $grey-lighter;
+
+    &__invalid {
+      border-bottom: 1px solid $red;
+    }
   }
 
   &--text-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 2;
-    white-space: nowrap;
-    display: flex;
+    max-width: 90%;
     min-width: 120px;
-    max-width: 120px;
-
-    &__invalid {
-      color: red;
-    }
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
+    white-space: nowrap;
+    font-weight: 400;
   }
 
   &--text-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    max-width: calc(100% - 120px);
+    font-size: 14px;
+    font-weight: 400;
+    height: 18px;
+    line-height: 18px;
+    color: $blue-black;
+    width: 100%;
+    padding: 0;
+    margin: 6px 0 !important;
   }
 
   &--checkbox {
@@ -150,12 +160,12 @@
 
   &--date-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    text-align: right;
-    background: transparent;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    padding: 0;
+    margin: 6px 0;
+    height: 18px;
   }
 
   &--additional-notes-label {
@@ -167,46 +177,34 @@
   }
 
   &--mandatory-text {
-    color: #f00;
+    color: $red;
+    line-height: 16px;
+    margin-top: -16px;
+    font-size: 12px;
+  }
+
+  &--mandatory {
+    color: $primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  &--amount-error {
+    color: $red;
+    font-size: 12px;
   }
 
   &--primary-cta {
     height: 48px;
     width: 100%;
     --border-radius: 4px !important;
-  }
-
-  &--common-action-block {
-    display: flex;
-    padding: 4px 0;
-    align-items: center;
-
-    p {
-      display: inline-block;
-      vertical-align: middle;
-      font-size: 16px;
-      margin: 0 0 0 16px;
-    }
-
-    &__comment {
-      color: #0077ee;
-    }
-
-    &__delete {
-      color: #f00;
-    }
-
-    mat-icon {
-      font-size: 24px;
-      color: #ababab;
-      display: inline-block;
-      vertical-align: middle;
-    }
+    text-transform: inherit;
   }
 
   &--cta-container {
     height: 80px;
-    padding: 16px;
+    padding: 14px 16px;
     justify-content: space-between;
   }
 }

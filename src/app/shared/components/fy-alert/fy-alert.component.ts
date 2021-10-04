@@ -6,12 +6,11 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./fy-alert.component.scss'],
 })
 export class FyAlertComponent implements OnInit {
-
   @Input() type: string;
+
   @Input() message: string;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {}
-
 }

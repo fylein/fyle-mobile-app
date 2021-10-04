@@ -1,10 +1,10 @@
 @import '../../../../../assets/styles/fy_select';
 
-
 .selection-modal {
   color: black;
   &--list-element {
-    padding: 14px;
+    padding: 18px 0;
+    margin: 0 16px;
     // border-color-font
     @extend %fy-select-list-element-default-border-color-font;
     // list-item-layout
@@ -41,11 +41,23 @@
   &--container {
     display: flex;
     flex-direction: column;
-    padding: 0 16px;
   }
 
   &--recently-used-block {
     margin-bottom: 20px;
+  }
+
+  &--recently-used-icon {
+    height: 22px;
+    width: 22px;
+    min-height: 22px;
+    min-width: 22px;
+    margin-right: 12px;
+  }
+
+  &--recently-used-item-content {
+    @extend %flex-layout-row;
+    align-items: center;
   }
 
   &--sub-title {
@@ -64,5 +76,9 @@
     width: 100%;
     height: 48px;
     --border-radius: 4px !important;
+  }
+
+  &--check {
+    @extend %fy-select-check;
   }
 }

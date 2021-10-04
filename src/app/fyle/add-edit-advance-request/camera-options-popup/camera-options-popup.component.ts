@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { FileService } from 'src/app/core/services/file.service';
-import {Camera, CameraDirection, CameraResultType, CameraSource} from '@capacitor/camera';
+import { Camera, CameraDirection, CameraResultType, CameraSource } from '@capacitor/camera';
 
 @Component({
   selector: 'app-camera-options-popup',
@@ -10,16 +10,15 @@ import {Camera, CameraDirection, CameraResultType, CameraSource} from '@capacito
   styleUrls: ['./camera-options-popup.component.scss'],
 })
 export class CameraOptionsPopupComponent implements OnInit {
-
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
   constructor(
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private fileService: FileService
-  ) { }
+  ) {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   async closeClicked() {
     await this.popoverController.dismiss();
@@ -27,16 +26,16 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   async getImageFromPicture() {
     const image = await Camera.getPhoto({
-      quality: 90,
+      quality: 70,
       source: CameraSource.Camera,
       direction: CameraDirection.Rear,
-      resultType: CameraResultType.DataUrl
+      resultType: CameraResultType.DataUrl,
     });
 
     if (image) {
       await this.popoverController.dismiss({
         type: image.format,
-        dataUrl: image.dataUrl
+        dataUrl: image.dataUrl,
       });
     } else {
       this.closeClicked();
@@ -54,7 +53,7 @@ export class CameraOptionsPopupComponent implements OnInit {
         const dataUrl = await that.fileService.readFile(file);
         await that.popoverController.dismiss({
           type: file.type,
-          dataUrl
+          dataUrl,
         });
       } else {
         await that.closeClicked();

@@ -1,31 +1,43 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {forkJoin, from, fromEvent, noop, Observable} from 'rxjs';
-import {distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap, take} from 'rxjs/operators';
-import {Org} from 'src/app/core/models/org.model';
-import {LoaderService} from 'src/app/core/services/loader.service';
-import {OfflineService} from 'src/app/core/services/offline.service';
-import {UserService} from 'src/app/core/services/user.service';
-import {AuthService} from 'src/app/core/services/auth.service';
-import {StorageService} from 'src/app/core/services/storage.service';
-import {NetworkService} from 'src/app/core/services/network.service';
-import {OrgService} from 'src/app/core/services/org.service';
-import {UserEventService} from 'src/app/core/services/user-event.service';
-import {globalCacheBusterNotifier} from 'ts-cacheable';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin, from, fromEvent, noop, Observable } from 'rxjs';
+import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap, take } from 'rxjs/operators';
+import { Org } from 'src/app/core/models/org.model';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { UserService } from 'src/app/core/services/user.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { StorageService } from 'src/app/core/services/storage.service';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { OrgService } from 'src/app/core/services/org.service';
+import { UserEventService } from 'src/app/core/services/user-event.service';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
 import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-swicth-org',
   templateUrl: './switch-org.page.html',
   styleUrls: ['./switch-org.page.scss'],
 })
-export class SwitchOrgPage implements OnInit, AfterViewInit {
+export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
   @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef;
 
   orgs$: Observable<Org[]>;
+
   filteredOrgs$: Observable<Org[]>;
+
   searchInput = '';
+
   isLoading = false;
 
   constructor(
@@ -40,11 +52,11 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     private orgService: OrgService,
     private userEventService: UserEventService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private cdRef: ChangeDetectorRef
-  ) { }
+    private cdRef: ChangeDetectorRef,
+    private trackingService: TrackingService
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ngAfterViewChecked() {
     this.cdRef.detectChanges();
@@ -54,34 +66,24 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     const that = this;
     that.searchInput = '';
     that.isLoading = true;
-    that.orgs$ = that.offlineService.getOrgs().pipe(
-      shareReplay(1),
-    );
+    that.orgs$ = that.offlineService.getOrgs().pipe(shareReplay(1));
 
     that.orgs$.subscribe(() => {
       that.isLoading = false;
       that.cdRef.detectChanges();
-    })
+    });
 
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
 
     if (!choose) {
       from(that.loaderService.showLoader())
-        .pipe(
-          switchMap(() => {
-            return from(that.proceed());
-          })
-        )
+        .pipe(switchMap(() => from(that.proceed())))
         .subscribe(noop);
     } else {
       that.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
-            .pipe(
-              switchMap(() => {
-                return from(that.proceed());
-              })
-            )
+            .pipe(switchMap(() => from(that.proceed())))
             .subscribe(noop);
         }
       });
@@ -95,92 +97,105 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
 
-    forkJoin(
-      [
-        offlineData$,
-        pendingDetails$,
-        eou$,
-        roles$,
-        isOnline$
-      ]
-    ).pipe(
-      finalize(() => from(this.loaderService.hideLoader()))
-    ).subscribe(aggregatedResults => {
-      const [
-        [
-          orgSettings,
-          orgUserSettings,
-          allCategories,
-          costCenters,
-          projects,
-          perDiemRates,
-          customInputs,
-          currentOrg,
-          orgs,
-          accounts,
-          transactionFieldConfigurationsMap,
-          currencies,
-          homeCurrency
-        ],
-        isPendingDetails,
-        eou,
-        roles,
-        isOnline
-      ] = aggregatedResults;
+    forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$])
+      .pipe(finalize(() => from(this.loaderService.hideLoader())))
+      .subscribe((aggregatedResults) => {
+        const [
+          [
+            orgSettings,
+            orgUserSettings,
+            allCategories,
+            allEnabledCategories,
+            costCenters,
+            projects,
+            perDiemRates,
+            customInputs,
+            currentOrg,
+            orgs,
+            accounts,
+            currencies,
+            homeCurrency,
+          ],
+          isPendingDetails,
+          eou,
+          roles,
+          isOnline,
+        ] = aggregatedResults;
 
+        const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
 
-      const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
-
-      if (eou) {
-        Sentry.setUser({
-          id: eou.us.email + ' - ' + eou.ou.id,
-          email: eou.us.email,
-          orgUserId: eou.ou.id
-        });
-      }
-
-      if (pendingDetails) {
-        if (roles.indexOf('OWNER') > -1) {
-          this.router.navigate(['/', 'post_verification', 'setup_account']);
-        } else {
-          this.router.navigate(['/', 'post_verification', 'invited_user']);
+        if (eou) {
+          Sentry.setUser({
+            id: eou.us.email + ' - ' + eou.ou.id,
+            email: eou.us.email,
+            orgUserId: eou.ou.id,
+          });
         }
-      } else if (eou.ou.status === 'ACTIVE') {
-        if (!isOnline) {
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
-        } else {
+
+        if (pendingDetails) {
+          if (roles.indexOf('OWNER') > -1) {
+            this.router.navigate(['/', 'post_verification', 'setup_account']);
+          } else {
+            this.router.navigate(['/', 'post_verification', 'invited_user']);
+          }
+        } else if (eou.ou.status === 'ACTIVE') {
           this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        } else if (eou.ou.status === 'DISABLED') {
+          this.router.navigate(['/', 'auth', 'disabled']);
         }
-      } else if (eou.ou.status === 'DISABLED') {
-        this.router.navigate(['/', 'auth', 'disabled']);
-      }
+      });
+  }
+
+  trackSwitchOrg(org: Org, originalEou) {
+    const isDestinationOrgActive = originalEou.ou && originalEou.ou.org_id === org.id;
+    const isCurrentOrgPrimary = originalEou.ou && originalEou.ou.is_primary;
+    from(this.authService.getEou()).subscribe((currentEou) => {
+      const properties = {
+        Asset: 'Mobile',
+        'Switch To': org.name,
+        'Is Destination Org Active': isDestinationOrgActive,
+        'Is Destination Org Primary': currentEou && currentEou.ou && currentEou.ou.is_primary,
+        'Is Current Org Primary': isCurrentOrgPrimary,
+        Source: 'User Clicked',
+        'User Email': originalEou.us && originalEou.us.email,
+        'User Org Name': originalEou.ou && originalEou.ou.org_name,
+        'User Org ID': originalEou.ou && originalEou.ou.org_id,
+        'User Full Name': originalEou.us && originalEou.us.full_name,
+      };
+      this.trackingService.onSwitchOrg(properties);
     });
   }
 
   async switchToOrg(org: Org) {
-    from(this.loaderService.showLoader()).pipe(
-      switchMap(() => {
-        return this.orgService.switchOrg(org.id);
-      }),
-    ).subscribe(() => {
-      globalCacheBusterNotifier.next();
-      this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-      from(this.proceed()).subscribe(noop);
-    }, async (err) => {
-      await this.storageService.clearAll();
-      this.userEventService.logout();
-      globalCacheBusterNotifier.next();
-      await this.loaderService.hideLoader();
-    });
+    const originalEou = await this.authService.getEou();
+    from(this.loaderService.showLoader())
+      .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
+      .subscribe(
+        () => {
+          globalCacheBusterNotifier.next();
+          if (originalEou) {
+            this.trackSwitchOrg(org, originalEou);
+          }
+          this.userEventService.clearTaskCache();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          from(this.proceed()).subscribe(noop);
+        },
+        async (err) => {
+          await this.storageService.clearAll();
+          this.userEventService.logout();
+          globalCacheBusterNotifier.next();
+          await this.loaderService.hideLoader();
+        }
+      );
   }
 
   getOrgsWhichContainSearchText(orgs: Org[], searchText: string) {
-    return orgs.filter(org => {
-      return Object.values(org)
-        .map(value => value && value.toString().toLowerCase())
-        .filter(value => !!value)
-        .some(value => value.toLowerCase().includes(searchText.toLowerCase()));
-    });
+    return orgs.filter((org) =>
+      Object.values(org)
+        .map((value) => value && value.toString().toLowerCase())
+        .filter((value) => !!value)
+        .some((value) => value.toLowerCase().includes(searchText.toLowerCase()))
+    );
   }
 
   ngAfterViewInit(): void {
@@ -190,13 +205,7 @@ export class SwitchOrgPage implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return currentOrgs$.pipe(
-          map(
-            orgs => this.getOrgsWhichContainSearchText(orgs, searchText)
-          )
-        );
-      })
+      switchMap((searchText) => currentOrgs$.pipe(map((orgs) => this.getOrgsWhichContainSearchText(orgs, searchText))))
     );
   }
 }

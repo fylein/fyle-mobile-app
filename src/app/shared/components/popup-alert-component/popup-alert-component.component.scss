@@ -1,0 +1,57 @@
+@import '../../../../theme/colors';
+$small-screen: 700px;
+
+.popup-alert {
+  padding: 24px;
+
+  &--header {
+    color: $black;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 1.3;
+    padding: 18px 0 14px 0;
+  }
+
+  &--body {
+    margin-bottom: 33px;
+  }
+
+  &--cta-container {
+    display: flex;
+    justify-content: space-between;
+    &__single-content {
+      justify-content: center;
+    }
+  }
+
+  &--cta-button {
+    font-weight: 500;
+    &__disabled {
+      opacity: 0.2;
+    }
+  }
+
+  &--secondary-cta {
+    height: auto;
+    background-color: transparent;
+    color: $black;
+    font-size: 14px;
+    line-height: 1.3;
+    min-width: 40%;
+  }
+
+  &--primary-cta {
+    min-height: 35px;
+    background: $pink-gradient-1;
+    color: $pure-white;
+    font-size: 12px;
+    line-height: 1.25;
+    border-radius: 4px;
+    padding: 10px 12px;
+    min-width: 50%;
+
+    &__alert {
+      background: $red;
+    }
+  }
+}

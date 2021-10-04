@@ -30,13 +30,21 @@ import { PopupService } from 'src/app/core/services/popup.service';
 })
 export class MyViewTripsPage implements OnInit {
   tripRequest$: Observable<ExtendedTripRequest>;
+
   approvals$: Observable<Approval[]>;
+
   actions$: Observable<any>;
+
   advanceRequests$: Observable<any>;
+
   transportationRequests$: Observable<any>;
+
   hotelRequests$: Observable<any>;
+
   allTripRequestCustomFields$: Observable<any>;
+
   activeApprovals$: Observable<Approval[]>;
+
   tripExtraInfo$: Observable<{
     submittedBy: {
       fullName: string;
@@ -46,15 +54,25 @@ export class MyViewTripsPage implements OnInit {
     tripLocations: (string | string[])[];
     travellers: string;
   }>;
+
   transformedTripRequests$: Observable<any>;
+
   transformedAdvanceRequests$: Observable<any>;
+
   approvers$: Observable<ExtendedOrgUser[]>;
+
   canPullBack$: Observable<boolean>;
+
   canCloseTrip$: Observable<boolean>;
+
   canDelete$: Observable<boolean>;
+
   canEdit$: Observable<boolean>;
+
   pullbackLoading = false;
+
   deleteLoading = false;
+
   closeLoading = false;
 
   constructor(
@@ -73,8 +91,7 @@ export class MyViewTripsPage implements OnInit {
     private modalController: ModalController,
     private popoverController: PopoverController,
     private popupService: PopupService
-  ) { }
-
+  ) {}
 
   async deleteTrip() {
     if (this.deleteLoading || this.closeLoading || this.pullbackLoading) {
@@ -87,8 +104,8 @@ export class MyViewTripsPage implements OnInit {
       header: 'Confirm',
       message: 'Are you sure you want to delete this trip request?',
       primaryCta: {
-        text: 'OK'
-      }
+        text: 'OK',
+      },
     });
 
     if (popupResults === 'primary') {
@@ -102,19 +119,24 @@ export class MyViewTripsPage implements OnInit {
   }
 
   getTripRequestCustomFields(allTripRequestCustomFields, tripRequest: ExtendedTripRequest, requestType, requestObj) {
-    const customFields = this.tripRequestCustomFieldsService.filterByRequestTypeAndTripType(allTripRequestCustomFields, requestType, tripRequest.trp_trip_type);
-    requestObj.custom_field_values = this.customFieldsService.standardizeCustomFields(requestObj.custom_field_values, customFields);
+    const customFields = this.tripRequestCustomFieldsService.filterByRequestTypeAndTripType(
+      allTripRequestCustomFields,
+      requestType,
+      tripRequest.trp_trip_type
+    );
+    requestObj.custom_field_values = this.customFieldsService.standardizeCustomFields(
+      requestObj.custom_field_values,
+      customFields
+    );
     return requestObj;
   }
 
   getRestrictedApprovers(approvals, tripRequest: ExtendedTripRequest) {
     const approvalStates = ['APPROVAL_PENDING', 'APPROVAL_DONE'];
 
-    const approversNotAllowed = approvals.filter((approver) => {
-      return approvalStates.indexOf(approver.state) > -1;
-    }).map((approver) => {
-      return approver.approver_id;
-    });
+    const approversNotAllowed = approvals
+      .filter((approver) => approvalStates.indexOf(approver.state) > -1)
+      .map((approver) => approver.approver_id);
 
     approversNotAllowed.push(tripRequest.ou_id);
 
@@ -122,14 +144,16 @@ export class MyViewTripsPage implements OnInit {
   }
 
   getTravellerNames(travellers: TrpTravellerDetail[]) {
-    return travellers.map((traveller) => {
-      let details = traveller.name;
-      if (traveller.phone_number) {
-        details += '(' + traveller.phone_number + ')';
-      }
+    return travellers
+      .map((traveller) => {
+        let details = traveller.name;
+        if (traveller.phone_number) {
+          details += '(' + traveller.phone_number + ')';
+        }
 
-      return details;
-    }).join(', ');
+        return details;
+      })
+      .join(', ');
   }
 
   async openTransportationRequests() {
@@ -139,8 +163,8 @@ export class MyViewTripsPage implements OnInit {
       const transportReqModal = await this.modalController.create({
         component: TransportationRequestsComponent,
         componentProps: {
-          transportationRequests
-        }
+          transportationRequests,
+        },
       });
 
       await this.loaderService.hideLoader();
@@ -156,8 +180,8 @@ export class MyViewTripsPage implements OnInit {
       const hotelReqModal = await this.modalController.create({
         component: HotelRequestsComponent,
         componentProps: {
-          hotelRequests
-        }
+          hotelRequests,
+        },
       });
 
       await this.loaderService.hideLoader();
@@ -173,15 +197,14 @@ export class MyViewTripsPage implements OnInit {
       const advanceReqModal = await this.modalController.create({
         component: AdvanceRequestsComponent,
         componentProps: {
-          advanceRequests
-        }
+          advanceRequests,
+        },
       });
 
       await this.loaderService.hideLoader();
 
       await advanceReqModal.present();
     }
-
   }
 
   setRequiredTripDetails(eTransportationRequest) {
@@ -189,15 +212,22 @@ export class MyViewTripsPage implements OnInit {
     eTransportationRequest = this.transportationRequestsService.setInternalStateAndDisplayName(eTransportationRequest);
 
     if (eTransportationRequest.tr.preferred_timing) {
-      eTransportationRequest.tr.preferred_timing_formatted
-        = preferredTimings.filter(timing => timing.value === eTransportationRequest.tr.preferred_timing);
+      eTransportationRequest.tr.preferred_timing_formatted = preferredTimings.filter(
+        (timing) => timing.value === eTransportationRequest.tr.preferred_timing
+      );
     }
 
     return forkJoin({
-      bookingNumberExpense: iif(() => !!eTransportationRequest.tb.transaction_id,
-        this.transactionService.get(eTransportationRequest.tb.transaction_id), of(null)),
-      cancellationNumberExpense: iif(() => !!eTransportationRequest.tc.transaction_id,
-        this.transactionService.get(eTransportationRequest.tc.transaction_id), of(null))
+      bookingNumberExpense: iif(
+        () => !!eTransportationRequest.tb.transaction_id,
+        this.transactionService.get(eTransportationRequest.tb.transaction_id),
+        of(null)
+      ),
+      cancellationNumberExpense: iif(
+        () => !!eTransportationRequest.tc.transaction_id,
+        this.transactionService.get(eTransportationRequest.tc.transaction_id),
+        of(null)
+      ),
     }).pipe(
       map(({ bookingNumberExpense, cancellationNumberExpense }) => {
         if (bookingNumberExpense) {
@@ -214,14 +244,14 @@ export class MyViewTripsPage implements OnInit {
   }
 
   editTrip() {
-    this.router.navigate(['/', 'enterprise', 'my_add_edit_trip', {id: this.activatedRoute.snapshot.params.id}]);
+    this.router.navigate(['/', 'enterprise', 'my_add_edit_trip', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   async pullBack() {
     this.pullbackLoading = true;
     const pullBackPopover = await this.popoverController.create({
       component: PullBackTripComponent,
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await pullBackPopover.present();
@@ -230,27 +260,27 @@ export class MyViewTripsPage implements OnInit {
 
     if (data && data.reason) {
       const status = {
-        comment: data.reason
+        comment: data.reason,
       };
 
       const addStatusPayload = {
         status,
-        notify: false
+        notify: false,
       };
 
       const id = this.activatedRoute.snapshot.params.id;
 
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.tripRequestsService.pullBackTrip(id, addStatusPayload);
-        }),
-        finalize(() => {
-          this.pullbackLoading = false;
-          from(this.loaderService.hideLoader())
-        })
-      ).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_trips']);
-      });
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => this.tripRequestsService.pullBackTrip(id, addStatusPayload)),
+          finalize(() => {
+            this.pullbackLoading = false;
+            from(this.loaderService.hideLoader());
+          })
+        )
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'my_trips']);
+        });
     } else {
       this.pullbackLoading = false;
     }
@@ -264,37 +294,32 @@ export class MyViewTripsPage implements OnInit {
       header: 'Close Trip',
       message: 'Are you sure you want to close this trip?',
       primaryCta: {
-        text: 'OK'
-      }
+        text: 'OK',
+      },
     });
 
     if (popupResults === 'primary') {
-      from(this.loaderService.showLoader()).pipe(
-        switchMap(() => {
-          return this.tripRequestsService.closeTrip(id);
-        }),
-        finalize(() => {
-          this.closeLoading = false;
-          from(this.loaderService.hideLoader());
-        })
-      ).subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_trips']);
-      });
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => this.tripRequestsService.closeTrip(id)),
+          finalize(() => {
+            this.closeLoading = false;
+            from(this.loaderService.hideLoader());
+          })
+        )
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'my_trips']);
+        });
     } else {
       this.closeLoading = false;
     }
   }
 
   ionViewWillEnter() {
-
     const id = this.activatedRoute.snapshot.params.id;
     const eou$ = from(this.authService.getEou());
-    this.tripRequest$ = from(
-      this.loaderService.showLoader()
-    ).pipe(
-      switchMap(() => {
-        return this.tripRequestsService.getTrip(id);
-      }),
+    this.tripRequest$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.tripRequestsService.getTrip(id)),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -305,69 +330,57 @@ export class MyViewTripsPage implements OnInit {
     this.allTripRequestCustomFields$ = this.tripRequestCustomFieldsService.getAll();
 
     this.activeApprovals$ = this.approvals$.pipe(
-      map(approvals => approvals.filter(approval => approval.state !== 'APPROVAL_DISABLED'))
+      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED'))
     );
 
-    this.tripExtraInfo$ = this.tripRequest$.pipe(map(
-      extendedTripRequest => ({
+    this.tripExtraInfo$ = this.tripRequest$.pipe(
+      map((extendedTripRequest) => ({
         submittedBy: {
           fullName: extendedTripRequest.us_full_name,
-          email: extendedTripRequest.us_email
+          email: extendedTripRequest.us_email,
         },
         projectName: extendedTripRequest.trp_project_name || null,
         tripLocations: extendedTripRequest.trp_trip_cities.map((location) => {
           if (extendedTripRequest.trp_trip_type !== 'MULTI_CITY') {
-            return [location.from_city.city ? location.from_city.city : location.from_city.display,
-              location.to_city.city ? location.to_city.city : location.to_city.display];
+            return [
+              location.from_city.city ? location.from_city.city : location.from_city.display,
+              location.to_city.city ? location.to_city.city : location.to_city.display,
+            ];
           }
 
           return location.from_city.city ? location.from_city.city : location.from_city.display;
         }),
-        travellers: this.getTravellerNames(extendedTripRequest.trp_traveller_details)
-      })
-    ));
-
-    this.canPullBack$ = this.actions$.pipe(
-      map(actions => actions.can_pull_back)
+        travellers: this.getTravellerNames(extendedTripRequest.trp_traveller_details),
+      }))
     );
 
-    this.canCloseTrip$ = this.actions$.pipe(
-      map(actions => actions.can_close_trip)
-    );
+    this.canPullBack$ = this.actions$.pipe(map((actions) => actions.can_pull_back));
 
-    this.canDelete$ = this.actions$.pipe(
-      map(actions => actions.can_delete)
-    );
+    this.canCloseTrip$ = this.actions$.pipe(map((actions) => actions.can_close_trip));
 
-    this.canEdit$ = this.actions$.pipe(
-      map(actions => actions.can_edit)
-    );
+    this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
+
+    this.canEdit$ = this.actions$.pipe(map((actions) => actions.can_edit));
 
     this.transportationRequests$ = forkJoin([
       this.tripRequestsService.getTransportationRequests(id),
       this.allTripRequestCustomFields$,
-      this.tripRequest$
+      this.tripRequest$,
     ]).pipe(
-      map(
-        aggregatedRes => {
-          const [transportationRequests, allCustomFields, tripRequest] = aggregatedRes;
-          return transportationRequests.map(transportationRequest => {
-            const transformedTransportationRequests = this.dataTransformSerivce.unflatten(transportationRequest);
-            return this
-              .getTripRequestCustomFields(
-                allCustomFields,
-                tripRequest,
-                'TRANSPORTATION_REQUEST',
-                transformedTransportationRequests) as [];
-          });
-        }
-      ),
-      switchMap(transportationReqs => {
-        return from(transportationReqs);
+      map((aggregatedRes) => {
+        const [transportationRequests, allCustomFields, tripRequest] = aggregatedRes;
+        return transportationRequests.map((transportationRequest) => {
+          const transformedTransportationRequests = this.dataTransformSerivce.unflatten(transportationRequest);
+          return this.getTripRequestCustomFields(
+            allCustomFields,
+            tripRequest,
+            'TRANSPORTATION_REQUEST',
+            transformedTransportationRequests
+          ) as [];
+        });
       }),
-      concatMap(transportationReq => {
-        return this.setRequiredTripDetails(transportationReq);
-      }),
+      switchMap((transportationReqs) => from(transportationReqs)),
+      concatMap((transportationReq) => this.setRequiredTripDetails(transportationReq)),
       reduce((acc, curr) => acc.concat(curr), []),
       shareReplay(1)
     );
@@ -375,39 +388,39 @@ export class MyViewTripsPage implements OnInit {
     this.hotelRequests$ = forkJoin([
       this.tripRequestsService.getHotelRequests(id),
       this.allTripRequestCustomFields$,
-      this.tripRequest$
+      this.tripRequest$,
     ]).pipe(
-      map(
-        aggregatedRes => {
-          const [hotelRequests, allCustomFields, tripRequest] = aggregatedRes;
-          return hotelRequests.map(hotelRequest => {
-            const transformedHotelRequest = this.dataTransformSerivce.unflatten(hotelRequest);
-            return this
-              .getTripRequestCustomFields(
-                allCustomFields,
-                tripRequest,
-                'HOTEL_REQUEST',
-                transformedHotelRequest);
-          });
-        }
-      ),
+      map((aggregatedRes) => {
+        const [hotelRequests, allCustomFields, tripRequest] = aggregatedRes;
+        return hotelRequests.map((hotelRequest) => {
+          const transformedHotelRequest = this.dataTransformSerivce.unflatten(hotelRequest);
+          return this.getTripRequestCustomFields(
+            allCustomFields,
+            tripRequest,
+            'HOTEL_REQUEST',
+            transformedHotelRequest
+          );
+        });
+      }),
       shareReplay(1)
     );
 
     this.transformedAdvanceRequests$ = forkJoin({
       advanceRequests: this.advanceRequests$,
-      advanceRequestsCustomFields: this.advanceRequestsCustomFieldsService.getAll()
+      advanceRequestsCustomFields: this.advanceRequestsCustomFieldsService.getAll(),
     }).pipe(
-      map(aggregatedRes => {
+      map((aggregatedRes) => {
         const { advanceRequests, advanceRequestsCustomFields } = aggregatedRes;
-        return advanceRequests.map(advanceRequest => {
-          advanceRequest.custom_field_values = this.customFieldsService
-            .standardizeCustomFields(advanceRequest.custom_field_values, advanceRequestsCustomFields);
+        return advanceRequests.map((advanceRequest) => {
+          advanceRequest.custom_field_values = this.customFieldsService.standardizeCustomFields(
+            advanceRequest.custom_field_values,
+            advanceRequestsCustomFields
+          );
           return advanceRequest;
         });
       })
     );
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 }

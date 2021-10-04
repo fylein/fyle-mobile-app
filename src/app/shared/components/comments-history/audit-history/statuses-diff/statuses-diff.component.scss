@@ -1,0 +1,15 @@
+.statuses-diff {
+  &--expense-issues {
+    margin: 12px 0;
+    font-weight: 500;
+  }
+
+  &--violating-txns {
+    margin-left: -26px;
+  }
+
+  &--values-list {
+    padding-left: 0;
+    list-style-type: disc;
+  }
+}

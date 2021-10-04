@@ -5,15 +5,10 @@ import { FileService } from './file.service';
 import { TransactionService } from './transaction.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SplitExpenseService {
-
-  constructor(
-    private transactionService: TransactionService,
-    private fileService: FileService
-  ) { }
-
+  constructor(private transactionService: TransactionService, private fileService: FileService) {}
 
   linkTxnWithFiles(data) {
     const observables = [];
@@ -35,13 +30,11 @@ export class SplitExpenseService {
 
   getBase64Content(fileObjs) {
     const fileObservables = [];
-    const newFileObjs: any[] = fileObjs.map((fileObj) => {
-      return {
-        id: fileObj.id,
-        name: fileObj.name,
-        content: ''
-      };
-    });
+    const newFileObjs: any[] = fileObjs.map((fileObj) => ({
+      id: fileObj.id,
+      name: fileObj.name,
+      content: '',
+    }));
 
     newFileObjs.forEach((fileObj) => {
       fileObservables.push(this.fileService.base64Download(fileObj.id));
@@ -69,24 +62,27 @@ export class SplitExpenseService {
       const firstSplitExpense = splitExpenses[0];
 
       return this.createTxns(sourceTxn, [firstSplitExpense], splitGroupAmount, null, splitExpenses.length).pipe(
-        map(firstTxn => {
+        map((firstTxn) => {
           splitExpenses.splice(0, 1);
           return firstTxn;
         }),
-        switchMap((firstTxn: any[]) => {
-          return this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, firstTxn[0].split_group_id, splitExpenses.length).pipe(
-            map(otherTxns => {
-              return firstTxn.concat(otherTxns);
-            })
-          )
-        })
-      )
-
+        switchMap((firstTxn: any[]) =>
+          this.createTxns(
+            sourceTxn,
+            splitExpenses,
+            splitGroupAmount,
+            firstTxn[0].split_group_id,
+            splitExpenses.length
+          ).pipe(map((otherTxns) => firstTxn.concat(otherTxns)))
+        )
+      );
     } else {
       return this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, splitExpenses.length);
     }
   }
 
+  // TODO: Fix later. High impact
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, totalSplitExpensesCount) {
     const txnsObservables = [];
 
@@ -113,21 +109,35 @@ export class SplitExpenseService {
       transaction.project_id = splitExpense.project_id || sourceTxn.project_id;
       transaction.cost_center_id = splitExpense.cost_center_id || sourceTxn.cost_center_id;
       transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
+      transaction.billable = this.setUpSplitExpenseBillable(sourceTxn, splitExpense);
+      transaction.tax_amount = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
 
-      if (transaction.purpose) {
-        let splitIndex = 1;
-
-        if (splitGroupId) {
-          splitIndex = index + 1;
-        } else {
-          splitIndex = totalSplitExpensesCount;
-        }
-        transaction.purpose += ' (' + splitIndex  + ')';
-      }
+      this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
       txnsObservables.push(this.transactionService.upsert(transaction));
     });
 
     return forkJoin(txnsObservables);
+  }
+
+  private setupSplitExpensePurpose(transaction: any, splitGroupId: any, index: any, totalSplitExpensesCount: any) {
+    if (transaction.purpose) {
+      let splitIndex = 1;
+
+      if (splitGroupId) {
+        splitIndex = index + 1;
+      } else {
+        splitIndex = totalSplitExpensesCount;
+      }
+      transaction.purpose += ' (' + splitIndex + ')';
+    }
+  }
+
+  private setUpSplitExpenseBillable(sourceTxn, splitExpense) {
+    return splitExpense.project_id ? splitExpense.billable : sourceTxn.billable;
+  }
+
+  private setUpSplitExpenseTax(sourceTxn, splitExpense) {
+    return splitExpense.tax_amount ? splitExpense.tax_amount : sourceTxn.tax_amount;
   }
 }

@@ -1,11 +1,23 @@
 .view-mileage {
-  
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
   &--container {
     padding: 5px 16px 0 16px;
+  }
+
+  &--title-sm {
+    padding-left: 0;
+  }
+
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
   }
 
   &--policy-info-container {
@@ -42,7 +54,7 @@
     border-right: 1px solid #e0e0e0;
   }
 
-  &--rate-block{
+  &--rate-block {
     width: 100px;
     padding-left: 16px;
     float: left;
@@ -71,7 +83,7 @@
     margin-bottom: 0;
   }
 
-  &--info-card{
+  &--info-card {
     padding: 0 16px;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
@@ -83,10 +95,9 @@
     border-bottom: 1px solid #e0e0e0;
     padding: 16px 0;
 
-    &:last-child { 
+    &:last-child {
       border-bottom: 0;
     }
-
   }
 
   &--element-label {
@@ -115,8 +126,8 @@
     font-size: 24px;
     color: #ababab;
 
-    &.selected{
-      color: #FF3366;
+    &.selected {
+      color: #ff3366;
     }
   }
 
@@ -135,25 +146,5 @@
   &--card-action-icon {
     color: #ababab;
     margin-right: 16px;
-  }
-
-  &--card-action-text {
-    font-size: 16px;
-
-    &__comment {
-      color: #0077ee;
-      display: inline-block;
-    }
-
-    &__delete {
-      color: #f00;
-    }
-
-    &__helper-comment {
-      vertical-align: bottom;
-      font-weight: 400;
-      font-size: 12px;
-      color: #ababab;
-    }
   }
 }

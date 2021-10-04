@@ -1,0 +1,27 @@
+@import '../../../../theme/colors';
+
+.connection {
+  position: fixed;
+  bottom: 0;
+  z-index: 999;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 15px;
+
+  &--offline,
+  &--online-message {
+    text-align: center;
+    padding: 10px;
+    width: 100vw;
+    min-height: 36px;
+    max-height: 36px;
+  }
+
+  &--offline {
+    background-color: $red;
+  }
+
+  &--online-message {
+    background-color: $green;
+  }
+}

@@ -5,7 +5,8 @@ $list-element-color: #333;
 .selection-modal {
   color: black;
   &--list-element {
-    padding: 14px 4px;
+    padding: 6px 0;
+    margin: 16px 0px 0px 16px;
     // border-color-font
     @extend %fy-select-list-element-default-border-color-font;
     // list-item-layout
@@ -31,22 +32,14 @@ $list-element-color: #333;
 
   &--form-field {
     @extend %fy-select-mat-form-field;
-    .mat-form-field-wrapper {
-      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
-    }
   }
 
   &--search-icon {
-    font-size: 14px;
-  }
-
-  &--form-field-container {
-    text-align: center;
+    @extend %fy-select-search-icon;
   }
 
   &--container {
     @extend %flex-layout-column;
-    padding: 0 16px;
   }
 
   &--recently-used-block {
@@ -80,4 +73,7 @@ $list-element-color: #333;
     @extend %flex-layout-row;
   }
 
+  &--check {
+    @extend %fy-select-check;
+  }
 }

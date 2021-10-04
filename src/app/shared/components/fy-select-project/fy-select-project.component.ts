@@ -1,9 +1,10 @@
-import {Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef, ElementRef} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
-import {noop} from 'rxjs';
-import {ModalController} from '@ionic/angular';
-import {FyProjectSelectModalComponent} from './fy-select-modal/fy-select-project-modal.component';
+import { Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef, ElementRef } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { noop } from 'rxjs';
+import { ModalController } from '@ionic/angular';
+import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-select-project',
@@ -13,23 +14,30 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FySelectProjectComponent),
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class FySelectProjectComponent implements OnInit, ControlValueAccessor, OnDestroy {
+  @Input() mandatory = false;
+
+  @Input() label = 'Project';
+
+  @Input() cacheName;
+
+  @Input() selectionElement: TemplateRef<ElementRef>;
+
+  @Input() categoryIds: string[];
+
+  @Input() defaultValue = false;
+
+  @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
+
+  displayValue;
+
   private ngControl: NgControl;
 
-  @Input() mandatory = false;
-  @Input() label = 'Project';
-  @Input() cacheName;
-  @Input() selectionElement: TemplateRef<ElementRef>;
-  @Input() categoryIds: string[];
-  @Input() defaultValue = false;
-  @Input() recentlyUsed: { label: string, value: ExtendedProject, selected?: boolean }[];
-
   private innerValue;
-  displayValue;
 
   get valid() {
     if (this.ngControl.touched) {
@@ -40,19 +48,20 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   }
 
   private onTouchedCallback: () => void = noop;
+
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
   }
 
-  ngOnDestroy(): void {
-  }
+  ngOnDestroy(): void {}
 
   get value(): any {
     return this.innerValue;
@@ -81,8 +90,11 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
         selectionElement: this.selectionElement,
         categoryIds: this.categoryIds,
         defaultValue: this.defaultValue,
-        recentlyUsed: this.recentlyUsed
-      }
+        recentlyUsed: this.recentlyUsed,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await projectModal.present();

@@ -1,5 +1,5 @@
-import {TrpTravellerDetail} from './trip_traveller_detail.model';
-import {TrpTripCity} from './trp_trip_city';
+import { TrpTravellerDetail } from './trip_traveller_detail.model';
+import { TrpTripCity } from './trp_trip_city';
 
 export interface ExtendedTripRequest {
   approvals: {
@@ -7,7 +7,7 @@ export interface ExtendedTripRequest {
       email: string;
       name: string;
       state: string;
-    }
+    };
   };
   approvers: string[];
   custom_properties: any;

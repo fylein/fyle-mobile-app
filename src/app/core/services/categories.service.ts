@@ -1,21 +1,25 @@
-import {Injectable} from '@angular/core';
-import {ApiService} from './api.service';
-import {map} from 'rxjs/operators';
-import {Cacheable} from 'ts-cacheable';
-import {Subject} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
+import { map } from 'rxjs/operators';
+import { Cacheable } from 'ts-cacheable';
+import { Subject } from 'rxjs';
 
 const categoriesCacheBuster$ = new Subject<void>();
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CategoriesService {
-
   skipCategories = ['activity', 'mileage', 'per diem', 'unspecified'];
 
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) {}
+
+  @Cacheable({
+    cacheBusterObserver: categoriesCacheBuster$,
+  })
+  getAll() {
+    return this.apiService.get('/org_categories').pipe(map(this.sortCategories), map(this.addDisplayName));
+  }
 
   sortCategories(categories) {
     return categories.sort((a, b) => {
@@ -64,16 +68,6 @@ export class CategoriesService {
       category.displayName = displayName;
       return category;
     });
-  }
-
-  @Cacheable({
-    cacheBusterObserver: categoriesCacheBuster$
-  })
-  getAll() {
-    return this.apiService.get('/org_categories').pipe(
-      map(this.sortCategories),
-      map(this.addDisplayName)
-    );
   }
 
   filterRequired(categoryList) {

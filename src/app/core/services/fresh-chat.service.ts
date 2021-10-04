@@ -1,26 +1,24 @@
-import {EventEmitter, Injectable} from '@angular/core';
-import {OfflineService} from './offline.service';
-import {AuthService} from './auth.service';
-import {StorageService} from './storage.service';
-import {OrgUserSettingsService} from './org-user-settings.service';
-import {NetworkService} from './network.service';
-import {concat} from 'rxjs';
-import {environment} from 'src/environments/environment';
+import { EventEmitter, Injectable } from '@angular/core';
+import { OfflineService } from './offline.service';
+import { AuthService } from './auth.service';
+import { StorageService } from './storage.service';
+import { OrgUserSettingsService } from './org-user-settings.service';
+import { NetworkService } from './network.service';
+import { concat } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { Device } from '@capacitor/device';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FreshChatService {
-
   constructor(
     private offlineService: OfflineService,
     private authService: AuthService,
     private storageService: StorageService,
     private orgUserSettingsService: OrgUserSettingsService,
     private networkService: NetworkService
-  ) {
-  }
+  ) {}
 
   setupNetworkWatcher() {
     const that = this;
@@ -30,12 +28,27 @@ export class FreshChatService {
       const eou = await that.authService.getEou();
       if (eou && isOnline) {
         const orgUserSettings = await that.getOrgUserSettings();
-        if (orgUserSettings && orgUserSettings.in_app_chat_settings && orgUserSettings.in_app_chat_settings.allowed && orgUserSettings.in_app_chat_settings.enabled) {
+        if (
+          orgUserSettings &&
+          orgUserSettings.in_app_chat_settings &&
+          orgUserSettings.in_app_chat_settings.allowed &&
+          orgUserSettings.in_app_chat_settings.enabled
+        ) {
           await that.storageService.set('inAppChatRestoreId', orgUserSettings.in_app_chat_settings.restore_id);
           that.initiateCall();
         }
       }
     });
+  }
+
+  openLiveChatSupport() {
+    return (window as any) && (window as any).fcWidget && (window as any).fcWidget.open();
+  }
+
+  destory() {
+    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destory) {
+      (window as any).fcWidget.destory();
+    }
   }
 
   private getOrgUserSettings() {
@@ -60,7 +73,7 @@ export class FreshChatService {
       token: environment.FRESHCHAT_TOKEN,
       host: 'https://wchat.in.freshchat.com',
       externalId: eou.ou.id,
-      restoreId: inAppChatRestoreId                            // that id is used to restore chat for the user
+      restoreId: inAppChatRestoreId, // that id is used to restore chat for the user
     });
 
     (window as any).fcWidget.on('widget:loaded', () => {
@@ -79,28 +92,32 @@ export class FreshChatService {
       }
     });
 
-    (window as any).fcWidget.user.get((resp) => {                  // Freshchat here calls an API to check if there is any user with the above externalId
+    (window as any).fcWidget.user.get((resp) => {
+      // Freshchat here calls an API to check if there is any user with the above externalId
       const status = resp && resp.status;
       const data = resp && resp.data;
-      if (status !== 200) {                                     // If there is no user with the above externalId; then set the below properties
+      if (status !== 200) {
+        // If there is no user with the above externalId; then set the below properties
         (window as any).fcWidget.user.setProperties({
-          firstName: eou.us.full_name,                          // user's first name
-          email: eou.us.email,                                  // user's email address
-          orgName: eou.ou.org_name,                             // user's org name
-          orgId: eou.ou.org_id,                                 // user's org id
-          userId: eou.us.id,                                    // user's user id
-          device                                        // storing users device
+          firstName: eou.us.full_name, // user's first name
+          email: eou.us.email, // user's email address
+          orgName: eou.ou.org_name, // user's org name
+          orgId: eou.ou.org_id, // user's org id
+          userId: eou.us.id, // user's user id
+          device, // storing users device
         });
-        (window as any).fcWidget.on('user:created', async (resp) => {    // When that new user tries to initiate a chat Freshchat creates a users with above properties
+        (window as any).fcWidget.on('user:created', async (resp) => {
+          // When that new user tries to initiate a chat Freshchat creates a users with above properties
           const status = resp && resp.status;
           const data = resp && resp.data;
-          if (status === 200 && data.restoreId) {               // To preserve chat history across devices and platforms, freshchat creates a unique restoreId for each user
+          if (status === 200 && data.restoreId) {
+            // To preserve chat history across devices and platforms, freshchat creates a unique restoreId for each user
             const orgUserSettings = await that.getOrgUserSettings();
 
-            orgUserSettings.in_app_chat_settings.restore_id = data.restoreId;   // that restoreId is stored in our db here
+            orgUserSettings.in_app_chat_settings.restore_id = data.restoreId; // that restoreId is stored in our db here
             await that.orgUserSettingsService.post(orgUserSettings);
 
-            await that.storageService.set('inAppChatRestoreId', data.restoreId);  // For easier access storing it in localStorage too
+            await that.storageService.set('inAppChatRestoreId', data.restoreId); // For easier access storing it in localStorage too
           }
         });
       }
@@ -110,20 +127,17 @@ export class FreshChatService {
   private initialize(i, t) {
     const that = this;
     let e;
-    i.getElementById(t) ? that.initFreshChat.call(that) : ((e = i.createElement('script')).id = t, e.async = !0, e.src = 'https://wchat.in.freshchat.com/js/widget.js', e.onload = that.initFreshChat.bind(that), i.head.appendChild(e));
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    i.getElementById(t)
+      ? that.initFreshChat.call(that)
+      : (((e = i.createElement('script')).id = t),
+        (e.async = !0),
+        (e.src = 'https://wchat.in.freshchat.com/js/widget.js'),
+        (e.onload = that.initFreshChat.bind(that)),
+        i.head.appendChild(e));
   }
 
   private initiateCall() {
     this.initialize(document, 'freshchat-js-sdk');
-  }
-
-  openLiveChatSupport() {
-    return (window as any) && (window as any).fcWidget && (window as any).fcWidget.open();
-  }
-
-  destory() {
-    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destory) {
-      (window as any).fcWidget.destory();
-    }
   }
 }

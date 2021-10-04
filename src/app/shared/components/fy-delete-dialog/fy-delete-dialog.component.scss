@@ -1,0 +1,72 @@
+@import '../../../../theme/colors';
+
+.fy-delete-dialog {
+  &--grid {
+    --ion-grid-padding: 24px;
+    --ion-grid-column-padding: 0;
+  }
+
+  &--header {
+    font-size: 18px;
+    line-height: 23px;
+    text-align: center;
+    color: $black;
+    padding: 7px;
+    font-weight: 500;
+  }
+
+  &--body {
+    font-size: 14px;
+    line-height: 18px;
+    text-align: center;
+    color: $blue-black;
+    padding: 7px 7px 0;
+    width: 247px;
+  }
+
+  &--info-container {
+    border: 1px solid $grey;
+    border-radius: 8px;
+    margin-top: 18px;
+    padding: 12px 6px;
+
+    &__icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    &__message {
+      font-size: 12px;
+      line-height: 15px;
+      color: $blue-black;
+      margin-left: 10px;
+    }
+  }
+
+  &--cta-container {
+    margin-top: 28px;
+  }
+
+  &--delete {
+    min-width: 124px;
+    min-height: 35px;
+    background: $red;
+    border-radius: 4px;
+    color: $pure-white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &--cancel {
+    min-width: 124px;
+    min-height: 35px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &__disabled {
+      opacity: 0.2;
+    }
+  }
+}

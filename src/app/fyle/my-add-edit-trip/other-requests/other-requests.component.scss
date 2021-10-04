@@ -1,5 +1,6 @@
-.other-details {
+@import '../../../../theme/colors.scss';
 
+.other-details {
   &--container {
     padding: 4px 16px;
   }
@@ -12,7 +13,6 @@
     &:last-child {
       margin: 16px 0 76px 0;
     }
-
   }
 
   &--element-container {
@@ -25,7 +25,7 @@
   }
 
   &--delete-traveller {
-    color: red;
+    color: $red;
     font-size: 16px;
   }
 
@@ -38,32 +38,43 @@
   }
 
   &--text {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 10px;
+    border-bottom: 1px solid $grey-lighter;
+    margin: 16px 0;
 
     &__invalid {
-      border-bottom-color: red !important;
+      border-bottom-color: $red !important;
     }
   }
 
   &--mandatory-text {
-    color: #f00;
+    color: $red;
+    font-size: 12px;
+    margin-top: -16px;
+  }
+
+  &--mandatory-location {
+    margin-top: 0 !important;
+  }
+
+  &--mandatory {
+    color: $primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
   }
 
   &--text-label {
     margin: 0 8px 0 0;
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
-    line-height: 2;
-    white-space: nowrap;
+    max-width: 90%;
     min-width: 120px;
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
+    white-space: nowrap;
+    font-weight: 400;
 
     &__invalid {
-      color: red;
+      color: $red;
     }
   }
 
@@ -75,20 +86,24 @@
 
   &--text-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
+    font-size: 14px;
+    font-weight: 400;
     height: 24px;
-    min-width: calc(100% - 120px);
+    line-height: 18px;
+    color: $blue-black;
+    width: 100%;
+    padding: 12px 0;
+    margin: 4px 0 !important;
   }
 
   &--date-input {
     border: 0;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.5;
-    height: 24px;
-    text-align: left;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    width: 100%;
+    padding: 16px 0;
+    height: 20px;
   }
 
   &--special-elements {
@@ -134,5 +149,9 @@
       vertical-align: text-top;
       text-align-last: center;
     }
+  }
+
+  &--select {
+    border-bottom: none !important;
   }
 }

@@ -6,15 +6,15 @@ import { environment } from 'src/environments/environment';
 import { DeepLinkService } from './deep-link.service';
 import { DeviceService } from './device.service';
 import { UserService } from './user.service';
-import {Capacitor} from '@capacitor/core';
-import {ActionPerformed, PushNotifications, PushNotificationSchema, Token} from '@capacitor/push-notifications';
+import { Capacitor } from '@capacitor/core';
+import { ActionPerformed, PushNotifications, PushNotificationSchema, Token } from '@capacitor/push-notifications';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PushNotificationService {
-
   ROOT_ENDPOINT: string;
+
   constructor(
     private userService: UserService,
     private deviceService: DeviceService,
@@ -38,7 +38,7 @@ export class PushNotificationService {
     const that = this;
     // If we don't call removeAllListeners() then PushNotifications will start add listeners every time user open the app
     PushNotifications.removeAllListeners().then(() => {
-      PushNotifications.requestPermissions().then( result => {
+      PushNotifications.requestPermissions().then((result) => {
         if (result.receive === 'granted') {
           PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
         }
@@ -63,35 +63,38 @@ export class PushNotificationService {
   postDeviceInfo(token) {
     return forkJoin({
       userProperties$: this.userService.getProperties(),
-      deviceInfo$ : this.deviceService.getDeviceInfo()
+      deviceInfo$: this.deviceService.getDeviceInfo(),
     }).pipe(
-      map(res => {
+      map((res) => {
         const deviceInfo = res.deviceInfo$;
         let userProperties = res.userProperties$;
         if (userProperties === null || userProperties === '') {
           userProperties = {
-            devices: []
+            devices: [],
           };
         }
         const currenctDevice = {
           id: deviceInfo?.uuid,
-          fcm_token: token
+          fcm_token: token,
         };
-        userProperties.devices = userProperties.devices.filter(userDevice => {
+        userProperties.devices = userProperties.devices.filter((userDevice) => {
           return userDevice.id !== currenctDevice.id;
         });
 
         userProperties.devices = userProperties.devices.concat(currenctDevice);
         return userProperties;
       }),
-      switchMap(userProperties => {
+      switchMap((userProperties) => {
         return this.userService.upsertProperties(userProperties);
       })
     );
   }
 
   updateDeliveryStatus(notificationId) {
-    return this.httpClient.post<any>(this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notificationId + '/delivered', '');
+    return this.httpClient.post<any>(
+      this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notificationId + '/delivered',
+      ''
+    );
   }
 
   updateReadStatus(notificationId) {
@@ -101,13 +104,16 @@ export class PushNotificationService {
   updateNotificationStatusAndRedirect(notificationData, wasTapped?: boolean) {
     return this.updateDeliveryStatus(notificationData.notification_id).pipe(
       concatMap(() => {
-        return iif(() => wasTapped, this.updateReadStatus(notificationData.notification_id), of(null).pipe(
-          map(() => {
-            return notificationData;
-          })
-        ));
+        return iif(
+          () => wasTapped,
+          this.updateReadStatus(notificationData.notification_id),
+          of(null).pipe(
+            map(() => {
+              return notificationData;
+            })
+          )
+        );
       })
     );
   }
-
 }

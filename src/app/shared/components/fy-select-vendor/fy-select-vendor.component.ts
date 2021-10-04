@@ -3,6 +3,7 @@ import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl, NgControl } from '@angul
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor-modal.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-select-vendor',
@@ -12,18 +13,22 @@ import { FySelectVendorModalComponent } from './fy-select-modal/fy-select-vendor
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FySelectVendorComponent),
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 })
 export class FySelectVendorComponent implements OnInit, OnDestroy {
-  private ngControl: NgControl;
   @Input() options: any[];
+
   @Input() label = '';
+
   @Input() mandatory = false;
 
-  private innerValue;
   displayValue;
+
+  private innerValue;
+
+  private ngControl: NgControl;
 
   get valid() {
     if (this.ngControl.touched) {
@@ -34,19 +39,20 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
   }
 
   private onTouchedCallback: () => void = noop;
+
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private injector: Injector
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
   }
 
-  ngOnDestroy() {
-  }
+  ngOnDestroy() {}
 
   get value(): any {
     return this.innerValue;
@@ -70,8 +76,11 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
     const currencyModal = await this.modalController.create({
       component: FySelectVendorModalComponent,
       componentProps: {
-        currentSelection: this.value
-      }
+        currentSelection: this.value,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await currencyModal.present();
@@ -97,7 +106,6 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
       }
     }
   }
-
 
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;

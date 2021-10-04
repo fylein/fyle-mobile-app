@@ -1,29 +1,35 @@
-<div class="fy-currency" [ngClass]="{'fy-currency__invalid': !valid}">
-  <form [formGroup]="fg">
-    <input class="fy-currency--currency" (click)="openCurrencyModal()" formControlName="currency" (blur)="onBlur()">
-    <input class="fy-currency--amount" formControlName="amount" (blur)="onBlur()" inputmode="decimal" type="number" placeholder="Amount">
+<div class="fy-currency">
+  <form [formGroup]="fg" class="fy-currency--form">
+    <div class="fy-currency--input-container fy-currency--currency-block">
+      <div class="fy-currency--label">
+        Currency
+        <span class="fy-currency--mandatory"> * </span>
+      </div>
+      <input class="fy-currency--input" (click)="openCurrencyModal()" formControlName="currency" (blur)="onBlur()" />
+    </div>
+    <div class="fy-currency--input-container fy-currency--amount-block" [ngClass]="{ 'fy-currency__invalid': !valid }">
+      <div class="fy-currency--label">
+        Amount
+        <span class="fy-currency--mandatory"> * </span>
+      </div>
+      <input
+        class="fy-currency--input fy-currency--amount"
+        formControlName="amount"
+        (blur)="onBlur()"
+        inputmode="decimal"
+        type="number"
+        placeholder="00.00"
+      />
+    </div>
   </form>
 </div>
 <ng-container *ngIf="value?.currency && value?.orig_currency">
-  <div class="fy-currency--exchange-rate" [ngClass]="{'fy-currency--exchange-rate__invalid': !valid}">
-    <div>
-      <div class="fy-currency--exchange-rate-coverted-amount">
-        {{ value.currency }}
-        <ng-container *ngIf="value.amount">
-          {{ value.amount | number: '1.0-2'}}
-        </ng-container>
-      </div>
-      <span class="fy-currency--exchange-rate-coverted-rate">
-        at {{ exchangeRate | number: '1.0-6' }}
-      </span>
-      <span class="fy-currency--exchange-rate-currency-conversion">
-        {{value.currency}} / {{value.orig_currency}}
-      </span>
+  <div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
+    <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="fy-info"></mat-icon>
+    <div class="fy-currency--exchange-rate-message">
+      <strong>{{ value.currency }} {{ value.amount | number: '1.0-2' }}</strong>
+      at {{ exchangeRate | number: '1.0-6' }} {{ value.currency }} / {{ value.orig_currency }}
     </div>
-    <div class="fy-currency--modify-exchange-rate" (click)="setExchangeRate()">
-      <mat-icon class="fy-currency--modify-exchange-rate-icon">
-        info
-      </mat-icon>
-    </div>
+    <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">Modify</button>
   </div>
 </ng-container>

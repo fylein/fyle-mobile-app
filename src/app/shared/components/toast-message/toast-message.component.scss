@@ -1,0 +1,25 @@
+.toast-message {
+  &--container {
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &--left-icon {
+    font-size: 20px;
+    margin-right: 10px;
+    height: 18px;
+    width: 18px;
+    flex-shrink: 0;
+  }
+
+  &--redirection {
+    margin-left: 19px;
+    margin-right: 20px;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  &--right-icon {
+    font-size: 20px;
+  }
+}

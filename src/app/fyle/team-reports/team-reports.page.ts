@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import {Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, Subject} from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, forkJoin, Subject } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import {ModalController, PopoverController} from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
-import {ActivatedRoute, Params, Router} from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay } from 'rxjs/operators';
 import { TeamReportsSearchFilterComponent } from './team-reports-search-filter/team-reports-search-filter.component';
@@ -20,20 +20,32 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   pageTitle = 'Team Reports';
+
   isConnected$: Observable<boolean>;
+
   teamReports$: Observable<ExtendedReport[]>;
+
   count$: Observable<number>;
+
   isInfiniteScrollRequired$: Observable<boolean>;
-  loadData$: BehaviorSubject<Partial<{
-    pageNumber: number,
-    queryParams: any,
-    sortParam: string,
-    sortDir: string,
-    searchString: string
-  }>>;
+
+  loadData$: BehaviorSubject<
+    Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }>
+  >;
+
   currentPageNumber = 1;
+
   acc = [];
+
   filters: Partial<{
     state: string;
     date: string;
@@ -42,13 +54,16 @@ export class TeamReportsPage implements OnInit {
     sortParam: string;
     sortDir: string;
   }>;
-  homeCurrency$: Observable<string>;
-  searchText = '';
-  orgSettings$: Observable<string>;
-  orgSettings: any;
-  onPageExit = new Subject();
 
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  homeCurrency$: Observable<string>;
+
+  searchText = '';
+
+  orgSettings$: Observable<string>;
+
+  orgSettings: any;
+
+  onPageExit = new Subject();
 
   constructor(
     private networkService: NetworkService,
@@ -62,7 +77,7 @@ export class TeamReportsPage implements OnInit {
     private popoverConroller: PopoverController,
     private activatedRoute: ActivatedRoute,
     private apiV2Service: ApiV2Service
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.setupNetworkWatcher();
@@ -86,7 +101,7 @@ export class TeamReportsPage implements OnInit {
         rp_approval_state: 'in.(APPROVAL_PENDING)',
         rp_state: 'in.(APPROVER_PENDING)',
         sequential_approval_turn: 'in.(true)',
-      }
+      },
     });
 
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
@@ -96,7 +111,8 @@ export class TeamReportsPage implements OnInit {
         map((event: any) => event.srcElement.value as string),
         debounceTime(1000),
         distinctUntilChanged()
-      ).subscribe((searchString) => {
+      )
+      .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
         currentParams.searchString = searchString;
         this.currentPageNumber = 1;
@@ -107,16 +123,16 @@ export class TeamReportsPage implements OnInit {
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
         let queryParams = params.queryParams;
-        const orderByParams = (params.sortParam && params.sortDir) ? `${params.sortParam}.${params.sortDir}` : null;
+        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getTeamReports({
           offset: (params.pageNumber - 1) * 10,
           limit: 10,
           queryParams,
-          order: orderByParams
+          order: orderByParams,
         });
       }),
-      map(res => {
+      map((res) => {
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
@@ -125,12 +141,10 @@ export class TeamReportsPage implements OnInit {
       })
     );
 
-    this.teamReports$ = paginatedPipe.pipe(
-      shareReplay(1)
-    );
+    this.teamReports$ = paginatedPipe.pipe(shareReplay(1));
 
     this.count$ = this.loadData$.pipe(
-      switchMap(params => {
+      switchMap((params) => {
         let queryParams = params.queryParams;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         return this.reportService.getTeamReportsCount(queryParams);
@@ -139,18 +153,11 @@ export class TeamReportsPage implements OnInit {
     );
 
     const paginatedScroll$ = this.teamReports$.pipe(
-      switchMap(erpts => {
-        return this.count$.pipe(
-          map(count => {
-            return count > erpts.length;
-          }));
-      })
+      switchMap((erpts) => this.count$.pipe(map((count) => count > erpts.length)))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap(params => {
-        return iif(() => (params.searchString && params.searchString !== ''), of(false), paginatedScroll$);
-      })
+      switchMap((params) => iif(() => params.searchString && params.searchString !== '', of(false), paginatedScroll$))
     );
 
     this.loadData$.subscribe(noop);
@@ -158,11 +165,12 @@ export class TeamReportsPage implements OnInit {
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
 
-    this.loadData$.subscribe(params => {
+    this.loadData$.subscribe((params) => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
-        queryParams
+        queryParams,
+        replaceUrl: true,
       });
     });
 
@@ -174,7 +182,8 @@ export class TeamReportsPage implements OnInit {
     } else if (this.activatedRoute.snapshot.params.state) {
       const filters = {
         rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
-        state: this.activatedRoute.snapshot.params.state.toUpperCase()};
+        state: this.activatedRoute.snapshot.params.state.toUpperCase(),
+      };
 
       this.filters = Object.assign({}, this.filters, filters);
       this.currentPageNumber = 1;
@@ -191,7 +200,7 @@ export class TeamReportsPage implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     });
   }
@@ -223,57 +232,89 @@ export class TeamReportsPage implements OnInit {
 
     if (this.filters) {
       if (this.filters.state) {
-        if (this.filters.state === 'ALL') {
-          newQueryParams.rp_state = 'in.(APPROVER_PENDING,APPROVER_INQUIRY,APPROVAL_DONE,COMPLETE,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
-          newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
-        } else if (this.filters.state === 'MYQUEUE') {
-          newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
-          newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
-          newQueryParams.sequential_approval_turn = 'in.(true)';
-        }
+        this.setStateFilters(newQueryParams);
       } else {
-        newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
-        newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
-        newQueryParams.sequential_approval_turn = 'in.(true)';
+        this.setDefaultStateFilters(newQueryParams);
       }
 
       if (this.filters.date) {
-        if (this.filters.date === 'THISMONTH') {
-          newQueryParams.and =
-            `(rp_created_at.gte.${this.dateService.getThisMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getThisMonthRange().to.toISOString()})`;
-        } else if (this.filters.date === 'LASTMONTH') {
-          newQueryParams.and =
-            `(rp_created_at.gte.${this.dateService.getLastMonthRange().from.toISOString()},rp_created_at.lt.${this.dateService.getLastMonthRange().to.toISOString()})`;
-        } else if (this.filters.date === 'CUSTOMDATE') {
-          newQueryParams.and =
-            `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
-        }
+        this.setDateFilters(newQueryParams);
       }
 
-      if (this.filters.sortParam && this.filters.sortDir) {
-        currentParams.sortParam = this.filters.sortParam;
-        currentParams.sortDir = this.filters.sortDir;
-      } else {
-        currentParams.sortParam = 'rp_created_at';
-        currentParams.sortDir = 'desc';
-      }
+      this.setSortFilters(currentParams);
     } else {
-      newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
-      newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
-      newQueryParams.sequential_approval_turn = 'in.(true)';
+      this.setNewFiltersDefault(newQueryParams);
     }
 
     currentParams.queryParams = newQueryParams;
     return currentParams;
   }
 
+  setSortFilters(
+    currentParams: Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }>
+  ) {
+    if (this.filters.sortParam && this.filters.sortDir) {
+      currentParams.sortParam = this.filters.sortParam;
+      currentParams.sortDir = this.filters.sortDir;
+    } else {
+      currentParams.sortParam = 'rp_created_at';
+      currentParams.sortDir = 'desc';
+    }
+  }
+
+  setDateFilters(newQueryParams: any) {
+    if (this.filters.date === 'THISMONTH') {
+      const monthRange = this.dateService.getThisMonthRange();
+      newQueryParams.and = `(rp_created_at.gte.${monthRange.from.toISOString()},rp_created_at.lt.${monthRange.to.toISOString()})`;
+    } else if (this.filters.date === 'LASTMONTH') {
+      const monthRange = this.dateService.getLastMonthRange();
+      newQueryParams.and = `(rp_created_at.gte.${monthRange.from.toISOString()},rp_created_at.lt.${monthRange.to.toISOString()})`;
+    } else if (this.filters.date === 'CUSTOMDATE') {
+      const startDate = this.filters.customDateStart.toISOString();
+      const endDate = this.filters.customDateEnd.toISOString();
+      newQueryParams.and = `(rp_created_at.gte.${startDate},rp_created_at.lt.${endDate})`;
+    }
+  }
+
+  setDefaultStateFilters(newQueryParams: any) {
+    newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
+    newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
+    newQueryParams.sequential_approval_turn = 'in.(true)';
+  }
+
+  setStateFilters(newQueryParams: any) {
+    if (this.filters.state === 'ALL') {
+      // since this is a string can break it down furthur
+      // eslint-disable-next-line max-len
+      newQueryParams.rp_state =
+        'in.(APPROVER_PENDING,APPROVER_INQUIRY,APPROVAL_DONE,COMPLETE,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
+      newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
+    } else if (this.filters.state === 'MYQUEUE') {
+      newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
+      newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
+      newQueryParams.sequential_approval_turn = 'in.(true)';
+    }
+  }
+
+  setNewFiltersDefault(newQueryParams: any) {
+    newQueryParams.rp_approval_state = 'in.(APPROVAL_PENDING)';
+    newQueryParams.rp_state = 'in.(APPROVER_PENDING)';
+    newQueryParams.sequential_approval_turn = 'in.(true)';
+  }
+
   async openFilters() {
     const filterModal = await this.popoverConroller.create({
       component: TeamReportsSearchFilterComponent,
       componentProps: {
-        filters: this.filters
+        filters: this.filters,
       },
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await filterModal.present();
@@ -287,14 +328,13 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-
   async openSort() {
     const sortModal = await this.popoverConroller.create({
       component: TeamReportsSortFilterComponent,
       componentProps: {
-        filters: this.filters
+        filters: this.filters,
       },
-      cssClass: 'dialog-popover'
+      cssClass: 'dialog-popover',
     });
 
     await sortModal.present();
@@ -324,8 +364,8 @@ export class TeamReportsPage implements OnInit {
         header: 'Cannot Delete Report',
         message: 'Report cannot be deleted',
         primaryCta: {
-          text: 'Close'
-        }
+          text: 'Close',
+        },
       });
     } else {
       const popupResult = await this.popupService.showPopup({
@@ -339,21 +379,39 @@ export class TeamReportsPage implements OnInit {
           </p>
         `,
         primaryCta: {
-          text: 'Delete'
-        }
+          text: 'Delete',
+        },
       });
 
       if (popupResult === 'primary') {
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            return this.reportService.delete(erpt.rp_id);
-          }),
-          finalize(async () => {
-            await this.loaderService.hideLoader();
-            this.doRefresh();
-          })
-        ).subscribe(noop);
+        from(this.loaderService.showLoader())
+          .pipe(
+            switchMap(() => this.reportService.delete(erpt.rp_id)),
+            finalize(async () => {
+              await this.loaderService.hideLoader();
+              this.doRefresh();
+            })
+          )
+          .subscribe(noop);
       }
     }
+  }
+
+  onHomeClicked() {
+    const queryParams: Params = { state: 'home' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onTaskClicked() {
+    const queryParams: Params = { state: 'tasks' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onCameraClicked() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 }

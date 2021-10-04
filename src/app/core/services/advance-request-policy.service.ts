@@ -3,15 +3,12 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdvanceRequestPolicyService {
-
   ROOT_ENDPOINT: string;
 
-  constructor(
-    private httpClient: HttpClient
-  ) {
+  constructor(private httpClient: HttpClient) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
@@ -20,16 +17,12 @@ export class AdvanceRequestPolicyService {
   }
 
   getPolicyRules(result) {
-    return result.advance_request_policy_rule_desired_states.filter((desiredState) =>  {
-      return desiredState.popup === true;
-    }).map((desiredState) => {
-      return desiredState.description;
-    });
+    return result.advance_request_policy_rule_desired_states
+      .filter((desiredState) => desiredState.popup === true)
+      .map((desiredState) => desiredState.description);
   }
 
   servicePost(url, data, config) {
     return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/advance_requests' + url, data);
   }
-
-
 }

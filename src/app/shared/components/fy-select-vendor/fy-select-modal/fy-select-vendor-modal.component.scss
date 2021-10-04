@@ -5,7 +5,8 @@ $list-element-color: #333;
 .selection-modal {
   color: black;
   &--list-element {
-    padding: 14px 4px;
+    padding: 18px 0;
+    margin: 0 16px;
     // border-color-font
     @extend %fy-select-list-element-default-border-color-font;
     // list-item-layout
@@ -36,7 +37,7 @@ $list-element-color: #333;
   }
 
   &--search-icon {
-    font-size: 14px;
+    @extend %fy-select-search-icon;
   }
 
   &--form-field-container {
@@ -45,10 +46,9 @@ $list-element-color: #333;
 
   &--container {
     @extend %flex-layout-column;
-    padding: 0 16px;
   }
 
-  &--recently-used-block{
+  &--recently-used-block {
     margin-top: 20px;
   }
 
@@ -89,5 +89,9 @@ $list-element-color: #333;
 
   &--autocomplete-loader {
     @extend %autocomplete-loader;
+  }
+
+  &--check {
+    @extend %fy-select-check;
   }
 }

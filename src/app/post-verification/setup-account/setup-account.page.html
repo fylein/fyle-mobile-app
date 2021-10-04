@@ -1,37 +1,48 @@
 <ion-content>
   <div class="setup-account" *ngIf="(isConnected$|async)">
-    <div class="setup-account--full-name">
-      {{fullname$|async}}
-    </div>
+    <div class="setup-account--full-name">{{fullname$|async}}</div>
     <div class="setup-account--form-header-container">
-      <div class="setup-account--form-header">
-        Setup your account?
-      </div>
-      <div class="setup-account--form-sub-header">
-        Set a password and give your account a name
-      </div>
+      <div class="setup-account--form-header">Setup your account?</div>
+      <div class="setup-account--form-sub-header">Set a password and give your account a name</div>
     </div>
     <div>
       <form [formGroup]="fg">
-        <div [ngClass]="{'setup-account--form-label__invalid': (!fg.controls.companyName.valid && fg.controls.companyName.touched) }" class="setup-account--form-label">
+        <div
+          [ngClass]="{'setup-account--form-label__invalid': (!fg.controls.companyName.valid && fg.controls.companyName.touched) }"
+          class="setup-account--form-label"
+        >
           Company Name
-        </div> 
+        </div>
         <mat-form-field class="mat-form-field-no-padding setup-account--form-field" appearance="outline">
-          <input formControlName="companyName" type="text" matInput placeholder="{{(fullname$|async)}}'s Account">
+          <input formControlName="companyName" type="text" matInput placeholder="{{(fullname$|async)}}'s Account" />
         </mat-form-field>
-        <div [ngClass]="{'setup-account--form-label__invalid': (!fg.controls.homeCurrency.valid && fg.controls.homeCurrency.touched) }" class="setup-account--form-label">
+        <div
+          [ngClass]="{'setup-account--form-label__invalid': (!fg.controls.homeCurrency.valid && fg.controls.homeCurrency.touched) }"
+          class="setup-account--form-label"
+        >
           Home Currency
         </div>
-        <mat-form-field class="mat-form-field-no-padding setup-account--form-field" appearance="outline"
-          (click)="openCurrenySelectionModal()">
-          <input formControlName="homeCurrency" placeholder="Set default currency for all expenses" matInput>
+        <mat-form-field
+          class="mat-form-field-no-padding setup-account--form-field"
+          appearance="outline"
+          (click)="openCurrenySelectionModal()"
+        >
+          <input formControlName="homeCurrency" placeholder="Set default currency for all expenses" matInput />
         </mat-form-field>
-        <div [ngClass]="{'setup-account--form-label__invalid': (!fg.controls.password.valid && fg.controls.password.touched) }" class="setup-account--form-label">
+        <div
+          [ngClass]="{'setup-account--form-label__invalid': (!fg.controls.password.valid && fg.controls.password.touched) }"
+          class="setup-account--form-label"
+        >
           Password
         </div>
         <mat-form-field class="mat-form-field-no-padding setup-account--form-field" appearance="outline">
-          <input formControlName="password" type="password" matInput [type]="hide ? 'text': 'password'"
-            placeholder="minimum 12 chars">
+          <input
+            formControlName="password"
+            type="password"
+            matInput
+            [type]="hide ? 'text': 'password'"
+            placeholder="minimum 12 chars"
+          />
           <div class="setup-account--password-visibility" matSuffix (click)="hide = !hide">
             {{hide ? 'Hide' : 'Show'}}
           </div>
@@ -41,62 +52,102 @@
     <div class="setup-account--password-rules">
       <div>
         <span>
-          <ion-icon *ngIf="lengthValidationDisplay$|async" class="new-password--validation setup-account--validation__correct"
-            name="checkmark-outline"></ion-icon>
-          <ion-icon *ngIf="!(lengthValidationDisplay$|async)" class="new-password--validation setup-account--validation__incorrect"
-            name="close-outline"></ion-icon>
+          <ion-icon
+            *ngIf="lengthValidationDisplay$|async"
+            class="new-password--validation setup-account--validation__correct"
+            name="checkmark-outline"
+          ></ion-icon>
+          <ion-icon
+            *ngIf="!(lengthValidationDisplay$|async)"
+            class="new-password--validation setup-account--validation__incorrect"
+            name="close-outline"
+          ></ion-icon>
         </span>
-        <span>
-          Is between 12 to 32 characters
-        </span>
+        <span> Is between 12 to 32 characters </span>
       </div>
       <div>
         <span>
-          <ion-icon *ngIf="uppercaseValidationDisplay$|async" class="new-password--validation setup-account--validation__correct"
-            name="checkmark-outline"></ion-icon>
-          <ion-icon *ngIf="!(uppercaseValidationDisplay$|async)" class="new-password--validation setup-account--validation__incorrect"
-            name="close-outline"></ion-icon>
+          <ion-icon
+            *ngIf="uppercaseValidationDisplay$|async"
+            class="new-password--validation setup-account--validation__correct"
+            name="checkmark-outline"
+          ></ion-icon>
+          <ion-icon
+            *ngIf="!(uppercaseValidationDisplay$|async)"
+            class="new-password--validation setup-account--validation__incorrect"
+            name="close-outline"
+          ></ion-icon>
         </span>
-        <span>
-          Contains atleast 1 uppercase character
-        </span>
+        <span> Contains atleast 1 uppercase character </span>
       </div>
       <div>
         <span>
-          <ion-icon *ngIf="numberValidationDisplay$|async" class="new-password--validation setup-account--validation__correct"
-            name="checkmark-outline"></ion-icon>
-          <ion-icon *ngIf="!(numberValidationDisplay$|async)" class="new-password--validation setup-account--validation__incorrect"
-            name="close-outline"></ion-icon>
+          <ion-icon
+            *ngIf="lowercaseValidationDisplay$|async"
+            class="new-password--validation setup-account--validation__correct"
+            name="checkmark-outline"
+          ></ion-icon>
+          <ion-icon
+            *ngIf="!(lowercaseValidationDisplay$|async)"
+            class="new-password--validation setup-account--validation__incorrect"
+            name="close-outline"
+          ></ion-icon>
         </span>
-        <span>
-          Contains atleast 1 number
-        </span>
+        <span> Contains atleast 1 lowercase character </span>
       </div>
       <div>
         <span>
-          <ion-icon *ngIf="specialCharValidationDisplay$|async" class="new-password--validation setup-account--validation__correct"
-            name="checkmark-outline"></ion-icon>
-          <ion-icon *ngIf="!(specialCharValidationDisplay$|async)" class="new-password--validation setup-account--validation__incorrect"
-            name="close-outline"></ion-icon>
+          <ion-icon
+            *ngIf="numberValidationDisplay$|async"
+            class="new-password--validation setup-account--validation__correct"
+            name="checkmark-outline"
+          ></ion-icon>
+          <ion-icon
+            *ngIf="!(numberValidationDisplay$|async)"
+            class="new-password--validation setup-account--validation__incorrect"
+            name="close-outline"
+          ></ion-icon>
         </span>
+        <span> Contains atleast 1 number </span>
+      </div>
+      <div>
         <span>
-          Contains atleast 1 special character
+          <ion-icon
+            *ngIf="specialCharValidationDisplay$|async"
+            class="new-password--validation setup-account--validation__correct"
+            name="checkmark-outline"
+          ></ion-icon>
+          <ion-icon
+            *ngIf="!(specialCharValidationDisplay$|async)"
+            class="new-password--validation setup-account--validation__incorrect"
+            name="close-outline"
+          ></ion-icon>
         </span>
+        <span> Contains atleast 1 special character </span>
       </div>
     </div>
     <div>
-      <button [ngClass]="{'setup-account--save__disabled': !fg.valid}" class="setup-account--save" (click)="saveData()" mat-flat-button color="primary">Continue</button>
+      <button
+        [ngClass]="{'setup-account--save__disabled': !fg.valid}"
+        class="setup-account--save"
+        (click)="saveData()"
+        mat-flat-button
+        color="primary"
+      >
+        Continue
+      </button>
     </div>
   </div>
   <div class="setup-account-offline ion-text-center" *ngIf="!(isConnected$|async)">
-    <img class="setup-account-offline--image" alt="offline-zer-state"
-      src="../../../assets/images/zero-states/offline.svg">
-    <div class="setup-account-offline--title">
-      Looks like you are offline
-    </div>
+    <img
+      class="setup-account-offline--image"
+      alt="offline-zer-state"
+      src="../../../assets/images/zero-states/offline.svg"
+    />
+    <div class="setup-account-offline--title">Looks like you are offline</div>
     <div class="setup-account-offline--sub-title">
-      You need to be connected to Internet to be able to login to the app. Please check if your Internet
-      connection is working.
+      You need to be connected to Internet to be able to login to the app. Please check if your Internet connection is
+      working.
     </div>
   </div>
 </ion-content>

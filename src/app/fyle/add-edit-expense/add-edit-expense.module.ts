@@ -17,14 +17,12 @@ import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { SplitExpensePopoverComponent } from './split-expense-popover/split-expense-popover.component';
-import { CriticalPolicyViolationComponent } from './critical-policy-violation/critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -44,18 +42,16 @@ import {MatButtonModule} from '@angular/material/button';
     SharedModule,
     PinchZoomModule,
     PdfViewerModule,
-    MatButtonModule
+    MatButtonModule,
   ],
   declarations: [
     AddEditExpensePage,
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
-    SplitExpensePopoverComponent,
-    CriticalPolicyViolationComponent,
     PolicyViolationComponent,
     CameraOptionsPopupComponent,
-    MatchTransactionComponent
-  ]
+    MatchTransactionComponent,
+  ],
 })
-export class AddEditExpensePageModule { }
+export class AddEditExpensePageModule {}

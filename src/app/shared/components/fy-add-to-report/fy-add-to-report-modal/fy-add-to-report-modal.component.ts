@@ -1,5 +1,14 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
-import {from, fromEvent, Observable, of} from 'rxjs';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  Input,
+  ChangeDetectorRef,
+  TemplateRef,
+} from '@angular/core';
+import { from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
@@ -13,25 +22,35 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() options: { label: string, value: any, selected?: boolean }[] = [];
+  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+
   @Input() currentSelection: any;
-  filteredOptions: { label: string, value: any, selected?: boolean }[];
+
   @Input() selectionElement: TemplateRef<ElementRef>;
+
   @Input() nullOption = true;
+
   @Input() cacheName;
+
   @Input() customInput = false;
+
   @Input() subheader;
+
   @Input() enableSearch;
+
+  filteredOptions: { label: string; value: any; selected?: boolean }[];
+
   value = '';
+
   states: any = {};
 
-  selectedOption: { label: string, value: any, selected?: boolean };
+  selectedOption: { label: string; value: any; selected?: boolean };
 
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.states.DRAFT = 'draft';
@@ -39,7 +58,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     this.states.COMPLETE = 'fyled';
     this.states.APPROVER_PENDING = 'reported';
     this.states.SUBMITTED = 'reported';
-    this.states.APPROVER_INQUIRY = 'inquiry';
+    this.states.APPROVER_INQUIRY = 'sent_back';
     this.states.POLICY_INQUIRY = 'auto_flagged';
     this.states.REJECTED = 'rejected';
     this.states.APPROVED = 'approved';
@@ -54,12 +73,9 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    this.filteredOptions = this.options.filter((option) => !isEqual(option.value, this.currentSelection));
 
-    this.filteredOptions = this.options
-      .filter(option => !isEqual(option.value, this.currentSelection));
-
-    this.selectedOption = this.options
-      .find(option => isEqual(option.value, this.currentSelection));
+    this.selectedOption = this.options.find((option) => isEqual(option.value, this.currentSelection));
 
     this.cdr.detectChanges();
   }
@@ -75,8 +91,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   onNoneSelect() {
     this.modalController.dismiss({
       label: 'None',
-      value: null
+      value: null,
     });
   }
-
 }

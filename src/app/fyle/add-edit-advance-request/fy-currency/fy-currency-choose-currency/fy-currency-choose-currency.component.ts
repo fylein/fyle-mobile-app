@@ -15,21 +15,22 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   @Input() currentSelection: string;
 
-  currencies$: Observable<{ shortCode: string, longName: string }[]>;
-  filteredCurrencies$: Observable<{ shortCode: string, longName: string }[]>;
+  currencies$: Observable<{ shortCode: string; longName: string }[]>;
+
+  filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
 
   constructor(
     private currencyService: CurrencyService,
     private modalController: ModalController,
     private loaderService: LoaderService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
-      concatMap(() => {
-        return this.currencyService.getAll();
-      }),
-      map(currenciesObj => Object.keys(currenciesObj).map(shortCode => ({ shortCode, longName: currenciesObj[shortCode] }))),
+      concatMap(() => this.currencyService.getAll()),
+      map((currenciesObj) =>
+        Object.keys(currenciesObj).map((shortCode) => ({ shortCode, longName: currenciesObj[shortCode] }))
+      ),
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);
       }),
@@ -44,17 +45,17 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => {
-        return this.currencies$.pipe(
-          map(
-            currencies => currencies
-              .filter(
-                currency => currency.shortCode.toLowerCase().includes(searchText.toLowerCase())
-                  || currency.longName.toLowerCase().includes(searchText.toLowerCase())
-              )
+      switchMap((searchText) =>
+        this.currencies$.pipe(
+          map((currencies) =>
+            currencies.filter(
+              (currency) =>
+                currency.shortCode.toLowerCase().includes(searchText.toLowerCase()) ||
+                currency.longName.toLowerCase().includes(searchText.toLowerCase())
+            )
           )
-        );
-      })
+        )
+      )
     );
   }
 
@@ -64,7 +65,7 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   onCurrencySelect(currency) {
     this.modalController.dismiss({
-      currency
+      currency,
     });
   }
 }

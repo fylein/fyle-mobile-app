@@ -8,7 +8,6 @@ $paid-pill: #3d8b3d;
 $light-grey-border: #cccdd7;
 
 .ccc-classified-actions {
-
   &--toolbar {
     border-bottom: 1px solid #e0e0e0;
   }
@@ -51,7 +50,7 @@ $light-grey-border: #cccdd7;
     display: flex;
     align-items: center;
     padding: 22px 16px;
-    color: #5A5D72;
+    color: #5a5d72;
     margin: 0 12px;
     justify-content: space-between;
   }
@@ -87,14 +86,13 @@ $light-grey-border: #cccdd7;
     &__large {
       width: 148px;
     }
-
   }
 
   &--classify-details {
     display: flex;
     padding-top: 14px;
     padding-bottom: 12px;
-    color: #5A5D72;
+    color: #5a5d72;
     &-date {
       min-width: 60px;
       padding-right: 16px;
@@ -114,16 +112,16 @@ $light-grey-border: #cccdd7;
 
   &--body {
     margin: 18px;
-    border: 1px solid #F7F7F7;
+    border: 1px solid #f7f7f7;
     border-radius: 4px;
     padding: 18px;
   }
 
   &--container {
-    border: 1px solid #F7F7F7;
+    border: 1px solid #f7f7f7;
     border-radius: 4px;
     padding: 18px;
-    background: #F7F7F7;
+    background: #f7f7f7;
   }
 
   &--input-container {
@@ -163,7 +161,7 @@ $light-grey-border: #cccdd7;
       background-color: $fyled-pill;
     }
 
-    &__draft {
+    &__incomplete {
       background-color: $draft-pill;
     }
 

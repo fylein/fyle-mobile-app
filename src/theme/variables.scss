@@ -1,66 +1,63 @@
+@use '~@angular/material' as mat;
 
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
-@import '~@angular/material/theming';
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
-$custom-typography: mat-typography-config($font-family: '"aktiv-grotesk", "Lato", sans-serif');
-@include mat-core($custom-typography);
+$custom-typography: mat.define-typography-config(
+  $font-family: '"aktiv-grotesk", "Lato", sans-serif',
+);
+@include mat.core($custom-typography);
 
 /// warning color palette
 $fy-warning: (
-  50 : #fbe4e5,
-  100 : #f4bcbf,
-  200 : #ed8f94,
-  300 : #e56269,
-  400 : #e04048,
-  500 : #da1e28,
-  600 : #d61a24,
-  700 : #d0161e,
-  800 : #cb1218,
-  900 : #c20a0f,
-  A100 : #ffeded,
-  A200 : #ffbabb,
-  A400 : #ff8789,
-  A700 : #ff6e70,
+  50: #fbe4e5,
+  100: #f4bcbf,
+  200: #ed8f94,
+  300: #e56269,
+  400: #e04048,
+  500: #da1e28,
+  600: #d61a24,
+  700: #d0161e,
+  800: #cb1218,
+  900: #c20a0f,
+  A100: #ffeded,
+  A200: #ffbabb,
+  A400: #ff8789,
+  A700: #ff6e70,
   contrast: (
-      50 : #000000,
-      100 : #000000,
-      200 : #000000,
-      300 : #000000,
-      400 : #ffffff,
-      500 : #ffffff,
-      600 : #ffffff,
-      700 : #ffffff,
-      800 : #ffffff,
-      900 : #ffffff,
-      A100 : #000000,
-      A200 : #000000,
-      A400 : #000000,
-      A700 : #000000,
-  )
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #000000,
+  ),
 );
 
 // mat-palette accepts $palette-name, main, lighter and darker variants
-$fy-theme-primary: mat-palette($mat-pink);
-$fy-theme-accent: mat-palette($mat-gray, 200);
-$fy-theme-warn: mat-palette($fy-warning);
-
+$fy-theme-primary: mat.define-palette(mat.$pink-palette);
+$fy-theme-accent: mat.define-palette(mat.$gray-palette, 200);
+$fy-theme-warn: mat.define-palette($fy-warning);
 
 // create theme (use mat-dark-theme for themes with dark backgrounds)
-$fy-theme: mat-light-theme(
-  $fy-theme-primary,
-  $fy-theme-accent,
-  $fy-theme-warn
-);
+$fy-theme: mat.define-light-theme($fy-theme-primary, $fy-theme-accent, $fy-theme-warn);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
-@include angular-material-theme($fy-theme);
+@include mat.all-component-themes($fy-theme);
 
 // // Ionic Variables and Theming. For more info, please see:
 // // http://ionicframework.com/docs/theming/
@@ -250,7 +247,6 @@ $fy-theme: mat-light-theme(
 //     --ion-card-background: #1c1c1d;
 //   }
 
-
 //   /*
 //    * Material Design Dark Theme
 //    * -------------------------------------------
@@ -294,5 +290,11 @@ $fy-theme: mat-light-theme(
 //     --ion-card-background: #1e1e1e;
 //   }
 // }
-html, body { height: 100%; }
-body { margin: 0; font-family: aktiv-grotesk, sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: aktiv-grotesk, sans-serif;
+}

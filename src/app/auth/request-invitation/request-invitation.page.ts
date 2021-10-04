@@ -1,16 +1,16 @@
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute} from '@angular/router';
-import {LoaderService} from 'src/app/core/services/loader.service';
-import {from, throwError} from 'rxjs';
-import {InvitationRequestsService} from 'src/app/core/services/invitation-requests.service';
-import {catchError, concatMap, finalize} from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { from, throwError } from 'rxjs';
+import { InvitationRequestsService } from 'src/app/core/services/invitation-requests.service';
+import { catchError, concatMap, finalize } from 'rxjs/operators';
 
 enum RequestInvitationPageState {
   notSent,
   success,
   failure,
-  alreadySent
+  alreadySent,
 }
 
 @Component({
@@ -19,9 +19,10 @@ enum RequestInvitationPageState {
   styleUrls: ['./request-invitation.page.scss'],
 })
 export class RequestInvitationPage implements OnInit {
-
   fg: FormGroup;
+
   currentPageState: RequestInvitationPageState = RequestInvitationPageState.notSent;
+
   get RequestInvitationStates() {
     return RequestInvitationPageState;
   }
@@ -31,34 +32,34 @@ export class RequestInvitationPage implements OnInit {
     private activateRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private invitationRequestsService: InvitationRequestsService
-  ) { }
+  ) {}
 
   ngOnInit() {
     const emailParam = this.activateRoute.snapshot.params.email;
 
     this.fg = this.fb.group({
-      email: [emailParam || '', Validators.required]
+      email: [emailParam || '', Validators.required],
     });
   }
 
   sendRequestInvitation() {
-    from(this.loaderService.showLoader('Sending request to join organization...')).pipe(
-      concatMap(() => {
-        return this.invitationRequestsService.upsertRouter(this.fg.controls.email.value);
-      }),
-      finalize(async () => {
-        await this.loaderService.hideLoader();
-      }),
-      catchError((err) => {
-        if (err.status === 400) {
-          this.currentPageState = this.RequestInvitationStates.alreadySent;
-        } else {
-          this.currentPageState = this.RequestInvitationStates.failure;
-        }
-        return throwError(err);
-      })
-    ).subscribe(() => {
-      this.currentPageState = this.RequestInvitationStates.success;
-    });
+    from(this.loaderService.showLoader('Sending request to join organization...'))
+      .pipe(
+        concatMap(() => this.invitationRequestsService.upsertRouter(this.fg.controls.email.value)),
+        finalize(async () => {
+          await this.loaderService.hideLoader();
+        }),
+        catchError((err) => {
+          if (err.status === 400) {
+            this.currentPageState = this.RequestInvitationStates.alreadySent;
+          } else {
+            this.currentPageState = this.RequestInvitationStates.failure;
+          }
+          return throwError(err);
+        })
+      )
+      .subscribe(() => {
+        this.currentPageState = this.RequestInvitationStates.success;
+      });
   }
 }

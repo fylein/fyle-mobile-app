@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
-import {AuthService} from './auth.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TrackingService {
   identityEmail = null;
 
-  constructor(
-    private authService: AuthService
-  ) { }
+  constructor(private authService: AuthService) {}
 
   get tracking() {
     return (window as any).analytics;
@@ -21,10 +19,27 @@ export class TrackingService {
     if (email && email !== this.identityEmail) {
       if (this.tracking) {
         this.tracking.identify(email, {
-          $email: email
+          $email: email,
         });
       }
       this.identityEmail = email;
+    }
+  }
+
+  async getUserProperties() {
+    const properties = {};
+    const eou = await this.authService.getEou();
+    if (eou && eou.us && eou && eou.ou) {
+      properties['User Name'] = eou.us.full_name;
+      properties['User Org Name'] = eou.ou.org_name;
+      properties['User Org ID'] = eou.ou.org_id;
+    }
+    return properties;
+  }
+
+  async updateIdentityIfNotPresent() {
+    if (!this.identityEmail) {
+      await this.updateIdentity();
     }
   }
 
@@ -40,32 +55,36 @@ export class TrackingService {
     }
   }
 
-  onStateChange(toState, toParams, fromState, fromParams) {
-  }
+  onStateChange(toState, toParams, fromState, fromParams) {}
 
-  eventTrack(action, properties) {
+  eventTrack(action, properties = {}) {
+    properties = {
+      ...properties,
+      Asset: 'Mobile',
+    };
     if (this.tracking) {
       this.tracking.track(action, properties);
     }
   }
 
   // external APIs
-  onSignin(email, properties) {
+  onSignin(email, properties = {}) {
     if (this.tracking) {
       this.tracking.identify(email, {
-        $email: email
+        $email: email,
       });
+
+      this.identityEmail = email;
     }
 
     this.eventTrack('Signin', properties);
   }
 
-  onLogout() {
-  }
+  onLogout() {}
 
   /*** Events related to expense ***/
 
-    // create expense event
+  // create expense event
   async createExpense(properties) {
     // Temporary hack for already logged in users - we need to know their identity
     await this.updateIdentity();
@@ -90,7 +109,7 @@ export class TrackingService {
   }
 
   // delete expense event
-  deleteExpense(properties) {
+  deleteExpense(properties = {}) {
     this.eventTrack('Delete Expense', properties);
   }
 
@@ -115,7 +134,7 @@ export class TrackingService {
   }
 
   // add view attachment event
-  viewAttachment(properties) {
+  viewAttachment(properties = {}) {
     this.eventTrack('View Attachment', properties);
   }
 
@@ -125,22 +144,22 @@ export class TrackingService {
   }
 
   // add comment event
-  addComment(properties) {
+  addComment(properties = {}) {
     this.eventTrack('Add Comment', properties);
   }
 
   // view comment event
-  viewComment(properties) {
+  viewComment(properties = {}) {
     this.eventTrack('View Comment', properties);
   }
 
   // click Add To Report event
-  clickAddToReport(properties) {
+  clickAddToReport(properties = {}) {
     this.eventTrack('Click Add To Report', properties);
   }
 
   // click on save and add new expense button
-  clickSaveAddNew(properties) {
+  clickSaveAddNew(properties = {}) {
     this.eventTrack('Click Save Add New Expense', properties);
   }
 
@@ -180,12 +199,12 @@ export class TrackingService {
   }
 
   // click on Add to report button
-  addToReport(properties) {
+  addToReport(properties = {}) {
     this.eventTrack('Add Expenses to report', properties);
   }
 
   // click on Create Report
-  clickCreateReport(properties) {
+  clickCreateReport(properties = {}) {
     this.eventTrack('Click Create Report', properties);
   }
 
@@ -196,18 +215,18 @@ export class TrackingService {
 
   /*** Events related to reports ***/
 
-    // click download report
+  // click download report
   clickDownloadReport(properties) {
     this.eventTrack('Click Download Report', properties);
   }
 
   // click share report
-  clickShareReport(properties) {
+  clickShareReport(properties = {}) {
     this.eventTrack('Click Share Report', properties);
   }
 
   // delete report event
-  deleteReport(properties) {
+  deleteReport(properties = {}) {
     this.eventTrack('Delete Report', properties);
   }
 
@@ -240,7 +259,7 @@ export class TrackingService {
 
   /*** Events related to Settings ***/
 
-    // update mileage event
+  // update mileage event
   updateMileageSettings(properties) {
     this.eventTrack('Update Mileage Settings', properties);
   }
@@ -305,30 +324,29 @@ export class TrackingService {
     this.eventTrack('Click Add Secondary email', properties);
   }
 
-
   /*** Events related to help page ***/
 
-    // view help card event
-  viewHelpCard(properties) {
+  // view help card event
+  viewHelpCard(properties = {}) {
     this.eventTrack('View Help Card', properties);
   }
 
   // engage with help card event
-  engageWithHelpCard(properties) {
+  engageWithHelpCard(properties = {}) {
     this.eventTrack('Engage with Help Card', properties);
   }
 
   /*** Events related to system ***/
 
-    // signout event
-  onSignOut(properties) {
+  // signout event
+  onSignOut(properties = {}) {
     this.eventTrack('Sign Out', properties);
   }
 
   /*** Events related to lifecycle ***/
 
-    // email verified event
-  emailVerified(properties) {
+  // email verified event
+  emailVerified(properties = {}) {
     this.eventTrack('Email Verified', properties);
   }
 
@@ -338,12 +356,12 @@ export class TrackingService {
   }
 
   // activated event
-  activated(properties) {
+  activated(properties = {}) {
     this.eventTrack('Activated', properties);
   }
 
   // when first expense is created
-  createFirstExpense(properties) {
+  createFirstExpense(properties = {}) {
     this.eventTrack('Create First Expense', properties);
   }
 
@@ -353,19 +371,24 @@ export class TrackingService {
   }
 
   // When user submits password and company details form and hits continue.
-  setupHalf(properties) {
+  setupHalf(properties = {}) {
     this.eventTrack('Setup Half', properties);
   }
 
   // When user completes account setup journey
-  setupComplete(properties) {
+  setupComplete(properties = {}) {
     this.eventTrack('Setup Complete', properties);
+  }
+
+  // When toast message is displayed
+  showToastMessage(properties) {
+    this.eventTrack('Toast message displayed', properties);
   }
 
   /*** Old events ***/
 
-    // reset password event
-  resetPassword(properties) {
+  // reset password event
+  resetPassword(properties = {}) {
     this.eventTrack('Reset Password', properties);
   }
 
@@ -375,12 +398,12 @@ export class TrackingService {
   }
 
   // adding expenses in existing report event
-  addToExistingReport(properties) {
+  addToExistingReport(properties = {}) {
     this.eventTrack('Add Expenses to Report', properties);
   }
 
   // adding expenses in existing report while add/edit expense event
-  addToExistingReportAddEditExpense(properties) {
+  addToExistingReportAddEditExpense(properties = {}) {
     this.eventTrack('Add Expenses to existing report while add/edit expense', properties);
   }
 
@@ -389,7 +412,7 @@ export class TrackingService {
     this.eventTrack('Move expense from one report to another report while add/edit expense', properties);
   }
 
-  removeFromExistingReportEditExpense(properties) {
+  removeFromExistingReportEditExpense(properties = {}) {
     this.eventTrack('Remove Expenses from existing report through edit expense', properties);
   }
 
@@ -446,6 +469,10 @@ export class TrackingService {
   // switch to user toggle
   switchUser(properties) {
     this.eventTrack('Switch User', properties);
+  }
+
+  onSwitchOrg(properties) {
+    this.eventTrack('Switch Org', properties);
   }
 
   // switch to user toggle
@@ -683,5 +710,133 @@ export class TrackingService {
 
   corporateCardsOpenedDropdown(properties) {
     this.eventTrack('corporate cards opened dropdown', properties);
+  }
+
+  // Instafyle Actions
+
+  instafyleIntroDisabled(properties = {}) {
+    this.eventTrack('instafyle intro disabled', properties);
+  }
+
+  switchedToInstafyleBulkMode(properties = {}) {
+    this.eventTrack('switched to bulk instafyle', properties);
+  }
+
+  switchedToInstafyleSingleMode(properties = {}) {
+    this.eventTrack('switched to single instafyle', properties);
+  }
+
+  instafyleGalleryUploadOpened(properties = {}) {
+    this.eventTrack('instafyle gallery upload opened', properties);
+  }
+
+  flashModeSet(properties) {
+    this.eventTrack('instafyle flash mode set', properties);
+  }
+
+  // New Dashboard Actions
+  dashboardActionSheetOpened(properties = {}) {
+    this.eventTrack('dashboard action sheet opened', properties);
+  }
+
+  dashboardActionSheetButtonClicked(properties) {
+    this.eventTrack('dashboard action sheet button clicked', properties);
+  }
+
+  dashboardOnUnreportedExpensesClick(properties = {}) {
+    this.eventTrack('dashboard unreported expenses clicked', properties);
+  }
+
+  dashboardOnReportPillClick(properties) {
+    this.eventTrack('dashboard report pill clicked', properties);
+  }
+
+  dashboardOnCorporateCardClick(properties) {
+    this.eventTrack('dashboard corporate card clicked', properties);
+  }
+
+  // Footer
+  footerButtonClicked(properties) {
+    this.eventTrack('footer button clicked', properties);
+  }
+
+  myExpensesBulkDeleteExpenses(properties = {}) {
+    this.eventTrack('bulk delete of expenses from my expenses page', properties);
+  }
+
+  myExpensesActionSheetAction(properties) {
+    this.eventTrack('my expenses action sheet action clicked', properties);
+  }
+
+  myExpensesFilterApplied(properties) {
+    this.eventTrack('my expenses filters applied', properties);
+  }
+
+  // Duplicates
+  async duplicateDetectionAlertShown(properties: {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Duplicate Detection User Alert Shown', properties);
+  }
+
+  async duplicateDetectionUserActionExpand(properties: {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Duplicate Detection User Action Expand', properties);
+  }
+
+  async duplicateDetectionUserActionCollapse(properties: {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Duplicate Detection User Action Collapse', properties);
+  }
+
+  showMoreClicked(properties) {
+    this.eventTrack('show more clicked', properties);
+  }
+
+  hideMoreClicked(properties) {
+    this.eventTrack('hide more clicked', properties);
+  }
+
+  footerSaveAndPrevClicked(properties = {}) {
+    this.eventTrack('save and previous clicked inside footer', properties);
+  }
+
+  footerSaveAndNextClicked(properties = {}) {
+    this.eventTrack('save and next clicked inside footer', properties);
+  }
+
+  // Tasks
+  async tasksFiltersApplied(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('filters applied in tasks', properties);
+  }
+
+  async tasksPageOpened(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks page opened', properties);
+  }
+
+  async tasksShown(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks shown', properties);
+  }
+
+  async tasksClicked(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks clicked', properties);
+  }
+
+  async tasksFilterClearAllClicked(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks clear all filters clicked', properties);
+  }
+
+  async tasksFilterPillClicked(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks clicked on filter pill', properties);
+  }
+
+  async tasksFilterPillRemoveClicked(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks clicked on remove filter pill', properties);
   }
 }

@@ -7,14 +7,13 @@ import { ModalController } from '@ionic/angular';
   styleUrls: ['./policy-violation.component.scss'],
 })
 export class PolicyViolationComponent implements OnInit {
-
   @Input() policyViolationMessages = [];
+
   @Input() policyActionDescription = '';
+
   @Input() comment = '';
 
-  constructor(
-    private modalController: ModalController
-  ) { }
+  constructor(private modalController: ModalController) {}
 
   ngOnInit() {}
 
@@ -24,7 +23,7 @@ export class PolicyViolationComponent implements OnInit {
 
   continue() {
     this.modalController.dismiss({
-      comment: this.comment
+      comment: this.comment,
     });
   }
 }

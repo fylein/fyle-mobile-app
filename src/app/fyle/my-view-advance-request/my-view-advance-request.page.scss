@@ -1,5 +1,4 @@
 .view-advance-request {
-
   &--card {
     padding: 0 16px;
     margin: 16px;
@@ -11,7 +10,25 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
 
-  &--attachment-currency-container{
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
+  }
+
+  &--title-sm {
+    padding-left: 0;
+    font-size: 17px;
+  }
+
+  &--header-btn-container__sm {
+    margin: 0 !important;
+  }
+
+  &--attachment-currency-container {
     margin: 12px 16px;
     display: flex;
   }
@@ -79,9 +96,9 @@
     margin-top: 20px;
     line-height: 1;
     margin-left: -4px;
-}
+  }
 
-  &--add-receipt-text{
+  &--add-receipt-text {
     display: inline-block;
     vertical-align: middle;
     margin: 20px 0 0;
@@ -120,8 +137,6 @@
     border: 0;
     background: transparent;
   }
-
-
 
   &--element {
     display: flex;
@@ -172,10 +187,6 @@
       color: #0077ee;
     }
 
-    &__delete {
-      color: #f00;
-    }
-
     mat-icon {
       font-size: 24px;
       color: #ababab;
@@ -199,5 +210,4 @@
     margin: 12px;
     height: 48px;
   }
-
 }

@@ -43,4 +43,3 @@ export interface ExtendedAdvance {
   project_id: number;
   project_name: string;
 }
-

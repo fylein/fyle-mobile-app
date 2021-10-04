@@ -1,0 +1,91 @@
+@import './colors.scss';
+
+.timeline {
+  &--timeline {
+    padding: 16px 0 40px 0;
+  }
+
+  &--timeline-item {
+    border-left: 1px solid $grey-light;
+    padding-left: 12px;
+    min-height: 70px;
+    max-height: 70px;
+
+    &__text-content {
+      min-height: auto;
+      max-height: auto;
+    }
+
+    &__first {
+      max-height: 45px;
+      min-height: 45px;
+    }
+
+    &__last {
+      max-height: 45px;
+      min-height: 45px;
+    }
+
+    &__first > &-internal {
+      &::before {
+        content: '●';
+        position: relative;
+        left: -19px;
+        font-size: 24px;
+      }
+    }
+
+    &__middle > &-internal {
+      &::before {
+        content: '□';
+        position: relative;
+        left: -19px;
+        font-size: 24px;
+        line-height: 6px;
+        height: 10px;
+        background-color: $pure-white;
+      }
+    }
+
+    &__last > &-internal {
+      &::before {
+        content: '■';
+        position: relative;
+        left: -19px;
+        font-size: 24px;
+      }
+    }
+
+    &-internal {
+      display: flex;
+      align-items: center;
+      &__first {
+        position: relative;
+        top: -24px;
+      }
+
+      &__last {
+        position: relative;
+        top: 15px;
+      }
+    }
+  }
+
+  &--error {
+    color: $red;
+    line-height: 16px;
+    font-size: 12px;
+    left: 14px;
+    position: relative;
+
+    &__first {
+      position: relative;
+      top: -24px;
+    }
+
+    &__last {
+      position: relative;
+      top: 18px;
+    }
+  }
+}

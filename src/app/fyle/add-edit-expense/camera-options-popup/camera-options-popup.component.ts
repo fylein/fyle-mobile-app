@@ -2,8 +2,8 @@ import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { FileService } from 'src/app/core/services/file.service';
-import {TrackingService} from '../../../core/services/tracking.service';
-import {Camera, CameraDirection, CameraResultType, CameraSource} from '@capacitor/camera';
+import { TrackingService } from '../../../core/services/tracking.service';
+import { Camera, CameraDirection, CameraResultType, CameraSource } from '@capacitor/camera';
 
 @Component({
   selector: 'app-camera-options-popup',
@@ -11,7 +11,6 @@ import {Camera, CameraDirection, CameraResultType, CameraSource} from '@capacito
   styleUrls: ['./camera-options-popup.component.scss'],
 })
 export class CameraOptionsPopupComponent implements OnInit {
-
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
   constructor(
@@ -19,29 +18,29 @@ export class CameraOptionsPopupComponent implements OnInit {
     private loaderService: LoaderService,
     private fileService: FileService,
     private trackingService: TrackingService
-  ) { }
+  ) {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   closeClicked() {
     this.popoverController.dismiss();
   }
 
   async getImageFromPicture() {
-    this.trackingService.addAttachment({Asset: 'Mobile', Mode: 'Add Expense', Category: 'Camera'});
+    this.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
 
     const image = await Camera.getPhoto({
-      quality: 90,
+      quality: 70,
       source: CameraSource.Camera,
       direction: CameraDirection.Rear,
-      resultType: CameraResultType.DataUrl
+      resultType: CameraResultType.DataUrl,
     });
 
     if (image) {
       this.popoverController.dismiss({
         type: image.format,
         dataUrl: image.dataUrl,
-        actionSource: 'camera'
+        actionSource: 'camera',
       });
     } else {
       this.closeClicked();
@@ -50,7 +49,7 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   async getImageFromImagePicker() {
     const that = this;
-    that.trackingService.addAttachment({Asset: 'Mobile', Mode: 'Add Expense', Category: 'Camera'});
+    that.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
 
     const nativeElement = that.fileUpload.nativeElement as HTMLInputElement;
 
@@ -62,7 +61,7 @@ export class CameraOptionsPopupComponent implements OnInit {
         that.popoverController.dismiss({
           type: file.type,
           dataUrl,
-          actionSource: 'gallery_upload'
+          actionSource: 'gallery_upload',
         });
       } else {
         that.closeClicked();

@@ -1,7 +1,8 @@
-<ion-header mode="md" >
-  <ion-toolbar class="policy-violation--toolbar">
-    <ion-title mode="md">
-      Policy Violated
+<ion-header mode="md">
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <ion-toolbar class="text-center policy-violation--toolbar fy-modal-toolbar">
+    <ion-title>
+      <div class="policy-violation--toolbar__title">Policy Violated</div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -15,28 +16,29 @@
 
     <ul class="policy-violation--list">
       <li *ngFor="let violation of policyViolationMessages">
-        {{violation}}
+        {{ violation }}
       </li>
     </ul>
 
     <div class="policy-violation--description">
-      {{policyActionDescription}}
+      {{ policyActionDescription }}
     </div>
 
-    <textarea class="policy-violation--textarea" [(ngModel)]="comment"
-      placeholder="Please provide an explanation for policy violation"></textarea>
+    <textarea
+      class="policy-violation--textarea"
+      [(ngModel)]="comment"
+      placeholder="Please provide an explanation for policy violation"
+    ></textarea>
   </div>
 </ion-content>
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <ion-buttons class="policy-violation--buttons">
-      <ion-button expand="full" color="medium" (click)="cancel()">
-        Cancel
-      </ion-button>
-      <ion-button expand="full" color="fyle-primary" (click)="continue()">
-        Continue
-      </ion-button>
-    </ion-buttons>
+    <div class="policy-violation--footer-toolbar">
+      <ion-buttons class="policy-violation--buttons">
+        <ion-button class="btn-secondary" (click)="cancel()"> Cancel </ion-button>
+        <ion-button class="btn-primary" (click)="continue()"> Continue </ion-button>
+      </ion-buttons>
+    </div>
   </ion-toolbar>
 </ion-footer>
