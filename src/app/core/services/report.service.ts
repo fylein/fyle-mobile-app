@@ -147,7 +147,7 @@ export class ReportService {
     };
     return this.apiService
       .post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+      .pipe(tap(() => this.clearTransactionCache()));
   }
 
   @CacheBuster({

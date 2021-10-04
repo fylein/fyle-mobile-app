@@ -172,6 +172,19 @@ export class MyViewReportPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
+  updateReportName(erpt: ExtendedReport, reportName: string) {
+    erpt.rp_purpose = reportName;
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.reportService.updateReportDetails(erpt)),
+        finalize(() => this.loaderService.hideLoader()),
+        shareReplay(1)
+      )
+      .subscribe(() => {
+        this.reportName = reportName;
+      });
+  }
+
   async editReportName() {
     const erpt = await this.erpt$.toPromise();
     const editReportNamePopover = await this.popoverController.create({
@@ -186,16 +199,7 @@ export class MyViewReportPage implements OnInit {
     const { data } = await editReportNamePopover.onWillDismiss();
 
     if (data && data.reportName) {
-      erpt.rp_purpose = data.reportName;
-      from(this.loaderService.showLoader())
-        .pipe(
-          switchMap(() => this.reportService.updateReportDetails(erpt)),
-          finalize(() => this.loaderService.hideLoader()),
-          shareReplay(1)
-        )
-        .subscribe(() => {
-          this.reportName = data.reportName;
-        });
+      this.updateReportName(erpt, data.reportName);
     }
   }
 
