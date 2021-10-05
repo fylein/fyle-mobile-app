@@ -20,6 +20,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-my-view-report',
@@ -52,6 +53,8 @@ export class MyViewReportPage implements OnInit {
   isConnected$: Observable<boolean>;
 
   onPageExit = new Subject();
+
+  reportCurrencySymbol = '';
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -122,6 +125,10 @@ export class MyViewReportPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
+    this.erpt$.subscribe((erpt) => {
+      this.reportCurrencySymbol = getCurrencySymbol(erpt.rp_currency, 'wide');
+    });
+
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
       map((pdfExports) =>
         pdfExports.results
@@ -132,16 +139,9 @@ export class MyViewReportPage implements OnInit {
     );
 
     this.reportApprovals$ = this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id).pipe(
-      map((reportApprovals) =>
-        reportApprovals
-          .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
-          .map((approval) => {
-            if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
-              approval.approved_at = approval.updated_at;
-            }
-            return approval;
-          })
-      )
+      map((reportApprovals) => {
+        return reportApprovals;
+      })
     );
 
     this.etxns$ = from(this.authService.getEou()).pipe(
@@ -301,7 +301,7 @@ export class MyViewReportPage implements OnInit {
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
-      cssClass: 'share-report-modal'
+      cssClass: 'share-report-modal',
     });
 
     await shareReportModal.present();
@@ -315,9 +315,9 @@ export class MyViewReportPage implements OnInit {
       };
       this.reportService.downloadSummaryPdfUrl(params).subscribe(async () => {
         const message = `PDF download link has been emailed to ${data.email}`;
-        this.matSnackBar.openFromComponent( ToastMessageComponent, {
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-          panelClass: ['msb-success-with-report-btn']
+          panelClass: ['msb-success-with-report-btn'],
         });
         this.trackingService.showToastMessage({ ToastContent: message });
       });

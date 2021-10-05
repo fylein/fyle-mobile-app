@@ -17,32 +17,21 @@ $sent-back-color: #da1e28;
     }
   }
 
+  &--container {
+    --background: #{$white};
+  }
+
   &--body {
     margin: 16px;
   }
 
   &--card {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
-    margin: 20px 0;
+    background: url('../../../assets/images/card.png') no-repeat bottom;
+    background-size: 100% 100%;
+    margin: 12px 0;
     padding: 16px;
-    border-radius: 4px;
-
-    &__block-action {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      box-shadow: none;
-    }
-
-    &__zero-state {
-      text-align: center;
-    }
-  }
-
-  &--divider {
-    border-top: 1px solid #e5e5e5;
-    margin: 16px 0;
+    border-radius: 16px;
+    height: 140px;
   }
 
   &--zero-state-header {
@@ -61,18 +50,6 @@ $sent-back-color: #da1e28;
     line-height: 1.5;
     margin-bottom: 24px;
     padding: 0 8px;
-  }
-
-  &--block-action {
-    margin-left: 16px;
-    font-size: 16px;
-    &__comment {
-      color: #0077ee;
-    }
-
-    &__delete {
-      color: red;
-    }
   }
 
   &--card-header {
@@ -113,13 +90,11 @@ $sent-back-color: #da1e28;
   }
 
   &--report-state-pill {
-    color: white;
-    padding: 1px 4px;
-    display: inline-block;
-    border-radius: 4px;
-    text-transform: uppercase;
+    color: $pure-white;
+    padding: 2px 16px;
+    border-radius: 16px;
     font-size: 12px;
-    font-weight: 500;
+    float: right;
 
     &__fyled {
       background-color: #f90;
@@ -154,18 +129,6 @@ $sent-back-color: #da1e28;
     }
   }
 
-  &--currency {
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 700;
-  }
-
-  &--amount {
-    font-size: 24px;
-    color: #000;
-    font-weight: 500;
-  }
-
   &--count {
     font-size: 16px;
     color: #ababab;
@@ -181,10 +144,6 @@ $sent-back-color: #da1e28;
     margin: 16px 0 0;
   }
 
-  &--block-action-icon {
-    color: #ababab;
-  }
-
   &--primary-cta {
     margin: 12px;
     height: 48px;
@@ -194,5 +153,41 @@ $sent-back-color: #da1e28;
     color: #0077ee;
     font-size: 16px;
     font-weight: normal;
+  }
+
+  &--purpose-amount-block {
+    display: flex;
+    justify-content: space-between;
+    color: $pure-white;
+
+    &__purpose {
+      font-size: 14px;
+      line-height: 18px;
+      font-weight: 500;
+      max-width: 60%;
+    }
+
+    &__amount {
+      font-size: 20px;
+      font-weight: 500;
+    }
+  }
+
+  &--submitted-date {
+    font-weight: 500;
+    margin-top: -12%;
+    margin-left: 16px;
+
+    &__text {
+      color: $light-grey;
+    }
+
+    &__date {
+      color: $pure-white;
+    }
+  }
+
+  &--approvers-section {
+    background-color: $pure-white;
   }
 }

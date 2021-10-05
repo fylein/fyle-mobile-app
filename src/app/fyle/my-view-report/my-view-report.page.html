@@ -15,17 +15,34 @@
           </ion-button>
         </ng-container>
       </ng-container>
+      <ng-container *ngIf="canDelete$ | async">
+        <ion-button class="view-reports--btn-container__btn" (click)="deleteReport()">
+          <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
       <button mat-button class="view-reports--edit" (click)="goToEditReport()" *ngIf="canEdit$|async">Edit</button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="view-reports--container">
   <div class="view-reports--body" *ngIf="erpt$|async as erpt">
     <div>
       <div class="view-reports--card">
-        <div class="view-reports--card-header">{{erpt.rp_purpose}}</div>
-        <div class="view-reports--card-body">Reported on {{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</div>
+        <div class="view-reports--purpose-amount-block">
+          <div class="view-reports--purpose-amount-block__purpose">{{erpt.rp_purpose}}</div>
+          <div>
+            <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
+            <span class="view-reports--purpose-amount-block__amount">
+              {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:2:true }}
+            </span>
+          </div>
+        </div>
+        <div
+          class="text-capitalize view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}"
+        >
+          {{erpt.rp_state | reportState | snakeCaseToSpaceCase}}
+        </div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
             <span>
@@ -44,8 +61,23 @@
             </span>
           </span>
         </div>
-        <div class="view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}">
-          {{erpt.rp_state | reportState | uppercase | snakeCaseToSpaceCase}}
+      </div>
+      <div class="view-reports--submitted-date">
+        <span class="view-reports--submitted-date__text">Submitted on: </span>
+        <span class="view-reports--submitted-date__date">{{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</span>
+      </div>
+
+      <div
+        class="view-reports--approvers-section"
+        *ngIf="(erpt.rp_state !== 'DRAFT') && (reportApprovals$|async) as reportApprovals"
+      >
+        <div *ngIf="reportApprovals.length > 0" class="view-reports--approval-state-block">
+          <div *ngFor="let ap of reportApprovals">
+            <div>
+              <div>{{ ap.approver_name }}</div>
+              <div>{{ ap.state | titlecase | snakeCaseToSpaceCase}}</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -101,20 +133,6 @@
         <div class="view-reports--zero-state-header">No expense in this report yet</div>
         <div class="view-reports--zero-state-sub-header">Edit to add expenses to this report</div>
       </div>
-    </div>
-
-    <div *ngIf="erpt.rp_num_transactions > 0" class="view-reports--card view-reports--card__block-action" matRipple>
-      <app-comments-history objectType="reports" [objectId]="erpt.rp_id" text="Comments"></app-comments-history>
-    </div>
-
-    <div
-      class="view-reports--card view-reports--card__block-action"
-      *ngIf="canDelete$ | async"
-      (click)="deleteReport()"
-      matRipple
-    >
-      <mat-icon class="view-reports--block-action-icon">delete</mat-icon>
-      <div class="view-reports--block-action view-reports--block-action__delete">Delete Report</div>
     </div>
   </div>
 </ion-content>
