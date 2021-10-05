@@ -1,7 +1,11 @@
 @import '../../../../theme/colors.scss';
 
-.send-back {
+.fy-popover {
   &--toolbar {
+    border-bottom: 1px solid $grey-lighter;
+    margin-bottom: 8px;
+    padding-top: 0 !important;
+
     &__title {
       color: $black;
       padding-left: 15px;
