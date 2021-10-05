@@ -77,6 +77,7 @@ export class IconModule {
     'fy-delete.svg',
     'fy-dismiss.svg',
     'fy-done.svg',
+    'fy-edit-gradient',
     'fy-electric-car.svg',
     'fy-email.svg',
     'fy-expense.svg',

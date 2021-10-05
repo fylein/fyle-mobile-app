@@ -4,11 +4,11 @@
     <div class="policy-violation-info--list-container">
       <ul class="policy-violation-info--list">
         <li *ngIf="policyViolations.length === 1">
-          <span class="policy-violation-info--content">{{policyViolations.length}} policy is violated by this expense.</span>
+          <span class="policy-violation-info--content">Policy violation found.</span>
           <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View details</span>
         </li>
         <li *ngIf="policyViolations.length > 1">
-          <span class="policy-violation-info--content">{{policyViolations.length}} policies were violated by this expense.</span>
+          <span class="policy-violation-info--content">Policy violations found.</span>
           <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View details</span>
         </li>
         <li *ngIf="criticalPolicyViolated" class="policy-violation-info--content">

@@ -10,7 +10,7 @@ export class ExpenseState implements PipeTransform {
     }
 
     const states = {
-      DRAFT: 'draft',
+      DRAFT: 'incomplete',
       COMPLETE: 'fyled',
       APPROVER_PENDING: 'reported',
       APPROVED: 'approved',
