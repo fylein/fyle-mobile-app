@@ -15,6 +15,7 @@ import { AccountsService } from 'src/app/core/services/accounts.service';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { cloneDeep } from 'lodash';
 
 const { CameraPreview } = Plugins;
 
@@ -259,7 +260,9 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     this.setUpAndStartCamera();
   }
 
+  // Categorize our Calculations
   async showLimitMessage() {
+    // Ionic native
     const limitPopover = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
@@ -276,22 +279,43 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     await limitPopover.present();
   }
 
+  async captureImageFromCamera() {
+    const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
+      quality: 70,
+    };
+    const result = await CameraPreview.capture(cameraPreviewPictureOptions);
+    await this.stopCamera();
+    return result.value;
+  }
+
+  getSourceByBulkMode(bulkMode) {
+    return !bulkMode ? 'MOBILE_DASHCAM_SINGLE' : 'MOBILE_DASHCAM_BULK';
+  }
+
+  // Single Responsibility Principle
+  // Remove off Implicit Inputs and Outputs
+  async captureImage(base64ImagesWithSource, b64Image, bulkMode) {
+    // lastImage, base64ImagesWithSource
+    const base64ImagesWithSourceCopy = cloneDeep(base64ImagesWithSource);
+    const source = this.getSourceByBulkMode(bulkMode);
+    const base64PictureData = this.getImageItem(b64Image, source);
+    base64ImagesWithSourceCopy.push(base64PictureData);
+
+    return {
+      lastImage: base64PictureData.base64Image,
+      base64ImagesWithSource: base64ImagesWithSourceCopy,
+    };
+  }
+
   async onCapture() {
     if (this.captureCount >= 20) {
       await this.showLimitMessage();
     } else {
-      const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
-        quality: 70,
-      };
+      const b64Image = this.captureImageFromCamera();
+      const res = await this.captureImage(this.base64ImagesWithSource, b64Image, this.isBulkMode);
+      this.base64ImagesWithSource = res.base64ImagesWithSource;
+      this.lastImage = res.lastImage;
 
-      const result = await CameraPreview.capture(cameraPreviewPictureOptions);
-      await this.stopCamera();
-      const base64PictureData = this.getImageItem(
-        result.value,
-        !this.isBulkMode ? 'MOBILE_DASHCAM_SINGLE' : 'MOBILE_DASHCAM_BULK'
-      );
-      this.lastImage = base64PictureData.base64Image;
-      this.base64ImagesWithSource.push(base64PictureData);
       if (!this.isBulkMode) {
         this.onSingleCapture();
       } else {

@@ -384,28 +384,54 @@ export class TasksService {
     }
   }
 
+  // Categorize our Calculations
+  // Implicit Input Case - in a calculation
+  // Minimize implicit inputs
+  private createTask(aggregate, homeCurrency, header, subheader, ctas, icon) {
+    return {
+      amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
+      count: aggregate.totalCount,
+      header,
+      subheader,
+      icon,
+      ctas,
+    } as DashboardTask;
+  }
+
+  private getReadyToReportSubheader(aggregate, homeCurrency) {
+    return `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(
+      aggregate.totalAmount,
+      homeCurrency
+    )} can be added to a report`;
+  }
+
+  private getReadyToReportCtas() {
+    return [
+      {
+        content: 'Create New Report',
+        event: TASKEVENT.expensesCreateNewReport,
+      },
+    ];
+  }
+
+  private createUnreportedExpenseTask(aggregate, homeCurrency) {
+    return this.createTask(
+      aggregate,
+      homeCurrency,
+      'Ready to Report',
+      this.getReadyToReportSubheader(aggregate, homeCurrency),
+      this.getReadyToReportCtas(),
+      TaskIcon.REPORT
+    );
+  }
+
   private mapAggregateToUnreportedExpensesTask(
     aggregate: { totalCount: number; totalAmount: number },
     homeCurrency: string,
     openReports: ExtendedReport[]
   ): DashboardTask[] {
     if (aggregate.totalCount > 0) {
-      const task = {
-        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
-        count: aggregate.totalCount,
-        header: `Ready to Report`,
-        subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(
-          aggregate.totalAmount,
-          homeCurrency
-        )} can be added to a report`,
-        icon: TaskIcon.REPORT,
-        ctas: [
-          {
-            content: 'Create New Report',
-            event: TASKEVENT.expensesCreateNewReport,
-          },
-        ],
-      } as DashboardTask;
+      const task = this.createUnreportedExpenseTask(aggregate, homeCurrency);
 
       if (openReports.length > 0) {
         task.ctas.push({
