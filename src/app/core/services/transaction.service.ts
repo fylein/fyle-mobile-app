@@ -626,4 +626,22 @@ export class TransactionService {
   getIsDraft(expense: Expense): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
+
+  addMobileSourceConnectionStatus(source, isConnected) {
+    if (!isConnected) {
+      source += '_OFFLINE';
+    }
+
+    return source;
+  }
+
+  getCameraBaseTransaction(account, source, homeCurrency) {
+    return {
+      source_account_id: account.acc.id,
+      skip_reimbursement: !account.acc.isReimbursable || false,
+      source,
+      txn_dt: new Date(),
+      currency: homeCurrency,
+    };
+  }
 }

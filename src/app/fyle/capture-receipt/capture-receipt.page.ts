@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
-import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
+import { CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor, Plugins } from '@capacitor/core';
 import '@capacitor-community/camera-preview';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
@@ -12,10 +12,9 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
-import { LoaderService } from 'src/app/core/services/loader.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
 
 const { CameraPreview } = Plugins;
 
@@ -65,8 +64,8 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
-  ) { }
+    private transactionService: TransactionService
+  ) {}
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -88,7 +87,17 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     );
   }
 
-  addExpenseToQueue(base64ImagesWithSource: Image, syncImmediately = false) {
+  getAttachmentUrlsFromImageSource(base64ImagesWithSource: Image) {
+    return [
+      {
+        thumbnail: base64ImagesWithSource.base64Image,
+        type: 'image',
+        url: base64ImagesWithSource.base64Image,
+      },
+    ];
+  }
+
+  addExpenseToQueue(base64ImagesWithSource: Image) {
     let source = base64ImagesWithSource.source;
 
     return forkJoin({
@@ -98,71 +107,20 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
       orgSettings: this.offlineService.getOrgSettings(),
     }).pipe(
       switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) => {
-        const account = this.getAccount(orgSettings, accounts, orgUserSettings);
+        const account = this.accountsService.getAccount(orgSettings, accounts, orgUserSettings);
+        source = this.transactionService.addMobileSourceConnectionStatus(source, isConnected);
+        const transaction = this.transactionService.getCameraBaseTransaction(account, source, this.homeCurrency);
+        const attachmentUrls = this.getAttachmentUrlsFromImageSource(base64ImagesWithSource);
 
-        if (!isConnected) {
-          source += '_OFFLINE';
-        }
-        const transaction = {
-          source_account_id: account.acc.id,
-          skip_reimbursement: !account.acc.isReimbursable || false,
-          source,
-          txn_dt: new Date(),
-          currency: this.homeCurrency,
-        };
-
-        const attachmentUrls = [
-          {
-            thumbnail: base64ImagesWithSource.base64Image,
-            type: 'image',
-            url: base64ImagesWithSource.base64Image,
-          },
-        ];
-        if (!syncImmediately) {
-          return this.transactionsOutboxService.addEntry(
-            transaction,
-            attachmentUrls,
-            null,
-            null,
-            this.isInstafyleEnabled
-          );
-        } else {
-          return this.transactionsOutboxService.addEntryAndSync(
-            transaction,
-            attachmentUrls,
-            null,
-            null
-          );
-        }
+        return this.transactionsOutboxService.addEntry(
+          transaction,
+          attachmentUrls,
+          null,
+          null,
+          this.isInstafyleEnabled
+        );
       })
     );
-  }
-
-  getAccount(orgSettings: any, accounts: any, orgUserSettings: OrgUserSettings) {
-    const isAdvanceEnabled =
-      (orgSettings.advances && orgSettings.advances.enabled) ||
-      (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
-
-    const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-    const isMultipleAdvanceEnabled =
-      orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
-    const paymentModes = this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
-    const isCCCEnabled =
-      orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
-
-    let account;
-
-    if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
-      account = paymentModes.find((res) => res.acc.displayName === 'Paid by Company');
-    } else if (
-      isCCCEnabled &&
-      orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-    ) {
-      account = paymentModes.find((res) => res.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-    } else {
-      account = paymentModes.find((res) => res.acc.displayName === 'Paid by Me');
-    }
-    return account;
   }
 
   async stopCamera() {
@@ -177,16 +135,23 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     this.navController.back();
   }
 
+  getNextActiveFlashMode(flashMode: string) {
+    let nextActiveFlashMode = 'on';
+    if (flashMode === 'on') {
+      nextActiveFlashMode = 'off';
+    }
+
+    return nextActiveFlashMode;
+  }
+
+  setFlashMode(flashMode = 'off') {
+    CameraPreview.setFlashMode({ flashMode });
+    this.flashMode = flashMode;
+  }
+
   toggleFlashMode() {
     if (Capacitor.platform !== 'web') {
-      let nextActiveFlashMode = 'on';
-      if (this.flashMode === 'on') {
-        nextActiveFlashMode = 'off';
-      }
-
-      CameraPreview.setFlashMode({ flashMode: nextActiveFlashMode });
-      this.flashMode = nextActiveFlashMode;
-
+      this.setFlashMode(this.getNextActiveFlashMode(this.flashMode));
       this.trackingService.flashModeSet({
         FlashMode: this.flashMode,
       });
@@ -197,24 +162,25 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     if (Capacitor.platform !== 'web') {
       CameraPreview.getSupportedFlashModes().then((flashModes) => {
         if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
-          this.flashMode = this.flashMode || 'off';
-          CameraPreview.setFlashMode({ flashMode: this.flashMode });
+          this.setFlashMode();
         }
       });
     }
   }
 
+  getCameraPreivewOptions(window) {
+    return {
+      position: 'rear',
+      toBack: true,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      parent: 'cameraPreview',
+    };
+  }
+
   setUpAndStartCamera() {
     if (!this.isCameraShown) {
-      const cameraPreviewOptions: CameraPreviewOptions = {
-        position: 'rear',
-        toBack: true,
-        width: window.innerWidth,
-        height: window.innerHeight,
-        parent: 'cameraPreview',
-      };
-
-      CameraPreview.start(cameraPreviewOptions).then((res) => {
+      CameraPreview.start(this.getCameraPreivewOptions(window)).then((res) => {
         this.isCameraShown = true;
         this.getFlashModes();
       });
@@ -236,17 +202,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
   }
 
   async onSingleCapture() {
-    const modal = await this.modalController.create({
-      component: ReceiptPreviewComponent,
-      componentProps: {
-        base64ImagesWithSource: this.base64ImagesWithSource,
-        mode: 'single',
-      },
-    });
-
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss();
+    const { data } = await this.showReceiptPreviewModal(this.base64ImagesWithSource, 'single');
     if (data) {
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
@@ -264,7 +220,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
             'add_edit_expense',
             {
               dataUrl: this.base64ImagesWithSource[0].base64Image,
-              canExtractData: this.isInstafyleEnabled
+              canExtractData: this.isInstafyleEnabled,
             },
           ]);
         }
@@ -274,17 +230,9 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
 
   async review() {
     await this.stopCamera();
-    const modal = await this.modalController.create({
-      component: ReceiptPreviewComponent,
-      componentProps: {
-        base64ImagesWithSource: this.base64ImagesWithSource,
-        mode: 'bulk',
-      },
-    });
 
-    await modal.present();
+    const { data } = await this.showReceiptPreviewModal(this.base64ImagesWithSource, 'bulk');
 
-    const { data } = await modal.onWillDismiss();
     if (data) {
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
@@ -338,21 +286,74 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
 
       const result = await CameraPreview.capture(cameraPreviewPictureOptions);
       await this.stopCamera();
-      const base64PictureData = 'data:image/jpeg;base64,' + result.value;
-      this.lastImage = base64PictureData;
+      const base64PictureData = this.getImageItem(
+        result.value,
+        !this.isBulkMode ? 'MOBILE_DASHCAM_SINGLE' : 'MOBILE_DASHCAM_BULK'
+      );
+      this.lastImage = base64PictureData.base64Image;
+      this.base64ImagesWithSource.push(base64PictureData);
       if (!this.isBulkMode) {
-        this.base64ImagesWithSource.push({
-          source: 'MOBILE_DASHCAM_SINGLE',
-          base64Image: base64PictureData,
-        });
         this.onSingleCapture();
       } else {
-        this.base64ImagesWithSource.push({
-          source: 'MOBILE_DASHCAM_BULK',
-          base64Image: base64PictureData,
-        });
         this.onBulkCapture();
       }
+    }
+  }
+
+  getGalleryDefaultOptions() {
+    return {
+      maximumImagesCount: 10,
+      outputType: 1,
+      quality: 70,
+    };
+  }
+
+  convertB64DataToImageString(base64String) {
+    return 'data:image/jpeg;base64,' + base64String;
+  }
+
+  getImageItem(base64String, source: 'MOBILE_DASHCAM_GALLERY' | 'MOBILE_DASHCAM_SINGLE' | 'MOBILE_DASHCAM_BULK') {
+    const base64PictureData = this.convertB64DataToImageString(base64String);
+
+    return {
+      source,
+      base64Image: base64PictureData,
+    };
+  }
+
+  async showReceiptPreviewModal(base64ImagesWithSource, mode: 'bulk' | 'single') {
+    const modal = await this.modalController.create({
+      component: ReceiptPreviewComponent,
+      componentProps: {
+        base64ImagesWithSource,
+        mode,
+      },
+    });
+    await modal.present();
+
+    return await modal.onWillDismiss();
+  }
+
+  async processSelectedImagesFromGalleryUpload(imageBase64Strings) {
+    if (imageBase64Strings.length > 0) {
+      this.base64ImagesWithSource = this.base64ImagesWithSource.concat(
+        imageBase64Strings.map((b64String) => this.getImageItem(b64String, 'MOBILE_DASHCAM_GALLERY'))
+      );
+
+      const { data } = await this.showReceiptPreviewModal(this.base64ImagesWithSource, 'bulk');
+
+      if (data) {
+        if (data.base64ImagesWithSource.length === 0) {
+          this.base64ImagesWithSource = [];
+          this.setUpAndStartCamera();
+        } else {
+          this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+            .pipe(finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses'])))
+            .subscribe(noop);
+        }
+      }
+    } else {
+      this.setUpAndStartCamera();
     }
   }
 
@@ -362,45 +363,10 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     this.stopCamera();
     this.imagePicker.hasReadPermission().then((permission) => {
       if (permission) {
-        const options = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
+        const options = this.getGalleryDefaultOptions();
         // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
         from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
-          if (imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String, key) => {
-              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-              this.base64ImagesWithSource.push({
-                source: 'MOBILE_DASHCAM_GALLERY',
-                base64Image: base64PictureData,
-              });
-            });
-
-            const modal = await this.modalController.create({
-              component: ReceiptPreviewComponent,
-              componentProps: {
-                base64ImagesWithSource: this.base64ImagesWithSource,
-                mode: 'bulk',
-              },
-            });
-            await modal.present();
-
-            const { data } = await modal.onWillDismiss();
-            if (data) {
-              if (data.base64ImagesWithSource.length === 0) {
-                this.base64ImagesWithSource = [];
-                this.setUpAndStartCamera();
-              } else {
-                this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
-                  .pipe(finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses'])))
-                  .subscribe(noop);
-              }
-            }
-          } else {
-            this.setUpAndStartCamera();
-          }
+          await this.processSelectedImagesFromGalleryUpload(imageBase64Strings);
         });
       } else {
         this.imagePicker.requestReadPermission();

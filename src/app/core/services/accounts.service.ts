@@ -4,6 +4,7 @@ import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
 import { CurrencyPipe } from '@angular/common';
+import { OrgUserSettings } from '../models/org_user_settings.model';
 
 @Injectable({
   providedIn: 'root',
@@ -85,5 +86,32 @@ export class AccountsService {
     }
 
     return mappedAccouts;
+  }
+
+  getAccount(orgSettings: any, accounts: any, orgUserSettings: OrgUserSettings) {
+    const isAdvanceEnabled =
+      (orgSettings.advances && orgSettings.advances.enabled) ||
+      (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+
+    const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+    const isMultipleAdvanceEnabled =
+      orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
+    const paymentModes = this.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+    const isCCCEnabled =
+      orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
+
+    let account;
+
+    if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
+      account = paymentModes.find((res) => res.acc.displayName === 'Paid by Company');
+    } else if (
+      isCCCEnabled &&
+      orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+    ) {
+      account = paymentModes.find((res) => res.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+    } else {
+      account = paymentModes.find((res) => res.acc.displayName === 'Paid by Me');
+    }
+    return account;
   }
 }
