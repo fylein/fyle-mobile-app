@@ -1,20 +1,33 @@
-<div class="pull-back">
-  <div class="pull-back--header">
-    <div class="pull-back--title">Pull Back Advance?</div>
-    <div class="pull-back--cancel" (click)="cancel()">Cancel</div>
-  </div>
+<ion-header mode="md">
+  <ion-toolbar mode="md" class="text-center fy-modal-toolbar pull-back--toolbar">
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="pull-back--toolbar__title">Pull Back Advance?</div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        [disabled]="reason.trim().length === 0"
+        class="pull-back--toolbar__btn"
+        (click)="pullBackAdvanceRequest()"
+      >
+        Done
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-  <div class="pull-back--details">
-    Pulling back your advance request will allow you to edit and re-submit the request.
+<div class="pull-back--input-container">
+  <div class="pull-back--input-container__label">
+    <span> Pulling back your advance request will allow you to edit and re-submit the request. </span>
+    <span class="pull-back--input-container__mandatory"> * </span>
   </div>
-  <div class="pull-back--form">
-    <mat-form-field appearance="outline" class="pull-back--form-input mat-form-field-no-padding">
-      <textarea rows="3" matInput placeholder="Enter reason" [(ngModel)]="reason"></textarea>
-    </mat-form-field>
-  </div>
-  <div class="pull-back--primary-cta">
-    <button [disabled]="reason.trim().length === 0" mat-flat-button color="primary" (click)="pullBackAdvanceRequest()">
-      PULL BACK
-    </button>
-  </div>
+  <textarea
+    placeholder="Type your reason here"
+    [(ngModel)]="reason"
+    class="pull-back--input-container__textarea"
+  ></textarea>
 </div>
