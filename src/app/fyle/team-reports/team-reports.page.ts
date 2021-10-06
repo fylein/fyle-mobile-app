@@ -85,6 +85,8 @@ export class TeamReportsPage implements OnInit {
 
   filterPills = [];
 
+  navigateBack = false;
+
   get HeaderState() {
     return HeaderState;
   }
@@ -113,6 +115,7 @@ export class TeamReportsPage implements OnInit {
 
   ionViewWillEnter() {
     this.isLoading = true;
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
     this.loadData$ = new BehaviorSubject({
       pageNumber: 1,
