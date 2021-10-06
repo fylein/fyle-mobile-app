@@ -20,13 +20,6 @@ export class FyPopoverComponent {
   }
 
   submitRequest() {
-    // const status = {
-    //   comment: this.formValue,
-    // };
-    // const statusPayload = {
-    //   status,
-    //   notify: false,
-    // };
     this.popoverController.dismiss({ comment: this.formValue });
   }
 }
