@@ -135,9 +135,10 @@ export class StatsComponent implements OnInit {
   }
 
   goToReportsPage(state: ReportStates) {
-    const queryParams: Params = { filters: JSON.stringify({ state: state.toString() }) };
     this.router.navigate(['/', 'enterprise', 'my_reports'], {
-      queryParams,
+      queryParams: {
+        filters: JSON.stringify({ state: [state.toString()] }),
+      },
     });
 
     this.trackingService.dashboardOnReportPillClick({

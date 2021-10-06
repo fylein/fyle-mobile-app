@@ -723,7 +723,13 @@ export class MyReportsPage implements OnInit {
       label: 'State',
       type: 'state',
       value: filter.state
-        .map((state) => state.replace(/_/g, ' ').toLowerCase())
+        .map((state) => {
+          if (state === 'APPROVER_INQUIRY') {
+            return 'Sent Back';
+          }
+
+          return state.replace(/_/g, ' ').toLowerCase();
+        })
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
