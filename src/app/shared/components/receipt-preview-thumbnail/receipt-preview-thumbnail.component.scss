@@ -7,6 +7,10 @@
     display: flex;
     justify-content: space-between;
     color: $black-light;
+
+    &__viewonly {
+      margin-top: 0;
+    }
   }
 
   &--add-more {
@@ -59,7 +63,7 @@
     border: 1px solid $translucent-black;
     height: 100%;
     width: 100%;
-}
+  }
 
   &--controls {
     position: absolute;

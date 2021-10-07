@@ -18,6 +18,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { TeamExpenseService } from 'src/app/core/services/team-expense.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -71,7 +72,8 @@ export class ViewTeamReportPage implements OnInit {
     private networkService: NetworkService,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private teamExpenseService: TeamExpenseService
   ) {}
 
   ngOnInit() {}
@@ -195,8 +197,8 @@ export class ViewTeamReportPage implements OnInit {
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
     this.etxns$.subscribe(noop);
-
     this.refreshApprovals$.next();
+    this.teamExpenseService.etxns$ = this.etxns$;
   }
 
   async deleteReport() {
@@ -255,7 +257,7 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
-  goToTransaction(etxn: any) {
+  goToTransaction({ etxn, etxnIdx }) {
     let category;
 
     if (etxn.tx_org_category) {
@@ -273,6 +275,7 @@ export class ViewTeamReportPage implements OnInit {
     }
 
     let route;
+    this.teamExpenseService.activeEtxnIdx = etxnIdx;
 
     if (category === 'mileage') {
       route = '/enterprise/view_team_mileage';

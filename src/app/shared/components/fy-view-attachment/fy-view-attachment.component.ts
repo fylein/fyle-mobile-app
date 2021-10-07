@@ -16,7 +16,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 export class FyViewAttachmentComponent implements OnInit {
   @Input() attachments: any[];
 
-  @Input() canEdit = false;
+  @Input() canEdit: boolean;
 
   @ViewChild('slides') imageSlides: any;
 
@@ -76,7 +76,7 @@ export class FyViewAttachmentComponent implements OnInit {
   }
 
   getActiveIndex() {
-    this.imageSlides.getActiveIndex().then(index => this.activeIndex = index);
+    this.imageSlides.getActiveIndex().then((index) => (this.activeIndex = index));
   }
 
   async deleteAttachment() {
@@ -89,43 +89,44 @@ export class FyViewAttachmentComponent implements OnInit {
         primaryCta: {
           text: 'Remove',
           action: 'remove',
-          type: 'alert'
+          type: 'alert',
         },
         secondaryCta: {
           text: 'Cancel',
-          action: 'cancel'
-        }
+          action: 'cancel',
+        },
       },
-      cssClass: 'pop-up-in-center'
+      cssClass: 'pop-up-in-center',
     });
 
     await deletePopover.present();
     const { data } = await deletePopover.onWillDismiss();
 
-    if(data && data.action) {
+    if (data && data.action) {
       if (data.action === 'remove') {
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            if (this.attachments[activeIndex].id) {
-              return this.fileService.delete(this.attachments[activeIndex].id);
+        from(this.loaderService.showLoader())
+          .pipe(
+            switchMap(() => {
+              if (this.attachments[activeIndex].id) {
+                return this.fileService.delete(this.attachments[activeIndex].id);
+              } else {
+                return of(null);
+              }
+            }),
+            finalize(() => from(this.loaderService.hideLoader()))
+          )
+          .subscribe(() => {
+            this.attachments.splice(activeIndex, 1);
+            if (this.attachments.length === 0) {
+              this.modalController.dismiss({ attachments: this.attachments });
             } else {
-              return of(null);
+              if (activeIndex > 0) {
+                this.goToPrevSlide();
+              } else {
+                this.goToNextSlide();
+              }
             }
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          this.attachments.splice(activeIndex, 1);
-          if (this.attachments.length === 0) {
-            this.modalController.dismiss({ attachments: this.attachments });
-          } else {
-            if (activeIndex > 0) {
-              this.goToPrevSlide();
-            } else {
-              this.goToNextSlide();
-            }
-          }
-        });
+          });
       }
     }
   }

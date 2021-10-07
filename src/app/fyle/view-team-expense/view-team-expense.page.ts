@@ -19,6 +19,8 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyFlagExpenseComponent } from 'src/app/shared/components/fy-flag-expense/fy-flag-expense.component';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { TeamExpenseService } from 'src/app/core/services/team-expense.service';
 
 @Component({
   selector: 'app-view-team-expense',
@@ -68,6 +70,18 @@ export class ViewTeamExpensePage implements OnInit {
 
   isExpenseFlagged: boolean;
 
+  exchangeRate: number;
+
+  paymentMode: string;
+
+  isCCCTransaction = false;
+
+  matchingCCCTransaction$: Observable<any>;
+
+  numEtxnsInReport: number;
+
+  activeEtxnIdx: number;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -83,7 +97,9 @@ export class ViewTeamExpensePage implements OnInit {
     private networkService: NetworkService,
     private policyService: PolicyService,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private teamExpenseService: TeamExpenseService
   ) {}
 
   ionViewWillLeave() {
@@ -163,7 +179,8 @@ export class ViewTeamExpensePage implements OnInit {
   }
 
   getDisplayValue(customProperties) {
-    return this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+    const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
+    return displayValue === '-' ? 'Not Added' : displayValue;
   }
 
   goBack() {
@@ -209,6 +226,27 @@ export class ViewTeamExpensePage implements OnInit {
 
     this.etxn$.subscribe((etxn) => {
       this.isExpenseFlagged = etxn.tx_manual_flag;
+
+      if (etxn.tx_amount && etxn.tx_orig_amount) {
+        this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
+      }
+
+      if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        this.paymentMode = 'Paid from Advance';
+      } else if (etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+        this.paymentMode = 'Paid via Corporate Card';
+        this.isCCCTransaction = true;
+      } else if (etxn.tx_skip_reimbursement) {
+        this.paymentMode = 'Paid by Company';
+      } else {
+        this.paymentMode = 'Paid by Employee';
+      }
+
+      if (this.isCCCTransaction) {
+        this.matchingCCCTransaction$ = this.corporateCreditCardExpenseService
+          .getEccceByGroupId(etxn.tx_corporate_credit_card_expense_group_id)
+          .pipe(map((matchedExpense) => matchedExpense[0]?.ccce));
+      }
     });
 
     this.policyViloations$ = this.etxnWithoutCustomProperties$.pipe(
@@ -274,6 +312,9 @@ export class ViewTeamExpensePage implements OnInit {
     this.attachments$ = editExpenseAttachments;
     this.updateFlag$.next();
     this.attachments$.subscribe(noop);
+
+    this.activeEtxnIdx = this.teamExpenseService.activeEtxnIdx;
+    this.numEtxnsInReport = this.teamExpenseService.getNumEtxns();
   }
 
   getReceiptExtension(name) {
@@ -385,10 +426,19 @@ export class ViewTeamExpensePage implements OnInit {
           component: FyViewAttachmentComponent,
           componentProps: {
             attachments,
+            canEdit: false,
           },
         });
 
         await attachmentsModal.present();
       });
+  }
+
+  goToPrev() {
+    this.teamExpenseService.gotoPrev();
+  }
+
+  goToNext() {
+    this.teamExpenseService.goToNext();
   }
 }

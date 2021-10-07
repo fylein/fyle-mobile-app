@@ -139,6 +139,8 @@ export class IconModule {
     'list.svg',
     'mail.svg',
     'mileage.svg',
+    'navigate-left.svg',
+    'navigate-right.svg',
     'no-attachment.svg',
     'office-supplies.svg',
     'parking.svg',

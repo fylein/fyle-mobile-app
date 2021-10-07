@@ -2,11 +2,7 @@
   <ion-toolbar class="view-reports--toolbar">
     <ion-buttons mode="md" slot="start">
       <ion-button *ngIf="navigateBack" mat-icon-button [routerLink]="['/','enterprise','team_reports']">
-        <ion-icon
-          class="icon--navigate-left"
-          [src]="'../../../../assets/svg/navigate-left.svg'"
-          slot="icon-only"
-        ></ion-icon>
+        <ion-icon class="icon--navigate" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ng-container *ngIf="erpt$ | async as erpt">
@@ -104,6 +100,7 @@
             <app-view-team-report-etxn-card
               *ngFor="let etxn of etxns$|async as etxns; let i = index;"
               [etxn]="etxn"
+              [etxnIdx]="i"
               [prevDate]="etxns[i-1]?.tx_txn_dt"
               (goToTransaciton)="goToTransaction($event)"
             >
