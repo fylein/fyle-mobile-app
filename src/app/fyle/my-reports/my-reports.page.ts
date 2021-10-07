@@ -728,6 +728,10 @@ export class MyReportsPage implements OnInit {
             return 'Sent Back';
           }
 
+          if (state === 'APPROVER_PENDING') {
+            return 'Reported';
+          }
+
           return state.replace(/_/g, ' ').toLowerCase();
         })
         .reduce((state1, state2) => `${state1}, ${state2}`),
