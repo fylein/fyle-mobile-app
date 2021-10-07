@@ -147,7 +147,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
   async pullBack() {
     const pullBackPopover = await this.popoverController.create({
       component: PullBackAdvanceRequestComponent,
-      cssClass: 'dialog-popover',
+      cssClass: 'fy-dialog-popover',
     });
 
     await pullBackPopover.present();
