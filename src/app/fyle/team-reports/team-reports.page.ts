@@ -637,7 +637,15 @@ export class TeamReportsPage implements OnInit {
       label: 'State',
       type: 'state',
       value: filter.state
-        .map((state) => state.replace(/_/g, ' ').toLowerCase())
+        .map((state) => {
+          if (state === 'APPROVER_INQUIRY') {
+            return 'Sent Back';
+          }
+
+          if (state === 'APPROVER_PENDING') {
+            return 'Reported';
+          }
+        })
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
