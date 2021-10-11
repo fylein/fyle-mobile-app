@@ -20,9 +20,9 @@ export class FyViewAttachmentComponent implements OnInit {
 
   @ViewChild('slides') imageSlides: any;
 
-  sliderOptions: any;
+  sliderOptions: { initialSlide: number; slidesPerView: number; autoHeight: boolean; zoom: { maxRatio: number } };
 
-  activeIndex = 0;
+  activeIndex: number;
 
   zoomScale: number;
 
@@ -39,10 +39,14 @@ export class FyViewAttachmentComponent implements OnInit {
   ngOnInit() {
     this.zoomScale = 0.5;
     this.sliderOptions = {
+      initialSlide: 0,
+      slidesPerView: 1,
+      autoHeight: true,
       zoom: {
         maxRatio: 1,
       },
     };
+    this.activeIndex = 0;
 
     this.attachments.forEach((attachment) => {
       if (attachment.type === 'pdf') {
@@ -67,16 +71,19 @@ export class FyViewAttachmentComponent implements OnInit {
     this.modalController.dismiss({ attachments: this.attachments });
   }
 
-  goToNextSlide() {
-    this.imageSlides.slideNext();
+  async goToNextSlide() {
+    await this.imageSlides.slideNext();
+    await this.imageSlides.update();
   }
 
-  goToPrevSlide() {
-    this.imageSlides.slidePrev();
+  async goToPrevSlide() {
+    await this.imageSlides.slidePrev();
+    await this.imageSlides.update();
   }
 
-  getActiveIndex() {
-    this.imageSlides.getActiveIndex().then(index => this.activeIndex = index);
+  async ionSlideDidChange() {
+    const activeIndex = await this.imageSlides.getActiveIndex();
+    this.activeIndex = activeIndex;
   }
 
   async deleteAttachment() {
@@ -89,43 +96,44 @@ export class FyViewAttachmentComponent implements OnInit {
         primaryCta: {
           text: 'Remove',
           action: 'remove',
-          type: 'alert'
+          type: 'alert',
         },
         secondaryCta: {
           text: 'Cancel',
-          action: 'cancel'
-        }
+          action: 'cancel',
+        },
       },
-      cssClass: 'pop-up-in-center'
+      cssClass: 'pop-up-in-center',
     });
 
     await deletePopover.present();
     const { data } = await deletePopover.onWillDismiss();
 
-    if(data && data.action) {
+    if (data && data.action) {
       if (data.action === 'remove') {
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            if (this.attachments[activeIndex].id) {
-              return this.fileService.delete(this.attachments[activeIndex].id);
+        from(this.loaderService.showLoader())
+          .pipe(
+            switchMap(() => {
+              if (this.attachments[activeIndex].id) {
+                return this.fileService.delete(this.attachments[activeIndex].id);
+              } else {
+                return of(null);
+              }
+            }),
+            finalize(() => from(this.loaderService.hideLoader()))
+          )
+          .subscribe(() => {
+            this.attachments.splice(activeIndex, 1);
+            if (this.attachments.length === 0) {
+              this.modalController.dismiss({ attachments: this.attachments });
             } else {
-              return of(null);
+              if (activeIndex > 0) {
+                this.goToPrevSlide();
+              } else {
+                this.goToNextSlide();
+              }
             }
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          this.attachments.splice(activeIndex, 1);
-          if (this.attachments.length === 0) {
-            this.modalController.dismiss({ attachments: this.attachments });
-          } else {
-            if (activeIndex > 0) {
-              this.goToPrevSlide();
-            } else {
-              this.goToNextSlide();
-            }
-          }
-        });
+          });
       }
     }
   }
