@@ -88,7 +88,7 @@
       </ng-container>
     </ng-container>
 
-    <div *ngIf="(count$ | async) === 0">
+    <ng-container *ngIf="(count$ | async) === 0">
       <div class="reports--zero-state">
         <app-fy-zero-state
           [unscaledImage]="true"
@@ -98,7 +98,7 @@
           message="No reports pending on you for approval."
         ></app-fy-zero-state>
       </div>
-    </div>
+    </ng-container>
   </div>
 
   <ion-infinite-scroll
