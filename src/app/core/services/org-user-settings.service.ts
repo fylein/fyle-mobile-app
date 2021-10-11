@@ -43,7 +43,7 @@ export class OrgUserSettingsService {
 
   getAllowedCostCentersByOuId(ouId: string) {
     return this.getOrgUserSettingsById(ouId).pipe(
-      switchMap((orgUserSettings) => this.getAllowedCostCenteres(orgUserSettings, true))
+      switchMap((orgUserSettings) => this.getAllowedCostCenteres(orgUserSettings, { isUserSpecific: true }))
     );
   }
 
@@ -327,7 +327,7 @@ export class OrgUserSettingsService {
     return featuresList;
   }
 
-  getAllowedCostCenteres(orgUserSettings, isUserSpecific = false) {
+  getAllowedCostCenteres(orgUserSettings, filters = { isUserSpecific: false }) {
     return this.costCentersService.getAllActive().pipe(
       map((costCenters) => {
         let allowedCostCenters = [];
@@ -335,7 +335,7 @@ export class OrgUserSettingsService {
           allowedCostCenters = costCenters.filter(
             (costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1
           );
-        } else if (!isUserSpecific) {
+        } else if (!filters.isUserSpecific) {
           allowedCostCenters = costCenters;
         }
         return allowedCostCenters;
