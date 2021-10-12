@@ -19,7 +19,7 @@ export class FyPopoverComponent {
     this.popoverController.dismiss();
   }
 
-  submitRequest() {
+  submit() {
     this.popoverController.dismiss({ comment: this.formValue });
   }
 }
