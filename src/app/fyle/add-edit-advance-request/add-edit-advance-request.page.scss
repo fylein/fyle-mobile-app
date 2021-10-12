@@ -94,8 +94,7 @@
   }
 
   &--currency {
-    margin: 12px 0;
-    width: calc(100% - 88px);
+    margin: 12px 0 0 0;
   }
 
   &--primary-block {
@@ -193,6 +192,7 @@
   &--amount-error {
     color: $red;
     font-size: 12px;
+    margin: -8px 0 0 44%;
   }
 
   &--primary-cta {
@@ -206,5 +206,83 @@
     height: 80px;
     padding: 14px 16px;
     justify-content: space-between;
+  }
+
+  &--receipt-currency-container {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  &--receipt {
+    align-items: center;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 4px;
+    color: #ababab;
+    margin-left: 0;
+    margin-top: 12px;
+    margin-right: 12px;
+    height: 64px;
+  }
+
+  &--receipt-image {
+    background-color: $light-grey;
+    min-width: 64px;
+    min-height: 64px;
+    max-width: 64px;
+    max-height: 88px;
+    border-radius: 16px;
+    position: relative;
+  }
+
+  &--spinner-icon {
+    margin-top: 12px;
+    color: #f36;
+  }
+
+  &--receipt-image-subheader {
+    font-size: 8px;
+  }
+
+  &--receipt-image-icon {
+    color: $primary;
+    height: 36px;
+    width: 34px;
+    position: relative;
+    top: 24%;
+    left: 5px;
+  }
+
+  &--receipt-background {
+    position: absolute;
+    top: 24%;
+    left: 16px;
+    font-size: 64px;
+    height: 36px;
+    width: 34px;
+    background-color: $light-grey;
+    border-radius: 16px;
+  }
+
+  &--receipt-text {
+    position: relative;
+    padding-top: 10px;
+    padding-bottom: 6px;
+    &__count {
+      color: $blue-black;
+      font-size: 24px;
+      font-weight: 400;
+      text-align: center;
+      padding-top: 24px;
+    }
+  }
+
+  &--receipt-add-more-icon {
+    top: 2%;
+    left: 4%;
+    font-size: 24px;
   }
 }
