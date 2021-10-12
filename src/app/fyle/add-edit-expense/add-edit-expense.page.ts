@@ -290,6 +290,8 @@ export class AddEditExpensePage implements OnInit {
 
   source = 'MOBILE';
 
+  taxAmount: number;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -418,6 +420,7 @@ export class AddEditExpensePage implements OnInit {
             this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1)
           ).toFixed(2)
         );
+        this.taxAmount = parseFloat((this.fg.controls.currencyObj.value.amount - this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1)).toFixed(7));
       } else {
         this.fg.controls.tax_amount.setValue(null);
       }
@@ -1609,7 +1612,7 @@ export class AddEditExpensePage implements OnInit {
                 : null,
               purpose: etxn.tx.purpose,
               report,
-              tax_amount: etxn.tx.tax_amount,
+              tax_amount: etxn.tx.tax_amount ? parseFloat(etxn.tx.tax_amount.toFixed(2)) : etxn.tx.tax_amount,
               location_1: etxn.tx.locations[0],
               location_2: etxn.tx.locations[1],
               from_dt: etxn.tx.from_dt && moment(etxn.tx.from_dt).format('y-MM-DD'),
@@ -2731,7 +2734,7 @@ export class AddEditExpensePage implements OnInit {
             orig_currency: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_currency,
             orig_amount: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_amount,
             project_id: this.fg.value.project && this.fg.value.project.project_id,
-            tax_amount: this.fg.value.tax_amount,
+            tax_amount: this.taxAmount ? ((this.fg.value.tax_amount !== this.taxAmount.toFixed(2)) ? this.fg.value.tax_amount : this.taxAmount) : this.taxAmount,
             tax_group_id: this.fg.value.tax_group && this.fg.value.tax_group.id,
             org_category_id: this.fg.value.category && this.fg.value.category.id,
             fyle_category: this.fg.value.category && this.fg.value.category.fyle_category,
