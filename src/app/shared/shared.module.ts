@@ -90,6 +90,7 @@ import { RouteSelectorModalComponent } from './components/route-selector/route-s
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
+import { FyInputPopoverComponent } from './components/fy-input-popover/fy-input-popover.component';
 
 @NgModule({
   declarations: [
@@ -161,6 +162,7 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
     RouteSelectorModalComponent,
     PolicyViolationDetailsComponent,
     AddApproversPopoverComponent,
+    FyInputPopoverComponent,
   ],
   imports: [
     CommonModule,

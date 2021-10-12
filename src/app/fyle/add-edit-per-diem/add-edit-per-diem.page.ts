@@ -55,6 +55,9 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -213,7 +216,9 @@ export class AddEditPerDiemPage implements OnInit {
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private expenseFieldsService: ExpenseFieldsService,
     private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {
@@ -2030,6 +2035,14 @@ export class AddEditPerDiemPage implements OnInit {
             that.addExpense('SAVE_PER_DIEM').subscribe((res: any) => {
               if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
                 this.addToNewReport(res.transaction.id);
+              } else if (that.fg.controls.report.value) {
+                that.goBack();
+                const message = 'Per diem expense has been added successfully';
+                this.matSnackBar.openFromComponent(ToastMessageComponent, {
+                  ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+                  panelClass: ['msb-success-with-camera-icon'],
+                });
+                this.trackingService.showToastMessage({ ToastContent: message });
               } else {
                 that.goBack();
               }
@@ -2038,6 +2051,14 @@ export class AddEditPerDiemPage implements OnInit {
             that.editExpense('SAVE_PER_DIEM').subscribe((res) => {
               if (that.fg.controls.add_to_new_report.value && res && res.id) {
                 this.addToNewReport(res.id);
+              } else if (that.fg.controls.report.value) {
+                that.goBack();
+                const message = 'Per diem expense has been added successfully';
+                this.matSnackBar.openFromComponent(ToastMessageComponent, {
+                  ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+                  panelClass: ['msb-success-with-camera-icon'],
+                });
+                this.trackingService.showToastMessage({ ToastContent: message });
               } else {
                 that.goBack();
               }
