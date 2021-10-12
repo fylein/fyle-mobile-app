@@ -52,9 +52,11 @@
     <ng-template #zeroState>
       <div class="advance-request--zero-state">
         <app-fy-zero-state
-          [image]="'../../../assets/images/zero-states/coffee.svg'"
-          [header]="'Nothing here, grab a coffee maybe?'"
-          [message]="'Advances that need your approval will show up here.'"
+          [unscaledImage]="true"
+          [useNewStyling]="true"
+          image="../../../assets/images/zero-states/expenses.png"
+          header="Nothing here, grab a coffee maybe?"
+          message="Advances that need your approval will show up here."
         ></app-fy-zero-state>
       </div>
     </ng-template>
