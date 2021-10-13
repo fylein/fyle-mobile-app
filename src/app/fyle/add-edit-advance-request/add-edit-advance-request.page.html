@@ -46,34 +46,8 @@
   <form [formGroup]="fg" class="add-edit-advance-request--form" #formContainer>
     <div class="add-edit-advance-request--receipt-currency-container">
       <div *ngIf="dataUrls && dataUrls.length === 0" class="add-edit-advance-request--receipt text-center">
-        <div *ngIf="attachmentUploadInProgress" class="add-edit-advance-request--receipt-image">
-          <ion-spinner class="add-edit-advance-request--spinner-icon" icon="circles"></ion-spinner>
-          <div class="add-edit-advance-request--receipt-image-subheader">Uploading</div>
-        </div>
-
-        <div
-          (click)="addAttachments($event)"
-          *ngIf="(dataUrls.length === 0 && !attachmentUploadInProgress)"
-          class="add-edit-advance-request--receipt-image"
-        >
+        <div class="add-edit-advance-request--receipt-image" (click)="addAttachments($event)">
           <mat-icon class="add-edit-advance-request--receipt-image-icon" svgIcon="add-to-list"></mat-icon>
-        </div>
-
-        <div
-          (click)="viewAttachments()"
-          *ngIf="dataUrls && dataUrls.length > 0 && !attachmentUploadInProgress"
-          class="add-edit-advance-request--receipt-image"
-        >
-          <mat-icon class="add-edit-advance-request--receipt-background" svgIcon="fy-attachment"></mat-icon>
-          <div class="add-edit-advance-request--receipt-text add-edit-advance-request--receipt-text__count text-center">
-            {{dataUrls.length}}
-          </div>
-          <mat-icon
-            (click)="addAttachments($event)"
-            class="add-edit-advance-request--receipt-image-icon add-edit-advance-request--receipt-add-more-icon"
-          >
-            add_circle
-          </mat-icon>
         </div>
       </div>
 
@@ -100,7 +74,6 @@
       [attachments]="dataUrls"
       (addMoreAttachments)="addAttachments($event)"
       (viewAttachments)="viewAttachments()"
-      [isUploading]="attachmentUploadInProgress"
     >
     </app-receipt-preview-thumbnail>
 

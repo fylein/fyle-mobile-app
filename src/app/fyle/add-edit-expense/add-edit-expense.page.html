@@ -67,8 +67,7 @@
       <div>
         <div *ngIf="instaFyleCancelled" class="add-edit-expense--alert-offline">
           <app-fy-alert-info
-            [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details
-            manually'"
+            [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details manually'"
             [type]="'information'"
           >
           </app-fy-alert-info>
@@ -150,7 +149,7 @@
         </div>
 
         <app-receipt-preview-thumbnail
-          *ngIf="newExpenseDataUrls.length > 0"
+          *ngIf="newExpenseDataUrls && newExpenseDataUrls.length > 0"
           [attachments]="newExpenseDataUrls"
           (addMoreAttachments)="addAttachments($event)"
           (viewAttachments)="viewAttachments()"
