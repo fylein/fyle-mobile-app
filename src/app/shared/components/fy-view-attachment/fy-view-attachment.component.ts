@@ -51,6 +51,10 @@ export class FyViewAttachmentComponent implements OnInit {
     });
   }
 
+  ionViewWillEnter() {
+    this.imageSlides.update();
+  }
+
   zoomIn() {
     this.zoomScale += 0.25;
   }

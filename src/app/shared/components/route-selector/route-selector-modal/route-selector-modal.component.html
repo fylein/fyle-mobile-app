@@ -49,7 +49,7 @@
                 [recentLocations]="
                   isFirst
                     ? recentlyUsedMileageLocations?.recent_start_locations
-                    : isLast 
+                    : isLast
                     ? recentlyUsedMileageLocations?.recent_end_locations
                     : recentlyUsedMileageLocations?.recent_locations
                 "
@@ -85,8 +85,11 @@
       </ng-container>
     </div>
 
-    <app-fy-alert-info *ngIf="mileageLocations.controls.length === 10" [message]="'You can add a maximum of 10 locations'"
-      [type]="'information'">
+    <app-fy-alert-info
+      *ngIf="mileageLocations.controls.length === 10"
+      [message]="'You can add a maximum of 10 locations'"
+      [type]="'information'"
+    >
     </app-fy-alert-info>
 
     <div class="route-selector-modal--internal-block" *ngIf="mileageLocations.controls.length < 3">
