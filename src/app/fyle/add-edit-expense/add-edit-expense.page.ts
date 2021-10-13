@@ -2876,6 +2876,22 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
+  showAddToReportSuccessToast(reportId: string) {
+    const toastMessageData = {
+      message: 'Expense added to report successfully',
+      redirectionText: 'View Report',
+    };
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
+    });
+  }
+
   saveExpense() {
     const that = this;
 
@@ -2888,14 +2904,9 @@ export class AddEditExpensePage implements OnInit {
             that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
               if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
                 this.addToNewReport(res.transaction.id);
-              } else if (that.fg.controls.report.value) {
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
                 that.goBack();
-                const message = 'Expense has been added successfully';
-                this.matSnackBar.openFromComponent(ToastMessageComponent, {
-                  ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-                  panelClass: ['msb-success-with-camera-icon'],
-                });
-                this.trackingService.showToastMessage({ ToastContent: message });
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.goBack();
               }
@@ -2905,14 +2916,9 @@ export class AddEditExpensePage implements OnInit {
             that.editExpense('SAVE_EXPENSE').subscribe((res) => {
               if (that.fg.controls.add_to_new_report.value && res && res.id) {
                 this.addToNewReport(res.id);
-              } else if (that.fg.controls.report.value) {
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
                 that.goBack();
-                const message = 'Expense has been added successfully';
-                this.matSnackBar.openFromComponent(ToastMessageComponent, {
-                  ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-                  panelClass: ['msb-success-with-camera-icon'],
-                });
-                this.trackingService.showToastMessage({ ToastContent: message });
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.goBack();
               }

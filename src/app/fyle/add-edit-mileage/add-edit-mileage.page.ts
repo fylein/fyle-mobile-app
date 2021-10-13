@@ -1629,6 +1629,22 @@ export class AddEditMileagePage implements OnInit {
       });
   }
 
+  showAddToReportSuccessToast(reportId: string) {
+    const toastMessageData = {
+      message: 'Mileage expense added to report successfully',
+      redirectionText: 'View Report',
+    };
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
+    });
+  }
+
   saveExpense() {
     const that = this;
 
@@ -1641,14 +1657,9 @@ export class AddEditMileagePage implements OnInit {
             that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
               if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id) {
                 this.addToNewReport(etxn.tx.id);
-              } else if (that.fg.controls.report.value) {
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
                 that.close();
-                const message = 'Mileage expense has been added successfully';
-                this.matSnackBar.openFromComponent(ToastMessageComponent, {
-                  ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-                  panelClass: ['msb-success-with-camera-icon'],
-                });
-                this.trackingService.showToastMessage({ ToastContent: message });
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.close();
               }
@@ -1658,14 +1669,9 @@ export class AddEditMileagePage implements OnInit {
             that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
               if (that.fg.controls.add_to_new_report.value && tx && tx.id) {
                 this.addToNewReport(tx.id);
-              } else if (that.fg.controls.report.value) {
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
                 that.close();
-                const message = 'Mileage expense has been added successfully';
-                this.matSnackBar.openFromComponent(ToastMessageComponent, {
-                  ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-                  panelClass: ['msb-success-with-camera-icon'],
-                });
-                this.trackingService.showToastMessage({ ToastContent: message });
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.close();
               }
