@@ -10,6 +10,14 @@ import {
 } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { getCurrencySymbol } from '@angular/common';
+
+type Option = {
+  label: string;
+  value: any;
+  selected?: boolean;
+};
 
 @Component({
   selector: 'app-add-to-report-modal',
@@ -19,7 +27,7 @@ import { isEqual } from 'lodash';
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+  @Input() options: Option[] = [];
 
   @Input() currentSelection: any;
 
@@ -35,7 +43,13 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @Input() enableSearch;
 
-  constructor(private modalController: ModalController, private cdr: ChangeDetectorRef) {}
+  reportCurrencySymbol: string;
+
+  constructor(
+    private modalController: ModalController,
+    private cdr: ChangeDetectorRef,
+    private offlineService: OfflineService
+  ) {}
 
   ngOnInit() {
     if (this.currentSelection) {
@@ -45,6 +59,10 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
         )
         .sort((a, b) => (a.selected === b.selected ? 0 : a.selected ? -1 : 1));
     }
+
+    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+      this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+    });
   }
 
   ngAfterViewInit() {
@@ -55,7 +73,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option) {
+  onElementSelect(option: Option) {
     this.modalController.dismiss(option);
   }
 

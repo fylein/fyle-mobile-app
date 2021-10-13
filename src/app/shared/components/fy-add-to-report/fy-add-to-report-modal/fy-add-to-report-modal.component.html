@@ -37,9 +37,9 @@
             <ion-col size="3.5" class="ion-no-padding ion-text-right">
               <div class="report-list--currency-amount-container">
                 <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
-                <span class="report-list--amount">
-                  {{ option.value.rp.amount || 0 | humanizeCurrency: option.value.rp.currency:2:true }}
-                </span>
+                <span class="report-list--amount">{{
+                  option.value.rp.amount || 0 | humanizeCurrency: option.value.rp.currency:2:true
+                }}</span>
               </div>
               <div class="ion-text-right">
                 <div
