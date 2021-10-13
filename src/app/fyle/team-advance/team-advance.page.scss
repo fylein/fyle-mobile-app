@@ -23,7 +23,9 @@ $toolbar-border: #ababab6b;
   }
 
   &--zero-state {
-    padding-top: 80px;
+    height: 100%;
+    display: flex;
+    align-items: center;
   }
 
   &--option {
