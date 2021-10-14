@@ -144,9 +144,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       shareReplay(1)
     );
     const paginatedScroll$ = this.transactions$.pipe(
-      switchMap((txns) => {
-        return this.transactionsCount$.pipe(map((count) => count > txns.length));
-      })
+      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length)))
     );
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
   }
@@ -155,6 +153,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      }
+    });
   }
 
   linkAccount() {
@@ -165,31 +169,21 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           await this.loaderService.hideLoader();
         })
       )
-      .subscribe((accessToken) => {
-        this.openYoodle(accessToken.fast_link_url, accessToken.access_token);
+      .subscribe((yodleeConfig) => {
+        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token);
       });
   }
 
   openYoodle(url, access_token) {
-    const successContent = `<h1>Success<h1>`;
-    const successContentUrl = 'data:text/html;base64,' + btoa(successContent);
-
-    const pageContent =
-      `<form id="fastlink-form" name="fastlink-form" action="` +
-      url +
-      `" method="POST">
-                          <input name="accessToken" value="Bearer ` +
-      access_token +
-      `" hidden="true" />
-                          <input  name="extraParams" value="configName=Aggregation&callback=https://www.fylehq.com" hidden="true" />
-                          </form> 
-                          <script type="text/javascript">
-                          document.getElementById("fastlink-form").submit();
-                          </script>
-                          `;
-    const pageContentUrl = 'data:text/html;base64,' + btoa(pageContent);
+    const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
     const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=no');
     browser.on('loadstart').subscribe((event) => {
+      /* As of now yodlee not supported for postmessage for cordova
+         So now added callback url as https://www.fylehq.com ,
+         after success yodlee will redirect to the url with success message on params,
+         while start loading this url below code will parse the success message and
+         close the inappborwser. this url will not visible to users.
+      */
       if (event.url.substring(0, 22) === 'https://www.fylehq.com') {
         browser.close();
         this.zone.run(() => {
@@ -201,7 +195,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   postAccounts(requestIds) {
-    from(this.loaderService.showLoader('Linking your card to Fyle...', 30000))
+    from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
       .pipe(
         switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
         finalize(async () => {

@@ -33,18 +33,22 @@ export class BankAccountCardComponent implements OnInit {
   ngOnInit(): void {}
 
   async presentPopover(ev: any) {
-    this.deletecardPopOver = await this.popoverController.create({
+    const deletecardPopOver = await this.popoverController.create({
       component: DeleteButtonComponent,
       cssClass: 'delete-button-class',
       event: ev,
-      componentProps: { parent: this },
     });
-    await this.deletecardPopOver.present();
+    await deletecardPopOver.present();
+
+    const { data } = await deletecardPopOver.onDidDismiss();
+
+    if (data === 'delete') {
+      this.confirmPopup();
+    }
   }
 
   async deleteAccount() {
-    await this.deletecardPopOver.dismiss();
-    from(this.loaderService.showLoader('Deleting your card..', 5000))
+    from(this.loaderService.showLoader('Deleting your card...', 5000))
       .pipe(
         switchMap(() => this.personalCardsService.deleteAccount(this.accountDetails.id)),
         finalize(async () => {
@@ -63,8 +67,8 @@ export class BankAccountCardComponent implements OnInit {
     const deletecardPopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
-        title: 'Delete Card',
-        message: 'Are you want to delete this card ?',
+        title: 'Are you sure',
+        message: 'Are you sure to delete this card?',
         primaryCta: {
           text: 'Delete',
           action: 'delete',

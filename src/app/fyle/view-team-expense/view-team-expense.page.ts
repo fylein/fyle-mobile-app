@@ -10,7 +10,7 @@ import { switchMap, shareReplay, concatMap, map, finalize, reduce, tap, takeUnti
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { ModalController, PopoverController, IonContent } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -18,7 +18,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { FyFlagExpenseComponent } from 'src/app/shared/components/fy-flag-expense/fy-flag-expense.component';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 @Component({
   selector: 'app-view-team-expense',
@@ -335,27 +335,28 @@ export class ViewTeamExpensePage implements OnInit {
   }
 
   async flagUnflagExpense() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-    const flagUnflagModal = await this.modalController.create({
-      component: FyFlagExpenseComponent,
+    const id = this.activatedRoute.snapshot.params.id;
+    const etxn = await this.transactionService.getEtxn(id).toPromise();
+
+    const title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
+    const flagUnflagModal = await this.popoverController.create({
+      component: FyPopoverComponent,
       componentProps: {
-        isExpenseFlagged: this.isExpenseFlagged,
+        title,
+        formLabel: `Reason for ${title.toLowerCase()}ing expense`,
       },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties(),
-      cssClass: 'flag-unflag-modal',
+      cssClass: 'fy-dialog-popover',
     });
 
     await flagUnflagModal.present();
     const { data } = await flagUnflagModal.onWillDismiss();
 
-    if (data && data.message) {
+    if (data && data.comment) {
       from(this.loaderService.showLoader('Please wait'))
         .pipe(
           switchMap(() => {
             const comment = {
-              comment: data.message,
+              comment: data.comment,
             };
             return this.statusService.post('transactions', etxn.tx_id, comment, true);
           }),

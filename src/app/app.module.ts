@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, InjectionToken, NgModule } from '@angular/core';
 import { BrowserModule, HammerModule } from '@angular/platform-browser';
 import { Router, RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
@@ -29,6 +29,10 @@ export class MyHammerConfig extends HammerGestureConfig {
     rotate: { enable: false },
   };
 }
+
+export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
+  'Minimum screen width to act as breakpoint between regular and small devices'
+);
 
 @NgModule({
   declarations: [AppComponent],
@@ -81,6 +85,10 @@ export class MyHammerConfig extends HammerGestureConfig {
     {
       provide: Sentry.TraceService,
       deps: [Router],
+    },
+    {
+      provide: MIN_SCREEN_WIDTH,
+      useValue: 375,
     },
   ],
   bootstrap: [AppComponent],

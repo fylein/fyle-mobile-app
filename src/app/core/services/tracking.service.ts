@@ -35,7 +35,7 @@ export class TrackingService {
       properties['User Org ID'] = eou.ou.org_id;
     }
     return properties;
-  };
+  }
 
   async updateIdentityIfNotPresent() {
     if (!this.identityEmail) {
@@ -772,21 +772,29 @@ export class TrackingService {
     this.eventTrack('my expenses filters applied', properties);
   }
 
+  myReportsFilterApplied(properties) {
+    this.eventTrack('my reports filters applied', properties);
+  }
+
+  TeamReportsFilterApplied(properties) {
+    this.eventTrack('team reports filters applied', properties);
+  }
+
   // Duplicates
   async duplicateDetectionAlertShown(properties: {}) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('Duplicate Detection User Alert Shown', properties);
-  };
+  }
 
   async duplicateDetectionUserActionExpand(properties: {}) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('Duplicate Detection User Action Expand', properties);
-  };
+  }
 
   async duplicateDetectionUserActionCollapse(properties: {}) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('Duplicate Detection User Action Collapse', properties);
-  };
+  }
 
   showMoreClicked(properties) {
     this.eventTrack('show more clicked', properties);
@@ -802,5 +810,41 @@ export class TrackingService {
 
   footerSaveAndNextClicked(properties = {}) {
     this.eventTrack('save and next clicked inside footer', properties);
+  }
+
+  // Tasks
+  async tasksFiltersApplied(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('filters applied in tasks', properties);
+  }
+
+  async tasksPageOpened(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks page opened', properties);
+  }
+
+  async tasksShown(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks shown', properties);
+  }
+
+  async tasksClicked(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks clicked', properties);
+  }
+
+  async tasksFilterClearAllClicked(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks clear all filters clicked', properties);
+  }
+
+  async tasksFilterPillClicked(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks clicked on filter pill', properties);
+  }
+
+  async tasksFilterPillRemoveClicked(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('tasks clicked on remove filter pill', properties);
   }
 }

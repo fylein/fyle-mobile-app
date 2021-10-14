@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
+import { PopoverController } from '@ionic/angular';
 
 @Component({
   selector: 'app-delete-button',
@@ -6,5 +7,9 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./delete-button-component.scss'],
 })
 export class DeleteButtonComponent {
-  @Input() parent;
+  constructor(private popoverController: PopoverController) {}
+
+  confirmDelete() {
+    this.popoverController.dismiss('delete');
+  }
 }

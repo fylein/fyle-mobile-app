@@ -1,6 +1,6 @@
 @import '../../../../../theme/colors';
 
-.perosnal-card {
+.personal-card {
   &--header {
     display: flex;
     justify-content: space-between;
@@ -19,7 +19,7 @@
   }
 
   &--bank-name {
-    font-weight: bold;
+    font-weight: 700;
     font-size: 18px;
     line-height: 20px;
     color: $pure-white;
