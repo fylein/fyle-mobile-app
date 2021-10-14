@@ -5,9 +5,9 @@
   "npmClient": "npm",
   "webDir": "www",
   "plugins": {
-  "SplashScreen": {
-	"launchShowDuration": 5000,
-	"androidScaleType": "CENTER_CROP"
+   "SplashScreen": {
+	 "launchShowDuration": 5000,
+	 "androidScaleType": "CENTER_CROP"
 	}
   },
   "cordova": {}
