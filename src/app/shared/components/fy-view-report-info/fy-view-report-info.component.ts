@@ -7,6 +7,23 @@ import { KeyValue, DatePipe } from '@angular/common';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+
+type AmountDetails = {
+  'Total Amount': number;
+  Reimbursable: number;
+  CCC?: number;
+  Advance?: number;
+};
+
+type PaymentMode = {
+  [paymentMode: string]: {
+    name: string;
+    key: string;
+    amount: number;
+    count: number;
+  };
+};
 
 @Component({
   selector: 'app-fy-view-report-info',
@@ -30,7 +47,7 @@ export class FyViewReportInfoComponent implements OnInit {
 
   reportDetails = {};
 
-  amountComponentWiseDetails = {};
+  amountComponentWiseDetails: AmountDetails;
 
   amountCurrencyWiseDetails = {};
 
@@ -45,7 +62,8 @@ export class FyViewReportInfoComponent implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     public platform: Platform,
     private elementRef: ElementRef,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private offlineService: OfflineService
   ) {}
 
   ngOnInit(): void {}
@@ -65,14 +83,16 @@ export class FyViewReportInfoComponent implements OnInit {
       }
     });
 
-    combineLatest([this.etxns$, this.erpt$]).subscribe(([etxns, erpt]) => {
-      const paymentModeWiseData: any = this.transactionService.getPaymentModeWiseSummary(etxns);
+    const orgSettings$ = this.offlineService.getOrgSettings();
+    combineLatest([this.etxns$, this.erpt$, orgSettings$]).subscribe(([etxns, erpt, orgSettings]) => {
+      const paymentModeWiseData: PaymentMode = this.transactionService.getPaymentModeWiseSummary(etxns);
       this.amountComponentWiseDetails = {
         'Total Amount': erpt.rp_amount,
         Reimbursable: paymentModeWiseData.reimbursable?.amount || 0,
-        CCC: paymentModeWiseData.ccc?.amount || 0,
-        Advance: paymentModeWiseData.advance?.amount || 0,
       };
+      if (orgSettings) {
+        this.getCCCAdvanceSummary(paymentModeWiseData, orgSettings);
+      }
     });
 
     this.etxns$.subscribe((etxns) => {
@@ -166,5 +186,16 @@ export class FyViewReportInfoComponent implements OnInit {
         'Allowed Cost Centers': allowedCostCenters,
       };
     });
+  }
+
+  getCCCAdvanceSummary(paymentModeWiseData: PaymentMode, orgSettings: any) {
+    if (orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled) {
+      this.amountComponentWiseDetails.CCC = paymentModeWiseData.ccc?.amount || 0;
+    }
+    const isAdvancesEnabled = orgSettings.advances && orgSettings.advances.enabled;
+    const isAdvanceRequestsEnabled = orgSettings.advance_requests && orgSettings.advance_requests.enabled;
+    if (isAdvancesEnabled || isAdvanceRequestsEnabled) {
+      this.amountComponentWiseDetails.Advance = paymentModeWiseData.advance?.amount || 0;
+    }
   }
 }
