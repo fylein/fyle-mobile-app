@@ -4,20 +4,19 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController } from '@ionic/angular';
-import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil } from 'rxjs/operators';
+import { switchMap, finalize, map, shareReplay, startWith, take, takeUntil } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 @Component({
   selector: 'app-view-team-report',
@@ -62,7 +61,6 @@ export class ViewTeamReportPage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
-    private transactionService: TransactionService,
     private authService: AuthService,
     private loaderService: LoaderService,
     private router: Router,
@@ -309,15 +307,27 @@ export class ViewTeamReportPage implements OnInit {
 
   async sendBack() {
     const popover = await this.popoverController.create({
-      component: SendBackComponent,
+      component: FyPopoverComponent,
+      componentProps: {
+        title: 'Send Back',
+        formLabel: 'Reason for sending back',
+      },
       cssClass: 'fy-dialog-popover',
     });
 
     await popover.present();
     const { data } = await popover.onWillDismiss();
 
-    if (data && data.statusPayload) {
-      this.reportService.inquire(this.activatedRoute.snapshot.params.id, data.statusPayload).subscribe(() => {
+    if (data && data.comment) {
+      const status = {
+        comment: data.comment,
+      };
+      const statusPayload = {
+        status,
+        notify: false,
+      };
+
+      this.reportService.inquire(this.activatedRoute.snapshot.params.id, statusPayload).subscribe(() => {
         const message = 'Report Sent Back successfully';
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),

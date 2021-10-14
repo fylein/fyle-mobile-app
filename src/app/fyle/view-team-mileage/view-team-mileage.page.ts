@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Observable, from, Subject, concat, noop, of } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -8,7 +8,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap, tap, takeUntil } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, takeUntil } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -17,7 +17,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { FyFlagExpenseComponent } from 'src/app/shared/components/fy-flag-expense/fy-flag-expense.component';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 @Component({
   selector: 'app-view-team-mileage',
@@ -174,27 +174,28 @@ export class ViewTeamMileagePage implements OnInit {
   }
 
   async flagUnflagExpense() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-    const flagUnflagModal = await this.modalController.create({
-      component: FyFlagExpenseComponent,
+    const id = this.activatedRoute.snapshot.params.id;
+    const etxn = await this.transactionService.getEtxn(id).toPromise();
+
+    const title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
+    const flagUnflagModal = await this.popoverController.create({
+      component: FyPopoverComponent,
       componentProps: {
-        isExpenseFlagged: this.isExpenseFlagged,
+        title,
+        formLabel: `Reason for ${title.toLowerCase()}ing expense`,
       },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties(),
-      cssClass: 'flag-unflag-modal',
+      cssClass: 'fy-dialog-popover',
     });
 
     await flagUnflagModal.present();
     const { data } = await flagUnflagModal.onWillDismiss();
 
-    if (data && data.message) {
+    if (data && data.comment) {
       from(this.loaderService.showLoader('Please wait'))
         .pipe(
           switchMap(() => {
             const comment = {
-              comment: data.message,
+              comment: data.comment,
             };
             return this.statusService.post('transactions', etxn.tx_id, comment, true);
           }),
