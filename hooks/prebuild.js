@@ -7,7 +7,6 @@ dotenv.config();
 const secrets = require('./secrets');
 
 module.exports = function (ctx) {
-
   // Creating environment.prod.ts file
   fs.writeFileSync(`${ctx.project.dir}` + "/src/environments/environment.prod.ts", secrets.prodEnviroinent);
 
@@ -27,6 +26,18 @@ module.exports = function (ctx) {
   var cameraPreviewPath = path.resolve(process.cwd(), FILE_PATHS["android.cameraPreview"]);
   var cameraPreviewContents = fs.readFileSync(cameraPreviewPath).toString();
   fs.writeFileSync(cameraPreviewPath, cameraPreviewContents.replace(/Manifest.permission.RECORD_AUDIO/g, '// Manifest.permission.RECORD_AUDIO ,'), 'utf8');
+ 
+  // updating app version
+  console.log("Updating app version");
+  var buildGradlePath = path.resolve(process.cwd(),"android/app/build.gradle");
+  var buildGradlePathContents = fs.readFileSync(buildGradlePath).toString();
+  fs.writeFileSync(buildGradlePath, buildGradlePathContents.replace(/46800/g, ctx.env.FYLE_MOBILE_BUILD_VERSION), 'utf8');
+  buildGradlePathContents = fs.readFileSync(buildGradlePath).toString();
+  fs.writeFileSync(buildGradlePath, buildGradlePathContents.replace(/4.68.0/g, ctx.env.FYLE_MOBILE_RELEASE_VERSION), 'utf8');
+
+  var pbxprojPath = path.resolve(process.cwd(),"ios/App/App.xcodeproj/project.pbxproj");
+  var pbxprojPathContents = fs.readFileSync(pbxprojPath).toString();
+  fs.writeFileSync(pbxprojPath, pbxprojPathContents.replace(/4.68.0/g, ctx.env.FYLE_MOBILE_RELEASE_VERSION), 'utf8');
 
   // Creating google-services.json file
   fs.writeFileSync("android/app/google-services.json", secrets.googleCredentialsAndroid);

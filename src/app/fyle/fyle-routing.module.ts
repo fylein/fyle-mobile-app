@@ -161,7 +161,7 @@ const routes: Routes = [
   },
   {
     path: 'personal_cards',
-    loadChildren: () => import('./personal-cards/personal-cards.module').then( m => m.PersonalCardsPageModule)
+    loadChildren: () => import('./personal-cards/personal-cards.module').then((m) => m.PersonalCardsPageModule),
   },
 ];
 

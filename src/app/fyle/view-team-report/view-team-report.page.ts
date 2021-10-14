@@ -4,16 +4,19 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController } from '@ionic/angular';
-import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil } from 'rxjs/operators';
+import { switchMap, finalize, map, shareReplay, startWith, take, takeUntil } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { SendBackComponent } from './send-back/send-back.component';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
 import { NetworkService } from '../../core/services/network.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 @Component({
   selector: 'app-view-team-report',
@@ -58,13 +61,15 @@ export class ViewTeamReportPage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
-    private transactionService: TransactionService,
     private authService: AuthService,
     private loaderService: LoaderService,
     private router: Router,
     private popoverController: PopoverController,
     private popupService: PopupService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private trackingService: TrackingService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {}
@@ -301,23 +306,35 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   async sendBack() {
-    const erpt = await this.erpt$.pipe(take(1)).toPromise();
-    const etxns = await this.etxns$.toPromise();
-
     const popover = await this.popoverController.create({
+      component: FyPopoverComponent,
       componentProps: {
-        erpt,
-        etxns,
+        title: 'Send Back',
+        formLabel: 'Reason for sending back',
       },
-      component: SendBackComponent,
-      cssClass: 'dialog-popover',
+      cssClass: 'fy-dialog-popover',
     });
 
     await popover.present();
-
     const { data } = await popover.onWillDismiss();
 
-    if (data && data.goBack) {
+    if (data && data.comment) {
+      const status = {
+        comment: data.comment,
+      };
+      const statusPayload = {
+        status,
+        notify: false,
+      };
+
+      this.reportService.inquire(this.activatedRoute.snapshot.params.id, statusPayload).subscribe(() => {
+        const message = 'Report Sent Back successfully';
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
+        this.trackingService.showToastMessage({ ToastContent: message });
+      });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
   }

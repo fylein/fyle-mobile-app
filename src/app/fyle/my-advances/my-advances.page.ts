@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import { concat, range, zip, combineLatest, iif, of } from 'rxjs';
 import { forkJoin, from, noop, Observable, Subject } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -192,6 +192,24 @@ export class MyAdvancesPage implements OnInit {
     }
 
     this.router.navigate(['/', 'enterprise', route, { id }]);
+  }
+
+  onHomeClicked() {
+    const queryParams: Params = { state: 'home' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onTaskClicked() {
+    const queryParams: Params = { state: 'tasks' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onCameraClicked() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
   ngOnInit() {}

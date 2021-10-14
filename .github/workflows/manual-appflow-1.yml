@@ -68,10 +68,17 @@ jobs:
           token: ${{ secrets.DIAWI_TOKEN }}
           file: ios.ipa
 
+      - name: Get branch name
+        id: get-branch
+        uses: xom9ikk/split@v1
+        with:
+          string: ${{ github.ref }}
+          separator: refs/heads/
+
       - name: Send Message to Slack
         uses: archive/github-actions-slack@v2.0.1
         id: notify
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C029QPGHSQL
-          slack-text: ${{github.event.pull_request.user.login}} created PR on "${{ github.repository }}" \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```  \r\n \r\n APK Link ${{steps.diwaiAndroid.outputs.url}} \r\n IPA link ${{steps.diwaiIos.outputs.url}}
+          slack-text: ${{github.event.sender.login}} ran manual workflow  on "${{ steps.get-branch.outputs._1 }}" branch \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```  \r\n \r\n APK Link ${{steps.diwaiAndroid.outputs.url}} \r\n IPA link ${{steps.diwaiIos.outputs.url}}

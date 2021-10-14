@@ -1,5 +1,5 @@
-import { Component, EventEmitter, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, concat } from 'rxjs';
+import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Observable, from, Subject, concat, noop, of } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,12 +8,16 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap, tap, takeUntil } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, takeUntil } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
-import { RemoveExpenseReportComponent } from './remove-expense-report/remove-expense-report.component';
-import { PopoverController, IonContent } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 @Component({
   selector: 'app-view-team-mileage',
@@ -51,6 +55,10 @@ export class ViewTeamMileagePage implements OnInit {
 
   comments$: Observable<any>;
 
+  isDeviceWidthSmall = window.innerWidth < 330;
+
+  isExpenseFlagged: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -62,7 +70,10 @@ export class ViewTeamMileagePage implements OnInit {
     private popoverController: PopoverController,
     private router: Router,
     private networkService: NetworkService,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private trackingService: TrackingService
   ) {}
 
   ionViewWillLeave() {
@@ -102,39 +113,105 @@ export class ViewTeamMileagePage implements OnInit {
   }
 
   getPolicyDetails(txId) {
-    from(this.policyService.getPolicyViolationRules(txId)).pipe()
-      .subscribe(details => {
-        this.policyDetails = details;
-      });
+    if (txId) {
+      from(this.policyService.getPolicyViolationRules(txId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
+    }
   }
 
   goBack() {
     this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId }]);
   }
 
-  onUpdateFlag(event) {
-    if (event) {
-      this.updateFlag$.next();
+  async openCommentsModal() {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'transactions',
+        objectId: etxn.tx_id,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment();
+    } else {
+      this.trackingService.viewComment();
     }
   }
 
   async removeExpenseFromReport() {
     const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-    const popover = await this.popoverController.create({
-      component: RemoveExpenseReportComponent,
+
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
       componentProps: {
-        etxn,
+        header: 'Remove Expense',
+        body: 'Are you sure you want to remove this expense from the report?',
+        infoMessage: 'The report amount will be adjusted accordingly.',
+        ctaText: 'Remove',
+        ctaLoadingText: 'Removing',
+        deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
       },
-      cssClass: 'dialog-popover',
     });
 
-    await popover.present();
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
 
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.goBack) {
+    if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
     }
+  }
+
+  async flagUnflagExpense() {
+    const id = this.activatedRoute.snapshot.params.id;
+    const etxn = await this.transactionService.getEtxn(id).toPromise();
+
+    const title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
+    const flagUnflagModal = await this.popoverController.create({
+      component: FyPopoverComponent,
+      componentProps: {
+        title,
+        formLabel: `Reason for ${title.toLowerCase()}ing expense`,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await flagUnflagModal.present();
+    const { data } = await flagUnflagModal.onWillDismiss();
+
+    if (data && data.comment) {
+      from(this.loaderService.showLoader('Please wait'))
+        .pipe(
+          switchMap(() => {
+            const comment = {
+              comment: data.comment,
+            };
+            return this.statusService.post('transactions', etxn.tx_id, comment, true);
+          }),
+          concatMap(() =>
+            etxn.tx_manual_flag
+              ? this.transactionService.manualUnflag(etxn.tx_id)
+              : this.transactionService.manualFlag(etxn.tx_id)
+          ),
+          finalize(() => {
+            this.updateFlag$.next();
+            this.loaderService.hideLoader();
+          })
+        )
+        .subscribe(noop);
+    }
+    this.isExpenseFlagged = etxn.tx_manual_flag;
   }
 
   ionViewWillEnter() {
@@ -184,7 +261,12 @@ export class ViewTeamMileagePage implements OnInit {
       })
     );
 
-    this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    if (id) {
+      this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+    } else {
+      this.policyViloations$ = of(null);
+    }
+
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
@@ -196,6 +278,10 @@ export class ViewTeamMileagePage implements OnInit {
     this.isAmountCapped$ = this.extendedMileage$.pipe(
       map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
     );
+
+    this.extendedMileage$.subscribe((etxn) => {
+      this.isExpenseFlagged = etxn.tx_manual_flag;
+    });
 
     this.updateFlag$.next();
   }
