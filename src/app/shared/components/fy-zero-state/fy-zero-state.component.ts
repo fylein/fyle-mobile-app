@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output } from '@angular/core';
+import { Component, OnInit, Input, Output, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { EventEmitter } from 'events';
 
 @Component({
@@ -6,7 +6,9 @@ import { EventEmitter } from 'events';
   templateUrl: './fy-zero-state.component.html',
   styleUrls: ['./fy-zero-state.component.scss'],
 })
-export class FyZeroStateComponent implements OnInit {
+export class FyZeroStateComponent implements OnInit, AfterViewInit {
+  @ViewChild('messageRef') messageRef: ElementRef;
+
   @Input() image: string;
 
   @Input() header: string;
@@ -29,6 +31,13 @@ export class FyZeroStateComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {}
+
+  ngAfterViewInit() {
+    if (this.message.indexOf('ion-icon') > -1) {
+      this.messageRef.nativeElement.innerHTML = this.message;
+      this.messageRef.nativeElement.getElementsByTagName('ion-icon')[0]?.classList.add('zero-state--icon');
+    }
+  }
 
   onLinkClick(event) {
     this.linkClicked.emit(event);

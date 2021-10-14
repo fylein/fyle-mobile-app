@@ -1,114 +1,117 @@
-<ion-header mode="md">
-  <ion-toolbar mode="md" class="reports--toolbar-header">
-    <ion-buttons mode="md" slot="start">
-      <app-fy-menu-icon></app-fy-menu-icon>
+<app-fy-header
+  [currentState]="headerState"
+  [navigateBack]="navigateBack"
+  [title]="'Team Reports'"
+  (simpleSearchCancel)="onSimpleSearchCancel()"
+>
+  <ng-container base>
+    <ion-buttons mode="md" slot="end">
+      <ion-button class="reports--header-btn" (click)="searchClick()">
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
+      </ion-button>
+      <ion-button class="reports--header-btn" (click)="openFilters()">
+        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+        </ng-container>
+        <ng-template #noFilterAppliedIcon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+        </ng-template>
+      </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title"> Team Reports </ion-title>
-  </ion-toolbar>
-  <ion-toolbar mode="md">
-    <div class="reports--toolbar">
-      <div class="expense-report-search">
-        <mat-form-field class="mat-form-field-no-padding reports--simple-search" appearance="outline">
-          <div class="reports--simple-search-block">
-            <mat-icon matPrefix svgIcon="search" class="reports--simple-search-icon"></mat-icon>
-            <input #simpleSearchInput matInput placeholder="Search" [(ngModel)]="searchText" />
-            <button
-              mat-button
-              *ngIf="searchText"
-              matSuffix
-              mat-icon-button
-              aria-label="Clear"
-              class="reports--simple-search-close"
-              (click)="clearText()"
-            >
-              <mat-icon class="reports--simple-search-icon">close</mat-icon>
-            </button>
-          </div>
-        </mat-form-field>
-      </div>
-      <div>
-        <ion-buttons mode="md" slot="end">
-          <button mat-icon-button class="reports--filter-button" (click)="openSort()">
-            <mat-icon
-              class="reports--filter-button-icon"
-              *ngIf="filters?.sortDir === 'asc'"
-              svgIcon="fy-sort-ascending"
-            ></mat-icon>
-            <mat-icon
-              class="reports--filter-button-icon"
-              *ngIf="filters?.sortDir === 'desc' || true && filters?.sortDir !== 'asc'"
-              svgIcon="fy-sort-descending"
-            ></mat-icon>
-          </button>
+  </ng-container>
+
+  <ng-container simpleSearch>
+    <div class="expense-report-search reports--simple-search-container">
+      <mat-form-field appearance="outline" class="mat-form-field-no-padding reports--simple-search">
+        <div class="reports--simple-search-block">
+          <mat-icon class="reports--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+          <input
+            #simpleSearchInput
+            [(ngModel)]="simpleSearchText"
+            class="reports--simple-search-input"
+            matInput
+            placeholder="Search"
+            (focus)="onSearchBarFocus()"
+          />
           <button
+            (click)="clearText('isFromSearchBar')"
+            *ngIf="simpleSearchText"
+            aria-label="Clear"
+            class="reports--simple-search-close"
+            mat-button
             mat-icon-button
-            class="reports--filter-button"
-            [ngClass]="{'reports--filter-button__applied': filters?.state || filters?.date}"
-            (click)="openFilters()"
+            matSuffix
           >
-            <mat-icon class="reports--filter-button-icon" svgIcon="fy-filter"></mat-icon>
+            <mat-icon svgIcon="fy-clear"></mat-icon>
           </button>
-        </ion-buttons>
-      </div>
+        </div>
+      </mat-form-field>
     </div>
-    <div class="reports--filters" *ngIf="filters?.state || filters?.date">
-      <div>
-        Filtered by
-        <span [ngSwitch]="filters?.state">
-          <span *ngSwitchCase="'MYQUEUE'">My Queue</span>
-          <span *ngSwitchCase="'ALL'">All Reports</span>
-          <span *ngSwitchDefault></span>
-        </span>
-        <span *ngIf="filters?.state && filters?.date">,</span>
-        <span [ngSwitch]="filters?.date">
-          <span *ngSwitchCase="'ALL'">All</span>
-          <span *ngSwitchCase="'THISMONTH'">This Month</span>
-          <span *ngSwitchCase="'LASTMONTH'">Last Month</span>
-          <span *ngSwitchCase="'CUSTOMDATE'">Custom Date</span>
-          <span *ngSwitchDefault></span>
-        </span>
-      </div>
-      <mat-icon (click)="clearFilters()"> cancel </mat-icon>
-    </div>
-  </ion-toolbar>
-</ion-header>
+  </ng-container>
+</app-fy-header>
 
 <ion-content class="reports--content">
-  <ng-container *ngIf="count$|async; else zeroState">
+  <div class="reports--body" [ngClass]="{'reports--zero-state-body': (count$ | async) === 0}">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
-      <app-team-report-card
-        [erpt]="erpt"
-        [prevDate]="list[i-1]?.rp_created_at"
-        (gotoReport)="onReportClick($event)"
-        (deleteReport)="onDeleteReportClick($event)"
-      >
-      </app-team-report-card>
-    </div>
-  </ng-container>
+    <ng-container *ngIf="filterPills?.length">
+      <div class="reports--filter-pills-container">
+        <app-fy-filter-pills
+          class="reports--filter-pills"
+          (filterClose)="onFilterClose($event)"
+          (filterClicked)="onFilterClick($event)"
+          (clearAll)="onFilterPillsClearAll()"
+          [filterPills]="filterPills"
+        ></app-fy-filter-pills>
+      </div>
+    </ng-container>
 
-  <ng-template #zeroState>
-    <div class="reports--zero-state">
-      <app-fy-zero-state
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-        image="../../../assets/images/zero-states/expenses.png"
-        header="Get yourself a coffee &#9749;"
-        message="No reports pending on you for approval."
-      ></app-fy-zero-state>
-    </div>
-  </ng-template>
+    <app-fy-loading-screen *ngIf="isLoading" class="reports--shimmers"></app-fy-loading-screen>
 
-  <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+    <div *ngIf="!isLoading">
+      <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
+        <app-team-report-card
+          [erpt]="erpt"
+          [prevDate]="list[i-1]?.rp_created_at"
+          (gotoReport)="onReportClick($event)"
+          (deleteReport)="onDeleteReportClick($event)"
+        >
+        </app-team-report-card>
+      </div>
+    </div>
+
+    <ng-container *ngIf="isConnected$|async">
+      <ng-container *ngIf="isLoadingDataInInfiniteScroll">
+        <app-fy-loading-screen class="reports--shimmers"></app-fy-loading-screen>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="(count$ | async) === 0">
+      <div class="reports--zero-state">
+        <app-fy-zero-state
+          [unscaledImage]="true"
+          [useNewStyling]="true"
+          image="../../../assets/images/zero-states/expenses.png"
+          header="Get yourself a coffee &#9749;"
+          message="No reports pending on you for approval."
+        ></app-fy-zero-state>
+      </div>
+    </ng-container>
+  </div>
+
+  <ion-infinite-scroll
+    *ngIf="!isLoadingDataInInfiniteScroll && (isInfiniteScrollRequired$ | async)"
+    threshold="100px"
+    (ionInfinite)="loadData($event)"
+  >
     <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>
 
-<ion-footer mode="md">
+<ion-footer mode="md" *ngIf="!isSearchBarFocused">
   <app-fy-footer
     (homeClicked)="onHomeClicked()"
     (taskClicked)="onTaskClicked()"

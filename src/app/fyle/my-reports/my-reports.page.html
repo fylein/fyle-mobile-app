@@ -1,96 +1,76 @@
-<ion-header mode="md">
-  <ion-toolbar mode="md" class="my-reports--toolbar-header">
-    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
-      <app-fy-menu-icon></app-fy-menu-icon>
-    </ion-buttons>
-    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
-      <ion-back-button mode="md"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="page-title" mode="md"> Reports </ion-title>
+<app-fy-header
+  [currentState]="headerState"
+  [navigateBack]="navigateBack"
+  [title]="'Reports'"
+  (simpleSearchCancel)="onSimpleSearchCancel()"
+>
+  <ng-container base>
     <ion-buttons mode="md" slot="end">
-      <ion-button class="my-expenses--header-btn" [routerLink]="['/', 'enterprise', 'my_create_report']">
+      <ion-button class="my-reports--header-btn" (click)="searchClick()">
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
+      </ion-button>
+      <ion-button class="my-reports--header-btn" (click)="openFilters()">
+        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+        </ng-container>
+        <ng-template #noFilterAppliedIcon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+        </ng-template>
+      </ion-button>
+      <ion-button class="my-reports--header-btn" [routerLink]="['/', 'enterprise', 'my_create_report']">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
-  </ion-toolbar>
-  <ion-toolbar mode="md">
-    <div class="my-reports--toolbar">
-      <div class="expense-report-search">
-        <mat-form-field class="mat-form-field-no-padding my-reports--simple-search" appearance="outline">
-          <div class="my-reports--simple-search-block">
-            <mat-icon matPrefix svgIcon="search" class="my-reports--simple-search-icon"></mat-icon>
-            <input #simpleSearchInput matInput placeholder="Search" [(ngModel)]="searchText" />
-            <button
-              mat-button
-              *ngIf="searchText"
-              matSuffix
-              mat-icon-button
-              aria-label="Clear"
-              class="my-reports--simple-search-close"
-              (click)="clearText()"
-            >
-              <mat-icon class="my-reports--simple-search-icon">close</mat-icon>
-            </button>
-          </div>
-        </mat-form-field>
-      </div>
-      <div>
-        <ion-buttons mode="md" slot="end">
-          <button mat-icon-button class="my-reports--filter-button" (click)="openSort()">
-            <mat-icon
-              class="my-reports--filter-button-icon"
-              *ngIf="filters?.sortDir === 'asc'"
-              svgIcon="fy-sort-ascending"
-            ></mat-icon>
-            <mat-icon
-              class="my-reports--filter-button-icon"
-              *ngIf="filters?.sortDir === 'desc' || true && filters?.sortDir !== 'asc'"
-              svgIcon="fy-sort-descending"
-            ></mat-icon>
-          </button>
+  </ng-container>
+
+  <ng-container simpleSearch>
+    <div class="expense-report-search my-reports--simple-search-container">
+      <mat-form-field appearance="outline" class="mat-form-field-no-padding my-reports--simple-search">
+        <div class="my-reports--simple-search-block">
+          <mat-icon class="my-reports--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+          <input
+            #simpleSearchInput
+            [(ngModel)]="simpleSearchText"
+            class="my-reports--simple-search-input"
+            matInput
+            placeholder="Search"
+            (focus)="onSearchBarFocus()"
+          />
           <button
+            (click)="clearText('isFromSearchBar')"
+            *ngIf="simpleSearchText"
+            aria-label="Clear"
+            class="my-reports--simple-search-close"
+            mat-button
             mat-icon-button
-            class="my-reports--filter-button"
-            [ngClass]="{'my-reports--filter-button__applied': filters?.state || filters?.date}"
-            (click)="openFilters()"
+            matSuffix
           >
-            <mat-icon class="my-reports--filter-button-icon" svgIcon="fy-filter"></mat-icon>
+            <mat-icon svgIcon="fy-clear"></mat-icon>
           </button>
-        </ion-buttons>
-      </div>
+        </div>
+      </mat-form-field>
     </div>
-    <div class="my-reports--filters" *ngIf="filters?.state || filters?.date">
-      <div>
-        Filtered by
-        <span [ngSwitch]="filters?.state">
-          <span *ngSwitchCase="'DRAFT'">Draft</span>
-          <span *ngSwitchCase="'APPROVER_PENDING'">Reported</span>
-          <span *ngSwitchCase="'APPROVER_INQUIRY'">Sent Back</span>
-          <span *ngSwitchCase="'APPROVED'">Approved</span>
-          <span *ngSwitchCase="'PAYMENT_PENDING'">Payments Queue</span>
-          <span *ngSwitchCase="'PAID'">Paid</span>
-          <span *ngSwitchCase="'ALL'">All</span>
-          <span *ngSwitchDefault></span>
-        </span>
-        <span *ngIf="filters?.state && filters?.date"> , </span>
-        <span [ngSwitch]="filters?.date">
-          <span *ngSwitchCase="'ALL'">All</span>
-          <span *ngSwitchCase="'THISMONTH'">This Month</span>
-          <span *ngSwitchCase="'LASTMONTH'">Last Month</span>
-          <span *ngSwitchCase="'CUSTOMDATE'">Custom Date</span>
-          <span *ngSwitchDefault></span>
-        </span>
-      </div>
-      <mat-icon (click)="clearFilters()"> cancel </mat-icon>
-    </div>
-  </ion-toolbar>
-</ion-header>
+  </ng-container>
+</app-fy-header>
 
 <ion-content class="my-reports--content">
   <div class="my-reports--body" [ngClass]="{'my-reports--zero-state-body': (count$ | async) === 0}">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
+
+    <ng-container *ngIf="filterPills?.length">
+      <div class="my-reports--filter-pills-container">
+        <app-fy-filter-pills
+          class="my-reports--filter-pills"
+          (filterClose)="onFilterClose($event)"
+          (filterClicked)="onFilterClick($event)"
+          (clearAll)="onFilterPillsClearAll()"
+          [filterPills]="filterPills"
+        ></app-fy-filter-pills>
+      </div>
+    </ng-container>
+
     <app-fy-loading-screen *ngIf="isLoading" class="my-reports--shimmers"></app-fy-loading-screen>
     <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
       <app-fy-zero-state
@@ -99,7 +79,7 @@
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/expenses.png"
         header="You've got no report!"
-        message="Create one by clicking `+` on top"
+        message='Create one by clicking <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon> on top'
       ></app-fy-zero-state>
       <app-fy-zero-state
         *ngIf="(filters?.state || filters?.date || searchText)"
@@ -123,7 +103,7 @@
     </div>
     <ng-container *ngIf="isConnected$|async">
       <ng-container *ngIf="isLoadingDataInInfiniteScroll">
-        <app-fy-loading-screen class="my-expenses--shimmers"></app-fy-loading-screen>
+        <app-fy-loading-screen class="my-reports--shimmers"></app-fy-loading-screen>
       </ng-container>
     </ng-container>
   </div>
@@ -138,7 +118,7 @@
   </ion-infinite-scroll>
 </ion-content>
 
-<ion-footer mode="md">
+<ion-footer mode="md" *ngIf="!isSearchBarFocused">
   <app-fy-footer
     (homeClicked)="onHomeClicked()"
     (taskClicked)="onTaskClicked()"
