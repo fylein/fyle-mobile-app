@@ -1,0 +1,53 @@
+<div class="expenses-card--body">
+  <div class="display-flex">
+    <ng-container *ngIf="!receiptThumbnail">
+      <div class="expenses-card--receipt-container">
+        <ion-icon
+          class="expenses-card--receipt-icon expenses-card--receipt-icon__pdf"
+          [src]="'assets/svg/no-attachment.svg'"
+        ></ion-icon>
+      </div>
+    </ng-container>
+
+    <div
+      class="expenses-card--receipt-thumbnail-container expenses-card--with-image"
+      [ngStyle]="{
+        'background-image': (isScanInProgress ? imageTransperencyOverlay : '') + 'url(' + receiptThumbnail + ')'
+      }"
+      *ngIf="receiptThumbnail"
+    ></div>
+
+    <div class="display-flex expenses-card--deatils-block">
+      <div class="expenses-card--category-vendor-project-container">
+        <div class="display-flex expenses-card--category-icon-container">
+          <div class="expenses-card--category">
+            {{ expense.purpose }}
+          </div>
+        </div>
+
+        <div>
+          {{ expense.vendor }}
+        </div>
+
+        <div>
+          {{ expense.txn_dt | date: 'MMM dd, yyyy' }}
+        </div>
+      </div>
+
+      <div class="display-flex">
+        <div>
+          <div class="expenses-card--currency-amount-container ion-text-right">
+            <span class="expenses-card--currency">{{
+              0 | currency: expense.currency:'symbol-narrow' | slice: 0:1
+            }}</span>
+            <span class="expenses-card--amount"> {{ expense.amount }}</span>
+
+            <span>
+              <ion-icon [src]="'assets/svg/arrow.svg'" class="expenses-card--icon" slot="icon-only"> </ion-icon>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

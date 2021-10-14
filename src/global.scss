@@ -931,3 +931,16 @@ ion-modal.auto-height {
 .no-pointer-events {
   pointer-events: none;
 }
+
+.expense-preview-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    max-height: 80%;
+    position: absolute;
+    top: 20%;
+  }
+
+  .modal-shadow {
+    display: none;
+  }
+}

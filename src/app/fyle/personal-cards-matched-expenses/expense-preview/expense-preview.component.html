@@ -1,0 +1,222 @@
+<ion-header mode="md">
+  <mat-icon *ngIf="!isIos" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <ion-toolbar mode="md" class="text-center fy-modal-toolbar expense-preview--toolbar">
+    <ion-buttons slot="start">
+      <ion-button (click)="closeModal()">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="expense-preview--toolbar__title">Confirm Matching Expense</div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="expenseDetails$ | async as expenseDetails; else shimmers">
+    <ion-grid class="expense-preview--body-container">
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">Expense Id</div>
+        </ion-col>
+        <ion-col size="7" (click)="viewExpense()">
+          <div class="expense-preview--body-container__value expense-preview--link">
+            {{ expenseDetails.tx_expense_number }}
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">Amount</div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            {{ 0 | currency: expenseDetails.tx_currency:'symbol-narrow' | slice: 0:1 }} {{ expenseDetails.tx_amount }}
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">Created Date</div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            {{ expenseDetails.tx_created_at | date: 'MMM dd, yyyy' }}
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">Spent Date</div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            {{ expenseDetails.tx_txn_dt | date: 'MMM dd, yyyy' }}
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">Merchant</div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            {{ expenseDetails.tx_vendor }}
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">Category</div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            {{ expenseDetails.tx_org_category }}
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">Card</div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            {{ card }}
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">Receipt</div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            <ng-container *ngIf="!expenseDetails.tx_file_ids"
+              >Not Attached
+              <ion-icon
+                [src]="'assets/svg/no-attachment.svg'"
+                class="expense-preview--icon"
+                slot="icon-only"
+              ></ion-icon>
+            </ng-container>
+            <ng-container *ngIf="expenseDetails.tx_file_ids"
+              >Attached
+              <ion-icon [src]="'assets/svg/attachment.svg'" class="expense-preview--icon" slot="icon-only"></ion-icon>
+            </ng-container>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ng-container>
+
+  <!-- shimmers -->
+  <ng-template #shimmers>
+    <ion-grid class="expense-preview--body-container">
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row class="expense-preview--body-container__content">
+        <ion-col size="5">
+          <div class="expense-preview--body-container__title">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+        <ion-col size="7">
+          <div class="expense-preview--body-container__value">
+            <ion-skeleton-text class="expense-preview--shimmer"></ion-skeleton-text>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ng-template>
+</ion-content>
+<ng-container *ngIf="1">
+  <ion-footer class="expense-preview--footer-container">
+    <ion-toolbar mode="md">
+      <div class="expense-preview--footer-toolbar">
+        <ion-buttons>
+          <ion-button (click)="closeModal()" [disabled]="saveExpenseLoader" class="btn-secondary"> Cancel </ion-button>
+          <ion-button
+            (click)="matchExpense()"
+            [disabled]="loading"
+            [loadingText]="'matching'"
+            [loading]="loading"
+            appFormButtonValidation
+            class="btn-primary"
+          >
+            Confirm Match
+          </ion-button>
+        </ion-buttons>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+</ng-container>

@@ -98,6 +98,7 @@
     font-size: 16px;
     line-height: 1.25;
     margin-right: -2px;
+    vertical-align: text-bottom;
   }
 
   &--amount {
@@ -129,5 +130,22 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  &--expenses-preview {
+    background-color: white;
+    border: 1px solid #dfdfe2;
+    margin: 0 20px;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+
+  &--action-container {
+    height: 100px;
+  }
+
+  &--divider {
+    height: 1px;
+    background-color: #dfdfe2;
   }
 }

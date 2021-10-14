@@ -90,6 +90,7 @@ import { RouteSelectorModalComponent } from './components/route-selector/route-s
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
+import { ExpenseCardLiteComponent } from './components/expense-card-lite/expense-card-lite.component';
 
 @NgModule({
   declarations: [
@@ -161,6 +162,7 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
     RouteSelectorModalComponent,
     PolicyViolationDetailsComponent,
     AddApproversPopoverComponent,
+    ExpenseCardLiteComponent,
   ],
   imports: [
     CommonModule,
@@ -242,6 +244,7 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
     RouteSelectorComponent,
     MatChipsModule,
     PolicyViolationDetailsComponent,
+    ExpenseCardLiteComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
 })

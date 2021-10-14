@@ -63,4 +63,19 @@ export class PersonalCardsService {
   getMatchedExpensesCount(amount: number, txnDate: string): Observable<number> {
     return this.getMatchedExpenses(amount, txnDate).pipe(map((res) => res.length));
   }
+
+  getExpenseDetails(transactionSplitGroupId: string): Observable<any> {
+    return this.apiv2Service.get('/expenses', {
+      params: {
+        tx_split_group_id: `eq.${transactionSplitGroupId}`,
+      },
+    });
+  }
+
+  matchExpense(transactionSplitGroupId: string, externalExpenseId: string): Observable<any> {
+    return this.apiService.post('/transactions/external_expense/match', {
+      transaction_split_group_id: transactionSplitGroupId,
+      external_expense_id: externalExpenseId,
+    });
+  }
 }

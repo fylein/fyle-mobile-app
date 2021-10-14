@@ -19,7 +19,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { PersonalCardsMatchedExpensesPageRoutingModule } from './personal-cards-matched-expenses-routing.module';
 
 import { PersonalCardsMatchedExpensesPage } from './personal-cards-matched-expenses.page';
-
+import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 
 @NgModule({
   imports: [
@@ -42,8 +42,8 @@ import { PersonalCardsMatchedExpensesPage } from './personal-cards-matched-expen
     MatBottomSheetModule,
     MatSnackBarModule,
     SharedModule,
-    MatCheckboxModule
+    MatCheckboxModule,
   ],
-  declarations: [PersonalCardsMatchedExpensesPage]
+  declarations: [PersonalCardsMatchedExpensesPage, ExpensePreviewComponent],
 })
 export class PersonalCardsMatchedExpensesPageModule {}

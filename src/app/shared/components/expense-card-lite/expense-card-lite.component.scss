@@ -14,8 +14,7 @@
   }
 
   &--body {
-    background-color: $pure-white;
-    min-height: 106px;
+    min-height: 92px;
     padding: 16px;
 
     &__with-border {
@@ -104,15 +103,15 @@
   &--receipt-container {
     background-color: $light-grey;
     border-radius: 8px;
-    height: 74px;
-    padding: 20px;
+    height: 65px;
+    padding: 15px;
   }
 
   &--receipt-thumbnail-container {
     background-color: $light-grey;
     border-radius: 8px;
-    height: 74px;
-    min-width: 75px;
+    height: 64px;
+    min-width: 64px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -223,10 +222,11 @@
 
   &--currency {
     color: $black-light;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 16px;
     line-height: 1.25;
-    margin-right: 0px;
+    margin-right: -2px;
+    vertical-align: initial;
   }
 
   &--amount {
@@ -238,10 +238,9 @@
   }
 
   &--icon {
-    vertical-align: text-bottom;
-    height: 20px;
-    width: 20px;
-    font-size: 20px;
+    vertical-align: baseline;
+    height: 13px;
+    width: 13px;
   }
 
   &--exchange-rate {
