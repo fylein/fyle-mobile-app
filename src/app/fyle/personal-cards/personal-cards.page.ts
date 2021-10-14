@@ -100,7 +100,7 @@ export class PersonalCardsPage implements OnInit {
       /* As of now yodlee not supported for postmessage for cordova
          So now added callback url as https://www.fylehq.com ,
          after success yodlee will redirect to the url with success message on params,
-         while start loading this url below code will parse the success message and 
+         while start loading this url below code will parse the success message and
          close the inappborwser. this url will not visible to users.
       */
       if (event.url.substring(0, 22) === 'https://www.fylehq.com') {
