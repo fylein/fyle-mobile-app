@@ -73,8 +73,6 @@ export class PersonalCardsService {
         btxn_status: config.queryParams.status,
         limit: config.limit,
         offset: config.offset,
-        or: '(and(btxn_transaction_dt.gte.2021-06-29T00:00:00.000Z,btxn_transaction_dt.lt.2021-09-27T23:59:59.999Z))',
-        order: 'btxn_transaction_dt.desc,ba_id.desc',
       },
     });
   }
