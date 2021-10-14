@@ -3,6 +3,7 @@ import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
+import { SwiperModule } from 'swiper/angular';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -36,6 +37,7 @@ import { FyMenuIconComponent } from './components/fy-menu-icon/fy-menu-icon.comp
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
 import { FyLoadingScreenComponent } from './components/fy-loading-screen/fy-loading-screen.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -91,6 +93,10 @@ import { RouteVisualizerComponent } from './components/route-visualizer/route-vi
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
 
+import { BankAccountCardsComponent } from './components/bank-account-cards/bank-account-cards.component';
+import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
+import { DeleteButtonComponent } from './components/bank-account-cards/bank-account-card/delete-button/delete-button-component';
+import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
 @NgModule({
   declarations: [
     AdvanceState,
@@ -161,6 +167,10 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
     RouteSelectorModalComponent,
     PolicyViolationDetailsComponent,
     AddApproversPopoverComponent,
+    BankAccountCardsComponent,
+    BankAccountCardComponent,
+    DeleteButtonComponent,
+    PersonalCardTransactionComponent,
   ],
   imports: [
     CommonModule,
@@ -181,6 +191,8 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
     AgmCoreModule,
     AgmDirectionModule,
     MatChipsModule,
+    SwiperModule,
+    MatSnackBarModule,
   ],
   exports: [
     EllipsisPipe,
@@ -242,6 +254,8 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
     RouteSelectorComponent,
     MatChipsModule,
     PolicyViolationDetailsComponent,
+    BankAccountCardsComponent,
+    PersonalCardTransactionComponent,
   ],
   providers: [DecimalPipe, DatePipe],
 })

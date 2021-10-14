@@ -41,4 +41,36 @@ export class PersonalCardsService {
       })
       .pipe(map((res) => res.count));
   }
+
+  deleteAccount(accountid): Observable<any> {
+    return this.expenseAggregationService.delete('/bank_accounts/' + accountid);
+  }
+
+  getBankTransactions(
+    config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
+      offset: 0,
+      limit: 10,
+      queryParams: {},
+    }
+  ) {
+    return this.apiv2Service.get('/personal_bank_transactions', {
+      params: {
+        ba_id: 'eq.' + config.queryParams.accountId,
+        btxn_status: config.queryParams.status,
+        limit: config.limit,
+        offset: config.offset,
+        or: '(and(btxn_transaction_dt.gte.2021-06-29T00:00:00.000Z,btxn_transaction_dt.lt.2021-09-27T23:59:59.999Z))',
+        order: 'btxn_transaction_dt.desc,ba_id.desc',
+      },
+    });
+  }
+
+  getBankTransactionsCount(queryParams) {
+    const parms = {
+      limit: 10,
+      offset: 0,
+      queryParams,
+    };
+    return this.getBankTransactions(parms).pipe(map((res) => res.count));
+  }
 }

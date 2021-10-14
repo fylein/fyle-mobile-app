@@ -8,9 +8,10 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { PersonalCardsPageRoutingModule } from './personal-cards-routing.module';
 
 import { PersonalCardsPage } from './personal-cards.page';
+import { TransactionsShimmerComponent } from './transactions-shimmer/transactions-shimmer.component';
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule, PersonalCardsPageRoutingModule, SharedModule],
-  declarations: [PersonalCardsPage],
+  declarations: [PersonalCardsPage, TransactionsShimmerComponent],
 })
 export class PersonalCardsPageModule {}

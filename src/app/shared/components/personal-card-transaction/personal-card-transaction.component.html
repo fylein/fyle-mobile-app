@@ -1,0 +1,41 @@
+<div *ngIf="showDt; else divider" class="personal-card-transaction--date">
+  <ng-container>
+    {{ txnDate | dateFormat }}
+  </ng-container>
+</div>
+
+<ng-template #divider>
+  <div class="personal-card-transaction--divider"></div>
+</ng-template>
+
+<div class="personal-card-transaction--body display-flex">
+  <div class="personal-card-transaction--details">
+    <div class="personal-card-transaction--vendor">
+      {{ description }}
+    </div>
+    <div class="personal-card-transaction--button">
+      Create expense
+      <ion-icon [src]="'assets/svg/right-arrow.svg'" class="personal-card-transaction--icon" slot="icon-only">
+      </ion-icon>
+    </div>
+  </div>
+  <div class="personal-card-transaction--currency-amount-container ion-text-right">
+    <span
+      class="personal-card-transaction--currency"
+      [ngClass]="{ ' personal-card-transaction--green': type === 'credit' }"
+      >{{ currency }}
+    </span>
+    <span
+      class="personal-card-transaction--amount"
+      [ngClass]="{ ' personal-card-transaction--green': type === 'credit' }"
+      >{{ amount }}</span
+    >
+    <span
+      class="personal-card-transaction--type"
+      [ngClass]="{ ' personal-card-transaction--green': type === 'credit' }"
+    >
+      <ng-container *ngIf="type === 'debit'">DR</ng-container>
+      <ng-container *ngIf="type === 'credit'">CR</ng-container>
+    </span>
+  </div>
+</div>
