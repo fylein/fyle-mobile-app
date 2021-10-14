@@ -30,7 +30,7 @@
     </div>
   </ng-container>
 
-  <ng-container *ngIf="((linkedAccountsCount$ | async) !== 0) && (isConnected$|async)">
+  <ng-container *ngIf="((linkedAccountsCount$ | async) > 0) && (isConnected$|async)">
     <ng-container *ngIf="linkedAccounts$ | async as linkedAccounts">
       <app-bank-account-cards
         *ngIf="!isLoading"

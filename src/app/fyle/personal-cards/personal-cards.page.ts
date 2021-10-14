@@ -88,8 +88,8 @@ export class PersonalCardsPage implements OnInit {
           await this.loaderService.hideLoader();
         })
       )
-      .subscribe((accessToken) => {
-        this.openYoodle(accessToken.fast_link_url, accessToken.access_token);
+      .subscribe((yodleeConfig) => {
+        this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token);
       });
   }
 
@@ -97,6 +97,12 @@ export class PersonalCardsPage implements OnInit {
     const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
     const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=no');
     browser.on('loadstart').subscribe((event) => {
+      /* As of now yodlee not supported for postmessage for cordova
+         So now added callback url as https://www.fylehq.com ,
+         after success yodlee will redirect to the url with success message on params,
+         while start loading this url below code will parse the success message and 
+         close the inappborwser. this url will not visible to users.
+      */
       if (event.url.substring(0, 22) === 'https://www.fylehq.com') {
         browser.close();
         this.zone.run(() => {
@@ -108,7 +114,7 @@ export class PersonalCardsPage implements OnInit {
   }
 
   postAccounts(requestIds) {
-    from(this.loaderService.showLoader('Linking your card to Fyle...', 30000))
+    from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
       .pipe(
         switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
         finalize(async () => {
