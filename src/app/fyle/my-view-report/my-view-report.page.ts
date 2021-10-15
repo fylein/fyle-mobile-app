@@ -21,6 +21,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { getCurrencySymbol } from '@angular/common';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 
 @Component({
@@ -358,6 +359,24 @@ export class MyViewReportPage implements OnInit {
         this.trackingService.showToastMessage({ ToastContent: message });
       });
     }
+  }
+
+  async openViewReportInfoModal() {
+    const viewInfoModal = await this.modalController.create({
+      component: FyViewReportInfoComponent,
+      componentProps: {
+        erpt$: this.erpt$,
+        etxns$: this.etxns$,
+        view: 'Individual',
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await viewInfoModal.present();
+    await viewInfoModal.onWillDismiss();
+
+    this.trackingService.clickViewReportInfo({ view: 'Individual' });
   }
 
   canEditTxn(txState) {
