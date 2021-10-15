@@ -63,6 +63,7 @@
     "ng2-pdf-viewer": "^6.3.2",
     "ngx-pinch-zoom": "^2.5.4",
     "rxjs": "~6.5.5",
+    "swiper": "^7.0.6",
     "ts-cacheable": "^1.0.1",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.4"
