@@ -30,7 +30,16 @@
     <div>
       <div class="view-reports--card">
         <div class="view-reports--purpose-amount-block">
-          <div class="view-reports--purpose-amount-block__purpose">{{erpt.rp_purpose}}</div>
+          <div class="view-reports--purpose-amount-block__purpose">
+            {{reportName}}
+            <ion-icon
+              *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY')"
+              [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
+              slot="icon-only"
+              (click)="editReportName()"
+              class="view-reports--card-header__icon"
+            ></ion-icon>
+          </div>
           <div>
             <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
             <span class="view-reports--purpose-amount-block__amount">
@@ -43,17 +52,6 @@
         >
           {{erpt.rp_state | reportState | snakeCaseToSpaceCase}}
         </div>
-        <div class="view-reports--card-header">
-          {{reportName}}
-          <ion-icon
-            *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY')"
-            [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
-            slot="icon-only"
-            (click)="editReportName()"
-            class="view-reports--card-header__icon"
-          ></ion-icon>
-        </div>
-        <div class="view-reports--card-body">Reported on {{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</div>
         <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
           <span *ngIf="reportApprovals.length > 0">
             <span>
@@ -109,7 +107,7 @@
 
       <div class="view-reports--card" *ngIf="erpt.rp_num_transactions !== 0">
         <div>
-          <div>
+          <!-- <div>
             <span class="view-reports--currency"> {{erpt.rp_currency}} </span>
             <span class="view-reports--amount"> {{erpt.rp_amount | number:'1.2-2'}} </span>
           </div>
@@ -117,18 +115,25 @@
           <div class="view-reports--view-hide-btn" (click)="hideAllExpenses = !hideAllExpenses">
             <span *ngIf="hideAllExpenses">View All</span>
             <span *ngIf="!hideAllExpenses">Hide All</span>
-          </div>
+          </div> -->
 
-          <div *ngIf="!hideAllExpenses">
+          <div>
             <div class="view-reports--divider"></div>
-            <div *ngIf="etxns$|async;else ExpensesLoader">
-              <app-my-view-report-etxn-card
-                *ngFor="let etxn of etxns$|async as etxns; let i = index;"
-                [etxn]="etxn"
-                [prevDate]="etxns[i-1]?.tx_txn_dt"
-                (goToTransaciton)="goToTransaction($event)"
-              >
-              </app-my-view-report-etxn-card>
+            <div>
+              <div *ngFor="let etxn of etxns$|async as list; let i = index;">
+                <app-expense-card
+                  [expense]="etxn"
+                  [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
+                  [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+                  [isSelectionModeEnabled]="selectionMode"
+                  [selectedElements]="selectedElements"
+                  (goToTransaction)="goToTransaction($event)"
+                  (setMultiselectMode)="switchSelectionMode($event)"
+                  (cardClickedForSelection)="selectExpense($event)"
+                  [isFromReports]="true"
+                >
+                </app-expense-card>
+              </div>
             </div>
             <ng-template #ExpensesLoader>
               <ion-spinner name="crescent"></ion-spinner>

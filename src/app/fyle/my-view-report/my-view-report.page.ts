@@ -158,6 +158,7 @@ export class MyViewReportPage implements OnInit {
       ),
       map((etxns) =>
         etxns.map((etxn) => {
+          console.log('check etxn-->', etxns, etxn);
           etxn.vendor = this.getVendorName(etxn);
           etxn.violation = this.getShowViolation(etxn);
           return etxn;
