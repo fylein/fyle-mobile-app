@@ -453,7 +453,8 @@
                         </div>
                         <div
                           *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid"
-                          class="add-edit-per-diem--error mt-1"
+                          class="add-edit-per-diem--error"
+                          style="margin-top: 4px"
                         >
                           Please enter {{ txnFields?.purpose.field_name }}.
                         </div>
