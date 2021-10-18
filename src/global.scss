@@ -833,8 +833,8 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .route-visualizer--map {
-  .gm-style .gm-style-iw-a {
-    display: none;
+  .map-container {
+    height: 266px !important;
   }
 }
 
