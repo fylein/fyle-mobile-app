@@ -13,7 +13,15 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, MyCreateReportPageRoutingModule, MatIconModule, SharedModule, MatCheckboxModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    MyCreateReportPageRoutingModule,
+    MatIconModule,
+    SharedModule,
+    MatCheckboxModule,
+  ],
   declarations: [MyCreateReportPage, ReportSummaryComponent],
 })
 export class MyCreateReportPageModule {}

@@ -70,10 +70,11 @@ export class MyViewMileagePage implements OnInit {
 
   getPolicyDetails(txId) {
     if (txId) {
-      from(this.policyService.getPolicyViolationRules(txId)).pipe()
-      .subscribe(details => {
-        this.policyDetails = details;
-      });
+      from(this.policyService.getPolicyViolationRules(txId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
     }
   }
 

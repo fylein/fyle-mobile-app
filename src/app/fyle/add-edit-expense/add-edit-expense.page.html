@@ -66,21 +66,26 @@
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
         <div *ngIf="instaFyleCancelled" class="add-edit-expense--alert-offline">
-          <app-fy-alert-info [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details
-            manually'" [type]="'information'">
+          <app-fy-alert-info
+            [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details manually'"
+            [type]="'information'"
+          >
           </app-fy-alert-info>
         </div>
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="mode === 'edit' && etxn.tx.policy_flag">
             <ng-container *ngIf="policyDetails">
-              <app-fy-policy-violation-info [policyDetails]="policyDetails" [criticalPolicyViolated]="isCriticalPolicyViolated$|async"></app-fy-policy-violation-info>
+              <app-fy-policy-violation-info
+                [policyDetails]="policyDetails"
+                [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+              ></app-fy-policy-violation-info>
             </ng-container>
           </ng-container>
 
           <ng-container *ngIf="isAmountCapped$|async">
             <div class="add-edit-expense--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
-                Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
-                '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+              Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
+              '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
             </div>
           </ng-container>
         </ng-container>
@@ -144,7 +149,7 @@
         </div>
 
         <app-receipt-preview-thumbnail
-          *ngIf="newExpenseDataUrls.length > 0"
+          *ngIf="newExpenseDataUrls && newExpenseDataUrls.length > 0"
           [attachments]="newExpenseDataUrls"
           (addMoreAttachments)="addAttachments($event)"
           (viewAttachments)="viewAttachments()"
@@ -249,8 +254,11 @@
             </ion-row>
           </ion-grid>
           <ng-container *ngIf="isAdvancesEnabled$">
-            <app-fy-alert-info *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC"
-              [message]="'You have outstanding balance in your advance account(s)'" [type]="'information'">
+            <app-fy-alert-info
+              *ngIf="(isBalanceAvailableInAnyAdvanceAccount$ | async) && !isCreatedFromCCC"
+              [message]="'You have outstanding balance in your advance account(s)'"
+              [type]="'information'"
+            >
             </app-fy-alert-info>
           </ng-container>
         </div>
@@ -318,7 +326,8 @@
           <app-fy-alert-info
             *ngIf="(isCCCAccountSelected$|async) && !selectedCCCTransaction && canChangeMatchingCCCTransaction && !(transactionInReport$|async)"
             [message]="'Expense will be saved as a draft. Kindly ensure that it is matched with an appropriate card transaction later, although we will attempt to auto-match it for you.'"
-            [type]="'warning'">
+            [type]="'warning'"
+          >
           </app-fy-alert-info>
 
           <ng-container *ngIf="txnFields$|async as txnFields">
@@ -574,7 +583,7 @@
                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
                   class="add-edit-expense--internal-block add-edit-expense--text"
                 >
-                  <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'" class="add-edit-expense--text">
+                  <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'">
                     <div
                       [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
                       class="add-edit-expense--text-label add-edit-expense--text-label__large"
@@ -715,10 +724,7 @@
               >
               </app-fy-select>
             </div>
-            <div
-              *ngIf="fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid"
-              class="add-edit-expense--error"
-            >
+            <div *ngIf="fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid" class="add-edit-expense--error">
               Please select a merchant
             </div>
           </ng-container>
@@ -969,8 +975,11 @@
         </div>
       </div>
 
-      <app-fy-alert-info *ngIf="isNotReimbursable$|async" [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
-                    [type]="'information'">
+      <app-fy-alert-info
+        *ngIf="isNotReimbursable$|async"
+        [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
+        [type]="'information'"
+      >
       </app-fy-alert-info>
 
       <ng-container *ngIf="etxn$|async as etxn">
@@ -996,10 +1005,18 @@
                 <div>{{duplicates.length}} Duplicates Detected</div>
               </div>
 
-              <div (click)="setDuplicateBoxOpen(false)" *ngIf="duplicateBoxOpen" class="add-edit-expense--duplicate-cta">
+              <div
+                (click)="setDuplicateBoxOpen(false)"
+                *ngIf="duplicateBoxOpen"
+                class="add-edit-expense--duplicate-cta"
+              >
                 Collapse
               </div>
-              <div (click)="setDuplicateBoxOpen(true)" *ngIf="!duplicateBoxOpen" class="add-edit-expense--duplicate-cta">
+              <div
+                (click)="setDuplicateBoxOpen(true)"
+                *ngIf="!duplicateBoxOpen"
+                class="add-edit-expense--duplicate-cta"
+              >
                 Expand
               </div>
             </div>
@@ -1025,9 +1042,11 @@
           <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
             <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
               <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-                <app-fy-alert-info *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
+                <app-fy-alert-info
+                  *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                   [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                  [type]="'warning'">
+                  [type]="'warning'"
+                >
                 </app-fy-alert-info>
               </ng-container>
             </ng-container>

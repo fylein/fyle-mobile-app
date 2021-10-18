@@ -14,6 +14,9 @@ import { StatBadgeComponent } from './stat-badge/stat-badge.component';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TasksComponent } from './tasks/tasks.component';
+import { TasksCardComponent } from './tasks/tasks-card/tasks-card.component';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   imports: [
@@ -26,8 +29,17 @@ import { TasksComponent } from './tasks/tasks.component';
     MatIconModule,
     MatRippleModule,
     MatTabsModule,
+    MatBottomSheetModule,
+    MatSnackBarModule,
   ],
-  declarations: [DashboardPage, GetStartedPopupComponent, StatsComponent, StatBadgeComponent, TasksComponent],
+  declarations: [
+    DashboardPage,
+    GetStartedPopupComponent,
+    StatsComponent,
+    StatBadgeComponent,
+    TasksComponent,
+    TasksCardComponent,
+  ],
   providers: [DashboardService],
 })
 export class DashboardPageModule {}

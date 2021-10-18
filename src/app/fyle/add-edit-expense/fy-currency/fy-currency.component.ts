@@ -22,7 +22,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     },
   ],
 })
-export class FyCurrencyComponent implements ControlValueAccessor, OnChanges, OnInit {
+export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChanges {
   @Input() txnDt: Date;
 
   @Input() homeCurrency: string;
@@ -132,19 +132,22 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnChanges, OnI
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.fg && changes.txnDt && !isEqual(changes.txnDt.previousValue, changes.txnDt.currentValue)) {
-      from(this.currencyService
-        .getExchangeRate(this.fg.value.currency, this.homeCurrency, this.txnDt || new Date()))
-        .pipe().subscribe(newExchangeRate => {
+    if (
+      this.fg &&
+      changes.txnDt &&
+      changes.txnDt.previousValue &&
+      changes.txnDt.currentValue &&
+      !isEqual(changes.txnDt.previousValue, changes.txnDt.currentValue)
+    ) {
+      from(this.currencyService.getExchangeRate(this.fg.value.currency, this.homeCurrency, this.txnDt || new Date()))
+        .pipe()
+        .subscribe((newExchangeRate) => {
           this.exchangeRate = newExchangeRate;
-            if (this.innerValue.orig_amount) {
-              if (this.value.currency !== this.homeCurrency) {
-                this.innerValue.amount = this.innerValue.orig_amount;
-              } else {
-                const amount = (this.innerValue.orig_amount * this.exchangeRate);
-                this.innerValue.amount = parseFloat(amount.toFixed(2));
-              }
-            }
+          if (this.innerValue.orig_amount && this.innerValue.orig_currency !== this.homeCurrency) {
+            this.innerValue.amount = this.innerValue.orig_amount * this.exchangeRate;
+            this.fg.value.amount = this.innerValue.orig_amount;
+            this.fg.value.homeCurrencyAmount = this.innerValue.amount;
+          }
         });
     }
   }

@@ -28,6 +28,10 @@
 @import 'assets/fonts/font.css';
 @import 'theme/colors';
 
+@import 'swiper/scss';
+@import 'swiper/scss/navigation';
+@import 'swiper/scss/pagination';
+
 $header-input-interior: #eeeeee;
 
 :root {
@@ -162,7 +166,7 @@ textarea:focus {
   }
 }
 
-.send-back-report-popover {
+.fy-dialog-popover {
   .popover-wrapper {
     .popover-content {
       bottom: 0 !important;
@@ -833,8 +837,8 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .route-visualizer--map {
-  .gm-style .gm-style-iw-a {
-    display: none;
+  .map-container {
+    height: 266px !important;
   }
 }
 
@@ -934,4 +938,40 @@ ion-modal.auto-height {
 
 .no-pointer-events {
   pointer-events: none;
+}
+
+.delete-button-class {
+  .popover-content {
+    border-radius: 4px;
+    margin-left: -31px;
+    margin-top: -19px;
+    right: 30px;
+    width: fit-content;
+    padding: 7px;
+  }
+
+  .popover-arrow {
+    display: none;
+  }
+}
+
+.fyle.swiper-pagination-bullet {
+  width: 6px !important;
+  height: 6px !important;
+  background: #fff !important;
+  border: 1px solid #161528 !important;
+  box-sizing: border-box !important;
+  opacity: 0.3;
+}
+
+.fyle.swiper-pagination-bullet-active {
+  width: 16px !important;
+  height: 6px !important;
+  background: #161528 !important;
+  border-radius: 4px !important;
+  opacity: 0.3;
+}
+
+.ios .fy-footer--icon-pill {
+  margin-left: 7px !important;
 }

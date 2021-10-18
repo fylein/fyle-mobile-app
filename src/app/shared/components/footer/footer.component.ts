@@ -18,6 +18,8 @@ export class FooterComponent implements OnInit {
 
   @Output() taskClicked = new EventEmitter();
 
+  @Input() taskCount = 0;
+
   @Input() activeState: FooterState;
 
   connectionState$: Observable<ConnectionMessageStatus>;
@@ -58,12 +60,14 @@ export class FooterComponent implements OnInit {
     this.cameraClicked.emit();
   }
 
-  goToTasks() {
-    this.trackingService.footerButtonClicked({
-      Action: 'Tasks',
-      Url: this.router.url,
-    });
+  goToTasks(connectionState: ConnectionMessageStatus) {
+    if (connectionState !== ConnectionMessageStatus.disconnected) {
+      this.trackingService.footerButtonClicked({
+        Action: 'Tasks',
+        Url: this.router.url,
+      });
 
-    this.taskClicked.emit();
+      this.taskClicked.emit();
+    }
   }
 }

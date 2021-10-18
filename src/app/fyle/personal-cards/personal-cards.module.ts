@@ -10,13 +10,7 @@ import { PersonalCardsPageRoutingModule } from './personal-cards-routing.module'
 import { PersonalCardsPage } from './personal-cards.page';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    PersonalCardsPageRoutingModule,
-    SharedModule
-  ],
-  declarations: [PersonalCardsPage]
+  imports: [CommonModule, FormsModule, IonicModule, PersonalCardsPageRoutingModule, SharedModule],
+  declarations: [PersonalCardsPage],
 })
 export class PersonalCardsPageModule {}
