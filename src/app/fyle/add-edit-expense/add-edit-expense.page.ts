@@ -1136,7 +1136,6 @@ export class AddEditExpensePage implements OnInit {
             etxn.tx.project_id = orgUserSettings.preferences.default_project_id;
           }
         } else if (personalCardTxn) {
-          console.log(personalCardTxn);
           etxn = {
             tx: {
               txn_dt: new Date(personalCardTxn.btxn_transaction_dt),
