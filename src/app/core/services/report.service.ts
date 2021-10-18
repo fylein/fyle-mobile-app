@@ -147,7 +147,7 @@ export class ReportService {
     };
     return this.apiService
       .post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+      .pipe(tap(() => this.clearTransactionCache()));
   }
 
   @CacheBuster({
@@ -196,6 +196,16 @@ export class ReportService {
   })
   removeApprover(rptId, approvalId) {
     return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  updateReportDetails(erpt) {
+    const reportData = this.dataTransformService.unflatten(erpt);
+    return this.apiService
+      .post('/reports', reportData.rp)
+      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
   }
 
   getUserReportParams(state: string) {

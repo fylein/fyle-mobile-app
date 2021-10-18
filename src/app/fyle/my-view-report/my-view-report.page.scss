@@ -1,3 +1,5 @@
+@import '../../../theme/colors.scss';
+
 $reported-color: #4798ff;
 $approved-color: #67bc53;
 $paid-color: #64b5a6;
@@ -72,11 +74,16 @@ $sent-back-color: #da1e28;
   }
 
   &--card-header {
+    display: flex;
     font-size: 16px;
     color: #4a4a4a;
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 8px;
     margin-bottom: 8px;
+
+    &__icon {
+      padding-left: 6px;
+    }
   }
 
   &--card-body {

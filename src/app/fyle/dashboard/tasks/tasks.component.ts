@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -340,7 +340,11 @@ export class TasksComponent implements OnInit {
           this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
         });
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_reports', { state: ['APPROVER_INQUIRY'] }]);
+      this.router.navigate(['/', 'enterprise', 'my_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['APPROVER_INQUIRY'] }),
+        },
+      });
     }
   }
 
@@ -359,7 +363,11 @@ export class TasksComponent implements OnInit {
           this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
         });
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_reports', { state: ['DRAFT'] }]);
+      this.router.navigate(['/', 'enterprise', 'my_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['DRAFT'] }),
+        },
+      });
     }
   }
 

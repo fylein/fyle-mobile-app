@@ -133,7 +133,7 @@
                   [formControl]="fg?.controls?.currencyObj"
                   [homeCurrency]="homeCurrency"
                   [recentlyUsed]="recentCurrencies"
-                  [txnDt]="etxn?.tx?.txn_dt"
+                  [txnDt]="fg?.controls?.dateOfSpend?.value"
                   [expanded]="attachedReceiptsCount === 0"
                 >
                 </app-fy-currency>
@@ -584,7 +584,7 @@
                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
                   class="add-edit-expense--internal-block add-edit-expense--text"
                 >
-                  <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'" class="add-edit-expense--text">
+                  <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'">
                     <div
                       [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
                       class="add-edit-expense--text-label add-edit-expense--text-label__large"

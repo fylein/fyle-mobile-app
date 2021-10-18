@@ -10,8 +10,6 @@ import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pull-back-advance-request.component';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -19,6 +17,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -47,7 +46,6 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private fileService: FileService,
     private router: Router,
     private popoverController: PopoverController,
-    private popupService: PopupService,
     private modalController: ModalController,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private modalProperties: ModalPropertiesService,
@@ -146,29 +144,30 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   async pullBack() {
     const pullBackPopover = await this.popoverController.create({
-      component: PullBackAdvanceRequestComponent,
-      cssClass: 'dialog-popover',
+      component: FyPopoverComponent,
+      componentProps: {
+        title: 'Pull Back Advance?',
+        formLabel: 'Pulling back your advance request will allow you to edit and re-submit the request.',
+      },
+      cssClass: 'fy-dialog-popover',
     });
 
     await pullBackPopover.present();
-
     const { data } = await pullBackPopover.onWillDismiss();
 
-    if (data) {
+    if (data && data.comment) {
       const status = {
-        comment: data.reason,
+        comment: data.comment,
       };
-
-      const addStatusPayload = {
+      const statusPayload = {
         status,
         notify: false,
       };
-
       const id = this.activatedRoute.snapshot.params.id;
 
       from(this.loaderService.showLoader())
         .pipe(
-          switchMap(() => this.advanceRequestService.pullBackadvanceRequest(id, addStatusPayload)),
+          switchMap(() => this.advanceRequestService.pullBackadvanceRequest(id, statusPayload)),
           finalize(() => from(this.loaderService.hideLoader()))
         )
         .subscribe(() => {

@@ -3,7 +3,7 @@
 </div>
 <div
   class="reports-card"
-  [ngClass]="{'reports-card__with-border': !showDate}"
+  [ngClass]="{ 'reports-card__with-border': !showDate }"
   (click)="onGoToReport()"
   *ngIf="!actionOpened"
   matRipple
@@ -12,7 +12,7 @@
   <div class="reports-card--main-info">
     <div class="reports-card--purpose-amount-block">
       <div class="reports-card--purpose">
-        <span>{{ erpt.rp_purpose | ellipsis: 40}}</span>
+        <span>{{ erpt.rp_purpose | ellipsis: 40 }}</span>
         <span *ngIf="erpt.rp_manual_flag || erpt.rp_policy_flag">
           <mat-icon class="reports-card--icon-policy-violation" svgIcon="error-filled"></mat-icon>
         </span>
@@ -24,15 +24,18 @@
         </span>
       </div>
     </div>
+    <div class="reports-card--name-state-block">
+      <div class="reports-card--employee-name">Employee: {{ erpt.us_full_name | ellipsis: 30 }}</div>
+      <div class="text-capitalize reports-card--pill  reports-card--pill__{{ erpt.rp_state | reportState }}">
+        {{ erpt.rp_state | reportState | snakeCaseToSpaceCase }}
+      </div>
+    </div>
   </div>
   <div class="reports-card--secondary-info">
     <div class="reports-card--secondary-info-block">
       <div class="reports-card--no-transactions">
         <span>{{ erpt.rp_num_transactions }} </span>
         <span>{{ erpt.rp_num_transactions === 1 ? 'Expense' : 'Expenses' }}</span>
-      </div>
-      <div class="text-capitalize reports-card--pill  reports-card--pill__{{ erpt.rp_state | reportState }}">
-        {{ erpt.rp_state | reportState | snakeCaseToSpaceCase }}
       </div>
     </div>
   </div>

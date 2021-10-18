@@ -772,6 +772,14 @@ export class TrackingService {
     this.eventTrack('my expenses filters applied', properties);
   }
 
+  myReportsFilterApplied(properties) {
+    this.eventTrack('my reports filters applied', properties);
+  }
+
+  TeamReportsFilterApplied(properties) {
+    this.eventTrack('team reports filters applied', properties);
+  }
+
   // Duplicates
   async duplicateDetectionAlertShown(properties: {}) {
     Object.assign(properties, await this.getUserProperties());
