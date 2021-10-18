@@ -1,13 +1,9 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { cloneDeep } from 'lodash';
+import { Observable, of } from 'rxjs';
+import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { LocationService } from 'src/app/core/services/location.service';
 import { MileageLocation } from './mileage-locations';
-
-type AgmDirectionLocation = {
-  lat: number;
-  lng: number;
-};
-
 @Component({
   selector: 'app-route-visualizer',
   templateUrl: './route-visualizer.component.html',
@@ -18,34 +14,30 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
 
   @Output() mapClick = new EventEmitter<void>();
 
-  currentLocation: AgmDirectionLocation;
+  currentLocation: google.maps.LatLngLiteral;
 
-  origin: AgmDirectionLocation;
-
-  destination: AgmDirectionLocation;
-
-  waypoints: { location: AgmDirectionLocation }[];
-
-  renderOptions = {
-    draggable: false,
-    suppressInfoWindows: true,
+  mapOptions: google.maps.MapOptions = {
+    disableDefaultUI: true,
   };
+
+  markerOptions: google.maps.MarkerOptions = {
+    draggable: false,
+    clickable: false,
+  };
+
+  markerPositions: google.maps.LatLngLiteral[] = [];
+
+  origin: google.maps.LatLngLiteral;
+
+  destination: google.maps.LatLngLiteral;
+
+  waypoints: { location: google.maps.LatLngLiteral }[];
 
   showEmptyMap = false;
 
-  markerOptions = {
-    origin: {
-      infoWindow: null,
-    },
-    destination: {
-      infoWindow: null,
-    },
-    waypoints: {
-      infoWindow: null,
-    },
-  };
+  directionsResults$: Observable<google.maps.DirectionsResult>;
 
-  constructor(private locationService: LocationService) {}
+  constructor(private locationService: LocationService, private gmapsService: GmapsService) {}
 
   ngOnInit() {
     this.locationService.getCurrentLocation().subscribe((geoLocationPosition) => {
@@ -64,6 +56,8 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
       lat: mileageLocation?.latitude,
       lng: mileageLocation?.longitude,
     }));
+
+    this.directionsResults$ = of(null);
 
     if (transformedLocations.some((location) => !location.lat || !location.lng) || transformedLocations.length === 0) {
       this.origin = null;
@@ -88,6 +82,12 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
         } else {
           this.waypoints = [];
         }
+        const directionWaypoints = this.waypoints.map((waypoint) => ({
+          location: {
+            ...waypoint,
+          },
+        }));
+        this.directionsResults$ = this.gmapsService.getDirections(this.origin, this.destination, directionWaypoints);
       }
     }
   }
