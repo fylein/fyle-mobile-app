@@ -257,7 +257,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     setTimeout(() => {
       event.target.complete();
     }, 1000);
-    console.log(this.acc);
   }
 
   onHomeClicked() {
