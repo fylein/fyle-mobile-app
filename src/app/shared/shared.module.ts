@@ -88,6 +88,7 @@ import { RouteSelectorComponent } from './components/route-selector/route-select
 import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-view-report-info.component';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { BankAccountCardsComponent } from './components/bank-account-cards/bank-account-cards.component';
 import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
@@ -163,6 +164,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     RouteSelectorComponent,
     RouteSelectorModalComponent,
     PolicyViolationDetailsComponent,
+    FyViewReportInfoComponent,
     BankAccountCardsComponent,
     BankAccountCardComponent,
     DeleteButtonComponent,
