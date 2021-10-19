@@ -9,6 +9,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ReportService } from 'src/app/core/services/report.service';
 import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
 
 @Component({
   selector: 'app-fy-add-to-report',
@@ -23,7 +24,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   ],
 })
 export class FyAddToReportComponent implements OnInit, OnDestroy {
-  @Input() options: { label: string; value: any }[] = [];
+  @Input() options: { label: string; value: UnflattenedReport }[] = [];
 
   @Input() disabled = false;
 

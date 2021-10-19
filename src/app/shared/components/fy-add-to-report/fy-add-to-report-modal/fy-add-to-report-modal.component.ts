@@ -12,10 +12,11 @@ import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { getCurrencySymbol } from '@angular/common';
+import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
 
 type Option = {
   label: string;
-  value: any;
+  value: UnflattenedReport;
   selected?: boolean;
 };
 
@@ -29,7 +30,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @Input() options: Option[] = [];
 
-  @Input() currentSelection: any;
+  @Input() currentSelection: UnflattenedReport;
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
