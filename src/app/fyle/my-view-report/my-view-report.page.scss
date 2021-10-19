@@ -32,6 +32,7 @@ $sent-back-color: #da1e28;
     padding: 16px;
     border-radius: 16px;
     height: 140px;
+    position: relative;
   }
 
   &--zero-state-header {
@@ -95,8 +96,9 @@ $sent-back-color: #da1e28;
   }
 
   &--report-state-pill {
+    margin-top: 2px;
     color: $pure-white;
-    padding: 2px 16px;
+    padding: 1px 16px;
     border-radius: 16px;
     font-size: 12px;
     float: right;
@@ -178,10 +180,17 @@ $sent-back-color: #da1e28;
     }
   }
 
+  &--date-info-block {
+    top: 20%;
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    width: 88%;
+  }
+
   &--submitted-date {
     font-weight: 500;
-    margin-top: -14%;
-    margin-left: 16px;
+    padding: 0 16px;
 
     &__text {
       color: $light-grey;
@@ -192,7 +201,87 @@ $sent-back-color: #da1e28;
     }
   }
 
+  &--segment-block-container {
+    --border-width: 0 !important;
+    margin-top: 20px;
+
+    &__segment.ios {
+      margin: 12px auto;
+    }
+
+    &__segment.md {
+      padding: 0 16px 8px;
+    }
+
+    &__btn {
+      color: $blue-black;
+      font-size: 14px;
+      font-weight: 500;
+      width: 100%;
+    }
+  }
+
+  &--view-info {
+    display: flex;
+    float: right;
+    padding: 1px 4px;
+    font-size: 12px;
+    font-weight: 400;
+    color: $light-grey;
+
+    &__icon {
+      height: 18px;
+      width: 18px;
+      padding: 1px;
+      vertical-align: middle;
+    }
+
+    &__content {
+      padding-left: 2px;
+    }
+  }
+
   &--approvers-section {
     background-color: $pure-white;
+    border-radius: 16px;
+    box-shadow: 0px 4px 4px rgba(22, 21, 40, 0.08);
+    margin-top: -10%;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  &--approvers {
+    color: $black-light;
+    padding: 18px 12px 0;
+  }
+
+  &--approvers-list {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 12px;
+  }
+
+  &--approver-state-section {
+    display: flex;
+    align-items: center;
+  }
+
+  &--approver-state-pill {
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    margin-right: 4px;
+
+    &__approval_pending {
+      background-color: #f90;
+    }
+
+    &__approval_done {
+      background-color: #66bb6a;
+    }
+
+    &__approval_disabled {
+      background-color: #ababab;
+    }
   }
 }

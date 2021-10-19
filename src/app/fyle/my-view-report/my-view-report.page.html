@@ -52,28 +52,18 @@
         >
           {{erpt.rp_state | reportState | snakeCaseToSpaceCase}}
         </div>
-        <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
-          <span *ngIf="reportApprovals.length > 0">
-            <span>
-              Approver<span *ngIf="reportApprovals.length === 1"> is </span
-              ><span *ngIf="reportApprovals.length > 1">s are </span>
-            </span>
-            <span *ngFor="let ap of reportApprovals;let last = last;"
-              >{{ap.approver_email}} (
-              <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
-                {{ap.state | reportState | titlecase}}
-                <span class="view-reports--card-body__highlight" *ngIf="ap.approved_at"
-                  >, {{ ap.approved_at | date: 'MMM dd, yyyy' }}</span
-                >
-              </span>
-              ){{last ? '' : ', '}}
-            </span>
-          </span>
-        </div>
       </div>
-      <div class="view-reports--submitted-date">
-        <span class="view-reports--submitted-date__text">Submitted on: </span>
-        <span class="view-reports--submitted-date__date">{{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</span>
+      <div class="view-reports--date-info-block">
+        <div class="view-reports--submitted-date">
+          <div>
+            <span class="view-reports--submitted-date__text">Submitted on: </span>
+            <span class="view-reports--submitted-date__date">{{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</span>
+          </div>
+        </div>
+        <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
+          <ion-icon class="view-reports--view-info__icon" src="../../../assets/svg/fy-info-gradient.svg"></ion-icon>
+          <span class="view-reports--view-info__content">View Info</span>
+        </div>
       </div>
 
       <div
@@ -81,16 +71,20 @@
         *ngIf="(erpt.rp_state !== 'DRAFT') && (reportApprovals$|async) as reportApprovals"
       >
         <div *ngIf="reportApprovals.length > 0" class="view-reports--approval-state-block">
+          <div class="view-reports--approvers">Approvers</div>
           <div *ngFor="let ap of reportApprovals">
-            <div>
+            <div class="view-reports--approvers-list">
               <div>{{ ap.approver_name }}</div>
-              <div>{{ ap.state | titlecase | snakeCaseToSpaceCase}}</div>
+              <div class="view-reports--approver-state-section">
+                <div
+                  class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | toLowerCase}}"
+                ></div>
+                <span
+                  >{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase | snakeCaseToSpaceCase)}}</span
+                >
+              </div>
             </div>
           </div>
-        </div>
-        <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
-          <ion-icon class="view-reports--view-info__icon" src="../../../assets/svg/fy-info-gradient.svg"></ion-icon>
-          <span class="view-reports--view-info__content">View Info</span>
         </div>
       </div>
 
@@ -109,21 +103,27 @@
         </ng-template>
       </div>
 
-      <div class="view-reports--card" *ngIf="erpt.rp_num_transactions !== 0">
-        <div>
-          <!-- <div>
-            <span class="view-reports--currency"> {{erpt.rp_currency}} </span>
-            <span class="view-reports--amount"> {{erpt.rp_amount | number:'1.2-2'}} </span>
-          </div>
-          <div class="view-reports--count">Contains {{erpt.rp_num_transactions}} expenses</div>
-          <div class="view-reports--view-hide-btn" (click)="hideAllExpenses = !hideAllExpenses">
-            <span *ngIf="hideAllExpenses">View All</span>
-            <span *ngIf="!hideAllExpenses">Hide All</span>
-          </div> -->
+      <div class="view-reports--segment-block-container">
+        <ion-segment
+          class="segment-block view-reports--segment-block-container__segment"
+          (ionChange)="segmentChanged($event)"
+          value="expenses"
+        >
+          <ion-segment-button value="expenses" class="view-reports--segment-block-container__btn text-capitalize">
+            Expenses
+          </ion-segment-button>
+          <ion-segment-button value="comments" class="view-reports--segment-block-container__btn text-capitalize">
+            Comments
+          </ion-segment-button>
+          <ion-segment-button value="history" class="view-reports--segment-block-container__btn text-capitalize">
+            History
+          </ion-segment-button>
+        </ion-segment>
 
-          <div>
+        <div *ngIf="isExpensesView">
+          <div *ngIf="erpt.rp_num_transactions > 0">
             <div class="view-reports--divider"></div>
-            <div>
+            <div class="view-reports-expense-card-block">
               <div *ngFor="let etxn of etxns$|async as list; let i = index;">
                 <app-expense-card
                   [expense]="etxn"
@@ -135,6 +135,7 @@
                   (setMultiselectMode)="switchSelectionMode($event)"
                   (cardClickedForSelection)="selectExpense($event)"
                   [isFromReports]="true"
+                  [isFromViewReports]="true"
                 >
                 </app-expense-card>
               </div>
@@ -143,15 +144,18 @@
               <ion-spinner name="crescent"></ion-spinner>
             </ng-template>
           </div>
+          <div *ngIf="erpt.rp_num_transactions === 0">
+            <div>
+              <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
+              <div class="view-reports--zero-state-header">No expense in this report yet</div>
+              <div class="my-create-report--zero-state-header">Looks like you don't have reportable expenses.</div>
+              <div class="my-create-report--add-more-container" (click)="addExpense()">
+                <mat-icon class="my-create-report--add-more-icon" svgIcon="plus"></mat-icon>
+                <div class="my-create-report--add-more-text">Add Expenses</div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div class="view-reports--card view-reports--card__zero-state" *ngIf="erpt.rp_num_transactions === 0">
-      <div>
-        <img src="../../../assets/images/zero-states/expenses.svg" alt="No expense in this report" />
-        <div class="view-reports--zero-state-header">No expense in this report yet</div>
-        <div class="view-reports--zero-state-sub-header">Edit to add expenses to this report</div>
       </div>
     </div>
   </div>

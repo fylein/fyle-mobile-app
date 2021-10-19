@@ -60,6 +60,12 @@ export class MyViewReportPage implements OnInit {
 
   reportName: string;
 
+  isCommentsView: boolean = false;
+
+  isHistoryView: boolean = false;
+
+  isExpensesView: boolean = true;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -279,7 +285,7 @@ export class MyViewReportPage implements OnInit {
     }
   }
 
-  async goToTransaction(etxn: any) {
+  async goToTransaction(etxn) {
     const erpt = await this.erpt$.toPromise();
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
@@ -381,5 +387,23 @@ export class MyViewReportPage implements OnInit {
 
   canEditTxn(txState) {
     return this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(txState) > -1;
+  }
+
+  segmentChanged(event) {
+    if (event && event.detail && event.detail.value) {
+      if (event.detail.value === 'expenses') {
+        this.isExpensesView = true;
+        this.isCommentsView = false;
+        this.isHistoryView = false;
+      } else if (event.detail.value === 'comments') {
+        this.isCommentsView = true;
+        this.isExpensesView = false;
+        this.isHistoryView = false;
+      } else if (event.detail.value === 'history') {
+        this.isHistoryView = true;
+        this.isCommentsView = false;
+        this.isExpensesView = false;
+      }
+    }
   }
 }
