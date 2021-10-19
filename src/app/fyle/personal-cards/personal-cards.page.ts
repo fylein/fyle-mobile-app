@@ -49,6 +49,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isTrasactionsLoading = true;
 
+  isHiding = false;
+
   isLoadingDataInInfiniteScroll = false;
 
   acc = [];
@@ -56,6 +58,18 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   currentPageNumber = 1;
 
   isInfiniteScrollRequired$: Observable<boolean>;
+
+  selectedTrasactionType = 'INITIALIZED';
+
+  selectedAccount: string;
+
+  isfetching = false;
+
+  selectionMode = false;
+
+  selectedElements: any[];
+
+  selectAll = false;
 
   constructor(
     private personalCardsService: PersonalCardsService,
@@ -137,7 +151,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       })
     );
 
-    this.transactions$ = paginatedPipe;
+    this.transactions$ = paginatedPipe.pipe(shareReplay(1));
 
     this.transactionsCount$ = this.loadData$.pipe(
       switchMap((params) => this.personalCardsService.getBankTransactionsCount(params.queryParams)),
@@ -217,12 +231,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadCardData$.next({});
   }
 
-  onChanged(event) {
+  onCardChanged(event) {
+    this.selectedAccount = event;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.status = 'in.(INITIALIZED)';
-    queryParams.accountId = event;
+    queryParams.status = `in.(${this.selectedTrasactionType})`;
+    queryParams.accountId = this.selectedAccount;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -242,6 +257,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     setTimeout(() => {
       event.target.complete();
     }, 1000);
+    console.log(this.acc);
   }
 
   onHomeClicked() {
@@ -269,7 +285,96 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     ]);
   }
 
-  stringo(str) {
-    return JSON.stringify(str);
+  segmentChanged(event) {
+    if (this.selectionMode) {
+      this.switchSelectionMode();
+    }
+    this.selectedTrasactionType = event.detail.value;
+    this.acc = [];
+    const params = this.loadData$.getValue();
+    const queryParams = params.queryParams || {};
+    queryParams.status = `in.(${this.selectedTrasactionType})`;
+    params.queryParams = queryParams;
+    params.pageNumber = 1;
+    this.zone.run(() => {
+      this.isTrasactionsLoading = true;
+      this.loadData$.next(params);
+    });
+  }
+
+  fetchNewTransactions() {
+    this.isfetching = true;
+    this.isTrasactionsLoading = true;
+    if (this.selectionMode) {
+      this.switchSelectionMode();
+    }
+    this.personalCardsService
+      .fetchTransactions(this.selectedAccount)
+      .pipe(
+        finalize(() => {
+          this.acc = [];
+          this.isfetching = false;
+          const params = this.loadData$.getValue();
+          params.pageNumber = 1;
+          this.loadData$.next(params);
+        })
+      )
+      .subscribe(noop);
+  }
+
+  hideSelectedTransactions() {
+    this.isHiding = true;
+    this.personalCardsService
+      .hideTransactions(this.selectedElements)
+      .pipe(
+        tap((data: any) => {
+          const message =
+            data.length === 1
+              ? '1 Transaction successfully hidden!'
+              : `${data.length} Transactions successfully hidden!`;
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success'],
+          });
+        }),
+        finalize(() => {
+          this.isHiding = false;
+          this.acc = [];
+          const params = this.loadData$.getValue();
+          params.pageNumber = 1;
+          if (this.selectionMode) {
+            this.switchSelectionMode();
+          }
+          this.loadData$.next(params);
+        })
+      )
+      .subscribe(noop);
+  }
+
+  switchSelectionMode(txnId?) {
+    if (this.selectedTrasactionType === 'INITIALIZED') {
+      this.selectionMode = !this.selectionMode;
+      this.selectedElements = [];
+      if (txnId) {
+        this.selectExpense(txnId);
+      }
+    }
+  }
+
+  selectExpense(txnId: string) {
+    const itemIndex = this.selectedElements.indexOf(txnId);
+    if (itemIndex >= 0) {
+      this.selectedElements.splice(itemIndex, 1);
+    } else {
+      this.selectedElements.push(txnId);
+    }
+  }
+
+  onSelectAll(event) {
+    this.selectAll = event;
+    this.selectedElements = [];
+    if (this.selectAll) {
+      this.selectedElements = this.acc.map((txn) => txn.btxn_id);
+    }
   }
 }

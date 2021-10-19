@@ -8,13 +8,17 @@
   <div class="personal-card-transaction--divider"></div>
 </ng-template>
 
-<div class="personal-card-transaction--body display-flex">
+<div class="personal-card-transaction--body display-flex" (tap)="onTapTransaction()" (press)="onSetMultiselectMode()">
+  <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
+    <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled> </mat-checkbox>
+  </div>
   <div class="personal-card-transaction--details">
     <div class="personal-card-transaction--vendor">
       {{ description }}
     </div>
     <div class="personal-card-transaction--button">
-      Create expense
+      <ng-container *ngIf="status === 'INITIALIZED' || status === 'HIDDEN'"> Create expense </ng-container>
+      <ng-container *ngIf="status === 'MATCHED'"> View expense </ng-container>
       <ion-icon [src]="'assets/svg/right-arrow.svg'" class="personal-card-transaction--icon" slot="icon-only">
       </ion-icon>
     </div>

@@ -85,4 +85,16 @@ export class PersonalCardsService {
     };
     return this.getBankTransactions(parms).pipe(map((res) => res.count));
   }
+
+  fetchTransactions(accountId): Observable<string[]> {
+    return this.expenseAggregationService.post(`/bank_accounts/${accountId}/sync`, {
+      owner_type: 'org_user',
+    });
+  }
+
+  hideTransactions(txnIds: string[]): Observable<[]> {
+    return this.expenseAggregationService.post('/bank_transactions/hide/bulk', {
+      bank_transaction_ids: txnIds,
+    });
+  }
 }

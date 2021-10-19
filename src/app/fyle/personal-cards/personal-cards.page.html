@@ -1,10 +1,31 @@
-<app-fy-header [currentState]="headerState" [navigateBack]="navigateBack" [title]="'Personal Cards'">
+<app-fy-header
+  [currentState]="headerState"
+  [navigateBack]="navigateBack"
+  [title]="'Personal Cards'"
+  (simpleSearchCancel)="onSimpleSearchCancel()"
+  (multiselectBack)="switchSelectionMode()"
+>
   <ng-container base>
     <ion-buttons mode="md" slot="end">
       <ion-button class="personal-cards--header-btn" (click)="linkAccount()">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
+  </ng-container>
+  <ng-container personalCardContent *ngIf="!isLoading">
+    <ion-toolbar mode="ios">
+      <ion-segment
+        class="personal-cards-segment-block personal-cards--segment-block"
+        (ionChange)="segmentChanged($event)"
+        value="{{selectedTrasactionType}}"
+      >
+        <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn">
+          Transactions
+        </ion-segment-button>
+        <ion-segment-button value="MATCHED" class="personal-cards--segment-block__btn"> Created </ion-segment-button>
+        <ion-segment-button value="HIDDEN" class="personal-cards--segment-block__btn"> Hidden </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
   </ng-container>
 </app-fy-header>
 
@@ -14,12 +35,6 @@
       <ion-skeleton-text class="personal-cards--bank-account-shimmer" animated></ion-skeleton-text>
     </div>
   </ng-container>
-  <ng-container *ngIf="isLoading">
-    <div class="ion-padding">
-      <ion-skeleton-text class="personal-cards--bank-account-shimmer" animated></ion-skeleton-text>
-    </div>
-  </ng-container>
-
   <ng-container *ngIf="((linkedAccountsCount$ | async) === 0) && (isConnected$|async)">
     <div class="personal-cards--zero-state">
       <app-fy-zero-state
@@ -41,8 +56,28 @@
         *ngIf="!isLoading"
         [linkedAccounts]="linkedAccounts"
         (deleted)="onDeleted()"
-        (changed)="onChanged($event)"
+        (changed)="onCardChanged($event)"
       ></app-bank-account-cards>
+    </ng-container>
+    <div class="personal-cards--actions-header">
+      <button
+        type="submit"
+        class="personal-cards--fetch-button text-center personal-cards--actions-header__right"
+        (click)="fetchNewTransactions()"
+      >
+        <ng-container *ngIf="!isfetching"> Fetch Transactions </ng-container>
+        <ng-container *ngIf="isfetching">
+          Fetching <ion-spinner name="crescent" class="personal-cards--fetching-spinner"></ion-spinner>
+        </ng-container>
+      </button>
+    </div>
+
+    <ng-container *ngIf="selectionMode">
+      <ion-item class="personal-cards--select-all-container">
+        <mat-checkbox class="custom-mat-checkbox" [(ngModel)]="selectAll" (ngModelChange)="onSelectAll($event)">
+          Select All
+        </mat-checkbox>
+      </ion-item>
     </ng-container>
 
     <ng-container *ngIf="isCardsLoaded">
@@ -70,6 +105,12 @@
               [type]="transaction.btxn_transaction_type"
               [txnDate]="transaction.btxn_created_at"
               [previousTxnDate]="transactions[i-1]?.btxn_created_at"
+              [txnId]="transaction.btxn_id"
+              [status]="selectedTrasactionType"
+              [isSelectionModeEnabled]="selectionMode"
+              [selectedElements]="selectedElements"
+              (setMultiselectMode)="switchSelectionMode($event)"
+              (cardClickedForSelection)="selectExpense($event)"
             >
             </app-personal-card-transaction>
           </ng-container>
@@ -83,14 +124,39 @@
 
   <ng-container *ngIf="isConnected$|async">
     <ng-container *ngIf="!isLoadingDataInInfiniteScroll && isCardsLoaded">
-      <ion-infinite-scroll (ionInfinite)="loadData($event)" *ngIf="isInfiniteScrollRequired$ | async" threshold="100px">
-        <ion-infinite-scroll-content></ion-infinite-scroll-content>
-      </ion-infinite-scroll>
+      <ng-container *ngIf="!selectionMode">
+        <ion-infinite-scroll
+          (ionInfinite)="loadData($event)"
+          *ngIf="isInfiniteScrollRequired$ | async"
+          threshold="100px"
+        >
+          <ion-infinite-scroll-content></ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+      </ng-container>
     </ng-container>
   </ng-container>
 </ion-content>
 
 <ion-footer>
-  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()">
-  </app-fy-footer>
+  <ng-container *ngIf="!selectionMode">
+    <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()">
+    </app-fy-footer>
+  </ng-container>
+  <ion-toolbar mode="md" *ngIf="selectionMode">
+    <div class="personal-cards--footer-toolbar">
+      <ion-buttons>
+        <ion-button (click)="switchSelectionMode()" [disabled]="isHiding" class="btn-secondary"> Cancel </ion-button>
+        <ion-button
+          (click)="hideSelectedTransactions()"
+          [disabled]="isHiding"
+          [loadingText]="'hiding'"
+          [loading]="isHiding"
+          appFormButtonValidation
+          class="btn-primary"
+        >
+          Hide
+        </ion-button>
+      </ion-buttons>
+    </div>
+  </ion-toolbar>
 </ion-footer>

@@ -9,9 +9,9 @@ import { PersonalCardsPageRoutingModule } from './personal-cards-routing.module'
 
 import { PersonalCardsPage } from './personal-cards.page';
 import { TransactionsShimmerComponent } from './transactions-shimmer/transactions-shimmer.component';
-
+import { MatCheckboxModule } from '@angular/material/checkbox';
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, PersonalCardsPageRoutingModule, SharedModule],
+  imports: [CommonModule, FormsModule, IonicModule, PersonalCardsPageRoutingModule, SharedModule, MatCheckboxModule],
   declarations: [PersonalCardsPage, TransactionsShimmerComponent],
 })
 export class PersonalCardsPageModule {}
