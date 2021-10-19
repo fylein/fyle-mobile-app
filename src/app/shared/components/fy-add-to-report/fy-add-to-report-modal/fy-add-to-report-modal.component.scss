@@ -103,4 +103,35 @@
       background-color: $red;
     }
   }
+
+  &--zero-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 80%;
+    color: $blue-black;
+
+    &__img {
+      margin: 12px;
+    }
+
+    &__title {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.5;
+      padding-bottom: 4px;
+    }
+
+    &__subtitle {
+      font-size: 14px;
+    }
+
+    &__icon {
+      height: 16px;
+      width: 16px;
+      padding: 0 2px;
+      vertical-align: text-bottom;
+    }
+  }
 }

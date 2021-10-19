@@ -18,7 +18,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="report-list--container">
+  <div *ngIf="options.length; else zeroState" class="report-list--container">
     <div matRipple (click)="onNoneSelect()" class="report-list--list">
       <div class="report-list--purpose report-list--none">None</div>
     </div>
@@ -61,4 +61,23 @@
       </div>
     </div>
   </div>
+
+  <ng-template #zeroState>
+    <div class="report-list--zero-state">
+      <img
+        class="report-list--zero-state__img"
+        src="../../../../../assets/images/zero-states/expenses.png"
+        alt="zero"
+      />
+      <div class="report-list--zero-state__title">No Reports found</div>
+      <div class="report-list--zero-state__subtitle">
+        To create a draft report please click on
+        <ion-icon
+          class="report-list--zero-state__icon"
+          slot="icon-only"
+          src="../../../../../assets/svg/fy-plus.svg"
+        ></ion-icon>
+      </div>
+    </div>
+  </ng-template>
 </ion-content>

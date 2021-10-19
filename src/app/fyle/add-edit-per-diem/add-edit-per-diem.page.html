@@ -32,7 +32,11 @@
         </div>
       </div>
     </ion-title>
-    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" class="add-edit-per-diem--header-btn-container" slot="end">
+    <ion-buttons
+      *ngIf="reviewList?.length || mode === 'edit'"
+      class="add-edit-per-diem--header-btn-container"
+      slot="end"
+    >
       <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
@@ -62,13 +66,16 @@
             <ng-container *ngIf="etxn$|async as etxn">
               <ng-container *ngIf="mode === 'edit'">
                 <ng-container *ngIf="policyDetails">
-                  <app-fy-policy-violation-info [policyDetails]="policyDetails" [criticalPolicyViolated]="isCriticalPolicyViolated$|async">
+                  <app-fy-policy-violation-info
+                    [policyDetails]="policyDetails"
+                    [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+                  >
                   </app-fy-policy-violation-info>
                 </ng-container>
               </ng-container>
 
               <ng-container *ngIf="isAmountCapped$|async">
-                <div class="add-edit-per-diem--critical-policy"  *ngIf="!(isCriticalPolicyViolated$|async)">
+                <div class="add-edit-per-diem--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
                   <div>
                     Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
                     '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
@@ -301,9 +308,12 @@
                   </ng-container>
                   <ng-container *ngIf="isAdvancesEnabled$">
                     <ng-container
-                      *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount">
-                      <app-fy-alert-info [message]="'You have outstanding balance in your advance account(s)'"
-                        [type]="'information'"></app-fy-alert-info>
+                      *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount"
+                    >
+                      <app-fy-alert-info
+                        [message]="'You have outstanding balance in your advance account(s)'"
+                        [type]="'information'"
+                      ></app-fy-alert-info>
                     </ng-container>
                   </ng-container>
 
@@ -555,14 +565,10 @@
                         <ng-container>
                           <div class="add-edit-per-diem--internal-block">
                             <app-fy-add-to-report
-                              *ngIf="reports.length > 0"
                               [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
                               [options]="reports"
                               formControlName="report"
                             ></app-fy-add-to-report>
-                            <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                              <span class="add-edit-per-diem--text-label"> Add to New Report </span>
-                            </mat-checkbox>
                           </div>
                         </ng-container>
                       </ng-container>
@@ -574,9 +580,11 @@
                       <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                         <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                           <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-                            <app-fy-alert-info *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
+                            <app-fy-alert-info
+                              *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                               [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                              [type]="'warning'">
+                              [type]="'warning'"
+                            >
                             </app-fy-alert-info>
                           </ng-container>
                         </ng-container>
@@ -710,12 +718,7 @@
     <ion-toolbar mode="md" [ngClass]="{'add-edit-per-diem--footer-toolbar__offline': !(isConnected$|async)}">
       <div class="add-edit-per-diem--cta-container">
         <ion-buttons *ngIf="!reviewList">
-          <ion-button
-              (click)="close()"
-              *ngIf="mode === 'edit'"
-              [disabled]="savePerDiemLoader"
-              class="btn-secondary"
-          >
+          <ion-button (click)="close()" *ngIf="mode === 'edit'" [disabled]="savePerDiemLoader" class="btn-secondary">
             Cancel
           </ion-button>
           <ion-button
