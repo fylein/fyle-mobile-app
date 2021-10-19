@@ -20,6 +20,8 @@ export class BankAccountCardComponent implements OnInit {
 
   @Output() deleted = new EventEmitter();
 
+  deletecardPopOver;
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private loaderService: LoaderService,

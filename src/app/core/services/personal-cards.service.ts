@@ -59,4 +59,42 @@ export class PersonalCardsService {
   deleteAccount(accountId: string): Observable<PersonalCard> {
     return this.expenseAggregationService.delete('/bank_accounts/' + accountId);
   }
+
+  getBankTransactions(
+    config: Partial<{ offset: number; limit: number; order: string; queryParams: any }> = {
+      offset: 0,
+      limit: 10,
+      queryParams: {},
+    }
+  ) {
+    return this.apiv2Service.get('/personal_bank_transactions', {
+      params: {
+        ba_id: 'eq.' + config.queryParams.accountId,
+        btxn_status: config.queryParams.status,
+        limit: config.limit,
+        offset: config.offset,
+      },
+    });
+  }
+
+  getBankTransactionsCount(queryParams) {
+    const parms = {
+      limit: 10,
+      offset: 0,
+      queryParams,
+    };
+    return this.getBankTransactions(parms).pipe(map((res) => res.count));
+  }
+
+  fetchTransactions(accountId): Observable<string[]> {
+    return this.expenseAggregationService.post(`/bank_accounts/${accountId}/sync`, {
+      owner_type: 'org_user',
+    });
+  }
+
+  hideTransactions(txnIds: string[]): Observable<[]> {
+    return this.expenseAggregationService.post('/bank_transactions/hide/bulk', {
+      bank_transaction_ids: txnIds,
+    });
+  }
 }
