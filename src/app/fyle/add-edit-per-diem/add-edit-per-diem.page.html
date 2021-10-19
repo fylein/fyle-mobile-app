@@ -420,24 +420,26 @@
                   <ng-container *ngIf="txnFields$|async as txnFields">
                     <ng-container *ngIf="txnFields?.purpose?.is_mandatory || isExpandedView">
                       <ng-container *ngIf="txnFields?.purpose">
-                        <div
-                          *ngIf="txnFields?.purpose.type === 'TEXT'"
-                          [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-                          class="add-edit-per-diem--text"
-                        >
-                          <div class="add-edit-per-diem--text-label">
-                            {{ ('Enter ' + txnFields?.purpose.field_name)| slice: 0:30 }}
-                            <span class="add-edit-per-diem--mandatory" *ngIf="txnFields?.purpose?.is_mandatory">*</span>
+                        <div class="add-edit-per-diem--internal-block" *ngIf="txnFields?.purpose.type === 'TEXT'">
+                          <div
+                            [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
+                            class="add-edit-per-diem--text"
+                          >
+                            <div class="add-edit-per-diem--text-label">
+                              {{ ('Enter ' + txnFields?.purpose.field_name)| slice: 0:30 }}
+                              <span class="add-edit-per-diem--mandatory" *ngIf="txnFields?.purpose?.is_mandatory"
+                                >*</span
+                              >
+                            </div>
+                            <input
+                              [disabled]="!txnFields.purpose?.canEdit"
+                              [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:30"
+                              [required]="txnFields.purpose?.is_mandatory"
+                              [title]="'Enter'+txnFields.purpose?.field_name"
+                              class="add-edit-per-diem--text-input"
+                              formControlName="purpose"
+                            />
                           </div>
-
-                          <input
-                            [disabled]="!txnFields.purpose?.canEdit"
-                            [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:30"
-                            [required]="txnFields.purpose?.is_mandatory"
-                            [title]="'Enter'+txnFields.purpose?.field_name"
-                            class="add-edit-per-diem--text-input"
-                            formControlName="purpose"
-                          />
                         </div>
                         <div *ngIf="txnFields?.purpose.type === 'SELECT'" class="add-edit-per-diem--internal-block">
                           <app-fy-select
@@ -455,7 +457,7 @@
                           *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid"
                           class="add-edit-per-diem--error"
                         >
-                          Please enter {{ txnFields?.purpose.field_name }}.
+                          Please enter {{ txnFields?.purpose.field_name }}
                         </div>
                       </ng-container>
                     </ng-container>
