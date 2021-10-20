@@ -254,4 +254,39 @@
   &--footer-toolbar {
     padding: 14px 16px;
   }
+
+  &--simple-search-container {
+    display: flex;
+    align-items: center;
+    height: 62px;
+    padding-left: 12px;
+    mat-form-field {
+      ::ng-deep .mat-form-field-outline {
+        color: $black-light !important;
+      }
+    }
+  }
+
+  &--simple-search {
+    width: 100%;
+    font-size: 14px;
+
+    &-icon {
+      font-size: 18px;
+      margin: auto 8px auto 0;
+      color: $black-light;
+      height: auto;
+    }
+
+    &-close {
+      margin: -10px;
+      font-size: 18px;
+      background-color: transparent;
+    }
+  }
+
+  &--simple-search-block {
+    display: flex;
+    vertical-align: baseline;
+  }
 }

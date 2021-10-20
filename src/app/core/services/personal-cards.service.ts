@@ -69,10 +69,9 @@ export class PersonalCardsService {
   ) {
     return this.apiv2Service.get('/personal_bank_transactions', {
       params: {
-        ba_id: 'eq.' + config.queryParams.accountId,
-        btxn_status: config.queryParams.status,
         limit: config.limit,
         offset: config.offset,
+        ...config.queryParams,
       },
     });
   }

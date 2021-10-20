@@ -7,6 +7,17 @@
 >
   <ng-container base>
     <ion-buttons mode="md" slot="end">
+      <ion-button class="personal-cards--header-btn" (click)="searchClick()">
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
+      </ion-button>
+      <ion-button class="personal-cards--header-btn" (click)="openFilters()">
+        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+        </ng-container>
+        <ng-template #noFilterAppliedIcon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+        </ng-template>
+      </ion-button>
       <ion-button class="personal-cards--header-btn" (click)="linkAccount()">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
@@ -26,6 +37,35 @@
         <ion-segment-button value="HIDDEN" class="personal-cards--segment-block__btn"> Hidden </ion-segment-button>
       </ion-segment>
     </ion-toolbar>
+  </ng-container>
+
+  <ng-container simpleSearch>
+    <div class="expense-report-search personal-cards--simple-search-container">
+      <mat-form-field appearance="outline" class="mat-form-field-no-padding personal-cards--simple-search">
+        <div class="personal-cards--simple-search-block">
+          <mat-icon class="personal-cards--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+          <input
+            #simpleSearchInput
+            [(ngModel)]="simpleSearchText"
+            class="personal-cards--simple-search-input"
+            matInput
+            placeholder="Search"
+            (focus)="onSearchBarFocus()"
+          />
+          <button
+            (click)="clearText('isFromSearchBar')"
+            *ngIf="simpleSearchText"
+            aria-label="Clear"
+            class="personal-cards--simple-search-close"
+            mat-button
+            mat-icon-button
+            matSuffix
+          >
+            <mat-icon svgIcon="fy-clear"></mat-icon>
+          </button>
+        </div>
+      </mat-form-field>
+    </div>
   </ng-container>
 </app-fy-header>
 
@@ -71,6 +111,18 @@
         </ng-container>
       </button>
     </div>
+
+    <ng-container *ngIf="filterPills?.length">
+      <div class="personal-cards--filter-pills-container">
+        <app-fy-filter-pills
+          class="personal-cards--filter-pills"
+          (filterClose)="onFilterClose($event)"
+          (filterClicked)="onFilterClick($event)"
+          (clearAll)="onFilterPillsClearAll()"
+          [filterPills]="filterPills"
+        ></app-fy-filter-pills>
+      </div>
+    </ng-container>
 
     <ng-container *ngIf="selectionMode">
       <ion-item class="personal-cards--select-all-container">

@@ -1,22 +1,49 @@
-import { Component, EventEmitter, OnInit, AfterViewInit, NgZone } from '@angular/core';
+import { Component, EventEmitter, OnInit, AfterViewInit, NgZone, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { BehaviorSubject, concat, from, noop, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, concat, from, fromEvent, noop, Observable, of, Subject } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
+import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
+import { ModalController } from '@ionic/angular';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { DateService } from 'src/app/core/services/date.service';
+import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
+import * as moment from 'moment';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+
+type Filters = Partial<{
+  amount: string;
+  createdOn: Partial<{
+    name?: string;
+    customDateStart?: Date;
+    customDateEnd?: Date;
+  }>;
+  updatedOn: Partial<{
+    name?: string;
+    customDateStart?: Date;
+    customDateEnd?: Date;
+  }>;
+  showCredited: string;
+}>;
 @Component({
   selector: 'app-personal-cards',
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
 })
 export class PersonalCardsPage implements OnInit, AfterViewInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   headerState: HeaderState = HeaderState.base;
 
   isConnected$: Observable<boolean>;
@@ -71,6 +98,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   selectAll = false;
 
+  filters: Filters;
+
+  filterPills = [];
+
+  isSearchBarFocused = false;
+
+  simpleSearchText = '';
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -80,7 +115,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private loaderService: LoaderService,
     private zone: NgZone,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private modalController: ModalController,
+    private dateService: DateService,
+    private apiV2Service: ApiV2Service
   ) {}
 
   ngOnInit() {
@@ -114,7 +152,15 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams;
+        let queryParams;
+        if (this.activatedRoute.snapshot.queryParams.filters) {
+          this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+          this.currentPageNumber = 1;
+          queryParams = this.addNewFiltersToParams();
+        } else {
+          queryParams = params.queryParams;
+        }
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         // const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
@@ -153,14 +199,34 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     this.transactions$ = paginatedPipe.pipe(shareReplay(1));
 
+    this.filterPills = this.generateFilterPills(this.filters);
+
     this.transactionsCount$ = this.loadData$.pipe(
-      switchMap((params) => this.personalCardsService.getBankTransactionsCount(params.queryParams)),
+      switchMap((params) => {
+        const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
+        return this.personalCardsService.getBankTransactionsCount(queryParams);
+      }),
       shareReplay(1)
     );
     const paginatedScroll$ = this.transactions$.pipe(
       switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length)))
     );
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
+
+    this.simpleSearchInput.nativeElement.value = '';
+    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+      .pipe(
+        map((event: any) => event.srcElement.value as string),
+        distinctUntilChanged(),
+        debounceTime(400)
+      )
+      .subscribe((searchString) => {
+        const currentParams = this.loadData$.getValue();
+        currentParams.searchString = searchString;
+        this.currentPageNumber = 1;
+        currentParams.pageNumber = this.currentPageNumber;
+        this.loadData$.next(currentParams);
+      });
   }
 
   setupNetworkWatcher() {
@@ -236,8 +302,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.status = `in.(${this.selectedTrasactionType})`;
-    queryParams.accountId = this.selectedAccount;
+    queryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
+    queryParams.ba_id = 'eq.' + this.selectedAccount;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -292,7 +358,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.status = `in.(${this.selectedTrasactionType})`;
+    queryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -375,5 +441,367 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (this.selectAll) {
       this.selectedElements = this.acc.map((txn) => txn.btxn_id);
     }
+  }
+
+  async openFilters(activeFilterInitialName?: string) {
+    const filterPopover = await this.modalController.create({
+      component: FyFiltersComponent,
+      componentProps: {
+        filterOptions: [
+          {
+            name: 'Created On',
+            optionType: FilterOptionType.date,
+            options: [
+              {
+                label: 'All',
+                value: DateFilters.all,
+              },
+              {
+                label: 'This Week',
+                value: DateFilters.thisWeek,
+              },
+              {
+                label: 'This Month',
+                value: DateFilters.thisMonth,
+              },
+              {
+                label: 'Last Month',
+                value: DateFilters.lastMonth,
+              },
+              {
+                label: 'Custom',
+                value: DateFilters.custom,
+              },
+            ],
+          } as FilterOptions<DateFilters>,
+          {
+            name: 'Updated On',
+            optionType: FilterOptionType.date,
+            options: [
+              {
+                label: 'All',
+                value: DateFilters.all,
+              },
+              {
+                label: 'This Week',
+                value: DateFilters.thisWeek,
+              },
+              {
+                label: 'This Month',
+                value: DateFilters.thisMonth,
+              },
+              {
+                label: 'Last Month',
+                value: DateFilters.lastMonth,
+              },
+              {
+                label: 'Custom',
+                value: DateFilters.custom,
+              },
+            ],
+          } as FilterOptions<DateFilters>,
+          {
+            name: 'Credit Transactions',
+            optionType: FilterOptionType.singleselect,
+            options: [
+              {
+                label: 'Yes',
+                value: 'YES',
+              },
+              {
+                label: 'No',
+                value: 'NO',
+              },
+            ],
+          } as FilterOptions<string>,
+        ],
+        selectedFilterValues: this.generateSelectedFilters(this.filters),
+        activeFilterInitialName,
+      },
+      cssClass: 'dialog-popover',
+    });
+
+    await filterPopover.present();
+
+    const { data } = await filterPopover.onWillDismiss();
+    if (data) {
+      this.currentPageNumber = 1;
+      this.filters = this.convertFilters(data);
+
+      const params = this.addNewFiltersToParams();
+
+      this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
+      // this.trackingService.myExpensesFilterApplied({
+      //   ...this.filters,
+      // });
+    }
+  }
+
+  // clearFilters() {
+  //   this.filters = {};
+  //   this.currentPageNumber = 1;
+  //   const params = this.addNewFiltersToParams();
+  //   this.loadData$.next(params);
+  //   this.filterPills = this.generateFilterPills(this.filters);
+  // }
+
+  // async setState(state: string) {
+  //   this.isLoading = true;
+  //   this.currentPageNumber = 1;
+  //   const params = this.addNewFiltersToParams();
+  //   this.loadData$.next(params);
+  //   setTimeout(() => {
+  //     this.isLoading = false;
+  //   }, 500);
+  // }
+
+  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
+    const generatedFilters: Filters = {};
+    const createdOnDateFilter = selectedFilters.find((filter) => filter.name === 'Created On');
+    if (createdOnDateFilter) {
+      generatedFilters.createdOn = { name: createdOnDateFilter?.value };
+      if (createdOnDateFilter.associatedData) {
+        generatedFilters.createdOn.customDateStart = createdOnDateFilter.associatedData?.startDate;
+        generatedFilters.createdOn.customDateEnd = createdOnDateFilter.associatedData?.endDate;
+      }
+    }
+
+    const updatedOnDateFilter = selectedFilters.find((filter) => filter.name === 'Updated On');
+    if (updatedOnDateFilter) {
+      generatedFilters.updatedOn = { name: updatedOnDateFilter?.value };
+      if (updatedOnDateFilter.associatedData) {
+        generatedFilters.updatedOn.customDateStart = updatedOnDateFilter.associatedData?.startDate;
+        generatedFilters.updatedOn.customDateEnd = updatedOnDateFilter.associatedData?.endDate;
+      }
+    }
+
+    const showCreditedFilter = selectedFilters.find((filter) => filter.name === 'Credit Transactions');
+
+    if (showCreditedFilter) {
+      generatedFilters.showCredited = showCreditedFilter.value;
+    }
+
+    return generatedFilters;
+  }
+
+  addNewFiltersToParams() {
+    const currentParams = this.loadData$.getValue();
+
+    currentParams.pageNumber = 1;
+    const newQueryParams: any = {
+      or: [],
+    };
+    newQueryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
+    newQueryParams.ba_id = 'eq.' + this.selectedAccount;
+    this.generateDateParams(newQueryParams);
+    currentParams.queryParams = newQueryParams;
+
+    return currentParams;
+  }
+
+  generateDateParams(newQueryParams) {
+    if (this.filters.createdOn) {
+      this.filters.createdOn.customDateStart =
+        this.filters.createdOn.customDateStart && new Date(this.filters.createdOn.customDateStart);
+      this.filters.createdOn.customDateEnd =
+        this.filters.createdOn.customDateEnd && new Date(this.filters.createdOn.customDateEnd);
+      if (this.filters.createdOn.name === DateFilters.thisMonth) {
+        const thisMonth = this.dateService.getThisMonthRange();
+        newQueryParams.and = `(btxn_created_at.gte.${thisMonth.from.toISOString()},btxn_created_at.lt.${thisMonth.to.toISOString()})`;
+      }
+
+      if (this.filters.createdOn.name === DateFilters.thisWeek) {
+        const thisWeek = this.dateService.getThisWeekRange();
+        newQueryParams.and = `(btxn_created_at.gte.${thisWeek.from.toISOString()},btxn_created_at.lt.${thisWeek.to.toISOString()})`;
+      }
+
+      if (this.filters.createdOn.name === DateFilters.lastMonth) {
+        const lastMonth = this.dateService.getLastMonthRange();
+        newQueryParams.and = `(btxn_created_at.gte.${lastMonth.from.toISOString()},btxn_created_at.lt.${lastMonth.to.toISOString()})`;
+      }
+
+      this.generateCustomDateParams(newQueryParams);
+    }
+  }
+
+  generateCustomDateParams(newQueryParams: any) {
+    if (this.filters.createdOn?.name === DateFilters.custom) {
+      const startDate = this.filters?.createdOn?.customDateStart?.toISOString();
+      const endDate = this.filters?.createdOn?.customDateEnd?.toISOString();
+      if (this.filters.createdOn?.customDateStart && this.filters.createdOn?.customDateEnd) {
+        newQueryParams.and = `(btxn_created_at.gte.${startDate},btxn_created_at.lt.${endDate})`;
+      } else if (this.filters.createdOn?.customDateStart) {
+        newQueryParams.and = `(btxn_created_at.gte.${startDate})`;
+      } else if (this.filters.createdOn?.customDateEnd) {
+        newQueryParams.and = `(btxn_created_at.lt.${endDate})`;
+      }
+    }
+  }
+
+  generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
+    const generatedFilters: SelectedFilters<any>[] = [];
+
+    // if (filter.state) {
+    //   generatedFilters.push({
+    //     name: 'Type',
+    //     value: filter.state,
+    //   });
+    // }
+
+    // if (filter.receiptsAttached) {
+    //   generatedFilters.push({
+    //     name: 'Receipts Attached',
+    //     value: filter.receiptsAttached,
+    //   });
+    // }
+
+    if (filter?.createdOn) {
+      generatedFilters.push({
+        name: 'Created On',
+        value: filter.createdOn.name,
+        associatedData: {
+          startDate: filter.createdOn.customDateStart,
+          endDate: filter.createdOn.customDateEnd,
+        },
+      });
+    }
+
+    // if (filter.type) {
+    //   generatedFilters.push({
+    //     name: 'Expense Type',
+    //     value: filter.type,
+    //   });
+    // }
+
+    return generatedFilters;
+  }
+
+  generateFilterPills(filter: Filters) {
+    const filterPills: FilterPill[] = [];
+
+    if (filter?.createdOn) {
+      this.generateDateFilterPills(filter, filterPills);
+    }
+
+    return filterPills;
+  }
+
+  generateDateFilterPills(filter, filterPills: FilterPill[]) {
+    if (filter.createdOn?.name === DateFilters.thisWeek) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'this Week',
+      });
+    }
+
+    if (filter.createdOn?.name === DateFilters.thisMonth) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'this Month',
+      });
+    }
+
+    if (filter.createdOn?.name === DateFilters.all) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'All',
+      });
+    }
+
+    if (filter.createdOn?.name === DateFilters.lastMonth) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'Last Month',
+      });
+    }
+
+    if (filter.createdOn?.name === DateFilters.custom) {
+      this.generateCustomDatePill(filter, filterPills);
+    }
+  }
+
+  generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
+    const startDate = filter.createdOn.customDateStart && moment(filter.createdOn.customDateStart).format('y-MM-D');
+    const endDate = filter.createdOn.customDateEnd && moment(filter.createdOn.customDateEnd).format('y-MM-D');
+
+    if (startDate && endDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `${startDate} to ${endDate}`,
+      });
+    } else if (startDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `>= ${startDate}`,
+      });
+    } else if (endDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `<= ${endDate}`,
+      });
+    }
+  }
+
+  searchClick() {
+    this.headerState = HeaderState.simpleSearch;
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    setTimeout(() => {
+      searchInput.focus();
+    }, 300);
+  }
+
+  onSearchBarFocus() {
+    this.isSearchBarFocused = true;
+  }
+
+  onSimpleSearchCancel() {
+    this.headerState = HeaderState.base;
+    this.clearText('onSimpleSearchCancel');
+  }
+
+  onFilterPillsClearAll() {
+    this.clearFilters();
+  }
+
+  async onFilterClick(filterType: string) {
+    if (filterType === 'date') {
+      await this.openFilters('Created On');
+    }
+  }
+
+  onFilterClose(filterType: string) {
+    delete this.filters[filterType];
+    this.currentPageNumber = 1;
+    const params = this.addNewFiltersToParams();
+    this.loadData$.next(params);
+    this.filterPills = this.generateFilterPills(this.filters);
+  }
+
+  clearText(isFromCancel) {
+    this.simpleSearchText = '';
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+    if (isFromCancel === 'onSimpleSearchCancel') {
+      this.isSearchBarFocused = !this.isSearchBarFocused;
+    } else {
+      this.isSearchBarFocused = !!this.isSearchBarFocused;
+    }
+  }
+
+  clearFilters() {
+    this.filters = {};
+    this.currentPageNumber = 1;
+    const params = this.addNewFiltersToParams();
+    this.loadData$.next(params);
+    this.filterPills = this.generateFilterPills(this.filters);
   }
 }

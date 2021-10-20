@@ -862,7 +862,7 @@ export class MyExpensesPage implements OnInit {
     const newQueryParams: any = {
       or: [],
     };
-
+    console.log(newQueryParams);
     this.generateDateParams(newQueryParams);
 
     this.generateReceiptAttachedParams(newQueryParams);
@@ -872,6 +872,7 @@ export class MyExpensesPage implements OnInit {
     this.generateTypeFilters(newQueryParams);
 
     this.setSortParams(currentParams);
+    console.log(newQueryParams);
 
     currentParams.queryParams = newQueryParams;
 
