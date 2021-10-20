@@ -513,16 +513,17 @@ export class ReportService {
     });
   }
 
-  getReportStatsData(params) {
+  getReportStatsData(params, defaultOwnStats: boolean = true) {
     return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get('/reports/stats', {
+      switchMap((eou) => {
+        const defaultStats = defaultOwnStats ? { rp_org_user_id: `eq.${eou.ou.id}` } : {};
+        return this.apiv2Service.get('/reports/stats', {
           params: {
-            rp_org_user_id: `eq.${eou.ou.id}`,
+            ...defaultStats,
             ...params,
           },
-        })
-      ),
+        });
+      }),
       map((rawStatsResponse) => rawStatsResponse.data)
     );
   }
