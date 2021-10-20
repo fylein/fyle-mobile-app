@@ -645,6 +645,8 @@ export class TeamReportsPage implements OnInit {
           if (state === 'APPROVER_PENDING') {
             return 'Reported';
           }
+
+          return state.replace(/_/g, ' ').toLowerCase();
         })
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
