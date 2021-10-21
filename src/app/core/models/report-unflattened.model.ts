@@ -1,18 +1,4 @@
-export interface OrgUser {
-  business_unit?: string;
-  department?: string;
-  department_id?: string;
-  employee_id?: string;
-  id: string;
-  level?: string;
-  location?: string;
-  mobile: string;
-  org_id: string;
-  org_name: string;
-  status: string;
-  sub_department?: string;
-  title?: string;
-}
+import { OrgUser } from './org-user.model';
 
 export interface Report {
   amount: number;
