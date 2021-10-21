@@ -51,8 +51,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   customFields$: Observable<any>;
 
-  attachmentUploadInProgress: boolean;
-
   dataUrls: any[];
 
   customFieldValues: any[];

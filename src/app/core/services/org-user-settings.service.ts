@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { CostCentersService } from './cost-centers.service';
-import { finalize, map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { forkJoin, Subject, of } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { OrgUserSettings } from '../models/org_user_settings.model';
+import { OrgUserService } from './org-user.service';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -12,7 +13,11 @@ const orgUserSettingsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class OrgUserSettingsService {
-  constructor(private apiService: ApiService, private costCentersService: CostCentersService) {}
+  constructor(
+    private apiService: ApiService,
+    private costCentersService: CostCentersService,
+    private orgUserService: OrgUserService
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: orgUserSettingsCacheBuster$,
@@ -26,6 +31,20 @@ export class OrgUserSettingsService {
   })
   post(data) {
     return this.apiService.post('/org_user_settings', data);
+  }
+
+  getUserSettings(userSettingsId: string) {
+    return this.apiService.get('/org_user_settings/' + userSettingsId).pipe(map((res) => res as OrgUserSettings));
+  }
+
+  getOrgUserSettingsById(ouId: string) {
+    return this.orgUserService.getUserById(ouId).pipe(switchMap((user) => this.getUserSettings(user.ou_settings_id)));
+  }
+
+  getAllowedCostCentersByOuId(ouId: string) {
+    return this.getOrgUserSettingsById(ouId).pipe(
+      switchMap((orgUserSettings) => this.getAllowedCostCenteres(orgUserSettings, { isUserSpecific: true }))
+    );
   }
 
   getEmailEvents() {
@@ -308,7 +327,7 @@ export class OrgUserSettingsService {
     return featuresList;
   }
 
-  getAllowedCostCenteres(orgUserSettings) {
+  getAllowedCostCenteres(orgUserSettings, filters = { isUserSpecific: false }) {
     return this.costCentersService.getAllActive().pipe(
       map((costCenters) => {
         let allowedCostCenters = [];
@@ -316,7 +335,7 @@ export class OrgUserSettingsService {
           allowedCostCenters = costCenters.filter(
             (costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1
           );
-        } else {
+        } else if (!filters.isUserSpecific) {
           allowedCostCenters = costCenters;
         }
         return allowedCostCenters;

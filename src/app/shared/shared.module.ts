@@ -3,6 +3,7 @@ import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
+import { SwiperModule } from 'swiper/angular';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -36,6 +37,7 @@ import { FyMenuIconComponent } from './components/fy-menu-icon/fy-menu-icon.comp
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
 import { FyLoadingScreenComponent } from './components/fy-loading-screen/fy-loading-screen.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -82,12 +84,15 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FyFilterPillsComponent } from './components/fy-filter-pills/fy-filter-pills.component';
 import { DateFormatPipe } from './pipes/date-format.pipe';
-import { AgmCoreModule } from '@agm/core';
-import { AgmDirectionModule } from 'agm-direction';
 import { RouteSelectorComponent } from './components/route-selector/route-selector.component';
 import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-view-report-info.component';
+import { GoogleMapsModule } from '@angular/google-maps';
+import { BankAccountCardsComponent } from './components/bank-account-cards/bank-account-cards.component';
+import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
+import { DeleteButtonComponent } from './components/bank-account-cards/bank-account-card/delete-button/delete-button-component';
 import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
 import { FyPopoverComponent } from './components/fy-popover/fy-popover.component';
 
@@ -159,6 +164,10 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     RouteSelectorComponent,
     RouteSelectorModalComponent,
     PolicyViolationDetailsComponent,
+    FyViewReportInfoComponent,
+    BankAccountCardsComponent,
+    BankAccountCardComponent,
+    DeleteButtonComponent,
     AddApproversPopoverComponent,
     FyPopoverComponent,
   ],
@@ -178,9 +187,11 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     MatRippleModule,
     MatRadioModule,
     MatDatepickerModule,
-    AgmCoreModule,
-    AgmDirectionModule,
     MatChipsModule,
+    GoogleMapsModule,
+    MatChipsModule,
+    SwiperModule,
+    MatSnackBarModule,
   ],
   exports: [
     EllipsisPipe,
@@ -241,6 +252,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     RouteSelectorComponent,
     MatChipsModule,
     PolicyViolationDetailsComponent,
+    BankAccountCardsComponent,
     FyPopoverComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],

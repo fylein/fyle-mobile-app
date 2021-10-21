@@ -6,12 +6,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController } from '@ionic/angular';
-import { switchMap, finalize, map, shareReplay, startWith, take, takeUntil } from 'rxjs/operators';
+import { PopoverController, ModalController } from '@ionic/angular';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ApproveReportComponent } from './approve-report/approve-report.component';
 import { NetworkService } from '../../core/services/network.service';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -68,6 +70,8 @@ export class ViewTeamReportPage implements OnInit {
     private popoverController: PopoverController,
     private popupService: PopupService,
     private networkService: NetworkService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
@@ -341,5 +345,23 @@ export class ViewTeamReportPage implements OnInit {
       });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
+  }
+
+  async openViewReportInfoModal() {
+    const viewInfoModal = await this.modalController.create({
+      component: FyViewReportInfoComponent,
+      componentProps: {
+        erpt$: this.erpt$,
+        etxns$: this.etxns$,
+        view: 'Team',
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await viewInfoModal.present();
+    await viewInfoModal.onWillDismiss();
+
+    this.trackingService.clickViewReportInfo({ view: 'Team' });
   }
 }

@@ -45,6 +45,10 @@
         <div class="view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}">
           {{erpt.rp_state | reportState | uppercase | snakeCaseToSpaceCase}}
         </div>
+        <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
+          <ion-icon class="view-reports--view-info__icon" src="../../../assets/svg/fy-info-gradient.svg"></ion-icon>
+          <span class="view-reports--view-info__content">View Info</span>
+        </div>
       </div>
 
       <!-- Display Associated trip request info, if there is one. Otherwise don't display this block at all -->
