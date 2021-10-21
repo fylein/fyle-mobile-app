@@ -12,14 +12,17 @@
 
     <div *ngIf="showError" class="pull-back--error-message">Please enter a reason.</div>
   </div>
-  <div class="pull-back--primary-cta">
-    <button
-      [ngClass]="{ 'pull-back--disabled': reason.trim().length === 0 }"
-      mat-flat-button
-      color="primary"
-      (click)="pullBackTrip()"
-    >
-      PULL BACK TRIP
-    </button>
-  </div>
+  <ion-footer>
+    <ion-toolbar mode="md">
+      <div class="fy-footer-cta-container">
+        <ion-button
+          class="fy-footer-cta fy-footer-cta--primary"
+          (click)="pullBackTrip()"
+          [disabled]="reason.trim().length === 0"
+        >
+          Pull Back Trip
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
 </div>
