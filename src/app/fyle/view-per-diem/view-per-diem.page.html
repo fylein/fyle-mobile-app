@@ -82,10 +82,7 @@
           ></ion-icon>
         </div>
 
-        <div
-          class="view-per-diem--card-container__state-pill ion-text-right"
-          [ngClass]="{'view-per-diem--card-container__no-exchange': !foreignCurrencySymbol}"
-        >
+        <div class="view-per-diem--card-container__state-pill ion-text-right">
           <div class="view-per-diem--card-container__state-pill__state">
             {{ extendedPerDiem.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
           </div>
