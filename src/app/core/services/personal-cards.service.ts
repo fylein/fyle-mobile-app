@@ -6,6 +6,8 @@ import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { ISODateString } from '@capacitor/core';
+import { Expense } from '../models/expense.model';
 
 const tripRequestsCacheBuster$ = new Subject<void>();
 @Injectable({
@@ -49,27 +51,27 @@ export class PersonalCardsService {
       .pipe(map((res) => res.count));
   }
 
-  getMatchedExpenses(amount: number, txnDate: string): Observable<any[]> {
-    return this.apiService
-      .get('/expense_suggestions/personal_cards', {
-        params: {
-          amount,
-          txn_dt: txnDate,
-        },
-      })
-      .pipe(shareReplay(1));
+  getMatchedExpenses(amount: number, txnDate: ISODateString): Observable<Expense[]> {
+    return this.apiService.get('/expense_suggestions/personal_cards', {
+      params: {
+        amount,
+        txn_dt: txnDate,
+      },
+    });
   }
 
-  getMatchedExpensesCount(amount: number, txnDate: string): Observable<number> {
+  getMatchedExpensesCount(amount: number, txnDate: ISODateString): Observable<number> {
     return this.getMatchedExpenses(amount, txnDate).pipe(map((res) => res.length));
   }
 
-  getExpenseDetails(transactionSplitGroupId: string): Observable<any> {
-    return this.apiv2Service.get('/expenses', {
-      params: {
-        tx_split_group_id: `eq.${transactionSplitGroupId}`,
-      },
-    });
+  getExpenseDetails(transactionSplitGroupId: string): Observable<Expense> {
+    return this.apiv2Service
+      .get('/expenses', {
+        params: {
+          tx_split_group_id: `eq.${transactionSplitGroupId}`,
+        },
+      })
+      .pipe(map((res) => res.data[0]));
   }
 
   matchExpense(transactionSplitGroupId: string, externalExpenseId: string): Observable<any> {

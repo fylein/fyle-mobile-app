@@ -40,7 +40,7 @@ export class ExpensePreviewComponent implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.expenseDetails$ = this.personalCardsService.getExpenseDetails(this.expenseId).pipe(map((res) => res.data[0]));
+    this.expenseDetails$ = this.personalCardsService.getExpenseDetails(this.expenseId);
   }
 
   closeModal() {
