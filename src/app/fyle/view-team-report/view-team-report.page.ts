@@ -16,7 +16,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { TeamExpenseService } from 'src/app/core/services/team-expense.service';
+import { ViewExpensesService } from 'src/app/core/services/view-expenses.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 @Component({
@@ -71,7 +71,7 @@ export class ViewTeamReportPage implements OnInit {
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private teamExpenseService: TeamExpenseService
+    private viewExpensesService: ViewExpensesService
   ) {}
 
   ngOnInit() {}
@@ -196,7 +196,7 @@ export class ViewTeamReportPage implements OnInit {
 
     this.etxns$.subscribe(noop);
     this.refreshApprovals$.next();
-    this.teamExpenseService.etxns$ = this.etxns$;
+    this.viewExpensesService.etxns$ = this.etxns$;
   }
 
   async deleteReport() {
@@ -264,25 +264,26 @@ export class ViewTeamReportPage implements OnInit {
 
     if (category === 'activity') {
       return this.popupService.showPopup({
-        header: 'Cannot Edit Activity',
-        message: 'Editing activity is not supported in mobile app.',
+        header: 'Cannot View Activity',
+        message: 'Viewing activity is not supported in mobile app.',
         primaryCta: {
           text: 'Cancel',
         },
       });
     }
 
-    let route;
-    this.teamExpenseService.activeEtxnIdx = etxnIdx;
+    let route: string;
+    this.viewExpensesService.setActiveIdx(etxnIdx);
+    this.viewExpensesService.view = 'Team';
 
     if (category === 'mileage') {
-      route = '/enterprise/view_team_mileage';
+      route = '/enterprise/view_mileage';
     } else if (category === 'per diem') {
-      route = '/enterprise/view_team_per_diem';
+      route = '/enterprise/view_per_diem';
     } else {
-      route = '/enterprise/view_team_expense';
+      route = '/enterprise/view_expense';
     }
-
+    this.trackingService.viewExpenseClicked({ view: 'Team', category });
     this.router.navigate([route, { id: etxn.tx_id }]);
   }
 

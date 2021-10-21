@@ -17,6 +17,7 @@ import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
+import { ViewExpensesService } from 'src/app/core/services/view-expenses.service';
 
 @Component({
   selector: 'app-my-view-report',
@@ -62,7 +63,8 @@ export class MyViewReportPage implements OnInit {
     private popupService: PopupService,
     private popoverController: PopoverController,
     private networkService: NetworkService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private viewExpensesService: ViewExpensesService
   ) {}
 
   setupNetworkWatcher() {
@@ -166,6 +168,7 @@ export class MyViewReportPage implements OnInit {
     this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
 
     this.etxns$.subscribe(noop);
+    this.viewExpensesService.etxns$ = this.etxns$;
   }
 
   goToEditReport() {
@@ -270,7 +273,7 @@ export class MyViewReportPage implements OnInit {
     }
   }
 
-  async goToTransaction(etxn: any) {
+  async goToTransaction({ etxn, etxnIdx }) {
     const erpt = await this.erpt$.toPromise();
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
@@ -280,29 +283,32 @@ export class MyViewReportPage implements OnInit {
     }
 
     if (category === 'activity') {
-      this.popupService.showPopup({
-        header: 'Cannot Edit Activity',
-        message: 'Editing activity is not supported in mobile app.',
+      const action = canEdit ? 'Edit' : 'View';
+      return this.popupService.showPopup({
+        header: `Cannot ${action} Activity`,
+        message: `${action}ing activity is not supported in mobile app.`,
         primaryCta: {
           text: 'Cancel',
         },
       });
     }
 
-    let route;
+    let route: string;
+    this.viewExpensesService.setActiveIdx(etxnIdx);
+    this.viewExpensesService.view = 'Individual';
 
     if (category === 'mileage') {
-      route = '/enterprise/my_view_mileage';
+      route = '/enterprise/view_mileage';
       if (canEdit) {
         route = '/enterprise/add_edit_mileage';
       }
     } else if (category === 'per diem') {
-      route = '/enterprise/my_view_per_diem';
+      route = '/enterprise/view_per_diem';
       if (canEdit) {
         route = '/enterprise/add_edit_per_diem';
       }
     } else {
-      route = '/enterprise/my_view_expense';
+      route = '/enterprise/view_expense';
       if (canEdit) {
         route = '/enterprise/add_edit_expense';
       }
@@ -317,6 +323,7 @@ export class MyViewReportPage implements OnInit {
         },
       ]);
     } else {
+      this.trackingService.viewExpenseClicked({ view: 'Individual', category });
       this.router.navigate([route, { id: etxn.tx_id }]);
     }
   }

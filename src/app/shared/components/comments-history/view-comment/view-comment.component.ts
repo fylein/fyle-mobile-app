@@ -86,7 +86,7 @@ export class ViewCommentComponent implements OnInit {
   }
 
   async closeCommentModal() {
-    if(this.newComment) {
+    if (this.newComment) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
         componentProps: {
@@ -213,7 +213,7 @@ export class ViewCommentComponent implements OnInit {
       this.router.navigate([
         '/',
         'enterprise',
-        'my_view_expense',
+        'view_expense',
         {
           id: this.matchedExpense.tx_id,
         },
