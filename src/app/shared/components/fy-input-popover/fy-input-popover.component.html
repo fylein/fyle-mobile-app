@@ -9,7 +9,7 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button [disabled]="!inputValue.trim().length" class="input-popover--toolbar__btn" (click)="saveValue()">
+      <ion-button [disabled]="!inputValue?.trim().length" class="input-popover--toolbar__btn" (click)="saveValue()">
         {{ ctaText }}
       </ion-button>
     </ion-buttons>
