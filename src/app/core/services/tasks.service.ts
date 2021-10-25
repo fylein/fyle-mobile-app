@@ -152,13 +152,24 @@ export class TasksService {
   }
 
   getReportsPill(filters: TaskFilters): FilterPill {
-    const draftReportsContent = filters.draftReports ? 'Draft' : '';
-    const sentBackReportsContent = filters.sentBackReports ? 'Sent Back' : '';
-    const comma = draftReportsContent && sentBackReportsContent ? ', ' : '';
+    const reportPills = [];
+    const draftReportsContent = filters.draftReports && 'Draft';
+    if (draftReportsContent) {
+      reportPills.push(draftReportsContent);
+    }
+    const sentBackReportsContent = filters.sentBackReports && 'Sent Back';
+    if (sentBackReportsContent) {
+      reportPills.push(sentBackReportsContent);
+    }
+    const teamReportsContents = filters.teamReports && 'Unapproved';
+    if (teamReportsContents) {
+      reportPills.push(teamReportsContents);
+    }
+
     return {
       label: 'Reports',
       type: 'Reports',
-      value: `${draftReportsContent}${comma}${sentBackReportsContent}`,
+      value: reportPills.join(', '),
     };
   }
 
@@ -169,7 +180,7 @@ export class TasksService {
       filterPills.push(this.getExpensePill(filters));
     }
 
-    if (filters.draftReports || filters.sentBackReports) {
+    if (filters.draftReports || filters.sentBackReports || filters.teamReports) {
       filterPills.push(this.getReportsPill(filters));
     }
 
