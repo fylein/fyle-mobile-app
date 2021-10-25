@@ -184,12 +184,16 @@ export class FyViewReportInfoComponent implements OnInit {
       'Business Unit': erpt.ou_business_unit,
       Mobile: erpt.ou_mobile,
     };
-    const orgUser = await this.authService.getEou();
-    if (erpt.ou_org_id === orgUser.ou.org_id) {
-      this.orgUserSettingsService.getAllowedCostCentersByOuId(erpt.ou_id).subscribe((costCenters) => {
-        const allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
-        Object.assign(this.employeeDetails, { 'Allowed Cost Centers': allowedCostCenters });
-      });
+    try {
+      const orgUser = await this.authService.getEou();
+      if (erpt.ou_org_id === orgUser.ou.org_id) {
+        this.orgUserSettingsService.getAllowedCostCentersByOuId(erpt.ou_id).subscribe((costCenters) => {
+          const allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
+          this.employeeDetails['Allowed Cost Centers'] = allowedCostCenters;
+        });
+      }
+    } catch (err) {
+      return;
     }
   }
 
