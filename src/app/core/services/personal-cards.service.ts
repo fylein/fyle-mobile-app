@@ -74,7 +74,10 @@ export class PersonalCardsService {
       .pipe(map((res) => res.data[0]));
   }
 
-  matchExpense(transactionSplitGroupId: string, externalExpenseId: string): Observable<any> {
+  matchExpense(
+    transactionSplitGroupId: string,
+    externalExpenseId: string
+  ): Observable<Partial<{ external_expense_id: string; id: string; transaction_split_group_id: string }>> {
     return this.apiService.post('/transactions/external_expense/match', {
       transaction_split_group_id: transactionSplitGroupId,
       external_expense_id: externalExpenseId,

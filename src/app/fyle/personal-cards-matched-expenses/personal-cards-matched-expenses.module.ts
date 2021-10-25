@@ -20,6 +20,7 @@ import { PersonalCardsMatchedExpensesPageRoutingModule } from './personal-cards-
 
 import { PersonalCardsMatchedExpensesPage } from './personal-cards-matched-expenses.page';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
+import { ExpensePreviewShimmerComponent } from './expense-preview-shimmer/expense-preview-shimmer.component';
 
 @NgModule({
   imports: [
@@ -44,6 +45,6 @@ import { ExpensePreviewComponent } from './expense-preview/expense-preview.compo
     SharedModule,
     MatCheckboxModule,
   ],
-  declarations: [PersonalCardsMatchedExpensesPage, ExpensePreviewComponent],
+  declarations: [PersonalCardsMatchedExpensesPage, ExpensePreviewComponent, ExpensePreviewShimmerComponent],
 })
 export class PersonalCardsMatchedExpensesPageModule {}

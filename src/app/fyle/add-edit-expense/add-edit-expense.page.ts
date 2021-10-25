@@ -4011,12 +4011,18 @@ export class AddEditExpensePage implements OnInit {
       this.activatedRoute.snapshot.params.personalCardTxn &&
       JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn);
     const externalExpenseId = personalCardTxn.btxn_id;
-    const txn$ = this.etxn$.pipe(switchMap((etxn) => this.transactionService.upsert(etxn.tx)));
-    this.saveExpenseLoader = true;
-    txn$
-      .pipe(switchMap((txn) => this.personalCardsService.matchExpense(txn.split_group_id, externalExpenseId)))
-      .subscribe((res) => {
-        this.saveExpenseLoader = false;
+    this.etxn$
+      .pipe(
+        switchMap((etxn) =>
+          this.transactionService.upsert(etxn.tx).pipe(
+            switchMap((txn) => this.personalCardsService.matchExpense(txn.split_group_id, externalExpenseId)),
+            finalize(() => {
+              this.saveExpenseLoader = false;
+            })
+          )
+        )
+      )
+      .subscribe(() => {
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Successfully matched the expense.' }),
           panelClass: ['msb-success'],

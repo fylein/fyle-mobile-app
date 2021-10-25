@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { noop } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { FileService } from 'src/app/core/services/file.service';
 
@@ -24,19 +24,16 @@ export class ExpenseCardLiteComponent implements OnInit {
     this.fileService
       .getFilesWithThumbnail(this.expense.id)
       .pipe(
-        map((ThumbFiles: FileObject[]) => {
+        switchMap((ThumbFiles: FileObject[]) => {
           if (ThumbFiles.length > 0) {
-            this.fileService
-              .downloadThumbnailUrl(ThumbFiles[0].id)
-              .pipe(
-                map((downloadUrl: FileObject[]) => {
-                  this.receiptThumbnail = downloadUrl[0].url;
-                })
-              )
-              .subscribe(noop);
+            return this.fileService.downloadThumbnailUrl(ThumbFiles[0].id);
+          } else {
+            return [];
           }
         })
       )
-      .subscribe(noop);
+      .subscribe((downloadUrl: FileObject[]) => {
+        this.receiptThumbnail = downloadUrl[0].url;
+      });
   }
 }
