@@ -26,7 +26,9 @@
             *ngIf="
               estatus.st.category !== 'Expense Issues' &&
               estatus.st.category !== 'Failed to run policies' &&
-              estatus.st.category !== 'Card Transaction Matched'
+              estatus.st.category !== 'Card Transaction Matched' &&
+              estatus.st.category !== 'Expense automatically merged' &&
+              estatus.st.category !== 'Expense merged by user'
             "
             >Details:
           </span>
