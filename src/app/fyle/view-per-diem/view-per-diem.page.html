@@ -12,7 +12,7 @@
     >
       View Per Diem
       <p class="view-per-diem--subtitle" *ngIf="numEtxnsInReport > 1">
-        Showing {{ activeEtxnIdx + 1 }} of {{ numEtxnsInReport }} expenses
+        Showing {{ activeEtxnIndex + 1 }} of {{ numEtxnsInReport }} expenses
       </p>
     </ion-title>
     <ion-buttons class="view-per-diem--header-btn-container" slot="end">
@@ -58,19 +58,16 @@
     </div>
 
     <div class="display-flex view-per-diem--card-container">
-      <div class="view-per-diem--card-container__div">
+      <div class="view-per-diem--card-container__block">
         <div class="view-per-diem--card-container__category">Per Diem</div>
         <div *ngIf="extendedPerDiem.tx_num_days" class="view-per-diem--card-container__merchant">
           {{extendedPerDiem.tx_num_days}} {{extendedPerDiem.tx_num_days === 1 ? 'Day' : 'Days'}}
         </div>
-        <div
-          *ngIf="orgSettings && orgSettings.projects && orgSettings.projects.enabled"
-          class="view-per-diem--card-container__project"
-        >
+        <div *ngIf="isProjectShown" class="view-per-diem--card-container__project">
           Project: {{ extendedPerDiem.tx_project_name ? extendedPerDiem.tx_project_name : 'Unspecified' }}
         </div>
       </div>
-      <div class="ion-text-right view-per-diem--card-container__div">
+      <div class="ion-text-right view-per-diem--card-container__block">
         <div>
           <span>{{ homeCurrencySymbol }}</span>
           <span class="view-per-diem--card-container__amount">
@@ -82,7 +79,10 @@
           ></ion-icon>
         </div>
 
-        <div class="view-per-diem--card-container__state-pill ion-text-right">
+        <div
+          class="view-per-diem--card-container__state-pill ion-text-right"
+          [ngClass]="{'view-per-diem--card-container__state-pill--with-project': isProjectShown}"
+        >
           <div class="view-per-diem--card-container__state-pill__state">
             {{ extendedPerDiem.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
           </div>
@@ -325,7 +325,7 @@
       <ion-button
         class="btn-secondary view-per-diem--footer-container__footer__btn"
         (click)="goToPrev()"
-        [disabled]="activeEtxnIdx === 0"
+        [disabled]="activeEtxnIndex === 0"
       >
         <ion-icon
           class="icon--navigate view-per-diem--footer-container__footer__icon"
@@ -333,7 +333,7 @@
         ></ion-icon>
         Previous
       </ion-button>
-      <ion-button class="btn-secondary" (click)="goToNext()" [disabled]="activeEtxnIdx === numEtxnsInReport - 1">
+      <ion-button class="btn-secondary" (click)="goToNext()" [disabled]="activeEtxnIndex === numEtxnsInReport - 1">
         Next
         <ion-icon
           class="icon--navigate view-per-diem--footer-container__footer__icon"

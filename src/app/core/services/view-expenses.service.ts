@@ -8,7 +8,7 @@ import { TrackingService } from './tracking.service';
   providedIn: 'root',
 })
 export class ViewExpensesService {
-  activeEtxnIdx = 0;
+  activeEtxnIndex = 0;
 
   etxns$: Observable<Expense[]>;
 
@@ -16,7 +16,7 @@ export class ViewExpensesService {
 
   numEtxns: number;
 
-  callingEtxnIdx: number;
+  callingEtxnIndex: number;
 
   constructor(private router: Router, private trackingService: TrackingService) {}
 
@@ -25,29 +25,29 @@ export class ViewExpensesService {
     return this.numEtxns;
   }
 
-  setActiveIdx(activeIdx: number) {
-    this.activeEtxnIdx = activeIdx;
-    this.callingEtxnIdx = activeIdx;
+  setActiveIdx(activeIndex: number) {
+    this.activeEtxnIndex = activeIndex;
+    this.callingEtxnIndex = activeIndex;
   }
 
   gotoPrev() {
-    if (this.activeEtxnIdx === 0) {
-      this.activeEtxnIdx = this.callingEtxnIdx;
+    if (this.activeEtxnIndex === 0) {
+      this.activeEtxnIndex = this.callingEtxnIndex;
     } else {
-      this.activeEtxnIdx--;
+      this.activeEtxnIndex--;
       this.trackingService.expenseNavClicked({ to: 'prev' });
     }
-    this.etxns$?.subscribe((etxns) => this.goToEtxn(etxns[this.activeEtxnIdx], 'prev'));
+    this.etxns$?.subscribe((etxns) => this.goToEtxn(etxns[this.activeEtxnIndex], 'prev'));
   }
 
   goToNext() {
-    if (this.activeEtxnIdx >= this.numEtxns - 1) {
-      this.activeEtxnIdx = this.callingEtxnIdx;
+    if (this.activeEtxnIndex >= this.numEtxns - 1) {
+      this.activeEtxnIndex = this.callingEtxnIndex;
     } else {
-      this.activeEtxnIdx++;
+      this.activeEtxnIndex++;
       this.trackingService.expenseNavClicked({ to: 'next' });
     }
-    this.etxns$?.subscribe((etxns) => this.goToEtxn(etxns[this.activeEtxnIdx], 'next'));
+    this.etxns$?.subscribe((etxns) => this.goToEtxn(etxns[this.activeEtxnIndex], 'next'));
   }
 
   goToEtxn(etxn: Expense, goTo?: 'next' | 'prev') {
@@ -69,7 +69,7 @@ export class ViewExpensesService {
     } else {
       route = '/enterprise/view_expense';
     }
-    this.callingEtxnIdx = this.activeEtxnIdx;
+    this.callingEtxnIndex = this.activeEtxnIndex;
     this.router.navigate([route, { id: etxn.tx_id }]);
   }
 }

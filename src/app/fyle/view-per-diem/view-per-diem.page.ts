@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, noop, of } from 'rxjs';
+import { Observable, from, Subject, noop, of, combineLatest } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -61,7 +61,7 @@ export class ViewPerDiemPage implements OnInit {
 
   numEtxnsInReport: number;
 
-  activeEtxnIdx: number;
+  activeEtxnIndex: number;
 
   paymentMode: string;
 
@@ -70,6 +70,8 @@ export class ViewPerDiemPage implements OnInit {
   homeCurrencySymbol: string;
 
   view: 'Team' | 'Individual';
+
+  isProjectShown: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -159,6 +161,16 @@ export class ViewPerDiemPage implements OnInit {
       }
     });
 
+    combineLatest([this.offlineService.getExpenseFieldsMap(), this.extendedPerDiem$])
+      .pipe(
+        map(([expenseFieldsMap, extendedPerDiem]) => {
+          const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
+          this.isProjectShown =
+            this.orgSettings?.projects?.enabled && (extendedPerDiem.tx_project_name || isProjectMandatory);
+        })
+      )
+      .subscribe(noop);
+
     this.offlineService
       .getOrgSettings()
       .pipe(shareReplay(1))
@@ -241,7 +253,7 @@ export class ViewPerDiemPage implements OnInit {
       .subscribe(noop);
 
     this.updateFlag$.next();
-    this.activeEtxnIdx = this.viewExpensesService.activeEtxnIdx;
+    this.activeEtxnIndex = this.viewExpensesService.activeEtxnIndex;
     this.numEtxnsInReport = this.viewExpensesService.getNumEtxns();
   }
 

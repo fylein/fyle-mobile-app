@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, concat, noop, of } from 'rxjs';
+import { Observable, from, Subject, concat, noop, of, combineLatest } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -63,7 +63,7 @@ export class ViewMileagePage implements OnInit {
 
   numEtxnsInReport: number;
 
-  activeEtxnIdx: number;
+  activeEtxnIndex: number;
 
   paymentMode: string;
 
@@ -74,6 +74,8 @@ export class ViewMileagePage implements OnInit {
   vehicleType: string;
 
   view: 'Team' | 'Individual';
+
+  isProjectShown: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -257,6 +259,16 @@ export class ViewMileagePage implements OnInit {
       }
     });
 
+    combineLatest([this.offlineService.getExpenseFieldsMap(), this.extendedMileage$])
+      .pipe(
+        map(([expenseFieldsMap, extendedMileage]) => {
+          const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
+          this.isProjectShown =
+            this.orgSettings?.projects?.enabled && (extendedMileage.tx_project_name || isProjectMandatory);
+        })
+      )
+      .subscribe(noop);
+
     this.offlineService
       .getOrgSettings()
       .pipe(shareReplay(1))
@@ -331,7 +343,7 @@ export class ViewMileagePage implements OnInit {
       .subscribe(noop);
 
     this.updateFlag$.next();
-    this.activeEtxnIdx = this.viewExpensesService.activeEtxnIdx;
+    this.activeEtxnIndex = this.viewExpensesService.activeEtxnIndex;
     this.numEtxnsInReport = this.viewExpensesService.getNumEtxns();
   }
 

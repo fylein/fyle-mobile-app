@@ -11,7 +11,7 @@
       [ngClass]="{'view-expense--title': numEtxnsInReport > 1, 'view-expense--title-sm': isDeviceWidthSmall}"
       >View Expense
       <p class="view-expense--subtitle" *ngIf="numEtxnsInReport > 1">
-        Showing {{ activeEtxnIdx + 1 }} of {{ numEtxnsInReport }} expenses
+        Showing {{ activeEtxnIndex + 1 }} of {{ numEtxnsInReport }} expenses
       </p>
     </ion-title>
     <ion-buttons class="view-expense--header-btn-container" slot="end">
@@ -57,17 +57,14 @@
     </div>
 
     <div class="display-flex view-expense--card-container">
-      <div class="view-expense--card-container__div">
+      <div class="view-expense--card-container__block">
         <div class="view-expense--card-container__category">{{ etxn.tx_categoryDisplayName || 'Unspecified' }}</div>
         <div class="view-expense--card-container__merchant">{{ etxn.tx_vendor || 'Merchant Unspecified'}}</div>
-        <div
-          *ngIf="orgSettings && orgSettings.projects && orgSettings.projects.enabled"
-          class="view-expense--card-container__project"
-        >
+        <div *ngIf="isProjectShown" class="view-expense--card-container__project">
           Project: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
         </div>
       </div>
-      <div class="ion-text-right view-expense--card-container__div">
+      <div class="ion-text-right view-expense--card-container__block">
         <div>
           <span>{{ homeCurrencySymbol }}</span>
           <span class="view-expense--card-container__amount">
@@ -85,7 +82,7 @@
         </div>
         <div
           class="view-expense--card-container__state-pill ion-text-right"
-          [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol}"
+          [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
         >
           <div class="view-expense--card-container__state-pill__state">
             {{ etxn.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
@@ -621,7 +618,7 @@
       <ion-button
         class="btn-secondary view-expense--footer-container__footer__btn"
         (click)="goToPrev()"
-        [disabled]="activeEtxnIdx === 0"
+        [disabled]="activeEtxnIndex === 0"
       >
         <ion-icon
           class="icon--navigate view-expense--footer-container__footer__icon"
@@ -629,7 +626,7 @@
         ></ion-icon>
         Previous
       </ion-button>
-      <ion-button class="btn-secondary" (click)="goToNext()" [disabled]="activeEtxnIdx === numEtxnsInReport - 1">
+      <ion-button class="btn-secondary" (click)="goToNext()" [disabled]="activeEtxnIndex === numEtxnsInReport - 1">
         Next
         <ion-icon
           class="icon--navigate view-expense--footer-container__footer__icon"

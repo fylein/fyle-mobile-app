@@ -81,7 +81,7 @@ export class ViewExpensePage implements OnInit {
 
   numEtxnsInReport: number;
 
-  activeEtxnIdx: number;
+  activeEtxnIndex: number;
 
   paymentModeIcon: string;
 
@@ -92,6 +92,8 @@ export class ViewExpensePage implements OnInit {
   foreignCurrencySymbol: string;
 
   view: 'Individual' | 'Team';
+
+  isProjectShown: boolean;
 
   constructor(
     private loaderService: LoaderService,
@@ -265,6 +267,15 @@ export class ViewExpensePage implements OnInit {
       this.foreignCurrencySymbol = getCurrencySymbol(etxn.tx_orig_currency, 'wide');
     });
 
+    combineLatest([this.offlineService.getExpenseFieldsMap(), this.etxn$])
+      .pipe(
+        map(([expenseFieldsMap, etxn]) => {
+          const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
+          this.isProjectShown = this.orgSettings?.projects?.enabled && (etxn.tx_project_name || isProjectMandatory);
+        })
+      )
+      .subscribe(noop);
+
     this.policyViloations$ = this.etxnWithoutCustomProperties$.pipe(
       concatMap((etxn) => this.statusService.find('transactions', etxn.tx_id)),
       map((comments) => comments.filter(this.isPolicyComment))
@@ -331,7 +342,7 @@ export class ViewExpensePage implements OnInit {
     this.updateFlag$.next();
     this.attachments$.subscribe(noop);
 
-    this.activeEtxnIdx = this.viewExpensesService.activeEtxnIdx;
+    this.activeEtxnIndex = this.viewExpensesService.activeEtxnIndex;
     this.numEtxnsInReport = this.viewExpensesService.getNumEtxns();
   }
 
