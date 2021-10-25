@@ -84,6 +84,18 @@ export class TasksService {
       });
     }
 
+    if (filters.unreportedExpenses) {
+      const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
+      if (existingFilter) {
+        existingFilter.value.push('UNREPORTED');
+      } else {
+        selectedFilters.push({
+          name: 'Expenses',
+          value: ['UNREPORTED'],
+        });
+      }
+    }
+
     if (filters.draftReports) {
       selectedFilters.push({
         name: 'Reports',
@@ -92,17 +104,27 @@ export class TasksService {
     }
 
     if (filters.sentBackReports) {
-      selectedFilters.push({
-        name: 'Reports',
-        value: ['SENT_BACK'],
-      });
+      const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
+      if (existingFilter) {
+        existingFilter.value.push('SENT_BACK');
+      } else {
+        selectedFilters.push({
+          name: 'Reports',
+          value: ['SENT_BACK'],
+        });
+      }
     }
 
-    if (filters.unreportedExpenses) {
-      selectedFilters.push({
-        name: 'Expenses',
-        value: ['UNREPORTED'],
-      });
+    if (filters.teamReports) {
+      const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
+      if (existingFilter) {
+        existingFilter.value.push('TEAM');
+      } else {
+        selectedFilters.push({
+          name: 'Reports',
+          value: ['TEAM'],
+        });
+      }
     }
 
     return selectedFilters;
