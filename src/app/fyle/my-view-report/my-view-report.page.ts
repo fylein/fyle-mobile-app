@@ -1,10 +1,10 @@
-import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, from, noop, concat, Subject } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
-import { map, switchMap, finalize, shareReplay, takeUntil, tap } from 'rxjs/operators';
+import { map, switchMap, finalize, shareReplay, takeUntil, tap, startWith } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -23,6 +23,9 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { getCurrencySymbol } from '@angular/common';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
+import * as moment from 'moment';
+import { StatusService } from 'src/app/core/services/status.service';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 
 @Component({
   selector: 'app-my-view-report',
@@ -30,6 +33,8 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
   styleUrls: ['./my-view-report.page.scss'],
 })
 export class MyViewReportPage implements OnInit {
+  @ViewChild('commentInput') commentInput: ElementRef;
+
   erpt$: Observable<ExtendedReport>;
 
   etxns$: Observable<any[]>;
@@ -66,6 +71,28 @@ export class MyViewReportPage implements OnInit {
 
   isExpensesView: boolean = true;
 
+  estatuses$: Observable<ExtendedStatus[]>;
+
+  refreshEstatuses$: Subject<void> = new Subject();
+
+  systemComments: ExtendedStatus[];
+
+  type: string;
+
+  systemEstatuses: ExtendedStatus[];
+
+  userComments: any;
+
+  totalCommentsCount$: Observable<number>;
+
+  newComment: string;
+
+  objectType = 'reports';
+
+  objectId = this.activatedRoute.snapshot.params.id;
+
+  isCommentAdded: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -80,7 +107,8 @@ export class MyViewReportPage implements OnInit {
     private networkService: NetworkService,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private statusService: StatusService
   ) {}
 
   setupNetworkWatcher() {
@@ -98,7 +126,64 @@ export class MyViewReportPage implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.erpt$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
+      finalize(() => from(this.loaderService.hideLoader()))
+    );
+    const eou$ = from(this.authService.getEou());
+
+    this.estatuses$ = this.refreshEstatuses$.pipe(
+      startWith(0),
+      switchMap(() => eou$),
+      switchMap((eou) =>
+        this.statusService.find(this.objectType, this.objectId).pipe(
+          map((res) =>
+            res.map((status) => {
+              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
+              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
+              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
+              return status;
+            })
+          ),
+          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
+        )
+      )
+    );
+
+    this.estatuses$.subscribe((estatuses) => {
+      const reversalStatus = estatuses.filter(
+        (status) => status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1
+      );
+
+      this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
+
+      this.type =
+        this.objectType.toLowerCase() === 'transactions'
+          ? 'Expense'
+          : this.objectType.substring(0, this.objectType.length - 1);
+
+      this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
+
+      this.userComments = estatuses.filter((status) => status.us_full_name);
+
+      console.log('check user commnets-->', this.userComments);
+
+      for (let i = 0; i < this.userComments.length; i++) {
+        const prevCommentDt = moment(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
+        const currentCommentDt = moment(this.userComments[i] && this.userComments[i].st_created_at);
+        if (moment(prevCommentDt).isSame(currentCommentDt, 'day')) {
+          this.userComments[i].show_dt = false;
+        } else {
+          this.userComments[i].show_dt = true;
+        }
+      }
+    });
+
+    this.totalCommentsCount$ = this.estatuses$.pipe(
+      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
+    );
+  }
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -130,10 +215,6 @@ export class MyViewReportPage implements OnInit {
   ionViewWillEnter() {
     this.setupNetworkWatcher();
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-    this.erpt$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
-      finalize(() => from(this.loaderService.hideLoader()))
-    );
 
     this.erpt$.subscribe((erpt) => {
       this.reportCurrencySymbol = getCurrencySymbol(erpt.rp_currency, 'wide');
@@ -404,6 +485,25 @@ export class MyViewReportPage implements OnInit {
         this.isCommentsView = false;
         this.isExpensesView = false;
       }
+    }
+  }
+
+  addComment() {
+    if (this.newComment) {
+      const data = {
+        comment: this.newComment,
+      };
+
+      this.newComment = null;
+      this.commentInput.nativeElement.focus();
+      this.isCommentAdded = true;
+
+      this.statusService
+        .post(this.objectType, this.objectId, data)
+        .pipe()
+        .subscribe((res) => {
+          this.refreshEstatuses$.next();
+        });
     }
   }
 }

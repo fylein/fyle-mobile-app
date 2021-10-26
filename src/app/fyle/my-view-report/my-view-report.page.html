@@ -29,41 +29,67 @@
   <div class="view-reports--body" *ngIf="erpt$|async as erpt">
     <div>
       <div class="view-reports--card">
-        <div class="view-reports--purpose-amount-block">
-          <div class="view-reports--purpose-amount-block__purpose">
-            {{reportName}}
-            <ion-icon
-              *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY')"
-              [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
-              slot="icon-only"
-              (click)="editReportName()"
-              class="view-reports--card-header__icon"
-            ></ion-icon>
-          </div>
-          <div>
-            <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
-            <span class="view-reports--purpose-amount-block__amount">
-              {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:2:true }}
-            </span>
-          </div>
-        </div>
-        <div
-          class="text-capitalize view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}"
-        >
-          {{erpt.rp_state | reportState | snakeCaseToSpaceCase}}
-        </div>
-      </div>
-      <div class="view-reports--date-info-block">
-        <div class="view-reports--submitted-date">
-          <div>
-            <span class="view-reports--submitted-date__text">Submitted on: </span>
-            <span class="view-reports--submitted-date__date">{{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</span>
-          </div>
-        </div>
-        <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
-          <ion-icon class="view-reports--view-info__icon" src="../../../assets/svg/fy-info-gradient.svg"></ion-icon>
-          <span class="view-reports--view-info__content">View Info</span>
-        </div>
+        <ion-grid>
+          <ion-row>
+            <ion-column size="8">
+              <div class="view-reports--purpose-amount-block">
+                <div class="view-reports--purpose-amount-block__purpose">
+                  {{reportName}}
+                  <ion-icon
+                    *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY')"
+                    [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
+                    slot="icon-only"
+                    (click)="editReportName()"
+                    class="view-reports--card-header__icon"
+                  ></ion-icon>
+                </div>
+              </div>
+            </ion-column>
+            <ion-column size="4">
+              <div>
+                <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
+                <span class="view-reports--purpose-amount-block__amount">
+                  {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:2:true }}
+                </span>
+              </div>
+            </ion-column>
+          </ion-row>
+
+          <ion-row>
+            <ion-column size="8"> </ion-column>
+            <ion-column size="4">
+              <div
+                class="text-capitalize view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}"
+              >
+                {{erpt.rp_state | reportState | snakeCaseToSpaceCase}}
+              </div>
+            </ion-column>
+          </ion-row>
+
+          <ion-row>
+            <ion-column>
+              <div class="view-reports--date-info-block">
+                <div class="view-reports--submitted-date">
+                  <div>
+                    <span class="view-reports--submitted-date__text">Submitted on: </span>
+                    <span class="view-reports--submitted-date__date"
+                      >{{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </ion-column>
+            <ion-column>
+              <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
+                <ion-icon
+                  class="view-reports--view-info__icon"
+                  src="../../../assets/svg/fy-info-gradient.svg"
+                ></ion-icon>
+                <span class="view-reports--view-info__content">View Info</span>
+              </div>
+            </ion-column>
+          </ion-row>
+        </ion-grid>
       </div>
 
       <div
@@ -144,16 +170,138 @@
               <ion-spinner name="crescent"></ion-spinner>
             </ng-template>
           </div>
-          <div *ngIf="erpt.rp_num_transactions === 0">
-            <div>
+          <div class="view-reports--expenses-zero-state" *ngIf="erpt.rp_num_transactions === 0">
+            <div class="text-center">
               <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
               <div class="view-reports--zero-state-header">No expense in this report yet</div>
-              <div class="my-create-report--zero-state-header">Looks like you don't have reportable expenses.</div>
-              <div class="my-create-report--add-more-container" (click)="addExpense()">
-                <mat-icon class="my-create-report--add-more-icon" svgIcon="plus"></mat-icon>
-                <div class="my-create-report--add-more-text">Add Expenses</div>
+              <div class="view-reports--zero-state-header">Looks like you don't have reportable expenses.</div>
+              <div class="view-reports--add-more-container" (click)="addExpense()">
+                <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
+                <div class="view-reports--add-more-text">Add Expenses</div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Comments section -->
+        <div *ngIf="isCommentsView" class="view-comment--container">
+          <div *ngFor="let estatus of userComments">
+            <div *ngIf="estatus.show_dt">
+              <div class="view-comment--date text-center">{{ estatus.st_created_at | date: 'MMM d, yyyy' }}</div>
+            </div>
+            <div
+              class="view-comment--block"
+              *ngIf="estatus.isSelfComment"
+              [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
+            >
+              <ion-grid class="view-comment--card view-comment--self-comment text-right">
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <div
+                      *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                      class="view-comment--comment-detail"
+                    >
+                      {{ estatus.st_comment }}
+                    </div>
+                    <div
+                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                      class="view-comment--comment-detail"
+                    >
+                      {{ estatus.st_comment }}
+                    </div>
+                    <a
+                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                      (click)="openViewExpense()"
+                      >{{ this.expenseNumber }}
+                    </a>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+              <div class="view-comment--profile view-comment--self-profile">
+                <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+              </div>
+            </div>
+            <div
+              class="view-comment--block"
+              *ngIf="!estatus.isSelfComment"
+              [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
+            >
+              <div class="view-comment--profile view-comment--others-profile">
+                <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+              </div>
+              <ion-grid class="view-comment--card view-comment--others-comment text-left">
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <div
+                      *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                      class="view-comment--comment-detail"
+                    >
+                      {{ estatus.st_comment }}
+                    </div>
+                    <div
+                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                      class="view-comment--comment-detail"
+                    >
+                      {{ estatus.st_comment }}
+                    </div>
+                    <a
+                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                      (click)="openViewExpense()"
+                      >{{ this.expenseNumber }}
+                    </a>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </div>
+          </div>
+          <div class="view-comment--add-comment-container">
+            <ion-toolbar mode="md">
+              <div class="view-comment--type-comment-block">
+                <textarea
+                  #commentInput
+                  class="view-comment--text-area"
+                  rows="1"
+                  matInput
+                  placeholder="Type your comment here..."
+                  [(ngModel)]="newComment"
+                ></textarea>
+                <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send"></mat-icon>
+              </div>
+            </ion-toolbar>
+          </div>
+        </div>
+
+        <div class="view-comment--zero-state-block" *ngIf="isCommentsView && userComments && userComments.length === 0">
+          <div class="view-comment--zero-state">
+            <img class="view-comment--zero-state__img" src="../../../assets/images/zero-states/comments.svg" />
+            <div class="view-comment--zero-state__content">Need to clarify something?</div>
+            <div class="view-comment--zero-state__content">Post a comment.</div>
+          </div>
+        </div>
+
+        <div *ngIf="isCommentsView && !userComments">
+          <div class="view-comment--spinner">
+            <ion-spinner name="crescent"></ion-spinner>
           </div>
         </div>
       </div>
