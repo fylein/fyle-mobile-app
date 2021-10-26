@@ -40,6 +40,7 @@ $list-element-color: #333;
 
   &--container {
     @extend %flex-layout-column;
+    color: $blue-black;
   }
 
   &--bottom-up {
