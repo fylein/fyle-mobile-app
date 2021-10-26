@@ -94,6 +94,7 @@ import { BankAccountCardsComponent } from './components/bank-account-cards/bank-
 import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
 import { DeleteButtonComponent } from './components/bank-account-cards/bank-account-card/delete-button/delete-button-component';
 import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
+import { FyInputPopoverComponent } from './components/fy-input-popover/fy-input-popover.component';
 import { FyPopoverComponent } from './components/fy-popover/fy-popover.component';
 
 @NgModule({
@@ -169,6 +170,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     BankAccountCardComponent,
     DeleteButtonComponent,
     AddApproversPopoverComponent,
+    FyInputPopoverComponent,
     FyPopoverComponent,
   ],
   imports: [

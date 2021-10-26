@@ -567,14 +567,10 @@
                         <ng-container>
                           <div class="add-edit-per-diem--internal-block">
                             <app-fy-add-to-report
-                              *ngIf="reports.length > 0"
                               [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
                               [options]="reports"
                               formControlName="report"
                             ></app-fy-add-to-report>
-                            <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                              <span class="add-edit-per-diem--text-label"> Add to New Report </span>
-                            </mat-checkbox>
                           </div>
                         </ng-container>
                       </ng-container>
