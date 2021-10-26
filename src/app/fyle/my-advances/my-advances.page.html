@@ -15,8 +15,8 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div class="my-advances--container">
+<ion-content class="my-advances--content">
+  <div class="my-advances--body" [ngClass]="{'my-advances--zero-state-body': (advances$|async)?.length === 0 }">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
