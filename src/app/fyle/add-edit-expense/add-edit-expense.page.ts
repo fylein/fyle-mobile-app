@@ -2717,7 +2717,6 @@ export class AddEditExpensePage implements OnInit {
         return fileObj;
       })
     );
-
     const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
     return forkJoin({
       etxn: etxn$,
@@ -4011,11 +4010,37 @@ export class AddEditExpensePage implements OnInit {
       this.activatedRoute.snapshot.params.personalCardTxn &&
       JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn);
     const externalExpenseId = personalCardTxn.btxn_id;
-    this.etxn$
+    const customFields$ = this.getCustomFields();
+    const addExpenseAttachments = of(
+      this.newExpenseDataUrls.map((fileObj) => {
+        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
+        return fileObj;
+      })
+    );
+    return this.generateEtxnFromFg(this.etxn$, customFields$, true)
       .pipe(
         switchMap((etxn) =>
           this.transactionService.upsert(etxn.tx).pipe(
-            switchMap((txn) => this.personalCardsService.matchExpense(txn.split_group_id, externalExpenseId)),
+            switchMap((txn) =>
+              this.personalCardsService.matchExpense(txn.split_group_id, externalExpenseId).pipe(
+                switchMap(() =>
+                  from(addExpenseAttachments).pipe(
+                    map((fileObj: any) =>
+                      fileObj.map((file) =>
+                        from(this.transactionOutboxService.fileUpload(file.url, file.type))
+                          .pipe(
+                            switchMap((fileObj: any) => {
+                              fileObj.transaction_id = txn.split_group_id;
+                              return this.fileService.post(fileObj);
+                            })
+                          )
+                          .subscribe(noop)
+                      )
+                    )
+                  )
+                )
+              )
+            ),
             finalize(() => {
               this.saveExpenseLoader = false;
             })
