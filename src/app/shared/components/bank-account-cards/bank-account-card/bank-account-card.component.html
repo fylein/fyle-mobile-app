@@ -1,0 +1,24 @@
+<div class="personal-card--card-details">
+  <ion-grid class="personal-card--container">
+    <div class="personal-card--header">
+      <div class="personal-card--bank-name">
+        {{ accountDetails.bank_name }}
+      </div>
+      <ion-icon
+        (click)="presentPopover($event)"
+        [src]="'assets/svg/action-menu.svg'"
+        slot="icon-only"
+        class="personal-card--action-icon"
+      ></ion-icon>
+    </div>
+    <ion-row>
+      <ion-col class="personal-card--account-info">
+        <span class="personal-card--account-info__type"> {{ accountDetails.account_type }} </span>
+        <span class="personal-card--account-info__mask">{{ accountDetails.account_number }}</span>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <div class="personal-card--sync-detail">
+    Last fetch: {{ accountDetails.last_synced_at | date: 'MMM d, y | h:mm a' }}
+  </div>
+</div>

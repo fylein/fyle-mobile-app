@@ -44,6 +44,25 @@ $sent-back-color: #da1e28;
     }
   }
 
+  &--view-info {
+    display: flex;
+    float: right;
+    padding: 1px 4px;
+    font-size: 12px;
+    font-weight: 400;
+
+    &__icon {
+      height: 18px;
+      width: 18px;
+      padding: 1px;
+      vertical-align: middle;
+    }
+
+    &__content {
+      padding-left: 2px;
+    }
+  }
+
   &--alert-block {
     display: flex;
     margin: 10px 0;

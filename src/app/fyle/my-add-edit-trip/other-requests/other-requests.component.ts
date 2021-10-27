@@ -467,7 +467,7 @@ export class OtherRequestsComponent implements OnInit {
             return this.checkPolicyAndSaveOrSubmit(tripReq, formValue, 'SAVE_DRAFT');
           }
         }),
-        concatMap((res) => {
+        concatMap((res: { id: string }) => {
           trpId = res.id;
           return this.createOtherRequestForm(formValue, trpId, 'SUBMIT');
         }),

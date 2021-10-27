@@ -1,3 +1,5 @@
+@import '../../../theme/colors.scss';
+
 $reported-color: #4798ff;
 $approved-color: #67bc53;
 $paid-color: #64b5a6;
@@ -37,10 +39,6 @@ $sent-back-color: #da1e28;
     margin: 16px 0;
   }
 
-  &--expense-container {
-    //background-color: #f7f7f5;
-  }
-
   &--zero-state-header {
     font-size: 16px;
     margin-bottom: 16px;
@@ -72,11 +70,16 @@ $sent-back-color: #da1e28;
   }
 
   &--card-header {
+    display: flex;
     font-size: 16px;
     color: #4a4a4a;
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 8px;
     margin-bottom: 8px;
+
+    &__icon {
+      padding-left: 6px;
+    }
   }
 
   &--card-body {
@@ -147,6 +150,25 @@ $sent-back-color: #da1e28;
 
     &__paid {
       background-color: #3d8b3d;
+    }
+  }
+
+  &--view-info {
+    display: flex;
+    float: right;
+    padding: 1px 4px;
+    font-size: 12px;
+    font-weight: 400;
+
+    &__icon {
+      height: 18px;
+      width: 18px;
+      padding: 1px;
+      vertical-align: middle;
+    }
+
+    &__content {
+      padding-left: 2px;
     }
   }
 

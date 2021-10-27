@@ -77,6 +77,7 @@ export class IconModule {
     'fy-delete.svg',
     'fy-dismiss.svg',
     'fy-done.svg',
+    'fy-edit-gradient',
     'fy-electric-car.svg',
     'fy-email.svg',
     'fy-expense.svg',
@@ -89,6 +90,7 @@ export class IconModule {
     'fy-individual.svg',
     'fy-iphone.svg',
     'fy-info.svg',
+    'fy-info-gradient.svg',
     'fy-gallery.svg',
     'fy-matched-no.svg',
     'fy-matched-yes.svg',
@@ -98,7 +100,6 @@ export class IconModule {
     'fy-notification.svg',
     'fy-non-reimbursable.svg',
     'fy-plus.svg',
-    'fy-info.svg',
     'fy-receipt-attached.svg',
     'fy-receipt-not-attached.svg',
     'fy-receipt.svg',
@@ -167,6 +168,7 @@ export class IconModule {
     'utility.svg',
     'warning-inverted.svg',
     'warning.svg',
+    'fy-merge.svg',
   ];
 
   constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {

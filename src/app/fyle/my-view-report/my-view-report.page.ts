@@ -8,7 +8,7 @@ import { map, switchMap, finalize, shareReplay, takeUntil, tap } from 'rxjs/oper
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
@@ -16,6 +16,9 @@ import { SubmitReportPopoverComponent } from './submit-report-popover/submit-rep
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 
 @Component({
   selector: 'app-my-view-report',
@@ -49,6 +52,8 @@ export class MyViewReportPage implements OnInit {
 
   onPageExit = new Subject();
 
+  reportName: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -59,7 +64,9 @@ export class MyViewReportPage implements OnInit {
     private popupService: PopupService,
     private popoverController: PopoverController,
     private networkService: NetworkService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService
   ) {}
 
   setupNetworkWatcher() {
@@ -114,6 +121,8 @@ export class MyViewReportPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
+    this.erpt$.subscribe((erpt) => (this.reportName = erpt.rp_purpose));
+
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
       map((pdfExports) =>
         pdfExports.results
@@ -165,6 +174,37 @@ export class MyViewReportPage implements OnInit {
 
   goToEditReport() {
     this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
+  }
+
+  updateReportName(erpt: ExtendedReport, reportName: string) {
+    erpt.rp_purpose = reportName;
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.reportService.updateReportDetails(erpt)),
+        finalize(() => this.loaderService.hideLoader()),
+        shareReplay(1)
+      )
+      .subscribe(() => {
+        this.reportName = reportName;
+      });
+  }
+
+  async editReportName() {
+    const erpt = await this.erpt$.toPromise();
+    const editReportNamePopover = await this.popoverController.create({
+      component: EditReportNamePopoverComponent,
+      componentProps: {
+        reportName: erpt.rp_purpose,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await editReportNamePopover.present();
+    const { data } = await editReportNamePopover.onWillDismiss();
+
+    if (data && data.reportName) {
+      this.updateReportName(erpt, data.reportName);
+    }
   }
 
   async deleteReport() {
@@ -307,6 +347,24 @@ export class MyViewReportPage implements OnInit {
         await this.loaderService.showLoader(message);
       });
     }
+  }
+
+  async openViewReportInfoModal() {
+    const viewInfoModal = await this.modalController.create({
+      component: FyViewReportInfoComponent,
+      componentProps: {
+        erpt$: this.erpt$,
+        etxns$: this.etxns$,
+        view: 'Individual',
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await viewInfoModal.present();
+    await viewInfoModal.onWillDismiss();
+
+    this.trackingService.clickViewReportInfo({ view: 'Individual' });
   }
 
   canEditTxn(txState) {
