@@ -55,8 +55,15 @@ export class RefinerService {
       isConnected: this.isConnected$.pipe(take(1)),
       eou: this.authService.getEou(),
       homeCurrency: this.offlineService.getHomeCurrency(),
-    }).subscribe(({isConnected, eou, homeCurrency}) => {
+      deviceInfo: Device.getInfo()
+    }).subscribe(({isConnected, eou, homeCurrency, deviceInfo}) => {
       if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
+        let device = '';
+        if (deviceInfo.operatingSystem === 'ios') {
+          device = 'IOS';
+        } else if (deviceInfo.operatingSystem === 'android') {
+          device = 'ANDROID';
+        }
         (window as any)._refiner('identifyUser', {
           id: eou.us.id, // Replace with your user ID
           email: eou.us.email, // Replace with user Email
@@ -66,7 +73,7 @@ export class RefinerService {
             company_name: eou.ou.org_name,
             region: 'International Americas'
           },
-          source: 'Mobile',
+          source: 'Mobile' + ' - ' + device,
           is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
           is_lite_user: 'F',
           action_name: properties['Action Name']
