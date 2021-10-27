@@ -204,7 +204,7 @@
   }
 
   &--fetch-button {
-    padding: 9px 16px 8px 16px;
+    padding: 8px 16px;
     background: $pink-gradient-1;
     color: $pure-white;
     font-size: 12px;
@@ -231,7 +231,6 @@
     &__btn {
       color: $blue-black;
       font-size: 14px;
-      text-transform: capitalize;
       font-weight: 500;
       width: 100%;
     }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, AfterViewInit, NgZone } from '@angular/core';
+import { Component, EventEmitter, OnInit, AfterViewInit, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BehaviorSubject, concat, from, noop, Observable, of, Subject } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -11,12 +11,15 @@ import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
 @Component({
   selector: 'app-personal-cards',
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
 })
 export class PersonalCardsPage implements OnInit, AfterViewInit {
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+
   headerState: HeaderState = HeaderState.base;
 
   isConnected$: Observable<boolean>;
@@ -37,7 +40,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }>
   >;
 
-  transactions$: Observable<any[]>;
+  transactions$: Observable<PersonalCardTxn[]>;
 
   transactionsCount$: Observable<number>;
 
@@ -51,7 +54,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isHiding = false;
 
-  isLoadingDataInInfiniteScroll = false;
+  isLoadingDataInfiniteScroll = false;
 
   acc = [];
 
@@ -70,6 +73,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   selectedElements: any[];
 
   selectAll = false;
+
+  isSearchBarFocused = false;
+
+  simpleSearchText = '';
 
   constructor(
     private personalCardsService: PersonalCardsService,
@@ -115,7 +122,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
         const queryParams = params.queryParams;
-        // const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
@@ -128,7 +134,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                 .pipe(
                   finalize(() => {
                     this.isTrasactionsLoading = false;
-                    this.isLoadingDataInInfiniteScroll = false;
+                    this.isLoadingDataInfiniteScroll = false;
                   })
                 );
             } else {
@@ -142,7 +148,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       }),
       map((res) => {
         this.isTrasactionsLoading = false;
-        this.isLoadingDataInInfiniteScroll = false;
+        this.isLoadingDataInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
@@ -248,7 +254,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;
-    this.isLoadingDataInInfiniteScroll = true;
+    this.isLoadingDataInfiniteScroll = true;
 
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
@@ -375,5 +381,21 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (this.selectAll) {
       this.selectedElements = this.acc.map((txn) => txn.btxn_id);
     }
+  }
+
+  clearText(isFromCancel) {
+    this.simpleSearchText = '';
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+    if (isFromCancel === 'onSimpleSearchCancel') {
+      this.isSearchBarFocused = !this.isSearchBarFocused;
+    } else {
+      this.isSearchBarFocused = !!this.isSearchBarFocused;
+    }
+  }
+
+  onSearchBarFocus() {
+    this.isSearchBarFocused = true;
   }
 }

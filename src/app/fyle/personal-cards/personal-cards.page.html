@@ -13,13 +13,13 @@
     </ion-buttons>
   </ng-container>
   <ng-container personalCardContent *ngIf="!isLoading">
-    <ion-toolbar mode="ios">
+    <ion-toolbar>
       <ion-segment
-        class="personal-cards-segment-block personal-cards--segment-block"
+        class="personal-cards-segment-block"
         (ionChange)="segmentChanged($event)"
         value="{{selectedTrasactionType}}"
       >
-        <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn">
+        <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn text-capitalize">
           Transactions
         </ion-segment-button>
         <ion-segment-button value="MATCHED" class="personal-cards--segment-block__btn"> Created </ion-segment-button>
@@ -118,12 +118,12 @@
       </ng-container>
     </ng-container>
   </ng-container>
-  <ng-container *ngIf="((linkedAccountsCount$ | async) !== 0) && isTrasactionsLoading || isLoadingDataInInfiniteScroll">
+  <ng-container *ngIf="((linkedAccountsCount$ | async) !== 0) && isTrasactionsLoading || isLoadingDataInfiniteScroll">
     <app-transactions-shimmer> </app-transactions-shimmer>
   </ng-container>
 
   <ng-container *ngIf="isConnected$|async">
-    <ng-container *ngIf="!isLoadingDataInInfiniteScroll && isCardsLoaded">
+    <ng-container *ngIf="!isLoadingDataInfiniteScroll && isCardsLoaded">
       <ng-container *ngIf="!selectionMode">
         <ion-infinite-scroll
           (ionInfinite)="loadData($event)"
@@ -137,7 +137,7 @@
   </ng-container>
 </ion-content>
 
-<ion-footer>
+<ion-footer *ngIf="!isSearchBarFocused">
   <ng-container *ngIf="!selectionMode">
     <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()">
     </app-fy-footer>
