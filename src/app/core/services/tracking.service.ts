@@ -870,6 +870,23 @@ export class TrackingService {
     this.eventTrack('tasks clicked on remove filter pill', properties);
   }
 
+  // Add to Report inside expenses
+  openAddToReportModal(properties = {}) {
+    this.eventTrack('Open Add to Report Modal', properties);
+  }
+
+  addToReportFromExpense(properties = {}) {
+    this.eventTrack('Add to Report from expense', properties);
+  }
+
+  openCreateDraftReportPopover(properties = {}) {
+    this.eventTrack('Open Create Draft Report Popover', properties);
+  }
+
+  createDraftReportFromExpense(properties = {}) {
+    this.eventTrack('Create draft report from expense', properties);
+  }
+
   //Reports
   //Open view report info modal
   clickViewReportInfo(properties) {
