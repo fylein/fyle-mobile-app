@@ -8,19 +8,11 @@ $details-color: #ababab;
   justify-content: space-around;
   padding: 0 24px 4px;
 
-  &--header-container {
-    &__header {
-      color: $grey-light;
-      padding-top: 24px;
-      line-height: 1.3;
-    }
-  }
-
   &--element {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    height: 35%;
+    height: 45%;
 
     &-first {
       border-bottom: 1px solid $grey;
