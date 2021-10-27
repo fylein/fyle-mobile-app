@@ -19,6 +19,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -73,7 +74,8 @@ export class ViewTeamReportPage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private refinerService: RefinerService
   ) {}
 
   ngOnInit() {}
@@ -338,6 +340,7 @@ export class ViewTeamReportPage implements OnInit {
           panelClass: ['msb-success-with-camera-icon'],
         });
         this.trackingService.showToastMessage({ ToastContent: message });
+        this.refinerService.startSurvey({'Action Name': 'Send Back Report'}, {});
       });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
