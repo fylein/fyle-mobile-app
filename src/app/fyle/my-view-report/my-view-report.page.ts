@@ -54,7 +54,6 @@ export class MyViewReportPage implements OnInit {
   onPageExit = new Subject();
 
   reportName: string;
-  
 
   constructor(
     private activatedRoute: ActivatedRoute,

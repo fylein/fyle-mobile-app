@@ -19,6 +19,7 @@ const { Device } = Plugins;
 })
 export class RefinerService {
   isConnected$: Observable<boolean>;
+
   constructor(
     private offlineService: OfflineService,
     private authService: AuthService,
@@ -32,14 +33,13 @@ export class RefinerService {
     const that = this;
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(that.networkService.isOnline(), networkWatcherEmitter.asObservable())
+    this.isConnected$ = concat(that.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
   isNonDemoOrg(orgName: string) {
     return orgName.toLowerCase().indexOf('fyle for') === -1;
   };
 
-  
   canStartSurvey(homeCurrency: string, eou: ExtendedOrgUser) {
     // const usdOrg = homeCurrency && homeCurrency === 'USD' && eou && eou.ou && eou.ou.org_name && this.isNonDemoOrg(eou.ou.org_name);
     // const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
@@ -49,7 +49,7 @@ export class RefinerService {
     return true;
   };
 
-  startSurvey(properties:any, options:any) {
+  startSurvey(properties: any, options: any) {
     this.setupNetworkWatcher();
     return forkJoin({
       isConnected: this.isConnected$.pipe(take(1)),
