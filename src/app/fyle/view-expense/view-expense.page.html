@@ -66,7 +66,7 @@
       </div>
       <div class="ion-text-right view-expense--card-container__block">
         <div>
-          <span>{{ homeCurrencySymbol }}</span>
+          <span>{{ etxnCurrencySymbol }}</span>
           <span class="view-expense--card-container__amount">
             {{ etxn.tx_orig_amount || etxn.tx_amount || 0 | humanizeCurrency: etxn.tx_currency:2:true }}
           </span>
@@ -78,7 +78,7 @@
 
         <div class="view-expense--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
           {{ foreignCurrencySymbol }}{{ etxn.tx_orig_amount | humanizeCurrency: etxn.tx_orig_currency:2:true }} at {{
-          homeCurrencySymbol }}{{ etxn.tx_amount / etxn.tx_orig_amount | number: '1.0-2' }}
+          etxnCurrencySymbol }}{{ etxn.tx_amount / etxn.tx_orig_amount | number: '1.0-2' }}
         </div>
         <div
           class="view-expense--card-container__state-pill ion-text-right"

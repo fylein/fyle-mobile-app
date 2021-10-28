@@ -84,9 +84,7 @@ export class ViewExpensePage implements OnInit {
 
   paymentModeIcon: string;
 
-  homeCurrency: string;
-
-  homeCurrencySymbol: string;
+  etxnCurrencySymbol: string;
 
   foreignCurrencySymbol: string;
 
@@ -185,16 +183,7 @@ export class ViewExpensePage implements OnInit {
     }
   }
 
-  ngOnInit() {
-    this.offlineService
-      .getHomeCurrency()
-      .pipe(
-        map((homeCurrency) => {
-          this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
-        })
-      )
-      .subscribe(noop);
-  }
+  ngOnInit() {}
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
@@ -263,6 +252,7 @@ export class ViewExpensePage implements OnInit {
           );
       }
       this.foreignCurrencySymbol = getCurrencySymbol(etxn.tx_orig_currency, 'wide');
+      this.etxnCurrencySymbol = getCurrencySymbol(etxn.tx_currency, 'wide');
     });
 
     combineLatest([this.offlineService.getExpenseFieldsMap(), this.etxn$])

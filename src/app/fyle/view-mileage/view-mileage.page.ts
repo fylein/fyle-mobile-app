@@ -68,7 +68,7 @@ export class ViewMileagePage implements OnInit {
 
   paymentModeIcon: string;
 
-  homeCurrencySymbol: string;
+  etxnCurrencySymbol: string;
 
   vehicleType: string;
 
@@ -236,13 +236,13 @@ export class ViewMileagePage implements OnInit {
       shareReplay(1)
     );
 
-    this.extendedMileage$.subscribe((res) => {
-      this.reportId = res.tx_report_id;
+    this.extendedMileage$.subscribe((extendedMileage) => {
+      this.reportId = extendedMileage.tx_report_id;
 
-      if (res.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (extendedMileage.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (res.tx_skip_reimbursement) {
+      } else if (extendedMileage.tx_skip_reimbursement) {
         this.paymentMode = 'Paid by Company';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else {
@@ -250,11 +250,16 @@ export class ViewMileagePage implements OnInit {
         this.paymentModeIcon = 'fy-reimbursable';
       }
 
-      if (res.tx_mileage_vehicle_type.indexOf('four') > -1 || res.tx_mileage_vehicle_type.indexOf('car') > -1) {
+      if (
+        extendedMileage.tx_mileage_vehicle_type.indexOf('four') > -1 ||
+        extendedMileage.tx_mileage_vehicle_type.indexOf('car') > -1
+      ) {
         this.vehicleType = 'car';
       } else {
         this.vehicleType = 'bike';
       }
+
+      this.etxnCurrencySymbol = getCurrencySymbol(extendedMileage.tx_currency, 'wide');
     });
 
     combineLatest([this.offlineService.getExpenseFieldsMap(), this.extendedMileage$])
@@ -330,15 +335,6 @@ export class ViewMileagePage implements OnInit {
     this.extendedMileage$.subscribe((etxn) => {
       this.isExpenseFlagged = etxn.tx_manual_flag;
     });
-
-    this.offlineService
-      .getHomeCurrency()
-      .pipe(
-        map((homeCurrency) => {
-          this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
-        })
-      )
-      .subscribe(noop);
 
     this.updateFlag$.next();
 

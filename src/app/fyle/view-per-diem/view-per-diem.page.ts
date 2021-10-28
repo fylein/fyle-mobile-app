@@ -66,7 +66,7 @@ export class ViewPerDiemPage implements OnInit {
 
   paymentModeIcon: string;
 
-  homeCurrencySymbol: string;
+  etxnCurrencySymbol: string;
 
   view: 'Team' | 'Individual';
 
@@ -144,19 +144,21 @@ export class ViewPerDiemPage implements OnInit {
       shareReplay(1)
     );
 
-    this.extendedPerDiem$.subscribe((res) => {
-      this.reportId = res.tx_report_id;
+    this.extendedPerDiem$.subscribe((extendedPerDiem) => {
+      this.reportId = extendedPerDiem.tx_report_id;
 
-      if (res.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (extendedPerDiem.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (res.tx_skip_reimbursement) {
+      } else if (extendedPerDiem.tx_skip_reimbursement) {
         this.paymentMode = 'Paid by Company';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else {
         this.paymentMode = 'Paid by Employee';
         this.paymentModeIcon = 'fy-reimbursable';
       }
+
+      this.etxnCurrencySymbol = getCurrencySymbol(extendedPerDiem.tx_currency, 'wide');
     });
 
     combineLatest([this.offlineService.getExpenseFieldsMap(), this.extendedPerDiem$])
@@ -240,15 +242,6 @@ export class ViewPerDiemPage implements OnInit {
     this.extendedPerDiem$.subscribe((etxn) => {
       this.isExpenseFlagged = etxn.tx_manual_flag;
     });
-
-    this.offlineService
-      .getHomeCurrency()
-      .pipe(
-        map((homeCurrency) => {
-          this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
-        })
-      )
-      .subscribe(noop);
 
     this.updateFlag$.next();
 
