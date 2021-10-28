@@ -11,6 +11,7 @@ import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { filter, map, switchMap, take } from 'rxjs/operators';
 import { OrgUserService } from './org-user.service';
+import { RefinerProperties } from '../models/refiner_properties.model';
 
 const { Device } = Plugins;
 
@@ -27,7 +28,9 @@ export class RefinerService {
     private orgUserSettingsService: OrgUserSettingsService,
     private networkService: NetworkService,
     private orgUserService: OrgUserService
-  ) {}
+  ) {
+    this.setupNetworkWatcher();
+  }
 
   setupNetworkWatcher() {
     const that = this;
@@ -49,8 +52,7 @@ export class RefinerService {
     return true;
   };
 
-  startSurvey(properties: any, options: any) {
-    this.setupNetworkWatcher();
+  startSurvey(properties: RefinerProperties) {
     return forkJoin({
       isConnected: this.isConnected$.pipe(take(1)),
       eou: this.authService.getEou(),
@@ -76,7 +78,7 @@ export class RefinerService {
           source: 'Mobile' + ' - ' + device,
           is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
           is_lite_user: 'F',
-          action_name: properties['Action Name']
+          action_name: properties['actionName']
 
         });
         (window as any)._refiner('showForm', environment.REFINER_NPS_FORM_ID);
