@@ -81,4 +81,10 @@
   &--check {
     @extend %fy-select-check;
   }
+
+  &--clear {
+    background-color: $pure-white;
+    color: $black-light;
+    padding: 8px 5px;
+  }
 }
