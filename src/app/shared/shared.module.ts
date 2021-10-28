@@ -71,6 +71,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/fy-alert-info.component';
 import { MatRippleModule } from '@angular/material/core';
 import { ReviewFooterComponent } from './components/review-footer/review-footer.component';
+import { NavigationFooterComponent } from './components/navigation-footer/navigation-footer.component';
 import { FyConnectionComponent } from './components/fy-connection/fy-connection.component';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
@@ -150,6 +151,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
     ReviewFooterComponent,
+    NavigationFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponentComponent,
@@ -239,6 +241,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
     ReviewFooterComponent,
+    NavigationFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponentComponent,

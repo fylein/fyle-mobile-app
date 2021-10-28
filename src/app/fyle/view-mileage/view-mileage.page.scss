@@ -215,21 +215,4 @@
     margin-top: 16px;
     border-bottom: 1px solid $grey;
   }
-
-  &--footer-container {
-    padding-top: 8px;
-
-    &__footer {
-      height: 60px;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-
-      &__btn {
-        border-right: 1px solid $grey;
-      }
-
-      &__icon {
-        padding: 8px;
-      }
-    }
-  }
 }

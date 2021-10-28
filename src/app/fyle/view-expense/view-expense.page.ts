@@ -19,7 +19,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { ViewExpensesService } from 'src/app/core/services/view-expenses.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { getCurrencySymbol } from '@angular/common';
 
@@ -111,8 +110,7 @@ export class ViewExpensePage implements OnInit {
     private policyService: PolicyService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private viewExpensesService: ViewExpensesService
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
 
   ionViewWillLeave() {
@@ -282,7 +280,7 @@ export class ViewExpensePage implements OnInit {
     );
 
     this.comments$ = this.statusService.find('transactions', txId);
-    this.view = this.viewExpensesService.view;
+    this.view = this.activatedRoute.snapshot.params.view;
 
     if (this.view === 'Team') {
       this.canFlagOrUnflag$ = this.etxnWithoutCustomProperties$.pipe(
@@ -342,8 +340,10 @@ export class ViewExpensePage implements OnInit {
     this.updateFlag$.next();
     this.attachments$.subscribe(noop);
 
-    this.activeEtxnIndex = this.viewExpensesService.activeEtxnIndex;
-    this.numEtxnsInReport = this.viewExpensesService.getNumEtxns();
+    const etxnIds =
+      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+    this.numEtxnsInReport = etxnIds.length;
+    this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
   }
 
   getReceiptExtension(name: string) {
@@ -464,13 +464,5 @@ export class ViewExpensePage implements OnInit {
 
         await attachmentsModal.present();
       });
-  }
-
-  goToPrev() {
-    this.viewExpensesService.gotoPrev();
-  }
-
-  goToNext() {
-    this.viewExpensesService.goToNext();
   }
 }

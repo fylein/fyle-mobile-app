@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, from, noop, concat, Subject } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -19,7 +19,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
-import { ViewExpensesService } from 'src/app/core/services/view-expenses.service';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-my-view-report',
@@ -29,7 +29,7 @@ import { ViewExpensesService } from 'src/app/core/services/view-expenses.service
 export class MyViewReportPage implements OnInit {
   erpt$: Observable<ExtendedReport>;
 
-  etxns$: Observable<any[]>;
+  etxns$: Observable<Expense[]>;
 
   sharedWith$: Observable<any[]>;
 
@@ -55,6 +55,8 @@ export class MyViewReportPage implements OnInit {
 
   reportName: string;
 
+  reportEtxnIds: string[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -66,7 +68,6 @@ export class MyViewReportPage implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private trackingService: TrackingService,
-    private viewExpensesService: ViewExpensesService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService
   ) {}
@@ -171,8 +172,7 @@ export class MyViewReportPage implements OnInit {
     this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
 
-    this.etxns$.subscribe(noop);
-    this.viewExpensesService.etxns$ = this.etxns$;
+    this.etxns$.subscribe((etxns) => (this.reportEtxnIds = etxns.map((etxn) => etxn.tx_id)));
   }
 
   goToEditReport() {
@@ -298,8 +298,6 @@ export class MyViewReportPage implements OnInit {
     }
 
     let route: string;
-    this.viewExpensesService.setActiveIdx(etxnIdx);
-    this.viewExpensesService.view = 'Individual';
 
     if (category === 'mileage') {
       route = '/enterprise/view_mileage';
@@ -328,7 +326,10 @@ export class MyViewReportPage implements OnInit {
       ]);
     } else {
       this.trackingService.viewExpenseClicked({ view: 'Individual', category });
-      this.router.navigate([route, { id: etxn.tx_id }]);
+      this.router.navigate([
+        route,
+        { id: etxn.tx_id, txnIds: JSON.stringify(this.reportEtxnIds), activeIndex: etxnIdx, view: 'Individual' },
+      ]);
     }
   }
 

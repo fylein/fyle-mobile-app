@@ -319,27 +319,9 @@
   </div>
 </ion-content>
 
-<ion-footer class="view-per-diem--footer-container" *ngIf="numEtxnsInReport > 1">
-  <ion-toolbar mode="md" class="view-per-diem--footer-container__footer">
-    <ion-buttons>
-      <ion-button
-        class="btn-secondary view-per-diem--footer-container__footer__btn"
-        (click)="goToPrev()"
-        [disabled]="activeEtxnIndex === 0"
-      >
-        <ion-icon
-          class="icon--navigate view-per-diem--footer-container__footer__icon"
-          src="../../../assets/svg/navigate-left.svg"
-        ></ion-icon>
-        Previous
-      </ion-button>
-      <ion-button class="btn-secondary" (click)="goToNext()" [disabled]="activeEtxnIndex === numEtxnsInReport - 1">
-        Next
-        <ion-icon
-          class="icon--navigate view-per-diem--footer-container__footer__icon"
-          src="../../../assets/svg/navigate-right.svg"
-        ></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-footer>
+<app-navigation-footer
+  *ngIf="numEtxnsInReport > 1"
+  [activeEtxnIndex]="activeEtxnIndex"
+  [numEtxnsInReport]="numEtxnsInReport"
+  [view]="view"
+></app-navigation-footer>

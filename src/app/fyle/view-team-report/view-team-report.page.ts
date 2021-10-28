@@ -18,8 +18,8 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { ViewExpensesService } from 'src/app/core/services/view-expenses.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-view-team-report',
@@ -29,7 +29,7 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 export class ViewTeamReportPage implements OnInit {
   erpt$: Observable<ExtendedReport>;
 
-  etxns$: Observable<any[]>;
+  etxns$: Observable<Expense[]>;
 
   sharedWith$: Observable<any[]>;
 
@@ -61,6 +61,8 @@ export class ViewTeamReportPage implements OnInit {
 
   etxnAmountSum$: Observable<any>;
 
+  reportEtxnIds: string[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -74,8 +76,7 @@ export class ViewTeamReportPage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private viewExpensesService: ViewExpensesService
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {}
@@ -198,9 +199,8 @@ export class ViewTeamReportPage implements OnInit {
     this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
-    this.etxns$.subscribe(noop);
+    this.etxns$.subscribe((etxns) => (this.reportEtxnIds = etxns.map((etxn) => etxn.tx_id)));
     this.refreshApprovals$.next();
-    this.viewExpensesService.etxns$ = this.etxns$;
   }
 
   async deleteReport() {
@@ -260,12 +260,7 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   goToTransaction({ etxn, etxnIdx }) {
-    let category;
-
-    if (etxn.tx_org_category) {
-      category = etxn.tx_org_category.toLowerCase();
-    }
-
+    const category = etxn && etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
     if (category === 'activity') {
       return this.popupService.showPopup({
         header: 'Cannot View Activity',
@@ -277,9 +272,6 @@ export class ViewTeamReportPage implements OnInit {
     }
 
     let route: string;
-    this.viewExpensesService.setActiveIdx(etxnIdx);
-    this.viewExpensesService.view = 'Team';
-
     if (category === 'mileage') {
       route = '/enterprise/view_mileage';
     } else if (category === 'per diem') {
@@ -288,7 +280,10 @@ export class ViewTeamReportPage implements OnInit {
       route = '/enterprise/view_expense';
     }
     this.trackingService.viewExpenseClicked({ view: 'Team', category });
-    this.router.navigate([route, { id: etxn.tx_id }]);
+    this.router.navigate([
+      route,
+      { id: etxn.tx_id, txnIds: JSON.stringify(this.reportEtxnIds), activeIndex: etxnIdx, view: 'Team' },
+    ]);
   }
 
   async shareReport(event) {

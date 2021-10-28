@@ -18,7 +18,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { ViewExpensesService } from 'src/app/core/services/view-expenses.service';
 import { getCurrencySymbol } from '@angular/common';
 
 @Component({
@@ -87,8 +86,7 @@ export class ViewPerDiemPage implements OnInit {
     private statusService: StatusService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService,
-    private viewExpensesService: ViewExpensesService
+    private trackingService: TrackingService
   ) {}
 
   isNumber(val) {
@@ -197,7 +195,7 @@ export class ViewPerDiemPage implements OnInit {
       })
     );
 
-    this.view = this.viewExpensesService.view;
+    this.view = this.activatedRoute.snapshot.params.view;
 
     if (this.view === 'Team') {
       this.canFlagOrUnflag$ = this.extendedPerDiem$.pipe(
@@ -253,8 +251,11 @@ export class ViewPerDiemPage implements OnInit {
       .subscribe(noop);
 
     this.updateFlag$.next();
-    this.activeEtxnIndex = this.viewExpensesService.activeEtxnIndex;
-    this.numEtxnsInReport = this.viewExpensesService.getNumEtxns();
+
+    const etxnIds =
+      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+    this.numEtxnsInReport = etxnIds.length;
+    this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
   }
 
   async removeExpenseFromReport() {
@@ -328,14 +329,6 @@ export class ViewPerDiemPage implements OnInit {
   getDisplayValue(customProperties) {
     const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
     return displayValue === '-' ? 'Not Added' : displayValue;
-  }
-
-  goToPrev() {
-    this.viewExpensesService.gotoPrev();
-  }
-
-  goToNext() {
-    this.viewExpensesService.goToNext();
   }
 
   ngOnInit() {}
