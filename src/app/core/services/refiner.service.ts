@@ -47,10 +47,7 @@ export class RefinerService {
     const usdOrg = homeCurrency && homeCurrency === 'USD' && eou && eou.ou && eou.ou.org_name && this.isNonDemoOrg(eou.ou.org_name);
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
     return isSwitchedToDelegator$.pipe(
-      map((isSwitchedToDelegator) => {
-        return usdOrg && !isSwitchedToDelegator;
-      })
-    );
+      map((isSwitchedToDelegator) => usdOrg && !isSwitchedToDelegator));
   };
 
   startSurvey(properties: RefinerProperties) {
