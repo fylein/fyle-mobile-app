@@ -78,15 +78,15 @@ export class PersonalCardsService {
   }
 
   getBankTransactionsCount(queryParams) {
-    const parms = {
+    const params = {
       limit: 10,
       offset: 0,
       queryParams,
     };
-    return this.getBankTransactions(parms).pipe(map((res) => res.count));
+    return this.getBankTransactions(params).pipe(map((res) => res.count));
   }
 
-  fetchTransactions(accountId): Observable<string[]> {
+  fetchTransactions(accountId: string): Observable<string[]> {
     return this.expenseAggregationService.post(`/bank_accounts/${accountId}/sync`, {
       owner_type: 'org_user',
     });
