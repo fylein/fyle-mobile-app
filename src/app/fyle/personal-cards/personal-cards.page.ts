@@ -532,29 +532,18 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
-      // this.trackingService.myExpensesFilterApplied({
-      //   ...this.filters,
-      // });
     }
   }
 
-  // clearFilters() {
-  //   this.filters = {};
-  //   this.currentPageNumber = 1;
-  //   const params = this.addNewFiltersToParams();
-  //   this.loadData$.next(params);
-  //   this.filterPills = this.generateFilterPills(this.filters);
-  // }
-
-  // async setState(state: string) {
-  //   this.isLoading = true;
-  //   this.currentPageNumber = 1;
-  //   const params = this.addNewFiltersToParams();
-  //   this.loadData$.next(params);
-  //   setTimeout(() => {
-  //     this.isLoading = false;
-  //   }, 500);
-  // }
+  async setState(state: string) {
+    this.isLoading = true;
+    this.currentPageNumber = 1;
+    const params = this.addNewFiltersToParams();
+    this.loadData$.next(params);
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 500);
+  }
 
   convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
     const generatedFilters: Filters = {};
@@ -642,12 +631,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
     const generatedFilters: SelectedFilters<any>[] = [];
 
-    // if (filter.state) {
-    //   generatedFilters.push({
-    //     name: 'Type',
-    //     value: filter.state,
-    //   });
-    // }
+    if (filter?.updatedOn) {
+      generatedFilters.push({
+        name: 'Credit Transactions',
+        value: filter.updatedOn,
+      });
+    }
 
     // if (filter.receiptsAttached) {
     //   generatedFilters.push({
@@ -681,16 +670,24 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     const filterPills: FilterPill[] = [];
 
     if (filter?.createdOn) {
-      this.generateDateFilterPills(filter, filterPills);
+      this.generateCreatedOnDateFilterPills(filter, filterPills);
+    }
+
+    if (filter?.updatedOn) {
+      this.generateUpdatedOnDateFilterPills(filter, filterPills);
+    }
+
+    if (filter?.showCredited) {
+      this.generateCreditTrasactionsFilterPills(filter, filterPills);
     }
 
     return filterPills;
   }
 
-  generateDateFilterPills(filter, filterPills: FilterPill[]) {
+  generateCreatedOnDateFilterPills(filter, filterPills: FilterPill[]) {
     if (filter.createdOn?.name === DateFilters.thisWeek) {
       filterPills.push({
-        label: 'Date',
+        label: 'Created On',
         type: 'date',
         value: 'this Week',
       });
@@ -698,7 +695,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     if (filter.createdOn?.name === DateFilters.thisMonth) {
       filterPills.push({
-        label: 'Date',
+        label: 'Created On',
         type: 'date',
         value: 'this Month',
       });
@@ -706,7 +703,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     if (filter.createdOn?.name === DateFilters.all) {
       filterPills.push({
-        label: 'Date',
+        label: 'Created On',
         type: 'date',
         value: 'All',
       });
@@ -714,38 +711,119 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     if (filter.createdOn?.name === DateFilters.lastMonth) {
       filterPills.push({
-        label: 'Date',
+        label: 'Created On',
         type: 'date',
         value: 'Last Month',
       });
     }
 
     if (filter.createdOn?.name === DateFilters.custom) {
-      this.generateCustomDatePill(filter, filterPills);
+      this.generateCreatedOnCustomDatePill(filter, filterPills);
     }
   }
 
-  generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
+  generateCreatedOnCustomDatePill(filter: any, filterPills: FilterPill[]) {
     const startDate = filter.createdOn.customDateStart && moment(filter.createdOn.customDateStart).format('y-MM-D');
     const endDate = filter.createdOn.customDateEnd && moment(filter.createdOn.customDateEnd).format('y-MM-D');
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Date',
+        label: 'Created On',
         type: 'date',
         value: `${startDate} to ${endDate}`,
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Date',
+        label: 'Created On',
         type: 'date',
         value: `>= ${startDate}`,
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Date',
+        label: 'Created On',
         type: 'date',
         value: `<= ${endDate}`,
+      });
+    }
+  }
+
+  generateUpdatedOnDateFilterPills(filter, filterPills: FilterPill[]) {
+    if (filter.updatedOn?.name === DateFilters.thisWeek) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: 'this Week',
+      });
+    }
+
+    if (filter.updatedOn?.name === DateFilters.thisMonth) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: 'this Month',
+      });
+    }
+
+    if (filter.updatedOn?.name === DateFilters.all) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: 'All',
+      });
+    }
+
+    if (filter.updatedOn?.name === DateFilters.lastMonth) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: 'Last Month',
+      });
+    }
+
+    if (filter.updatedOn?.name === DateFilters.custom) {
+      this.generateUpdatedOnCustomDatePill(filter, filterPills);
+    }
+  }
+
+  generateUpdatedOnCustomDatePill(filter: any, filterPills: FilterPill[]) {
+    const startDate = filter.updatedOn.customDateStart && moment(filter.updatedOn.customDateStart).format('y-MM-D');
+    const endDate = filter.updatedOn.customDateEnd && moment(filter.updatedOn.customDateEnd).format('y-MM-D');
+
+    if (startDate && endDate) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: `${startDate} to ${endDate}`,
+      });
+    } else if (startDate) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: `>= ${startDate}`,
+      });
+    } else if (endDate) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: `<= ${endDate}`,
+      });
+    }
+  }
+
+  generateCreditTrasactionsFilterPills(filter, filterPills: FilterPill[]) {
+    if (filter.showCredited === 'YES') {
+      filterPills.push({
+        label: 'Credit Trasactions',
+        type: 'string',
+        value: 'YES',
+      });
+    }
+
+    if (filter.showCredited === 'NO') {
+      filterPills.push({
+        label: 'Credit Trasactions',
+        type: 'string',
+        value: 'NO',
       });
     }
   }
@@ -777,8 +855,18 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  onFilterClose(filterType: string) {
-    delete this.filters[filterType];
+  onFilterClose(filterLabel: string) {
+    if (filterLabel === 'Created On') {
+      delete this.filters.createdOn;
+    }
+
+    if (filterLabel === 'Updated On') {
+      delete this.filters.updatedOn;
+    }
+
+    if (filterLabel === 'Credit Trasactions') {
+      delete this.filters.showCredited;
+    }
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
