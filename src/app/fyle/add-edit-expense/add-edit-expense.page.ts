@@ -4006,21 +4006,112 @@ export class AddEditExpensePage implements OnInit {
   }
 
   saveAndMatchWithPersonalCardTxn() {
-    const personalCardTxn =
-      this.activatedRoute.snapshot.params.personalCardTxn &&
-      JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn);
-    const externalExpenseId = personalCardTxn.btxn_id;
     const customFields$ = this.getCustomFields();
-    const addExpenseAttachments = of(
-      this.newExpenseDataUrls.map((fileObj) => {
-        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
-        return fileObj;
-      })
-    );
     return this.generateEtxnFromFg(this.etxn$, customFields$, true)
       .pipe(
         switchMap((etxn) =>
-          this.transactionService.upsert(etxn.tx).pipe(
+          this.isConnected$.pipe(
+            take(1),
+            switchMap((isConnected) => {
+              if (isConnected) {
+                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
+                return policyViolations$.pipe(
+                  map(this.policyService.getCriticalPolicyRules),
+                  switchMap((criticalPolicyViolations) => {
+                    if (criticalPolicyViolations.length > 0) {
+                      return throwError({
+                        type: 'criticalPolicyViolations',
+                        policyViolations: criticalPolicyViolations,
+                        etxn,
+                      });
+                    } else {
+                      return policyViolations$;
+                    }
+                  }),
+                  map((policyViolations: any) => [
+                    this.policyService.getPolicyRules(policyViolations),
+                    policyViolations &&
+                      policyViolations.transaction_desired_state &&
+                      policyViolations.transaction_desired_state.action_description,
+                  ]),
+                  switchMap(([policyViolations, policyActionDescription]) => {
+                    if (policyViolations.length > 0) {
+                      return throwError({
+                        type: 'policyViolations',
+                        policyViolations,
+                        policyActionDescription,
+                        etxn,
+                      });
+                    } else {
+                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+                      );
+                    }
+                  })
+                );
+              } else {
+                return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                  map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+                );
+              }
+            })
+          )
+        ),
+        catchError((err) => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+          }
+
+          if (err.type === 'criticalPolicyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() =>
+                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+                      )
+                    )
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else if (err.type === 'policyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() =>
+                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+                      )
+                    )
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else {
+            return throwError(err);
+          }
+        }),
+        switchMap(({ etxn }: any) => {
+          const personalCardTxn =
+            this.activatedRoute.snapshot.params.personalCardTxn &&
+            JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn);
+          const externalExpenseId = personalCardTxn.btxn_id;
+          const addExpenseAttachments = of(
+            this.newExpenseDataUrls.map((fileObj) => {
+              fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
+              return fileObj;
+            })
+          );
+          return this.transactionService.upsert(etxn.tx).pipe(
             switchMap((txn) =>
               this.personalCardsService.matchExpense(txn.split_group_id, externalExpenseId).pipe(
                 switchMap(() =>
@@ -4044,8 +4135,8 @@ export class AddEditExpensePage implements OnInit {
             finalize(() => {
               this.saveExpenseLoader = false;
             })
-          )
-        )
+          );
+        })
       )
       .subscribe(() => {
         this.matSnackBar.openFromComponent(ToastMessageComponent, {

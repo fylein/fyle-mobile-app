@@ -24,7 +24,33 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
     private router: Router,
     private modalController: ModalController
   ) {
-    this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails;
+    // const txnDetailsJson = this.router.getCurrentNavigation().extras.state.txnDetails;
+
+    const txnDetailsJson = `{
+        "_search_document": "'100':1 '1299':4 'autozone':3,5 'debit':7 'inc':6 'usd':2",
+        "ba_account_number": "xxxx2345",
+        "ba_bank_name": "DagBank",
+        "ba_id": "baccgPWBTbacCg",
+        "ba_mask": "2345",
+        "ba_nickname": "Robin",
+        "btxn_amount": 100,
+        "btxn_created_at": "2021-09-27T23:15:34.42564",
+        "btxn_currency": "USD",
+        "btxn_description": "AUTOZONE 1299",
+        "btxn_external_id": "29826524",
+        "btxn_id": "btxn4DDXrNsq9s",
+        "btxn_orig_amount": null,
+        "btxn_orig_currency": null,
+        "btxn_status": "INITIALIZED",
+        "btxn_transaction_dt": "2021-09-20T10:00:00",
+        "btxn_transaction_type": "debit",
+        "btxn_updated_at": "2021-09-27T23:15:36.425642",
+        "btxn_vendor": "AutoZone, Inc.",
+        "tx_matched_at": null,
+        "tx_split_group_id": null,
+        "txn_details": null
+      }`;
+    this.txnDetails = JSON.parse(txnDetailsJson);
   }
 
   ngOnInit() {}
