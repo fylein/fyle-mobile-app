@@ -26,6 +26,9 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import * as moment from 'moment';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { AddExpensesToReportComponent } from '../my-edit-report/add-expenses-to-report/add-expenses-to-report.component';
+import { Expense } from 'src/app/core/models/expense.model';
+import { cloneDeep, isEqual } from 'lodash';
 
 @Component({
   selector: 'app-my-view-report',
@@ -92,6 +95,22 @@ export class MyViewReportPage implements OnInit {
   objectId = this.activatedRoute.snapshot.params.id;
 
   isCommentAdded: boolean;
+
+  unReportedEtxns: Expense[];
+
+  addedExpensesIdList = [];
+
+  deleteExpensesIdList = [];
+
+  selectedElements: Expense[];
+
+  selectionMode = false;
+
+  isReportEdited: any;
+  selectedTotalAmount: any;
+  selectedTotalTxns: any;
+
+  selectAll = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -164,6 +183,7 @@ export class MyViewReportPage implements OnInit {
           : this.objectType.substring(0, this.objectType.length - 1);
 
       this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
+      console.log('check estatus-->', this.systemEstatuses);
 
       this.userComments = estatuses.filter((status) => status.us_full_name);
 
@@ -214,6 +234,7 @@ export class MyViewReportPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+    this.selectionMode = false;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.erpt$.subscribe((erpt) => {
@@ -262,6 +283,31 @@ export class MyViewReportPage implements OnInit {
     this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
 
     this.etxns$.subscribe(noop);
+
+    const queryParams = {
+      tx_report_id: 'is.null',
+      tx_state: 'in.(COMPLETE)',
+      order: 'tx_txn_dt.desc',
+      or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
+    };
+
+    this.transactionService
+      .getAllExpenses({ queryParams })
+      .pipe(
+        map((etxns) => cloneDeep(etxns)),
+        map((etxns: Expense[]) => {
+          etxns.forEach((etxn, i) => {
+            etxn.vendorDetails = this.getVendorName(etxn);
+            etxn.showDt = true;
+            etxn.isSelected = false;
+            if (i > 0 && etxn.tx_txn_dt === etxns[i - 1].tx_txn_dt) {
+              etxn.showDt = false;
+            }
+          });
+          this.unReportedEtxns = etxns;
+        })
+      )
+      .subscribe(noop);
   }
 
   goToEditReport() {
@@ -505,5 +551,91 @@ export class MyViewReportPage implements OnInit {
           this.refreshEstatuses$.next();
         });
     }
+  }
+
+  addExpense() {
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
+  }
+
+  checkReportEdited() {
+    this.isReportEdited = this.deleteExpensesIdList.length > 0 || this.addedExpensesIdList.length > 0;
+  }
+
+  async showAddExpensesToReportModal() {
+    const AddExpensesToReportModal = await this.modalController.create({
+      component: AddExpensesToReportComponent,
+      componentProps: {
+        unReportedEtxns: this.unReportedEtxns,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await AddExpensesToReportModal.present();
+
+    const { data } = await AddExpensesToReportModal.onWillDismiss();
+    if (data && data.selectedTxnIds) {
+      this.addedExpensesIdList = data.selectedTxnIds;
+      this.selectedTotalAmount = data.selectedTotalAmount;
+      this.selectedTotalTxns = data.selectedTotalTxns;
+      this.checkReportEdited();
+    }
+  }
+
+  selectExpense(expense: Expense) {
+    let isSelectedElementsIncludesExpense = false;
+    if (expense.tx_id) {
+      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
+    } else {
+      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => isEqual(txn, expense));
+    }
+
+    if (isSelectedElementsIncludesExpense) {
+      if (expense.tx_id) {
+        this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== expense.tx_id);
+      } else {
+        this.selectedElements = this.selectedElements.filter((txn) => !isEqual(txn, expense));
+      }
+    } else {
+      this.selectedElements.push(expense);
+    }
+
+    let count;
+    const expensescount = this.etxns$.subscribe((res) => {
+      count = res;
+    });
+
+    // setting Expenses count and amount stats on select
+    if (count === this.selectedElements.length) {
+      this.selectAll = true;
+    } else {
+      this.selectAll = false;
+    }
+  }
+
+  switchSelectionMode(expense?) {
+    this.selectionMode = !this.selectionMode;
+    // if (!this.selectionMode) {
+    //   if (this.loadData$.getValue().searchString) {
+    //     this.headerState = HeaderState.simpleSearch;
+    //   } else {
+    //     this.headerState = HeaderState.base;
+    //   }
+
+    //   this.selectedElements = [];
+    //   this.setAllExpensesCountAndAmount();
+    // } else {
+    //   this.headerState = HeaderState.multiselect;
+    //   // setting Expense amount & count stats to zero on select init
+    //   this.allExpensesStats$ = of({
+    //     count: 0,
+    //     amount: 0,
+    //   });
+    // }
+
+    // if (expense) {
+    //   this.selectExpense(expense);
+    // }
   }
 }
