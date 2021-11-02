@@ -44,12 +44,10 @@ export class RefinerService {
   };
 
   canStartSurvey(homeCurrency: string, eou: ExtendedOrgUser) {
-    // const usdOrg = homeCurrency && homeCurrency === 'USD' && eou && eou.ou && eou.ou.org_name && this.isNonDemoOrg(eou.ou.org_name);
-    // const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
-    // return isSwitchedToDelegator$.subscribe((isSwitchedToDelegator) => {
-    //   return usdOrg && !isSwitchedToDelegator;
-    // });
-    return true;
+    const usdOrg = homeCurrency && homeCurrency === 'USD' && eou && eou.ou && eou.ou.org_name && this.isNonDemoOrg(eou.ou.org_name);
+    const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
+    return isSwitchedToDelegator$.pipe(
+      map((isSwitchedToDelegator) => usdOrg && !isSwitchedToDelegator));
   };
 
   startSurvey(properties: RefinerProperties) {
