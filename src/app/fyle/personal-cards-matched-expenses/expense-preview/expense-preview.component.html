@@ -114,24 +114,22 @@
     <app-expense-preview-shimmer> </app-expense-preview-shimmer>
   </ng-template>
 </ion-content>
-<ng-container *ngIf="1">
-  <ion-footer class="expense-preview--footer-container">
-    <ion-toolbar mode="md">
-      <div class="expense-preview--footer-toolbar">
-        <ion-buttons>
-          <ion-button (click)="closeModal()" [disabled]="saveExpenseLoader" class="btn-secondary"> Cancel </ion-button>
-          <ion-button
-            (click)="matchExpense()"
-            [disabled]="loading"
-            [loadingText]="'matching'"
-            [loading]="loading"
-            appFormButtonValidation
-            class="btn-primary"
-          >
-            Confirm Match
-          </ion-button>
-        </ion-buttons>
-      </div>
-    </ion-toolbar>
-  </ion-footer>
-</ng-container>
+<ion-footer class="expense-preview--footer-container">
+  <ion-toolbar mode="md">
+    <div class="expense-preview--footer-toolbar">
+      <ion-buttons>
+        <ion-button (click)="closeModal()" [disabled]="saveExpenseLoader" class="btn-secondary"> Cancel </ion-button>
+        <ion-button
+          (click)="matchExpense()"
+          [disabled]="loading"
+          [loadingText]="'matching'"
+          [loading]="loading"
+          appFormButtonValidation
+          class="btn-primary"
+        >
+          Confirm Match
+        </ion-button>
+      </ion-buttons>
+    </div>
+  </ion-toolbar>
+</ion-footer>

@@ -70,11 +70,13 @@ export class PersonalCardsService {
   }
 
   getExpenseDetails(transactionSplitGroupId: string): Observable<Expense> {
-    return this.apiv2Service.get('/expenses', {
-      params: {
-        tx_split_group_id: `eq.${transactionSplitGroupId}`,
-      },
-    });
+    return this.apiv2Service
+      .get('/expenses', {
+        params: {
+          tx_split_group_id: `eq.${transactionSplitGroupId}`,
+        },
+      })
+      .pipe(map((res) => res.data[0]));
   }
 
   matchExpense(transactionSplitGroupId: string, externalExpenseId: string): Observable<matchExpenseResponse> {

@@ -96,6 +96,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -4105,32 +4106,11 @@ export class AddEditExpensePage implements OnInit {
             this.activatedRoute.snapshot.params.personalCardTxn &&
             JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn);
           const externalExpenseId = personalCardTxn.btxn_id;
-          const addExpenseAttachments = of(
-            this.newExpenseDataUrls.map((fileObj) => {
-              fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
-              return fileObj;
-            })
-          );
           return this.transactionService.upsert(etxn.tx).pipe(
             switchMap((txn) =>
-              this.personalCardsService.matchExpense(txn.split_group_id, externalExpenseId).pipe(
-                switchMap(() =>
-                  from(addExpenseAttachments).pipe(
-                    map((fileObj: any) =>
-                      fileObj.map((file) =>
-                        from(this.transactionOutboxService.fileUpload(file.url, file.type))
-                          .pipe(
-                            switchMap((fileObj: any) => {
-                              fileObj.transaction_id = txn.split_group_id;
-                              return this.fileService.post(fileObj);
-                            })
-                          )
-                          .subscribe(noop)
-                      )
-                    )
-                  )
-                )
-              )
+              this.personalCardsService
+                .matchExpense(txn.split_group_id, externalExpenseId)
+                .pipe(switchMap(() => this.uploadAttachments(txn)))
             ),
             finalize(() => {
               this.saveExpenseLoader = false;
@@ -4145,5 +4125,28 @@ export class AddEditExpensePage implements OnInit {
         });
         this.router.navigate(['/', 'enterprise', 'personal_cards']);
       });
+  }
+
+  uploadAttachments(txn) {
+    const addExpenseAttachments$ = of(
+      this.newExpenseDataUrls.map((fileObj) => {
+        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
+        return fileObj;
+      })
+    );
+    return addExpenseAttachments$.pipe(
+      switchMap((fileObj: any) =>
+        fileObj.map((file) =>
+          from(this.transactionOutboxService.fileUpload(file.url, file.type))
+            .pipe(
+              switchMap((fileObj: any) => {
+                fileObj.transaction_id = txn.split_group_id;
+                return this.fileService.post(fileObj);
+              })
+            )
+            .subscribe(noop)
+        )
+      )
+    );
   }
 }
