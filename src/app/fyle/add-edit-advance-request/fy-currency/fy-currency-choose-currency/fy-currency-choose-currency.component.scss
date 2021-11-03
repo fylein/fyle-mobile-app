@@ -28,17 +28,8 @@
     }
   }
 
-  &--search-icon {
-    font-size: 14px;
-  }
-
   &--form-field-container {
     text-align: center;
-  }
-
-  &--container {
-    display: flex;
-    flex-direction: column;
   }
 
   &--sub-title {
@@ -47,10 +38,6 @@
     font-weight: 700;
     padding: 5px 14px;
     border-bottom: 1px solid $grey-light;
-  }
-
-  &--check {
-    @extend %fy-select-check;
   }
 
   &--clear {
