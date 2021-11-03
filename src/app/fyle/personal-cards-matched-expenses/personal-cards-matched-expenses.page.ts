@@ -4,7 +4,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
-
+import * as moment from 'moment';
 @Component({
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
@@ -30,7 +30,7 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
   ngOnInit() {}
 
   ionViewWillEnter() {
-    const txnDate = new Date(this.txnDetails.btxn_transaction_dt).toISOString().slice(0, 10);
+    const txnDate = moment(this.txnDetails.btxn_transaction_dt).format('yyyy-MM-DD');
     this.personalCardsService.getMatchedExpensesCount(this.txnDetails.btxn_amount, txnDate).subscribe((count) => {
       if (count === 0) {
         this.router.navigate(
