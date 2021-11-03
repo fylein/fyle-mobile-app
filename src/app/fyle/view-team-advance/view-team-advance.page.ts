@@ -11,7 +11,6 @@ import { from, Subject, forkJoin } from 'rxjs';
 import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith, take, tap } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { PopoverController, ModalController, ActionSheetController } from '@ionic/angular';
-import { AdvanceActionsComponent } from './advance-actions/advance-actions.component';
 import { ApproveAdvanceComponent } from './approve-advance/approve-advance.component';
 import { SendBackAdvanceComponent } from './send-back-advance/send-back-advance.component';
 import { RejectAdvanceComponent } from './reject-advance/reject-advance.component';
@@ -219,7 +218,7 @@ export class ViewTeamAdvancePage implements OnInit {
     const actionSheet = await this.actionSheetController.create({
       header: 'ADD EXPENSE',
       mode: 'md',
-      cssClass: 'fy-action-sheet',
+      cssClass: 'fy-action-sheet advances-action-sheet',
       buttons: that.actionSheetButtons,
     });
     await actionSheet.present();
