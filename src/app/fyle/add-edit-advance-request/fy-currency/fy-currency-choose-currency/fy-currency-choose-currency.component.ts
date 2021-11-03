@@ -19,11 +19,20 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
 
   filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
 
+  value;
+
   constructor(
     private currencyService: CurrencyService,
     private modalController: ModalController,
     private loaderService: LoaderService
   ) {}
+
+  clearValue() {
+    this.value = '';
+    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+  }
 
   ngOnInit() {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
