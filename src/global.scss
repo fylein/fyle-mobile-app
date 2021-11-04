@@ -971,3 +971,13 @@ ion-modal.auto-height {
 .ios .fy-footer--icon-pill {
   margin-left: 7px !important;
 }
+
+ion-toggle {
+  height: 22px;
+  width: 52px;
+  --background: #{$grey-light};
+  --background-checked: #{$primary};
+  --handle-spacing: 4px;
+  --handle-border-radius: 50%;
+  --handle-width: 14px;
+}
