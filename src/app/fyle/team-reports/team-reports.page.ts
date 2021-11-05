@@ -134,6 +134,13 @@ export class TeamReportsPage implements OnInit {
       },
     });
 
+    // Applying default filter for approvers to view approver pending reports by default
+    if (!this.activatedRoute.snapshot.queryParams.filters) {
+      this.activatedRoute.snapshot.queryParams = {
+        filters: JSON.stringify({ state: ['APPROVER_PENDING'] }),
+      };
+    }
+
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     this.simpleSearchInput.nativeElement.value = '';
