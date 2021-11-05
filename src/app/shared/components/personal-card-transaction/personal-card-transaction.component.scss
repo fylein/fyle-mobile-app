@@ -16,10 +16,6 @@
     background-color: $pure-white;
     min-height: 99px;
     padding: 25px 16px;
-
-    &__with-border {
-      padding-top: 0;
-    }
   }
 
   &--deatils-block {
@@ -61,7 +57,7 @@
   }
 
   &--button {
-    color: #8c8fa6;
+    color: $text-button-grey;
     font-size: 14px;
     line-height: 18px;
     margin-top: 6px;
@@ -93,7 +89,7 @@
   }
 
   &--type {
-    color: #a9acbc;
+    color: $grey-light;
     font-size: 12px;
     line-height: 1.3;
     margin-right: 15px;
@@ -115,6 +111,6 @@
   }
 
   &--green {
-    color: green;
+    color: $green;
   }
 }

@@ -57,6 +57,9 @@ import { RouteSelectorComponent } from 'src/app/shared/components/route-selector
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -229,7 +232,9 @@ export class AddEditMileagePage implements OnInit {
     private locationService: LocationService,
     private expenseFieldsService: ExpenseFieldsService,
     private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {
@@ -1624,6 +1629,22 @@ export class AddEditMileagePage implements OnInit {
       });
   }
 
+  showAddToReportSuccessToast(reportId: string) {
+    const toastMessageData = {
+      message: 'Mileage expense added to report successfully',
+      redirectionText: 'View Report',
+    };
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
+    });
+  }
+
   saveExpense() {
     const that = this;
 
@@ -1636,6 +1657,9 @@ export class AddEditMileagePage implements OnInit {
             that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
               if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id) {
                 this.addToNewReport(etxn.tx.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.close();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.close();
               }
@@ -1645,6 +1669,9 @@ export class AddEditMileagePage implements OnInit {
             that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
               if (that.fg.controls.add_to_new_report.value && tx && tx.id) {
                 this.addToNewReport(tx.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.close();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.close();
               }

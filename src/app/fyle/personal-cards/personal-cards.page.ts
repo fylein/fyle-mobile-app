@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, AfterViewInit, NgZone, ElementRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, AfterViewInit, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BehaviorSubject, concat, from, fromEvent, noop, Observable, of, Subject } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -36,6 +36,7 @@ type Filters = Partial<{
   }>;
   showCredited: string;
 }>;
+import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
 @Component({
   selector: 'app-personal-cards',
   templateUrl: './personal-cards.page.html',
@@ -78,7 +79,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isHiding = false;
 
-  isLoadingDataInInfiniteScroll = false;
+  isLoadingDataInfiniteScroll = false;
 
   acc = [];
 
@@ -162,6 +163,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         }
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         // const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+        queryParams = params.queryParams;
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
@@ -174,7 +176,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                 .pipe(
                   finalize(() => {
                     this.isTrasactionsLoading = false;
-                    this.isLoadingDataInInfiniteScroll = false;
+                    this.isLoadingDataInfiniteScroll = false;
                   })
                 );
             } else {
@@ -188,7 +190,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       }),
       map((res) => {
         this.isTrasactionsLoading = false;
-        this.isLoadingDataInInfiniteScroll = false;
+        this.isLoadingDataInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
@@ -302,8 +304,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
-    queryParams.ba_id = 'eq.' + this.selectedAccount;
+    queryParams.status = `in.(${this.selectedTrasactionType})`;
+    queryParams.accountId = this.selectedAccount;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -314,7 +316,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;
-    this.isLoadingDataInInfiniteScroll = true;
+    this.isLoadingDataInfiniteScroll = true;
 
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
@@ -358,7 +360,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
+    queryParams.status = `in.(${this.selectedTrasactionType})`;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { PullBackTripComponent } from './pull-back-trip.component';
+import { PersonalCardsMatchedExpensesPage } from './personal-cards-matched-expenses.page';
 
-describe('PullBackTripComponent', () => {
-  let component: PullBackTripComponent;
-  let fixture: ComponentFixture<PullBackTripComponent>;
+describe('PersonalCardsMatchedExpensesPage', () => {
+  let component: PersonalCardsMatchedExpensesPage;
+  let fixture: ComponentFixture<PersonalCardsMatchedExpensesPage>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [PullBackTripComponent],
+        declarations: [PersonalCardsMatchedExpensesPage],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(PullBackTripComponent);
+      fixture = TestBed.createComponent(PersonalCardsMatchedExpensesPage);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })
