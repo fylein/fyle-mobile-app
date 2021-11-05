@@ -96,6 +96,7 @@ import { DeleteButtonComponent } from './components/bank-account-cards/bank-acco
 import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
 import { FyInputPopoverComponent } from './components/fy-input-popover/fy-input-popover.component';
 import { FyPopoverComponent } from './components/fy-popover/fy-popover.component';
+import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
 
 @NgModule({
   declarations: [
@@ -170,6 +171,10 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     BankAccountCardComponent,
     DeleteButtonComponent,
     AddApproversPopoverComponent,
+    BankAccountCardsComponent,
+    BankAccountCardComponent,
+    DeleteButtonComponent,
+    PersonalCardTransactionComponent,
     FyInputPopoverComponent,
     FyPopoverComponent,
   ],
@@ -255,6 +260,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     MatChipsModule,
     PolicyViolationDetailsComponent,
     BankAccountCardsComponent,
+    PersonalCardTransactionComponent,
     FyPopoverComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],

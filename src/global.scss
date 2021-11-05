@@ -856,7 +856,18 @@ ref - https://stackoverflow.com/a/31162426
   background: $pure-white;
   border: 2px solid $pure-white;
   box-sizing: border-box;
-  box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.5);
+  box-shadow: 0px -2px 40px $transparent-pearl-grey;
+  border-radius: 8px;
+}
+
+.ios .personal-cards-segment-block {
+  height: 40px;
+  padding: 2px !important;
+  margin: 12px auto;
+  background: $pure-white;
+  border: 2px solid $pure-white;
+  box-sizing: border-box;
+  box-shadow: 0px -2px 40px $transparent-pearl-grey;
   border-radius: 8px;
 }
 
@@ -954,8 +965,8 @@ ion-modal.auto-height {
 .fyle.swiper-pagination-bullet {
   width: 6px !important;
   height: 6px !important;
-  background: #fff !important;
-  border: 1px solid #161528 !important;
+  background: $pure-white !important;
+  border: 1px solid $black !important;
   box-sizing: border-box !important;
   opacity: 0.3;
 }
@@ -963,7 +974,7 @@ ion-modal.auto-height {
 .fyle.swiper-pagination-bullet-active {
   width: 16px !important;
   height: 6px !important;
-  background: #161528 !important;
+  background: $black !important;
   border-radius: 4px !important;
   opacity: 0.3;
 }
