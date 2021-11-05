@@ -153,6 +153,11 @@ export class TrackingService {
     this.eventTrack('View Comment', properties);
   }
 
+  //Actions inside comments and history
+  commentsHistoryActions(properties) {
+    this.eventTrack('Comments and History segment Actions', properties);
+  }
+
   // click Add To Report event
   clickAddToReport(properties = {}) {
     this.eventTrack('Click Add To Report', properties);
@@ -846,5 +851,33 @@ export class TrackingService {
   async tasksFilterPillRemoveClicked(properties = {}) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('tasks clicked on remove filter pill', properties);
+  }
+
+  // Add to Report inside expenses
+  openAddToReportModal(properties = {}) {
+    this.eventTrack('Open Add to Report Modal', properties);
+  }
+
+  addToReportFromExpense(properties = {}) {
+    this.eventTrack('Add to Report from expense', properties);
+  }
+
+  openCreateDraftReportPopover(properties = {}) {
+    this.eventTrack('Open Create Draft Report Popover', properties);
+  }
+
+  createDraftReportFromExpense(properties = {}) {
+    this.eventTrack('Create draft report from expense', properties);
+  }
+
+  //Reports
+  //Open view report info modal
+  clickViewReportInfo(properties) {
+    this.eventTrack('Open View Report Info', properties);
+  }
+
+  //Actions inside view report info modal
+  viewReportInfo(properties) {
+    this.eventTrack('View Report Info', properties);
   }
 }
