@@ -94,6 +94,7 @@ import { BankAccountCardsComponent } from './components/bank-account-cards/bank-
 import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
 import { DeleteButtonComponent } from './components/bank-account-cards/bank-account-card/delete-button/delete-button-component';
 import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
+import { ExpenseCardLiteComponent } from './components/expense-card-lite/expense-card-lite.component';
 import { FyInputPopoverComponent } from './components/fy-input-popover/fy-input-popover.component';
 import { FyPopoverComponent } from './components/fy-popover/fy-popover.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
@@ -171,6 +172,7 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     BankAccountCardComponent,
     DeleteButtonComponent,
     AddApproversPopoverComponent,
+    ExpenseCardLiteComponent,
     BankAccountCardsComponent,
     BankAccountCardComponent,
     DeleteButtonComponent,
@@ -259,6 +261,7 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     RouteSelectorComponent,
     MatChipsModule,
     PolicyViolationDetailsComponent,
+    ExpenseCardLiteComponent,
     BankAccountCardsComponent,
     PersonalCardTransactionComponent,
     FyPopoverComponent,

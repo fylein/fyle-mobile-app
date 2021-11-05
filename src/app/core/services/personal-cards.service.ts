@@ -4,13 +4,27 @@ import { map } from 'rxjs/operators';
 import { PersonalCard } from '../models/personal_card.model';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
 import { ApiV2Service } from './api-v2.service';
+import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
+import { ISODateString } from '@capacitor/core';
+import { Expense } from '../models/expense.model';
 
+const tripRequestsCacheBuster$ = new Subject<void>();
+
+type matchExpenseResponse = Partial<{
+  external_expense_id: string;
+  id: string;
+  transaction_split_group_id: string;
+}>;
 @Injectable({
   providedIn: 'root',
 })
 export class PersonalCardsService {
-  constructor(private apiv2Service: ApiV2Service, private expenseAggregationService: ExpenseAggregationService) {}
+  constructor(
+    private apiv2Service: ApiV2Service,
+    private expenseAggregationService: ExpenseAggregationService,
+    private apiService: ApiService
+  ) {}
 
   getLinkedAccounts(): Observable<PersonalCard[]> {
     return this.apiv2Service
@@ -56,6 +70,15 @@ export class PersonalCardsService {
       .pipe(map((res) => res.count));
   }
 
+  getMatchedExpenses(amount: number, txnDate: ISODateString): Observable<Expense[]> {
+    return this.apiService.get('/expense_suggestions/personal_cards', {
+      params: {
+        amount,
+        txn_dt: txnDate,
+      },
+    });
+  }
+
   deleteAccount(accountId: string): Observable<PersonalCard> {
     return this.expenseAggregationService.delete('/bank_accounts/' + accountId);
   }
@@ -74,6 +97,27 @@ export class PersonalCardsService {
         limit: config.limit,
         offset: config.offset,
       },
+    });
+  }
+
+  getMatchedExpensesCount(amount: number, txnDate: ISODateString): Observable<number> {
+    return this.getMatchedExpenses(amount, txnDate).pipe(map((res) => res.length));
+  }
+
+  getExpenseDetails(transactionSplitGroupId: string): Observable<Expense> {
+    return this.apiv2Service
+      .get('/expenses', {
+        params: {
+          tx_split_group_id: `eq.${transactionSplitGroupId}`,
+        },
+      })
+      .pipe(map((res) => res.data[0]));
+  }
+
+  matchExpense(transactionSplitGroupId: string, externalExpenseId: string): Observable<matchExpenseResponse> {
+    return this.apiService.post('/transactions/external_expense/match', {
+      transaction_split_group_id: transactionSplitGroupId,
+      external_expense_id: externalExpenseId,
     });
   }
 

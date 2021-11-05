@@ -947,6 +947,19 @@ ion-modal.auto-height {
   pointer-events: none;
 }
 
+.expense-preview-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    max-height: 80%;
+    position: absolute;
+    top: 20%;
+  }
+
+  .modal-shadow {
+    display: none;
+  }
+}
+
 .delete-button-class {
   .popover-content {
     border-radius: 4px;
