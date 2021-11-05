@@ -12,8 +12,6 @@ import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith, ta
 import { PopupService } from 'src/app/core/services/popup.service';
 import { PopoverController, ModalController, ActionSheetController } from '@ionic/angular';
 import { ApproveAdvanceComponent } from './approve-advance/approve-advance.component';
-import { SendBackAdvanceComponent } from './send-back-advance/send-back-advance.component';
-import { RejectAdvanceComponent } from './reject-advance/reject-advance.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -21,6 +19,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { TrackingService } from '../../core/services/tracking.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -49,6 +48,10 @@ export class ViewTeamAdvancePage implements OnInit {
   isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
   actionSheetButtons = [];
+
+  sendBackLoading = false;
+
+  rejectLoading = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -244,12 +247,12 @@ export class ViewTeamAdvancePage implements OnInit {
   }
 
   async showSendBackAdvanceSummaryPopover() {
-    const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
     const showApprover = await this.popoverController.create({
-      component: SendBackAdvanceComponent,
-      cssClass: 'dialog-popover',
+      component: FyPopoverComponent,
+      cssClass: 'fy-dialog-popover',
       componentProps: {
-        areq,
+        title: 'Send Back',
+        formLabel: 'Reason For Sending Back Advance',
       },
     });
 
@@ -257,18 +260,38 @@ export class ViewTeamAdvancePage implements OnInit {
 
     const { data } = await showApprover.onWillDismiss();
 
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'team_advance']);
+    const id = this.activatedRoute.snapshot.params.id;
+
+    if (data) {
+      this.sendBackLoading = true;
+      const status = data;
+
+      const statusPayload = {
+        status,
+        notify: false,
+      };
+
+      this.advanceRequestService
+        .sendBack(id, statusPayload)
+        .pipe(
+          finalize(() => {
+            this.sendBackLoading = false;
+            this.trackingService.sendBackAdvance();
+          })
+        )
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'team_advance']);
+        });
     }
   }
 
   async showRejectAdvanceSummaryPopup() {
-    const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
     const showApprover = await this.popoverController.create({
-      component: RejectAdvanceComponent,
-      cssClass: 'dialog-popover',
+      component: FyPopoverComponent,
+      cssClass: 'fy-dialog-popover',
       componentProps: {
-        areq,
+        title: 'Reject',
+        formLabel: 'Please mention the reason for rejecting the advance request',
       },
     });
 
@@ -276,8 +299,27 @@ export class ViewTeamAdvancePage implements OnInit {
 
     const { data } = await showApprover.onWillDismiss();
 
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'team_advance']);
+    const id = this.activatedRoute.snapshot.params.id;
+
+    if (data) {
+      this.rejectLoading = true;
+      const status = data;
+      const statusPayload = {
+        status,
+        notify: false,
+      };
+
+      this.advanceRequestService
+        .reject(id, statusPayload)
+        .pipe(
+          finalize(() => {
+            this.rejectLoading = false;
+            this.trackingService.rejectAdvance();
+          })
+        )
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'team_advance']);
+        });
     }
   }
 

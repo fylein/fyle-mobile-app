@@ -880,4 +880,13 @@ export class TrackingService {
   viewReportInfo(properties) {
     this.eventTrack('View Report Info', properties);
   }
+
+  // Team Advances
+  sendBackAdvance(properties = {}) {
+    this.eventTrack('Send Back Advance', properties);
+  }
+
+  rejectAdvance(properties = {}) {
+    this.eventTrack('Reject Advance', properties);
+  }
 }
