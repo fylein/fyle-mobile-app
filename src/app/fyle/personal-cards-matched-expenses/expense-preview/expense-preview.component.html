@@ -118,7 +118,7 @@
   <ion-toolbar mode="md">
     <div class="expense-preview--footer-toolbar">
       <ion-buttons>
-        <ion-button (click)="closeModal()" [disabled]="saveExpenseLoader" class="btn-secondary"> Cancel </ion-button>
+        <ion-button (click)="closeModal()" [disabled]="loading" class="btn-secondary"> Cancel </ion-button>
         <ion-button
           (click)="matchExpense()"
           [disabled]="loading"
