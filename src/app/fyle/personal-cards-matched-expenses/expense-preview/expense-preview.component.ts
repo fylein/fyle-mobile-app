@@ -24,7 +24,7 @@ export class ExpensePreviewComponent implements OnInit {
 
   loading = false;
 
-  isIos: boolean = false;
+  isIos = false;
 
   constructor(
     private modalController: ModalController,
