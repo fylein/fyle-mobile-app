@@ -1,0 +1,17 @@
+<div class="bank-accounts">
+  <swiper
+    #swiper
+    class="bank-accounts--swiper"
+    *ngIf="linkedAccounts"
+    [slidesPerView]="1.1"
+    [spaceBetween]="5"
+    [centeredSlides]="true"
+    [pagination]="pagination"
+    (afterInit)="onCardChange($event)"
+    (activeIndexChange)="onCardChange($event)"
+  >
+    <ng-template *ngFor="let linkedAccount of linkedAccounts" swiperSlide>
+      <app-bank-account-card [accountDetails]="linkedAccount" (deleted)="onDeleted()"> </app-bank-account-card>
+    </ng-template>
+  </swiper>
+</div>

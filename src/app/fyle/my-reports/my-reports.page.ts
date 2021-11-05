@@ -19,7 +19,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { MyReportsSortFilterComponent } from './my-reports-sort-filter/my-reports-sort-filter.component';
-import { MyReportsSearchFilterComponent } from './my-reports-search-filter/my-reports-search-filter.component';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -30,7 +29,23 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
+import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
+import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
+import * as moment from 'moment';
 
+type Filters = Partial<{
+  state: string[];
+  date: string;
+  customDateStart: Date;
+  customDateEnd: Date;
+  sortParam: string;
+  sortDir: string;
+}>;
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
@@ -61,14 +76,7 @@ export class MyReportsPage implements OnInit {
 
   acc = [];
 
-  filters: Partial<{
-    state: string;
-    date: string;
-    customDateStart: Date;
-    customDateEnd: Date;
-    sortParam: string;
-    sortDir: string;
-  }>;
+  filters: Filters;
 
   homeCurrency$: Observable<string>;
 
@@ -89,6 +97,18 @@ export class MyReportsPage implements OnInit {
 
   reportsTaskCount = 0;
 
+  headerState: HeaderState = HeaderState.base;
+
+  simpleSearchText = '';
+
+  isSearchBarFocused = false;
+
+  filterPills = [];
+
+  get HeaderState() {
+    return HeaderState;
+  }
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -102,20 +122,14 @@ export class MyReportsPage implements OnInit {
     private popoverController: PopoverController,
     private trackingService: TrackingService,
     private apiV2Service: ApiV2Service,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private modalController: ModalController
   ) {}
 
   ngOnInit() {}
 
   ionViewWillLeave() {
     this.onPageExit.next();
-  }
-
-  clearText() {
-    this.searchText = '';
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
-    searchInput.value = '';
-    searchInput.dispatchEvent(new Event('keyup'));
   }
 
   ionViewWillEnter() {
@@ -136,6 +150,7 @@ export class MyReportsPage implements OnInit {
     });
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
+    this.simpleSearchInput.nativeElement.value = '';
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event: any) => event.srcElement.value as string),
@@ -148,8 +163,6 @@ export class MyReportsPage implements OnInit {
         this.currentPageNumber = 1;
         currentParams.pageNumber = this.currentPageNumber;
         this.loadData$.next(currentParams);
-        const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
-        searchInput.focus();
       });
 
     const paginatedPipe = this.loadData$.pipe(
@@ -248,6 +261,7 @@ export class MyReportsPage implements OnInit {
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
     } else if (this.activatedRoute.snapshot.params.state) {
       const filters = {
         rp_state: `in.(${this.activatedRoute.snapshot.params.state.toLowerCase()})`,
@@ -258,6 +272,7 @@ export class MyReportsPage implements OnInit {
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
     } else {
       this.clearFilters();
     }
@@ -304,32 +319,88 @@ export class MyReportsPage implements OnInit {
     });
   }
 
-  addNewFiltersToParams() {
-    const currentParams = this.loadData$.getValue();
-    currentParams.pageNumber = 1;
-    const newQueryParams: any = {};
-
-    if (this.filters.state) {
-      if (this.filters.state === 'ALL') {
-        newQueryParams.rp_state =
-          'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)';
-      } else {
-        newQueryParams.rp_state = `in.(${this.filters.state})`;
+  generateCustomDateParams(newQueryParams: any) {
+    if (this.filters.date === DateFilters.custom) {
+      const startDate = this.filters?.customDateStart?.toISOString();
+      const endDate = this.filters?.customDateEnd?.toISOString();
+      if (this.filters.customDateStart && this.filters.customDateEnd) {
+        newQueryParams.and = `(rp_created_at.gte.${startDate},rp_created_at.lt.${endDate})`;
+      } else if (this.filters.customDateStart) {
+        newQueryParams.and = `(rp_created_at.gte.${startDate})`;
+      } else if (this.filters.customDateEnd) {
+        newQueryParams.and = `(rp_created_at.lt.${endDate})`;
       }
     }
+  }
 
+  generateDateParams(newQueryParams) {
     if (this.filters.date) {
-      if (this.filters.date === 'THISMONTH') {
+      this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
+      this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
+      if (this.filters.date === DateFilters.thisMonth) {
         const thisMonth = this.dateService.getThisMonthRange();
         newQueryParams.and = `(rp_created_at.gte.${thisMonth.from.toISOString()},rp_created_at.lt.${thisMonth.to.toISOString()})`;
-      } else if (this.filters.date === 'LASTMONTH') {
+      }
+
+      if (this.filters.date === DateFilters.thisWeek) {
+        const thisWeek = this.dateService.getThisWeekRange();
+        newQueryParams.and = `(rp_created_at.gte.${thisWeek.from.toISOString()},rp_created_at.lt.${thisWeek.to.toISOString()})`;
+      }
+
+      if (this.filters.date === DateFilters.lastMonth) {
         const lastMonth = this.dateService.getLastMonthRange();
         newQueryParams.and = `(rp_created_at.gte.${lastMonth.from.toISOString()},rp_created_at.lt.${lastMonth.to.toISOString()})`;
-      } else if (this.filters.date === 'CUSTOMDATE') {
-        newQueryParams.and = `(rp_created_at.gte.${this.filters.customDateStart.toISOString()},rp_created_at.lt.${this.filters.customDateEnd.toISOString()})`;
+      }
+
+      this.generateCustomDateParams(newQueryParams);
+    }
+  }
+
+  generateStateFilters(newQueryParams) {
+    const stateOrFilter = [];
+
+    if (this.filters.state) {
+      if (this.filters.state.includes('DRAFT')) {
+        stateOrFilter.push('rp_state.in.(DRAFT)');
+      }
+
+      if (this.filters.state.includes('APPROVER_PENDING')) {
+        stateOrFilter.push('rp_state.in.(APPROVER_PENDING)');
+      }
+
+      if (this.filters.state.includes('APPROVER_INQUIRY')) {
+        stateOrFilter.push('rp_state.in.(APPROVER_INQUIRY)');
+      }
+
+      if (this.filters.state.includes('APPROVED')) {
+        stateOrFilter.push('rp_state.in.(APPROVED)');
+      }
+
+      if (this.filters.state.includes('PAYMENT_PENDING')) {
+        stateOrFilter.push('rp_state.in.(PAYMENT_PENDING)');
+      }
+
+      if (this.filters.state.includes('PAID')) {
+        stateOrFilter.push('rp_state.in.(PAID)');
       }
     }
 
+    if (stateOrFilter.length > 0) {
+      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedStateOrFilter = `(${combinedStateOrFilter})`;
+      newQueryParams.or.push(combinedStateOrFilter);
+    }
+  }
+
+  setSortParams(
+    currentParams: Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }>
+  ) {
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
       currentParams.sortDir = this.filters.sortDir;
@@ -337,49 +408,24 @@ export class MyReportsPage implements OnInit {
       currentParams.sortParam = 'rp_created_at';
       currentParams.sortDir = 'desc';
     }
+  }
+
+  addNewFiltersToParams() {
+    const currentParams = this.loadData$.getValue();
+    currentParams.pageNumber = 1;
+    const newQueryParams: any = {
+      or: [],
+    };
+
+    this.generateDateParams(newQueryParams);
+
+    this.generateStateFilters(newQueryParams);
+
+    this.setSortParams(currentParams);
 
     currentParams.queryParams = newQueryParams;
 
     return currentParams;
-  }
-
-  async openFilters() {
-    const filterPopover = await this.popoverController.create({
-      component: MyReportsSearchFilterComponent,
-      componentProps: {
-        filters: this.filters,
-      },
-      cssClass: 'dialog-popover',
-    });
-
-    await filterPopover.present();
-
-    const { data } = await filterPopover.onWillDismiss();
-    if (data) {
-      this.filters = Object.assign({}, this.filters, data.filters);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-    }
-  }
-
-  async openSort() {
-    const sortPopover = await this.popoverController.create({
-      component: MyReportsSortFilterComponent,
-      componentProps: {
-        filters: this.filters,
-      },
-      cssClass: 'dialog-popover',
-    });
-
-    await sortPopover.present();
-    const { data } = await sortPopover.onWillDismiss();
-    if (data) {
-      this.filters = Object.assign({}, this.filters, data.sortOptions);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-    }
   }
 
   clearFilters() {
@@ -387,6 +433,7 @@ export class MyReportsPage implements OnInit {
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
+    this.filterPills = this.generateFilterPills(this.filters);
   }
 
   onReportClick(erpt: ExtendedReport) {
@@ -463,5 +510,505 @@ export class MyReportsPage implements OnInit {
 
   onViewCommentsClick(event) {
     // TODO: Add when view comments is done
+  }
+
+  clearText(isFromCancel) {
+    this.simpleSearchText = '';
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
+    if (isFromCancel === 'onSimpleSearchCancel') {
+      this.isSearchBarFocused = !this.isSearchBarFocused;
+    } else {
+      this.isSearchBarFocused = !!this.isSearchBarFocused;
+    }
+  }
+
+  onSimpleSearchCancel() {
+    this.headerState = HeaderState.base;
+    this.clearText('onSimpleSearchCancel');
+  }
+
+  onSearchBarFocus() {
+    this.isSearchBarFocused = true;
+  }
+
+  onFilterPillsClearAll() {
+    this.clearFilters();
+  }
+
+  async onFilterClick(filterType: string) {
+    if (filterType === 'state') {
+      await this.openFilters('State');
+    } else if (filterType === 'date') {
+      await this.openFilters('Date');
+    } else if (filterType === 'sort') {
+      await this.openFilters('Sort By');
+    }
+  }
+
+  onFilterClose(filterType: string) {
+    if (filterType === 'sort') {
+      delete this.filters.sortDir;
+      delete this.filters.sortParam;
+    } else {
+      delete this.filters[filterType];
+    }
+    this.currentPageNumber = 1;
+    const params = this.addNewFiltersToParams();
+    this.loadData$.next(params);
+    this.filterPills = this.generateFilterPills(this.filters);
+  }
+
+  searchClick() {
+    this.headerState = HeaderState.simpleSearch;
+    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    setTimeout(() => {
+      searchInput.focus();
+    }, 300);
+  }
+
+  convertRptDtSortToSelectedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
+    if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'dateOldToNew',
+      });
+    } else if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'desc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'dateNewToOld',
+      });
+    }
+  }
+
+  addSortToGeneatedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
+    this.convertRptDtSortToSelectedFilters(filter, generatedFilters);
+
+    this.convertAmountSortToSelectedFilters(filter, generatedFilters);
+
+    this.convertNameSortToSelectedFilters(filter, generatedFilters);
+  }
+
+  generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
+    const generatedFilters: SelectedFilters<any>[] = [];
+
+    if (filter.state) {
+      generatedFilters.push({
+        name: 'State',
+        value: filter.state,
+      });
+    }
+
+    if (filter.date) {
+      generatedFilters.push({
+        name: 'Date',
+        value: filter.date,
+        associatedData: {
+          startDate: filter.customDateStart,
+          endDate: filter.customDateEnd,
+        },
+      });
+    }
+
+    if (filter.sortParam && filter.sortDir) {
+      this.addSortToGeneatedFilters(filter, generatedFilters);
+    }
+
+    return generatedFilters;
+  }
+
+  convertNameSortToSelectedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
+    if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'nameAToZ',
+      });
+    } else if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'desc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'nameZToA',
+      });
+    }
+  }
+
+  convertSelectedSortFitlersToFilters(
+    sortBy: SelectedFilters<any>,
+    generatedFilters: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      sortParam: string;
+      sortDir: string;
+    }>
+  ) {
+    if (sortBy) {
+      if (sortBy.value === 'dateNewToOld') {
+        generatedFilters.sortParam = 'rp_created_at';
+        generatedFilters.sortDir = 'desc';
+      } else if (sortBy.value === 'dateOldToNew') {
+        generatedFilters.sortParam = 'rp_created_at';
+        generatedFilters.sortDir = 'asc';
+      } else if (sortBy.value === 'amountHighToLow') {
+        generatedFilters.sortParam = 'rp_amount';
+        generatedFilters.sortDir = 'desc';
+      } else if (sortBy.value === 'amountLowToHigh') {
+        generatedFilters.sortParam = 'rp_amount';
+        generatedFilters.sortDir = 'asc';
+      } else if (sortBy.value === 'nameAToZ') {
+        generatedFilters.sortParam = 'rp_purpose';
+        generatedFilters.sortDir = 'asc';
+      } else if (sortBy.value === 'nameZToA') {
+        generatedFilters.sortParam = 'rp_purpose';
+        generatedFilters.sortDir = 'desc';
+      }
+    }
+  }
+
+  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
+    const generatedFilters: Filters = {};
+
+    const stateFilter = selectedFilters.find((filter) => filter.name === 'State');
+    if (stateFilter) {
+      generatedFilters.state = stateFilter.value;
+    }
+
+    const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
+    if (dateFilter) {
+      generatedFilters.date = dateFilter.value;
+      generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
+      generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
+    }
+
+    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
+
+    this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+    return generatedFilters;
+  }
+
+  generateStateFilterPills(filterPills: FilterPill[], filter) {
+    filterPills.push({
+      label: 'State',
+      type: 'state',
+      value: filter.state
+        .map((state) => {
+          if (state === 'APPROVER_INQUIRY') {
+            return 'Sent Back';
+          }
+
+          if (state === 'APPROVER_PENDING') {
+            return 'Reported';
+          }
+
+          return state.replace(/_/g, ' ').toLowerCase();
+        })
+        .reduce((state1, state2) => `${state1}, ${state2}`),
+    });
+  }
+
+  generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
+    const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
+    const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
+
+    if (startDate && endDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `${startDate} to ${endDate}`,
+      });
+    } else if (startDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `>= ${startDate}`,
+      });
+    } else if (endDate) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: `<= ${endDate}`,
+      });
+    }
+  }
+
+  generateDateFilterPills(filter, filterPills: FilterPill[]) {
+    if (filter.date === DateFilters.thisWeek) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'this Week',
+      });
+    }
+
+    if (filter.date === DateFilters.thisMonth) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'this Month',
+      });
+    }
+
+    if (filter.date === DateFilters.all) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'All',
+      });
+    }
+
+    if (filter.date === DateFilters.lastMonth) {
+      filterPills.push({
+        label: 'Date',
+        type: 'date',
+        value: 'Last Month',
+      });
+    }
+
+    if (filter.date === DateFilters.custom) {
+      this.generateCustomDatePill(filter, filterPills);
+    }
+  }
+
+  generateSortRptDatePills(filter: any, filterPills: FilterPill[]) {
+    if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'date - old to new',
+      });
+    } else if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'desc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'date - new to old',
+      });
+    }
+  }
+
+  generateSortAmountPills(filter: any, filterPills: FilterPill[]) {
+    if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'amount - high to low',
+      });
+    } else if (filter.sortParam === 'rp_amount' && filter.sortDir === 'asc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'amount - low to high',
+      });
+    }
+  }
+
+  generateSortNamePills(filter: any, filterPills: FilterPill[]) {
+    if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'Name - a to z',
+      });
+    } else if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'desc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'Name - z to a',
+      });
+    }
+  }
+
+  generateSortFilterPills(filter, filterPills: FilterPill[]) {
+    this.generateSortRptDatePills(filter, filterPills);
+
+    this.generateSortAmountPills(filter, filterPills);
+
+    this.generateSortNamePills(filter, filterPills);
+  }
+
+  generateFilterPills(filter: Filters) {
+    const filterPills: FilterPill[] = [];
+
+    if (filter.state && filter.state.length) {
+      this.generateStateFilterPills(filterPills, filter);
+    }
+
+    if (filter.date) {
+      this.generateDateFilterPills(filter, filterPills);
+    }
+
+    if (filter.sortParam && filter.sortDir) {
+      this.generateSortFilterPills(filter, filterPills);
+    }
+
+    return filterPills;
+  }
+
+  convertAmountSortToSelectedFilters(
+    filter: Partial<{
+      state: string[];
+      date: string;
+      customDateStart: Date;
+      customDateEnd: Date;
+      sortParam: string;
+      sortDir: string;
+    }>,
+    generatedFilters: SelectedFilters<any>[]
+  ) {
+    if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'amountHighToLow',
+      });
+    } else if (filter.sortParam === 'rp_amount' && filter.sortDir === 'asc') {
+      generatedFilters.push({
+        name: 'Sort By',
+        value: 'amountLowToHigh',
+      });
+    }
+  }
+
+  async openFilters(activeFilterInitialName?: string) {
+    const filterPopover = await this.modalController.create({
+      component: FyFiltersComponent,
+      componentProps: {
+        filterOptions: [
+          {
+            name: 'State',
+            optionType: FilterOptionType.multiselect,
+            options: [
+              {
+                label: 'Draft',
+                value: 'DRAFT',
+              },
+              {
+                label: 'Reported',
+                value: 'APPROVER_PENDING',
+              },
+              {
+                label: 'Sent Back',
+                value: 'APPROVER_INQUIRY',
+              },
+              {
+                label: 'Approved',
+                value: 'APPROVED',
+              },
+              {
+                label: 'Payment Pending',
+                value: 'PAYMENT_PENDING',
+              },
+              {
+                label: 'Paid',
+                value: 'PAID',
+              },
+            ],
+          } as FilterOptions<string>,
+          {
+            name: 'Date',
+            optionType: FilterOptionType.date,
+            options: [
+              {
+                label: 'All',
+                value: DateFilters.all,
+              },
+              {
+                label: 'This Week',
+                value: DateFilters.thisWeek,
+              },
+              {
+                label: 'This Month',
+                value: DateFilters.thisMonth,
+              },
+              {
+                label: 'Last Month',
+                value: DateFilters.lastMonth,
+              },
+              {
+                label: 'Custom',
+                value: DateFilters.custom,
+              },
+            ],
+          } as FilterOptions<DateFilters>,
+          {
+            name: 'Sort By',
+            optionType: FilterOptionType.singleselect,
+            options: [
+              {
+                label: 'Date - New to Old',
+                value: 'dateNewToOld',
+              },
+              {
+                label: 'Date - Old to New',
+                value: 'dateOldToNew',
+              },
+              {
+                label: 'Amount - High to Low',
+                value: 'amountHighToLow',
+              },
+              {
+                label: 'Amount - Low to High',
+                value: 'amountLowToHigh',
+              },
+              {
+                label: 'Name - A to Z',
+                value: 'nameAToZ',
+              },
+              {
+                label: 'Name - Z to A',
+                value: 'nameZToA',
+              },
+            ],
+          } as FilterOptions<string>,
+        ],
+        selectedFilterValues: this.generateSelectedFilters(this.filters),
+        activeFilterInitialName,
+      },
+      cssClass: 'dialog-popover',
+    });
+
+    await filterPopover.present();
+
+    const { data } = await filterPopover.onWillDismiss();
+    if (data) {
+      this.filters = this.convertFilters(data);
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams();
+      this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
+      this.trackingService.myReportsFilterApplied({
+        ...this.filters,
+      });
+    }
   }
 }
