@@ -70,7 +70,7 @@
 </app-fy-header>
 
 <ion-content class="personal-cards--content">
-  <ng-container *ngIf="isLoading">
+  <ng-container *ngIf="isLoading && ((linkedAccountsCount$ | async) !== 0)">
     <div class="ion-padding">
       <ion-skeleton-text class="personal-cards--bank-account-shimmer" animated></ion-skeleton-text>
     </div>
