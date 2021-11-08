@@ -4150,25 +4150,29 @@ export class AddEditExpensePage implements OnInit {
   }
 
   uploadAttachments(txn) {
-    const addExpenseAttachments$ = of(
-      this.newExpenseDataUrls.map((fileObj) => {
-        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
-        return fileObj;
-      })
-    );
-    return addExpenseAttachments$.pipe(
-      switchMap((fileObj: any) =>
-        fileObj.map((file) =>
-          from(this.transactionOutboxService.fileUpload(file.url, file.type))
-            .pipe(
-              switchMap((fileObj: any) => {
-                fileObj.transaction_id = txn.split_group_id;
-                return this.fileService.post(fileObj);
-              })
-            )
-            .subscribe(noop)
+    if (this.newExpenseDataUrls.length > 0) {
+      const addExpenseAttachments$ = of(
+        this.newExpenseDataUrls.map((fileObj) => {
+          fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
+          return fileObj;
+        })
+      );
+      return addExpenseAttachments$.pipe(
+        switchMap((fileObj: any) =>
+          fileObj.map((file) =>
+            from(this.transactionOutboxService.fileUpload(file.url, file.type))
+              .pipe(
+                switchMap((fileObj: any) => {
+                  fileObj.transaction_id = txn.split_group_id;
+                  return this.fileService.post(fileObj);
+                })
+              )
+              .subscribe(noop)
+          )
         )
-      )
-    );
+      );
+    } else {
+      return of([]);
+    }
   }
 }

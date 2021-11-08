@@ -102,6 +102,16 @@
     <div class="personal-cards--actions-header">
       <button
         type="submit"
+        class="personal-cards--range-button text-center personal-cards--actions-header__left"
+        (click)="openDateRangeModal()"
+      >
+        <ng-container>
+          <ion-icon slot="icon-only" class="personal-cards--icon" src="../../../assets/svg/calendar.svg"></ion-icon>
+          Date Range
+        </ng-container>
+      </button>
+      <button
+        type="submit"
         class="personal-cards--fetch-button text-center personal-cards--actions-header__right"
         (click)="fetchNewTransactions()"
       >
@@ -150,6 +160,7 @@
         <ng-container *ngIf="transactions$ | async as transactions">
           <ng-container *ngFor="let transaction of transactions; let i = index">
             <app-personal-card-transaction
+              (click)="createExpense(transaction)"
               *ngIf="!isTrasactionsLoading"
               [description]="transaction.btxn_description"
               [amount]="transaction.btxn_amount"

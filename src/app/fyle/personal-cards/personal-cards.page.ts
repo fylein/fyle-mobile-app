@@ -21,6 +21,7 @@ import { DateService } from 'src/app/core/services/date.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import * as moment from 'moment';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 
 type Filters = Partial<{
   amount: string;
@@ -37,6 +38,7 @@ type Filters = Partial<{
   showCredited: string;
 }>;
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
 @Component({
   selector: 'app-personal-cards',
   templateUrl: './personal-cards.page.html',
@@ -65,7 +67,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }>
   >;
 
-  transactions$: Observable<any[]>;
+  transactions$: Observable<PersonalCardTxn[]>;
 
   transactionsCount$: Observable<number>;
 
@@ -162,8 +164,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           queryParams = params.queryParams;
         }
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        // const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
-        queryParams = params.queryParams;
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
@@ -304,8 +304,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.status = `in.(${this.selectedTrasactionType})`;
-    queryParams.accountId = this.selectedAccount;
+    queryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
+    queryParams.ba_id = 'eq.' + this.selectedAccount;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -360,7 +360,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
-    queryParams.status = `in.(${this.selectedTrasactionType})`;
+    queryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
     params.queryParams = queryParams;
     params.pageNumber = 1;
     this.zone.run(() => {
@@ -640,13 +640,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       });
     }
 
-    // if (filter.receiptsAttached) {
-    //   generatedFilters.push({
-    //     name: 'Receipts Attached',
-    //     value: filter.receiptsAttached,
-    //   });
-    // }
-
     if (filter?.createdOn) {
       generatedFilters.push({
         name: 'Created On',
@@ -657,13 +650,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         },
       });
     }
-
-    // if (filter.type) {
-    //   generatedFilters.push({
-    //     name: 'Expense Type',
-    //     value: filter.type,
-    //   });
-    // }
 
     return generatedFilters;
   }
@@ -893,5 +879,67 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
     this.filterPills = this.generateFilterPills(this.filters);
+  }
+
+  createExpense(txnDetails) {
+    if (this.selectionMode) {
+      return;
+    }
+    if (txnDetails.btxn_status === 'MATCHED') {
+      this.openExpensePreview(txnDetails);
+      return;
+    }
+
+    this.router.navigate(['/', 'enterprise', 'personal_cards_matched_expenses'], { state: { txnDetails } });
+  }
+
+  async openExpensePreview(txnDetails) {
+    const expenseDetailsModal = await this.modalController.create({
+      component: ExpensePreviewComponent,
+      componentProps: {
+        expenseId: txnDetails.txn_details[0].id,
+        card: txnDetails.ba_account_number,
+        cardTxnId: txnDetails.btxn_id,
+        type: 'unmatch',
+      },
+      cssClass: 'expense-preview-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      backdropDismiss: true,
+      animated: true,
+    });
+
+    await expenseDetailsModal.present();
+
+    const { data } = await expenseDetailsModal.onWillDismiss();
+
+    const currentParams = this.loadData$.getValue();
+    this.loadData$.next(currentParams);
+  }
+
+  async openDateRangeModal() {
+    const modalProperties = {
+      cssClass: 'personal-cards-range-modal',
+      showBackdrop: true,
+      swipeToClose: true,
+      backdropDismiss: true,
+      animated: true,
+    };
+
+    const selectionModal = await this.modalController.create({
+      component: DateRangeModalComponent,
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...modalProperties,
+    });
+
+    await selectionModal.present();
+
+    const { data } = await selectionModal.onWillDismiss();
+
+    if (data) {
+      const currentParams = this.loadData$.getValue();
+      this.loadData$.next(currentParams);
+    }
   }
 }

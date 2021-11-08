@@ -7,7 +7,10 @@
       </ion-button>
     </ion-buttons>
     <ion-title>
-      <div class="expense-preview--toolbar__title">Confirm Matching Expense</div>
+      <div class="expense-preview--toolbar__title">
+        <ng-container *ngIf="type === 'match'"> Confirm Matching Expense </ng-container>
+        <ng-container *ngIf="type === 'unmatch'"> View matching Expense </ng-container>
+      </div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -117,7 +120,7 @@
 <ion-footer class="expense-preview--footer-container">
   <ion-toolbar mode="md">
     <div class="expense-preview--footer-toolbar">
-      <ion-buttons>
+      <ion-buttons *ngIf="type === 'match'">
         <ion-button (click)="closeModal()" [disabled]="loading" class="btn-secondary"> Cancel </ion-button>
         <ion-button
           (click)="matchExpense()"
@@ -128,6 +131,19 @@
           class="btn-primary"
         >
           Confirm Match
+        </ion-button>
+      </ion-buttons>
+      <ion-buttons *ngIf="type === 'unmatch'">
+        <ion-button (click)="unmatchExpense()" [disabled]="loading" class="btn-secondary"> Unmatch </ion-button>
+        <ion-button
+          (click)="viewExpense()"
+          [disabled]="loading"
+          [loadingText]="'matching'"
+          [loading]="loading"
+          appFormButtonValidation
+          class="btn-primary"
+        >
+          Edit
         </ion-button>
       </ion-buttons>
     </div>

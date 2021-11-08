@@ -47,6 +47,13 @@
     overflow-y: scroll;
   }
 
+  &--icon {
+    font-size: 14px;
+    color: $black-light;
+    vertical-align: text-bottom;
+    margin: 0 2px;
+  }
+
   &--state-pill {
     width: 47%;
     border: 1px solid $blue;
@@ -207,6 +214,17 @@
     padding: 8px 16px;
     background: $pink-gradient-1;
     color: $pure-white;
+    font-size: 12px;
+    line-height: 1.3;
+    border-radius: 8px;
+    width: fit-content;
+  }
+
+  &--range-button {
+    padding: 8px 16px;
+    background: $pure-white;
+    color: $black-light;
+    border: solid 1px $grey;
     font-size: 12px;
     line-height: 1.3;
     border-radius: 8px;

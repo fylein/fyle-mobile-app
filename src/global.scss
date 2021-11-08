@@ -1006,3 +1006,16 @@ ion-modal.auto-height {
 .ios .fy-footer--icon-pill {
   margin-left: 7px !important;
 }
+
+.personal-cards-range-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    position: absolute;
+    max-height: 30%;
+    bottom: 0;
+  }
+
+  .modal-shadow {
+    display: none;
+  }
+}

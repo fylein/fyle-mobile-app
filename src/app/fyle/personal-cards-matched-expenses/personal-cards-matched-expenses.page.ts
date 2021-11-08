@@ -64,6 +64,7 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
         expenseId,
         card: this.txnDetails.ba_account_number,
         cardTxnId: this.txnDetails.btxn_id,
+        type: 'match',
       },
       cssClass: 'expense-preview-modal',
       showBackdrop: true,

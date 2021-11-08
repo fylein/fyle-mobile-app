@@ -26,6 +26,8 @@ export class ExpensePreviewComponent implements OnInit {
 
   isIos = false;
 
+  type: string;
+
   constructor(
     private modalController: ModalController,
     private personalCardsService: PersonalCardsService,
@@ -56,6 +58,23 @@ export class ExpensePreviewComponent implements OnInit {
         this.modalController.dismiss();
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Successfully matched the expense.' }),
+          panelClass: ['msb-success'],
+        });
+        this.router.navigate(['/', 'enterprise', 'personal_cards']);
+      });
+  }
+
+  unmatchExpense() {
+    this.loading = true;
+    this.personalCardsService
+      .unmatchExpense(this.expenseId, this.cardTxnId)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe(() => {
+        this.modalController.dismiss();
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', {
+            message: 'Successfully unmatched the expense.',
+          }),
           panelClass: ['msb-success'],
         });
         this.router.navigate(['/', 'enterprise', 'personal_cards']);

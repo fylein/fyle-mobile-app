@@ -92,8 +92,6 @@ export class PersonalCardsService {
   ) {
     return this.apiv2Service.get('/personal_bank_transactions', {
       params: {
-        ba_id: 'eq.' + config.queryParams.accountId,
-        btxn_status: config.queryParams.status,
         limit: config.limit,
         offset: config.offset,
         ...config.queryParams,
@@ -140,6 +138,13 @@ export class PersonalCardsService {
   hideTransactions(txnIds: string[]): Observable<[]> {
     return this.expenseAggregationService.post('/bank_transactions/hide/bulk', {
       bank_transaction_ids: txnIds,
+    });
+  }
+
+  unmatchExpense(transactionSplitGroupId: string, externalExpenseId: string): Observable<any> {
+    return this.apiService.post('/transactions/external_expense/unmatch', {
+      transaction_split_group_id: transactionSplitGroupId,
+      external_expense_id: externalExpenseId,
     });
   }
 }

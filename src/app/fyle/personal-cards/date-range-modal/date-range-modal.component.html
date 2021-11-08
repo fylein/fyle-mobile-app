@@ -1,0 +1,20 @@
+<div class="date-range-modal">
+  <ion-list>
+    <div class="date-range-modal--title">DATE RANGE</div>
+    <ion-item (click)="selectRange('last30')">
+      <ion-label>
+        <div class="date-range-modal--label">Last 30 days</div>
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="selectRange('last60')">
+      <ion-label>
+        <div class="date-range-modal--label">Last 60 days</div>
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="selectRange('lastMonth')">
+      <ion-label>
+        <div class="date-range-modal--label">Last Month</div>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</div>

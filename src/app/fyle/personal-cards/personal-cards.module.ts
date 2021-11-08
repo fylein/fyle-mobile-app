@@ -15,6 +15,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { MatInputModule } from '@angular/material/input';
+import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -27,6 +28,6 @@ import { MatInputModule } from '@angular/material/input';
     MatInputModule,
     MatFormFieldModule,
   ],
-  declarations: [PersonalCardsPage, TransactionsShimmerComponent],
+  declarations: [PersonalCardsPage, TransactionsShimmerComponent, DateRangeModalComponent],
 })
 export class PersonalCardsPageModule {}
