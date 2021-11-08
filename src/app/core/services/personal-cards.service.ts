@@ -37,7 +37,7 @@ export class PersonalCardsService {
   }
 
   getToken(): Observable<YodleeAccessToken> {
-    return this.expenseAggregationService.get('/yodlee/access_token');
+    return this.expenseAggregationService.get('/yodlee/personal/access_token');
   }
 
   htmlFormUrl(url: string, accessToken: string): string {
