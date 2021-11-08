@@ -57,9 +57,9 @@
 
   &--scaning-receipt {
     &__container {
-      padding: 3px 11px 0 11px;
+      padding: 0 11px;
       overflow: hidden;
-      min-width: 160px;
+      width: 100%;
       &-error {
         display: flex;
         align-items: center;
@@ -281,7 +281,7 @@
     color: $pure-white;
     background-color: $highlight-black;
     border-radius: 16px;
-    padding: 4px 29px;
+    padding: 4px 25px;
   }
 
   &--spinner-icon {
