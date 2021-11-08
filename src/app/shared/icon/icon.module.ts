@@ -169,6 +169,7 @@ export class IconModule {
     'utility.svg',
     'warning-inverted.svg',
     'warning.svg',
+    'fy-merge.svg',
   ];
 
   constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {

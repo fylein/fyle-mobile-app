@@ -85,18 +85,20 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FyFilterPillsComponent } from './components/fy-filter-pills/fy-filter-pills.component';
 import { DateFormatPipe } from './pipes/date-format.pipe';
-import { AgmCoreModule } from '@agm/core';
-import { AgmDirectionModule } from 'agm-direction';
 import { RouteSelectorComponent } from './components/route-selector/route-selector.component';
 import { RouteSelectorModalComponent } from './components/route-selector/route-selector-modal/route-selector-modal.component';
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-view-report-info.component';
+import { GoogleMapsModule } from '@angular/google-maps';
 import { BankAccountCardsComponent } from './components/bank-account-cards/bank-account-cards.component';
 import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
 import { DeleteButtonComponent } from './components/bank-account-cards/bank-account-card/delete-button/delete-button-component';
 import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
+import { ExpenseCardLiteComponent } from './components/expense-card-lite/expense-card-lite.component';
+import { FyInputPopoverComponent } from './components/fy-input-popover/fy-input-popover.component';
 import { FyPopoverComponent } from './components/fy-popover/fy-popover.component';
+import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
 
 @NgModule({
   declarations: [
@@ -172,6 +174,12 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     BankAccountCardComponent,
     DeleteButtonComponent,
     AddApproversPopoverComponent,
+    ExpenseCardLiteComponent,
+    BankAccountCardsComponent,
+    BankAccountCardComponent,
+    DeleteButtonComponent,
+    PersonalCardTransactionComponent,
+    FyInputPopoverComponent,
     FyPopoverComponent,
   ],
   imports: [
@@ -190,8 +198,8 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     MatRippleModule,
     MatRadioModule,
     MatDatepickerModule,
-    AgmCoreModule,
-    AgmDirectionModule,
+    MatChipsModule,
+    GoogleMapsModule,
     MatChipsModule,
     SwiperModule,
     MatSnackBarModule,
@@ -256,7 +264,9 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     RouteSelectorComponent,
     MatChipsModule,
     PolicyViolationDetailsComponent,
+    ExpenseCardLiteComponent,
     BankAccountCardsComponent,
+    PersonalCardTransactionComponent,
     FyPopoverComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
