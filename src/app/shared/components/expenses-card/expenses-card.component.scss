@@ -57,7 +57,7 @@
 
   &--scaning-receipt {
     &__container {
-      padding: 0 11px;
+      padding: 3px 11px 0 11px;
       overflow: hidden;
       width: 100%;
       &-error {
@@ -281,7 +281,7 @@
     color: $pure-white;
     background-color: $highlight-black;
     border-radius: 16px;
-    padding: 4px 25px;
+    padding: 4px 24px;
   }
 
   &--spinner-icon {
