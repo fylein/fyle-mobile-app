@@ -24,13 +24,13 @@
     </ion-buttons>
   </ng-container>
   <ng-container personalCardContent *ngIf="!isLoading">
-    <ion-toolbar mode="ios">
+    <ion-toolbar>
       <ion-segment
         class="personal-cards-segment-block"
         (ionChange)="segmentChanged($event)"
         value="{{selectedTrasactionType}}"
       >
-        <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn text-capitalize">
+        <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn">
           Transactions
         </ion-segment-button>
         <ion-segment-button value="MATCHED" class="personal-cards--segment-block__btn">
