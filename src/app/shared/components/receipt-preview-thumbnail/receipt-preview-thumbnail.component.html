@@ -1,7 +1,4 @@
-<div
-  class="receipt-preview-thumbnail--actions"
-  [ngClass]="{ 'receipt-preview-thumbnail--actions__viewonly': !canEdit }"
->
+<div class="receipt-preview-thumbnail--actions" [ngClass]="{ 'mt-0': !canEdit }">
   <div class="receipt-preview-thumbnail--receipt-index">
     Receipt <ng-container *ngIf="attachments.length > 1">{{ activeIndex + 1 }}/{{ attachments.length }} </ng-container>
   </div>

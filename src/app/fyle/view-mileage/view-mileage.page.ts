@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, concat, noop, of, combineLatest } from 'rxjs';
+import { Observable, from, Subject, concat, noop, of, forkJoin } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap, takeUntil, tap } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, takeUntil, take, filter } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -19,6 +19,8 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { getCurrencySymbol } from '@angular/common';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -54,7 +56,7 @@ export class ViewMileagePage implements OnInit {
 
   onPageExit = new Subject();
 
-  comments$: Observable<any>;
+  comments$: Observable<ExtendedStatus[]>;
 
   isDeviceWidthSmall = window.innerWidth < 330;
 
@@ -72,9 +74,13 @@ export class ViewMileagePage implements OnInit {
 
   vehicleType: string;
 
-  view: 'Team' | 'Individual';
+  view: ExpenseView;
 
   isProjectShown: boolean;
+
+  get ExpenseView() {
+    return ExpenseView;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -112,7 +118,7 @@ export class ViewMileagePage implements OnInit {
     });
   }
 
-  isNumber(val: any) {
+  isNumber(val) {
     return typeof val === 'number';
   }
 
@@ -127,7 +133,7 @@ export class ViewMileagePage implements OnInit {
   }
 
   goBack() {
-    if (this.view === 'Team') {
+    if (this.view === ExpenseView.team) {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigate_back: true }]);
@@ -178,7 +184,7 @@ export class ViewMileagePage implements OnInit {
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id, navigate_back: true }]);
     }
   }
 
@@ -262,7 +268,7 @@ export class ViewMileagePage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(extendedMileage.tx_currency, 'wide');
     });
 
-    combineLatest([this.offlineService.getExpenseFieldsMap(), this.extendedMileage$])
+    forkJoin([this.offlineService.getExpenseFieldsMap(), this.extendedMileage$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, extendedMileage]) => {
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
@@ -292,27 +298,27 @@ export class ViewMileagePage implements OnInit {
     );
 
     this.view = this.activatedRoute.snapshot.params.view;
-    if (this.view === 'Team') {
-      this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
-        map(
-          (etxn) =>
-            ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) >
-            -1
-        )
-      );
 
-      this.canDelete$ = this.extendedMileage$.pipe(
-        concatMap((etxn) =>
-          this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
-        ),
-        map(({ report, etxn }) => {
-          if (report.rp_num_transactions === 1) {
-            return false;
-          }
-          return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
-        })
-      );
-    }
+    this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
+      filter(() => this.view === ExpenseView.team),
+      map(
+        (etxn) =>
+          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
+      )
+    );
+
+    this.canDelete$ = this.extendedMileage$.pipe(
+      filter(() => this.view === ExpenseView.team),
+      switchMap((etxn) =>
+        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
+      ),
+      map(({ report, etxn }) => {
+        if (report.rp_num_transactions === 1) {
+          return false;
+        }
+        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
+      })
+    );
 
     if (id) {
       this.policyViloations$ = this.policyService.getPolicyViolationRules(id);

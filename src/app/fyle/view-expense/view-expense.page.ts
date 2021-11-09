@@ -1,12 +1,12 @@
 import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, combineLatest, concat, noop } from 'rxjs';
+import { Observable, from, Subject, combineLatest, concat, noop, forkJoin } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { switchMap, shareReplay, concatMap, map, finalize, reduce, takeUntil, take } from 'rxjs/operators';
+import { switchMap, shareReplay, concatMap, map, finalize, reduce, takeUntil, take, filter } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -21,6 +21,10 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { getCurrencySymbol } from '@angular/common';
+import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction.model';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { CustomField } from 'src/app/core/models/custom_field.model';
 
 @Component({
   selector: 'app-view-expense',
@@ -38,11 +42,9 @@ export class ViewExpensePage implements OnInit {
 
   isCriticalPolicyViolated$: Observable<boolean>;
 
-  allExpenseCustomFields$: Observable<any>;
+  customProperties$: Observable<CustomField[]>;
 
-  customProperties$: Observable<any>;
-
-  etxnWithoutCustomProperties$: Observable<any>;
+  etxnWithoutCustomProperties$: Observable<Expense>;
 
   canFlagOrUnflag$: Observable<boolean>;
 
@@ -54,15 +56,13 @@ export class ViewExpensePage implements OnInit {
 
   attachments$: Observable<any>;
 
-  currencyOptions;
-
   updateFlag$ = new Subject();
 
   isConnected$: Observable<boolean>;
 
   onPageExit = new Subject();
 
-  comments$: Observable<any>;
+  comments$: Observable<ExtendedStatus[]>;
 
   policyDetails;
 
@@ -76,7 +76,7 @@ export class ViewExpensePage implements OnInit {
 
   isCCCTransaction = false;
 
-  matchingCCCTransaction$: Observable<any>;
+  matchingCCCTransaction$: Observable<MatchedCCCTransaction>;
 
   numEtxnsInReport: number;
 
@@ -88,9 +88,15 @@ export class ViewExpensePage implements OnInit {
 
   foreignCurrencySymbol: string;
 
-  view: 'Individual' | 'Team';
+  view: ExpenseView;
 
   isProjectShown: boolean;
+
+  merchantFieldName: string;
+
+  get ExpenseView() {
+    return ExpenseView;
+  }
 
   constructor(
     private loaderService: LoaderService,
@@ -130,7 +136,7 @@ export class ViewExpensePage implements OnInit {
     });
   }
 
-  isNumber(val: any) {
+  isNumber(val) {
     return typeof val === 'number';
   }
 
@@ -176,7 +182,7 @@ export class ViewExpensePage implements OnInit {
   }
 
   goBack() {
-    if (this.view === 'Team') {
+    if (this.view === ExpenseView.team) {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigate_back: true }]);
@@ -188,9 +194,6 @@ export class ViewExpensePage implements OnInit {
   ionViewWillEnter() {
     this.setupNetworkWatcher();
     const txId = this.activatedRoute.snapshot.params.id;
-    this.currencyOptions = {
-      disabled: true,
-    };
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
       switchMap(() =>
@@ -255,7 +258,7 @@ export class ViewExpensePage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(etxn.tx_currency, 'wide');
     });
 
-    combineLatest([this.offlineService.getExpenseFieldsMap(), this.etxn$])
+    forkJoin([this.offlineService.getExpenseFieldsMap(), this.etxn$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, etxn]) => {
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
@@ -272,27 +275,26 @@ export class ViewExpensePage implements OnInit {
     this.comments$ = this.statusService.find('transactions', txId);
     this.view = this.activatedRoute.snapshot.params.view;
 
-    if (this.view === 'Team') {
-      this.canFlagOrUnflag$ = this.etxnWithoutCustomProperties$.pipe(
-        map(
-          (etxn) =>
-            ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) >
-            -1
-        )
-      );
+    this.canFlagOrUnflag$ = this.etxnWithoutCustomProperties$.pipe(
+      filter(() => this.view === ExpenseView.team),
+      map(
+        (etxn) =>
+          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
+      )
+    );
 
-      this.canDelete$ = this.etxnWithoutCustomProperties$.pipe(
-        concatMap((etxn) =>
-          this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
-        ),
-        map(({ report, etxn }) => {
-          if (report.rp_num_transactions === 1) {
-            return false;
-          }
-          return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
-        })
-      );
-    }
+    this.canDelete$ = this.etxnWithoutCustomProperties$.pipe(
+      filter(() => this.view === ExpenseView.team),
+      switchMap((etxn) =>
+        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
+      ),
+      map(({ report, etxn }) => {
+        if (report.rp_num_transactions === 1) {
+          return false;
+        }
+        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
+      })
+    );
 
     this.isAmountCapped$ = this.etxn$.pipe(
       map((etxn) => this.isNumber(etxn.tx_admin_amount) || this.isNumber(etxn.tx_policy_amount))
@@ -301,6 +303,15 @@ export class ViewExpensePage implements OnInit {
     this.offlineService.getOrgSettings().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
     });
+
+    this.offlineService
+      .getExpenseFieldsMap()
+      .pipe(
+        map((expenseFieldsMap) => {
+          this.merchantFieldName = expenseFieldsMap.vendor_id[0]?.field_name;
+        })
+      )
+      .subscribe(noop);
 
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
       map((etxn) => this.isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001)
@@ -391,7 +402,7 @@ export class ViewExpensePage implements OnInit {
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id, navigate_back: true }]);
     }
   }
 

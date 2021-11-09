@@ -20,6 +20,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { Expense } from 'src/app/core/models/expense.model';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 @Component({
   selector: 'app-view-team-report',
@@ -259,7 +260,7 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
-  goToTransaction({ etxn, etxnIdx }) {
+  goToTransaction({ etxn, etxnIndex }) {
     const category = etxn && etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
     if (category === 'activity') {
       return this.popupService.showPopup({
@@ -279,10 +280,10 @@ export class ViewTeamReportPage implements OnInit {
     } else {
       route = '/enterprise/view_expense';
     }
-    this.trackingService.viewExpenseClicked({ view: 'Team', category });
+    this.trackingService.viewExpenseClicked({ view: ExpenseView.team, category });
     this.router.navigate([
       route,
-      { id: etxn.tx_id, txnIds: JSON.stringify(this.reportEtxnIds), activeIndex: etxnIdx, view: 'Team' },
+      { id: etxn.tx_id, txnIds: JSON.stringify(this.reportEtxnIds), activeIndex: etxnIndex, view: ExpenseView.team },
     ]);
   }
 
@@ -348,7 +349,7 @@ export class ViewTeamReportPage implements OnInit {
       componentProps: {
         erpt$: this.erpt$,
         etxns$: this.etxns$,
-        view: 'Team',
+        view: ExpenseView.team,
       },
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
@@ -357,6 +358,6 @@ export class ViewTeamReportPage implements OnInit {
     await viewInfoModal.present();
     await viewInfoModal.onWillDismiss();
 
-    this.trackingService.clickViewReportInfo({ view: 'Team' });
+    this.trackingService.clickViewReportInfo({ view: ExpenseView.team });
   }
 }

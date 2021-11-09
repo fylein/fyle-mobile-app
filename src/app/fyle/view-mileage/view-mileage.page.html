@@ -8,7 +8,7 @@
     <ion-title
       mode="md"
       class="page-title"
-      [ngClass]="{'view-mileage--title': numEtxnsInReport > 1, 'view-mileage--title-sm': isDeviceWidthSmall}"
+      [ngClass]="{'view-mileage--title': numEtxnsInReport > 1, 'pl-0': isDeviceWidthSmall}"
     >
       View Mileage
       <p class="view-mileage--subtitle" *ngIf="numEtxnsInReport > 1">
@@ -20,7 +20,7 @@
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
-      <ng-container *ngIf="view === 'Team' && canFlagOrUnflag$|async">
+      <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
         <ion-button
           class="view-mileage--header-btn-container__btn"
           (click)="flagUnflagExpense()"
@@ -30,7 +30,7 @@
         </ion-button>
       </ng-container>
 
-      <ng-container *ngIf="view === 'Team' && canDelete$|async">
+      <ng-container *ngIf="view === ExpenseView.team && canDelete$|async">
         <ion-button class="view-mileage--header-btn-container__btn" (click)="removeExpenseFromReport()">
           <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
         </ion-button>
@@ -112,7 +112,7 @@
               [ngClass]="{'view-mileage--route-block__icon-filled': isFirst || isLast }"
             ></ion-icon>
             <span class="view-mileage--label">{{ isFirst ? 'Start' : isLast ? 'End' : 'Stop ' + i }}</span>
-            <div class="view-mileage--value view-mileage--route-block__value">{{ control.display }}</div>
+            <div class="view-mileage--value view-mileage--route-block__value pt-0">{{ control.display }}</div>
           </div>
         </div>
       </div>
@@ -148,7 +148,7 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid *ngIf="view === 'Team'" class="view-mileage--grid">
+    <ion-grid *ngIf="view === ExpenseView.team" class="view-mileage--grid">
       <ion-row>
         <ion-col class="view-mileage--icon-container">
           <div class="view-mileage--icon-container__background">
@@ -443,5 +443,4 @@
   *ngIf="numEtxnsInReport > 1"
   [activeEtxnIndex]="activeEtxnIndex"
   [numEtxnsInReport]="numEtxnsInReport"
-  [view]="view"
 ></app-navigation-footer>

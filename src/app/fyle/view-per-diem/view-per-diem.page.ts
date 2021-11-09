@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, noop, of, combineLatest } from 'rxjs';
+import { Observable, from, Subject, noop, of, forkJoin } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { switchMap, finalize, shareReplay, map, concatMap } from 'rxjs/operators';
+import { switchMap, finalize, shareReplay, map, concatMap, filter, take } from 'rxjs/operators';
 import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -19,6 +19,8 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { getCurrencySymbol } from '@angular/common';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -52,7 +54,7 @@ export class ViewPerDiemPage implements OnInit {
 
   updateFlag$ = new Subject();
 
-  comments$: Observable<any>;
+  comments$: Observable<ExtendedStatus[]>;
 
   isDeviceWidthSmall = window.innerWidth < 330;
 
@@ -68,9 +70,13 @@ export class ViewPerDiemPage implements OnInit {
 
   etxnCurrencySymbol: string;
 
-  view: 'Team' | 'Individual';
+  view: ExpenseView;
 
   isProjectShown: boolean;
+
+  get ExpenseView() {
+    return ExpenseView;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -94,7 +100,7 @@ export class ViewPerDiemPage implements OnInit {
   }
 
   goBack() {
-    if (this.view === 'Team') {
+    if (this.view === ExpenseView.team) {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigate_back: true }]);
@@ -161,7 +167,7 @@ export class ViewPerDiemPage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(extendedPerDiem.tx_currency, 'wide');
     });
 
-    combineLatest([this.offlineService.getExpenseFieldsMap(), this.extendedPerDiem$])
+    forkJoin([this.offlineService.getExpenseFieldsMap(), this.extendedPerDiem$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, extendedPerDiem]) => {
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
@@ -199,27 +205,26 @@ export class ViewPerDiemPage implements OnInit {
 
     this.view = this.activatedRoute.snapshot.params.view;
 
-    if (this.view === 'Team') {
-      this.canFlagOrUnflag$ = this.extendedPerDiem$.pipe(
-        map(
-          (etxn) =>
-            ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) >
-            -1
-        )
-      );
+    this.canFlagOrUnflag$ = this.extendedPerDiem$.pipe(
+      filter(() => this.view === ExpenseView.team),
+      map(
+        (etxn) =>
+          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
+      )
+    );
 
-      this.canDelete$ = this.extendedPerDiem$.pipe(
-        concatMap((etxn) =>
-          this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
-        ),
-        map(({ report, etxn }) => {
-          if (report.rp_num_transactions === 1) {
-            return false;
-          }
-          return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
-        })
-      );
-    }
+    this.canDelete$ = this.extendedPerDiem$.pipe(
+      filter(() => this.view === ExpenseView.team),
+      switchMap((etxn) =>
+        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
+      ),
+      map(({ report, etxn }) => {
+        if (report.rp_num_transactions === 1) {
+          return false;
+        }
+        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
+      })
+    );
 
     if (id) {
       this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
@@ -273,7 +278,7 @@ export class ViewPerDiemPage implements OnInit {
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id }]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id, navigate_back: true }]);
     }
   }
 

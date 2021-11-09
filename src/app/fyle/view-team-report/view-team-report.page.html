@@ -104,7 +104,7 @@
             <app-view-team-report-etxn-card
               *ngFor="let etxn of etxns$|async as etxns; let i = index;"
               [etxn]="etxn"
-              [etxnIdx]="i"
+              [etxnIndex]="i"
               [prevDate]="etxns[i-1]?.tx_txn_dt"
               (goToTransaciton)="goToTransaction($event)"
             >

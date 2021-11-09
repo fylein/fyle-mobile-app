@@ -14,8 +14,6 @@ export class NavigationFooterComponent implements OnInit {
 
   @Input() activeEtxnIndex: number;
 
-  @Input() view: 'Team' | 'Individual';
-
   reportEtxnIds: string[];
 
   constructor(
@@ -54,14 +52,14 @@ export class NavigationFooterComponent implements OnInit {
     });
   }
 
-  goToTransaction(etxn: Expense, etxnIdx: number, goTo: 'prev' | 'next') {
+  goToTransaction(etxn: Expense, etxnIndex: number, goTo: 'prev' | 'next') {
     const category = etxn && etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
 
     if (category === 'activity') {
       if (goTo === 'next') {
-        this.goToNext(etxnIdx);
+        this.goToNext(etxnIndex);
       } else {
-        this.goToPrev(etxnIdx);
+        this.goToPrev(etxnIndex);
       }
       return;
     }
@@ -74,9 +72,6 @@ export class NavigationFooterComponent implements OnInit {
     } else {
       route = '/enterprise/view_expense';
     }
-    this.router.navigate([
-      route,
-      { id: etxn.tx_id, txnIds: JSON.stringify(this.reportEtxnIds), activeIndex: etxnIdx, view: this.view },
-    ]);
+    this.router.navigate([route, { ...this.activatedRoute.snapshot.params, id: etxn.tx_id, activeIndex: etxnIndex }]);
   }
 }

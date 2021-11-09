@@ -20,6 +20,7 @@ import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-rep
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { Expense } from 'src/app/core/models/expense.model';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 @Component({
   selector: 'app-my-view-report',
@@ -277,7 +278,7 @@ export class MyViewReportPage implements OnInit {
     }
   }
 
-  async goToTransaction({ etxn, etxnIdx }) {
+  async goToTransaction({ etxn, etxnIndex }) {
     const erpt = await this.erpt$.toPromise();
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
@@ -325,10 +326,15 @@ export class MyViewReportPage implements OnInit {
         },
       ]);
     } else {
-      this.trackingService.viewExpenseClicked({ view: 'Individual', category });
+      this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
       this.router.navigate([
         route,
-        { id: etxn.tx_id, txnIds: JSON.stringify(this.reportEtxnIds), activeIndex: etxnIdx, view: 'Individual' },
+        {
+          id: etxn.tx_id,
+          txnIds: JSON.stringify(this.reportEtxnIds),
+          activeIndex: etxnIndex,
+          view: ExpenseView.individual,
+        },
       ]);
     }
   }
@@ -363,7 +369,7 @@ export class MyViewReportPage implements OnInit {
       componentProps: {
         erpt$: this.erpt$,
         etxns$: this.etxns$,
-        view: 'Individual',
+        view: ExpenseView.individual,
       },
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
@@ -372,7 +378,7 @@ export class MyViewReportPage implements OnInit {
     await viewInfoModal.present();
     await viewInfoModal.onWillDismiss();
 
-    this.trackingService.clickViewReportInfo({ view: 'Individual' });
+    this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
 
   canEditTxn(txState) {
