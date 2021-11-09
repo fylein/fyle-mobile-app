@@ -54,7 +54,7 @@ export class PersonalCardsService {
   }
 
   postBankAccounts(requestIds: string[]): Observable<string[]> {
-    return this.expenseAggregationService.post('/yodlee/bank_accounts', {
+    return this.expenseAggregationService.post('/yodlee/personal/bank_accounts', {
       aggregator: 'yodlee',
       request_ids: requestIds,
     });

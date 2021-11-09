@@ -128,6 +128,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.setupNetworkWatcher();
   }
 
+  ionViewWillEnter() {
+    if (!this.isLoading) {
+      this.loadCardData$.next({});
+    }
+  }
+
   ngAfterViewInit() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
@@ -503,16 +509,16 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             ],
           } as FilterOptions<DateFilters>,
           {
-            name: 'Credit Transactions',
+            name: 'Transactions Type',
             optionType: FilterOptionType.singleselect,
             options: [
               {
-                label: 'Yes',
-                value: 'YES',
+                label: 'Credit',
+                value: 'Credit',
               },
               {
-                label: 'No',
-                value: 'NO',
+                label: 'Debit',
+                value: 'Debit',
               },
             ],
           } as FilterOptions<string>,
@@ -567,7 +573,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       }
     }
 
-    const showCreditedFilter = selectedFilters.find((filter) => filter.name === 'Credit Transactions');
+    const showCreditedFilter = selectedFilters.find((filter) => filter.name === 'Transactions Type');
 
     if (showCreditedFilter) {
       generatedFilters.showCredited = showCreditedFilter.value;
@@ -585,13 +591,15 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     };
     newQueryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
     newQueryParams.ba_id = 'eq.' + this.selectedAccount;
-    this.generateDateParams(newQueryParams);
+    this.generateCreatedOnDateParams(newQueryParams);
+    this.generateUpdatedOnDateParams(newQueryParams);
+    this.generateCreditParams(newQueryParams);
     currentParams.queryParams = newQueryParams;
 
     return currentParams;
   }
 
-  generateDateParams(newQueryParams) {
+  generateCreatedOnDateParams(newQueryParams) {
     if (this.filters.createdOn) {
       this.filters.createdOn.customDateStart =
         this.filters.createdOn.customDateStart && new Date(this.filters.createdOn.customDateStart);
@@ -612,11 +620,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         newQueryParams.and = `(btxn_created_at.gte.${lastMonth.from.toISOString()},btxn_created_at.lt.${lastMonth.to.toISOString()})`;
       }
 
-      this.generateCustomDateParams(newQueryParams);
+      this.generateCreatedOnCustomDateParams(newQueryParams);
     }
   }
 
-  generateCustomDateParams(newQueryParams: any) {
+  generateCreatedOnCustomDateParams(newQueryParams: any) {
     if (this.filters.createdOn?.name === DateFilters.custom) {
       const startDate = this.filters?.createdOn?.customDateStart?.toISOString();
       const endDate = this.filters?.createdOn?.customDateEnd?.toISOString();
@@ -630,13 +638,67 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
+  generateUpdatedOnDateParams(newQueryParams) {
+    if (this.filters.updatedOn) {
+      this.filters.updatedOn.customDateStart =
+        this.filters.updatedOn.customDateStart && new Date(this.filters.updatedOn.customDateStart);
+      this.filters.updatedOn.customDateEnd =
+        this.filters.updatedOn.customDateEnd && new Date(this.filters.updatedOn.customDateEnd);
+      if (this.filters.updatedOn.name === DateFilters.thisMonth) {
+        const thisMonth = this.dateService.getThisMonthRange();
+        newQueryParams.and = `(btxn_updated_at.gte.${thisMonth.from.toISOString()},btxn_updated_at.lt.${thisMonth.to.toISOString()})`;
+      }
+
+      if (this.filters.updatedOn.name === DateFilters.thisWeek) {
+        const thisWeek = this.dateService.getThisWeekRange();
+        newQueryParams.and = `(btxn_updated_at.gte.${thisWeek.from.toISOString()},btxn_updated_at.lt.${thisWeek.to.toISOString()})`;
+      }
+
+      if (this.filters.updatedOn.name === DateFilters.lastMonth) {
+        const lastMonth = this.dateService.getLastMonthRange();
+        newQueryParams.and = `(btxn_updated_at.gte.${lastMonth.from.toISOString()},btxn_updated_at.lt.${lastMonth.to.toISOString()})`;
+      }
+
+      this.generateCreatedOnCustomDateParams(newQueryParams);
+    }
+  }
+
+  generateUpdatedOnCustomDateParams(newQueryParams: any) {
+    if (this.filters.updatedOn?.name === DateFilters.custom) {
+      const startDate = this.filters?.updatedOn?.customDateStart?.toISOString();
+      const endDate = this.filters?.updatedOn?.customDateEnd?.toISOString();
+      if (this.filters.updatedOn?.customDateStart && this.filters.updatedOn?.customDateEnd) {
+        newQueryParams.and = `(btxn_updated_at.gte.${startDate},btxn_updated_at.lt.${endDate})`;
+      } else if (this.filters.updatedOn?.customDateStart) {
+        newQueryParams.and = `(btxn_updated_at.gte.${startDate})`;
+      } else if (this.filters.updatedOn?.customDateEnd) {
+        newQueryParams.and = `(btxn_updated_at.lt.${endDate})`;
+      }
+    }
+  }
+
+  generateCreditParams(newQueryParams) {
+    if (this.filters.showCredited) {
+      if (this.filters.showCredited === 'Credit') {
+        newQueryParams.or = `(btxn_transaction_type.in.(credit))`;
+      }
+      if (this.filters.showCredited === 'Debit') {
+        newQueryParams.or = `(btxn_transaction_type.in.(debit))`;
+      }
+    }
+  }
+
   generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
     const generatedFilters: SelectedFilters<any>[] = [];
 
     if (filter?.updatedOn) {
       generatedFilters.push({
-        name: 'Credit Transactions',
-        value: filter.updatedOn,
+        name: 'Updated On',
+        value: filter.updatedOn.name,
+        associatedData: {
+          startDate: filter.updatedOn.customDateStart,
+          endDate: filter.updatedOn.customDateEnd,
+        },
       });
     }
 
@@ -648,6 +710,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           startDate: filter.createdOn.customDateStart,
           endDate: filter.createdOn.customDateEnd,
         },
+      });
+    }
+
+    if (filter?.showCredited) {
+      generatedFilters.push({
+        name: 'Transactions Type',
+        value: filter.showCredited,
       });
     }
 
@@ -799,19 +868,19 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   generateCreditTrasactionsFilterPills(filter, filterPills: FilterPill[]) {
-    if (filter.showCredited === 'YES') {
+    if (filter.showCredited === 'Credit') {
       filterPills.push({
-        label: 'Credit Trasactions',
+        label: 'Transactions Type',
         type: 'string',
-        value: 'YES',
+        value: 'Credit',
       });
     }
 
-    if (filter.showCredited === 'NO') {
+    if (filter.showCredited === 'Debit') {
       filterPills.push({
-        label: 'Credit Trasactions',
+        label: 'Transactions Type',
         type: 'string',
-        value: 'NO',
+        value: 'Debit',
       });
     }
   }
@@ -837,9 +906,17 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.clearFilters();
   }
 
-  async onFilterClick(filterType: string) {
-    if (filterType === 'date') {
+  async onFilterClick(filterLabel: string) {
+    if (filterLabel === 'Created On') {
       await this.openFilters('Created On');
+    }
+
+    if (filterLabel === 'Updated On') {
+      await this.openFilters('Updated On');
+    }
+
+    if (filterLabel === 'Transactions Type') {
+      await this.openFilters('Transactions Type');
     }
   }
 
@@ -852,7 +929,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       delete this.filters.updatedOn;
     }
 
-    if (filterLabel === 'Credit Trasactions') {
+    if (filterLabel === 'Transactions Type') {
       delete this.filters.showCredited;
     }
     this.currentPageNumber = 1;
