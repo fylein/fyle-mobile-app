@@ -47,4 +47,9 @@
     display: block;
     min-height: 52px;
   }
+
+  &--header-btn {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+  }
 }
