@@ -331,6 +331,15 @@ $sent-back-color: #da1e28;
     height: 100%;
     position: absolute;
   }
+
+  &--unreported-cta {
+    padding: 10px 16px;
+    background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
+    border-radius: 4px;
+    color: $pure-white;
+    letter-spacing: 0px;
+    font-size: 12px;
+  }
 }
 
 .view-comment {

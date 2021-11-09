@@ -112,10 +112,6 @@
             </div>
           </div>
         </div>
-        <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
-          <ion-icon class="view-reports--view-info__icon" src="../../../assets/svg/fy-info-gradient.svg"></ion-icon>
-          <span class="view-reports--view-info__content">View Info</span>
-        </div>
       </div>
 
       <!-- Display Associated trip request info, if there is one. Otherwise don't display this block at all -->
@@ -145,7 +141,11 @@
           <ion-segment-button value="comments" class="view-reports--segment-block-container__btn text-capitalize">
             Comments
           </ion-segment-button>
-          <ion-segment-button value="history" class="view-reports--segment-block-container__btn text-capitalize">
+          <ion-segment-button
+            *ngIf="systemEstatuses && systemEstatuses.length > 0"
+            value="history"
+            class="view-reports--segment-block-container__btn text-capitalize"
+          >
             History
           </ion-segment-button>
         </ion-segment>
@@ -177,9 +177,10 @@
           <div class="view-reports--expenses-zero-state" *ngIf="erpt.rp_num_transactions === 0">
             <div class="text-center">
               <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
-              <div class="view-reports--zero-state-header">No expense in this report yet</div>
-              <div class="view-reports--zero-state-header">Looks like you don't have reportable expenses.</div>
-              <div (click)="showAddExpensesToReportModal()">Add ureported expenses to report</div>
+              <div class="view-reports--zero-state-header">Looks like this report is empty.</div>
+              <button class="view-reports--unreported-cta" (click)="showAddExpensesToReportModal()">
+                Add unreported expenses to report
+              </button>
               <div class="view-reports--add-more-container" (click)="addExpense()">
                 <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
                 <div class="view-reports--add-more-text">Add Expenses</div>
@@ -298,7 +299,10 @@
         </div>
 
         <!-- History section -->
-        <div *ngIf="isHistoryView" class="view-reports--history-container">
+        <div
+          *ngIf="isHistoryView && systemEstatuses && systemEstatuses.length > 0"
+          class="view-reports--history-container"
+        >
           <app-audit-history [estatuses]="systemEstatuses"></app-audit-history>
         </div>
       </div>
