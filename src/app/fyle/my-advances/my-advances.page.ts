@@ -433,7 +433,6 @@ export class MyAdvancesPage {
         generatedFilters.sortDir = 'desc';
       }
     }
-    console.log(generatedFilters);
     return generatedFilters;
   }
 
