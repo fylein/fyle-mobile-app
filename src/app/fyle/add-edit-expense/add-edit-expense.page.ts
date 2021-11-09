@@ -3703,7 +3703,7 @@ export class AddEditExpensePage implements OnInit {
           });
         }
 
-        if (extractedData.date) {
+        if (!this.fg.controls.dateOfSpend.value && extractedData.date) {
           this.fg.patchValue({
             dateOfSpend: extractedData.date,
           });
