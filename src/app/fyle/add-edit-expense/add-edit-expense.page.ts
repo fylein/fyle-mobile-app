@@ -1,7 +1,20 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, Subject, throwError } from 'rxjs';
+import {
+  combineLatest,
+  concat,
+  EMPTY,
+  forkJoin,
+  from,
+  iif,
+  merge,
+  noop,
+  Observable,
+  of,
+  Subject,
+  throwError,
+} from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   catchError,
@@ -11,6 +24,7 @@ import {
   filter,
   finalize,
   map,
+  mergeMap,
   reduce,
   shareReplay,
   startWith,
@@ -79,8 +93,10 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { TaxGroupService } from 'src/app/core/services/tax_group.service';
 import { TaxGroup } from 'src/app/core/models/tax_group.model';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -101,6 +117,8 @@ export class AddEditExpensePage implements OnInit {
   recentlyUsedValues$: Observable<RecentlyUsed>;
 
   isCreatedFromCCC = false;
+
+  isCreatedFromPersonalCard = false;
 
   paymentAccount$: Observable<any>;
 
@@ -331,6 +349,7 @@ export class AddEditExpensePage implements OnInit {
     private actionSheetController: ActionSheetController,
     private taxGroupsService: TaxGroupService,
     private sanitizer: DomSanitizer,
+    private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService
   ) {}
@@ -1054,10 +1073,13 @@ export class AddEditExpensePage implements OnInit {
         } = dependencies;
         const bankTxn =
           this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
+        const personalCardTxn =
+          this.activatedRoute.snapshot.params.personalCardTxn &&
+          JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn);
         this.isExpenseBankTxn = !!bankTxn;
         const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
         let etxn;
-        if (!bankTxn) {
+        if (!bankTxn && !personalCardTxn) {
           etxn = {
             tx: {
               skip_reimbursement: false,
@@ -1114,6 +1136,22 @@ export class AddEditExpensePage implements OnInit {
           if (projectEnabled && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
             etxn.tx.project_id = orgUserSettings.preferences.default_project_id;
           }
+        } else if (personalCardTxn) {
+          etxn = {
+            tx: {
+              txn_dt: new Date(personalCardTxn.btxn_transaction_dt),
+              source: 'MOBILE',
+              currency: personalCardTxn.btxn_currency,
+              amount: personalCardTxn.btxn_amount,
+              vendor: personalCardTxn.btxn_vendor,
+              purpose: personalCardTxn.btxn_description,
+              skip_reimbursement: false,
+              locations: [],
+              num_files: 0,
+              org_user_id: eou.ou.id,
+            },
+            dataUrls: [],
+          };
         } else {
           etxn = {
             tx: {
@@ -2368,6 +2406,9 @@ export class AddEditExpensePage implements OnInit {
 
     this.isCreatedFromCCC = !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn;
 
+    this.isCreatedFromPersonalCard =
+      !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.personalCardTxn;
+
     this.setupExpenseSuggestions();
 
     this.setupDuplicateDetection();
@@ -2677,7 +2718,6 @@ export class AddEditExpensePage implements OnInit {
         return fileObj;
       })
     );
-
     const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
     return forkJoin({
       etxn: etxn$,
@@ -2901,16 +2941,20 @@ export class AddEditExpensePage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
-                this.addToNewReport(res.transaction.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                that.goBack();
-                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
-              } else {
-                that.goBack();
-              }
-            });
+            if (that.isCreatedFromPersonalCard) {
+              that.saveAndMatchWithPersonalCardTxn();
+            } else {
+              that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
+                if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
+                  this.addToNewReport(res.transaction.id);
+                } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                  that.goBack();
+                  this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+                } else {
+                  that.goBack();
+                }
+              });
+            }
           } else {
             // to do edit
             that.editExpense('SAVE_EXPENSE').subscribe((res) => {
@@ -3982,5 +4026,149 @@ export class AddEditExpensePage implements OnInit {
           this.policyDetails = details;
         });
     }
+  }
+
+  saveAndMatchWithPersonalCardTxn() {
+    const customFields$ = this.getCustomFields();
+    return this.generateEtxnFromFg(this.etxn$, customFields$, true)
+      .pipe(
+        switchMap((etxn) =>
+          this.isConnected$.pipe(
+            take(1),
+            switchMap((isConnected) => {
+              if (isConnected) {
+                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
+                return policyViolations$.pipe(
+                  map(this.policyService.getCriticalPolicyRules),
+                  switchMap((criticalPolicyViolations) => {
+                    if (criticalPolicyViolations.length > 0) {
+                      return throwError({
+                        type: 'criticalPolicyViolations',
+                        policyViolations: criticalPolicyViolations,
+                        etxn,
+                      });
+                    } else {
+                      return policyViolations$;
+                    }
+                  }),
+                  map((policyViolations: any) => [
+                    this.policyService.getPolicyRules(policyViolations),
+                    policyViolations &&
+                      policyViolations.transaction_desired_state &&
+                      policyViolations.transaction_desired_state.action_description,
+                  ]),
+                  switchMap(([policyViolations, policyActionDescription]) => {
+                    if (policyViolations.length > 0) {
+                      return throwError({
+                        type: 'policyViolations',
+                        policyViolations,
+                        policyActionDescription,
+                        etxn,
+                      });
+                    } else {
+                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+                      );
+                    }
+                  })
+                );
+              } else {
+                return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                  map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+                );
+              }
+            })
+          )
+        ),
+        catchError((err) => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+          }
+
+          if (err.type === 'criticalPolicyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() =>
+                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+                      )
+                    )
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else if (err.type === 'policyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() =>
+                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+                      )
+                    )
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else {
+            return throwError(err);
+          }
+        }),
+        switchMap(({ etxn }: any) => {
+          const personalCardTxn =
+            this.activatedRoute.snapshot.params.personalCardTxn &&
+            JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn);
+          const externalExpenseId = personalCardTxn.btxn_id;
+          return this.transactionService.upsert(etxn.tx).pipe(
+            switchMap((txn) =>
+              this.personalCardsService
+                .matchExpense(txn.split_group_id, externalExpenseId)
+                .pipe(switchMap(() => this.uploadAttachments(txn)))
+            ),
+            finalize(() => {
+              this.saveExpenseLoader = false;
+            })
+          );
+        })
+      )
+      .subscribe(() => {
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Successfully matched the expense.' }),
+          panelClass: ['msb-success'],
+        });
+        this.router.navigate(['/', 'enterprise', 'personal_cards']);
+      });
+  }
+
+  uploadAttachments(txn) {
+    const addExpenseAttachments$ = of(
+      this.newExpenseDataUrls.map((fileObj) => {
+        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
+        return fileObj;
+      })
+    );
+    return addExpenseAttachments$.pipe(
+      switchMap((fileObj: any) =>
+        fileObj.map((file) =>
+          from(this.transactionOutboxService.fileUpload(file.url, file.type))
+            .pipe(
+              switchMap((fileObj: any) => {
+                fileObj.transaction_id = txn.split_group_id;
+                return this.fileService.post(fileObj);
+              })
+            )
+            .subscribe(noop)
+        )
+      )
+    );
   }
 }

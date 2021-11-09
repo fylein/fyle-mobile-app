@@ -395,7 +395,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await attachmentsModal.present();
