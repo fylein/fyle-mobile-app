@@ -863,7 +863,7 @@ ref - https://stackoverflow.com/a/31162426
 .ios .personal-cards-segment-block {
   height: 40px;
   padding: 2px !important;
-  margin: 12px auto;
+  margin: 0 auto;
   background: $pure-white;
   border: 2px solid $pure-white;
   box-sizing: border-box;
@@ -1005,7 +1005,7 @@ ion-modal.auto-height {
   .modal-wrapper {
     --border-radius: 16px 16px 0 0 !important;
     position: absolute;
-    max-height: 35%;
+    max-height: 52%;
     bottom: 0;
   }
 

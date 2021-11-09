@@ -109,6 +109,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   simpleSearchText = '';
 
+  txnDateRange = 'Date Range';
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -1015,7 +1017,36 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
+      this.zone.run(() => {
+        this.txnDateRange = data.range;
+      });
       const currentParams = this.loadData$.getValue();
+
+      if (data.range === 'This Month') {
+        const thisMonth = this.dateService.getThisMonthRange();
+        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${thisMonth.from.toISOString()},btxn_transaction_dt.lt.${thisMonth.to.toISOString()}))`;
+      }
+
+      if (data.range === 'Last Month') {
+        const lastMonth = this.dateService.getLastMonthRange();
+        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${lastMonth.from.toISOString()},btxn_transaction_dt.lt.${lastMonth.to.toISOString()}))`;
+      }
+
+      if (data.range === 'Last 30 Days') {
+        const last30Days = this.dateService.getLastDaysRange(30);
+        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${last30Days.from.toISOString()},btxn_transaction_dt.lt.${last30Days.to.toISOString()}))`;
+      }
+
+      if (data.range === 'Last 60 Days') {
+        const last60Days = this.dateService.getLastDaysRange(60);
+        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${last60Days.from.toISOString()},btxn_transaction_dt.lt.${last60Days.to.toISOString()}))`;
+      }
+
+      if (data.range === 'All Time') {
+        const last90Days = this.dateService.getLastDaysRange(90);
+        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${last90Days.from.toISOString()},btxn_transaction_dt.lt.${last90Days.to.toISOString()}))`;
+      }
+
       this.loadData$.next(currentParams);
     }
   }

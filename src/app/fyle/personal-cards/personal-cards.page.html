@@ -23,7 +23,7 @@
       </ion-button>
     </ion-buttons>
   </ng-container>
-  <ng-container personalCardContent *ngIf="isLoading && ((linkedAccountsCount$ | async) !== 0)">
+  <ng-container personalCardContent *ngIf="!isLoading && ((linkedAccountsCount$ | async) !== 0)">
     <ion-toolbar>
       <ion-segment
         class="personal-cards-segment-block"
@@ -109,7 +109,7 @@
       >
         <ng-container>
           <ion-icon slot="icon-only" class="personal-cards--icon" src="../../../assets/svg/calendar.svg"></ion-icon>
-          Date Range
+          {{txnDateRange}}
         </ng-container>
       </button>
       <button

@@ -306,4 +306,12 @@ export class DateService {
       to: this.lastOfThisWeek(),
     };
   }
+
+  getLastDaysRange(numOfDays) {
+    const startDate = new Date(this.today.getTime() - numOfDays * 24 * 60 * 60 * 1000);
+    return {
+      from: startDate,
+      to: this.today,
+    };
+  }
 }
