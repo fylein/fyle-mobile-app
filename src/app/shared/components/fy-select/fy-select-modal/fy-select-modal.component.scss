@@ -6,7 +6,7 @@ $list-element-color: #333;
   color: black;
   &--list-element {
     padding: 6px 0;
-    margin: 16px 0px 0px 16px;
+    margin: 16px 16px 0 16px;
     // border-color-font
     @extend %fy-select-list-element-default-border-color-font;
     // list-item-layout
