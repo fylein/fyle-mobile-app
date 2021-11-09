@@ -22,7 +22,6 @@ enum AdvancesStates {
 
 type Filters = Partial<{
   state: AdvancesStates[];
-  date: string;
   sortParam: string;
   sortDir: string;
 }>;
@@ -159,12 +158,17 @@ export class MyAdvancesPage {
             )
           ),
           switchMap((advArray) =>
+            //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
             this.filterParams$.pipe(
               map((filters) => {
-                let newArr = advArray;
+                //TODO: find a way to clean up this section somehow
+                //filtering
+                let newArr = [...advArray];
                 if (filters && filters.state && filters.state.length > 0) {
                   newArr = advArray.filter((adv) => filters.state.includes(adv.areq_state));
                 }
+
+                //sorting
                 if (filters && filters.sortDir && filters.sortParam) {
                   if (filters.sortParam.includes('crDate')) {
                     newArr = newArr.sort((adv1, adv2) => {
@@ -287,11 +291,35 @@ export class MyAdvancesPage {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
-  onFilterClose(arg) {}
+  onFilterClose(filterType: string) {
+    const filters = this.filterParams$.value;
+    if (filterType === 'sort') {
+      this.filterParams$.next({
+        ...filters,
+        sortParam: null,
+        sortDir: null,
+      });
+    } else if (filterType === 'state') {
+      this.filterParams$.next({
+        ...filters,
+        state: null,
+      });
+    }
+    this.generateFilterPills();
+  }
 
-  onFilterClick(arg) {}
+  async onFilterClick(filterType: string) {
+    if (filterType === 'state') {
+      await this.openFilters('State');
+    } else if (filterType === 'sort') {
+      await this.openFilters('Sort By');
+    }
+  }
 
-  onFilterPillsClearAll() {}
+  onFilterPillsClearAll() {
+    this.filterParams$.next({});
+    this.generateFilterPills();
+  }
 
   async openFilters(activeFilterInitialName?: string) {
     const filterPopover = await this.modalController.create({
