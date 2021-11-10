@@ -20,18 +20,16 @@ $details-color: #ababab;
   }
 
   &--icon-container {
-    &__icon {
-      height: 28px;
-      width: 28px;
-      vertical-align: middle;
+    height: 28px;
+    width: 28px;
+    vertical-align: middle;
 
-      &--camera {
-        stroke: $grey-light;
-      }
+    &--camera {
+      stroke: $grey-light;
+    }
 
-      &--gallery {
-        color: $grey-light;
-      }
+    &--gallery {
+      color: $grey-light;
     }
   }
 
