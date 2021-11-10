@@ -134,7 +134,14 @@
         </ion-button>
       </ion-buttons>
       <ion-buttons *ngIf="type === 'unmatch'">
-        <ion-button (click)="unmatchExpense()" [disabled]="unMatching" appFormButtonValidation class="btn-secondary">
+        <ion-button
+          (click)="unmatchExpense()"
+          [disabled]="unMatching"
+          [loadingText]="'Un matching'"
+          [loading]="unMatching"
+          appFormButtonValidation
+          class="btn-secondary"
+        >
           Unmatch
         </ion-button>
         <ion-button (click)="viewExpense()" [disabled]="unMatching" appFormButtonValidation class="btn-primary">
