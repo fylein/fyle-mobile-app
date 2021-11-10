@@ -172,18 +172,32 @@ export class MyAdvancesPage {
                 if (filters && filters.sortDir && filters.sortParam) {
                   if (filters.sortParam.includes('crDate')) {
                     newArr = newArr.sort((adv1, adv2) => {
+                      const adv1Date = adv1.areq_created_at
+                        ? new Date(adv1.areq_created_at)
+                        : new Date(adv1.adv_created_at);
+                      const adv2Date = adv2.areq_created_at
+                        ? new Date(adv2.areq_created_at)
+                        : new Date(adv2.adv_created_at);
+
                       if (filters.sortDir === 'asc') {
-                        return Date.parse(adv1.adv_created_at) > Date.parse(adv2.adv_created_at) ? 1 : -1;
+                        return adv1Date.getTime() > adv2Date.getTime() ? 1 : -1;
                       } else {
-                        return Date.parse(adv1.adv_created_at) < Date.parse(adv2.adv_created_at) ? 1 : -1;
+                        return adv1Date.getTime() < adv2Date.getTime() ? 1 : -1;
                       }
                     });
                   } else if (filters.sortParam.includes('appDate')) {
                     newArr = newArr.sort((adv1, adv2) => {
+                      const adv1Date = adv1.areq_created_at
+                        ? new Date(adv1.areq_created_at)
+                        : new Date(adv1.adv_created_at);
+                      const adv2Date = adv2.areq_created_at
+                        ? new Date(adv2.areq_created_at)
+                        : new Date(adv2.adv_created_at);
+
                       if (filters.sortDir === 'asc') {
-                        return Date.parse(adv1.areq_approved_at) > Date.parse(adv2.areq_approved_at) ? 1 : -1;
+                        return adv1Date.getTime() > adv2Date.getTime() ? 1 : -1;
                       } else {
-                        return Date.parse(adv1.areq_approved_at) < Date.parse(adv2.areq_approved_at) ? 1 : -1;
+                        return adv1Date.getTime() < adv2Date.getTime() ? 1 : -1;
                       }
                     });
                   } else if (filters.sortParam.includes('project')) {
