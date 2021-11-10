@@ -13,6 +13,7 @@ import { DashboardTask } from 'src/app/core/models/task.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -37,6 +38,7 @@ export class TasksComponent implements OnInit {
     draftReports: false,
     draftExpenses: false,
     unreportedExpenses: false,
+    teamReports: false,
   });
 
   isConnected$: Observable<boolean>;
@@ -58,7 +60,8 @@ export class TasksComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private offlineService: OfflineService
   ) {}
 
   ngOnInit() {
@@ -89,6 +92,7 @@ export class TasksComponent implements OnInit {
         unreportedExpenses: true,
         draftReports: false,
         sentBackReports: false,
+        teamReports: false,
       });
     }
 
@@ -98,6 +102,17 @@ export class TasksComponent implements OnInit {
         unreportedExpenses: false,
         draftReports: true,
         sentBackReports: true,
+        teamReports: false,
+      });
+    }
+
+    if (paramFilters === 'team_reports') {
+      this.loadData$.next({
+        draftExpenses: false,
+        unreportedExpenses: false,
+        draftReports: false,
+        sentBackReports: false,
+        teamReports: true,
       });
     }
 
@@ -158,6 +173,10 @@ export class TasksComponent implements OnInit {
               {
                 label: 'Unsubmitted',
                 value: 'DRAFT',
+              },
+              {
+                label: 'Unapproved',
+                value: 'TEAM',
               },
             ],
           } as FilterOptions<string>,
@@ -249,6 +268,9 @@ export class TasksComponent implements OnInit {
         break;
       case TASKEVENT.reviewExpenses:
         this.onReviewExpensesTaskClick(taskCta, task);
+        break;
+      case TASKEVENT.openTeamReport:
+        this.onTeamReportsTaskClick(taskCta, task);
         break;
       default:
         break;
@@ -343,6 +365,38 @@ export class TasksComponent implements OnInit {
       this.router.navigate(['/', 'enterprise', 'my_reports'], {
         queryParams: {
           filters: JSON.stringify({ state: ['APPROVER_INQUIRY'] }),
+        },
+      });
+    }
+  }
+
+  onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask) {
+    if (task.count === 1) {
+      from(this.loaderService.showLoader('Opening your report...'))
+        .pipe(
+          switchMap(() =>
+            forkJoin({
+              eou: from(this.authService.getEou()),
+              sequentalApproversEnabled: this.offlineService
+                .getOrgSettings()
+                .pipe(map((orgSettings) => orgSettings.approval_settings.enable_sequential_approvers)),
+            })
+          ),
+          map(({ eou, sequentalApproversEnabled }) => ({
+            rp_approval_state: ['in.(APPROVAL_PENDING)'],
+            rp_state: ['in.(APPROVER_PENDING)'],
+            sequential_approval_turn: sequentalApproversEnabled ? ['in.(true)'] : ['in.(true)'],
+          })),
+          switchMap((queryParams) => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
+          finalize(() => this.loaderService.hideLoader())
+        )
+        .subscribe((res) => {
+          this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res.data[0].rp_id, navigate_back: true }]);
+        });
+    } else {
+      this.router.navigate(['/', 'enterprise', 'team_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['APPROVER_PENDING'] }),
         },
       });
     }
