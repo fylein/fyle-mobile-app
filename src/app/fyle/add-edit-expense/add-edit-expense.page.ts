@@ -4029,6 +4029,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   saveAndMatchWithPersonalCardTxn() {
+    this.saveExpenseLoader = true;
     const customFields$ = this.getCustomFields();
     return this.generateEtxnFromFg(this.etxn$, customFields$, true)
       .pipe(

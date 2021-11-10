@@ -24,7 +24,7 @@
     </ion-buttons>
   </ng-container>
   <ng-container personalCardContent *ngIf="!isLoading && ((linkedAccountsCount$ | async) !== 0)">
-    <ion-toolbar>
+    <ion-toolbar mode="{{mode}}">
       <ion-segment
         class="personal-cards-segment-block"
         (ionChange)="segmentChanged($event)"
@@ -171,6 +171,7 @@
               [txnDate]="transaction.btxn_created_at"
               [previousTxnDate]="transactions[i-1]?.btxn_created_at"
               [txnId]="transaction.btxn_id"
+              [isMatchedCountLoading]="transaction.btxn_id === loadingTxnId"
               [status]="selectedTrasactionType"
               [isSelectionModeEnabled]="selectionMode"
               [selectedElements]="selectedElements"
