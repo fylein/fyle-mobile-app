@@ -15,7 +15,7 @@ import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filt
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { ModalController } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { DateService } from 'src/app/core/services/date.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
@@ -111,6 +111,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   txnDateRange = 'Date Range';
 
+  mode: string;
+
+  loadingMatchedExpenseCount = false;
+
+  loadingTxnId: string;
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -123,16 +129,24 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private snackbarProperties: SnackbarPropertiesService,
     private modalController: ModalController,
     private dateService: DateService,
-    private apiV2Service: ApiV2Service
+    private apiV2Service: ApiV2Service,
+    private platform: Platform
   ) {}
 
   ngOnInit() {
     this.setupNetworkWatcher();
+    const isIos = this.platform.is('ios');
+    if (isIos) {
+      this.mode = 'ios';
+    } else {
+      this.mode = 'md';
+    }
   }
 
   ionViewWillEnter() {
-    if (!this.isLoading) {
-      this.loadCardData$.next({});
+    if (this.isCardsLoaded) {
+      const currentParams = this.loadData$.getValue();
+      this.loadData$.next(currentParams);
     }
   }
 
@@ -961,7 +975,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   createExpense(txnDetails) {
-    if (this.selectionMode) {
+    if (this.selectionMode && this.loadingMatchedExpenseCount) {
       return;
     }
     if (txnDetails.btxn_status === 'MATCHED') {
@@ -969,7 +983,24 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       return;
     }
 
-    this.router.navigate(['/', 'enterprise', 'personal_cards_matched_expenses'], { state: { txnDetails } });
+    const txnDate = moment(txnDetails.btxn_transaction_dt).format('yyyy-MM-DD');
+
+    this.loadingMatchedExpenseCount = true;
+    this.loadingTxnId = txnDetails.btxn_id;
+    this.personalCardsService.getMatchedExpensesCount(txnDetails.btxn_amount, txnDate).subscribe((count) => {
+      this.loadingMatchedExpenseCount = false;
+      this.loadingTxnId = null;
+      if (count === 0) {
+        this.router.navigate([
+          '/',
+          'enterprise',
+          'add_edit_expense',
+          { personalCardTxn: JSON.stringify(txnDetails), navigate_back: true },
+        ]);
+      } else {
+        this.router.navigate(['/', 'enterprise', 'personal_cards_matched_expenses'], { state: { txnDetails } });
+      }
+    });
   }
 
   async openExpensePreview(txnDetails) {
