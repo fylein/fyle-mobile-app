@@ -12,8 +12,7 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { NetworkService } from '../../core/services/network.service';
 import { ModalController } from '@ionic/angular';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
+import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
 
 enum AdvancesStates {
   sentBack = 'SENT_BACK',
@@ -60,7 +59,8 @@ export class MyAdvancesPage {
     private advanceService: AdvanceService,
     private networkService: NetworkService,
     private offlineService: OfflineService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private filtersHelperService: FiltersHelperService
   ) {}
 
   ionViewWillLeave() {
@@ -89,7 +89,7 @@ export class MyAdvancesPage {
     const oldFilters = this.activatedRoute.snapshot.queryParams.filters;
     if (oldFilters) {
       this.filterParams$.next(JSON.parse(oldFilters));
-      this.generateFilterPills();
+      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
     }
 
     this.myAdvancerequests$ = this.advanceRequestService
@@ -326,7 +326,7 @@ export class MyAdvancesPage {
         state: null,
       });
     }
-    this.generateFilterPills();
+    this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
   }
 
   async onFilterClick(filterType: string) {
@@ -339,7 +339,7 @@ export class MyAdvancesPage {
 
   onFilterPillsClearAll() {
     this.filterParams$.next({});
-    this.generateFilterPills();
+    this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
   }
 
   async openFilters(activeFilterInitialName?: string) {
@@ -393,7 +393,7 @@ export class MyAdvancesPage {
             ],
           } as FilterOptions<string>,
         ],
-        selectedFilterValues: this.generateSelectedFilters(this.filterParams$.value),
+        selectedFilterValues: this.filtersHelperService.generateSelectedFilters(this.filterParams$.value),
         activeFilterInitialName,
       },
       cssClass: 'dialog-popover',
@@ -403,118 +403,9 @@ export class MyAdvancesPage {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      this.filterParams$.next(this.convertDataToFilters(data));
-      this.generateFilterPills();
+      const filters = this.filtersHelperService.convertDataToFilters(data);
+      this.filterParams$.next(filters);
+      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
     }
-  }
-
-  private generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
-    const generatedFilters: SelectedFilters<any>[] = [];
-    if (filter && filter.state) {
-      generatedFilters.push({
-        name: 'State',
-        value: filter.state,
-      });
-    }
-    if (filter && filter.sortParam) {
-      generatedFilters.push({
-        name: 'Sort By',
-        value: filter.sortParam,
-      });
-    }
-    return generatedFilters;
-  }
-
-  private convertDataToFilters(selectedFilters: SelectedFilters<any>[]): Filters {
-    const generatedFilters: Filters = {};
-
-    const stateFilter = selectedFilters.find((filter) => filter.name === 'State');
-    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
-    if (stateFilter) {
-      generatedFilters.state = stateFilter.value;
-    }
-    if (sortBy) {
-      if (sortBy.value === 'crDateNewToOld') {
-        generatedFilters.sortParam = 'crDateNewToOld';
-        generatedFilters.sortDir = 'desc';
-      } else if (sortBy.value === 'crDateOldToNew') {
-        generatedFilters.sortParam = 'crDateOldToNew';
-        generatedFilters.sortDir = 'asc';
-      } else if (sortBy.value === 'appDateNewToOld') {
-        generatedFilters.sortParam = 'appDateNewToOld';
-        generatedFilters.sortDir = 'desc';
-      } else if (sortBy.value === 'appDateOldToNew') {
-        generatedFilters.sortParam = 'appDateOldToNew';
-        generatedFilters.sortDir = 'asc';
-      } else if (sortBy.value === 'projectAToZ') {
-        generatedFilters.sortParam = 'projectAToZ';
-        generatedFilters.sortDir = 'asc';
-      } else if (sortBy.value === 'projectZToA') {
-        generatedFilters.sortParam = 'projectZToA';
-        generatedFilters.sortDir = 'desc';
-      }
-    }
-    return generatedFilters;
-  }
-
-  // eslint-disable-next-line complexity
-  private generateFilterPills() {
-    const filterPills: FilterPill[] = [];
-    const filters = this.filterParams$.value;
-
-    if (filters.state && filters.state.length) {
-      filterPills.push({
-        label: 'State',
-        type: 'state',
-        value: filters.state
-          .map((state) => {
-            if (state === AdvancesStates.sentBack) {
-              return 'Sent Back';
-            } else {
-              return 'Draft';
-            }
-          })
-          .join(', '),
-      });
-    }
-
-    if (filters.sortParam === 'crDateNewToOld') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'creation date - new to old',
-      });
-    } else if (filters.sortParam === 'crDateOldToNew') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'creation date - old to new',
-      });
-    } else if (filters.sortParam === 'appDateNewToOld') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'approval date - new to old',
-      });
-    } else if (filters.sortParam === 'appDateOldToNew') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'approval date - old to new',
-      });
-    } else if (filters.sortParam === 'projectAToZ') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'project - A to Z',
-      });
-    } else if (filters.sortParam === 'projectZToA') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'project - Z to A',
-      });
-    }
-    this.filterPills = filterPills;
   }
 }
