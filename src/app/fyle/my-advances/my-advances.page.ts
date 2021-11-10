@@ -173,38 +173,38 @@ export class MyAdvancesPage {
                   if (filters.sortParam.includes('crDate')) {
                     newArr = newArr.sort((adv1, adv2) => {
                       const adv1Date = adv1.areq_created_at
-                        ? new Date(adv1.areq_created_at)
-                        : new Date(adv1.adv_created_at);
+                        ? new Date(adv1.areq_created_at).getTime()
+                        : new Date(adv1.adv_created_at).getTime();
                       const adv2Date = adv2.areq_created_at
-                        ? new Date(adv2.areq_created_at)
-                        : new Date(adv2.adv_created_at);
+                        ? new Date(adv2.areq_created_at).getTime()
+                        : new Date(adv2.adv_created_at).getTime();
 
                       if (filters.sortDir === 'asc') {
-                        return adv1Date.getTime() > adv2Date.getTime() ? 1 : -1;
+                        return adv1Date > adv2Date ? 1 : -1;
                       } else {
-                        return adv1Date.getTime() < adv2Date.getTime() ? 1 : -1;
+                        return adv1Date < adv2Date ? 1 : -1;
                       }
                     });
                   } else if (filters.sortParam.includes('appDate')) {
                     newArr = newArr.sort((adv1, adv2) => {
-                      const adv1Date = new Date(adv1.areq_approved_at);
-                      const adv2Date = new Date(adv2.areq_approved_at);
-                      const nullDate = new Date(null); //required because passing null to Date returns Jan 1, 1970
+                      const adv1Date = new Date(adv1.areq_approved_at).getTime();
+                      const adv2Date = new Date(adv2.areq_approved_at).getTime();
+                      const nullDate = new Date(null).getTime(); //required because passing null to Date returns Jan 1, 1970
 
-                      if (adv1Date.getTime() === nullDate.getTime() && adv2Date.getTime() === nullDate.getTime()) {
+                      if (adv1Date === nullDate && adv2Date === nullDate) {
                         return 0;
                       }
-                      if (adv1Date.getTime() === nullDate.getTime()) {
+                      if (adv1Date === nullDate) {
                         return 1;
                       }
-                      if (adv2Date.getTime() === nullDate.getTime()) {
+                      if (adv2Date === nullDate) {
                         return -1;
                       }
 
                       if (filters.sortDir === 'asc') {
-                        return adv1Date.getTime() > adv2Date.getTime() ? 1 : -1;
+                        return adv1Date > adv2Date ? 1 : -1;
                       } else {
-                        return adv1Date.getTime() < adv2Date.getTime() ? 1 : -1;
+                        return adv1Date < adv2Date ? 1 : -1;
                       }
                     });
                   } else if (filters.sortParam.includes('project')) {
