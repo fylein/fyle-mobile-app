@@ -36,18 +36,6 @@
     text-align: center;
   }
 
-  &--filter-pills {
-    position: fixed;
-    width: 100%;
-    background-color: $white;
-    z-index: 99;
-  }
-
-  &--filter-pills-container {
-    display: block;
-    min-height: 52px;
-  }
-
   &--header-btn {
     --padding-start: 8px !important;
     --padding-end: 8px !important;

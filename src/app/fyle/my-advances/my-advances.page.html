@@ -25,9 +25,9 @@
 
 <ion-content class="my-advances--content">
   <ng-container *ngIf="filterPills?.length">
-    <div class="my-advances--filter-pills-container">
+    <div class="filter-pills-container">
       <app-fy-filter-pills
-        class="my-advances--filter-pills"
+        class="filter-pills"
         (filterClose)="onFilterClose($event)"
         (filterClicked)="onFilterClick($event)"
         (clearAll)="onFilterPillsClearAll()"
