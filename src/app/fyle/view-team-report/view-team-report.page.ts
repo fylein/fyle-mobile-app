@@ -70,9 +70,9 @@ export class ViewTeamReportPage implements OnInit {
 
   isCommentsView = false;
 
-  isHistoryView: boolean = false;
+  isHistoryView = false;
 
-  isExpensesView: boolean = true;
+  isExpensesView = true;
 
   estatuses$: Observable<ExtendedStatus[]>;
 
@@ -263,9 +263,7 @@ export class ViewTeamReportPage implements OnInit {
       map((reportApprovals) =>
         reportApprovals
           .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
-          .map((approval) => {
-            return approval;
-          })
+          .map((approval) => approval)
       )
     );
 

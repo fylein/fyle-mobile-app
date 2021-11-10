@@ -102,20 +102,20 @@ $sent-back-color: #da1e28;
     margin-right: 4px;
 
     &__approval_pending {
-      background-color: #f90;
+      background-color: $fyled-color;
     }
 
     &__approval_done {
-      background-color: #66bb6a;
+      background-color: $approved-color;
     }
 
     &__approval_disabled {
-      background-color: #ababab;
+      background-color: $gray-3;
     }
   }
 
   &--history-container {
-    background: white;
+    background: $pure-white;
     border-radius: 16px;
     padding: 24px 0;
   }
