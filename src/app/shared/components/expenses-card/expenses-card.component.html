@@ -132,7 +132,7 @@
                   Scan failed
                 </div>
               </div>
-              <ng-container *ngIf="expense.isDraft">
+              <ng-container *ngIf="expense.isDraft && !isFromViewReports">
                 <div class="expenses-card--state-container ion-text-right expenses-card--state-container__center">
                   <span class="expenses-card--state">
                     {{ expense.tx_state | expenseState | titlecase }}
@@ -227,7 +227,7 @@
                 {{ homeCurrencySymbol }}{{ expense.tx_amount / expense.tx_orig_amount | number: '1.0-2' }})
               </div>
 
-              <div *ngIf="expense.isDraft" class="expenses-card--state-container ion-text-right">
+              <div *ngIf="expense.isDraft && !isFromViewReports" class="expenses-card--state-container ion-text-right">
                 <span class="expenses-card--state">
                   {{ expense.tx_state | expenseState | titlecase }}
                 </span>
