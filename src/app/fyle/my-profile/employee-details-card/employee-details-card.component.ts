@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noop } from 'rxjs';
@@ -16,8 +16,16 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
   templateUrl: './employee-details-card.component.html',
   styleUrls: ['./employee-details-card.component.scss'],
 })
-export class EmployeeDetailsCardComponent implements OnInit {
+export class EmployeeDetailsCardComponent implements OnInit, AfterViewChecked {
+  @ViewChild('mobileNumberRef', { read: ElementRef }) mobileNumberRef: ElementRef;
+
+  @ViewChild('employeeIdRef', { read: ElementRef }) employeeIdRef: ElementRef;
+
   @Input() eou: ExtendedOrgUser;
+
+  isMobileNumberHidden: boolean;
+
+  isEmployeeIdHidden: boolean;
 
   constructor(
     private authService: AuthService,
@@ -25,10 +33,19 @@ export class EmployeeDetailsCardComponent implements OnInit {
     private orgUserService: OrgUserService,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {}
+
+  ngAfterViewChecked() {
+    const mobileNumberEl = this.mobileNumberRef?.nativeElement;
+    this.isMobileNumberHidden = mobileNumberEl && mobileNumberEl.scrollWidth > mobileNumberEl.offsetWidth;
+    const employeeIdEl = this.employeeIdRef?.nativeElement;
+    this.isEmployeeIdHidden = employeeIdEl && employeeIdEl.scrollWidth > employeeIdEl.offsetWidth;
+    this.cdRef.detectChanges();
+  }
 
   async updateMobileNumber() {
     const updateMobileNumberPopover = await this.popoverController.create({

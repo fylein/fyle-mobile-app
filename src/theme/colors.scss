@@ -18,6 +18,7 @@ $highlight-black: #464d57 !default;
 $highlight-green: #66bb6a !default;
 $highlight-blue: #5c98e5 !default;
 $pink-shadow: #d7d7d799 !default;
+$brand-primary: #f36 !default;
 $brand-primary-light: #fe5196 !default;
 $pink: #fe4c8e !default;
 $primary: #f36 !default;
@@ -53,9 +54,9 @@ $transparent-pearl-grey: rgba(215, 215, 215, 0.5) !default;
 
 $pure-black: #000 !default;
 
-$pink-gradient: linear-gradient(137.88deg, $primary 14.22%, $brand-primary-light 85.5%);
+$pink-gradient: linear-gradient(137.88deg, $brand-primary 14.22%, $brand-primary-light 85.5%);
 $pink-gradient-1: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
-$pink-gradient-2: linear-gradient(162.38deg, $primary 3.01%, $brand-primary-light 111.5%);
+$pink-gradient-2: linear-gradient(162.38deg, $brand-primary 3.01%, $brand-primary-light 111.5%);
 $pink-gradient-3: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
 
 $purple-gradient-1: linear-gradient(293.93deg, rgba(255, 255, 255, 0) 40.9%, rgba(255, 255, 255, 0.15) 98.59%);

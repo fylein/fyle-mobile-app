@@ -18,28 +18,10 @@
     --ion-grid-column-padding: 0;
   }
 
-  // &__profile-icon {
-  //   background: url('../../../../assets/images/profile-bg.svg') no-repeat bottom;
-  //   height: 55px;
-  //   background-size: 100% 100%;
-  // }
-
   &__icon-container {
     flex: 0 0 55px;
     max-height: 55px;
-
-    &__icon {
-      height: 100%;
-      background: $purple-gradient-1;
-      border-radius: 50%;
-    }
-
-    &__icon-border {
-      background: $purple-gradient-2;
-      border-radius: 50%;
-      height: 100%;
-      padding: 2px;
-    }
+    background: url('../../../../assets/images/fy-profile-gradient.svg') no-repeat bottom;
 
     &__text {
       font-weight: 500;
@@ -84,6 +66,11 @@
     &__icon {
       height: 18px;
       width: 18px;
+    }
+
+    &__icon-lg {
+      height: 20px;
+      width: 20px;
     }
   }
 }

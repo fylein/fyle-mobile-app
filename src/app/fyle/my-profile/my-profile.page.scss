@@ -1,7 +1,4 @@
 @import '../../../theme/colors.scss';
-// $item-border-color: #e0e0e0;
-// $menu-botton-color: #000;
-// $background-color: #fff;
 
 .my-profile {
   &__toolbar {
@@ -49,10 +46,16 @@
     background-color: $pure-white;
     border-radius: 8px;
     margin-bottom: 24px;
+    padding: 0 16px;
+
+    &__card {
+      &:not(:last-child) {
+        border-bottom: 1px solid $grey;
+      }
+    }
   }
 
   &__signout-container {
-    font-size: 14px;
     font-weight: 500;
     color: $primary;
 
