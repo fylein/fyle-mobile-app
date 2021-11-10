@@ -25,12 +25,10 @@
                 <div class="display-flex employee-details-card__value">
                   <div
                     #mobileNumberRef="matTooltip"
-                    (click)="mobileNumberRef.toggle()"
+                    (click)="showTooltip(mobileNumberRef)"
                     [matTooltip]="eou.ou.mobile"
                     [matTooltipDisabled]="!isMobileNumberHidden"
                     matTooltipPosition="below"
-                    matTooltipHideDelay="3000"
-                    matTooltipTouchGestures="on"
                     matTooltipClass="tooltip"
                     class="employee-details-card__mobile text-ellipsis"
                   >
@@ -51,12 +49,10 @@
                 <div class="employee-details-card__label">Employee Id</div>
                 <div
                   #employeeIdRef="matTooltip"
-                  (click)="employeeIdRef.toggle()"
+                  (click)="showTooltip(employeeIdRef)"
                   [matTooltip]="eou.ou.employee_id"
                   [matTooltipDisabled]="!isEmployeeIdHidden"
                   matTooltipPosition="below"
-                  matTooltipHideDelay="3000"
-                  matTooltipTouchGestures="on"
                   matTooltipClass="tooltip"
                   class="employee-details-card__value text-ellipsis"
                 >

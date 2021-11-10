@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ElementRef, ViewChild, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+import { MatTooltip } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noop } from 'rxjs';
 import { map, tap, concatMap } from 'rxjs/operators';
@@ -84,5 +85,10 @@ export class EmployeeDetailsCardComponent implements OnInit, AfterViewChecked {
         )
         .subscribe(noop);
     }
+  }
+
+  showTooltip(tooltipRef: MatTooltip) {
+    tooltipRef.show();
+    setTimeout(() => tooltipRef.hide(), 3000);
   }
 }
