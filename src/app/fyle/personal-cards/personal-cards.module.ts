@@ -16,6 +16,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { MatInputModule } from '@angular/material/input';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
+import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -28,6 +30,7 @@ import { DateRangeModalComponent } from './date-range-modal/date-range-modal.com
     MatInputModule,
     MatFormFieldModule,
   ],
+  providers: [SpinnerDialog],
   declarations: [PersonalCardsPage, TransactionsShimmerComponent, DateRangeModalComponent],
 })
 export class PersonalCardsPageModule {}

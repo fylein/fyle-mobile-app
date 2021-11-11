@@ -22,6 +22,9 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import * as moment from 'moment';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
+import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
+import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
 
 type Filters = Partial<{
   amount: string;
@@ -37,8 +40,7 @@ type Filters = Partial<{
   }>;
   showCredited: string;
 }>;
-import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
-import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
+
 @Component({
   selector: 'app-personal-cards',
   templateUrl: './personal-cards.page.html',
@@ -130,7 +132,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private modalController: ModalController,
     private dateService: DateService,
     private apiV2Service: ApiV2Service,
-    private platform: Platform
+    private platform: Platform,
+    private spinnerDialog: SpinnerDialog
   ) {}
 
   ngOnInit() {
@@ -286,6 +289,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   openYoodle(url, access_token) {
     const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
     const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=no');
+    this.spinnerDialog.show();
+    /* added this for failsafe */
+    setTimeout(() => {
+      this.spinnerDialog.hide();
+    }, 15000);
+    browser.on('loadstop').subscribe(() => {
+      this.spinnerDialog.hide();
+    });
     browser.on('loadstart').subscribe((event) => {
       /* As of now yodlee not supported for postmessage for cordova
          So now added callback url as https://www.fylehq.com ,
