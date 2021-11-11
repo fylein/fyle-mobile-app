@@ -13,11 +13,7 @@ import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filt
 import { NetworkService } from '../../core/services/network.service';
 import { ModalController } from '@ionic/angular';
 import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
-
-enum AdvancesStates {
-  sentBack = 'SENT_BACK',
-  draft = 'DRAFT',
-}
+import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 
 type Filters = Partial<{
   state: AdvancesStates[];

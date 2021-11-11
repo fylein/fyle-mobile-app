@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-
-enum AdvancesStates {
-  sentBack = 'SENT_BACK',
-  draft = 'DRAFT',
-}
+import { AdvancesStates } from '../models/advances-states.model';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -32,18 +28,18 @@ export class FiltersHelperService {
 
     //for state filters
     if (filters.state && filters.state.length) {
+      const capitalizedStates = filters.state.map(
+        (state) =>
+          state
+            .toLowerCase()
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, (l) => l.toUpperCase()) //capitalizing first letter of each word
+      );
+
       filterPills.push({
         label: 'State',
         type: 'state',
-        value: filters.state
-          .map((state) => {
-            if (state === AdvancesStates.sentBack) {
-              return 'Sent Back';
-            } else {
-              return 'Draft';
-            }
-          })
-          .join(', '),
+        value: capitalizedStates.join(', '),
       });
     }
 
