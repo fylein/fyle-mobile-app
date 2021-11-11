@@ -18,7 +18,5 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <div class="personal-card--sync-detail">
-    Last fetch: {{ accountDetails.last_synced_at | date: 'MMM d, y | h:mm a' }}
-  </div>
+  <div class="personal-card--sync-detail">Last fetch: {{ lastSyncedAt | date: 'MMM d, y | h:mm a' }}</div>
 </div>

@@ -4143,7 +4143,7 @@ export class AddEditExpensePage implements OnInit {
       )
       .subscribe(() => {
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Successfully matched the expense.' }),
+          ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Expense created successfully.' }),
           panelClass: ['msb-success'],
         });
         this.router.navigate(['/', 'enterprise', 'personal_cards']);

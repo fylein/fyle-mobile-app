@@ -156,6 +156,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadCardData$ = new BehaviorSubject({});
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
       switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
+      tap((count) => {
+        if (count === 0) {
+          this.clearFilters();
+        }
+      }),
       shareReplay(1)
     );
     this.linkedAccounts$ = this.loadCardData$.pipe(
@@ -975,7 +980,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   createExpense(txnDetails) {
-    if (this.selectionMode && this.loadingMatchedExpenseCount) {
+    if (this.selectionMode || this.loadingMatchedExpenseCount) {
       return;
     }
     if (txnDetails.btxn_status === 'MATCHED') {
@@ -1079,6 +1084,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       }
 
       this.loadData$.next(currentParams);
+    }
+  }
+
+  doRefresh(event?) {
+    const params = this.loadCardData$.getValue();
+    this.loadCardData$.next(params);
+    if (event) {
+      event.target.complete();
     }
   }
 }

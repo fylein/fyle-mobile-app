@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from '../../../../core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
+import * as moment from 'moment';
 @Component({
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',
@@ -19,6 +20,8 @@ export class BankAccountCardComponent implements OnInit {
   @Input() accountDetails: PersonalCard;
 
   @Output() deleted = new EventEmitter();
+
+  lastSyncedAt;
 
   deleteCardPopOver;
 
@@ -30,7 +33,18 @@ export class BankAccountCardComponent implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.lastSyncedAt = this.convertUTCDateToLocalDate(new Date(this.accountDetails.last_synced_at));
+  }
+
+  convertUTCDateToLocalDate(date) {
+    const newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+    const offset = date.getTimezoneOffset() / 60;
+    const hours = date.getHours();
+    newDate.setHours(hours - offset);
+
+    return newDate;
+  }
 
   async presentPopover(ev: any) {
     const deleteCardPopOver = await this.popoverController.create({
@@ -67,8 +81,8 @@ export class BankAccountCardComponent implements OnInit {
     const deleteCardPopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
-        title: 'Are you sure',
-        message: 'Are you sure to delete this card?',
+        title: 'Delete Card',
+        message: `Are you sure want to delete this card (${this.accountDetails.bank_name} ${this.accountDetails.account_number})?`,
         primaryCta: {
           text: 'Delete',
           action: 'delete',

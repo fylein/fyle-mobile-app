@@ -7,10 +7,18 @@
 >
   <ng-container base>
     <ion-buttons mode="md" slot="end">
-      <ion-button class="personal-cards--header-btn" (click)="searchClick()">
+      <ion-button
+        class="personal-cards--header-btn"
+        (click)="searchClick()"
+        *ngIf="(linkedAccountsCount$ | async) !== 0"
+      >
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
       </ion-button>
-      <ion-button class="personal-cards--header-btn" (click)="openFilters()">
+      <ion-button
+        class="personal-cards--header-btn"
+        (click)="openFilters()"
+        *ngIf="(linkedAccountsCount$ | async) !== 0"
+      >
         <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
           <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
         </ng-container>
@@ -72,6 +80,10 @@
 </app-fy-header>
 
 <ion-content class="personal-cards--content">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <ng-container *ngIf="isLoading && ((linkedAccountsCount$ | async) !== 0)">
     <div class="ion-padding">
       <ion-skeleton-text class="personal-cards--bank-account-shimmer" animated></ion-skeleton-text>
@@ -82,7 +94,7 @@
       <app-fy-zero-state
         class="stats--zero-state"
         image="../../../../assets/images/no-card.svg"
-        message="Paying your work bills using your personal card? View your transactions here by linking your account."
+        message="Paying your work bills using your personal card? View your transactions here by linking your card."
         [unscaledImage]="true"
         [useNewStyling]="true"
       ></app-fy-zero-state>
@@ -116,6 +128,7 @@
         type="submit"
         class="personal-cards--fetch-button text-center personal-cards--actions-header__right"
         (click)="fetchNewTransactions()"
+        [disabled]="isfetching"
       >
         <ng-container *ngIf="!isfetching"> Fetch Transactions </ng-container>
         <ng-container *ngIf="isfetching">
