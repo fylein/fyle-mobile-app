@@ -160,15 +160,8 @@
 </ion-content>
 
 <ion-footer *ngIf="canDoAction$|async">
-  <ion-toolbar mode="md">
-    <ion-button
-      (click)="openActionBlock()"
-      class="trip-request--primary-cta flat-button"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
-      [disabled]="actionsLoading"
-    >
+  <ion-toolbar class="fy-footer-cta-container" mode="md">
+    <ion-button (click)="openActionBlock()" class="fy-footer-cta fy-footer-cta--primary" [disabled]="actionsLoading">
       Trip Actions
     </ion-button>
   </ion-toolbar>
