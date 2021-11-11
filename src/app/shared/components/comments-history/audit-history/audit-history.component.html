@@ -33,7 +33,12 @@
             >Details:
           </span>
           <span *ngIf="estatus.st.category === 'Card Transaction Matched'">Card Transaction Details: </span>
-          <span *ngIf="estatus.st.category === 'Expense automatically merged' || estatus.st.category === 'Expense merged by user'">Details of the merged expense: </span>
+          <span
+            *ngIf="
+              estatus.st.category === 'Expense automatically merged' || estatus.st.category === 'Expense merged by user'
+            "
+            >Details of the merged expense:
+          </span>
           <ul class="audit-history--diff-list">
             <div *ngFor="let item of estatus.st_diff | keyvalue" class="audit-history--diff">
               <app-statuses-diff [key]="item.key" [value]="item.value"></app-statuses-diff>
