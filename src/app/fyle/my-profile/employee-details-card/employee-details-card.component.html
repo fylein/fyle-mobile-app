@@ -32,7 +32,7 @@
                     matTooltipClass="tooltip"
                     class="employee-details-card__mobile text-ellipsis"
                   >
-                    {{ eou.ou.mobile.length ? eou.ou.mobile : 'Add Number' }}
+                    {{ eou.ou.mobile && eou.ou.mobile.length ? eou.ou.mobile : 'Add Number' }}
                   </div>
                   <ion-icon
                     [src]="
@@ -40,12 +40,12 @@
                     "
                     slot="icon-only"
                     class="employee-details-card__mobile__icon"
-                    [ngClass]="{ 'employee-details-card__mobile__icon-lg': !eou.ou.mobile.length }"
+                    [ngClass]="{ 'employee-details-card__mobile__icon-lg': !eou.ou.mobile?.length }"
                     (click)="updateMobileNumber()"
                   ></ion-icon>
                 </div>
               </ion-col>
-              <ion-col size="5.5" *ngIf="eou.ou?.employee_id?.length">
+              <ion-col size="5.5" *ngIf="eou.ou.employee_id && eou.ou.employee_id.length">
                 <div class="employee-details-card__label">Employee Id</div>
                 <div
                   #employeeIdRef="matTooltip"
