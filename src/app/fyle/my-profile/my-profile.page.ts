@@ -105,7 +105,7 @@ export class MyProfilePage implements OnInit {
       this.orgUserSettings.currency_settings.preferred_currency = eventData.selectedCurrency.shortCode || null;
     }
 
-    this.trackingService.onToggleSetting({
+    this.trackingService.onSettingsToggle({
       userSetting: eventData.key,
       action: eventData.isEnabled ? 'enabled' : 'disabled',
       setDefaultCurrency: eventData.selectedCurrency ? true : false,

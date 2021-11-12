@@ -882,7 +882,7 @@ export class TrackingService {
   }
 
   //Toggle settings
-  onToggleSetting(properties) {
+  onSettingsToggle(properties) {
     this.eventTrack('Toggle Setting', properties);
   }
 }

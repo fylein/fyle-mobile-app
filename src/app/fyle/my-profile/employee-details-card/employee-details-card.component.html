@@ -32,7 +32,7 @@
                     matTooltipClass="tooltip"
                     class="employee-details-card__mobile text-ellipsis"
                   >
-                    {{ eou.ou.mobile && eou.ou.mobile.length ? eou.ou.mobile : 'Add Number' }}
+                    {{ eou.ou.mobile?.length ? eou.ou.mobile : 'Add Number' }}
                   </div>
                   <ion-icon
                     [src]="
