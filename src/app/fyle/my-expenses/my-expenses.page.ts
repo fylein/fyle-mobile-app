@@ -871,7 +871,6 @@ export class MyExpensesPage implements OnInit {
     this.generateTypeFilters(newQueryParams);
 
     this.setSortParams(currentParams);
-    console.log(newQueryParams);
 
     currentParams.queryParams = newQueryParams;
 
