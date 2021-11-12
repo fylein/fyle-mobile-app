@@ -41,18 +41,18 @@
         </div>
       </div>
 
-      <ion-button
-        mode="md"
-        class="my-profile--primary-cta"
-        fill="solid"
-        color="fyle-primary"
-        (click)="saveUserProfile(eou)"
-        appFormButtonValidation
-        [loading]="saveProfileLoading"
-        [loadingText]="'SAVING'"
-      >
-        SAVE
-      </ion-button>
+      <div class="fy-footer-cta-container">
+        <ion-button
+          mode="md"
+          class="fy-footer-cta fy-footer-cta--primary"
+          (click)="saveUserProfile(eou)"
+          appFormButtonValidation
+          [loading]="saveProfileLoading"
+          [loadingText]="'Saving'"
+        >
+          Save
+        </ion-button>
+      </div>
     </div>
   </div>
 

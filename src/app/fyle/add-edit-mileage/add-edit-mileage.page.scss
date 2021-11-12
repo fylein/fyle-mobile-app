@@ -283,7 +283,7 @@
   }
 
   &--add-stop {
-    color: $primary;
+    color: $brand-primary;
     display: flex;
     align-items: center;
     font-size: 12px;
@@ -425,12 +425,12 @@
   }
 
   &--check {
-    color: $primary;
+    color: $brand-primary;
     font-size: 20px;
   }
 
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
