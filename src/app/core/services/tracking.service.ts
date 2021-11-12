@@ -882,11 +882,13 @@ export class TrackingService {
   }
 
   // Team Advances
-  sendBackAdvance(properties = {}) {
+  async sendBackAdvance(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
     this.eventTrack('Send Back Advance', properties);
   }
 
-  rejectAdvance(properties = {}) {
+  async rejectAdvance(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
     this.eventTrack('Reject Advance', properties);
   }
 }

@@ -276,7 +276,7 @@ export class ViewTeamAdvancePage implements OnInit {
         .pipe(
           finalize(() => {
             this.sendBackLoading = false;
-            this.trackingService.sendBackAdvance();
+            this.trackingService.sendBackAdvance({ Asset: 'Mobile' });
           })
         )
         .subscribe(() => {
@@ -314,7 +314,7 @@ export class ViewTeamAdvancePage implements OnInit {
         .pipe(
           finalize(() => {
             this.rejectLoading = false;
-            this.trackingService.rejectAdvance();
+            this.trackingService.rejectAdvance({ Asset: 'Mobile' });
           })
         )
         .subscribe(() => {
