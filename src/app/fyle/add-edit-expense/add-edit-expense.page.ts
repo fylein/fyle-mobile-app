@@ -975,9 +975,6 @@ export class AddEditExpensePage implements OnInit {
           parsedResponse: parsedResponse.data,
           auditCallBackUrl: parsedResponse.callback_url || '',
         })),
-        tap((res) => {
-          console.log('\n\n\nparsedResponse -> ', res);
-        }),
         catchError((err) =>
           of({
             error: true,
