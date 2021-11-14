@@ -301,7 +301,7 @@ textarea:focus {
   text-transform: uppercase !important;
 }
 
-.display-flex {
+.d-flex {
   display: flex !important;
 }
 
@@ -343,10 +343,6 @@ textarea:focus {
   .mat-form-field-wrapper {
     padding: 0;
   }
-}
-
-.flat-button {
-  --box-shadow: none;
 }
 
 .highlight-info {
@@ -610,6 +606,7 @@ input[type='date'] {
 input[type='date']::after {
   font-family: 'Material Icons';
   content: 'date_range' !important;
+  font-feature-settings: 'liga';
   -webkit-font-feature-settings: 'liga';
   margin-left: auto;
   width: auto !important;
@@ -711,6 +708,10 @@ ref - https://stackoverflow.com/a/31162426
   margin-bottom: 16px;
 }
 
+.ios .advances-action-sheet {
+  margin-bottom: 0;
+}
+
 .ios .cta-footer-toolbar {
   padding-bottom: 14px;
 }
@@ -729,7 +730,7 @@ ref - https://stackoverflow.com/a/31162426
     .refresher-refreshing-icon {
       margin-top: 200px !important;
       .spinner-circular {
-        --ion-color-primary: #{$primary};
+        --ion-color-primary: #{$brand-primary};
       }
     }
   }
@@ -761,6 +762,40 @@ ref - https://stackoverflow.com/a/31162426
 
 .cta-footer {
   box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
+}
+
+.fy-footer-cta-container {
+  padding: 16px !important;
+  display: flex;
+  column-gap: 18px;
+}
+
+.fy-footer-cta {
+  --box-shadow: none;
+  --border-radius: 4px;
+  height: 50px;
+  text-transform: capitalize;
+  font-weight: 500;
+  margin: 0;
+  width: 100%;
+
+  &--primary {
+    --background: #{$pink-gradient};
+  }
+
+  &--secondary {
+    --background: #{$blue-black};
+  }
+
+  &--tertiary-primary {
+    --background: transparent;
+    --color: #{$brand-primary};
+  }
+
+  &--tertiary-secondary {
+    --background: transparent;
+    --color: #{$black-light};
+  }
 }
 
 .footer-ios ion-toolbar:first-of-type {
@@ -856,7 +891,18 @@ ref - https://stackoverflow.com/a/31162426
   background: $pure-white;
   border: 2px solid $pure-white;
   box-sizing: border-box;
-  box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.5);
+  box-shadow: 0px -2px 40px $transparent-pearl-grey;
+  border-radius: 8px;
+}
+
+.ios .personal-cards-segment-block {
+  height: 40px;
+  padding: 2px !important;
+  margin: 12px auto;
+  background: $pure-white;
+  border: 2px solid $pure-white;
+  box-sizing: border-box;
+  box-shadow: 0px -2px 40px $transparent-pearl-grey;
   border-radius: 8px;
 }
 
@@ -936,6 +982,19 @@ ion-modal.auto-height {
   pointer-events: none;
 }
 
+.expense-preview-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    max-height: 80%;
+    position: absolute;
+    top: 20%;
+  }
+
+  .modal-shadow {
+    display: none;
+  }
+}
+
 .delete-button-class {
   .popover-content {
     border-radius: 4px;
@@ -954,8 +1013,8 @@ ion-modal.auto-height {
 .fyle.swiper-pagination-bullet {
   width: 6px !important;
   height: 6px !important;
-  background: #fff !important;
-  border: 1px solid #161528 !important;
+  background: $pure-white !important;
+  border: 1px solid $black !important;
   box-sizing: border-box !important;
   opacity: 0.3;
 }
@@ -963,7 +1022,7 @@ ion-modal.auto-height {
 .fyle.swiper-pagination-bullet-active {
   width: 16px !important;
   height: 6px !important;
-  background: #161528 !important;
+  background: $black !important;
   border-radius: 4px !important;
   opacity: 0.3;
 }

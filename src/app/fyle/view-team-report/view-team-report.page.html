@@ -156,16 +156,8 @@
 
 <ng-container *ngIf="actions$|async as actions">
   <ion-footer *ngIf="isReportReported && actions.can_approve">
-    <ion-toolbar mode="md">
-      <ion-button
-        class="view-reports--primary-cta flat-button"
-        fill="solid"
-        color="fyle-primary"
-        expand="block"
-        (click)="approveReport()"
-      >
-        Approve Report
-      </ion-button>
+    <ion-toolbar class="fy-footer-cta-container" mode="md">
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="approveReport()"> Approve Report </ion-button>
     </ion-toolbar>
   </ion-footer>
 </ng-container>
