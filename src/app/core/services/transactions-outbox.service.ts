@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
 import { from, empty, EMPTY, forkJoin, noop, concat, of } from 'rxjs';
-import { concatMap, switchMap, map, catchError, finalize } from 'rxjs/operators';
+import { concatMap, switchMap, map, catchError, finalize, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { OfflineService } from './offline.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -474,9 +474,22 @@ export class TransactionsOutboxService {
   }
 
   parseReceipt(data, fileType?): Promise<ParsedReceipt> {
-    const url = this.ROOT_ENDPOINT + '/data_extraction/extract';
+    let url = this.ROOT_ENDPOINT + '/data_extraction/extract';
     let suggestedCurrency = null;
     const fileName = fileType && fileType === 'pdf' ? '000.pdf' : '000.jpeg';
+
+    let settings;
+    forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+    })
+      .pipe(
+        map((res) => {
+          settings = res;
+          return res;
+        })
+      )
+      .subscribe(noop);
 
     // send homeCurrency of the user's org as suggestedCurrency for data-extraction
     return this.offlineService
@@ -484,6 +497,17 @@ export class TransactionsOutboxService {
       .toPromise()
       .then((homeCurrency) => {
         suggestedCurrency = homeCurrency;
+
+        if (
+          settings &&
+          settings.orgSettings &&
+          settings.orgSettings.data_extractor_settings &&
+          settings.orgSettings.data_extractor_settings.enabled &&
+          settings.orgSettings.data_extractor_settings.allowed
+        ) {
+          url = this.ROOT_ENDPOINT + '/data_extractor/extract';
+        }
+
         return this.httpClient
           .post(url, {
             files: [

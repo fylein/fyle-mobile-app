@@ -973,8 +973,11 @@ export class AddEditExpensePage implements OnInit {
         timeout(15000),
         map((parsedResponse) => ({
           parsedResponse: parsedResponse.data,
-          auditCallBackUrl: parsedResponse.callback_url,
+          auditCallBackUrl: parsedResponse.callback_url || '',
         })),
+        tap((res) => {
+          console.log('\n\n\nparsedResponse -> ', res);
+        }),
         catchError((err) =>
           of({
             error: true,
