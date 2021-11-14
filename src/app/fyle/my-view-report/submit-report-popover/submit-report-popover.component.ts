@@ -7,6 +7,7 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { map, tap, concatMap, finalize } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 @Component({
   selector: 'app-submit-report-popover',
@@ -31,7 +32,8 @@ export class SubmitReportPopoverComponent implements OnInit {
     private offlineService: OfflineService,
     private tripRequestService: TripRequestsService,
     private transactionService: TransactionService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private refinerService: RefinerService
   ) {}
 
   ngOnInit() {
@@ -118,6 +120,7 @@ export class SubmitReportPopoverComponent implements OnInit {
         concatMap(() => this.reportService.submit(this.erpt.rp_id)),
         finalize(() => {
           this.submitReportLoading = false;
+          this.refinerService.startSurvey({actionName: 'Submit Report'});
         })
       )
       .subscribe(() => {
