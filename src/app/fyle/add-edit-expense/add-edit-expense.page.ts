@@ -973,7 +973,6 @@ export class AddEditExpensePage implements OnInit {
         timeout(15000),
         map((parsedResponse) => ({
           parsedResponse: parsedResponse.data,
-          auditCallBackUrl: parsedResponse.callback_url,
         })),
         catchError((err) =>
           of({
@@ -3703,7 +3702,7 @@ export class AddEditExpensePage implements OnInit {
           });
         }
 
-        if (extractedData.date) {
+        if (extractedData.date && this.dateService.isSameDate(this.fg.controls.dateOfSpend.value, new Date())) {
           this.fg.patchValue({
             dateOfSpend: extractedData.date,
           });
