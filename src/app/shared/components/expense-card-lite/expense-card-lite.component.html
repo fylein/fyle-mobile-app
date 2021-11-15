@@ -1,5 +1,5 @@
 <div class="expenses-card--body">
-  <div class="display-flex">
+  <div class="d-flex">
     <ng-container *ngIf="!receiptThumbnail">
       <div class="expenses-card--receipt-container">
         <ion-icon
@@ -17,9 +17,9 @@
       *ngIf="receiptThumbnail"
     ></div>
 
-    <div class="display-flex expenses-card--deatils-block">
+    <div class="d-flex expenses-card--deatils-block">
       <div class="expenses-card--category-vendor-project-container">
-        <div class="display-flex expenses-card--category-icon-container">
+        <div class="d-flex expenses-card--category-icon-container">
           <div class="expenses-card--category">
             {{ expense.purpose }}
           </div>
@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <div class="display-flex">
+      <div class="d-flex">
         <div>
           <div class="expenses-card--currency-amount-container ion-text-right">
             <span class="expenses-card--currency">{{

@@ -891,4 +891,9 @@ export class TrackingService {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('Reject Advance', properties);
   }
+
+  //Toggle settings
+  onSettingsToggle(properties) {
+    this.eventTrack('Toggle Setting', properties);
+  }
 }
