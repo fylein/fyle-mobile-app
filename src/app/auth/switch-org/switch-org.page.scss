@@ -1,3 +1,5 @@
+@import '../../../theme/colors.scss';
+
 $header-background: #f5f5f5;
 $header-border: #ddd;
 $header-input: #f8f8f8;
@@ -6,6 +8,35 @@ $org-thumb-header: #333;
 $org-thumb-text: #666;
 
 .switch-org {
+  &__content-container {
+    padding: 16px;
+
+    &__content {
+      justify-content: space-between;
+      padding: 16px 0 20px;
+
+      &__title {
+        font-size: 18px;
+        font-weight: 500;
+        color: $black;
+      }
+
+      &__sub-title {
+        color: $black-light;
+        padding-top: 4px;
+      }
+
+      &__icon {
+        height: 16px;
+        width: 16px;
+        padding: 8px;
+        border: 1px solid $black-light;
+        border-radius: 4px;
+        margin-left: 8px;
+      }
+    }
+  }
+
   &--toolbar {
     --background: #f5f5f5;
   }

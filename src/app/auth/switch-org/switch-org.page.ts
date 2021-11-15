@@ -8,8 +8,18 @@ import {
   ViewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, from, fromEvent, noop, Observable } from 'rxjs';
-import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap, take } from 'rxjs/operators';
+import { combineLatest, forkJoin, from, fromEvent, noop, Observable, of } from 'rxjs';
+import {
+  distinctUntilChanged,
+  finalize,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+  take,
+  filter,
+  tap,
+} from 'rxjs/operators';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -23,6 +33,7 @@ import { globalCacheBusterNotifier } from 'ts-cacheable';
 import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 @Component({
   selector: 'app-swicth-org',
@@ -39,6 +50,10 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
   searchInput = '';
 
   isLoading = false;
+
+  activeOrg$: Observable<Org>;
+
+  primaryOrg$: Observable<Org>;
 
   constructor(
     private offlineService: OfflineService,
@@ -88,6 +103,13 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
         }
       });
     }
+    this.activeOrg$ = this.offlineService.getCurrentOrg();
+
+    this.primaryOrg$ = this.offlineService.getPrimaryOrg();
+
+    this.filteredOrgs$ = forkJoin([this.offlineService.getOrgs().pipe(shareReplay(1)), this.activeOrg$]).pipe(
+      switchMap(([orgs, activeOrg]) => of(orgs.filter((org) => org.id !== activeOrg.id)))
+    );
   }
 
   async proceed() {
@@ -199,7 +221,10 @@ export class SwitchOrgPage implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   ngAfterViewInit(): void {
-    const currentOrgs$ = this.offlineService.getOrgs().pipe(shareReplay(1));
+    const currentOrgs$ = forkJoin([
+      this.offlineService.getOrgs().pipe(shareReplay(1)),
+      this.offlineService.getCurrentOrg(),
+    ]).pipe(switchMap(([orgs, activeOrg]) => of(orgs.filter((org) => org.id !== activeOrg.id))));
 
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),

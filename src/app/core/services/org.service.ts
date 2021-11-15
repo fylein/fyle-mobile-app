@@ -30,6 +30,17 @@ export class OrgService {
   @Cacheable({
     cacheBusterObserver: orgsCacheBuster$,
   })
+  getPrimaryOrg() {
+    return this.apiService.get('/orgs', {
+      params: {
+        is_primary: true,
+      },
+    });
+  }
+
+  @Cacheable({
+    cacheBusterObserver: orgsCacheBuster$,
+  })
   getOrgs() {
     return this.apiService.get('/orgs').pipe(map((res) => res as Org[]));
   }
