@@ -479,13 +479,15 @@ export class TransactionsOutboxService {
     const fileName = fileType && fileType === 'pdf' ? '000.pdf' : '000.jpeg';
 
     let orgSettings;
-    let orgSettings$ = this.offlineService.getOrgSettings().pipe(
-      map((res) => {
-        orgSettings = res;
-        return res;
-      })
-    );
-    orgSettings$.subscribe(noop);
+    this.offlineService
+      .getOrgSettings()
+      .pipe(
+        map((res) => {
+          orgSettings = res;
+          return res;
+        })
+      )
+      .subscribe(noop);
 
     // send homeCurrency of the user's org as suggestedCurrency for data-extraction
     return this.offlineService
