@@ -17,7 +17,7 @@ Sentry.init({
       routingInstrumentation: Sentry.routingInstrumentation,
     }),
   ],
-  tracesSampleRate: 1.0,
+  tracesSampleRate: 0.1,
   release: 'please-replace-your-git-commit-version',
   ignoreErrors: ['Non-Error exception captured'],
 });

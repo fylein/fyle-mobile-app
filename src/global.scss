@@ -301,7 +301,7 @@ textarea:focus {
   text-transform: uppercase !important;
 }
 
-.display-flex {
+.d-flex {
   display: flex !important;
 }
 
@@ -343,10 +343,6 @@ textarea:focus {
   .mat-form-field-wrapper {
     padding: 0;
   }
-}
-
-.flat-button {
-  --box-shadow: none;
 }
 
 .highlight-info {
@@ -610,6 +606,7 @@ input[type='date'] {
 input[type='date']::after {
   font-family: 'Material Icons';
   content: 'date_range' !important;
+  font-feature-settings: 'liga';
   -webkit-font-feature-settings: 'liga';
   margin-left: auto;
   width: auto !important;
@@ -733,7 +730,7 @@ ref - https://stackoverflow.com/a/31162426
     .refresher-refreshing-icon {
       margin-top: 200px !important;
       .spinner-circular {
-        --ion-color-primary: #{$primary};
+        --ion-color-primary: #{$brand-primary};
       }
     }
   }
@@ -765,6 +762,40 @@ ref - https://stackoverflow.com/a/31162426
 
 .cta-footer {
   box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
+}
+
+.fy-footer-cta-container {
+  padding: 16px !important;
+  display: flex;
+  column-gap: 18px;
+}
+
+.fy-footer-cta {
+  --box-shadow: none;
+  --border-radius: 4px;
+  height: 50px;
+  text-transform: capitalize;
+  font-weight: 500;
+  margin: 0;
+  width: 100%;
+
+  &--primary {
+    --background: #{$pink-gradient};
+  }
+
+  &--secondary {
+    --background: #{$blue-black};
+  }
+
+  &--tertiary-primary {
+    --background: transparent;
+    --color: #{$brand-primary};
+  }
+
+  &--tertiary-secondary {
+    --background: transparent;
+    --color: #{$black-light};
+  }
 }
 
 .footer-ios ion-toolbar:first-of-type {
