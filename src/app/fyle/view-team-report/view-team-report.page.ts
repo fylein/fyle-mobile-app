@@ -127,8 +127,8 @@ export class ViewTeamReportPage implements OnInit {
       switchMap(() => eou$),
       switchMap((eou) =>
         this.statusService.find(this.objectType, this.objectId).pipe(
-          map((res) =>
-            res.map((status) => {
+          map((estatus) =>
+            estatus.map((status) => {
               status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
               status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
               status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
@@ -480,12 +480,9 @@ export class ViewTeamReportPage implements OnInit {
       this.commentInput.nativeElement.focus();
       this.isCommentAdded = true;
 
-      this.statusService
-        .post(this.objectType, this.objectId, data)
-        .pipe()
-        .subscribe((res) => {
-          this.refreshEstatuses$.next();
-        });
+      this.statusService.post(this.objectType, this.objectId, data).subscribe((res) => {
+        this.refreshEstatuses$.next();
+      });
     }
   }
 }
