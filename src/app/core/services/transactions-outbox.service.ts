@@ -482,7 +482,7 @@ export class TransactionsOutboxService {
     return this.offlineService
       .getHomeCurrency()
       .toPromise()
-      .then((homeCurrency) => {
+      .then(({ homeCurrency }) => {
         return this.offlineService
           .getOrgSettings()
           .toPromise()
@@ -495,6 +495,7 @@ export class TransactionsOutboxService {
       })
       .then(({ homeCurrency, orgSettings }) => {
         suggestedCurrency = homeCurrency;
+
         if (orgSettings?.data_extractor_settings?.enabled && orgSettings?.data_extractor_settings?.allowed) {
           url = this.ROOT_ENDPOINT + '/data_extractor/extract';
         }
