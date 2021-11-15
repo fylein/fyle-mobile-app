@@ -482,17 +482,15 @@ export class TransactionsOutboxService {
     return this.offlineService
       .getHomeCurrency()
       .toPromise()
-      .then(({ homeCurrency }) => {
-        return this.offlineService
+      .then(({ homeCurrency }) =>
+        this.offlineService
           .getOrgSettings()
           .toPromise()
-          .then((orgSettings) => {
-            return {
-              homeCurrency,
-              orgSettings,
-            };
-          });
-      })
+          .then((orgSettings) => ({
+            homeCurrency,
+            orgSettings,
+          }))
+      )
       .then(({ homeCurrency, orgSettings }) => {
         suggestedCurrency = homeCurrency;
 
