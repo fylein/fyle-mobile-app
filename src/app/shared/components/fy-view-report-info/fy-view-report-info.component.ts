@@ -73,7 +73,7 @@ export class FyViewReportInfoComponent implements OnInit {
       this.reportDetails = {
         'Report Name': erpt.rp_purpose,
         Owner: erpt.us_full_name,
-        'Claim Number': erpt.rp_claim_number,
+        'Report Number': erpt.rp_claim_number,
         'Created On': this.datePipe.transform(erpt.rp_created_at, 'MMM d, y'),
       };
       this.reportCurrency = erpt.rp_currency;
