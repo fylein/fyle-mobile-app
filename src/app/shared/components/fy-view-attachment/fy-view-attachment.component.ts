@@ -16,7 +16,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 export class FyViewAttachmentComponent implements OnInit {
   @Input() attachments: any[];
 
-  @Input() canEdit = false;
+  @Input() canEdit: boolean;
 
   @ViewChild('slides') imageSlides: any;
 

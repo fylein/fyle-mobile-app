@@ -1,0 +1,20 @@
+<ion-footer class="nav-footer">
+  <ion-toolbar mode="md" class="nav-footer__footer">
+    <ion-buttons>
+      <ion-button class="btn-secondary nav-footer__footer__btn" (click)="goToPrev()" [disabled]="activeEtxnIndex === 0">
+        <ion-icon
+          class="icon--navigate nav-footer__footer__icon"
+          src="../../../../../assets/svg/navigate-left.svg"
+        ></ion-icon>
+        Previous
+      </ion-button>
+      <ion-button class="btn-secondary" (click)="goToNext()" [disabled]="activeEtxnIndex === numEtxnsInReport - 1">
+        Next
+        <ion-icon
+          class="icon--navigate nav-footer__footer__icon"
+          src="../../../../../assets/svg/navigate-right.svg"
+        ></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>
