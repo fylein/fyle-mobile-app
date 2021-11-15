@@ -26,5 +26,15 @@
         <div class="date-range-modal--label">All Time</div>
       </ion-label>
     </ion-item>
+    <ion-item (click)="picker.open()">
+      <ion-label>
+        <div class="date-range-modal--label">Custom Range</div>
+      </ion-label>
+    </ion-item>
+    <mat-date-range-input [rangePicker]="picker" style="display: none">
+      <input matStartDate placeholder="Start date" #dateRangeStart />
+      <input matEndDate placeholder="End date" (dateChange)="datePicked()" #dateRangeEnd />
+    </mat-date-range-input>
+    <mat-date-range-picker #picker></mat-date-range-picker>
   </ion-list>
 </div>

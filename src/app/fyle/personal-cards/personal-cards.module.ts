@@ -13,7 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatNativeDateModule } from '@angular/material/core';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
-
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
@@ -29,6 +29,7 @@ import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
     MatNativeDateModule,
     MatInputModule,
     MatFormFieldModule,
+    MatDatepickerModule,
   ],
   providers: [SpinnerDialog],
   declarations: [PersonalCardsPage, TransactionsShimmerComponent, DateRangeModalComponent],

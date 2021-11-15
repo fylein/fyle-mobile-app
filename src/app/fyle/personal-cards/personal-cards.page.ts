@@ -1094,6 +1094,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${last90Days.from.toISOString()},btxn_transaction_dt.lt.${last90Days.to.toISOString()}))`;
       }
 
+      if (data.range === 'Custom Range') {
+        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${new Date(
+          data.startDate
+        ).toISOString()},btxn_transaction_dt.lt.${new Date(data.endDate).toISOString()}))`;
+      }
+
       this.loadData$.next(currentParams);
     }
   }
