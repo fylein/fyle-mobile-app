@@ -88,7 +88,6 @@
               <app-my-view-report-etxn-card
                 *ngFor="let etxn of etxns$|async as etxns; let i = index;"
                 [etxn]="etxn"
-                [etxnIndex]="i"
                 [prevDate]="etxns[i-1]?.tx_txn_dt"
                 (goToTransaciton)="goToTransaction($event)"
               >

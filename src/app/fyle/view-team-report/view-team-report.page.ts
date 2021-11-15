@@ -19,8 +19,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { Expense } from 'src/app/core/models/expense.model';
-import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 @Component({
   selector: 'app-view-team-report',
@@ -30,7 +28,7 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 export class ViewTeamReportPage implements OnInit {
   erpt$: Observable<ExtendedReport>;
 
-  etxns$: Observable<Expense[]>;
+  etxns$: Observable<any[]>;
 
   sharedWith$: Observable<any[]>;
 
@@ -61,8 +59,6 @@ export class ViewTeamReportPage implements OnInit {
   navigateBack = false;
 
   etxnAmountSum$: Observable<any>;
-
-  reportEtxnIds: string[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -200,7 +196,8 @@ export class ViewTeamReportPage implements OnInit {
     this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
-    this.etxns$.subscribe((etxns) => (this.reportEtxnIds = etxns.map((etxn) => etxn.tx_id)));
+    this.etxns$.subscribe(noop);
+
     this.refreshApprovals$.next();
   }
 
@@ -260,31 +257,34 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
-  goToTransaction({ etxn, etxnIndex }) {
-    const category = etxn && etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
+  goToTransaction(etxn: any) {
+    let category;
+
+    if (etxn.tx_org_category) {
+      category = etxn.tx_org_category.toLowerCase();
+    }
+
     if (category === 'activity') {
       return this.popupService.showPopup({
-        header: 'Cannot View Activity',
-        message: 'Viewing activity is not supported in mobile app.',
+        header: 'Cannot Edit Activity',
+        message: 'Editing activity is not supported in mobile app.',
         primaryCta: {
           text: 'Cancel',
         },
       });
     }
 
-    let route: string;
+    let route;
+
     if (category === 'mileage') {
-      route = '/enterprise/view_mileage';
+      route = '/enterprise/view_team_mileage';
     } else if (category === 'per diem') {
-      route = '/enterprise/view_per_diem';
+      route = '/enterprise/view_team_per_diem';
     } else {
-      route = '/enterprise/view_expense';
+      route = '/enterprise/view_team_expense';
     }
-    this.trackingService.viewExpenseClicked({ view: ExpenseView.team, category });
-    this.router.navigate([
-      route,
-      { id: etxn.tx_id, txnIds: JSON.stringify(this.reportEtxnIds), activeIndex: etxnIndex, view: ExpenseView.team },
-    ]);
+
+    this.router.navigate([route, { id: etxn.tx_id }]);
   }
 
   async shareReport(event) {
@@ -349,7 +349,7 @@ export class ViewTeamReportPage implements OnInit {
       componentProps: {
         erpt$: this.erpt$,
         etxns$: this.etxns$,
-        view: ExpenseView.team,
+        view: 'Team',
       },
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
@@ -358,6 +358,6 @@ export class ViewTeamReportPage implements OnInit {
     await viewInfoModal.present();
     await viewInfoModal.onWillDismiss();
 
-    this.trackingService.clickViewReportInfo({ view: ExpenseView.team });
+    this.trackingService.clickViewReportInfo({ view: 'Team' });
   }
 }

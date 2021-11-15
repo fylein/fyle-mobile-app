@@ -760,23 +760,6 @@ export class TrackingService {
     this.eventTrack('dashboard corporate card clicked', properties);
   }
 
-  //View expenses
-  viewExpenseClicked(properties) {
-    this.eventTrack('View expense clicked', properties);
-  }
-
-  expenseNavClicked(properties) {
-    this.eventTrack('Expense navigation clicked', properties);
-  }
-
-  expenseFlagUnflagClicked(properties) {
-    this.eventTrack('Expense flagged or unflagged', properties);
-  }
-
-  expenseRemovedByApprover(properties = {}) {
-    this.eventTrack('Expense removed from report by approver', properties);
-  }
-
   // Footer
   footerButtonClicked(properties) {
     this.eventTrack('footer button clicked', properties);
