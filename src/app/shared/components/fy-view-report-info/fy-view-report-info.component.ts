@@ -9,7 +9,6 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 type AmountDetails = {
   'Total Amount': number;
@@ -37,7 +36,7 @@ export class FyViewReportInfoComponent implements OnInit {
 
   @Input() etxns$: Observable<Expense[]>;
 
-  @Input() view: ExpenseView;
+  @Input() view: 'Team' | 'Individual';
 
   isReportView = true;
 
@@ -56,10 +55,6 @@ export class FyViewReportInfoComponent implements OnInit {
   employeeDetails = {};
 
   isSwipe = false;
-
-  get ExpenseView() {
-    return ExpenseView;
-  }
 
   constructor(
     private modalController: ModalController,
@@ -85,7 +80,7 @@ export class FyViewReportInfoComponent implements OnInit {
       };
       this.reportCurrency = erpt.rp_currency;
 
-      if (this.view === ExpenseView.team) {
+      if (this.view === 'Team') {
         this.createEmployeeDetails(erpt);
       }
     });
@@ -122,7 +117,7 @@ export class FyViewReportInfoComponent implements OnInit {
       } else if (event.detail.value === 'amount') {
         this.isReportView = false;
         this.isEmployeeView = false;
-      } else if (this.view === ExpenseView.team && event.detail.value === 'employee') {
+      } else if (this.view === 'Team' && event.detail.value === 'employee') {
         this.isReportView = false;
         this.isEmployeeView = true;
       }
@@ -155,7 +150,7 @@ export class FyViewReportInfoComponent implements OnInit {
     if (event && event.direction === 4) {
       this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[0].click();
     }
-    if (this.view === ExpenseView.team && event && event.direction === 2) {
+    if (this.view === 'Team' && event && event.direction === 2) {
       this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[2].click();
     }
     this.trackingService.viewReportInfo({
