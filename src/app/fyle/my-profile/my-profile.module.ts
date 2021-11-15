@@ -10,6 +10,10 @@ import { SharedModule } from '../../shared/shared.module';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { PreferenceSettingComponent } from './preference-setting/preference-setting.component';
+import { EmployeeDetailsCardComponent } from './employee-details-card/employee-details-card.component';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   imports: [
@@ -22,7 +26,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     SharedModule,
     MatButtonModule,
     MatSnackBarModule,
+    MatRippleModule,
+    MatTooltipModule,
   ],
-  declarations: [MyProfilePage, SelectCurrencyComponent],
+  declarations: [MyProfilePage, SelectCurrencyComponent, PreferenceSettingComponent, EmployeeDetailsCardComponent],
 })
 export class MyProfilePageModule {}

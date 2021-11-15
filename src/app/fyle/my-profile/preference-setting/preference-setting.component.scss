@@ -1,0 +1,41 @@
+@import '../../../../theme/colors.scss';
+
+.preference-setting {
+  &__card {
+    align-items: center;
+    padding: 20px 0;
+
+    &__title {
+      font-size: 18px;
+      font-weight: 500;
+      color: $pure-black;
+    }
+
+    &__content {
+      color: $black-light;
+      width: calc(100% - 76px);
+    }
+  }
+
+  &__content-container {
+    justify-content: space-between;
+    padding-top: 8px;
+  }
+
+  &__input-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0 6px;
+    color: $grey-light;
+    border-bottom: 1px solid $grey-lighter;
+
+    &__input {
+      line-height: 18px;
+      color: $blue-black;
+      border: none;
+      width: 100%;
+      padding: 0;
+    }
+  }
+}

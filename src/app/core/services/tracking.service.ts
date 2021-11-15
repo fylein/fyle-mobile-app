@@ -880,4 +880,9 @@ export class TrackingService {
   viewReportInfo(properties) {
     this.eventTrack('View Report Info', properties);
   }
+
+  //Toggle settings
+  onSettingsToggle(properties) {
+    this.eventTrack('Toggle Setting', properties);
+  }
 }
