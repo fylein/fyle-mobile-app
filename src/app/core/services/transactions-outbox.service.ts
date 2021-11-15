@@ -478,29 +478,24 @@ export class TransactionsOutboxService {
     let suggestedCurrency = null;
     const fileName = fileType && fileType === 'pdf' ? '000.pdf' : '000.jpeg';
 
-    let orgSettings;
-    this.offlineService
-      .getOrgSettings()
-      .pipe(
-        tap((res) => {
-          orgSettings = res;
-        })
-      )
-      .subscribe(noop);
-
     // send homeCurrency of the user's org as suggestedCurrency for data-extraction
     return this.offlineService
       .getHomeCurrency()
       .toPromise()
       .then((homeCurrency) => {
+        return this.offlineService
+          .getOrgSettings()
+          .toPromise()
+          .then((orgSettings) => {
+            return {
+              homeCurrency,
+              orgSettings,
+            };
+          });
+      })
+      .then(({ homeCurrency, orgSettings }) => {
         suggestedCurrency = homeCurrency;
-
-        if (
-          orgSettings &&
-          orgSettings.data_extractor_settings &&
-          orgSettings.data_extractor_settings.enabled &&
-          orgSettings.data_extractor_settings.allowed
-        ) {
+        if (orgSettings?.data_extractor_settings?.enabled && orgSettings?.data_extractor_settings?.allowed) {
           url = this.ROOT_ENDPOINT + '/data_extractor/extract';
         }
 
