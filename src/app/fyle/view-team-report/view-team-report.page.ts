@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { Observable, from, noop, Subject, concat } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
@@ -19,6 +19,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { getCurrencySymbol } from '@angular/common';
+import * as moment from 'moment';
+import { StatusService } from 'src/app/core/services/status.service';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 
 @Component({
   selector: 'app-view-team-report',
@@ -26,6 +30,8 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
   styleUrls: ['./view-team-report.page.scss'],
 })
 export class ViewTeamReportPage implements OnInit {
+  @ViewChild('commentInput') commentInput: ElementRef;
+
   erpt$: Observable<ExtendedReport>;
 
   etxns$: Observable<any[]>;
@@ -56,7 +62,39 @@ export class ViewTeamReportPage implements OnInit {
 
   onPageExit = new Subject();
 
+  reportCurrencySymbol = '';
+
+  reportName: string;
+
   navigateBack = false;
+
+  isCommentsView = false;
+
+  isHistoryView = false;
+
+  isExpensesView = true;
+
+  estatuses$: Observable<ExtendedStatus[]>;
+
+  refreshEstatuses$: Subject<void> = new Subject();
+
+  systemComments: ExtendedStatus[];
+
+  type: string;
+
+  systemEstatuses: ExtendedStatus[];
+
+  userComments: any;
+
+  totalCommentsCount$: Observable<number>;
+
+  newComment: string;
+
+  objectType = 'reports';
+
+  objectId = this.activatedRoute.snapshot.params.id;
+
+  isCommentAdded: boolean;
 
   etxnAmountSum$: Observable<any>;
 
@@ -73,10 +111,66 @@ export class ViewTeamReportPage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private statusService: StatusService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.erpt$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
+      finalize(() => from(this.loaderService.hideLoader()))
+    );
+    const eou$ = from(this.authService.getEou());
+
+    this.estatuses$ = this.refreshEstatuses$.pipe(
+      startWith(0),
+      switchMap(() => eou$),
+      switchMap((eou) =>
+        this.statusService.find(this.objectType, this.objectId).pipe(
+          map((estatus) =>
+            estatus.map((status) => {
+              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
+              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
+              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
+              return status;
+            })
+          ),
+          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
+        )
+      )
+    );
+
+    this.estatuses$.subscribe((estatuses) => {
+      const reversalStatus = estatuses.filter(
+        (status) => status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1
+      );
+
+      this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
+
+      this.type =
+        this.objectType.toLowerCase() === 'transactions'
+          ? 'Expense'
+          : this.objectType.substring(0, this.objectType.length - 1);
+
+      this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
+
+      this.userComments = estatuses.filter((status) => status.us_full_name);
+
+      for (let i = 0; i < this.userComments.length; i++) {
+        const prevCommentDt = moment(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
+        const currentCommentDt = moment(this.userComments[i] && this.userComments[i].st_created_at);
+        if (moment(prevCommentDt).isSame(currentCommentDt, 'day')) {
+          this.userComments[i].show_dt = false;
+        } else {
+          this.userComments[i].show_dt = true;
+        }
+      }
+    });
+
+    this.totalCommentsCount$ = this.estatuses$.pipe(
+      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
+    );
+  }
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -140,6 +234,8 @@ export class ViewTeamReportPage implements OnInit {
     );
 
     this.erpt$.subscribe((res) => {
+      this.reportCurrencySymbol = getCurrencySymbol(res.rp_currency, 'wide');
+      this.reportName = res.rp_purpose;
       /**
        * if current user is remove from approver, erpt call will go again to fetch current report details
        * so checking if report details are available in erpt than continue execution
@@ -167,12 +263,7 @@ export class ViewTeamReportPage implements OnInit {
       map((reportApprovals) =>
         reportApprovals
           .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
-          .map((approval) => {
-            if (approval && approval.state === 'APPROVAL_DONE' && approval.updated_at) {
-              approval.approved_at = approval.updated_at;
-            }
-            return approval;
-          })
+          .map((approval) => approval)
       )
     );
 
@@ -359,5 +450,39 @@ export class ViewTeamReportPage implements OnInit {
     await viewInfoModal.onWillDismiss();
 
     this.trackingService.clickViewReportInfo({ view: 'Team' });
+  }
+
+  segmentChanged(event) {
+    if (event && event.detail && event.detail.value) {
+      if (event.detail.value === 'expenses') {
+        this.isExpensesView = true;
+        this.isCommentsView = false;
+        this.isHistoryView = false;
+      } else if (event.detail.value === 'comments') {
+        this.isCommentsView = true;
+        this.isExpensesView = false;
+        this.isHistoryView = false;
+      } else if (event.detail.value === 'history') {
+        this.isHistoryView = true;
+        this.isCommentsView = false;
+        this.isExpensesView = false;
+      }
+    }
+  }
+
+  addComment() {
+    if (this.newComment) {
+      const data = {
+        comment: this.newComment,
+      };
+
+      this.newComment = null;
+      this.commentInput.nativeElement.focus();
+      this.isCommentAdded = true;
+
+      this.statusService.post(this.objectType, this.objectId, data).subscribe((res) => {
+        this.refreshEstatuses$.next();
+      });
+    }
   }
 }
