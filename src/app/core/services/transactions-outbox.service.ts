@@ -497,10 +497,9 @@ export class TransactionsOutboxService {
 
         if (
           orgSettings &&
-          orgSettings.orgSettings &&
-          orgSettings.orgSettings.data_extractor_settings &&
-          orgSettings.orgSettings.data_extractor_settings.enabled &&
-          orgSettings.orgSettings.data_extractor_settings.allowed
+          orgSettings.data_extractor_settings &&
+          orgSettings.data_extractor_settings.enabled &&
+          orgSettings.data_extractor_settings.allowed
         ) {
           url = this.ROOT_ENDPOINT + '/data_extractor/extract';
         }
