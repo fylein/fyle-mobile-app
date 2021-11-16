@@ -25,8 +25,6 @@ export class ExpensePreviewComponent implements OnInit {
 
   unMatching = false;
 
-  isIos = false;
-
   type: string;
 
   constructor(
@@ -38,9 +36,7 @@ export class ExpensePreviewComponent implements OnInit {
     private platform: Platform
   ) {}
 
-  ngOnInit(): void {
-    this.isIos = this.platform.is('ios');
-  }
+  ngOnInit(): void {}
 
   ionViewWillEnter() {
     this.expenseDetails$ = this.personalCardsService.getExpenseDetails(this.expenseId);
@@ -82,7 +78,7 @@ export class ExpensePreviewComponent implements OnInit {
       });
   }
 
-  viewExpense() {
+  editExpense() {
     this.modalController.dismiss();
     this.router.navigate([
       '/',

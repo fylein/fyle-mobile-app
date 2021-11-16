@@ -1,5 +1,5 @@
 <ion-header mode="md">
-  <mat-icon *ngIf="isIos" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <mat-icon *ngIf="platform.is('ios')" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar expense-preview--toolbar">
     <ion-buttons slot="start">
       <ion-button (click)="closeModal()">
@@ -144,7 +144,7 @@
         >
           Unmatch
         </ion-button>
-        <ion-button (click)="viewExpense()" [disabled]="unMatching" appFormButtonValidation class="btn-primary">
+        <ion-button (click)="editExpense()" [disabled]="unMatching" appFormButtonValidation class="btn-primary">
           Edit
         </ion-button>
       </ion-buttons>

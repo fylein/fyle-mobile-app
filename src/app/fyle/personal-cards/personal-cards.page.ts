@@ -1095,6 +1095,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       }
 
       if (data.range === 'Custom Range') {
+        const startDate = data.startDate && moment(data.startDate).format('MMM-D');
+        const endDate = data.endDate && moment(data.endDate).format('MMM-D');
+        this.txnDateRange = `${startDate} - ${endDate}`;
+
         currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${new Date(
           data.startDate
         ).toISOString()},btxn_transaction_dt.lt.${new Date(data.endDate).toISOString()}))`;

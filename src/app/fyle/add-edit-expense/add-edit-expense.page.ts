@@ -4154,7 +4154,7 @@ export class AddEditExpensePage implements OnInit {
     if (this.newExpenseDataUrls.length > 0) {
       const addExpenseAttachments$ = of(
         this.newExpenseDataUrls.map((fileObj) => {
-          fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
+          fileObj.type = this.isPDF(fileObj.type) ? 'pdf' : 'image';
           return fileObj;
         })
       );
@@ -4175,5 +4175,9 @@ export class AddEditExpensePage implements OnInit {
     } else {
       return of([]);
     }
+  }
+
+  isPDF(type) {
+    return ['application/pdf', 'pdf'].indexOf(type) > -1;
   }
 }

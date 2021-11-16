@@ -31,10 +31,10 @@
         <div class="date-range-modal--label">Custom Range</div>
       </ion-label>
     </ion-item>
-    <mat-date-range-input [rangePicker]="picker" style="display: none">
+    <mat-date-range-input [rangePicker]="picker" class="date-range-modal--range-picker">
       <input matStartDate placeholder="Start date" #dateRangeStart />
       <input matEndDate placeholder="End date" (dateChange)="datePicked()" #dateRangeEnd />
     </mat-date-range-input>
-    <mat-date-range-picker #picker></mat-date-range-picker>
+    <mat-date-range-picker panelClass="datepickerOne" #picker></mat-date-range-picker>
   </ion-list>
 </div>

@@ -15,4 +15,13 @@
     line-height: 23px;
     margin: 8px 0;
   }
+
+  &--range-picker {
+    position: fixed;
+    left: 12%;
+    width: 0;
+    transform: translate(-50%, -50%);
+    top: 40%;
+    opacity: 0;
+  }
 }
