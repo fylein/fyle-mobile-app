@@ -1,0 +1,446 @@
+<ion-header mode="md">
+  <ion-toolbar class="view-mileage--toolbar">
+    <ion-buttons *ngIf="this.reportId" mode="md" slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon class="icon--navigate" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title
+      mode="md"
+      class="page-title"
+      [ngClass]="{'view-mileage--title': numEtxnsInReport > 1, 'pl-0': isDeviceWidthSmall}"
+    >
+      View Mileage
+      <p class="view-mileage--subtitle" *ngIf="numEtxnsInReport > 1">
+        Showing {{ activeEtxnIndex + 1 }} of {{ numEtxnsInReport }} expenses
+      </p>
+    </ion-title>
+    <ion-buttons class="view-mileage--header-btn-container" slot="end">
+      <ion-button class="view-mileage--header-btn-container__btn" (click)="openCommentsModal()">
+        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+
+      <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
+        <ion-button
+          class="view-mileage--header-btn-container__btn"
+          (click)="flagUnflagExpense()"
+          [ngClass]="isExpenseFlagged ? 'icon--flagged' : 'icon--unflagged'"
+        >
+          <ion-icon [src]="'../../../assets/svg/fy-flag-2.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+
+      <ng-container *ngIf="view === ExpenseView.team && canDelete$|async">
+        <ion-button class="view-mileage--header-btn-container__btn" (click)="removeExpenseFromReport()">
+          <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="view-mileage--container" *ngIf="extendedMileage$|async as extendedMileage">
+    <ng-container *ngIf="extendedMileage.tx_policy_flag">
+      <ng-container *ngIf="policyDetails">
+        <app-fy-policy-violation-info
+          [policyDetails]="policyDetails"
+          [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+        ></app-fy-policy-violation-info>
+      </ng-container>
+    </ng-container>
+
+    <div class="view-mileage--policy-container" *ngIf="(isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)">
+      <span class="info-text m-0">
+        Claimed amount {{ extendedMileage.tx_user_amount | currency:extendedMileage.tx_currency: 'symbol-narrow' }} was
+        capped to {{ extendedMileage.tx_amount | currency:extendedMileage.tx_currency: 'symbol-narrow'}} due to policy.
+      </span>
+    </div>
+
+    <div class="d-flex view-mileage--card-container">
+      <div class="view-mileage--card-container__block">
+        <div class="view-mileage--card-container__category">Mileage</div>
+        <div class="view-mileage--card-container__merchant">
+          {{extendedMileage.tx_distance || 0}} {{extendedMileage.tx_distance_unit | titlecase}}
+        </div>
+        <div *ngIf="isProjectShown" class="view-mileage--card-container__project">
+          Project: {{ extendedMileage.tx_project_name ? extendedMileage.tx_project_name : 'Unspecified' }}
+        </div>
+      </div>
+      <div class="ion-text-right view-mileage--card-container__block">
+        <div>
+          <span>{{ etxnCurrencySymbol }}</span>
+          <span class="view-mileage--card-container__amount">
+            {{ extendedMileage.tx_amount || 0 | humanizeCurrency: extendedMileage.tx_currency:2:true }}
+          </span>
+          <ion-icon
+            class="view-mileage--card-container__icon"
+            [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+          ></ion-icon>
+        </div>
+
+        <div
+          class="view-mileage--card-container__state-pill ion-text-right"
+          [ngClass]="{'view-mileage--card-container__state-pill--with-project': isProjectShown}"
+        >
+          <div class="view-mileage--card-container__state-pill__state">
+            {{ extendedMileage.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-container *ngIf="extendedMileage.tx_locations && extendedMileage.tx_locations.length">
+      <ng-container *ngIf="isConnected$|async">
+        <div class="view-mileage--map-block">
+          <div class="view-mileage--map-block__map">
+            <app-route-visualizer [mileageLocations]="extendedMileage.tx_locations || []"></app-route-visualizer>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="view-mileage--route-block">
+        <div
+          *ngFor="let control of extendedMileage.tx_locations; index as i; first as isFirst; last as isLast"
+          class="view-mileage--route-block__div"
+        >
+          <div>
+            <ion-icon
+              slot="icon-only"
+              [src]="'../../../assets/svg/' + (isFirst ? 'circle' : 'rectangle') + '.svg'"
+              class="view-mileage--route-block__icon"
+              [ngClass]="{'view-mileage--route-block__icon-filled': isFirst || isLast }"
+            ></ion-icon>
+            <span class="view-mileage--label">{{ isFirst ? 'Start' : isLast ? 'End' : 'Stop ' + i }}</span>
+            <div class="view-mileage--value view-mileage--route-block__value pt-0">{{ control.display }}</div>
+          </div>
+        </div>
+      </div>
+
+      <ion-grid *ngIf="extendedMileage.tx_mileage_is_round_trip" class="view-mileage--grid">
+        <ion-row>
+          <ion-col class="view-mileage--icon-container">
+            <div class="view-mileage--icon-container__background">
+              <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/return-home.svg"></ion-icon>
+            </div>
+          </ion-col>
+          <ion-col class="view-mileage--content-container">
+            <div class="view-mileage--label">Round Trip</div>
+            <div class="view-mileage--value">{{ extendedMileage.tx_mileage_is_round_trip ? 'Yes' : 'No' }}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <div class="view-mileage--divider"></div>
+    </ng-container>
+
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/fy-report.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Report Name</div>
+          <div class="view-mileage--value">{{ extendedMileage.rp_purpose }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="view === ExpenseView.team" class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/profile.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Employee</div>
+          <div class="view-mileage--value">{{ extendedMileage.us_full_name }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Expense ID</div>
+          <div class="view-mileage--value">{{ extendedMileage.tx_expense_number }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <div class="view-mileage--divider"></div>
+
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon-stroke-lg"
+                    src="../../../assets/svg/fy-calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Created Date</div>
+                <div class="view-mileage--value">{{ extendedMileage.tx_created_at | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        <ion-col *ngIf="extendedMileage.tx_txn_dt">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon-stroke-lg"
+                    src="../../../assets/svg/fy-calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Spend Date</div>
+                <div class="view-mileage--value">{{ extendedMileage.tx_txn_dt | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon
+              class="view-mileage--icon-container__icon-lg"
+              [src]="'../../../assets/svg/' + (paymentModeIcon === 'fy-matched' ? 'fy-unmatched' : paymentModeIcon) + '.svg'"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Payment Mode</div>
+          <div class="view-mileage--value">{{ paymentMode }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="extendedMileage.tx_purpose" class="view-mileage--grid">
+      <ion-row>
+        <ion-col class="view-mileage--icon-container">
+          <div class="view-mileage--icon-container__background">
+            <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-mileage--content-container">
+          <div class="view-mileage--label">Purpose</div>
+          <div class="view-mileage--value">{{ extendedMileage.tx_purpose }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col
+          *ngIf="extendedMileage.tx_org_category && extendedMileage.tx_sub_category && (extendedMileage.tx_org_category !== extendedMileage.tx_sub_category)"
+          size="6"
+        >
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/tag.svg"></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Subcategory</div>
+                <div class="view-mileage--value">{{ extendedMileage.tx_sub_category }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon"
+                    [src]="'../../../assets/svg/' + vehicleType + '.svg'"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Vehicle Type</div>
+                <div class="view-mileage--value">{{ vehicleType === 'car' ? 'Four Wheeler' : 'Two Wheeler'}}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col *ngIf="extendedMileage.tx_distance" size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Claimed Distance</div>
+                <div class="view-mileage--value">
+                  {{extendedMileage.tx_distance}} {{extendedMileage.tx_distance_unit | titlecase}}
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        <ion-col *ngIf="extendedMileage.tx_mileage_calculated_distance">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Calculated Distance</div>
+                <div class="view-mileage--value">
+                  {{extendedMileage.tx_mileage_calculated_distance}} {{extendedMileage.tx_distance_unit | titlecase}}
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
+        <ion-col *ngIf="extendedMileage.tx_mileage_calculated_amount" size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon-lg"
+                    [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Calculated Amount</div>
+                <div class="view-mileage--value">
+                  {{extendedMileage.tx_mileage_calculated_amount | currency:extendedMileage.tx_currency:
+                  'symbol-narrow'}}
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        <ion-col *ngIf="extendedMileage.tx_mileage_rate">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon-lg"
+                    [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Rate / {{extendedMileage.tx_distance_unit | titlecase}}</div>
+                <div class="view-mileage--value">
+                  {{extendedMileage.tx_mileage_rate | currency:extendedMileage.tx_currency: 'symbol-narrow'}}
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid
+      *ngIf="orgSettings?.cost_centers?.enabled && extendedMileage.tx_cost_center_id"
+      class="view-mileage--grid"
+    >
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon"
+                    src="../../../assets/svg/building.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Cost Center</div>
+                <div class="view-mileage--value">{{ extendedMileage.tx_cost_center_name }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon"
+                    src="../../../assets/svg/building.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Cost Center Code</div>
+                <div class="view-mileage--value">{{ extendedMileage.tx_cost_center_id }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ng-container *ngIf="extendedMileage.tx_custom_properties">
+      <div class="view-mileage--divider"></div>
+      <ion-grid *ngFor="let customProperty of extendedMileage.tx_custom_properties" class="view-mileage--grid">
+        <ion-row>
+          <ion-col class="view-mileage--icon-container">
+            <div class="view-mileage--icon-container__background">
+              <ion-icon class="view-mileage--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+            </div>
+          </ion-col>
+          <ion-col class="view-mileage--content-container">
+            <div class="view-mileage--label">{{customProperty.name}}</div>
+            <div class="view-mileage--value">{{ getDisplayValue(customProperty) }}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ng-container>
+  </div>
+</ion-content>
+
+<app-navigation-footer
+  *ngIf="numEtxnsInReport > 1"
+  [activeEtxnIndex]="activeEtxnIndex"
+  [numEtxnsInReport]="numEtxnsInReport"
+></app-navigation-footer>
