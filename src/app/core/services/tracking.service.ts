@@ -881,6 +881,17 @@ export class TrackingService {
     this.eventTrack('View Report Info', properties);
   }
 
+  // Team Advances
+  async sendBackAdvance(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Send Back Advance', properties);
+  }
+
+  async rejectAdvance(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Reject Advance', properties);
+  }
+
   //Toggle settings
   onSettingsToggle(properties) {
     this.eventTrack('Toggle Setting', properties);
