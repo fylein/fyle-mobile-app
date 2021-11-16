@@ -1035,14 +1035,7 @@ export class AddEditExpensePage implements OnInit {
     const eou$ = from(this.authService.getEou());
 
     const instaFyleSettings$ = this.orgUserSettings$.pipe(
-      map((orgUserSettings) => orgUserSettings.insta_fyle_settings),
-      map((instaFyleSettings) => ({
-        shouldExtractAmount: instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1,
-        shouldExtractCurrency: instaFyleSettings.extract_fields.indexOf('CURRENCY') > -1,
-        shouldExtractDate: instaFyleSettings.extract_fields.indexOf('TXN_DT') > -1,
-        shouldExtractCategory: instaFyleSettings.extract_fields.indexOf('CATEGORY') > -1,
-        shouldExtractMerchant: instaFyleSettings.extract_fields.indexOf('MERCHANT') > -1,
-      }))
+      map((orgUserSettings) => orgUserSettings.insta_fyle_settings)
     );
 
     return forkJoin({
@@ -1187,19 +1180,14 @@ export class AddEditExpensePage implements OnInit {
 
           etxn.tx.extracted_data = extractedData;
 
-          if (instaFyleSettings.shouldExtractAmount && extractedData.amount) {
+          if (extractedData.amount) {
             etxn.tx.amount = extractedData.amount;
           }
 
-          if (instaFyleSettings.shouldExtractCurrency && extractedData.currency) {
+          if (extractedData.currency) {
             etxn.tx.currency = extractedData.currency;
 
-            if (
-              homeCurrency !== extractedData.currency &&
-              instaFyleSettings.shouldExtractAmount &&
-              extractedData.amount &&
-              imageData.exchangeRate
-            ) {
+            if (homeCurrency !== extractedData.currency && extractedData.amount && imageData.exchangeRate) {
               etxn.tx.orig_amount = extractedData.amount;
               etxn.tx.orig_currency = extractedData.currency;
               etxn.tx.amount = imageData.exchangeRate * extractedData.amount;
@@ -1207,19 +1195,19 @@ export class AddEditExpensePage implements OnInit {
             }
           }
 
-          if (instaFyleSettings.shouldExtractDate && extractedData.date) {
+          if (extractedData.date) {
             etxn.tx.txn_dt = new Date(extractedData.date);
           }
 
-          if (instaFyleSettings.shouldExtractDate && extractedData.invoice_dt) {
+          if (extractedData.invoice_dt) {
             etxn.tx.txn_dt = new Date(extractedData.invoice_dt);
           }
 
-          if (instaFyleSettings.shouldExtractMerchant && extractedData.vendor) {
+          if (extractedData.vendor) {
             etxn.tx.vendor = extractedData.vendor;
           }
 
-          if (instaFyleSettings.shouldExtractCategory && extractedData.category) {
+          if (extractedData.category) {
             const categoryName = extractedData.category || 'unspecified';
             const category = categories.find((orgCategory) => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
@@ -2198,34 +2186,27 @@ export class AddEditExpensePage implements OnInit {
             allCategories: this.offlineService.getAllEnabledCategories(),
           }).pipe(
             switchMap(({ instaFyleSettings, allCategories }) => {
-              const shouldExtractAmount = instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1;
-              const shouldExtractCurrency = instaFyleSettings.extract_fields.indexOf('CURRENCY') > -1;
-              const shouldExtractDate = instaFyleSettings.extract_fields.indexOf('TXN_DT') > -1;
-              const shouldExtractCategory = instaFyleSettings.extract_fields.indexOf('CATEGORY') > -1;
-              const shouldExtractMerchant = instaFyleSettings.extract_fields.indexOf('MERCHANT') > -1;
-
-              if (shouldExtractAmount && etxn.tx.extracted_data.amount && !etxn.tx.amount) {
+              if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
                 etxn.tx.amount = etxn.tx.extracted_data.amount;
               }
 
-              if (shouldExtractCurrency && etxn.tx.extracted_data.currency && !etxn.tx.currency) {
+              if (etxn.tx.extracted_data.currency && !etxn.tx.currency) {
                 etxn.tx.currency = etxn.tx.extracted_data.currency;
               }
 
-              if (shouldExtractDate && etxn.tx.extracted_data.date) {
+              if (etxn.tx.extracted_data.date) {
                 etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.date);
               }
 
-              if (shouldExtractDate && etxn.tx.extracted_data.invoice_dt) {
+              if (etxn.tx.extracted_data.invoice_dt) {
                 etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.invoice_dt);
               }
 
-              if (shouldExtractMerchant && etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
+              if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
                 etxn.tx.vendor = etxn.tx.extracted_data.vendor;
               }
 
               if (
-                shouldExtractCategory &&
                 etxn.tx.extracted_data.category &&
                 etxn.tx.fyle_category &&
                 etxn.tx.fyle_category.toLowerCase() === 'unspecified'
