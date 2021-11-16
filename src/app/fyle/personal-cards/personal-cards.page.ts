@@ -119,6 +119,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   loadingTxnId: string;
 
+  scrollingDirection: string;
+
+  scrolled = false;
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private networkService: NetworkService,
@@ -1109,10 +1113,26 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   doRefresh(event?) {
-    const params = this.loadCardData$.getValue();
-    this.loadCardData$.next(params);
+    const currentParams = this.loadData$.getValue();
+    this.currentPageNumber = 1;
+    currentParams.pageNumber = this.currentPageNumber;
+    this.loadData$.next(currentParams);
     if (event) {
       event.target.complete();
+    }
+  }
+
+  onScroll(event) {
+    if (event.detail.scrollTop > 0) {
+      this.scrolled = true;
+    } else {
+      this.scrolled = false;
+    }
+
+    if (event.detail.deltaY > 0) {
+      this.scrollingDirection = 'down';
+    } else {
+      this.scrollingDirection = 'up';
     }
   }
 }

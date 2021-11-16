@@ -19,6 +19,8 @@ import * as moment from 'moment';
 export class BankAccountCardComponent implements OnInit {
   @Input() accountDetails: PersonalCard;
 
+  @Input() minimal: boolean;
+
   @Output() deleted = new EventEmitter();
 
   lastSyncedAt;

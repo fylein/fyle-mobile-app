@@ -25,7 +25,6 @@
   &--content {
     --background: #{$pure-white};
     --padding-bottom: 82px;
-    border-top: $grey solid 1px;
   }
 
   &--select-all-container {
@@ -259,6 +258,7 @@
     display: flex;
     padding: 5px 14px;
     justify-content: flex-end;
+    z-index: 1000;
 
     &__left {
       margin-right: auto;

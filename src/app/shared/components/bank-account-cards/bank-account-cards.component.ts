@@ -14,11 +14,15 @@ SwiperCore.use([Pagination]);
 export class BankAccountCardsComponent implements OnInit {
   @Input() linkedAccounts: PersonalCard[];
 
+  @Input() minimal: boolean;
+
   @Output() deleted = new EventEmitter();
 
   @Output() changed = new EventEmitter();
 
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
+
+  selectedCard;
 
   pagination = {
     renderBullet(index, className) {
@@ -35,6 +39,8 @@ export class BankAccountCardsComponent implements OnInit {
   }
 
   onCardChange(event) {
-    this.changed.emit(this.linkedAccounts[event.realIndex].id);
+    if (!this.minimal) {
+      this.changed.emit(this.linkedAccounts[event.realIndex].id);
+    }
   }
 }
