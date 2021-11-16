@@ -27,13 +27,14 @@ export class ExpensePreviewComponent implements OnInit {
 
   type: string;
 
+  platform: Platform;
+
   constructor(
     private modalController: ModalController,
     private personalCardsService: PersonalCardsService,
     private router: Router,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private platform: Platform
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit(): void {}
