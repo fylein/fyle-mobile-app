@@ -34,7 +34,7 @@ export class BankAccountCardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.lastSyncedAt) {
+    if (this.accountDetails.last_synced_at) {
       this.lastSyncedAt = this.convertUTCDateToLocalDate(new Date(this.accountDetails.last_synced_at));
     }
   }
