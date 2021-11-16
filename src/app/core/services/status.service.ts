@@ -46,16 +46,16 @@ export class StatusService {
           icon: 'fy-merge',
         };
         break;
-      case (/^(you merged (\d+))/.test(lowerCaseComment)):
-        const matched = lowerCaseComment.match(/^you merged (\d+)/);
+      case (/(merged (\d+) expenses)/.test(lowerCaseComment)):
+        const matched = lowerCaseComment.match(/merged (\d+) expenses/);
         statusCategory = {
-          category: matched[1] + ' expenses Merged with 1 expense by user',
-          icon: 'fy-merge'
+          category: matched[1] + ' expenses merged to this expense',
+          icon: 'fy-merge',
         };
         break;
-      case lowerCaseComment.indexOf('you merged') > -1:
+      case (lowerCaseComment.indexOf('merged') > -1):
         statusCategory = {
-          category: 'Expense merged by user',
+          category: 'Expense merged',
           icon: 'fy-merge',
         };
         break;
