@@ -714,13 +714,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   generateCreditParams(newQueryParams) {
+    const transactionTypeMap = {
+      credit: '(btxn_transaction_type.in.(credit))',
+      debit: '(btxn_transaction_type.in.(debit))',
+    };
     if (this.filters.showCredited) {
-      if (this.filters.showCredited === 'Credit') {
-        newQueryParams.or = `(btxn_transaction_type.in.(credit))`;
-      }
-      if (this.filters.showCredited === 'Debit') {
-        newQueryParams.or = `(btxn_transaction_type.in.(debit))`;
-      }
+      newQueryParams.or = transactionTypeMap[this.filters.showCredited.toLowerCase()];
     }
   }
 
@@ -943,17 +942,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   async onFilterClick(filterLabel: string) {
-    if (filterLabel === 'Created On') {
-      await this.openFilters('Created On');
-    }
-
-    if (filterLabel === 'Updated On') {
-      await this.openFilters('Updated On');
-    }
-
-    if (filterLabel === 'Transactions Type') {
-      await this.openFilters('Transactions Type');
-    }
+    await this.openFilters(filterLabel);
   }
 
   onFilterClose(filterLabel: string) {
