@@ -67,33 +67,44 @@ export class FiltersHelperService {
 
     if (sortBy && sortBy.value) {
       generatedFilters.sortParam = sortBy.value;
-      if (sortBy.value.includes('NewToOld')) {
-        generatedFilters.sortDir = 'desc';
-      } else if (sortBy.value.includes('OldToNew')) {
-        generatedFilters.sortDir = 'asc';
-      } else if (sortBy.value.includes('AToZ')) {
-        generatedFilters.sortDir = 'asc';
-      } else if (sortBy.value.includes('ZToA')) {
-        generatedFilters.sortDir = 'desc';
-      }
+      generatedFilters.sortDir = this.getSortDir(sortBy.value);
     }
     return generatedFilters;
   }
 
   generateSelectedFilters(filters: Filters): SelectedFilters<any>[] {
     const generatedFilters: SelectedFilters<any>[] = [];
-    if (filters && filters.state) {
-      generatedFilters.push({
-        name: 'State',
-        value: filters.state,
-      });
+    const filtersMap = {
+      state: 'State',
+      sortParam: 'Sort By',
+      sortDir: 'Sort Direction',
+    };
+
+    for (const key in filters) {
+      if (filters[key]) {
+        generatedFilters.push({
+          name: filtersMap[key],
+          value: filters[key],
+        });
+      }
     }
-    if (filters && filters.sortParam) {
-      generatedFilters.push({
-        name: 'Sort By',
-        value: filters.sortParam,
-      });
-    }
+
     return generatedFilters;
+  }
+
+  private getSortDir(sortParam: string) {
+    let sortDir: string;
+
+    if (sortParam.includes('NewToOld')) {
+      sortDir = 'desc';
+    } else if (sortParam.includes('OldToNew')) {
+      sortDir = 'asc';
+    } else if (sortParam.includes('AToZ')) {
+      sortDir = 'asc';
+    } else if (sortParam.includes('ZToA')) {
+      sortDir = 'desc';
+    }
+
+    return sortDir;
   }
 }
