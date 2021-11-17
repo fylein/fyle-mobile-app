@@ -165,7 +165,7 @@ export class MyAdvancesPage {
                   newArr = advArray.filter((adv) => filters.state.includes(adv.areq_state));
                 }
 
-                newArr = this.utilityService.sortMixedAdvances(filters, newArr);
+                newArr = this.utilityService.sortAllAdvances(filters, newArr);
                 return newArr;
               })
             )
