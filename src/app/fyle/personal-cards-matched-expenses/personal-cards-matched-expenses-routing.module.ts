@@ -6,8 +6,8 @@ import { PersonalCardsMatchedExpensesPage } from './personal-cards-matched-expen
 const routes: Routes = [
   {
     path: '',
-    component: PersonalCardsMatchedExpensesPage
-  }
+    component: PersonalCardsMatchedExpensesPage,
+  },
 ];
 
 @NgModule({

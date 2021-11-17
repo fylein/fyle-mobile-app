@@ -30,7 +30,7 @@ $background-color: #fff;
     }
 
     &-save {
-      color: $primary;
+      color: $brand-primary;
       font-size: 16px;
       line-height: 20px;
       font-weight: 500;
@@ -145,7 +145,7 @@ $background-color: #fff;
   }
 
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     font-size: 14px;
     font-weight: 400;
   }

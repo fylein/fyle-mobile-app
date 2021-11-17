@@ -55,6 +55,7 @@
   &--list-element-icon {
     min-width: 24px;
     margin-right: 12px;
+    color: $black;
   }
 
   &--title {
@@ -137,6 +138,6 @@
   }
 
   &--cta-button {
-    color: $primary;
+    color: $brand-primary;
   }
 }

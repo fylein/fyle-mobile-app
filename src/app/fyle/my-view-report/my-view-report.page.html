@@ -88,6 +88,7 @@
               <app-my-view-report-etxn-card
                 *ngFor="let etxn of etxns$|async as etxns; let i = index;"
                 [etxn]="etxn"
+                [etxnIndex]="i"
                 [prevDate]="etxns[i-1]?.tx_txn_dt"
                 (goToTransaciton)="goToTransaction($event)"
               >
@@ -146,22 +147,16 @@
 <ion-footer
   *ngIf="((erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0)||(canResubmitReport$ | async)"
 >
-  <ion-toolbar mode="md">
+  <ion-toolbar class="fy-footer-cta-container" mode="md">
     <ion-button
-      class="view-reports--primary-cta flat-button"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
+      class="fy-footer-cta fy-footer-cta--primary"
       *ngIf="canResubmitReport$ | async"
       (click)="showResubmitReportSummaryPopover()"
     >
       Resubmit Report
     </ion-button>
     <ion-button
-      class="view-reports--primary-cta flat-button"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
+      class="fy-footer-cta fy-footer-cta--primary"
       *ngIf="(erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
       (click)="showSubmitReportSummaryPopover()"
     >
