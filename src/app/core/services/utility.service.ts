@@ -101,7 +101,8 @@ export class UtilityService {
     return obj;
   }
 
-  sortMixedAdvances(filters: Filters, advancesArray: any[]): any[] {
+  sortAllAdvances(filters: Filters, advancesArray: any[]): any[] {
+    //used for sorting an array that has both advances and advance requests mixed together
     let sortedAdvancesArray = advancesArray;
     if (filters && filters.sortDir && filters.sortParam) {
       if (filters.sortParam.includes('crDate')) {
