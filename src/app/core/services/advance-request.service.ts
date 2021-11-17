@@ -1,25 +1,35 @@
 import { Injectable } from '@angular/core';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { forkJoin, from, Observable, of, Subject } from 'rxjs';
+
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { map, switchMap, tap } from 'rxjs/operators';
-import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
-import { Approval } from '../models/approval.model';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
-import { CustomField } from '../models/custom_field.model';
 import { FileService } from './file.service';
-import { File } from '../models/file.model';
 import { TransactionsOutboxService } from './transactions-outbox.service';
+
+import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
+import { Approval } from '../models/approval.model';
+import { CustomField } from '../models/custom_field.model';
+import { File } from '../models/file.model';
+import { AdvancesStates } from '../models/advances-states.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
+
+type config = Partial<{
+  offset: number;
+  limit: number;
+  queryParams: any;
+  filter: AdvancesStates[];
+}>;
 
 @Injectable({
   providedIn: 'root',
@@ -44,7 +54,7 @@ export class AdvanceRequestService {
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
   getMyadvanceRequests(
-    config: Partial<{ offset: number; limit: number; queryParams: any }> = {
+    config: config = {
       offset: 0,
       limit: 10,
       queryParams: {},
@@ -116,8 +126,6 @@ export class AdvanceRequestService {
     };
 
     return this.apiService.post('/advance_requests/add_approver', data);
-    // self.deleteCache();
-    // return fixDates(advance_request);
   }
 
   @CacheBuster({
@@ -165,22 +173,30 @@ export class AdvanceRequestService {
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
-  getTeamadvanceRequests(
-    config: Partial<{ offset: number; limit: number; queryParams: any; filter: any }> = {
+  getTeamAdvanceRequests(
+    config: config = {
       offset: 0,
       limit: 10,
       queryParams: {},
-      filter: 'PENDING',
+      filter: [AdvancesStates.pending],
     }
   ) {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => {
         const defaultParams = {};
-        if (config.filter === 'APPROVED') {
-          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_DONE'];
-        } else {
-          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_PENDING'];
+        const isPending = config.filter.includes(AdvancesStates.pending);
+        const isApproved = config.filter.includes(AdvancesStates.approved);
+        let approvalState = '';
+
+        if ((isPending && isApproved) || (!isPending && !isApproved)) {
+          approvalState = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
+        } else if (isApproved) {
+          approvalState = 'eq.APPROVAL_DONE';
+        } else if (isPending) {
+          approvalState = 'eq.APPROVAL_PENDING';
         }
+
+        defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = [approvalState];
 
         return this.apiv2Service.get('/advance_requests', {
           params: {
@@ -215,7 +231,6 @@ export class AdvanceRequestService {
       map((res) => {
         const eAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
-        // self.setInternalStateAndDisplayName(eAdvanceRequest.areq);
         return eAdvanceRequest;
       })
     );
@@ -287,7 +302,7 @@ export class AdvanceRequestService {
   }
 
   getTeamAdvanceRequestsCount(queryParams: {}, filter: any) {
-    return this.getTeamadvanceRequests({
+    return this.getTeamAdvanceRequests({
       offset: 0,
       limit: 1,
       queryParams,
