@@ -102,10 +102,10 @@ export class UtilityService {
   }
 
   sortMixedAdvances(filters: Filters, advancesArray: any[]): any[] {
-    let newArr = advancesArray;
+    let sortedAdvancesArray = advancesArray;
     if (filters && filters.sortDir && filters.sortParam) {
       if (filters.sortParam.includes('crDate')) {
-        newArr = newArr.sort((adv1, adv2) => {
+        sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
           const adv1Date = adv1.areq_created_at
             ? new Date(adv1.areq_created_at).getTime()
             : new Date(adv1.adv_created_at).getTime();
@@ -120,10 +120,10 @@ export class UtilityService {
           }
         });
       } else if (filters.sortParam.includes('appDate')) {
-        newArr = newArr.sort((adv1, adv2) => {
+        sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
           const adv1Date = new Date(adv1.areq_approved_at).getTime();
           const adv2Date = new Date(adv2.areq_approved_at).getTime();
-          const nullDate = new Date(null).getTime(); //required because passing null to Date returns Jan 1, 1970
+          const nullDate = new Date(null).getTime(); //required because passing null to the Date constructor returns Jan 1, 1970
 
           const returnValue = this.handleDefaultSort(adv1Date, adv2Date, nullDate);
           if (returnValue !== null) {
@@ -137,7 +137,7 @@ export class UtilityService {
           }
         });
       } else if (filters.sortParam.includes('project')) {
-        newArr = newArr.sort((adv1, adv2) => {
+        sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
           const adv1ProjectName = adv1.project_name;
           const adv2ProjectName = adv2.project_name;
 
@@ -154,7 +154,7 @@ export class UtilityService {
         });
       }
     }
-    return newArr;
+    return sortedAdvancesArray;
   }
 
   private handleDefaultSort(param1: any, param2: any, nullComparator: any) {
