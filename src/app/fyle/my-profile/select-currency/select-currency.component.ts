@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { Observable, noop, from, fromEvent } from 'rxjs';
-import { tap, map, finalize, concatMap, shareReplay, startWith, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { map, finalize, concatMap, shareReplay, startWith, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { Currency } from 'src/app/core/models/currency.model';
 
 @Component({
   selector: 'app-select-currency',
@@ -11,11 +12,15 @@ import { LoaderService } from 'src/app/core/services/loader.service';
   styleUrls: ['./select-currency.component.scss'],
 })
 export class SelectCurrencyComponent implements OnInit, AfterViewInit {
+  @Input() currentSelection: string;
+
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  currencies$: Observable<{ shortCode: string; longName: string }[]>;
+  currencies$: Observable<Currency[]>;
 
-  filteredCurrencies$: Observable<{ shortCode: string; longName: string }[]>;
+  filteredCurrencies$: Observable<Currency[]>;
+
+  value: string;
 
   constructor(
     private currencyService: CurrencyService,
@@ -57,13 +62,20 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
     );
   }
 
-  onDoneClick() {
+  closeModal() {
     this.modalController.dismiss();
   }
 
-  onCurrencySelect(currency) {
+  onCurrencySelect(selectedCurrency: Currency) {
     this.modalController.dismiss({
-      currency,
+      selectedCurrency,
     });
+  }
+
+  clearValue() {
+    this.value = '';
+    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('keyup'));
   }
 }

@@ -2,11 +2,7 @@
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
-        <ion-icon
-          class="icon--navigate-left"
-          [src]="'../../../../assets/svg/navigate-left.svg'"
-          slot="icon-only"
-        ></ion-icon>
+        <ion-icon class="icon--navigate" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
@@ -153,6 +149,7 @@
           [attachments]="newExpenseDataUrls"
           (addMoreAttachments)="addAttachments($event)"
           (viewAttachments)="viewAttachments()"
+          [canEdit]="true"
         >
         </app-receipt-preview-thumbnail>
 
@@ -163,6 +160,7 @@
             (addMoreAttachments)="addAttachments($event)"
             (viewAttachments)="viewAttachments()"
             [isUploading]="attachmentUploadInProgress"
+            [canEdit]="true"
           >
           </app-receipt-preview-thumbnail>
         </ng-container>
@@ -349,6 +347,12 @@
                       >
                       </app-fy-select-project>
                     </div>
+                    <div
+                      *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
+                      class="add-edit-expense--error"
+                    >
+                      Please select a project.
+                    </div>
                   </ng-container>
                 </ng-container>
               </ng-container>
@@ -358,10 +362,6 @@
                   <span class="add-edit-expense--checkbox"> Billable </span>
                 </mat-checkbox>
               </div>
-            </div>
-
-            <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
-              Please select a project.
             </div>
           </ng-container>
 
