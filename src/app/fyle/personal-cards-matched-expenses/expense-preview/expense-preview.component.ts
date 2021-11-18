@@ -27,17 +27,20 @@ export class ExpensePreviewComponent implements OnInit {
 
   type: string;
 
-  platform: Platform;
+  isIos = false;
 
   constructor(
     private modalController: ModalController,
     private personalCardsService: PersonalCardsService,
     private router: Router,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private platform: Platform
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.isIos = this.platform.is('ios');
+  }
 
   ionViewWillEnter() {
     this.expenseDetails$ = this.personalCardsService.getExpenseDetails(this.expenseId);
