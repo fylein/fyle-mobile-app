@@ -161,7 +161,6 @@ export class TeamReportsPage implements OnInit {
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
         let queryParams = params.queryParams;
-        queryParams.sequential_approval_turn = ['in.(true)'];
         const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         this.isLoadingDataInInfiniteScroll = true;
@@ -331,6 +330,14 @@ export class TeamReportsPage implements OnInit {
     }
 
     if (stateOrFilter.length > 0) {
+      /* By default, displays the reports in `MY` queue
+       * Report state - APPROVER_PENDING
+       * sequential_approval_turn - true
+       * If any other state filter is applied, it will be considered as reports under `ALL` queue
+       */
+      if (this.filters.state.includes('APPROVER_PENDING') && this.filters.state.length === 1) {
+        newQueryParams.sequential_approval_turn = 'in.(true)';
+      }
       let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedStateOrFilter = `(${combinedStateOrFilter})`;
       newQueryParams.or.push(combinedStateOrFilter);
