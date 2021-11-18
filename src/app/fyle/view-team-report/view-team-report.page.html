@@ -154,7 +154,8 @@
 
         <!-- Expenses Section -->
         <div *ngIf="isExpensesView">
-          <div *ngIf="erpt.rp_num_transactions > 0">
+          <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
+          <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
             <div class="view-reports--divider"></div>
             <div class="view-reports-expense-card-block">
               <div *ngFor="let etxn of etxns$|async as list; let i = index;">
@@ -174,7 +175,7 @@
               <ion-spinner name="crescent"></ion-spinner>
             </ng-template>
           </div>
-          <div class="view-reports--expenses-zero-state" *ngIf="erpt.rp_num_transactions === 0">
+          <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && erpt.rp_num_transactions === 0">
             <div class="text-center">
               <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
             </div>
