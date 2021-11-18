@@ -474,7 +474,7 @@ export class TransactionsOutboxService {
   }
 
   parseReceipt(data, fileType?): Promise<ParsedReceipt> {
-    let url = this.ROOT_ENDPOINT + '/data_extraction/extract';
+    const url = this.ROOT_ENDPOINT + '/data_extraction/extract';
     let suggestedCurrency = null;
     const fileName = fileType && fileType === 'pdf' ? '000.pdf' : '000.jpeg';
 
@@ -482,22 +482,8 @@ export class TransactionsOutboxService {
     return this.offlineService
       .getHomeCurrency()
       .toPromise()
-      .then(({ homeCurrency }) =>
-        this.offlineService
-          .getOrgSettings()
-          .toPromise()
-          .then((orgSettings) => ({
-            homeCurrency,
-            orgSettings,
-          }))
-      )
-      .then(({ homeCurrency, orgSettings }) => {
+      .then((homeCurrency) => {
         suggestedCurrency = homeCurrency;
-
-        if (orgSettings?.data_extractor_settings?.enabled && orgSettings?.data_extractor_settings?.allowed) {
-          url = this.ROOT_ENDPOINT + '/data_extractor/extract';
-        }
-
         return this.httpClient
           .post(url, {
             files: [

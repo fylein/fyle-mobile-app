@@ -259,7 +259,6 @@ export class OrgSettingsService {
           incoming.verification_settings.late_mode_enabled,
       },
       data_extraction_settings: incoming.data_extraction_settings,
-      data_extractor_settings: incoming.data_extractor_settings,
       advance_account_settings: incoming.advance_account_settings,
       settlements_excel_settings: incoming.settlements_excel_settings,
       bank_payment_file_settings: incoming.bank_payment_file_settings,
