@@ -4152,29 +4152,37 @@ export class AddEditExpensePage implements OnInit {
 
   uploadAttachments(txn) {
     if (this.newExpenseDataUrls.length > 0) {
-      const addExpenseAttachments$ = of(
-        this.newExpenseDataUrls.map((fileObj) => {
-          fileObj.type = this.isPDF(fileObj.type) ? 'pdf' : 'image';
-          return fileObj;
-        })
-      );
-      return addExpenseAttachments$.pipe(
-        switchMap((fileObj: any) =>
-          fileObj.map((file) =>
-            from(this.transactionOutboxService.fileUpload(file.url, file.type))
-              .pipe(
-                switchMap((fileObj: any) => {
-                  fileObj.transaction_id = txn.split_group_id;
-                  return this.fileService.post(fileObj);
-                })
-              )
-              .subscribe(noop)
-          )
-        )
-      );
+      this.newExpenseDataUrls = this.addFileType(this.newExpenseDataUrls);
+      const addExpenseAttachments$ = of(this.newExpenseDataUrls);
+      return addExpenseAttachments$.pipe(switchMap((fileObjs) => this.uploadMultipleFiles(fileObjs, txn)));
     } else {
       return of([]);
     }
+  }
+
+  addFileType(dataUrls) {
+    const dataUrlsCopy = cloneDeep(dataUrls);
+    dataUrlsCopy.forEach((dataUrl) => {
+      dataUrl.type = this.isPDF(dataUrl.type) ? 'pdf' : 'image';
+    });
+
+    return dataUrlsCopy;
+  }
+
+  uploadMultipleFiles(fileObjs, txn) {
+    return forkJoin(fileObjs.map((file) => this.uploadFileAndPostToFileService(file, txn)));
+  }
+
+  postToFileService(fileObj, txn) {
+    const fileObjCopy = cloneDeep(fileObj);
+    fileObjCopy.transaction_id = txn.split_group_id;
+    return this.fileService.post(fileObjCopy);
+  }
+
+  uploadFileAndPostToFileService(file, txn) {
+    return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
+      switchMap((fileObj: any) => this.postToFileService(fileObj, txn))
+    );
   }
 
   isPDF(type) {
