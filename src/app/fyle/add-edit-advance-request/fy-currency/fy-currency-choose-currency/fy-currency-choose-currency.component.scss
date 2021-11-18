@@ -45,4 +45,8 @@
     color: $black-light;
     padding: 8px 5px;
   }
+
+  &--check {
+    @extend %fy-select-check;
+  }
 }

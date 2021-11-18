@@ -64,11 +64,11 @@ export class DeepLinkRedirectionPage implements OnInit {
       (res) => {
         const category = res.tx.org_category && res.tx.org_category.toLowerCase();
 
-        let route = ['/', 'enterprise', 'my_view_expense'];
+        let route = ['/', 'enterprise', 'view_expense'];
         if (category === 'mileage') {
-          route = ['/', 'enterprise', 'my_view_mileage'];
+          route = ['/', 'enterprise', 'view_mileage'];
         } else if (category === 'per diem') {
-          route = ['/', 'enterprise', 'my_view_per_diem'];
+          route = ['/', 'enterprise', 'view_per_diem'];
         }
 
         this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
