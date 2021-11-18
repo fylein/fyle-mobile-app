@@ -21,6 +21,7 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import * as moment from 'moment';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 type Filters = Partial<{
   state: string[];
@@ -106,7 +107,8 @@ export class TeamReportsPage implements OnInit {
     private trackingService: TrackingService,
     private activatedRoute: ActivatedRoute,
     private apiV2Service: ApiV2Service,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private offlineService: OfflineService
   ) {}
 
   ngOnInit() {
@@ -120,6 +122,10 @@ export class TeamReportsPage implements OnInit {
   ionViewWillEnter() {
     this.isLoading = true;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
+    this.offlineService
+      .getOrgSettings()
+      .pipe()
+      .subscribe((orgSettings) => (this.orgSettings = orgSettings));
 
     this.tasksService.getTeamReportsTaskCount().subscribe((teamReportsTaskCount) => {
       this.teamReportsTaskCount = teamReportsTaskCount;
@@ -161,6 +167,9 @@ export class TeamReportsPage implements OnInit {
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
         let queryParams = params.queryParams;
+        queryParams['sequential_approval_turn'] = this.orgSettings.approval_settings.enable_sequential_approvers
+          ? ['in.(true)']
+          : ['in.(true)'];
         const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         this.isLoadingDataInInfiniteScroll = true;
