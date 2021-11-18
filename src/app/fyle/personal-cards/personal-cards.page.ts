@@ -235,7 +235,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     this.transactions$ = paginatedPipe.pipe(shareReplay(1));
 
-    this.filterPills = this.generateFilterPills(this.filters);
+    this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
 
     this.transactionsCount$ = this.loadData$.pipe(
       switchMap((params) => {
@@ -559,7 +559,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             ],
           } as FilterOptions<string>,
         ],
-        selectedFilterValues: this.generateSelectedFilters(this.filters),
+        selectedFilterValues: this.personalCardsService.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },
       cssClass: 'dialog-popover',
@@ -570,12 +570,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
       this.currentPageNumber = 1;
-      this.filters = this.convertFilters(data);
+      this.filters = this.personalCardsService.convertFilters(data);
 
       const params = this.addNewFiltersToParams();
 
       this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
+      this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
     }
   }
 
@@ -589,35 +589,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }, 500);
   }
 
-  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
-    const generatedFilters: Filters = {};
-    const createdOnDateFilter = selectedFilters.find((filter) => filter.name === 'Created On');
-    if (createdOnDateFilter) {
-      generatedFilters.createdOn = { name: createdOnDateFilter?.value };
-      if (createdOnDateFilter.associatedData) {
-        generatedFilters.createdOn.customDateStart = createdOnDateFilter.associatedData?.startDate;
-        generatedFilters.createdOn.customDateEnd = createdOnDateFilter.associatedData?.endDate;
-      }
-    }
-
-    const updatedOnDateFilter = selectedFilters.find((filter) => filter.name === 'Updated On');
-    if (updatedOnDateFilter) {
-      generatedFilters.updatedOn = { name: updatedOnDateFilter?.value };
-      if (updatedOnDateFilter.associatedData) {
-        generatedFilters.updatedOn.customDateStart = updatedOnDateFilter.associatedData?.startDate;
-        generatedFilters.updatedOn.customDateEnd = updatedOnDateFilter.associatedData?.endDate;
-      }
-    }
-
-    const showCreditedFilter = selectedFilters.find((filter) => filter.name === 'Transactions Type');
-
-    if (showCreditedFilter) {
-      generatedFilters.showCredited = showCreditedFilter.value;
-    }
-
-    return generatedFilters;
-  }
-
   addNewFiltersToParams() {
     const currentParams = this.loadData$.getValue();
 
@@ -627,297 +598,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     };
     newQueryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
     newQueryParams.ba_id = 'eq.' + this.selectedAccount;
-    this.generateCreatedOnDateParams(newQueryParams);
-    this.generateUpdatedOnDateParams(newQueryParams);
-    this.generateCreditParams(newQueryParams);
+    const filters = this.filters;
+    this.personalCardsService.generateCreatedOnDateParams(newQueryParams, filters);
+    this.personalCardsService.generateUpdatedOnDateParams(newQueryParams, filters);
+    this.personalCardsService.generateCreditParams(newQueryParams, filters);
     currentParams.queryParams = newQueryParams;
-
+    this.filters = filters;
     return currentParams;
-  }
-
-  generateCreatedOnDateParams(newQueryParams) {
-    if (this.filters.createdOn) {
-      this.filters.createdOn.customDateStart =
-        this.filters.createdOn.customDateStart && new Date(this.filters.createdOn.customDateStart);
-      this.filters.createdOn.customDateEnd =
-        this.filters.createdOn.customDateEnd && new Date(this.filters.createdOn.customDateEnd);
-      if (this.filters.createdOn.name === DateFilters.thisMonth) {
-        const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and = `(btxn_created_at.gte.${thisMonth.from.toISOString()},btxn_created_at.lt.${thisMonth.to.toISOString()})`;
-      }
-
-      if (this.filters.createdOn.name === DateFilters.thisWeek) {
-        const thisWeek = this.dateService.getThisWeekRange();
-        newQueryParams.and = `(btxn_created_at.gte.${thisWeek.from.toISOString()},btxn_created_at.lt.${thisWeek.to.toISOString()})`;
-      }
-
-      if (this.filters.createdOn.name === DateFilters.lastMonth) {
-        const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and = `(btxn_created_at.gte.${lastMonth.from.toISOString()},btxn_created_at.lt.${lastMonth.to.toISOString()})`;
-      }
-
-      this.generateCreatedOnCustomDateParams(newQueryParams);
-    }
-  }
-
-  generateCreatedOnCustomDateParams(newQueryParams: any) {
-    if (this.filters.createdOn?.name === DateFilters.custom) {
-      const startDate = this.filters?.createdOn?.customDateStart?.toISOString();
-      const endDate = this.filters?.createdOn?.customDateEnd?.toISOString();
-      if (this.filters.createdOn?.customDateStart && this.filters.createdOn?.customDateEnd) {
-        newQueryParams.and = `(btxn_created_at.gte.${startDate},btxn_created_at.lt.${endDate})`;
-      } else if (this.filters.createdOn?.customDateStart) {
-        newQueryParams.and = `(btxn_created_at.gte.${startDate})`;
-      } else if (this.filters.createdOn?.customDateEnd) {
-        newQueryParams.and = `(btxn_created_at.lt.${endDate})`;
-      }
-    }
-  }
-
-  generateUpdatedOnDateParams(newQueryParams) {
-    if (this.filters.updatedOn) {
-      this.filters.updatedOn.customDateStart =
-        this.filters.updatedOn.customDateStart && new Date(this.filters.updatedOn.customDateStart);
-      this.filters.updatedOn.customDateEnd =
-        this.filters.updatedOn.customDateEnd && new Date(this.filters.updatedOn.customDateEnd);
-      if (this.filters.updatedOn.name === DateFilters.thisMonth) {
-        const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and = `(btxn_updated_at.gte.${thisMonth.from.toISOString()},btxn_updated_at.lt.${thisMonth.to.toISOString()})`;
-      }
-
-      if (this.filters.updatedOn.name === DateFilters.thisWeek) {
-        const thisWeek = this.dateService.getThisWeekRange();
-        newQueryParams.and = `(btxn_updated_at.gte.${thisWeek.from.toISOString()},btxn_updated_at.lt.${thisWeek.to.toISOString()})`;
-      }
-
-      if (this.filters.updatedOn.name === DateFilters.lastMonth) {
-        const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and = `(btxn_updated_at.gte.${lastMonth.from.toISOString()},btxn_updated_at.lt.${lastMonth.to.toISOString()})`;
-      }
-
-      this.generateCreatedOnCustomDateParams(newQueryParams);
-    }
-  }
-
-  generateUpdatedOnCustomDateParams(newQueryParams: any) {
-    if (this.filters.updatedOn?.name === DateFilters.custom) {
-      const startDate = this.filters?.updatedOn?.customDateStart?.toISOString();
-      const endDate = this.filters?.updatedOn?.customDateEnd?.toISOString();
-      if (this.filters.updatedOn?.customDateStart && this.filters.updatedOn?.customDateEnd) {
-        newQueryParams.and = `(btxn_updated_at.gte.${startDate},btxn_updated_at.lt.${endDate})`;
-      } else if (this.filters.updatedOn?.customDateStart) {
-        newQueryParams.and = `(btxn_updated_at.gte.${startDate})`;
-      } else if (this.filters.updatedOn?.customDateEnd) {
-        newQueryParams.and = `(btxn_updated_at.lt.${endDate})`;
-      }
-    }
-  }
-
-  generateCreditParams(newQueryParams) {
-    const transactionTypeMap = {
-      credit: '(btxn_transaction_type.in.(credit))',
-      debit: '(btxn_transaction_type.in.(debit))',
-    };
-    if (this.filters.showCredited) {
-      newQueryParams.or = transactionTypeMap[this.filters.showCredited.toLowerCase()];
-    }
-  }
-
-  generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
-    const generatedFilters: SelectedFilters<any>[] = [];
-
-    if (filter?.updatedOn) {
-      generatedFilters.push({
-        name: 'Updated On',
-        value: filter.updatedOn.name,
-        associatedData: {
-          startDate: filter.updatedOn.customDateStart,
-          endDate: filter.updatedOn.customDateEnd,
-        },
-      });
-    }
-
-    if (filter?.createdOn) {
-      generatedFilters.push({
-        name: 'Created On',
-        value: filter.createdOn.name,
-        associatedData: {
-          startDate: filter.createdOn.customDateStart,
-          endDate: filter.createdOn.customDateEnd,
-        },
-      });
-    }
-
-    if (filter?.showCredited) {
-      generatedFilters.push({
-        name: 'Transactions Type',
-        value: filter.showCredited,
-      });
-    }
-
-    return generatedFilters;
-  }
-
-  generateFilterPills(filter: Filters) {
-    const filterPills: FilterPill[] = [];
-
-    if (filter?.createdOn) {
-      this.generateCreatedOnDateFilterPills(filter, filterPills);
-    }
-
-    if (filter?.updatedOn) {
-      this.generateUpdatedOnDateFilterPills(filter, filterPills);
-    }
-
-    if (filter?.showCredited) {
-      this.generateCreditTrasactionsFilterPills(filter, filterPills);
-    }
-
-    return filterPills;
-  }
-
-  generateCreatedOnDateFilterPills(filter, filterPills: FilterPill[]) {
-    if (filter.createdOn?.name === DateFilters.thisWeek) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: 'this Week',
-      });
-    }
-
-    if (filter.createdOn?.name === DateFilters.thisMonth) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: 'this Month',
-      });
-    }
-
-    if (filter.createdOn?.name === DateFilters.all) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: 'All',
-      });
-    }
-
-    if (filter.createdOn?.name === DateFilters.lastMonth) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: 'Last Month',
-      });
-    }
-
-    if (filter.createdOn?.name === DateFilters.custom) {
-      this.generateCreatedOnCustomDatePill(filter, filterPills);
-    }
-  }
-
-  generateCreatedOnCustomDatePill(filter: any, filterPills: FilterPill[]) {
-    const startDate = filter.createdOn.customDateStart && moment(filter.createdOn.customDateStart).format('y-MM-D');
-    const endDate = filter.createdOn.customDateEnd && moment(filter.createdOn.customDateEnd).format('y-MM-D');
-
-    if (startDate && endDate) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: `${startDate} to ${endDate}`,
-      });
-    } else if (startDate) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: `>= ${startDate}`,
-      });
-    } else if (endDate) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: `<= ${endDate}`,
-      });
-    }
-  }
-
-  generateUpdatedOnDateFilterPills(filter, filterPills: FilterPill[]) {
-    if (filter.updatedOn?.name === DateFilters.thisWeek) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: 'this Week',
-      });
-    }
-
-    if (filter.updatedOn?.name === DateFilters.thisMonth) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: 'this Month',
-      });
-    }
-
-    if (filter.updatedOn?.name === DateFilters.all) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: 'All',
-      });
-    }
-
-    if (filter.updatedOn?.name === DateFilters.lastMonth) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: 'Last Month',
-      });
-    }
-
-    if (filter.updatedOn?.name === DateFilters.custom) {
-      this.generateUpdatedOnCustomDatePill(filter, filterPills);
-    }
-  }
-
-  generateUpdatedOnCustomDatePill(filter: any, filterPills: FilterPill[]) {
-    const startDate = filter.updatedOn.customDateStart && moment(filter.updatedOn.customDateStart).format('y-MM-D');
-    const endDate = filter.updatedOn.customDateEnd && moment(filter.updatedOn.customDateEnd).format('y-MM-D');
-
-    if (startDate && endDate) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: `${startDate} to ${endDate}`,
-      });
-    } else if (startDate) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: `>= ${startDate}`,
-      });
-    } else if (endDate) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: `<= ${endDate}`,
-      });
-    }
-  }
-
-  generateCreditTrasactionsFilterPills(filter, filterPills: FilterPill[]) {
-    if (filter.showCredited === 'Credit') {
-      filterPills.push({
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Credit',
-      });
-    }
-
-    if (filter.showCredited === 'Debit') {
-      filterPills.push({
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Debit',
-      });
-    }
   }
 
   searchClick() {
@@ -960,7 +647,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
-    this.filterPills = this.generateFilterPills(this.filters);
+    this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
   }
 
   clearText(isFromCancel) {
@@ -980,7 +667,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
-    this.filterPills = this.generateFilterPills(this.filters);
+    this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
   }
 
   createExpense(txnDetails) {
@@ -1059,43 +746,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (data) {
       this.zone.run(() => {
         this.txnDateRange = data.range;
+        if (data.range === 'Custom Range') {
+          const startDate = data.startDate && moment(data.startDate).format('MMM-D');
+          const endDate = data.endDate && moment(data.endDate).format('MMM-D');
+          this.txnDateRange = `${startDate} - ${endDate}`;
+        }
       });
-      const currentParams = this.loadData$.getValue();
-
-      if (data.range === 'This Month') {
-        const thisMonth = this.dateService.getThisMonthRange();
-        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${thisMonth.from.toISOString()},btxn_transaction_dt.lt.${thisMonth.to.toISOString()}))`;
-      }
-
-      if (data.range === 'Last Month') {
-        const lastMonth = this.dateService.getLastMonthRange();
-        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${lastMonth.from.toISOString()},btxn_transaction_dt.lt.${lastMonth.to.toISOString()}))`;
-      }
-
-      if (data.range === 'Last 30 Days') {
-        const last30Days = this.dateService.getLastDaysRange(30);
-        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${last30Days.from.toISOString()},btxn_transaction_dt.lt.${last30Days.to.toISOString()}))`;
-      }
-
-      if (data.range === 'Last 60 Days') {
-        const last60Days = this.dateService.getLastDaysRange(60);
-        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${last60Days.from.toISOString()},btxn_transaction_dt.lt.${last60Days.to.toISOString()}))`;
-      }
-
-      if (data.range === 'All Time') {
-        const last90Days = this.dateService.getLastDaysRange(90);
-        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${last90Days.from.toISOString()},btxn_transaction_dt.lt.${last90Days.to.toISOString()}))`;
-      }
-
-      if (data.range === 'Custom Range') {
-        const startDate = data.startDate && moment(data.startDate).format('MMM-D');
-        const endDate = data.endDate && moment(data.endDate).format('MMM-D');
-        this.txnDateRange = `${startDate} - ${endDate}`;
-
-        currentParams.queryParams.or = `(and(btxn_transaction_dt.gte.${new Date(
-          data.startDate
-        ).toISOString()},btxn_transaction_dt.lt.${new Date(data.endDate).toISOString()}))`;
-      }
+      let currentParams = this.loadData$.getValue();
+      currentParams = this.personalCardsService.generateDateParams(data, currentParams);
 
       this.loadData$.next(currentParams);
     }
