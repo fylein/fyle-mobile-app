@@ -4152,16 +4152,21 @@ export class AddEditExpensePage implements OnInit {
 
   uploadAttachments(txn) {
     if (this.newExpenseDataUrls.length > 0) {
-      const addExpenseAttachments$ = of(
-        this.newExpenseDataUrls.map((fileObj) => {
-          fileObj.type = this.isPDF(fileObj.type) ? 'pdf' : 'image';
-          return fileObj;
-        })
-      );
+      this.newExpenseDataUrls = this.addFileType(this.newExpenseDataUrls);
+      const addExpenseAttachments$ = of(this.newExpenseDataUrls);
       return addExpenseAttachments$.pipe(switchMap((fileObjs) => this.uploadMultipleFiles(fileObjs, txn)));
     } else {
       return of([]);
     }
+  }
+
+  addFileType(dataUrls) {
+    const dataUrlsCopy = cloneDeep(dataUrls);
+    dataUrlsCopy.forEach((dataUrl) => {
+      dataUrl.type = this.isPDF(dataUrl.type) ? 'pdf' : 'image';
+    });
+
+    return dataUrlsCopy;
   }
 
   uploadMultipleFiles(fileObjs, txn) {
