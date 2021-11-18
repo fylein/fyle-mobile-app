@@ -328,7 +328,11 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   async addAttachments(event) {
-    if (!(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) && !this.isSelectionModeEnabled) {
+    if (
+      !this.isFromViewReports &&
+      !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) &&
+      !this.isSelectionModeEnabled
+    ) {
       event.stopPropagation();
       event.preventDefault();
 
