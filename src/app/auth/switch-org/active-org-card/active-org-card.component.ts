@@ -11,6 +11,8 @@ export class ActiveOrgCardComponent implements OnInit {
 
   @Input() isPrimaryOrg: boolean;
 
+  @Input() isLoading = false;
+
   constructor() {}
 
   ngOnInit(): void {}
