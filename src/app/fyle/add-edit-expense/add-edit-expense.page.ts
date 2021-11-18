@@ -1034,10 +1034,6 @@ export class AddEditExpensePage implements OnInit {
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
 
-    const instaFyleSettings$ = this.orgUserSettings$.pipe(
-      map((orgUserSettings) => orgUserSettings.insta_fyle_settings)
-    );
-
     return forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$,
@@ -1045,7 +1041,6 @@ export class AddEditExpensePage implements OnInit {
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
       eou: eou$,
-      instaFyleSettings: instaFyleSettings$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
       recentValue: this.recentlyUsedValues$,
@@ -1058,7 +1053,6 @@ export class AddEditExpensePage implements OnInit {
           homeCurrency,
           accounts,
           eou,
-          instaFyleSettings,
           imageData,
           recentCurrency,
           recentValue,
@@ -2177,15 +2171,11 @@ export class AddEditExpensePage implements OnInit {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
-        const instaFyleSettings$ = this.orgUserSettings$.pipe(
-          map((orgUserSettings) => orgUserSettings.insta_fyle_settings)
-        );
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           return forkJoin({
-            instaFyleSettings: instaFyleSettings$,
             allCategories: this.offlineService.getAllEnabledCategories(),
           }).pipe(
-            switchMap(({ instaFyleSettings, allCategories }) => {
+            switchMap(({ allCategories }) => {
               if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
                 etxn.tx.amount = etxn.tx.extracted_data.amount;
               }
