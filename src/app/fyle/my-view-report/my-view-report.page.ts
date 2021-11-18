@@ -253,7 +253,7 @@ export class MyViewReportPage implements OnInit {
     await popover.present();
 
     const { data } = await popover.onWillDismiss();
-    this.refinerService.startSurvey({actionName: 'Send Back Report'});
+    this.refinerService.startSurvey({ actionName: 'Resubmit Report' });
     if (data && data.goBack) {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
     }
