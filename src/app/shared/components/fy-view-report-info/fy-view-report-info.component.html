@@ -24,7 +24,7 @@
         Amount
       </ion-segment-button>
       <ion-segment-button
-        *ngIf="view === 'Team'"
+        *ngIf="view === ExpenseView.team"
         value="employee"
         class="view-info--segment-block-container__btn text-capitalize"
       >
@@ -99,7 +99,7 @@
   </div>
 </ion-content>
 
-<ion-content *ngIf="view === 'Team' && isEmployeeView && !isReportView" (swipe)="onSwipeEmployee($event)">
+<ion-content *ngIf="view === ExpenseView.team && isEmployeeView && !isReportView" (swipe)="onSwipeEmployee($event)">
   <ion-grid class="view-info--body-container">
     <ng-container *ngFor="let item of employeeDetails | keyvalue: originalOrder">
       <ion-row *ngIf="item && item.value && item.value.length" class="view-info--body-container__content">

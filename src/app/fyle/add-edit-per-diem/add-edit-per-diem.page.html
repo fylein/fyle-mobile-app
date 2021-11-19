@@ -5,11 +5,7 @@
   >
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
-        <ion-icon
-          class="icon--navigate-left"
-          [src]="'../../../../assets/svg/navigate-left.svg'"
-          slot="icon-only"
-        ></ion-icon>
+        <ion-icon class="icon--navigate" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
@@ -342,6 +338,12 @@
                               </div>
                             </ng-container>
                           </ng-container>
+                          <div
+                            *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
+                            class="add-edit-per-diem--error"
+                          >
+                            Please select a project.
+                          </div>
                         </ng-container>
                       </ng-container>
 
@@ -350,13 +352,6 @@
                           <span class="add-edit-per-diem--checkbox"> Billable </span>
                         </mat-checkbox>
                       </div>
-                    </div>
-
-                    <div
-                      *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
-                      class="add-edit-per-diem--error"
-                    >
-                      Please select a project.
                     </div>
                   </ng-container>
 
