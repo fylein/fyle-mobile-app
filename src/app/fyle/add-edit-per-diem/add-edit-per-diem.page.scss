@@ -288,26 +288,6 @@
     font-size: 12px;
   }
 
-  &--critical-policy {
-    margin: 8px 0;
-    display: flex;
-    border: 1px solid #dfdfe2;
-    border-radius: 8px;
-    padding: 12px 8px;
-  }
-
-  &--critical-policy-icon {
-    color: $highlight-blue;
-    height: 20px;
-    width: 20px;
-    margin-right: 8px;
-  }
-
-  &--critical-policy-message {
-    width: 100%;
-    color: $blue-black;
-  }
-
   &--review-nav {
     position: sticky;
     top: 30vh;
