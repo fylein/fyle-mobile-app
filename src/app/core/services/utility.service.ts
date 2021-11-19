@@ -1,13 +1,9 @@
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { isArray } from 'lodash';
-import { AdvancesStates } from '../models/advances-states.model';
+import { SortingParam } from '../models/sorting-param.model';
+import { SortingDirection } from '../models/sorting-direction.model';
 
-type Filters = Partial<{
-  state: AdvancesStates[];
-  sortParam: string;
-  sortDir: string;
-}>;
 @Injectable({
   providedIn: 'root',
 })
@@ -101,59 +97,57 @@ export class UtilityService {
     return obj;
   }
 
-  sortAllAdvances(sortDir: string, sortParam: string, advancesArray: any[]): any[] {
+  sortAllAdvances(sortDir: SortingDirection, sortParam: SortingParam, advancesArray: any[]): any[] {
     //used for sorting an array that has both advances and advance requests mixed together
     let sortedAdvancesArray = advancesArray;
-    if (sortDir && sortParam) {
-      if (sortParam.includes('crDate')) {
-        sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
-          const adv1Date = adv1.areq_created_at
-            ? new Date(adv1.areq_created_at).getTime()
-            : new Date(adv1.adv_created_at).getTime();
-          const adv2Date = adv2.areq_created_at
-            ? new Date(adv2.areq_created_at).getTime()
-            : new Date(adv2.adv_created_at).getTime();
+    if (sortParam === SortingParam.creationDate) {
+      sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
+        const adv1Date = adv1.areq_created_at
+          ? new Date(adv1.areq_created_at).getTime()
+          : new Date(adv1.adv_created_at).getTime();
+        const adv2Date = adv2.areq_created_at
+          ? new Date(adv2.areq_created_at).getTime()
+          : new Date(adv2.adv_created_at).getTime();
 
-          if (sortDir === 'asc') {
-            return adv1Date > adv2Date ? 1 : -1;
-          } else {
-            return adv1Date < adv2Date ? 1 : -1;
-          }
-        });
-      } else if (sortParam.includes('appDate')) {
-        sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
-          const adv1Date = new Date(adv1.areq_approved_at).getTime();
-          const adv2Date = new Date(adv2.areq_approved_at).getTime();
-          const nullDate = new Date(null).getTime(); //required because passing null to the Date constructor returns Jan 1, 1970
+        if (sortDir === SortingDirection.ascending) {
+          return adv1Date > adv2Date ? 1 : -1;
+        } else {
+          return adv1Date < adv2Date ? 1 : -1;
+        }
+      });
+    } else if (sortParam === SortingParam.approvalDate) {
+      sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
+        const adv1Date = new Date(adv1.areq_approved_at).getTime();
+        const adv2Date = new Date(adv2.areq_approved_at).getTime();
+        const nullDate = new Date(null).getTime(); //required because passing null to the Date constructor returns Jan 1, 1970
 
-          const returnValue = this.handleDefaultSort(adv1Date, adv2Date, nullDate);
-          if (returnValue !== null) {
-            return returnValue;
-          }
+        const returnValue = this.handleDefaultSort(adv1Date, adv2Date, nullDate);
+        if (returnValue !== null) {
+          return returnValue;
+        }
 
-          if (sortDir === 'asc') {
-            return adv1Date > adv2Date ? 1 : -1;
-          } else {
-            return adv1Date < adv2Date ? 1 : -1;
-          }
-        });
-      } else if (sortParam.includes('project')) {
-        sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
-          const adv1ProjectName = adv1.project_name;
-          const adv2ProjectName = adv2.project_name;
+        if (sortDir === SortingDirection.ascending) {
+          return adv1Date > adv2Date ? 1 : -1;
+        } else {
+          return adv1Date < adv2Date ? 1 : -1;
+        }
+      });
+    } else if (sortParam === SortingParam.project) {
+      sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
+        const adv1ProjectName = adv1.project_name;
+        const adv2ProjectName = adv2.project_name;
 
-          const returnValue = this.handleDefaultSort(adv1ProjectName, adv2ProjectName, null);
-          if (returnValue !== null) {
-            return returnValue;
-          }
+        const returnValue = this.handleDefaultSort(adv1ProjectName, adv2ProjectName, null);
+        if (returnValue !== null) {
+          return returnValue;
+        }
 
-          if (sortDir === 'asc') {
-            return adv1ProjectName.localeCompare(adv2ProjectName) ? 1 : -1;
-          } else {
-            return adv1ProjectName.localeCompare(adv2ProjectName) ? -1 : 1;
-          }
-        });
-      }
+        if (sortDir === SortingDirection.ascending) {
+          return adv1ProjectName.localeCompare(adv2ProjectName) ? 1 : -1;
+        } else {
+          return adv1ProjectName.localeCompare(adv2ProjectName) ? -1 : 1;
+        }
+      });
     }
     return sortedAdvancesArray;
   }

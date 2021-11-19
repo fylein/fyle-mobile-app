@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { AdvancesStates } from '../models/advances-states.model';
-import { TitleCasePipe } from '@angular/common';
+import { SortingParam } from '../models/sorting-param.model';
+import { SortingDirection } from '../models/sorting-direction.model';
 
 type Filters = Partial<{
   state: AdvancesStates[];
-  sortParam: string;
-  sortDir: string;
+  sortParam: SortingParam;
+  sortDir: SortingDirection;
 }>;
 
 @Injectable({
@@ -18,6 +20,15 @@ export class FiltersHelperService {
 
   generateFilterPills(filters: Filters) {
     const filterPills: FilterPill[] = [];
+
+    let sortString = '';
+
+    const sortParamMap = {
+      creationDate: 'crDate',
+      approvalDate: 'appDate',
+      project: 'project',
+    };
+
     const filterPillsMap = {
       crDateNewToOld: 'creation date - new to old',
       crDateOldToNew: 'creation date - old to new',
@@ -27,7 +38,21 @@ export class FiltersHelperService {
       projectZToA: 'project - Z to A',
     };
 
-    //for state filters
+    sortString = sortParamMap[filters.sortParam];
+    if (filters.sortDir === SortingDirection.ascending) {
+      if (filters.sortParam === SortingParam.project) {
+        sortString += 'AToZ';
+      } else {
+        sortString += 'OldToNew';
+      }
+    } else {
+      if (filters.sortParam === SortingParam.project) {
+        sortString += 'ZToA';
+      } else {
+        sortString += 'NewToOld';
+      }
+    }
+
     if (filters.state && filters.state.length) {
       const capitalizedStates = filters.state.map((state) => this.titleCasePipe.transform(state.replace(/_/g, ' ')));
 
@@ -38,12 +63,11 @@ export class FiltersHelperService {
       });
     }
 
-    //for sorting filters
     if (filters.sortParam) {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
-        value: filterPillsMap[filters.sortParam],
+        value: filterPillsMap[sortString],
       });
     }
 
@@ -61,7 +85,15 @@ export class FiltersHelperService {
     }
 
     if (sortBy && sortBy.value) {
-      generatedFilters.sortParam = sortBy.value;
+      let sortParam: SortingParam;
+      if (sortBy.value.includes('crDate')) {
+        sortParam = SortingParam.creationDate;
+      } else if (sortBy.value.includes('appDate')) {
+        sortParam = SortingParam.approvalDate;
+      } else if (sortBy.value.includes('project')) {
+        sortParam = SortingParam.project;
+      }
+      generatedFilters.sortParam = sortParam;
       generatedFilters.sortDir = this.getSortDir(sortBy.value);
     }
     return generatedFilters;
@@ -87,19 +119,14 @@ export class FiltersHelperService {
     return generatedFilters;
   }
 
-  private getSortDir(sortParam: string) {
-    let sortDir: string;
+  private getSortDir(sortValue: string) {
+    let sortDir: SortingDirection;
 
-    if (sortParam.includes('NewToOld')) {
-      sortDir = 'desc';
-    } else if (sortParam.includes('OldToNew')) {
-      sortDir = 'asc';
-    } else if (sortParam.includes('AToZ')) {
-      sortDir = 'asc';
-    } else if (sortParam.includes('ZToA')) {
-      sortDir = 'desc';
+    if (sortValue.includes('NewToOld') || sortValue.includes('ZToA')) {
+      sortDir = SortingDirection.descending;
+    } else if (sortValue.includes('OldToNew') || sortValue.includes('AToZ')) {
+      sortDir = SortingDirection.ascending;
     }
-
     return sortDir;
   }
 }

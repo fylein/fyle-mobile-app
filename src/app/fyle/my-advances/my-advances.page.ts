@@ -29,11 +29,13 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
+import { SortingParam } from 'src/app/core/models/sorting-param.model';
+import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 
 type Filters = Partial<{
   state: AdvancesStates[];
-  sortParam: string;
-  sortDir: string;
+  sortParam: SortingParam;
+  sortDir: SortingDirection;
 }>;
 
 @Component({
