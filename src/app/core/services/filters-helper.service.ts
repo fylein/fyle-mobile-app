@@ -75,7 +75,7 @@ export class FiltersHelperService {
       sortDir: 'Sort Direction',
     };
 
-    for (const key in filters) {
+    for (const key of Object.keys(filters)) {
       if (filters[key]) {
         generatedFilters.push({
           name: filtersMap[key],
