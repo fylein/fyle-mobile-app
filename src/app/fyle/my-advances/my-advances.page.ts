@@ -30,6 +30,7 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
+import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
 
@@ -322,27 +323,27 @@ export class MyAdvancesPage {
         options: [
           {
             label: 'Creation Date - New to Old',
-            value: 'crDateNewToOld',
+            value: SortingValue.creationDateAsc,
           },
           {
             label: 'Creation Date - Old to New',
-            value: 'crDateOldToNew',
+            value: SortingValue.creationDateDesc,
           },
           {
             label: 'Approval Date - New to Old',
-            value: 'appDateNewToOld',
+            value: SortingValue.approvalDateAsc,
           },
           {
             label: 'Approval Date - Old to New',
-            value: 'appDateOldToNew',
+            value: SortingValue.approvalDateDesc,
           },
           {
             label: 'Project - A to Z',
-            value: 'projectAToZ',
+            value: SortingValue.projectAsc,
           },
           {
             label: 'Project - Z to A',
-            value: 'projectZToA',
+            value: SortingValue.projectDesc,
           },
         ],
       } as FilterOptions<string>,

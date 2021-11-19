@@ -6,6 +6,7 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { AdvancesStates } from '../models/advances-states.model';
 import { SortingParam } from '../models/sorting-param.model';
 import { SortingDirection } from '../models/sorting-direction.model';
+import { SortingValue } from '../models/sorting-value.model';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 
@@ -25,12 +26,12 @@ export class FiltersHelperService {
     const filterPills: FilterPill[] = [];
 
     const filterPillsMap = {
-      crDateNewToOld: 'creation date - new to old',
-      crDateOldToNew: 'creation date - old to new',
-      appDateNewToOld: 'approval date - new to old',
-      appDateOldToNew: 'approval date - old to new',
-      projectAToZ: 'project - A to Z',
-      projectZToA: 'project - Z to A',
+      [SortingValue.creationDateAsc]: 'creation date - new to old',
+      [SortingValue.creationDateDesc]: 'creation date - old to new',
+      [SortingValue.approvalDateAsc]: 'approval date - new to old',
+      [SortingValue.approvalDateDesc]: 'approval date - old to new',
+      [SortingValue.projectAsc]: 'project - A to Z',
+      [SortingValue.projectDesc]: 'project - Z to A',
     };
 
     const sortString = this.getSortString(filters.sortParam, filters.sortDir);
