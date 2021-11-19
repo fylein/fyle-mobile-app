@@ -1,6 +1,6 @@
 <div class="active-org-card">
   <div class="active-org-card__header">Active Organization</div>
-  <ion-grid class="active-org-card__grid">
+  <ion-grid class="ion-grid-no-padding">
     <ion-row>
       <ion-col class="active-org-card__icon-container">
         <ng-container *ngIf="!isLoading; else skeletonIcon">
@@ -12,7 +12,7 @@
         </ng-container>
       </ion-col>
       <ion-col class="active-org-card__content-container">
-        <ion-grid class="active-org-card__grid">
+        <ion-grid class="ion-grid-no-padding">
           <ion-row>
             <ion-col class="active-org-card__content-container__title">
               <ng-container *ngIf="!isLoading; else skeletonText">
