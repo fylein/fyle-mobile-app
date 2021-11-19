@@ -72,7 +72,8 @@
 
             <ng-container *ngIf="isAmountCapped$|async">
               <div class="add-edit-mileage--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
-                <div>
+                <mat-icon class="add-edit-mileage--critical-policy-icon" svgIcon="fy-info"></mat-icon>
+                <div class="add-edit-mileage--critical-policy-message">
                   Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: 'symbol-narrow'}} was capped to
                   {{etxn.tx.amount | currency: etxn.tx.currency: 'symbol-narrow'}} due to policy
                   <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
