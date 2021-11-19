@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
+import { ModalController } from '@ionic/angular';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { AdvancesStates } from '../models/advances-states.model';
 import { SortingParam } from '../models/sorting-param.model';
 import { SortingDirection } from '../models/sorting-direction.model';
+import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
+import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -16,7 +19,7 @@ type Filters = Partial<{
   providedIn: 'root',
 })
 export class FiltersHelperService {
-  constructor(private titleCasePipe: TitleCasePipe) {}
+  constructor(private titleCasePipe: TitleCasePipe, private modalController: ModalController) {}
 
   generateFilterPills(filters: Filters) {
     const filterPills: FilterPill[] = [];
@@ -102,6 +105,26 @@ export class FiltersHelperService {
       }
     }
     return generatedFilters;
+  }
+
+  async openFilterModal(filters: Filters, filterOptions: FilterOptions<string>[], activeFilterInitialName?: string) {
+    const filterPopover = await this.modalController.create({
+      component: FyFiltersComponent,
+      componentProps: {
+        filterOptions,
+        selectedFilterValues: this.generateSelectedFilters(filters),
+        activeFilterInitialName,
+      },
+      cssClass: 'dialog-popover',
+    });
+
+    await filterPopover.present();
+
+    const { data } = await filterPopover.onWillDismiss();
+    if (data) {
+      const filters = this.convertDataToFilters(data);
+      return filters;
+    }
   }
 
   private getSortDir(sortValue: string) {

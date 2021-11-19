@@ -27,7 +27,6 @@ import { FiltersHelperService } from 'src/app/core/services/filters-helper.servi
 
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
-import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
@@ -301,67 +300,59 @@ export class MyAdvancesPage {
   }
 
   async openFilters(activeFilterInitialName?: string) {
-    const filterPopover = await this.modalController.create({
-      component: FyFiltersComponent,
-      componentProps: {
-        filterOptions: [
+    const filterOptions = [
+      {
+        name: 'State',
+        optionType: FilterOptionType.multiselect,
+        options: [
           {
-            name: 'State',
-            optionType: FilterOptionType.multiselect,
-            options: [
-              {
-                label: 'Draft',
-                value: AdvancesStates.draft,
-              },
+            label: 'Draft',
+            value: AdvancesStates.draft,
+          },
 
-              {
-                label: 'Sent Back',
-                value: AdvancesStates.sentBack,
-              },
-            ],
-          } as FilterOptions<string>,
           {
-            name: 'Sort By',
-            optionType: FilterOptionType.singleselect,
-            options: [
-              {
-                label: 'Creation Date - New to Old',
-                value: 'crDateNewToOld',
-              },
-              {
-                label: 'Creation Date - Old to New',
-                value: 'crDateOldToNew',
-              },
-              {
-                label: 'Approval Date - New to Old',
-                value: 'appDateNewToOld',
-              },
-              {
-                label: 'Approval Date - Old to New',
-                value: 'appDateOldToNew',
-              },
-              {
-                label: 'Project - A to Z',
-                value: 'projectAToZ',
-              },
-              {
-                label: 'Project - Z to A',
-                value: 'projectZToA',
-              },
-            ],
-          } as FilterOptions<string>,
+            label: 'Sent Back',
+            value: AdvancesStates.sentBack,
+          },
         ],
-        selectedFilterValues: this.filtersHelperService.generateSelectedFilters(this.filterParams$.value),
-        activeFilterInitialName,
-      },
-      cssClass: 'dialog-popover',
-    });
-
-    await filterPopover.present();
-
-    const { data } = await filterPopover.onWillDismiss();
-    if (data) {
-      const filters = this.filtersHelperService.convertDataToFilters(data);
+      } as FilterOptions<string>,
+      {
+        name: 'Sort By',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Creation Date - New to Old',
+            value: 'crDateNewToOld',
+          },
+          {
+            label: 'Creation Date - Old to New',
+            value: 'crDateOldToNew',
+          },
+          {
+            label: 'Approval Date - New to Old',
+            value: 'appDateNewToOld',
+          },
+          {
+            label: 'Approval Date - Old to New',
+            value: 'appDateOldToNew',
+          },
+          {
+            label: 'Project - A to Z',
+            value: 'projectAToZ',
+          },
+          {
+            label: 'Project - Z to A',
+            value: 'projectZToA',
+          },
+        ],
+      } as FilterOptions<string>,
+    ];
+    const filters = await this.filtersHelperService.openFilterModal(
+      this.filterParams$.value,
+      filterOptions,
+      activeFilterInitialName
+    );
+    if (filters) {
       this.filterParams$.next(filters);
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
     }
