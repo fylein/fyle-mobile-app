@@ -21,14 +21,6 @@ export class FiltersHelperService {
   generateFilterPills(filters: Filters) {
     const filterPills: FilterPill[] = [];
 
-    let sortString = '';
-
-    const sortParamMap = {
-      creationDate: 'crDate',
-      approvalDate: 'appDate',
-      project: 'project',
-    };
-
     const filterPillsMap = {
       crDateNewToOld: 'creation date - new to old',
       crDateOldToNew: 'creation date - old to new',
@@ -38,20 +30,7 @@ export class FiltersHelperService {
       projectZToA: 'project - Z to A',
     };
 
-    sortString = sortParamMap[filters.sortParam];
-    if (filters.sortDir === SortingDirection.ascending) {
-      if (filters.sortParam === SortingParam.project) {
-        sortString += 'AToZ';
-      } else {
-        sortString += 'OldToNew';
-      }
-    } else {
-      if (filters.sortParam === SortingParam.project) {
-        sortString += 'ZToA';
-      } else {
-        sortString += 'NewToOld';
-      }
-    }
+    const sortString = this.getSortString(filters.sortParam, filters.sortDir);
 
     if (filters.state && filters.state.length) {
       const capitalizedStates = filters.state.map((state) => this.titleCasePipe.transform(state.replace(/_/g, ' ')));
@@ -109,13 +88,19 @@ export class FiltersHelperService {
 
     for (const key of Object.keys(filters)) {
       if (filters[key]) {
-        generatedFilters.push({
-          name: filtersMap[key],
-          value: filters[key],
-        });
+        if (key === 'sortParam') {
+          generatedFilters.push({
+            name: filtersMap[key],
+            value: this.getSortString(filters[key], filters.sortDir),
+          });
+        } else {
+          generatedFilters.push({
+            name: filtersMap[key],
+            value: filters[key],
+          });
+        }
       }
     }
-
     return generatedFilters;
   }
 
@@ -128,5 +113,33 @@ export class FiltersHelperService {
       sortDir = SortingDirection.ascending;
     }
     return sortDir;
+  }
+
+  private getSortString(sortParam: SortingParam, sortDir: SortingDirection) {
+    //constructs a string that incorporates both sort param and direction which is the format understood
+    //by the filter modal component
+    let sortString = '';
+    const sortParamMap = {
+      creationDate: 'crDate',
+      approvalDate: 'appDate',
+      project: 'project',
+    };
+
+    sortString = sortParamMap[sortParam];
+    if (sortDir === SortingDirection.ascending) {
+      if (sortParam === SortingParam.project) {
+        sortString += 'AToZ';
+      } else {
+        sortString += 'OldToNew';
+      }
+    } else {
+      if (sortParam === SortingParam.project) {
+        sortString += 'ZToA';
+      } else {
+        sortString += 'NewToOld';
+      }
+    }
+
+    return sortString;
   }
 }
