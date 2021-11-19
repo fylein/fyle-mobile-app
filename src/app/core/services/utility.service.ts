@@ -3,6 +3,7 @@ import { map } from 'rxjs/operators';
 import { isArray } from 'lodash';
 import { SortingParam } from '../models/sorting-param.model';
 import { SortingDirection } from '../models/sorting-direction.model';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root',
@@ -102,34 +103,30 @@ export class UtilityService {
     let sortedAdvancesArray = advancesArray;
     if (sortParam === SortingParam.creationDate) {
       sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
-        const adv1Date = adv1.areq_created_at
-          ? new Date(adv1.areq_created_at).getTime()
-          : new Date(adv1.adv_created_at).getTime();
-        const adv2Date = adv2.areq_created_at
-          ? new Date(adv2.areq_created_at).getTime()
-          : new Date(adv2.adv_created_at).getTime();
+        const adv1Date = adv1.areq_created_at ? moment(adv1.areq_created_at) : moment(adv1.adv_created_at);
+        const adv2Date = adv2.areq_created_at ? moment(adv2.areq_created_at) : moment(adv2.adv_created_at);
 
         if (sortDir === SortingDirection.ascending) {
-          return adv1Date > adv2Date ? 1 : -1;
+          return adv1Date.isAfter(adv2Date) ? 1 : -1;
         } else {
-          return adv1Date < adv2Date ? 1 : -1;
+          return adv1Date.isBefore(adv2Date) ? 1 : -1;
         }
       });
     } else if (sortParam === SortingParam.approvalDate) {
+      // eslint-disable-next-line complexity
       sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
-        const adv1Date = new Date(adv1.areq_approved_at).getTime();
-        const adv2Date = new Date(adv2.areq_approved_at).getTime();
-        const nullDate = new Date(null).getTime(); //required because passing null to the Date constructor returns Jan 1, 1970
+        const adv1Date = adv1.areq_approved_at ? moment(adv1.areq_approved_at) : moment(19700101);
+        const adv2Date = adv2.areq_approved_at ? moment(adv2.areq_approved_at) : moment(19700101);
 
-        const returnValue = this.handleDefaultSort(adv1Date, adv2Date, nullDate);
+        const returnValue = this.handleDefaultSort(adv1Date, adv2Date, moment(19700101));
         if (returnValue !== null) {
           return returnValue;
         }
 
         if (sortDir === SortingDirection.ascending) {
-          return adv1Date > adv2Date ? 1 : -1;
+          return adv1Date.isAfter(adv2Date) ? 1 : -1;
         } else {
-          return adv1Date < adv2Date ? 1 : -1;
+          return adv1Date.isBefore(adv2Date) ? 1 : -1;
         }
       });
     } else if (sortParam === SortingParam.project) {

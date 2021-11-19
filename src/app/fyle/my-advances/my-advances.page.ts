@@ -32,6 +32,8 @@ import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 
+import { cloneDeep } from 'lodash';
+
 type Filters = Partial<{
   state: AdvancesStates[];
   sortParam: SortingParam;
@@ -175,7 +177,7 @@ export class MyAdvancesPage {
             //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
             this.filterParams$.pipe(
               map((filters) => {
-                let newArr = [...advArray];
+                let newArr = cloneDeep(advArray);
 
                 if (filters && filters.state && filters.state.length > 0) {
                   newArr = advArray.filter((adv) => filters.state.includes(adv.areq_state));
