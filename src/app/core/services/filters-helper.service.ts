@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { AdvancesStates } from '../models/advances-states.model';
+import { TitleCasePipe } from '@angular/common';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -13,7 +14,7 @@ type Filters = Partial<{
   providedIn: 'root',
 })
 export class FiltersHelperService {
-  constructor() {}
+  constructor(private titleCasePipe: TitleCasePipe) {}
 
   generateFilterPills(filters: Filters) {
     const filterPills: FilterPill[] = [];
@@ -28,13 +29,7 @@ export class FiltersHelperService {
 
     //for state filters
     if (filters.state && filters.state.length) {
-      const capitalizedStates = filters.state.map(
-        (state) =>
-          state
-            .toLowerCase()
-            .replace(/_/g, ' ')
-            .replace(/\b\w/g, (l) => l.toUpperCase()) //capitalizing first letter of each word
-      );
+      const capitalizedStates = filters.state.map((state) => this.titleCasePipe.transform(state.replace(/_/g, ' ')));
 
       filterPills.push({
         label: 'State',
