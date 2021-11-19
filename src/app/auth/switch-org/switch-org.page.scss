@@ -23,7 +23,11 @@
   }
 
   &__content-container {
-    padding: 16px;
+    padding: 0 16px;
+    position: sticky;
+    top: 0;
+    background-color: $pure-white;
+    z-index: 1;
 
     &__content {
       justify-content: space-between;
@@ -84,5 +88,9 @@
       color: $black-light;
       padding-left: 8px;
     }
+  }
+
+  &__orgs-container {
+    padding: 16px;
   }
 }

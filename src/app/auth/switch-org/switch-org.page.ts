@@ -39,6 +39,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isSearchBarShown = false;
 
+  navigateBack = false;
+
   constructor(
     private offlineService: OfflineService,
     private loaderService: LoaderService,
@@ -102,6 +104,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       distinctUntilChanged(),
       switchMap((searchText) => currentOrgs$.pipe(map((orgs) => this.getOrgsWhichContainSearchText(orgs, searchText))))
     );
+
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
   }
 
   async proceed() {
@@ -238,11 +242,19 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
   }
 
+  clearSearchInput() {
+    this.searchInput = '';
+    const searchInputElement = this.searchOrgsInput.nativeElement as HTMLInputElement;
+    searchInputElement.value = '';
+    searchInputElement.dispatchEvent(new Event('keyup'));
+  }
+
   openSearchBar() {
     this.isSearchBarShown = true;
   }
 
-  closeSearchBar() {
+  cancelSearch() {
+    this.clearSearchInput();
     this.isSearchBarShown = false;
   }
 }

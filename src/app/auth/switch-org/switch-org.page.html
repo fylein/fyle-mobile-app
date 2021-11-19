@@ -1,9 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar mode="md">
-    <ion-buttons slot="start">
-      <ion-button>
-        <ion-icon src="../../../assets/svg/arrow-back.svg"></ion-icon>
-      </ion-button>
+    <ion-buttons *ngIf="navigateBack" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
     <div class="switch-org__toolbar__header-container">
       <ion-icon
@@ -67,11 +65,10 @@
               [(ngModel)]="searchInput"
               matInput
               placeholder="Search for an org"
-              (focus)="onSearchBarFocus()"
               autocomplete="off"
             />
             <button
-              (click)="clearText('isFromSearchBar')"
+              (click)="clearSearchInput()"
               aria-label="Clear"
               class="switch-org__searchbar-container__searchbar__clear-icon"
               mat-button
@@ -82,10 +79,12 @@
             </button>
           </div>
         </mat-form-field>
-        <div class="switch-org__searchbar-container__cancel" (click)="closeSearchBar()">Cancel</div>
+        <div class="switch-org__searchbar-container__cancel" (click)="cancelSearch()">Cancel</div>
       </div>
     </div>
+  </div>
 
+  <div class="switch-org__orgs-container">
     <ng-container *ngIf="!isLoading; else skeletonOrgCards">
       <ng-container *ngIf="filteredOrgs$ | async as filteredOrgs">
         <ng-container *ngIf="filteredOrgs.length; else zeroState">
