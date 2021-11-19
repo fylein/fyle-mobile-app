@@ -24,6 +24,7 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
 import { MatButtonModule } from '@angular/material/button';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   imports: [
@@ -44,6 +45,7 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
     PinchZoomModule,
     PdfViewerModule,
     MatButtonModule,
+    MatSnackBarModule,
   ],
   declarations: [
     AddEditExpensePage,
@@ -54,6 +56,6 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
     CameraOptionsPopupComponent,
     MatchTransactionComponent,
   ],
-  providers: [ImagePicker]
+  providers: [ImagePicker],
 })
 export class AddEditExpensePageModule {}

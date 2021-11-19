@@ -1,21 +1,31 @@
 <ion-header mode="md">
   <ion-toolbar class="view-advance-request--toolbar">
-    <ion-buttons mode="md" slot="start" [ngClass]="{'view-advance-request--header-btn-container-sm': isDeviceWidthSmall}">
+    <ion-buttons
+      mode="md"
+      slot="start"
+      [ngClass]="{'view-advance-request--header-btn-container__sm': isDeviceWidthSmall}"
+    >
       <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
         <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title" [ngClass]="{'view-advance-request--title-sm': isDeviceWidthSmall}">View Advance Request</ion-title>
+    <ion-title mode="md" class="page-title" [ngClass]="{'view-advance-request--title-sm': isDeviceWidthSmall}"
+      >View Advance Request</ion-title
+    >
     <ion-buttons
       class="view-advance-request--header-btn-container"
-      [ngClass]="{'view-advance-request--header-btn-container-sm': isDeviceWidthSmall}"
+      [ngClass]="{'view-advance-request--header-btn-container__sm': isDeviceWidthSmall}"
       slot="end"
     >
       <ion-button class="view-advance-request--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
       <ng-container *ngIf="actions$|async as actions">
-        <ion-button *ngIf="actions?.can_delete" class="view-advance-request--header-btn-container__btn" (click)="delete()">
+        <ion-button
+          *ngIf="actions?.can_delete"
+          class="view-advance-request--header-btn-container__btn"
+          (click)="delete()"
+        >
           <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
         </ion-button>
       </ng-container>
@@ -126,7 +136,7 @@
         </div>
       </div>
     </div>
-    
+
     <ng-container *ngIf="actions$|async as actions">
       <div class="view-advance-request--card" *ngIf="actions?.can_edit">
         <div class="view-advance-request--common-action-block" (click)="edit()">
@@ -143,16 +153,8 @@
 </ion-content>
 <ng-container *ngIf="actions$|async as actions">
   <ion-footer *ngIf="actions?.can_pull_back">
-    <ion-toolbar mode="md">
-      <ion-button
-        class="view-advance-request--primary-cta flat-button"
-        fill="solid"
-        color="fyle-primary"
-        expand="block"
-        (click)="pullBack()"
-      >
-        Pull Back
-      </ion-button>
+    <ion-toolbar class="fy-footer-cta-container" mode="md">
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="pullBack()"> Pull Back </ion-button>
     </ion-toolbar>
   </ion-footer>
 </ng-container>

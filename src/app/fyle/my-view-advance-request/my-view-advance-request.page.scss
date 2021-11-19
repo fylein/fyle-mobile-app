@@ -24,7 +24,7 @@
     font-size: 17px;
   }
 
-  &--header-btn-container-sm {
+  &--header-btn-container__sm {
     margin: 0 !important;
   }
 
@@ -204,10 +204,5 @@
   &--view-advance {
     margin-left: 12px;
     margin-bottom: 12px;
-  }
-
-  &--primary-cta {
-    margin: 12px;
-    height: 48px;
   }
 }

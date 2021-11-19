@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { File } from 'src/app/core/models/file.model';
@@ -10,14 +10,16 @@ import { FileService } from 'src/app/core/services/file.service';
 import { from, Subject, forkJoin } from 'rxjs';
 import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith, take, tap } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { PopoverController } from '@ionic/angular';
-import { AdvanceActionsComponent } from './advance-actions/advance-actions.component';
+import { PopoverController, ModalController, ActionSheetController } from '@ionic/angular';
 import { ApproveAdvanceComponent } from './approve-advance/approve-advance.component';
-import { SendBackAdvanceComponent } from './send-back-advance/send-back-advance.component';
-import { RejectAdvanceComponent } from './reject-advance/reject-advance.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { TrackingService } from '../../core/services/tracking.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -43,6 +45,14 @@ export class ViewTeamAdvancePage implements OnInit {
 
   customFields$: Observable<any>;
 
+  isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
+
+  actionSheetButtons = [];
+
+  sendBackLoading = false;
+
+  rejectLoading = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private advanceRequestService: AdvanceRequestService,
@@ -50,9 +60,14 @@ export class ViewTeamAdvancePage implements OnInit {
     private router: Router,
     private popupService: PopupService,
     private popoverController: PopoverController,
+    private actionSheetController: ActionSheetController,
     private loaderService: LoaderService,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private trackingService: TrackingService,
+    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
   ionViewWillEnter() {
@@ -127,6 +142,8 @@ export class ViewTeamAdvancePage implements OnInit {
         }
       })
     );
+
+    this.setupActionScheet();
   }
 
   edit() {
@@ -169,30 +186,45 @@ export class ViewTeamAdvancePage implements OnInit {
     }
   }
 
-  async openAdvanceActionsPopover() {
+  async setupActionScheet() {
     const actions = await this.actions$.toPromise();
-    const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
-
-    const advanceActions = await this.popoverController.create({
-      componentProps: {
-        actions,
-        areq,
-      },
-      component: AdvanceActionsComponent,
-      cssClass: 'dialog-popover',
-    });
-
-    await advanceActions.present();
-
-    const { data } = await advanceActions.onWillDismiss();
-
-    if (data && data.command === 'approveAdvance') {
-      await this.showApproveAdvanceSummaryPopover();
-    } else if (data && data.command === 'sendBackAdvance') {
-      await this.showSendBackAdvanceSummaryPopover();
-    } else if (data && data.command === 'rejectAdvance') {
-      await this.showRejectAdvanceSummaryPopup();
+    if (actions.can_approve) {
+      await this.actionSheetButtons.push({
+        text: 'Approve Advance',
+        handler: () => {
+          this.showApproveAdvanceSummaryPopover();
+        },
+      });
     }
+
+    if (actions.can_inquire) {
+      await this.actionSheetButtons.push({
+        text: 'Send Back Advance',
+        handler: () => {
+          this.showSendBackAdvanceSummaryPopover();
+        },
+      });
+    }
+
+    if (actions.can_reject) {
+      await this.actionSheetButtons.push({
+        text: 'Reject Advance',
+        handler: () => {
+          this.showRejectAdvanceSummaryPopup();
+        },
+      });
+    }
+  }
+
+  async openActionSheet() {
+    const that = this;
+    const actionSheet = await this.actionSheetController.create({
+      header: 'ADD EXPENSE',
+      mode: 'md',
+      cssClass: 'fy-action-sheet advances-action-sheet',
+      buttons: that.actionSheetButtons,
+    });
+    await actionSheet.present();
   }
 
   async showApproveAdvanceSummaryPopover() {
@@ -215,12 +247,12 @@ export class ViewTeamAdvancePage implements OnInit {
   }
 
   async showSendBackAdvanceSummaryPopover() {
-    const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
     const showApprover = await this.popoverController.create({
-      component: SendBackAdvanceComponent,
-      cssClass: 'dialog-popover',
+      component: FyPopoverComponent,
+      cssClass: 'fy-dialog-popover',
       componentProps: {
-        areq,
+        title: 'Send Back',
+        formLabel: 'Reason For Sending Back Advance',
       },
     });
 
@@ -228,18 +260,38 @@ export class ViewTeamAdvancePage implements OnInit {
 
     const { data } = await showApprover.onWillDismiss();
 
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'team_advance']);
+    const id = this.activatedRoute.snapshot.params.id;
+
+    if (data) {
+      this.sendBackLoading = true;
+      const status = data;
+
+      const statusPayload = {
+        status,
+        notify: false,
+      };
+
+      this.advanceRequestService
+        .sendBack(id, statusPayload)
+        .pipe(
+          finalize(() => {
+            this.sendBackLoading = false;
+            this.trackingService.sendBackAdvance({ Asset: 'Mobile' });
+          })
+        )
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'team_advance']);
+        });
     }
   }
 
   async showRejectAdvanceSummaryPopup() {
-    const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
     const showApprover = await this.popoverController.create({
-      component: RejectAdvanceComponent,
-      cssClass: 'dialog-popover',
+      component: FyPopoverComponent,
+      cssClass: 'fy-dialog-popover',
       componentProps: {
-        areq,
+        title: 'Reject',
+        formLabel: 'Please mention the reason for rejecting the advance request',
       },
     });
 
@@ -247,8 +299,49 @@ export class ViewTeamAdvancePage implements OnInit {
 
     const { data } = await showApprover.onWillDismiss();
 
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'team_advance']);
+    const id = this.activatedRoute.snapshot.params.id;
+
+    if (data) {
+      this.rejectLoading = true;
+      const status = data;
+      const statusPayload = {
+        status,
+        notify: false,
+      };
+
+      this.advanceRequestService
+        .reject(id, statusPayload)
+        .pipe(
+          finalize(() => {
+            this.rejectLoading = false;
+            this.trackingService.rejectAdvance({ Asset: 'Mobile' });
+          })
+        )
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'team_advance']);
+        });
+    }
+  }
+
+  async openCommentsModal() {
+    const advanceRequestId = this.activatedRoute.snapshot.params.id;
+    const modal = await this.modalController.create({
+      component: ViewCommentComponent,
+      componentProps: {
+        objectType: 'advance_requests',
+        objectId: advanceRequestId,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+
+    if (data && data.updated) {
+      this.trackingService.addComment();
+    } else {
+      this.trackingService.viewComment();
     }
   }
 

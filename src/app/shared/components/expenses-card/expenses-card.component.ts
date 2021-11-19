@@ -41,7 +41,13 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isOutboxExpense: boolean;
 
-  @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
+  @Input() isFromReports: boolean;
+
+  @Input() isFromViewReports: boolean;
+
+  @Input() etxnIndex: number;
+
+  @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter();
 
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
 
@@ -100,11 +106,11 @@ export class ExpensesCardComponent implements OnInit {
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService
-  ) { }
+  ) {}
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
-      this.goToTransaction.emit(this.expense);
+      this.goToTransaction.emit({ etxn: this.expense, etxnIndex: this.etxnIndex });
     }
   }
 
@@ -160,7 +166,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   checkIfScanIsCompleted(): boolean {
-    const hasUserManuallyEnteredData = (this.expense.tx_amount || this.expense.tx_user_amount) && isNumber(this.expense.tx_amount || this.expense.tx_user_amount);
+    const hasUserManuallyEnteredData =
+      (this.expense.tx_amount || this.expense.tx_user_amount) &&
+      isNumber(this.expense.tx_amount || this.expense.tx_user_amount);
     const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
@@ -320,7 +328,11 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   async addAttachments(event) {
-    if (!(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) && !this.isSelectionModeEnabled) {
+    if (
+      !this.isFromViewReports &&
+      !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) &&
+      !this.isSelectionModeEnabled
+    ) {
       event.stopPropagation();
       event.preventDefault();
 

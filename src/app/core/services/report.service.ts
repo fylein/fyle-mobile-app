@@ -14,6 +14,7 @@ import { DataTransformService } from './data-transform.service';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { TransactionService } from './transaction.service';
 import { StatsResponse } from '../models/v2/stats-response.model';
+import { UserEventService } from './user-event.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -28,10 +29,14 @@ export class ReportService {
     private authService: AuthService,
     private apiv2Service: ApiV2Service,
     private dateService: DateService,
-    private offlineService: OfflineService,
     private dataTransformService: DataTransformService,
-    private transactionService: TransactionService
-  ) {}
+    private transactionService: TransactionService,
+    private userEventService: UserEventService
+  ) {
+    reportsCacheBuster$.subscribe(() => {
+      this.userEventService.clearTaskCache();
+    });
+  }
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
@@ -142,7 +147,7 @@ export class ReportService {
     };
     return this.apiService
       .post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+      .pipe(tap(() => this.clearTransactionCache()));
   }
 
   @CacheBuster({
@@ -191,6 +196,16 @@ export class ReportService {
   })
   removeApprover(rptId, approvalId) {
     return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  updateReportDetails(erpt) {
+    const reportData = this.dataTransformService.unflatten(erpt);
+    return this.apiService
+      .post('/reports', reportData.rp)
+      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
   }
 
   getUserReportParams(state: string) {
@@ -496,6 +511,21 @@ export class ReportService {
       erpt.rp.approvals = reportApprovalsMap[erpt.rp.id];
       return erpt;
     });
+  }
+
+  getReportStatsData(params, defaultOwnStats: boolean = true) {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) => {
+        const defaultStats = defaultOwnStats ? { rp_org_user_id: `eq.${eou.ou.id}` } : {};
+        return this.apiv2Service.get('/reports/stats', {
+          params: {
+            ...defaultStats,
+            ...params,
+          },
+        });
+      }),
+      map((rawStatsResponse) => rawStatsResponse.data)
+    );
   }
 
   getFilteredPendingReports(searchParams) {

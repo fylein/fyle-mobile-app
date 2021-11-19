@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, InjectionToken, NgModule } from '@angular/core';
 import { BrowserModule, HammerModule } from '@angular/platform-browser';
 import { Router, RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
@@ -7,12 +7,10 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientJsonpModule, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
-import { AgmCoreModule } from '@agm/core';
-import { environment } from 'src/environments/environment';
 import { SharedModule } from './shared/shared.module';
 import { CurrencyPipe } from '@angular/common';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
@@ -22,6 +20,7 @@ import { RouterAuthService } from './core/services/router-auth.service';
 import { TokenService } from './core/services/token.service';
 import { StorageService } from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
+import { GoogleMapsModule } from '@angular/google-maps';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -29,6 +28,10 @@ export class MyHammerConfig extends HammerGestureConfig {
     rotate: { enable: false },
   };
 }
+
+export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
+  'Minimum screen width to act as breakpoint between regular and small devices'
+);
 
 @NgModule({
   declarations: [AppComponent],
@@ -39,9 +42,10 @@ export class MyHammerConfig extends HammerGestureConfig {
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    AgmCoreModule.forRoot({
-      apiKey: environment.GOOGLE_MAPS_API_KEY,
-    }),
+    GoogleMapsModule,
+    SharedModule,
+    HammerModule,
+    HttpClientJsonpModule,
     SharedModule,
     HammerModule,
   ],
@@ -81,6 +85,10 @@ export class MyHammerConfig extends HammerGestureConfig {
     {
       provide: Sentry.TraceService,
       deps: [Router],
+    },
+    {
+      provide: MIN_SCREEN_WIDTH,
+      useValue: 375,
     },
   ],
   bootstrap: [AppComponent],

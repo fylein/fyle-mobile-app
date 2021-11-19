@@ -60,15 +60,15 @@
         <span class="add-expenses-to-report--footer-amount"> {{ selectedTotalAmount.toFixed(2) }} </span>
       </div>
       <div class="add-expenses-to-report--footer-summary">{{ selectedTotalTxns }} expenses selected</div>
-      <ion-button
-        class="add-expenses-to-report--primary-cta"
-        fill="solid"
-        color="fyle-primary"
-        [disabled]="!(selectedTotalTxns > 0)"
-        (click)="addExpensestoReport()"
-      >
-        ADD TO REPORT
-      </ion-button>
+      <div class="fy-footer-cta-container">
+        <ion-button
+          class="fy-footer-cta fy-footer-cta--primary"
+          [disabled]="!(selectedTotalTxns > 0)"
+          (click)="addExpensestoReport()"
+        >
+          ADD TO REPORT
+        </ion-button>
+      </div>
     </div>
   </ion-toolbar>
 </ion-footer>

@@ -55,6 +55,9 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -213,7 +216,9 @@ export class AddEditPerDiemPage implements OnInit {
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private expenseFieldsService: ExpenseFieldsService,
     private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {
@@ -231,12 +236,13 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   async showClosePopup() {
-    if (this.fg.touched) {
+    const isAutofilled = this.presetProjectId || this.presetCostCenterId;
+    if (this.fg.touched || isAutofilled) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
         componentProps: {
           title: 'Unsaved Changes',
-          message: 'Your changes will be lost if you do not save the expense.',
+          message: 'You have unsaved information that will be lost if you discard this expense.',
           primaryCta: {
             text: 'Discard',
             action: 'continue',
@@ -335,7 +341,7 @@ export class AddEditPerDiemPage implements OnInit {
         Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
         ExpenseId: etxn.tx.id,
         DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields
+        DuplicateFields: duplicateFields,
       });
     } catch (err) {
       // Ignore event tracking errors
@@ -360,9 +366,7 @@ export class AddEditPerDiemPage implements OnInit {
           this.pointToDuplicates = false;
         }, 3000);
 
-        this.etxn$
-          .pipe(take(1))
-          .subscribe(async etxn => await this.trackDuplicatesShown(res, etxn));
+        this.etxn$.pipe(take(1)).subscribe(async (etxn) => await this.trackDuplicatesShown(res, etxn));
       });
   }
 
@@ -1550,7 +1554,7 @@ export class AddEditPerDiemPage implements OnInit {
             per_diem_rate_id: formValue.per_diem_rate.id,
             source: 'MOBILE',
             currency: amountData.currency,
-            amount: amountData.amount,
+            amount: parseInt(amountData.amount, 10),
             orig_currency: amountData.orig_currency,
             orig_amount: amountData.orig_amount,
             project_id: formValue.project && formValue.project.project_id,
@@ -2019,6 +2023,22 @@ export class AddEditPerDiemPage implements OnInit {
       });
   }
 
+  showAddToReportSuccessToast(reportId: string) {
+    const toastMessageData = {
+      message: 'Per diem expense added to report successfully',
+      redirectionText: 'View Report',
+    };
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
+    });
+  }
+
   savePerDiem() {
     const that = this;
 
@@ -2031,6 +2051,9 @@ export class AddEditPerDiemPage implements OnInit {
             that.addExpense('SAVE_PER_DIEM').subscribe((res: any) => {
               if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
                 this.addToNewReport(res.transaction.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.goBack();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.goBack();
               }
@@ -2039,6 +2062,9 @@ export class AddEditPerDiemPage implements OnInit {
             that.editExpense('SAVE_PER_DIEM').subscribe((res) => {
               if (that.fg.controls.add_to_new_report.value && res && res.id) {
                 this.addToNewReport(res.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.goBack();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.goBack();
               }
@@ -2224,8 +2250,8 @@ export class AddEditPerDiemPage implements OnInit {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
-        }
-      }
+        },
+      },
     });
 
     await deletePopover.present();
@@ -2234,7 +2260,7 @@ export class AddEditPerDiemPage implements OnInit {
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
-        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe(etxn => {
+        this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else {
@@ -2300,11 +2326,11 @@ export class AddEditPerDiemPage implements OnInit {
 
     if (value) {
       await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
       });
     } else {
       await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem'
+        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
       });
     }
   }
@@ -2327,9 +2353,12 @@ export class AddEditPerDiemPage implements OnInit {
 
   getPolicyDetails() {
     const txnId = this.activatedRoute.snapshot.params.id;
-    from(this.policyService.getPolicyViolationRules(txnId)).pipe()
-      .subscribe(details => {
-        this.policyDetails = details;
-      });
+    if (txnId) {
+      from(this.policyService.getPolicyViolationRules(txnId))
+        .pipe()
+        .subscribe((details) => {
+          this.policyDetails = details;
+        });
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, from, noop, concat, Subject } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -8,7 +8,7 @@ import { map, switchMap, finalize, shareReplay, takeUntil, tap } from 'rxjs/oper
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
@@ -16,6 +16,11 @@ import { SubmitReportPopoverComponent } from './submit-report-popover/submit-rep
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
+import { Expense } from 'src/app/core/models/expense.model';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 @Component({
   selector: 'app-my-view-report',
@@ -25,7 +30,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 export class MyViewReportPage implements OnInit {
   erpt$: Observable<ExtendedReport>;
 
-  etxns$: Observable<any[]>;
+  etxns$: Observable<Expense[]>;
 
   sharedWith$: Observable<any[]>;
 
@@ -49,6 +54,10 @@ export class MyViewReportPage implements OnInit {
 
   onPageExit = new Subject();
 
+  reportName: string;
+
+  reportEtxnIds: string[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -59,7 +68,9 @@ export class MyViewReportPage implements OnInit {
     private popupService: PopupService,
     private popoverController: PopoverController,
     private networkService: NetworkService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService
   ) {}
 
   setupNetworkWatcher() {
@@ -114,6 +125,8 @@ export class MyViewReportPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
+    this.erpt$.subscribe((erpt) => (this.reportName = erpt.rp_purpose));
+
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
       map((pdfExports) =>
         pdfExports.results
@@ -160,11 +173,42 @@ export class MyViewReportPage implements OnInit {
     this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
 
-    this.etxns$.subscribe(noop);
+    this.etxns$.subscribe((etxns) => (this.reportEtxnIds = etxns.map((etxn) => etxn.tx_id)));
   }
 
   goToEditReport() {
     this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
+  }
+
+  updateReportName(erpt: ExtendedReport, reportName: string) {
+    erpt.rp_purpose = reportName;
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.reportService.updateReportDetails(erpt)),
+        finalize(() => this.loaderService.hideLoader()),
+        shareReplay(1)
+      )
+      .subscribe(() => {
+        this.reportName = reportName;
+      });
+  }
+
+  async editReportName() {
+    const erpt = await this.erpt$.toPromise();
+    const editReportNamePopover = await this.popoverController.create({
+      component: EditReportNamePopoverComponent,
+      componentProps: {
+        reportName: erpt.rp_purpose,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await editReportNamePopover.present();
+    const { data } = await editReportNamePopover.onWillDismiss();
+
+    if (data && data.reportName) {
+      this.updateReportName(erpt, data.reportName);
+    }
   }
 
   async deleteReport() {
@@ -234,7 +278,7 @@ export class MyViewReportPage implements OnInit {
     }
   }
 
-  async goToTransaction(etxn: any) {
+  async goToTransaction({ etxn, etxnIndex }) {
     const erpt = await this.erpt$.toPromise();
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
@@ -244,29 +288,30 @@ export class MyViewReportPage implements OnInit {
     }
 
     if (category === 'activity') {
-      this.popupService.showPopup({
-        header: 'Cannot Edit Activity',
-        message: 'Editing activity is not supported in mobile app.',
+      const action = canEdit ? 'Edit' : 'View';
+      return this.popupService.showPopup({
+        header: `Cannot ${action} Activity`,
+        message: `${action}ing activity is not supported in mobile app.`,
         primaryCta: {
           text: 'Cancel',
         },
       });
     }
 
-    let route;
+    let route: string;
 
     if (category === 'mileage') {
-      route = '/enterprise/my_view_mileage';
+      route = '/enterprise/view_mileage';
       if (canEdit) {
         route = '/enterprise/add_edit_mileage';
       }
     } else if (category === 'per diem') {
-      route = '/enterprise/my_view_per_diem';
+      route = '/enterprise/view_per_diem';
       if (canEdit) {
         route = '/enterprise/add_edit_per_diem';
       }
     } else {
-      route = '/enterprise/my_view_expense';
+      route = '/enterprise/view_expense';
       if (canEdit) {
         route = '/enterprise/add_edit_expense';
       }
@@ -281,7 +326,16 @@ export class MyViewReportPage implements OnInit {
         },
       ]);
     } else {
-      this.router.navigate([route, { id: etxn.tx_id }]);
+      this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
+      this.router.navigate([
+        route,
+        {
+          id: etxn.tx_id,
+          txnIds: JSON.stringify(this.reportEtxnIds),
+          activeIndex: etxnIndex,
+          view: ExpenseView.individual,
+        },
+      ]);
     }
   }
 
@@ -307,6 +361,24 @@ export class MyViewReportPage implements OnInit {
         await this.loaderService.showLoader(message);
       });
     }
+  }
+
+  async openViewReportInfoModal() {
+    const viewInfoModal = await this.modalController.create({
+      component: FyViewReportInfoComponent,
+      componentProps: {
+        erpt$: this.erpt$,
+        etxns$: this.etxns$,
+        view: ExpenseView.individual,
+      },
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await viewInfoModal.present();
+    await viewInfoModal.onWillDismiss();
+
+    this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
 
   canEditTxn(txState) {

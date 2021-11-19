@@ -1,29 +1,39 @@
+@import '../../../../theme/colors.scss';
+
 .policy-violation {
-  &--container {
-    padding: 15px;
+  &--toolbar {
+    &__title {
+      color: $black;
+      padding-left: 15px;
+    }
   }
 
-  &--action-description {
+  &--body {
+    margin: 16px;
+  }
+
+  &--header {
+    margin-bottom: 10px;
+  }
+
+  &--list {
+    padding-left: 24px;
+    margin: 25px 0;
+  }
+
+  &--description {
     margin-bottom: 25px;
     border-radius: 4px;
     padding: 10px;
-    background-color: #eee;
+    background-color: $grey-7;
   }
 
-  &--reason {
-    margin-left: 2%;
-    width: 95%;
-  }
-
-  &--primary-cta {
-    width: 80%;
-  }
-
-  &--secondary-cta {
-    width: 80%;
-  }
-
-  &--footer-toolbar {
-    padding: 14px 16px;
+  &--textarea {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid $grey-light;
+    border-radius: 4px;
+    min-height: 75px;
+    padding: 8px 11px;
   }
 }

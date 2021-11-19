@@ -1,46 +1,39 @@
+@import '../../../../theme/colors.scss';
+
 .policy-violation {
   &--toolbar {
-    border: none;
-    background-image: linear-gradient(0deg, #ddd, #ddd 50%, transparent 50%);
-    background-position: bottom;
-    background-size: 100% 1px;
-    background-repeat: no-repeat;
+    &__title {
+      color: $black;
+      padding-left: 15px;
+    }
   }
 
   &--body {
-    margin: 24px;
+    margin: 16px;
   }
 
   &--header {
-    margin: 0 0 10px;
+    margin-bottom: 10px;
   }
 
   &--list {
     padding-left: 24px;
-    margin: 25px 0 25px 0;
+    margin: 25px 0;
   }
 
   &--description {
     margin-bottom: 25px;
     border-radius: 4px;
     padding: 10px;
-    background-color: #eee;
+    background-color: $grey-7;
   }
 
   &--textarea {
     width: 100%;
     padding: 5px;
-    border: 1px solid #fafafa;
+    border: 1px solid $grey-light;
     border-radius: 4px;
     min-height: 75px;
-  }
-
-  &--buttons {
-    display: flex;
-    justify-content: space-around;
-  }
-
-  &--footer-toolbar {
-    padding: 14px 16px;
+    padding: 8px 11px;
   }
 }
