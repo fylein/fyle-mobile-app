@@ -113,7 +113,6 @@ export class UtilityService {
         }
       });
     } else if (sortParam === SortingParam.approvalDate) {
-      // eslint-disable-next-line complexity
       sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
         const adv1Date = adv1.areq_approved_at ? moment(adv1.areq_approved_at) : moment(19700101);
         const adv2Date = adv2.areq_approved_at ? moment(adv2.areq_approved_at) : moment(19700101);

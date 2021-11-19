@@ -67,15 +67,7 @@ export class FiltersHelperService {
     }
 
     if (sortBy && sortBy.value) {
-      let sortParam: SortingParam;
-      if (sortBy.value.includes('crDate')) {
-        sortParam = SortingParam.creationDate;
-      } else if (sortBy.value.includes('appDate')) {
-        sortParam = SortingParam.approvalDate;
-      } else if (sortBy.value.includes('project')) {
-        sortParam = SortingParam.project;
-      }
-      generatedFilters.sortParam = sortParam;
+      generatedFilters.sortParam = this.getSortParam(sortBy.value);
       generatedFilters.sortDir = this.getSortDir(sortBy.value);
     }
     return generatedFilters;
@@ -125,6 +117,19 @@ export class FiltersHelperService {
       const filters = this.convertDataToFilters(data);
       return filters;
     }
+  }
+
+  private getSortParam(sortValue: string) {
+    let sortParam: SortingParam;
+    if (sortValue.includes('crDate')) {
+      sortParam = SortingParam.creationDate;
+    } else if (sortValue.includes('appDate')) {
+      sortParam = SortingParam.approvalDate;
+    } else if (sortValue.includes('project')) {
+      sortParam = SortingParam.project;
+    }
+
+    return sortParam;
   }
 
   private getSortDir(sortValue: string) {
