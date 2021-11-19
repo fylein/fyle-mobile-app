@@ -179,7 +179,7 @@ export class MyAdvancesPage {
                   newArr = advArray.filter((adv) => filters.state.includes(adv.areq_state));
                 }
 
-                newArr = this.utilityService.sortAllAdvances(filters, newArr);
+                newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
                 return newArr;
               })
             )

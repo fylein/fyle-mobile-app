@@ -101,11 +101,11 @@ export class UtilityService {
     return obj;
   }
 
-  sortAllAdvances(filters: Filters, advancesArray: any[]): any[] {
+  sortAllAdvances(sortDir: string, sortParam: string, advancesArray: any[]): any[] {
     //used for sorting an array that has both advances and advance requests mixed together
     let sortedAdvancesArray = advancesArray;
-    if (filters && filters.sortDir && filters.sortParam) {
-      if (filters.sortParam.includes('crDate')) {
+    if (sortDir && sortParam) {
+      if (sortParam.includes('crDate')) {
         sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
           const adv1Date = adv1.areq_created_at
             ? new Date(adv1.areq_created_at).getTime()
@@ -114,13 +114,13 @@ export class UtilityService {
             ? new Date(adv2.areq_created_at).getTime()
             : new Date(adv2.adv_created_at).getTime();
 
-          if (filters.sortDir === 'asc') {
+          if (sortDir === 'asc') {
             return adv1Date > adv2Date ? 1 : -1;
           } else {
             return adv1Date < adv2Date ? 1 : -1;
           }
         });
-      } else if (filters.sortParam.includes('appDate')) {
+      } else if (sortParam.includes('appDate')) {
         sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
           const adv1Date = new Date(adv1.areq_approved_at).getTime();
           const adv2Date = new Date(adv2.areq_approved_at).getTime();
@@ -131,13 +131,13 @@ export class UtilityService {
             return returnValue;
           }
 
-          if (filters.sortDir === 'asc') {
+          if (sortDir === 'asc') {
             return adv1Date > adv2Date ? 1 : -1;
           } else {
             return adv1Date < adv2Date ? 1 : -1;
           }
         });
-      } else if (filters.sortParam.includes('project')) {
+      } else if (sortParam.includes('project')) {
         sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
           const adv1ProjectName = adv1.project_name;
           const adv2ProjectName = adv2.project_name;
@@ -147,7 +147,7 @@ export class UtilityService {
             return returnValue;
           }
 
-          if (filters.sortDir === 'asc') {
+          if (sortDir === 'asc') {
             return adv1ProjectName.localeCompare(adv2ProjectName) ? 1 : -1;
           } else {
             return adv1ProjectName.localeCompare(adv2ProjectName) ? -1 : 1;
