@@ -1,5 +1,11 @@
-<app-fy-header [currentState]="headerState" [navigateBack]="navigateBack" [title]="'Matching Expenses Found'">
-</app-fy-header>
+<ion-header class="fy-header" mode="md">
+  <ion-toolbar mode="md" class="fy-header--toolbar">
+    <ion-buttons mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
+    <ion-title mode="md" class="fy-header--title"> Matching Expenses Found </ion-title>
+  </ion-toolbar>
+</ion-header>
 
 <ion-content class="matched-expenses">
   <div class="matched-expenses--body">
@@ -22,7 +28,7 @@
                 class="matched-expenses--amount"
                 [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
               >
-                {{txnDetails.btxn_amount}}
+                {{ txnDetails.btxn_amount | number: '1.2-2' }}
               </span>
               <span
                 class="matched-expenses--type"

@@ -493,7 +493,7 @@ export class AppComponent implements OnInit {
         route: ['/', 'enterprise', 'my_expenses'],
       },
       {
-        title: 'Cards',
+        title: 'Corporate Cards',
         isVisible: orgSettings.corporate_credit_card_settings.enabled,
         icon: 'fy-cards-new',
         route: ['/', 'enterprise', 'corporate_card_expenses'],

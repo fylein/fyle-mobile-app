@@ -3999,6 +3999,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   saveAndMatchWithPersonalCardTxn() {
+    this.saveExpenseLoader = true;
     const customFields$ = this.getCustomFields();
     return this.generateEtxnFromFg(this.etxn$, customFields$, true)
       .pipe(
@@ -4112,7 +4113,7 @@ export class AddEditExpensePage implements OnInit {
       )
       .subscribe(() => {
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Successfully matched the expense.' }),
+          ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Expense created successfully.' }),
           panelClass: ['msb-success'],
         });
         this.router.navigate(['/', 'enterprise', 'personal_cards']);
@@ -4120,25 +4121,41 @@ export class AddEditExpensePage implements OnInit {
   }
 
   uploadAttachments(txn) {
-    const addExpenseAttachments$ = of(
-      this.newExpenseDataUrls.map((fileObj) => {
-        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
-        return fileObj;
-      })
+    if (this.newExpenseDataUrls.length > 0) {
+      this.newExpenseDataUrls = this.addFileType(this.newExpenseDataUrls);
+      const addExpenseAttachments$ = of(this.newExpenseDataUrls);
+      return addExpenseAttachments$.pipe(switchMap((fileObjs) => this.uploadMultipleFiles(fileObjs, txn)));
+    } else {
+      return of([]);
+    }
+  }
+
+  addFileType(dataUrls) {
+    const dataUrlsCopy = cloneDeep(dataUrls);
+    dataUrlsCopy.forEach((dataUrl) => {
+      dataUrl.type = this.isPDF(dataUrl.type) ? 'pdf' : 'image';
+    });
+
+    return dataUrlsCopy;
+  }
+
+  uploadMultipleFiles(fileObjs, txn) {
+    return forkJoin(fileObjs.map((file) => this.uploadFileAndPostToFileService(file, txn)));
+  }
+
+  postToFileService(fileObj, txn) {
+    const fileObjCopy = cloneDeep(fileObj);
+    fileObjCopy.transaction_id = txn.split_group_id;
+    return this.fileService.post(fileObjCopy);
+  }
+
+  uploadFileAndPostToFileService(file, txn) {
+    return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
+      switchMap((fileObj: any) => this.postToFileService(fileObj, txn))
     );
-    return addExpenseAttachments$.pipe(
-      switchMap((fileObj: any) =>
-        fileObj.map((file) =>
-          from(this.transactionOutboxService.fileUpload(file.url, file.type))
-            .pipe(
-              switchMap((fileObj: any) => {
-                fileObj.transaction_id = txn.split_group_id;
-                return this.fileService.post(fileObj);
-              })
-            )
-            .subscribe(noop)
-        )
-      )
-    );
+  }
+
+  isPDF(type) {
+    return ['application/pdf', 'pdf'].indexOf(type) > -1;
   }
 }

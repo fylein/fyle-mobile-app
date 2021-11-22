@@ -310,4 +310,12 @@ export class DateService {
   isSameDate(date1: Date, date2: Date) {
     return moment(date1).startOf('day').isSame(moment(date2).startOf('day'));
   }
+
+  getLastDaysRange(numOfDays) {
+    const startDate = new Date(this.today.getTime() - numOfDays * 24 * 60 * 60 * 1000);
+    return {
+      from: startDate,
+      to: this.today,
+    };
+  }
 }
