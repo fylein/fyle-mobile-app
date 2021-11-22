@@ -38,6 +38,7 @@
     font-size: 12px;
     color: $pure-white;
     padding-top: 10px;
+    text-align: initial;
   }
 
   &--bank-name {
@@ -53,6 +54,7 @@
     font-size: 12px;
     color: $pure-white;
     padding-top: 0;
+    text-align: initial;
 
     &__type {
       background: $transparent-grey;
