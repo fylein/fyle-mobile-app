@@ -23,6 +23,8 @@ import { DeviceService } from 'src/app/core/services/device.service';
   styleUrls: ['./switch-org.page.scss'],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
+  @ViewChild('searchDiv') searchDiv: ElementRef;
+
   @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef;
 
   orgs$: Observable<Org[]>;
@@ -36,8 +38,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   activeOrg$: Observable<Org>;
 
   primaryOrg$: Observable<Org>;
-
-  isSearchBarShown = false;
 
   navigateBack = false;
 
@@ -71,7 +71,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     that.orgs$ = that.offlineService.getOrgs().pipe(shareReplay(1));
 
     that.orgs$.subscribe(() => {
-      that.isLoading = false;
+      setTimeout(() => (that.isLoading = false), 500);
       that.cdRef.detectChanges();
     });
 
@@ -93,6 +93,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.activeOrg$ = this.offlineService.getCurrentOrg();
 
     this.primaryOrg$ = this.offlineService.getPrimaryOrg();
+
+    this.activeOrg$.subscribe(noop);
+    this.primaryOrg$.subscribe(noop);
 
     const currentOrgs$ = forkJoin([this.orgs$, this.activeOrg$]).pipe(
       switchMap(([orgs, activeOrg]) => of(orgs.filter((org) => org.id !== activeOrg.id)))
@@ -250,11 +253,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   openSearchBar() {
-    this.isSearchBarShown = true;
+    this.searchDiv.nativeElement.classList.add('switch-org__content-container__show-search-block');
+    setTimeout(() => this.searchOrgsInput.nativeElement.focus(), 400);
   }
 
   cancelSearch() {
     this.clearSearchInput();
-    this.isSearchBarShown = false;
+    this.searchDiv.nativeElement.classList.remove('switch-org__content-container__show-search-block');
   }
 }

@@ -32,11 +32,11 @@
   </ng-template>
 
   <div class="switch-org__content-container">
-    <div [hidden]="isSearchBarShown">
+    <div class="switch-org__content-container__block switch-org__content-container__content-block">
       <div class="switch-org__content-container__content d-flex">
-        <div>
+        <div class="switch-org__content-container__content__sub-block">
           <div class="switch-org__content-container__content__title">Switch Organization</div>
-          <div class="switch-org__content-container__content__sub-title">
+          <div class="text-ellipsis switch-org__content-container__content__sub-title">
             Select the organization you want to switch to.
           </div>
         </div>
@@ -47,8 +47,7 @@
         ></ion-icon>
       </div>
     </div>
-
-    <div [hidden]="!isSearchBarShown">
+    <div #searchDiv class="switch-org__content-container__block switch-org__content-container__search-block">
       <div class="expense-report-search switch-org__searchbar-container">
         <mat-form-field
           appearance="outline"
@@ -69,6 +68,7 @@
             />
             <button
               (click)="clearSearchInput()"
+              *ngIf="searchInput.length"
               aria-label="Clear"
               class="switch-org__searchbar-container__searchbar__clear-icon"
               mat-button
