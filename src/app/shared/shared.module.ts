@@ -96,6 +96,10 @@ import { DeleteButtonComponent } from './components/bank-account-cards/bank-acco
 import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
 import { FyInputPopoverComponent } from './components/fy-input-popover/fy-input-popover.component';
 import { FyPopoverComponent } from './components/fy-popover/fy-popover.component';
+import { SidemenuComponent } from './components/sidemenu/sidemenu.component';
+import { SidemenuHeaderComponent } from './components/sidemenu/sidemenu-header/sidemenu-header.component';
+import { SidemenuFooterComponent } from './components/sidemenu/sidemenu-footer/sidemenu-footer.component';
+import { SidemenuContentComponent } from './components/sidemenu/sidemenu-content/sidemenu-content.component';
 
 @NgModule({
   declarations: [
@@ -172,6 +176,10 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     AddApproversPopoverComponent,
     FyInputPopoverComponent,
     FyPopoverComponent,
+    SidemenuComponent,
+    SidemenuHeaderComponent,
+    SidemenuFooterComponent,
+    SidemenuContentComponent,
   ],
   imports: [
     CommonModule,
@@ -256,6 +264,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     PolicyViolationDetailsComponent,
     BankAccountCardsComponent,
     FyPopoverComponent,
+    SidemenuComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
 })
