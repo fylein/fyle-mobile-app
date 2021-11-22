@@ -17,7 +17,7 @@ export class OrgCardComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  onClick() {
+  onSelectOrg() {
     this.selectOrg.emit();
   }
 }
