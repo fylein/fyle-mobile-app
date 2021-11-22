@@ -20,6 +20,8 @@ export class BankAccountCardComponent implements OnInit {
 
   @Output() deleted = new EventEmitter();
 
+  deleteCardPopOver;
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private loaderService: LoaderService,
@@ -31,14 +33,14 @@ export class BankAccountCardComponent implements OnInit {
   ngOnInit(): void {}
 
   async presentPopover(ev: any) {
-    const deletecardPopOver = await this.popoverController.create({
+    const deleteCardPopOver = await this.popoverController.create({
       component: DeleteButtonComponent,
       cssClass: 'delete-button-class',
       event: ev,
     });
-    await deletecardPopOver.present();
+    await deleteCardPopOver.present();
 
-    const { data } = await deletecardPopOver.onDidDismiss();
+    const { data } = await deleteCardPopOver.onDidDismiss();
 
     if (data === 'delete') {
       this.confirmPopup();
@@ -62,7 +64,7 @@ export class BankAccountCardComponent implements OnInit {
   }
 
   async confirmPopup() {
-    const deletecardPopOver = await this.popoverController.create({
+    const deleteCardPopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
         title: 'Are you sure',
@@ -79,9 +81,9 @@ export class BankAccountCardComponent implements OnInit {
       cssClass: 'pop-up-in-center',
     });
 
-    await deletecardPopOver.present();
+    await deleteCardPopOver.present();
 
-    const { data } = await deletecardPopOver.onWillDismiss();
+    const { data } = await deleteCardPopOver.onWillDismiss();
 
     if (data && data.action === 'delete') {
       this.deleteAccount();

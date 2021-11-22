@@ -24,14 +24,6 @@ $details-color: #ababab;
     color: #f3993e;
   }
 
-  &--cta-block {
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-    background-color: white;
-    box-shadow: 0 -4px 8px 0 rgba(0, 0, 0, 0.1);
-  }
-
   &--pending-request-block {
     padding: 16px;
   }
@@ -46,18 +38,5 @@ $details-color: #ababab;
   &--request-list {
     list-style-type: disc;
     color: #666;
-  }
-
-  &--cta-container {
-    padding: 12px;
-
-    &-cta {
-      height: 48px;
-      width: 100%;
-      --border-radius: 4px;
-      display: inline-block;
-      margin-top: 10px;
-      font-weight: 700;
-    }
   }
 }

@@ -17,7 +17,7 @@
 >
   <div class="expenses-card--divider" *ngIf="!showDt"></div>
   <ng-container *ngIf="expenseFields$ | async as expenseFields">
-    <div class="display-flex">
+    <div class="d-flex">
       <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
         <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled>
         </mat-checkbox>
@@ -91,7 +91,7 @@
         </ng-template>
       </ng-template>
 
-      <div class="display-flex expenses-card--deatils-block">
+      <div class="d-flex expenses-card--deatils-block">
         <ng-container *ngIf="isConnected$ | async; else expenseCardDefaultView">
           <ng-container *ngIf="isSycing$ | async; else expenseCardScanning">
             <div class="expenses-card--scaning-receipt__container">
@@ -132,7 +132,7 @@
                   Scan failed
                 </div>
               </div>
-              <ng-container *ngIf="expense.isDraft">
+              <ng-container *ngIf="expense.isDraft && !isFromViewReports">
                 <div class="expenses-card--state-container ion-text-right expenses-card--state-container__center">
                   <span class="expenses-card--state">
                     {{ expense.tx_state | expenseState | titlecase }}
@@ -145,7 +145,7 @@
 
         <ng-template #expenseCardDefaultView>
           <div *ngIf="!expense.isDraft" class="expenses-card--category-vendor-project-container">
-            <div class="display-flex expenses-card--category-icon-container">
+            <div class="d-flex expenses-card--category-icon-container">
               <div
                 class="expenses-card--category"
                 [ngClass]="{ 'expenses-card--category__small': isSelectionModeEnabled }"
@@ -208,7 +208,7 @@
             <div>Expense information</div>
             <div>missing</div>
           </div>
-          <div class="display-flex">
+          <div class="d-flex">
             <div>
               <div class="expenses-card--currency-amount-container ion-text-right">
                 <span class="expenses-card--currency">{{ homeCurrencySymbol }}</span>
@@ -227,7 +227,7 @@
                 {{ homeCurrencySymbol }}{{ expense.tx_amount / expense.tx_orig_amount | number: '1.0-2' }})
               </div>
 
-              <div *ngIf="expense.isDraft" class="expenses-card--state-container ion-text-right">
+              <div *ngIf="expense.isDraft && !isFromViewReports" class="expenses-card--state-container ion-text-right">
                 <span class="expenses-card--state">
                   {{ expense.tx_state | expenseState | titlecase }}
                 </span>

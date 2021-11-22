@@ -12,6 +12,7 @@
       </ion-title>
       <ng-content select="[base]"></ng-content>
     </ion-toolbar>
+    <ng-content select="[personalCardContent]"></ng-content>
   </ng-container>
 
   <ng-container *ngIf="currentState === HeaderState.simpleSearch">

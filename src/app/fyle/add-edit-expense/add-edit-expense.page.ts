@@ -1,7 +1,20 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { combineLatest, concat, EMPTY, forkJoin, from, iif, merge, Observable, of, Subject, throwError } from 'rxjs';
+import {
+  combineLatest,
+  concat,
+  EMPTY,
+  forkJoin,
+  from,
+  iif,
+  merge,
+  noop,
+  Observable,
+  of,
+  Subject,
+  throwError,
+} from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   catchError,
@@ -11,6 +24,7 @@ import {
   filter,
   finalize,
   map,
+  mergeMap,
   reduce,
   shareReplay,
   startWith,
@@ -79,8 +93,10 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { TaxGroupService } from 'src/app/core/services/tax_group.service';
 import { TaxGroup } from 'src/app/core/models/tax_group.model';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -101,6 +117,8 @@ export class AddEditExpensePage implements OnInit {
   recentlyUsedValues$: Observable<RecentlyUsed>;
 
   isCreatedFromCCC = false;
+
+  isCreatedFromPersonalCard = false;
 
   paymentAccount$: Observable<any>;
 
@@ -331,6 +349,7 @@ export class AddEditExpensePage implements OnInit {
     private actionSheetController: ActionSheetController,
     private taxGroupsService: TaxGroupService,
     private sanitizer: DomSanitizer,
+    private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService
   ) {}
@@ -954,7 +973,6 @@ export class AddEditExpensePage implements OnInit {
         timeout(15000),
         map((parsedResponse) => ({
           parsedResponse: parsedResponse.data,
-          auditCallBackUrl: parsedResponse.callback_url,
         })),
         catchError((err) =>
           of({
@@ -1016,17 +1034,6 @@ export class AddEditExpensePage implements OnInit {
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
 
-    const instaFyleSettings$ = this.orgUserSettings$.pipe(
-      map((orgUserSettings) => orgUserSettings.insta_fyle_settings),
-      map((instaFyleSettings) => ({
-        shouldExtractAmount: instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1,
-        shouldExtractCurrency: instaFyleSettings.extract_fields.indexOf('CURRENCY') > -1,
-        shouldExtractDate: instaFyleSettings.extract_fields.indexOf('TXN_DT') > -1,
-        shouldExtractCategory: instaFyleSettings.extract_fields.indexOf('CATEGORY') > -1,
-        shouldExtractMerchant: instaFyleSettings.extract_fields.indexOf('MERCHANT') > -1,
-      }))
-    );
-
     return forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$,
@@ -1034,7 +1041,6 @@ export class AddEditExpensePage implements OnInit {
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
       eou: eou$,
-      instaFyleSettings: instaFyleSettings$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
       recentValue: this.recentlyUsedValues$,
@@ -1047,17 +1053,19 @@ export class AddEditExpensePage implements OnInit {
           homeCurrency,
           accounts,
           eou,
-          instaFyleSettings,
           imageData,
           recentCurrency,
           recentValue,
         } = dependencies;
         const bankTxn =
           this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
+        const personalCardTxn =
+          this.activatedRoute.snapshot.params.personalCardTxn &&
+          JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn);
         this.isExpenseBankTxn = !!bankTxn;
         const projectEnabled = orgSettings.projects && orgSettings.projects.enabled;
         let etxn;
-        if (!bankTxn) {
+        if (!bankTxn && !personalCardTxn) {
           etxn = {
             tx: {
               skip_reimbursement: false,
@@ -1114,6 +1122,22 @@ export class AddEditExpensePage implements OnInit {
           if (projectEnabled && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
             etxn.tx.project_id = orgUserSettings.preferences.default_project_id;
           }
+        } else if (personalCardTxn) {
+          etxn = {
+            tx: {
+              txn_dt: new Date(personalCardTxn.btxn_transaction_dt),
+              source: 'MOBILE',
+              currency: personalCardTxn.btxn_currency,
+              amount: personalCardTxn.btxn_amount,
+              vendor: personalCardTxn.btxn_vendor,
+              purpose: personalCardTxn.btxn_description,
+              skip_reimbursement: false,
+              locations: [],
+              num_files: 0,
+              org_user_id: eou.ou.id,
+            },
+            dataUrls: [],
+          };
         } else {
           etxn = {
             tx: {
@@ -1150,19 +1174,14 @@ export class AddEditExpensePage implements OnInit {
 
           etxn.tx.extracted_data = extractedData;
 
-          if (instaFyleSettings.shouldExtractAmount && extractedData.amount) {
+          if (extractedData.amount) {
             etxn.tx.amount = extractedData.amount;
           }
 
-          if (instaFyleSettings.shouldExtractCurrency && extractedData.currency) {
+          if (extractedData.currency) {
             etxn.tx.currency = extractedData.currency;
 
-            if (
-              homeCurrency !== extractedData.currency &&
-              instaFyleSettings.shouldExtractAmount &&
-              extractedData.amount &&
-              imageData.exchangeRate
-            ) {
+            if (homeCurrency !== extractedData.currency && extractedData.amount && imageData.exchangeRate) {
               etxn.tx.orig_amount = extractedData.amount;
               etxn.tx.orig_currency = extractedData.currency;
               etxn.tx.amount = imageData.exchangeRate * extractedData.amount;
@@ -1170,19 +1189,19 @@ export class AddEditExpensePage implements OnInit {
             }
           }
 
-          if (instaFyleSettings.shouldExtractDate && extractedData.date) {
+          if (extractedData.date) {
             etxn.tx.txn_dt = new Date(extractedData.date);
           }
 
-          if (instaFyleSettings.shouldExtractDate && extractedData.invoice_dt) {
+          if (extractedData.invoice_dt) {
             etxn.tx.txn_dt = new Date(extractedData.invoice_dt);
           }
 
-          if (instaFyleSettings.shouldExtractMerchant && extractedData.vendor) {
+          if (extractedData.vendor) {
             etxn.tx.vendor = extractedData.vendor;
           }
 
-          if (instaFyleSettings.shouldExtractCategory && extractedData.category) {
+          if (extractedData.category) {
             const categoryName = extractedData.category || 'unspecified';
             const category = categories.find((orgCategory) => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
@@ -2152,43 +2171,32 @@ export class AddEditExpensePage implements OnInit {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
-        const instaFyleSettings$ = this.orgUserSettings$.pipe(
-          map((orgUserSettings) => orgUserSettings.insta_fyle_settings)
-        );
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           return forkJoin({
-            instaFyleSettings: instaFyleSettings$,
             allCategories: this.offlineService.getAllEnabledCategories(),
           }).pipe(
-            switchMap(({ instaFyleSettings, allCategories }) => {
-              const shouldExtractAmount = instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1;
-              const shouldExtractCurrency = instaFyleSettings.extract_fields.indexOf('CURRENCY') > -1;
-              const shouldExtractDate = instaFyleSettings.extract_fields.indexOf('TXN_DT') > -1;
-              const shouldExtractCategory = instaFyleSettings.extract_fields.indexOf('CATEGORY') > -1;
-              const shouldExtractMerchant = instaFyleSettings.extract_fields.indexOf('MERCHANT') > -1;
-
-              if (shouldExtractAmount && etxn.tx.extracted_data.amount && !etxn.tx.amount) {
+            switchMap(({ allCategories }) => {
+              if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
                 etxn.tx.amount = etxn.tx.extracted_data.amount;
               }
 
-              if (shouldExtractCurrency && etxn.tx.extracted_data.currency && !etxn.tx.currency) {
+              if (etxn.tx.extracted_data.currency && !etxn.tx.currency) {
                 etxn.tx.currency = etxn.tx.extracted_data.currency;
               }
 
-              if (shouldExtractDate && etxn.tx.extracted_data.date) {
+              if (etxn.tx.extracted_data.date) {
                 etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.date);
               }
 
-              if (shouldExtractDate && etxn.tx.extracted_data.invoice_dt) {
+              if (etxn.tx.extracted_data.invoice_dt) {
                 etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.invoice_dt);
               }
 
-              if (shouldExtractMerchant && etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
+              if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
                 etxn.tx.vendor = etxn.tx.extracted_data.vendor;
               }
 
               if (
-                shouldExtractCategory &&
                 etxn.tx.extracted_data.category &&
                 etxn.tx.fyle_category &&
                 etxn.tx.fyle_category.toLowerCase() === 'unspecified'
@@ -2367,6 +2375,9 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.isCreatedFromCCC = !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn;
+
+    this.isCreatedFromPersonalCard =
+      !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.personalCardTxn;
 
     this.setupExpenseSuggestions();
 
@@ -2677,7 +2688,6 @@ export class AddEditExpensePage implements OnInit {
         return fileObj;
       })
     );
-
     const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
     return forkJoin({
       etxn: etxn$,
@@ -2901,16 +2911,20 @@ export class AddEditExpensePage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
-                this.addToNewReport(res.transaction.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                that.goBack();
-                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
-              } else {
-                that.goBack();
-              }
-            });
+            if (that.isCreatedFromPersonalCard) {
+              that.saveAndMatchWithPersonalCardTxn();
+            } else {
+              that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
+                if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
+                  this.addToNewReport(res.transaction.id);
+                } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                  that.goBack();
+                  this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+                } else {
+                  that.goBack();
+                }
+              });
+            }
           } else {
             // to do edit
             that.editExpense('SAVE_EXPENSE').subscribe((res) => {
@@ -3659,7 +3673,7 @@ export class AddEditExpensePage implements OnInit {
           });
         }
 
-        if (extractedData.date) {
+        if (extractedData.date && this.dateService.isSameDate(this.fg.controls.dateOfSpend.value, new Date())) {
           this.fg.patchValue({
             dateOfSpend: extractedData.date,
           });
@@ -3982,5 +3996,149 @@ export class AddEditExpensePage implements OnInit {
           this.policyDetails = details;
         });
     }
+  }
+
+  saveAndMatchWithPersonalCardTxn() {
+    const customFields$ = this.getCustomFields();
+    return this.generateEtxnFromFg(this.etxn$, customFields$, true)
+      .pipe(
+        switchMap((etxn) =>
+          this.isConnected$.pipe(
+            take(1),
+            switchMap((isConnected) => {
+              if (isConnected) {
+                const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
+                return policyViolations$.pipe(
+                  map(this.policyService.getCriticalPolicyRules),
+                  switchMap((criticalPolicyViolations) => {
+                    if (criticalPolicyViolations.length > 0) {
+                      return throwError({
+                        type: 'criticalPolicyViolations',
+                        policyViolations: criticalPolicyViolations,
+                        etxn,
+                      });
+                    } else {
+                      return policyViolations$;
+                    }
+                  }),
+                  map((policyViolations: any) => [
+                    this.policyService.getPolicyRules(policyViolations),
+                    policyViolations &&
+                      policyViolations.transaction_desired_state &&
+                      policyViolations.transaction_desired_state.action_description,
+                  ]),
+                  switchMap(([policyViolations, policyActionDescription]) => {
+                    if (policyViolations.length > 0) {
+                      return throwError({
+                        type: 'policyViolations',
+                        policyViolations,
+                        policyActionDescription,
+                        etxn,
+                      });
+                    } else {
+                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+                      );
+                    }
+                  })
+                );
+              } else {
+                return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                  map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+                );
+              }
+            })
+          )
+        ),
+        catchError((err) => {
+          if (err.status === 500) {
+            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+          }
+
+          if (err.type === 'criticalPolicyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => this.continueWithCriticalPolicyViolation(err.policyViolations)),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() =>
+                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
+                      )
+                    )
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else if (err.type === 'policyViolations') {
+            return from(this.loaderService.hideLoader()).pipe(
+              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
+              switchMap((continueWithTransaction) => {
+                if (continueWithTransaction) {
+                  return from(this.loaderService.showLoader()).pipe(
+                    switchMap(() =>
+                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                        map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
+                      )
+                    )
+                  );
+                } else {
+                  return throwError('unhandledError');
+                }
+              })
+            );
+          } else {
+            return throwError(err);
+          }
+        }),
+        switchMap(({ etxn }: any) => {
+          const personalCardTxn =
+            this.activatedRoute.snapshot.params.personalCardTxn &&
+            JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn);
+          const externalExpenseId = personalCardTxn.btxn_id;
+          return this.transactionService.upsert(etxn.tx).pipe(
+            switchMap((txn) =>
+              this.personalCardsService
+                .matchExpense(txn.split_group_id, externalExpenseId)
+                .pipe(switchMap(() => this.uploadAttachments(txn)))
+            ),
+            finalize(() => {
+              this.saveExpenseLoader = false;
+            })
+          );
+        })
+      )
+      .subscribe(() => {
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Successfully matched the expense.' }),
+          panelClass: ['msb-success'],
+        });
+        this.router.navigate(['/', 'enterprise', 'personal_cards']);
+      });
+  }
+
+  uploadAttachments(txn) {
+    const addExpenseAttachments$ = of(
+      this.newExpenseDataUrls.map((fileObj) => {
+        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
+        return fileObj;
+      })
+    );
+    return addExpenseAttachments$.pipe(
+      switchMap((fileObj: any) =>
+        fileObj.map((file) =>
+          from(this.transactionOutboxService.fileUpload(file.url, file.type))
+            .pipe(
+              switchMap((fileObj: any) => {
+                fileObj.transaction_id = txn.split_group_id;
+                return this.fileService.post(fileObj);
+              })
+            )
+            .subscribe(noop)
+        )
+      )
+    );
   }
 }
