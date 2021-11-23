@@ -4133,7 +4133,7 @@ export class AddEditExpensePage implements OnInit {
             switchMap((txn) =>
               this.personalCardsService
                 .matchExpense(txn.split_group_id, externalExpenseId)
-                .pipe(switchMap(() => this.uploadAttachments(txn)))
+                .pipe(switchMap(() => this.uploadAttachments(txn.split_group_id)))
             ),
             finalize(() => {
               this.saveExpenseLoader = false;
@@ -4150,42 +4150,38 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  uploadAttachments(txn) {
+  uploadAttachments(txnId: string) {
     if (this.newExpenseDataUrls.length > 0) {
       this.newExpenseDataUrls = this.addFileType(this.newExpenseDataUrls);
       const addExpenseAttachments$ = of(this.newExpenseDataUrls);
-      return addExpenseAttachments$.pipe(switchMap((fileObjs) => this.uploadMultipleFiles(fileObjs, txn)));
+      return addExpenseAttachments$.pipe(switchMap((fileObjs) => this.uploadMultipleFiles(fileObjs, txnId)));
     } else {
       return of([]);
     }
   }
 
-  addFileType(dataUrls) {
+  addFileType(dataUrls: FileObject[]) {
     const dataUrlsCopy = cloneDeep(dataUrls);
-    dataUrlsCopy.forEach((dataUrl) => {
-      dataUrl.type = this.isPDF(dataUrl.type) ? 'pdf' : 'image';
+    dataUrlsCopy.map((dataUrl) => {
+      dataUrl.type = this.transactionOutboxService.isPDF(dataUrl.type) ? 'pdf' : 'image';
     });
 
     return dataUrlsCopy;
   }
 
-  uploadMultipleFiles(fileObjs, txn) {
-    return forkJoin(fileObjs.map((file) => this.uploadFileAndPostToFileService(file, txn)));
+  uploadMultipleFiles(fileObjs: FileObject[], txnId: string) {
+    return forkJoin(fileObjs.map((file) => this.uploadFileAndPostToFileService(file, txnId)));
   }
 
-  postToFileService(fileObj, txn) {
+  postToFileService(fileObj: FileObject, txnId: string) {
     const fileObjCopy = cloneDeep(fileObj);
-    fileObjCopy.transaction_id = txn.split_group_id;
+    fileObjCopy.transaction_id = txnId;
     return this.fileService.post(fileObjCopy);
   }
 
-  uploadFileAndPostToFileService(file, txn) {
+  uploadFileAndPostToFileService(file: FileObject, txnId: string) {
     return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
-      switchMap((fileObj: any) => this.postToFileService(fileObj, txn))
+      switchMap((fileObj: any) => this.postToFileService(fileObj, txnId))
     );
-  }
-
-  isPDF(type) {
-    return ['application/pdf', 'pdf'].indexOf(type) > -1;
   }
 }

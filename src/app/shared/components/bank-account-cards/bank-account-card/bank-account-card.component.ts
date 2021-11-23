@@ -11,6 +11,7 @@ import { SnackbarPropertiesService } from '../../../../core/services/snackbar-pr
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import * as moment from 'moment';
+import { DateService } from 'src/app/core/services/date.service';
 @Component({
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',
@@ -32,22 +33,14 @@ export class BankAccountCardComponent implements OnInit {
     private loaderService: LoaderService,
     private popoverController: PopoverController,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private dateService: DateService
   ) {}
 
   ngOnInit(): void {
     if (this.accountDetails.last_synced_at) {
-      this.lastSyncedAt = this.convertUTCDateToLocalDate(new Date(this.accountDetails.last_synced_at));
+      this.lastSyncedAt = this.dateService.convertUTCDateToLocalDate(new Date(this.accountDetails.last_synced_at));
     }
-  }
-
-  convertUTCDateToLocalDate(date) {
-    const newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
-    const offset = date.getTimezoneOffset() / 60;
-    const hours = date.getHours();
-    newDate.setHours(hours - offset);
-
-    return newDate;
   }
 
   async presentPopover(ev: any) {
