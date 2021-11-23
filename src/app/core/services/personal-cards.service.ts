@@ -371,11 +371,11 @@ export class PersonalCardsService {
     const filterPills: FilterPill[] = [];
 
     if (filters?.createdOn) {
-      this.generateCreatedOnDateFilterPills(filters, filterPills);
+      this.generateDateFilterPills('createdOn', filters, filterPills);
     }
 
     if (filters?.updatedOn) {
-      this.generateUpdatedOnDateFilterPills(filters, filterPills);
+      this.generateDateFilterPills('updatedOn', filters, filterPills);
     }
 
     if (filters?.transactionType) {
@@ -385,8 +385,8 @@ export class PersonalCardsService {
     return filterPills;
   }
 
-  generateCreatedOnDateFilterPills(filters, filterPills: FilterPill[]) {
-    if (filters.createdOn.name === DateFilters.thisWeek) {
+  generateDateFilterPills(type, filters, filterPills: FilterPill[]) {
+    if (filters[type].name === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Created On',
         type: 'date',
@@ -394,7 +394,7 @@ export class PersonalCardsService {
       });
     }
 
-    if (filters.createdOn.name === DateFilters.thisMonth) {
+    if (filters[type].name === DateFilters.thisMonth) {
       filterPills.push({
         label: 'Created On',
         type: 'date',
@@ -402,7 +402,7 @@ export class PersonalCardsService {
       });
     }
 
-    if (filters.createdOn.name === DateFilters.all) {
+    if (filters[type].name === DateFilters.all) {
       filterPills.push({
         label: 'Created On',
         type: 'date',
@@ -410,7 +410,7 @@ export class PersonalCardsService {
       });
     }
 
-    if (filters.createdOn.name === DateFilters.lastMonth) {
+    if (filters[type].name === DateFilters.lastMonth) {
       filterPills.push({
         label: 'Created On',
         type: 'date',
@@ -418,8 +418,13 @@ export class PersonalCardsService {
       });
     }
 
-    if (filters.createdOn.name === DateFilters.custom) {
-      this.generateCreatedOnCustomDatePill(filters, filterPills);
+    if (filters[type].name === DateFilters.custom) {
+      if (type === 'createdOn') {
+        this.generateCreatedOnCustomDatePill(filters, filterPills);
+      }
+      if (type === 'updatedOn') {
+        this.generateUpdatedOnCustomDatePill(filters, filterPills);
+      }
     }
   }
 
@@ -445,44 +450,6 @@ export class PersonalCardsService {
         type: 'date',
         value: `<= ${endDate}`,
       });
-    }
-  }
-
-  generateUpdatedOnDateFilterPills(filters, filterPills: FilterPill[]) {
-    if (filters.updatedOn.name === DateFilters.thisWeek) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: 'this Week',
-      });
-    }
-
-    if (filters.updatedOn.name === DateFilters.thisMonth) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: 'this Month',
-      });
-    }
-
-    if (filters.updatedOn.name === DateFilters.all) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: 'All',
-      });
-    }
-
-    if (filters.updatedOn.name === DateFilters.lastMonth) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: 'Last Month',
-      });
-    }
-
-    if (filters.updatedOn.name === DateFilters.custom) {
-      this.generateUpdatedOnCustomDatePill(filters, filterPills);
     }
   }
 
