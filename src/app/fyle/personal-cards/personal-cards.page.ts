@@ -27,7 +27,7 @@ import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expe
 import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
 
 type Filters = Partial<{
-  amount: string;
+  amount: number;
   createdOn: Partial<{
     name?: string;
     customDateStart?: Date;
@@ -38,7 +38,7 @@ type Filters = Partial<{
     customDateStart?: Date;
     customDateEnd?: Date;
   }>;
-  showCredited: string;
+  transactionType: string;
 }>;
 
 @Component({
@@ -642,7 +642,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
 
     if (filterLabel === 'Transactions Type') {
-      delete this.filters.showCredited;
+      delete this.filters.transactionType;
     }
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
