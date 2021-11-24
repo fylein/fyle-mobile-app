@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { SwiperComponent } from 'swiper/angular';
-// import Swiper core and required modules
 import SwiperCore, { Pagination } from 'swiper';
 
 // install Swiper modules
@@ -13,6 +12,8 @@ SwiperCore.use([Pagination]);
 })
 export class BankAccountCardsComponent implements OnInit {
   @Input() linkedAccounts: PersonalCard[];
+
+  @Input() minimal: boolean;
 
   @Output() deleted = new EventEmitter();
 
@@ -35,6 +36,8 @@ export class BankAccountCardsComponent implements OnInit {
   }
 
   onCardChange(event) {
-    this.changed.emit(this.linkedAccounts[event.realIndex].id);
+    if (!this.minimal) {
+      this.changed.emit(this.linkedAccounts[event.realIndex].id);
+    }
   }
 }

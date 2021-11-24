@@ -862,7 +862,6 @@ export class MyExpensesPage implements OnInit {
     const newQueryParams: any = {
       or: [],
     };
-
     this.generateDateParams(newQueryParams);
 
     this.generateReceiptAttachedParams(newQueryParams);
