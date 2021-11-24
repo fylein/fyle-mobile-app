@@ -1349,7 +1349,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  goToTransaction(expense) {
+  goToTransaction({ etxn: expense, etxnIndex }) {
     let category;
 
     if (expense.tx_org_category) {

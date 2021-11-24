@@ -16,6 +16,8 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   @Input() isUploading: boolean;
 
+  @Input() canEdit: boolean;
+
   @Output() addMoreAttachments: EventEmitter<void> = new EventEmitter();
 
   @Output() viewAttachments: EventEmitter<void> = new EventEmitter();

@@ -1,226 +1,54 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="my-profile--toolbar">
+  <ion-toolbar class="my-profile__toolbar">
     <ion-buttons slot="start">
-      <app-fy-menu-icon class="my-profile--menubutton" auto-hide="false"></app-fy-menu-icon>
+      <app-fy-menu-icon class="my-profile__menubutton" auto-hide="false"></app-fy-menu-icon>
     </ion-buttons>
     <ion-title mode="md" class="page-title">My Settings</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="my-profile--blocks">
-    <span class="my-profile--blocks-header"> Profile </span>
-    <div *ngIf="eou$|async as eou">
-      <div class="my-profile--card my-profile--about-you-card">
-        <div class="my-profile--name my-profile--card-item">
-          <div class="my-profile--name-label">Name</div>
-          <div class="my-profile--name-value">{{eou.us.full_name}}</div>
-        </div>
-
-        <div class="my-profile--email my-profile--card-item">
-          <div class="my-profile--email-label">Email</div>
-          <div class="my-profile--email-value">{{eou.us.email}}</div>
-        </div>
-
-        <div class="my-profile--mobile my-profile--card-item">
-          <div class="my-profile--mobile-label">Mobile</div>
-          <div class="my-profile--mobile-value">
-            <input
-              class="my-profile--mobile-value-input"
-              [(ngModel)]="eou.ou.mobile"
-              type="tel"
-              matInput
-              placeholder="e.g. 91XX XXX XXX"
-            />
-          </div>
-        </div>
-
-        <div *ngIf="eou.ou.employee_id" class="my-profile--mobile my-profile--card-item">
-          <div class="my-profile--mobile-label">Employee ID</div>
-          <div class="my-profile--mobile-value">{{eou.ou.employee_id | ellipsis: 15}}</div>
-        </div>
-      </div>
-
-      <ion-button
-        mode="md"
-        class="my-profile--primary-cta"
-        fill="solid"
-        color="fyle-primary"
-        (click)="saveUserProfile(eou)"
-        appFormButtonValidation
-        [loading]="saveProfileLoading"
-        [loadingText]="'SAVING'"
-      >
-        SAVE
-      </ion-button>
-    </div>
-  </div>
-
-  <div class="my-profile--blocks">
-    <span class="my-profile--blocks-header">Notifications</span>
-    <div
-      class="my-profile--card my-profile--card__action my-profile--card-item my-profile--manage-notif"
-      [routerLink]="[ '/', 'enterprise', 'notifications' ]"
-      matRipple
-    >
-      <div class="my-profile--card-title">Manage Notifications</div>
-      <div class="my-profile--notifications-arrow">
-        <mat-icon>keyboard_arrow_right</mat-icon>
-      </div>
-    </div>
-  </div>
-
-  <div class="my-profile--blocks">
-    <span class="my-profile--blocks-header">Preferences</span>
-    <!-- Instafyle card start -->
-    <div class="my-profile--card my-profile--card__action" *ngIf="orgUserSettings?.insta_fyle_settings?.allowed">
-      <div class="my-profile--card-title">Extract receipt details</div>
-
-      <div class="my-profile--cards-content my-profile--toggle-container">
-        <div class="my-profile--toggle-label">Turn paper receipts to expenses with our in-app camera.</div>
-        <ion-toggle
-          mode="ios"
-          class="my-profile--toggle-value"
-          color="success"
-          [(ngModel)]="orgUserSettings.insta_fyle_settings.enabled"
-          (ionChange)="toggleAutoExtraction()"
-        ></ion-toggle>
-      </div>
-    </div>
-
-    <!-- BulkFyle card start -->
-    <div class="my-profile--cards" *ngIf="orgUserSettings?.bulk_fyle_settings?.allowed">
-      <div class="my-profile--card my-profile--card__action">
-        <div class="my-profile--card-title">Bulkfyle</div>
-        <div class="my-profile--cards-content my-profile--toggle-container">
-          <span class="my-profile--toggle-label"> Scan and submit multiple paper receipts at once. </span>
-          <ion-toggle
-            mode="ios"
-            class="my-profile--toggle-value"
-            color="success"
-            [(ngModel)]="orgUserSettings.bulk_fyle_settings.enabled"
-            (ionChange)="toggleBulkMode()"
-          ></ion-toggle>
-        </div>
-      </div>
-    </div>
-
-    <!-- Expense auto-fill card start -->
-    <div
-      class="my-profile--card my-profile--card__action"
-      *ngIf="orgSettings?.org_expense_form_autofills?.allowed && orgSettings?.org_expense_form_autofills?.enabled && orgUserSettings?.expense_form_autofills?.allowed"
-    >
-      <div class="my-profile--card-title">Expense auto-fill</div>
-      <div class="my-profile--cards-content my-profile--toggle-container">
-        <div class="my-profile--toggle-label">Auto-fill expense form fields based on most recently used values.</div>
-        <ion-toggle
-          mode="ios"
-          class="my-profile--toggle-value"
-          color="success"
-          [(ngModel)]="orgUserSettings.expense_form_autofills.enabled"
-          (ionChange)="toggleAutofillSettings()"
-        >
-        </ion-toggle>
-      </div>
-    </div>
-
-    <!-- Currency preference card start -->
-    <div class="my-profile--card my-profile--card__action" *ngIf="orgSettings?.org_currency_settings?.enabled">
-      <div class="my-profile--card-title">Default Currency</div>
-      <div class="my-profile--cards-content my-profile--toggle-container">
-        <div class="my-profile--toggle-label">Select the default currency to be used for creating expenses.</div>
-        <ion-toggle
-          mode="ios"
-          class="my-profile--toggle-value"
-          color="success"
-          [(ngModel)]="orgUserSettings.currency_settings.enabled"
-          (ionChange)="toggleCurrencySettings()"
-        ></ion-toggle>
-      </div>
-      <div
-        (click)="openCurrenySelectionModal()"
-        class="my-profile--select-currency"
-        *ngIf="orgUserSettings.currency_settings.enabled"
-      >
-        <div class="my-profile--card-title my-profile--card-title__lite">
-          {{orgUserSettings.currency_settings.preferred_currency ? 'Currency' : 'Select Currency' }}
-        </div>
-        <div class="my-profile--notifications-arrow my-profile--notifications-arrow__lite">
-          <span class="my-profile--currency-value"> {{preferredCurrency$|async}} </span>
-          <mat-icon>keyboard_arrow_right</mat-icon>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="my-profile--card" *ngIf="orgUserSettings?.sms_fyle_settings?.allowed">
-    <div class="my-profile--cards-header">Fyle via SMS</div>
-
-    <div class="my-profile--cards-content">
-      <span class="my-profile--toggle-label"
-        >Send your receipts to our mobile number to create expenses automatically.</span
-      >
-      <ion-toggle
-        mode="ios"
-        class="my-profile--toggle-value"
-        color="success"
-        [(ngModel)]="orgUserSettings.sms_fyle_settings.enabled"
-        (ionChange)="toggleSmsSettings()"
-      ></ion-toggle>
-    </div>
-  </div>
-
-  <ng-container *ngIf="myETxnc$|async as myETxnc">
-    <div class="my-profile--blocks">
-      <span class="my-profile--blocks-header">Summary</span>
-      <div class="my-profile--card my-profile--card__action">
-        <ng-container *ngIf="eou$|async as eou">
-          <div class="my-profile--card-title">
-            <div class="my-profile--card-title__using-fyle">
-              Using Fyle Since {{eou.ou.created_at | date: 'MMM dd, yyyy'}}
-            </div>
-          </div>
-        </ng-container>
-        <div>
-          <div *ngIf="toggleUsageDetailsTab">
-            <div class="my-profile--stat">
-              <img class="my-profile--stat-img" src="../../../assets/images/profile/smartphone.svg" alt="Mobile" />
-              <span class="my-profile--stat-text"> {{myETxnc.mobile || 0}} expenses fyled using mobile app. </span>
-            </div>
-
-            <div class="my-profile--stat">
-              <img class="my-profile--stat-img" src="../../../assets/images/profile/web.svg" alt="Web" />
-              <span class="my-profile--stat-text"> {{myETxnc.web || 0}} expenses fyled using web app. </span>
-            </div>
-
-            <div class="my-profile--stat">
-              <img class="my-profile--stat-img" src="../../../assets/images/profile/gmail.svg" alt="Gmail" />
-              <span class="my-profile--stat-text">
-                {{myETxnc.extension || 0}} expenses fyled using email extension.
-              </span>
-            </div>
-
-            <div class="my-profile--stat">
-              <img class="my-profile--stat-img" src="../../../assets/images/profile/outlook.svg" alt="Outlook" />
-              <span class="my-profile--stat-text">
-                {{myETxnc.outlook || 0}} expenses fyled using outlook extension.
-              </span>
-            </div>
-          </div>
-
-          <a (click)="toggleUsageDetails()" class="my-profile--see-more">
-            <span *ngIf="!toggleUsageDetailsTab">See More</span>
-            <span *ngIf="toggleUsageDetailsTab">Hide</span>
-          </a>
-        </div>
-      </div>
-    </div>
+  <ng-container *ngIf="eou$ | async as eou">
+    <app-employee-details-card [eou]="eou"></app-employee-details-card>
   </ng-container>
+  <div class="my-profile__content-container">
+    <div class="my-profile__section-header">Notifications</div>
+    <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
+      <div class="my-profile__card__title">Manage Notifications</div>
+      <ion-icon
+        class="my-profile__navigate-icon"
+        src="../../../assets/svg/navigate-right.svg"
+        slot="icon-only"
+      ></ion-icon>
+    </div>
 
-  <div class="my-profile--card my-profile--card-item" (click)="logOut()" matRipple>
-    <div class="my-profile--logout-block">
-      <mat-icon svgIcon="ionic-log-out-outline" class="my-profile--logout-block_icon"></mat-icon>
-      <div class="my-profile--logout-block_text">Logout</div>
+    <div class="my-profile__section-header">Preferences</div>
+    <div class="my-profile__preference-container">
+      <div
+        *ngFor="let preferenceSetting of preferenceSettings;let i=index, last as isLast"
+        [ngClass]="{'my-profile__preference-container__card': !isLast}"
+      >
+        <app-preference-setting
+          [title]="preferenceSetting.title"
+          [content]="preferenceSetting.content"
+          [isEnabled]="preferenceSetting.isEnabled"
+          [key]="preferenceSetting.key"
+          [defaultCurrency]="preferenceSetting.defaultCurrency"
+          (preferenceChanged)="toggleSetting($event)"
+        >
+        </app-preference-setting>
+      </div>
+    </div>
+
+    <div class="my-profile__card" (click)="signOut()" matRipple>
+      <div class="my-profile__signout-container d-flex">
+        <ion-icon
+          class="my-profile__signout-container__icon"
+          src="../../../assets/svg/power.svg"
+          slot="icon-only"
+        ></ion-icon>
+        <span>Sign Out</span>
+      </div>
     </div>
   </div>
 </ion-content>

@@ -39,7 +39,7 @@
 
   &--add-traveller {
     padding: 16px 0;
-    color: $primary;
+    color: $brand-primary;
 
     &-add-icon {
       font-size: 16px;
@@ -72,7 +72,7 @@
   }
 
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -148,23 +148,6 @@
         padding: 16px;
       }
       margin-right: 10px;
-    }
-  }
-
-  &--cta-block {
-    padding: 16px;
-    box-shadow: 0 -4px 8px 0 rgba(0, 0, 0, 0.1);
-  }
-
-  &--cta-container {
-    display: flex;
-    justify-content: space-between;
-    text-transform: inherit;
-
-    &-cta {
-      height: 48px;
-      width: 100%;
-      --border-radius: 4px;
     }
   }
 

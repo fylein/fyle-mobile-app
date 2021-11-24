@@ -7,6 +7,10 @@
     padding-bottom: 16px;
   }
 
+  &--title-container {
+    padding-right: 64px;
+  }
+
   &--title {
     font-size: 20px;
     line-height: 1.3;
@@ -23,7 +27,7 @@
   &--ion-buttons {
     margin-bottom: auto;
     min-width: 40px;
-  
+
     &__delete {
       width: 24px;
       height: 24px;

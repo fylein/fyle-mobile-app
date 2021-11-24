@@ -323,4 +323,8 @@ export class DateService {
 
     return newDate;
   }
+
+  isSameDate(date1: Date, date2: Date) {
+    return moment(date1).startOf('day').isSame(moment(date2).startOf('day'));
+  }
 }

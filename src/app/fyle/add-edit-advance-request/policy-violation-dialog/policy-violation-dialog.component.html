@@ -34,11 +34,13 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <div class="policy-violation--footer-toolbar">
-      <ion-buttons class="policy-violation--buttons">
-        <ion-button class="btn-secondary" (click)="closePolicyModal()"> Cancel </ion-button>
-        <ion-button class="btn-primary" (click)="continueWithPolicyViolation()"> Continue </ion-button>
-      </ion-buttons>
+    <div class="fy-footer-cta-container">
+      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="closePolicyModal()">
+        Cancel
+      </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continueWithPolicyViolation()">
+        Continue
+      </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

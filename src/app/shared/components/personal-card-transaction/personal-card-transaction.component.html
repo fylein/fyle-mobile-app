@@ -8,7 +8,7 @@
   <div class="personal-card-transaction--divider"></div>
 </ng-template>
 
-<div class="personal-card-transaction--body display-flex" (tap)="onTapTransaction()" (press)="onSetMultiselectMode()">
+<div class="personal-card-transaction--body d-flex" (tap)="onTapTransaction()" (press)="onSetMultiselectMode()">
   <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
     <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled> </mat-checkbox>
   </div>

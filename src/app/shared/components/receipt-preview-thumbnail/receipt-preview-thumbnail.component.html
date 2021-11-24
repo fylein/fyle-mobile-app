@@ -1,8 +1,8 @@
-<div class="receipt-preview-thumbnail--actions">
+<div class="receipt-preview-thumbnail--actions" [ngClass]="{ 'mt-0': !canEdit }">
   <div class="receipt-preview-thumbnail--receipt-index">
     Receipt <ng-container *ngIf="attachments.length > 1">{{ activeIndex + 1 }}/{{ attachments.length }} </ng-container>
   </div>
-  <div (click)="addAttachments($event)" class="receipt-preview-thumbnail--add-more">
+  <div *ngIf="canEdit" (click)="addAttachments($event)" class="receipt-preview-thumbnail--add-more">
     <mat-icon class="receipt-preview-thumbnail--icon" svgIcon="plus"></mat-icon>
     <span class="receipt-preview-thumbnail--add-more-text">Add More</span>
   </div>

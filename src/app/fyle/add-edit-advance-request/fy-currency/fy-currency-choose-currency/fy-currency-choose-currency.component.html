@@ -45,7 +45,7 @@
       (click)="onCurrencySelect(currency)"
     >
       <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-      <mat-icon *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
+      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
     </div>
   </ng-container>
 </ion-content>

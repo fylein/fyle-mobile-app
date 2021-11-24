@@ -51,7 +51,7 @@
 
   &--receipt-image-icon {
     font-size: 32px;
-    color: $primary;
+    color: $brand-primary;
     position: absolute;
     left: 20px;
     bottom: -8px;
@@ -152,9 +152,7 @@
   }
 
   &--checkbox {
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
+    color: $blue-black;
   }
 
   &--date-input {
@@ -183,7 +181,7 @@
   }
 
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -237,7 +235,7 @@
 
   &--spinner-icon {
     margin-top: 12px;
-    color: $primary;
+    color: $brand-primary;
   }
 
   &--receipt-image-subheader {
@@ -245,7 +243,7 @@
   }
 
   &--receipt-image-icon {
-    color: $primary;
+    color: $brand-primary;
     height: 36px;
     width: 34px;
     position: relative;
