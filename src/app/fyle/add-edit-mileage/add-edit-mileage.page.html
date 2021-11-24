@@ -255,30 +255,28 @@
             </ng-container>
           </div>
 
-          <ng-container>
-            <div class="add-edit-mileage--project-container">
+          <ng-container *ngIf="txnFields$|async as txnFields">
+            <div class="add-edit-mileage--project-container" *ngIf="txnFields?.project_id">
               <ng-container *ngIf="isConnected$|async">
-                <ng-container *ngIf="txnFields$|async as txnFields">
-                  <ng-container
-                    *ngIf="txnFields?.project_id && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
-                  >
-                    <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
-                      <ng-container *ngIf="isProjectVisible$|async">
-                        <div
-                          class="add-edit-mileage--internal-block add-edit-mileage--project-block"
-                          [ngClass]="{'add-edit-mileage--no-project': !fg.controls.project.value}"
-                        >
-                          <app-fy-select-project
-                            [cacheName]="'mileageProjectCache'"
-                            [categoryIds]="projectCategoryIds"
-                            [label]="'Project'"
-                            [mandatory]="txnFields.project_id?.is_mandatory"
-                            [defaultValue]="true"
-                            [recentlyUsed]="recentProjects"
-                            formControlName="project"
-                          ></app-fy-select-project>
-                        </div>
-                      </ng-container>
+                <ng-container
+                  *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+                >
+                  <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
+                    <ng-container *ngIf="isProjectVisible$|async">
+                      <div
+                        class="add-edit-mileage--internal-block add-edit-mileage--project-block"
+                        [ngClass]="{'add-edit-mileage--no-project': !fg.controls.project.value}"
+                      >
+                        <app-fy-select-project
+                          [cacheName]="'mileageProjectCache'"
+                          [categoryIds]="projectCategoryIds"
+                          [label]="'Project'"
+                          [mandatory]="txnFields.project_id?.is_mandatory"
+                          [defaultValue]="true"
+                          [recentlyUsed]="recentProjects"
+                          formControlName="project"
+                        ></app-fy-select-project>
+                      </div>
                     </ng-container>
                   </ng-container>
                 </ng-container>
@@ -291,7 +289,9 @@
               </div>
             </div>
 
-            <div *ngIf="isProjectVisible$|async">
+            <div
+              *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+            >
               <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-mileage--error">
                 Please select a project.
               </div>
