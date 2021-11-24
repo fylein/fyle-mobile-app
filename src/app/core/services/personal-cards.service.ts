@@ -269,90 +269,51 @@ export class PersonalCardsService {
     return generatedFilters;
   }
 
-  generateCreatedOnDateParams(newQueryParams, filters) {
-    if (filters.createdOn) {
-      filters.createdOn.customDateStart =
-        filters.createdOn.customDateStart && new Date(filters.createdOn.customDateStart);
-      filters.createdOn.customDateEnd = filters.createdOn.customDateEnd && new Date(filters.createdOn.customDateEnd);
-      if (filters.createdOn.name === DateFilters.thisMonth) {
+  generateTxnDateParams(newQueryParams, filters, type) {
+    let queryType;
+    if (type === 'createdOn') {
+      queryType = 'btxn_created_at';
+    } else {
+      queryType = 'btxn_updated_at';
+    }
+    if (filters[type]) {
+      filters[type].customDateStart = filters[type].customDateStart && new Date(filters[type].customDateStart);
+      filters[type].customDateEnd = filters[type].customDateEnd && new Date(filters[type].customDateEnd);
+      if (filters[type].name === DateFilters.thisMonth) {
         const thisMonth = this.dateService.getThisMonthRange();
         newQueryParams.or.push(
-          `(and(btxn_created_at.gte.${thisMonth.from.toISOString()},btxn_created_at.lt.${thisMonth.to.toISOString()}))`
+          `(and(${queryType}.gte.${thisMonth.from.toISOString()},${queryType}.lt.${thisMonth.to.toISOString()}))`
         );
       }
 
-      if (filters.createdOn.name === DateFilters.thisWeek) {
+      if (filters[type].name === DateFilters.thisWeek) {
         const thisWeek = this.dateService.getThisWeekRange();
         newQueryParams.or.push(
-          `(and(btxn_created_at.gte.${thisWeek.from.toISOString()},btxn_created_at.lt.${thisWeek.to.toISOString()}))`
+          `(and(${queryType}.gte.${thisWeek.from.toISOString()},${queryType}.lt.${thisWeek.to.toISOString()}))`
         );
       }
 
-      if (filters.createdOn.name === DateFilters.lastMonth) {
+      if (filters[type].name === DateFilters.lastMonth) {
         const lastMonth = this.dateService.getLastMonthRange();
         newQueryParams.or.push(
-          `(and(btxn_created_at.gte.${lastMonth.from.toISOString()},btxn_created_at.lt.${lastMonth.to.toISOString()}))`
+          `(and(${queryType}.gte.${lastMonth.from.toISOString()},${queryType}.lt.${lastMonth.to.toISOString()}))`
         );
       }
 
-      this.generateCreatedOnCustomDateParams(newQueryParams, filters);
+      this.generateCustomDateParams(newQueryParams, filters, type, queryType);
     }
   }
 
-  generateCreatedOnCustomDateParams(newQueryParams: any, filters: Filters) {
-    if (filters.createdOn.name === DateFilters.custom) {
-      const startDate = filters.createdOn.customDateStart.toISOString();
-      const endDate = filters.createdOn.customDateEnd.toISOString();
-      if (filters.createdOn.customDateStart && filters.createdOn.customDateEnd) {
-        newQueryParams.or.push(`(and(btxn_created_at.gte.${startDate},btxn_created_at.lt.${endDate}))`);
-      } else if (filters.createdOn.customDateStart) {
-        newQueryParams.or.push(`(and(btxn_created_at.gte.${startDate}))`);
-      } else if (filters.createdOn.customDateEnd) {
-        newQueryParams.or.push(`(and(btxn_created_at.lt.${endDate}))`);
-      }
-    }
-  }
-
-  generateUpdatedOnDateParams(newQueryParams, filters) {
-    if (filters.updatedOn) {
-      filters.updatedOn.customDateStart =
-        filters.updatedOn.customDateStart && new Date(filters.updatedOn.customDateStart);
-      filters.updatedOn.customDateEnd = filters.updatedOn.customDateEnd && new Date(filters.updatedOn.customDateEnd);
-      if (filters.updatedOn.name === DateFilters.thisMonth) {
-        const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.or.push(
-          `(and(btxn_updated_at.gte.${thisMonth.from.toISOString()},btxn_updated_at.lt.${thisMonth.to.toISOString()}))`
-        );
-      }
-
-      if (filters.updatedOn.name === DateFilters.thisWeek) {
-        const thisWeek = this.dateService.getThisWeekRange();
-        newQueryParams.or.push(
-          `(and(btxn_updated_at.gte.${thisWeek.from.toISOString()},btxn_updated_at.lt.${thisWeek.to.toISOString()}))`
-        );
-      }
-
-      if (filters.updatedOn.name === DateFilters.lastMonth) {
-        const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.or.push(
-          `(and(btxn_updated_at.gte.${lastMonth.from.toISOString()},btxn_updated_at.lt.${lastMonth.to.toISOString()}))`
-        );
-      }
-
-      this.generateUpdatedOnCustomDateParams(newQueryParams, filters);
-    }
-  }
-
-  generateUpdatedOnCustomDateParams(newQueryParams: any, filters) {
-    if (filters.updatedOn.name === DateFilters.custom) {
-      const startDate = filters.updatedOn.customDateStart.toISOString();
-      const endDate = filters.updatedOn.customDateEnd.toISOString();
-      if (filters.updatedOn.customDateStart && filters.updatedOn.customDateEnd) {
-        newQueryParams.or.push(`(and(btxn_updated_at.gte.${startDate},btxn_updated_at.lt.${endDate}))`);
-      } else if (filters.updatedOn.customDateStart) {
-        newQueryParams.or.push(`(and(btxn_updated_at.gte.${startDate}))`);
-      } else if (filters.updatedOn.customDateEnd) {
-        newQueryParams.or.push(`(and(btxn_updated_at.lt.${endDate}))`);
+  generateCustomDateParams(newQueryParams: any, filters: Filters, type: string, queryType: string) {
+    if (filters[type].name === DateFilters.custom) {
+      const startDate = filters[type].customDateStart.toISOString();
+      const endDate = filters[type].customDateEnd.toISOString();
+      if (filters[type].customDateStart && filters[type].customDateEnd) {
+        newQueryParams.or.push(`(and(${queryType}.gte.${startDate},${queryType}.lt.${endDate}))`);
+      } else if (filters[type].customDateStart) {
+        newQueryParams.or.push(`(and(${queryType}.gte.${startDate}))`);
+      } else if (filters[type].customDateEnd) {
+        newQueryParams.or.push(`(and(${queryType}.lt.${endDate}))`);
       }
     }
   }

@@ -599,8 +599,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     newQueryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
     newQueryParams.ba_id = 'eq.' + this.selectedAccount;
     const filters = this.filters;
-    this.personalCardsService.generateCreatedOnDateParams(newQueryParams, filters);
-    this.personalCardsService.generateUpdatedOnDateParams(newQueryParams, filters);
+    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn');
+    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn');
     this.personalCardsService.generateCreditParams(newQueryParams, filters);
     currentParams.queryParams = newQueryParams;
     this.filters = filters;
