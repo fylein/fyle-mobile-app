@@ -102,13 +102,17 @@
     </ng-container>
 
     <ng-template #zeroState>
-      <app-fy-zero-state
-        header="Sorry, no results found!"
-        [message]="'We could not find what you were looking for.\nKindly check the keywords again.'"
-        image="../../../assets/images/zero-states/search-not-found.svg"
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-      ></app-fy-zero-state>
+      <ng-container *ngIf="orgs$ | async as orgs">
+        <ng-container *ngIf="orgs.length > 1">
+          <app-fy-zero-state
+            header="Sorry, no results found!"
+            [message]="'We could not find what you were looking for.\nKindly check the keywords again.'"
+            image="../../../assets/images/zero-states/search-not-found.svg"
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
+        </ng-container>
+      </ng-container>
     </ng-template>
 
     <ng-template #skeletonOrgCards>
