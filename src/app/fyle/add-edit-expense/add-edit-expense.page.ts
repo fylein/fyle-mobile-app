@@ -4155,8 +4155,4 @@ export class AddEditExpensePage implements OnInit {
       switchMap((fileObj: any) => this.postToFileService(fileObj, txnId))
     );
   }
-
-  isPDF(type) {
-    return ['application/pdf', 'pdf'].indexOf(type) > -1;
-  }
 }
