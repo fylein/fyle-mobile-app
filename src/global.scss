@@ -1108,16 +1108,3 @@ ion-toggle.toggle-checked::before {
   position: relative;
   top: -16px;
 }
-
-.personal-cards-range-modal {
-  .modal-wrapper {
-    --border-radius: 16px 16px 0 0 !important;
-    position: absolute;
-    max-height: 62%;
-    bottom: 0;
-  }
-
-  .modal-shadow {
-    display: none;
-  }
-}
