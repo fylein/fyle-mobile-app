@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { SwiperComponent } from 'swiper/angular';
-// import Swiper core and required modules
 import SwiperCore, { Pagination } from 'swiper';
 
 // install Swiper modules

@@ -28,7 +28,7 @@ import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 type Filters = Partial<{
-  amount: string;
+  amount: number;
   createdOn: Partial<{
     name?: string;
     customDateStart?: Date;
@@ -39,7 +39,7 @@ type Filters = Partial<{
     customDateStart?: Date;
     customDateEnd?: Date;
   }>;
-  showCredited: string;
+  transactionType: string;
 }>;
 
 @Component({
@@ -606,8 +606,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     newQueryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
     newQueryParams.ba_id = 'eq.' + this.selectedAccount;
     const filters = this.filters;
-    this.personalCardsService.generateCreatedOnDateParams(newQueryParams, filters);
-    this.personalCardsService.generateUpdatedOnDateParams(newQueryParams, filters);
+    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'createdOn');
+    this.personalCardsService.generateTxnDateParams(newQueryParams, filters, 'updatedOn');
     this.personalCardsService.generateCreditParams(newQueryParams, filters);
     currentParams.queryParams = newQueryParams;
     this.filters = filters;
@@ -649,7 +649,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
 
     if (filterLabel === 'Transactions Type') {
-      delete this.filters.showCredited;
+      delete this.filters.transactionType;
     }
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
