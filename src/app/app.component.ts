@@ -500,7 +500,10 @@ export class AppComponent implements OnInit {
       },
       {
         title: 'Personal Cards',
-        isVisible: environment.ROOT_URL === 'https://staging.fyle.tech',
+        isVisible:
+          orgSettings.org_personal_cards_settings.allowed &&
+          orgSettings.org_personal_cards_settings.enabled &&
+          orgUserSettings.personal_cards_settings?.enabled,
         icon: 'fy-cards-new',
         route: ['/', 'enterprise', 'personal_cards'],
       },
