@@ -503,8 +503,7 @@ export class AppComponent implements OnInit {
         isVisible:
           orgSettings.org_personal_cards_settings.allowed &&
           orgSettings.org_personal_cards_settings.enabled &&
-          orgUserSettings.personal_cards_settings?.enabled &&
-          orgUserSettings.personal_cards_settings?.personal_cards_data_aggregator === 'YODLEE',
+          orgUserSettings.personal_cards_settings?.enabled,
         icon: 'fy-cards-new',
         route: ['/', 'enterprise', 'personal_cards'],
       },
