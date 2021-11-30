@@ -148,24 +148,24 @@ export class FiltersHelperService {
     //constructs a string that incorporates both sort param and direction which is the format understood
     //by the filter modal component
     let sortString = '';
-    const sortParamMap = {
-      creationDate: 'crDate',
-      approvalDate: 'appDate',
-      project: 'project',
-    };
 
-    sortString = sortParamMap[sortParam];
-    if (sortDir === SortingDirection.ascending) {
-      if (sortParam === SortingParam.project) {
-        sortString += 'AToZ';
+    if (sortParam === SortingParam.creationDate) {
+      if (sortDir === SortingDirection.ascending) {
+        sortString = 'crDateOldToNew';
       } else {
-        sortString += 'OldToNew';
+        sortString = 'crDateNewToOld';
       }
-    } else {
-      if (sortParam === SortingParam.project) {
-        sortString += 'ZToA';
+    } else if (sortParam === SortingParam.approvalDate) {
+      if (sortDir === SortingDirection.ascending) {
+        sortString = 'appDateOldToNew';
       } else {
-        sortString += 'NewToOld';
+        sortString = 'appDateNewToOld';
+      }
+    } else if (sortParam === SortingParam.project) {
+      if (sortDir === SortingDirection.ascending) {
+        sortString = 'projectAToZ';
+      } else {
+        sortString = 'projectZToA';
       }
     }
 
