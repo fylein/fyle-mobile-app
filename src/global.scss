@@ -1108,3 +1108,21 @@ ion-toggle.toggle-checked::before {
   position: relative;
   top: -16px;
 }
+
+.capped-info {
+  margin: 8px 0;
+  display: flex;
+  border: 1px solid $grey-lighter;
+  border-radius: 8px;
+  padding: 12px 8px;
+  .capped-icon {
+    color: $highlight-blue;
+    height: 20px;
+    width: 20px;
+    margin-right: 8px;
+  }
+  .capped-message {
+    width: 100%;
+    color: $blue-black;
+  }
+}
