@@ -19,8 +19,14 @@
     <div class="personal-card-transaction--button">
       <ng-container *ngIf="status === 'INITIALIZED' || status === 'HIDDEN'"> Create expense </ng-container>
       <ng-container *ngIf="status === 'MATCHED'"> View expense </ng-container>
-      <ion-icon [src]="'assets/svg/right-arrow.svg'" class="personal-card-transaction--icon" slot="icon-only">
+      <ion-icon
+        *ngIf="!isMatchedCountLoading"
+        [src]="'assets/svg/right-arrow.svg'"
+        class="personal-card-transaction--icon"
+        slot="icon-only"
+      >
       </ion-icon>
+      <ion-spinner *ngIf="isMatchedCountLoading" name="crescent" class="personal-card-transaction--icon"></ion-spinner>
     </div>
   </div>
   <div class="personal-card-transaction--currency-amount-container ion-text-right">
@@ -32,8 +38,8 @@
     <span
       class="personal-card-transaction--amount"
       [ngClass]="{ 'personal-card-transaction--green': type === 'credit' }"
-      >{{ amount }}</span
-    >
+      >{{ amount | number: '1.2-2' }}
+    </span>
     <span
       class="personal-card-transaction--type"
       [ngClass]="{ ' personal-card-transaction--green': type === 'credit' }"

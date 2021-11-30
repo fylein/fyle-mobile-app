@@ -21,7 +21,7 @@
       <div class="expenses-card--category-vendor-project-container">
         <div class="d-flex expenses-card--category-icon-container">
           <div class="expenses-card--category">
-            {{ expense.purpose }}
+            {{ expense.purpose }} <ng-container *ngIf="!expense.purpose"> Unspecified </ng-container>
           </div>
         </div>
 

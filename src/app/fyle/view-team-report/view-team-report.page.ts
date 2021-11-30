@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
@@ -33,6 +33,8 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 })
 export class ViewTeamReportPage implements OnInit {
   @ViewChild('commentInput') commentInput: ElementRef;
+
+  @ViewChild(IonContent, { static: false }) content: IonContent;
 
   erpt$: Observable<ExtendedReport>;
 
@@ -101,6 +103,8 @@ export class ViewTeamReportPage implements OnInit {
   etxnAmountSum$: Observable<any>;
 
   reportEtxnIds: string[];
+
+  isExpensesLoading: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -223,6 +227,7 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isExpensesLoading = true;
     this.setupNetworkWatcher();
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
@@ -280,7 +285,8 @@ export class ViewTeamReportPage implements OnInit {
           return etxn;
         })
       ),
-      shareReplay(1)
+      shareReplay(1),
+      finalize(() => (this.isExpensesLoading = false))
     );
 
     this.etxnAmountSum$ = this.etxns$.pipe(map((etxns) => etxns.reduce((acc, curr) => acc + curr.tx_amount, 0)));
@@ -462,6 +468,9 @@ export class ViewTeamReportPage implements OnInit {
         this.isCommentsView = true;
         this.isExpensesView = false;
         this.isHistoryView = false;
+        setTimeout(() => {
+          this.content.scrollToBottom(500);
+        }, 500);
       } else if (event.detail.value === 'history') {
         this.isHistoryView = true;
         this.isCommentsView = false;
@@ -482,6 +491,9 @@ export class ViewTeamReportPage implements OnInit {
 
       this.statusService.post(this.objectType, this.objectId, data).subscribe((res) => {
         this.refreshEstatuses$.next();
+        setTimeout(() => {
+          this.content.scrollToBottom(500);
+        }, 500);
       });
     }
   }
