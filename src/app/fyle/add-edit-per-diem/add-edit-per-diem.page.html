@@ -339,12 +339,6 @@
                               </div>
                             </ng-container>
                           </ng-container>
-                          <div
-                            *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
-                            class="add-edit-per-diem--error"
-                          >
-                            Please select a project.
-                          </div>
                         </ng-container>
                       </ng-container>
 
@@ -352,6 +346,17 @@
                         <mat-checkbox formControlName="billable">
                           <span class="add-edit-per-diem--checkbox"> Billable </span>
                         </mat-checkbox>
+                      </div>
+                    </div>
+
+                    <div
+                      *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+                    >
+                      <div
+                        *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
+                        class="add-edit-per-diem--error"
+                      >
+                        Please select a project.
                       </div>
                     </div>
                   </ng-container>
