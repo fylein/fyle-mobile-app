@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { isArray } from 'lodash';
+import { cloneDeep, isArray } from 'lodash';
 import { SortingParam } from '../models/sorting-param.model';
 import { SortingDirection } from '../models/sorting-direction.model';
 import * as moment from 'moment';
@@ -98,62 +98,66 @@ export class UtilityService {
     return obj;
   }
 
-  sortAllAdvances(sortDir: SortingDirection, sortParam: SortingParam, advancesArray: any[]): any[] {
+  sortAllAdvances(sortDir: SortingDirection, sortParam: SortingParam, advancesArray: any[]) {
     //used for sorting an array that has both advances and advance requests mixed together
-    let sortedAdvancesArray = advancesArray;
-    if (sortParam === SortingParam.creationDate) {
-      sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
-        const adv1Date = adv1.areq_created_at ? moment(adv1.areq_created_at) : moment(adv1.adv_created_at);
-        const adv2Date = adv2.areq_created_at ? moment(adv2.areq_created_at) : moment(adv2.adv_created_at);
+    const sortedAdvancesArray = cloneDeep(advancesArray);
 
-        if (sortDir === SortingDirection.ascending) {
-          return adv1Date.isAfter(adv2Date) ? 1 : -1;
-        } else {
-          return adv1Date.isBefore(adv2Date) ? 1 : -1;
-        }
-      });
-    } else if (sortParam === SortingParam.approvalDate) {
-      sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
-        const adv1Date = adv1.areq_approved_at ? moment(adv1.areq_approved_at) : moment(19700101);
-        const adv2Date = adv2.areq_approved_at ? moment(adv2.areq_approved_at) : moment(19700101);
-
-        const returnValue = this.handleDefaultSort(adv1Date, adv2Date, moment(19700101));
-        if (returnValue !== null) {
-          return returnValue;
-        }
-
-        if (sortDir === SortingDirection.ascending) {
-          return adv1Date.isAfter(adv2Date) ? 1 : -1;
-        } else {
-          return adv1Date.isBefore(adv2Date) ? 1 : -1;
-        }
-      });
-    } else if (sortParam === SortingParam.project) {
-      sortedAdvancesArray = sortedAdvancesArray.sort((adv1, adv2) => {
-        const adv1ProjectName = adv1.project_name;
-        const adv2ProjectName = adv2.project_name;
-
-        const returnValue = this.handleDefaultSort(adv1ProjectName, adv2ProjectName, null);
-        if (returnValue !== null) {
-          return returnValue;
-        }
-
-        if (sortDir === SortingDirection.ascending) {
-          return adv1ProjectName.localeCompare(adv2ProjectName) ? 1 : -1;
-        } else {
-          return adv1ProjectName.localeCompare(adv2ProjectName) ? -1 : 1;
-        }
-      });
-    }
-    return sortedAdvancesArray;
+    return sortedAdvancesArray.sort((advance1, advance2) => {
+      const sortingValue1 = this.getSortingValue(advance1, sortParam);
+      const sortingValue2 = this.getSortingValue(advance2, sortParam);
+      return this.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortParam);
+    });
   }
 
-  private handleDefaultSort(param1: any, param2: any, nullComparator: any) {
-    if (param1 === nullComparator && param2 === nullComparator) {
+  private getSortingValue(advance: any, sortParam: SortingParam) {
+    if (sortParam === SortingParam.creationDate) {
+      return advance.areq_created_at ? moment(advance.areq_created_at) : moment(advance.adv_created_at);
+    } else if (sortParam === SortingParam.approvalDate) {
+      return advance.areq_approved_at ? moment(advance.areq_approved_at) : moment(19700101).toString();
+    } else if (sortParam === SortingParam.project) {
+      return advance.project_name;
+    }
+  }
+
+  private compareSortingValues(
+    sortingValue1: any,
+    sortingValue2: any,
+    sortDir: SortingDirection,
+    sortingParam: SortingParam
+  ) {
+    const returnValue = this.handleDefaultSort(sortingValue1, sortingValue2, sortingParam);
+    if (returnValue !== null) {
+      return returnValue;
+    }
+
+    if (typeof sortingValue1 === 'string') {
+      if (sortDir === SortingDirection.ascending) {
+        return sortingValue1.localeCompare(sortingValue2) ? 1 : -1;
+      } else {
+        return sortingValue1.localeCompare(sortingValue2) ? -1 : 1;
+      }
+    } else if (moment.isMoment(sortingValue1)) {
+      if (sortDir === SortingDirection.ascending) {
+        return sortingValue1.isAfter(sortingValue2) ? 1 : -1;
+      } else {
+        return sortingValue1.isBefore(sortingValue2) ? 1 : -1;
+      }
+    }
+  }
+
+  private handleDefaultSort(sortingValue1: any, sortingValue2: any, sortingParam: SortingParam) {
+    //handles cases where either sortingValue1 or sortingValue2 is null/undefined
+    let nullComparator: any;
+    if (sortingParam === SortingParam.project) {
+      nullComparator = null;
+    } else {
+      nullComparator = moment(19700101).toString(); //needed to allow comparison using === without using comparison methods from moment library
+    }
+    if (sortingValue1 === nullComparator && sortingValue2 === nullComparator) {
       return 0;
-    } else if (param1 === nullComparator) {
+    } else if (sortingValue1 === nullComparator) {
       return 1;
-    } else if (param2 === nullComparator) {
+    } else if (sortingValue2 === nullComparator) {
       return -1;
     } else {
       return null;
