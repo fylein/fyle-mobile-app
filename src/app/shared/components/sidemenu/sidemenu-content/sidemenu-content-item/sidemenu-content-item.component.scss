@@ -1,0 +1,81 @@
+@import '../../../../../../theme/colors.scss';
+
+.sidemenu-item {
+  --inner-border-width: 0;
+  --padding-start: 0 !important;
+  --min-height: 50px;
+
+  &--disabled {
+    opacity: 0.2;
+  }
+
+  &--active {
+    border-left: 3px solid #ff4d79;
+    --background: #{$blue-3};
+  }
+
+  &__divider {
+    margin: 8px 0;
+    border-bottom: 1px solid $border-translucent-grey;
+  }
+
+  &__content {
+    width: 100%;
+    border: 0;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    background: transparent;
+    color: $grey-light;
+    text-decoration: none;
+    font-size: 14px;
+
+    &--active {
+      ion-icon {
+        fill: white !important;
+      }
+      color: white;
+    }
+  }
+
+  &__icon-container {
+    max-width: 32px;
+    padding-left: 8px;
+
+    &__icon {
+      height: 24px;
+      width: 24px;
+      fill: $grey-light;
+      vertical-align: text-bottom;
+
+      &--sm {
+        width: 20px;
+        height: 20px;
+        padding-left: 2px;
+      }
+    }
+  }
+
+  &__label-container {
+    max-width: calc(100% - 64px);
+
+    &__label {
+      padding-left: 16px;
+      padding-top: 4px;
+    }
+  }
+
+  &__dropdown-container {
+    max-width: 32px;
+
+    &__icon {
+      height: 20px;
+      width: 20px;
+      color: $grey-light;
+
+      &--lg {
+        height: 22px;
+        width: 22px;
+      }
+    }
+  }
+}

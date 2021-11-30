@@ -4,6 +4,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { SwiperModule } from 'swiper/angular';
+import { RouterModule } from '@angular/router';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -103,6 +104,7 @@ import { SidemenuComponent } from './components/sidemenu/sidemenu.component';
 import { SidemenuHeaderComponent } from './components/sidemenu/sidemenu-header/sidemenu-header.component';
 import { SidemenuFooterComponent } from './components/sidemenu/sidemenu-footer/sidemenu-footer.component';
 import { SidemenuContentComponent } from './components/sidemenu/sidemenu-content/sidemenu-content.component';
+import { SidemenuContentItemComponent } from './components/sidemenu/sidemenu-content/sidemenu-content-item/sidemenu-content-item.component';
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
 
@@ -192,12 +194,14 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     SidemenuHeaderComponent,
     SidemenuFooterComponent,
     SidemenuContentComponent,
+    SidemenuContentItemComponent,
     FyNavFooterComponent,
   ],
   imports: [
     CommonModule,
     IonicModule,
     FormsModule,
+    RouterModule,
     ReactiveFormsModule,
     MatInputModule,
     MatFormFieldModule,
