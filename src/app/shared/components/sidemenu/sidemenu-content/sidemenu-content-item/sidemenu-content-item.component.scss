@@ -10,7 +10,7 @@
   }
 
   &--active {
-    border-left: 3px solid #ff4d79;
+    border-left: 3px solid $brand-primary;
     --background: #{$blue-3};
   }
 
@@ -31,9 +31,9 @@
 
     &--active {
       ion-icon {
-        fill: white !important;
+        fill: $pure-white !important;
       }
-      color: white;
+      color: $pure-white;
     }
   }
 
