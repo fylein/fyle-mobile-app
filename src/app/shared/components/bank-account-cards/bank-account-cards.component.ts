@@ -21,8 +21,6 @@ export class BankAccountCardsComponent implements OnInit {
 
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
-  selectedCard;
-
   pagination = {
     renderBullet(index, className) {
       return '<span class="fyle ' + className + '"> </span>';
