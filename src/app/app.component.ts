@@ -504,7 +504,7 @@ export class AppComponent implements OnInit {
           orgSettings.org_personal_cards_settings.allowed &&
           orgSettings.org_personal_cards_settings.enabled &&
           orgUserSettings.personal_cards_settings?.enabled &&
-          orgUserSettings.personal_cards_settings?.personal_cards_data_aggregator.length > 0,
+          orgUserSettings.personal_cards_settings?.personal_cards_data_aggregator === 'YODLEE',
         icon: 'fy-cards-new',
         route: ['/', 'enterprise', 'personal_cards'],
       },
