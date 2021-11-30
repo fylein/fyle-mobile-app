@@ -9,6 +9,8 @@ import * as moment from 'moment';
   providedIn: 'root',
 })
 export class UtilityService {
+  readonly EPOCH = 19700101;
+
   constructor() {}
 
   discardNullChar(str) {
@@ -113,7 +115,7 @@ export class UtilityService {
     if (sortParam === SortingParam.creationDate) {
       return advance.areq_created_at ? moment(advance.areq_created_at) : moment(advance.adv_created_at);
     } else if (sortParam === SortingParam.approvalDate) {
-      return advance.areq_approved_at ? moment(advance.areq_approved_at) : moment(19700101).toString();
+      return advance.areq_approved_at ? moment(advance.areq_approved_at) : moment(this.EPOCH).toString();
     } else if (sortParam === SortingParam.project) {
       return advance.project_name;
     }
@@ -151,7 +153,7 @@ export class UtilityService {
     if (sortingParam === SortingParam.project) {
       nullComparator = null;
     } else {
-      nullComparator = moment(19700101).toString(); //needed to allow comparison using === without using comparison methods from moment library
+      nullComparator = moment(this.EPOCH).toString(); //needed to allow comparison using === without using comparison methods from moment library
     }
     if (sortingValue1 === nullComparator && sortingValue2 === nullComparator) {
       return 0;
