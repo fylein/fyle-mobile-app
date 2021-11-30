@@ -916,34 +916,34 @@ export class TrackingService {
 
   //Personal Cards
   personalCardsViewed(properties = {}) {
-    this.eventTrack('personal cards page opened', properties);
+    this.eventTrack('Personal cards page opened', properties);
   }
 
   newCardLinkedOnPersonalCards(properties = {}) {
-    this.eventTrack('new card linked on personal cards', properties);
+    this.eventTrack('New card linked on personal cards', properties);
   }
 
   cardDeletedOnPersonalCards(properties = {}) {
-    this.eventTrack('card deleted on personal cards', properties);
+    this.eventTrack('Card deleted on personal cards', properties);
   }
 
   newExpenseCreatedFromPersonalCard(properties = {}) {
-    this.eventTrack('new expense created from personal card txn', properties);
+    this.eventTrack('New expense created from personal card transaction', properties);
   }
 
   oldExpensematchedFromPersonalCard(properties = {}) {
-    this.eventTrack('expense matched created from personal card txn', properties);
+    this.eventTrack('Expense matched created from personal card transaction', properties);
   }
 
   unmatchedExpensesFromPersonalCard(properties = {}) {
-    this.eventTrack('expense matched created from personal card txn', properties);
+    this.eventTrack('Expense matched created from personal card transaction', properties);
   }
 
   transactionsHiddenOnPersonalCards(properties = {}) {
-    this.eventTrack('txns hiden on perosnal cards', properties);
+    this.eventTrack('Transactions hidden on personal cards', properties);
   }
 
   transactionsFetchedOnPersonalCards(properties = {}) {
-    this.eventTrack('txns hiden on perosnal cards', properties);
+    this.eventTrack('Transactions fetched on perosnal cards', properties);
   }
 }
