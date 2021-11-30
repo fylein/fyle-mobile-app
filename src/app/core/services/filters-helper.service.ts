@@ -1,40 +1,43 @@
 import { Injectable } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
+import { ModalController } from '@ionic/angular';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { AdvancesStates } from '../models/advances-states.model';
+import { SortingParam } from '../models/sorting-param.model';
+import { SortingDirection } from '../models/sorting-direction.model';
+import { SortingValue } from '../models/sorting-value.model';
+import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
+import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 
 type Filters = Partial<{
   state: AdvancesStates[];
-  sortParam: string;
-  sortDir: string;
+  sortParam: SortingParam;
+  sortDir: SortingDirection;
 }>;
 
 @Injectable({
   providedIn: 'root',
 })
 export class FiltersHelperService {
-  constructor() {}
+  constructor(private titleCasePipe: TitleCasePipe, private modalController: ModalController) {}
 
   generateFilterPills(filters: Filters) {
     const filterPills: FilterPill[] = [];
+
     const filterPillsMap = {
-      crDateNewToOld: 'creation date - new to old',
-      crDateOldToNew: 'creation date - old to new',
-      appDateNewToOld: 'approval date - new to old',
-      appDateOldToNew: 'approval date - old to new',
-      projectAToZ: 'project - A to Z',
-      projectZToA: 'project - Z to A',
+      [SortingValue.creationDateAsc]: 'creation date - new to old',
+      [SortingValue.creationDateDesc]: 'creation date - old to new',
+      [SortingValue.approvalDateAsc]: 'approval date - new to old',
+      [SortingValue.approvalDateDesc]: 'approval date - old to new',
+      [SortingValue.projectAsc]: 'project - A to Z',
+      [SortingValue.projectDesc]: 'project - Z to A',
     };
 
-    //for state filters
+    const sortString = this.getSortString(filters.sortParam, filters.sortDir);
+
     if (filters.state && filters.state.length) {
-      const capitalizedStates = filters.state.map(
-        (state) =>
-          state
-            .toLowerCase()
-            .replace(/_/g, ' ')
-            .replace(/\b\w/g, (l) => l.toUpperCase()) //capitalizing first letter of each word
-      );
+      const capitalizedStates = filters.state.map((state) => this.titleCasePipe.transform(state.replace(/_/g, ' ')));
 
       filterPills.push({
         label: 'State',
@@ -43,12 +46,11 @@ export class FiltersHelperService {
       });
     }
 
-    //for sorting filters
     if (filters.sortParam) {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
-        value: filterPillsMap[filters.sortParam],
+        value: filterPillsMap[sortString],
       });
     }
 
@@ -66,7 +68,7 @@ export class FiltersHelperService {
     }
 
     if (sortBy && sortBy.value) {
-      generatedFilters.sortParam = sortBy.value;
+      generatedFilters.sortParam = this.getSortParam(sortBy.value);
       generatedFilters.sortDir = this.getSortDir(sortBy.value);
     }
     return generatedFilters;
@@ -80,31 +82,93 @@ export class FiltersHelperService {
       sortDir: 'Sort Direction',
     };
 
-    for (const key in filters) {
+    for (const key of Object.keys(filters)) {
       if (filters[key]) {
-        generatedFilters.push({
-          name: filtersMap[key],
-          value: filters[key],
-        });
+        if (key === 'sortParam') {
+          generatedFilters.push({
+            name: filtersMap[key],
+            value: this.getSortString(filters[key], filters.sortDir),
+          });
+        } else {
+          generatedFilters.push({
+            name: filtersMap[key],
+            value: filters[key],
+          });
+        }
       }
     }
-
     return generatedFilters;
   }
 
-  private getSortDir(sortParam: string) {
-    let sortDir: string;
+  async openFilterModal(filters: Filters, filterOptions: FilterOptions<string>[], activeFilterInitialName?: string) {
+    const filterPopover = await this.modalController.create({
+      component: FyFiltersComponent,
+      componentProps: {
+        filterOptions,
+        selectedFilterValues: this.generateSelectedFilters(filters),
+        activeFilterInitialName,
+      },
+      cssClass: 'dialog-popover',
+    });
 
-    if (sortParam.includes('NewToOld')) {
-      sortDir = 'desc';
-    } else if (sortParam.includes('OldToNew')) {
-      sortDir = 'asc';
-    } else if (sortParam.includes('AToZ')) {
-      sortDir = 'asc';
-    } else if (sortParam.includes('ZToA')) {
-      sortDir = 'desc';
+    await filterPopover.present();
+
+    const { data } = await filterPopover.onWillDismiss();
+    if (data) {
+      const filters = this.convertDataToFilters(data);
+      return filters;
+    }
+  }
+
+  private getSortParam(sortValue: string) {
+    let sortParam: SortingParam;
+    if (sortValue.includes('crDate')) {
+      sortParam = SortingParam.creationDate;
+    } else if (sortValue.includes('appDate')) {
+      sortParam = SortingParam.approvalDate;
+    } else if (sortValue.includes('project')) {
+      sortParam = SortingParam.project;
     }
 
+    return sortParam;
+  }
+
+  private getSortDir(sortValue: string) {
+    let sortDir: SortingDirection;
+
+    if (sortValue.includes('NewToOld') || sortValue.includes('ZToA')) {
+      sortDir = SortingDirection.descending;
+    } else if (sortValue.includes('OldToNew') || sortValue.includes('AToZ')) {
+      sortDir = SortingDirection.ascending;
+    }
     return sortDir;
+  }
+
+  private getSortString(sortParam: SortingParam, sortDir: SortingDirection) {
+    //constructs a string that incorporates both sort param and direction which is the format understood
+    //by the filter modal component
+    let sortString = '';
+
+    if (sortParam === SortingParam.creationDate) {
+      if (sortDir === SortingDirection.ascending) {
+        sortString = 'crDateOldToNew';
+      } else {
+        sortString = 'crDateNewToOld';
+      }
+    } else if (sortParam === SortingParam.approvalDate) {
+      if (sortDir === SortingDirection.ascending) {
+        sortString = 'appDateOldToNew';
+      } else {
+        sortString = 'appDateNewToOld';
+      }
+    } else if (sortParam === SortingParam.project) {
+      if (sortDir === SortingDirection.ascending) {
+        sortString = 'projectAToZ';
+      } else {
+        sortString = 'projectZToA';
+      }
+    }
+
+    return sortString;
   }
 }

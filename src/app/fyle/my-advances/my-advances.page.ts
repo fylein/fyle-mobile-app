@@ -23,18 +23,22 @@ import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { NetworkService } from '../../core/services/network.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
 import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
 
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
-import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
-import { UtilityService } from 'src/app/core/services/utility.service';
+import { SortingParam } from 'src/app/core/models/sorting-param.model';
+import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
+import { SortingValue } from 'src/app/core/models/sorting-value.model';
+
+import { cloneDeep } from 'lodash';
 
 type Filters = Partial<{
   state: AdvancesStates[];
-  sortParam: string;
-  sortDir: string;
+  sortParam: SortingParam;
+  sortDir: SortingDirection;
 }>;
 
 @Component({
@@ -174,13 +178,13 @@ export class MyAdvancesPage {
             //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
             this.filterParams$.pipe(
               map((filters) => {
-                let newArr = [...advArray];
+                let newArr = cloneDeep(advArray);
 
                 if (filters && filters.state && filters.state.length > 0) {
                   newArr = advArray.filter((adv) => filters.state.includes(adv.areq_state));
                 }
 
-                newArr = this.utilityService.sortAllAdvances(filters, newArr);
+                newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
                 return newArr;
               })
             )
@@ -298,67 +302,59 @@ export class MyAdvancesPage {
   }
 
   async openFilters(activeFilterInitialName?: string) {
-    const filterPopover = await this.modalController.create({
-      component: FyFiltersComponent,
-      componentProps: {
-        filterOptions: [
+    const filterOptions = [
+      {
+        name: 'State',
+        optionType: FilterOptionType.multiselect,
+        options: [
           {
-            name: 'State',
-            optionType: FilterOptionType.multiselect,
-            options: [
-              {
-                label: 'Draft',
-                value: AdvancesStates.draft,
-              },
+            label: 'Draft',
+            value: AdvancesStates.draft,
+          },
 
-              {
-                label: 'Sent Back',
-                value: AdvancesStates.sentBack,
-              },
-            ],
-          } as FilterOptions<string>,
           {
-            name: 'Sort By',
-            optionType: FilterOptionType.singleselect,
-            options: [
-              {
-                label: 'Creation Date - New to Old',
-                value: 'crDateNewToOld',
-              },
-              {
-                label: 'Creation Date - Old to New',
-                value: 'crDateOldToNew',
-              },
-              {
-                label: 'Approval Date - New to Old',
-                value: 'appDateNewToOld',
-              },
-              {
-                label: 'Approval Date - Old to New',
-                value: 'appDateOldToNew',
-              },
-              {
-                label: 'Project - A to Z',
-                value: 'projectAToZ',
-              },
-              {
-                label: 'Project - Z to A',
-                value: 'projectZToA',
-              },
-            ],
-          } as FilterOptions<string>,
+            label: 'Sent Back',
+            value: AdvancesStates.sentBack,
+          },
         ],
-        selectedFilterValues: this.filtersHelperService.generateSelectedFilters(this.filterParams$.value),
-        activeFilterInitialName,
-      },
-      cssClass: 'dialog-popover',
-    });
-
-    await filterPopover.present();
-
-    const { data } = await filterPopover.onWillDismiss();
-    if (data) {
-      const filters = this.filtersHelperService.convertDataToFilters(data);
+      } as FilterOptions<string>,
+      {
+        name: 'Sort By',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Creation Date - New to Old',
+            value: SortingValue.creationDateAsc,
+          },
+          {
+            label: 'Creation Date - Old to New',
+            value: SortingValue.creationDateDesc,
+          },
+          {
+            label: 'Approval Date - New to Old',
+            value: SortingValue.approvalDateAsc,
+          },
+          {
+            label: 'Approval Date - Old to New',
+            value: SortingValue.approvalDateDesc,
+          },
+          {
+            label: 'Project - A to Z',
+            value: SortingValue.projectAsc,
+          },
+          {
+            label: 'Project - Z to A',
+            value: SortingValue.projectDesc,
+          },
+        ],
+      } as FilterOptions<string>,
+    ];
+    const filters = await this.filtersHelperService.openFilterModal(
+      this.filterParams$.value,
+      filterOptions,
+      activeFilterInitialName
+    );
+    if (filters) {
       this.filterParams$.next(filters);
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
     }

@@ -18,6 +18,29 @@
     z-index: 999;
   }
 
+  &--header-minimal {
+    display: flex;
+    flex-direction: row;
+  }
+
+  &--card-details-minimal {
+    position: relative;
+    min-height: 35px;
+    width: 100%;
+    background: url('../../../../../assets/images/personal-card-bg.png') no-repeat bottom;
+    background-size: 100% 100%;
+    box-shadow: 0px 2px 8px $transparent-pearl-grey;
+    border-radius: 8px;
+    z-index: 999;
+  }
+
+  &--account-info-minimal {
+    font-size: 12px;
+    color: $pure-white;
+    padding-top: 10px;
+    text-align: initial;
+  }
+
   &--bank-name {
     font-weight: 700;
     font-size: 18px;
@@ -31,6 +54,7 @@
     font-size: 12px;
     color: $pure-white;
     padding-top: 0;
+    text-align: initial;
 
     &__type {
       background: $transparent-grey;
@@ -64,6 +88,6 @@
 
   &--action-icon {
     font-size: 18px;
-    margin-top: 4px;
+    margin-top: 4px 4px 0 0;
   }
 }

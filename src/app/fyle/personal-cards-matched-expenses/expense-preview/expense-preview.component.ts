@@ -1,8 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
-import { noop } from 'rxjs';
-import { map, finalize } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -23,6 +22,10 @@ export class ExpensePreviewComponent implements OnInit {
   expenseDetails$;
 
   loading = false;
+
+  unMatching = false;
+
+  type: string;
 
   isIos = false;
 
@@ -62,7 +65,24 @@ export class ExpensePreviewComponent implements OnInit {
       });
   }
 
-  viewExpense() {
+  unmatchExpense() {
+    this.unMatching = true;
+    this.personalCardsService
+      .unmatchExpense(this.expenseId, this.cardTxnId)
+      .pipe(finalize(() => (this.unMatching = false)))
+      .subscribe(() => {
+        this.modalController.dismiss();
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', {
+            message: 'Successfully unmatched the expense.',
+          }),
+          panelClass: ['msb-success'],
+        });
+        this.router.navigate(['/', 'enterprise', 'personal_cards']);
+      });
+  }
+
+  editExpense() {
     this.modalController.dismiss();
     this.router.navigate([
       '/',

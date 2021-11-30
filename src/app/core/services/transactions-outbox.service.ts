@@ -532,4 +532,8 @@ export class TransactionsOutboxService {
 
     return txnIds.indexOf(txnId) > -1;
   }
+
+  isPDF(type: string) {
+    return ['application/pdf', 'pdf'].indexOf(type) > -1;
+  }
 }
