@@ -20,6 +20,23 @@ const { Device } = Plugins;
 })
 export class RefinerService {
   isConnected$: Observable<boolean>;
+  americasCurrencyList = ['USD', 'XCD', 'ARS', 'AWG', 'BSD', 'BBD', 'BMD', 'BOB', 'BOV', 'BRL',
+      'CAD', 'KYD', 'CLF', 'CLP', 'COP', 'COU', 'CRC', 'CUC', 'CUP', 'DOP',
+      'SVC', 'FKP', 'GTQ', 'GYD', 'HTG', 'HNL', 'JMD', 'MXN', 'MXV', 'NIO',
+      'PAB', 'PYG', 'PEN', 'SHP', 'SRD', 'TTD', 'USN', 'UYI', 'UYU', 'VEF'];
+
+  apacCurrencyList = ['AFN', 'AUD', 'BDT', 'BTN', 'BND', 'KHR', 'CNY', 'NZD', 'FJD', 'HKD', 'IDR', 'JPY', 'KPW',
+    'KRW', 'LAK', 'MOP', 'MYR', 'MUR', 'MNT', 'MMK', 'NPR', 'PKR', 'PGK', 'PHP', 'WST', 'SGD',
+    'SBD', 'LKR', 'TWD', 'THB', 'XOF', 'TOP', 'TMT', 'UZS', 'VUV', 'VND', 'XPF'];
+
+  europeCurrencyList = ['EUR', 'ALL', 'AMD', 'AZN', 'BYR', 'BZD', 'BAM', 'NOK', 'BGN', 'HRK', 'ANG', 'CZK',
+    'DKK', 'XPF', 'GEL', 'GBP', 'HUF', 'ISK', 'KZT', 'KGS', 'CHF', 'MKD', 'MDL', 'PLN',
+    'RON', 'RUB', 'RSD', 'SEK', 'CHE', 'CHW', 'TJS', 'TRY', 'UAH'];
+
+  middleEastAfricaCurrencyList = ['DZD', 'AOA', 'BHD', 'XOF', 'BWP', 'BIF', 'XAF', 'CVE', 'KMF', 'CDF', 'DJF', 'EGP', 'ERN', 'ETB', 'GMD', 'GHS',
+    'GIP', 'GNF', 'IRR', 'IQD', 'ILS', 'JOD', 'KES', 'KWD', 'LBP', 'LSL', 'ZAR', 'LRD', 'LYD', 'MGA', 'MWK', 'MVR',
+    'MRO', 'XUA', 'MAD', 'MZN', 'NAD', 'NGN', 'OMR', 'QAR', 'RWF', 'STD', 'SAR', 'SCR', 'SLL', 'SOS', 'SSP', 'SDG',
+    'SZL', 'SYP', 'TZS', 'TND', 'UGX', 'AED', 'YER', 'ZMW', 'ZWL'];
 
   constructor(
     private offlineService: OfflineService,
@@ -39,15 +56,31 @@ export class RefinerService {
     this.isConnected$ = concat(that.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
+  getRegion(homeCurrency: string) {
+    if (homeCurrency === 'INR') {
+      return 'India';
+    } else if (this.americasCurrencyList.includes(homeCurrency)) {
+      return 'International Americas';
+    } else if (this.europeCurrencyList.includes(homeCurrency)) {
+      return 'Europe';
+    } else if (this.apacCurrencyList.includes(homeCurrency)){
+      return 'International APAC';
+    } else if (this.middleEastAfricaCurrencyList.includes(homeCurrency)) {
+      return 'International Africa';
+    } else {
+      return 'Undefined';
+    }
+  };
+
   isNonDemoOrg(orgName: string) {
     return orgName.toLowerCase().indexOf('fyle for') === -1;
   };
 
   canStartSurvey(homeCurrency: string, eou: ExtendedOrgUser) {
-    const usdOrg = homeCurrency && homeCurrency === 'USD' && eou && eou.ou && eou.ou.org_name && this.isNonDemoOrg(eou.ou.org_name);
+    const isNonDemoOrg = eou && eou.ou && eou.ou.org_name && this.isNonDemoOrg(eou.ou.org_name);
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
     return isSwitchedToDelegator$.pipe(
-      map((isSwitchedToDelegator) => usdOrg && !isSwitchedToDelegator));
+      map((isSwitchedToDelegator) => isNonDemoOrg && !isSwitchedToDelegator));
   };
 
   startSurvey(properties: RefinerProperties) {
@@ -71,7 +104,7 @@ export class RefinerService {
           account: {
             company_id: eou.ou.org_id,
             company_name: eou.ou.org_name,
-            region: 'International Americas'
+            region: this.getRegion(homeCurrency) + ' - ' + homeCurrency
           },
           source: 'Mobile' + ' - ' + device,
           is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
