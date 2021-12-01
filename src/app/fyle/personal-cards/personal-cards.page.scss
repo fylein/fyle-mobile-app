@@ -245,12 +245,14 @@
 
   &--segment-block {
     padding-right: 16px;
+    margin: 3px;
+    width: 90%;
 
     &__btn {
       color: $blue-black;
-      font-size: 10px;
+      font-size: 3.5vw;
       font-weight: 500;
-      width: 100%;
+      width: 150px;
       text-transform: none;
     }
 
