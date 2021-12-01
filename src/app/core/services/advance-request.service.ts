@@ -21,14 +21,22 @@ import { CustomField } from '../models/custom_field.model';
 import { File } from '../models/file.model';
 import { AdvancesStates } from '../models/advances-states.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { SortingDirection } from '../models/sorting-direction.model';
+import { SortingParam } from '../models/sorting-param.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
+
+type Filters = Partial<{
+  state: AdvancesStates[];
+  sortParam: SortingParam;
+  sortDir: SortingDirection;
+}>;
 
 type config = Partial<{
   offset: number;
   limit: number;
   queryParams: any;
-  filter: AdvancesStates[];
+  filter: Filters;
 }>;
 
 @Injectable({
@@ -178,14 +186,13 @@ export class AdvanceRequestService {
       offset: 0,
       limit: 10,
       queryParams: {},
-      filter: [AdvancesStates.pending],
     }
   ) {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => {
         const defaultParams = {};
-        const isPending = config.filter.includes(AdvancesStates.pending);
-        const isApproved = config.filter.includes(AdvancesStates.approved);
+        const isPending = config.filter.state.includes(AdvancesStates.pending);
+        const isApproved = config.filter.state.includes(AdvancesStates.approved);
         let approvalState = '';
 
         if ((isPending && isApproved) || (!isPending && !isApproved)) {
@@ -198,11 +205,12 @@ export class AdvanceRequestService {
 
         defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = [approvalState];
 
+        const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
         return this.apiv2Service.get('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
-            order: 'areq_created_at.desc',
+            order,
             areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
             ...defaultParams,
             ...config.queryParams,
@@ -301,7 +309,7 @@ export class AdvanceRequestService {
     }).pipe(map((advanceRequest) => advanceRequest.count));
   }
 
-  getTeamAdvanceRequestsCount(queryParams: {}, filter: any) {
+  getTeamAdvanceRequestsCount(queryParams: {}, filter: Filters) {
     return this.getTeamAdvanceRequests({
       offset: 0,
       limit: 1,
@@ -440,5 +448,26 @@ export class AdvanceRequestService {
         }
       })
     );
+  }
+
+  private getSortOrder(sortParam: SortingParam, sortDir: SortingDirection) {
+    let order: string;
+    if (sortParam === SortingParam.creationDate) {
+      order = 'areq_created_at';
+    } else if (sortParam === SortingParam.approvalDate) {
+      order = 'areq_approved_at';
+    } else if (sortParam === SortingParam.project) {
+      order = 'project_name';
+    } else {
+      order = 'areq_created_at'; //default
+    }
+
+    if (sortDir === SortingDirection.ascending) {
+      order += '.asc';
+    } else {
+      order += '.desc'; //default
+    }
+
+    return order;
   }
 }

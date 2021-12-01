@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
 
 import { Observable, Subject, from, noop } from 'rxjs';
 import { concatMap, switchMap, finalize, map, scan, shareReplay, take } from 'rxjs/operators';
@@ -13,12 +12,14 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
-import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import { SortingParam } from 'src/app/core/models/sorting-param.model';
+import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
+import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 type Filters = Partial<{
   state: AdvancesStates[];
-  sortParam: string;
-  sortDir: string;
+  sortParam: SortingParam;
+  sortDir: SortingDirection;
 }>;
 @Component({
   selector: 'app-team-advance',
@@ -28,7 +29,12 @@ type Filters = Partial<{
 export class TeamAdvancePage {
   teamAdvancerequests$: Observable<any[]>;
 
-  loadData$: Subject<{ pageNumber: number; state: AdvancesStates[] }> = new Subject();
+  loadData$: Subject<{
+    pageNumber: number;
+    state: AdvancesStates[];
+    sortParam: SortingParam;
+    sortDir: SortingDirection;
+  }> = new Subject();
 
   count$: Observable<number>;
 
@@ -44,8 +50,7 @@ export class TeamAdvancePage {
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
     private router: Router,
-    private filtersHelperService: FiltersHelperService,
-    private modalController: ModalController
+    private filtersHelperService: FiltersHelperService
   ) {}
 
   ionViewWillEnter() {
@@ -54,7 +59,7 @@ export class TeamAdvancePage {
     this.currentPageNumber = 1;
 
     this.teamAdvancerequests$ = this.loadData$.pipe(
-      concatMap(({ pageNumber, state }) =>
+      concatMap(({ pageNumber, state, sortParam, sortDir }) =>
         from(this.loaderService.showLoader()).pipe(
           switchMap(() =>
             this.advanceRequestService.getTeamAdvanceRequests({
@@ -63,7 +68,11 @@ export class TeamAdvancePage {
               queryParams: {
                 ...this.getExtraParams(state),
               },
-              filter: state,
+              filter: {
+                state,
+                sortParam,
+                sortDir,
+              },
             })
           ),
           finalize(() => from(this.loaderService.hideLoader()))
@@ -80,12 +89,16 @@ export class TeamAdvancePage {
     );
 
     this.count$ = this.loadData$.pipe(
-      switchMap(({ state }) =>
+      switchMap(({ state, sortParam, sortDir }) =>
         this.advanceRequestService.getTeamAdvanceRequestsCount(
           {
             ...this.getExtraParams(state),
           },
-          state
+          {
+            state,
+            sortParam,
+            sortDir,
+          }
         )
       ),
       shareReplay(1)
@@ -104,7 +117,12 @@ export class TeamAdvancePage {
     this.teamAdvancerequests$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
-    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.filters.state || [] });
+    this.loadData$.next({
+      pageNumber: this.currentPageNumber,
+      state: this.filters.state || [],
+      sortParam: this.filters.sortParam,
+      sortDir: this.filters.sortDir,
+    });
   }
 
   onAdvanceClick(areq: ExtendedAdvanceRequest) {
@@ -113,44 +131,74 @@ export class TeamAdvancePage {
 
   changeState(event?: any, incrementPageNumber = false) {
     this.currentPageNumber = incrementPageNumber ? this.currentPageNumber + 1 : 1;
-    this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.filters.state || [] });
+    this.loadData$.next({
+      pageNumber: this.currentPageNumber,
+      state: this.filters.state || [],
+      sortParam: this.filters.sortParam,
+      sortDir: this.filters.sortDir,
+    });
     if (event) {
       event.target.complete();
     }
   }
 
   async openFilters(activeFilterInitialName?: string) {
-    const filterPopover = await this.modalController.create({
-      component: FyFiltersComponent,
-      componentProps: {
-        filterOptions: [
+    const filterOptions = [
+      {
+        name: 'State',
+        optionType: FilterOptionType.multiselect,
+        options: [
           {
-            name: 'State',
-            optionType: FilterOptionType.multiselect,
-            options: [
-              {
-                label: 'Approval Pending',
-                value: AdvancesStates.pending,
-              },
+            label: 'Approval Pending',
+            value: AdvancesStates.pending,
+          },
 
-              {
-                label: 'Approved',
-                value: AdvancesStates.approved,
-              },
-            ],
-          } as FilterOptions<string>,
+          {
+            label: 'Approved',
+            value: AdvancesStates.approved,
+          },
         ],
-        selectedFilterValues: this.filtersHelperService.generateSelectedFilters(this.filters),
-        activeFilterInitialName,
-      },
-      cssClass: 'dialog-popover',
-    });
+      } as FilterOptions<string>,
+      {
+        name: 'Sort By',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Creation Date - New to Old',
+            value: SortingValue.creationDateAsc,
+          },
+          {
+            label: 'Creation Date - Old to New',
+            value: SortingValue.creationDateDesc,
+          },
+          {
+            label: 'Approval Date - New to Old',
+            value: SortingValue.approvalDateAsc,
+          },
+          {
+            label: 'Approval Date - Old to New',
+            value: SortingValue.approvalDateDesc,
+          },
+          {
+            label: 'Project - A to Z',
+            value: SortingValue.projectAsc,
+          },
+          {
+            label: 'Project - Z to A',
+            value: SortingValue.projectDesc,
+          },
+        ],
+      } as FilterOptions<string>,
+    ];
 
-    await filterPopover.present();
+    const filters = await this.filtersHelperService.openFilterModal(
+      this.filters,
+      filterOptions,
+      activeFilterInitialName
+    );
 
-    const { data } = await filterPopover.onWillDismiss();
-    if (data) {
-      this.filters = this.filtersHelperService.convertDataToFilters(data);
+    if (filters) {
+      this.filters = filters;
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filters);
       this.changeState();
     }
@@ -190,6 +238,8 @@ export class TeamAdvancePage {
   setupDefaultFilters() {
     this.filters = {
       state: [AdvancesStates.pending],
+      sortParam: SortingParam.creationDate,
+      sortDir: SortingDirection.descending,
     };
     this.filterPills = this.filtersHelperService.generateFilterPills(this.filters);
   }
