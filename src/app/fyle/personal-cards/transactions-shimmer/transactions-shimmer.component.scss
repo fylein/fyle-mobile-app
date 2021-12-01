@@ -1,0 +1,30 @@
+.shimmer {
+  &--section {
+    margin-bottom: 30px;
+  }
+
+  &--date {
+    width: 30%;
+    height: 25px;
+  }
+
+  &--header {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+  }
+
+  &--desc {
+    width: 65%;
+    height: 22px;
+  }
+
+  &--amount {
+    width: 25%;
+  }
+
+  &--sub-header {
+    width: 35%;
+    height: 20px;
+  }
+}

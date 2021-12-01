@@ -760,6 +760,23 @@ export class TrackingService {
     this.eventTrack('dashboard corporate card clicked', properties);
   }
 
+  //View expenses
+  viewExpenseClicked(properties) {
+    this.eventTrack('View expense clicked', properties);
+  }
+
+  expenseNavClicked(properties) {
+    this.eventTrack('Expense navigation clicked', properties);
+  }
+
+  expenseFlagUnflagClicked(properties) {
+    this.eventTrack('Expense flagged or unflagged', properties);
+  }
+
+  expenseRemovedByApprover(properties = {}) {
+    this.eventTrack('Expense removed from report by approver', properties);
+  }
+
   // Footer
   footerButtonClicked(properties) {
     this.eventTrack('footer button clicked', properties);
@@ -879,5 +896,54 @@ export class TrackingService {
   //Actions inside view report info modal
   viewReportInfo(properties) {
     this.eventTrack('View Report Info', properties);
+  }
+
+  // Team Advances
+  async sendBackAdvance(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Send Back Advance', properties);
+  }
+
+  async rejectAdvance(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Reject Advance', properties);
+  }
+
+  //Toggle settings
+  onSettingsToggle(properties) {
+    this.eventTrack('Toggle Setting', properties);
+  }
+
+  //Personal Cards
+  personalCardsViewed(properties = {}) {
+    this.eventTrack('Personal cards page opened', properties);
+  }
+
+  newCardLinkedOnPersonalCards(properties = {}) {
+    this.eventTrack('New card linked on personal cards', properties);
+  }
+
+  cardDeletedOnPersonalCards(properties = {}) {
+    this.eventTrack('Card deleted on personal cards', properties);
+  }
+
+  newExpenseCreatedFromPersonalCard(properties = {}) {
+    this.eventTrack('New expense created from personal card transaction', properties);
+  }
+
+  oldExpensematchedFromPersonalCard(properties = {}) {
+    this.eventTrack('Expense matched created from personal card transaction', properties);
+  }
+
+  unmatchedExpensesFromPersonalCard(properties = {}) {
+    this.eventTrack('Expense matched created from personal card transaction', properties);
+  }
+
+  transactionsHiddenOnPersonalCards(properties = {}) {
+    this.eventTrack('Transactions hidden on personal cards', properties);
+  }
+
+  transactionsFetchedOnPersonalCards(properties = {}) {
+    this.eventTrack('Transactions fetched on perosnal cards', properties);
   }
 }

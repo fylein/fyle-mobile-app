@@ -1,3 +1,4 @@
+@import './../../../theme/colors.scss';
 $reported-color: #4798ff;
 $approved-color: #67bc53;
 $paid-color: #64b5a6;
@@ -13,35 +14,29 @@ $sent-back-color: #da1e28;
     margin: 16px;
   }
 
+  &--btn-container {
+    &__btn {
+      color: $black-light;
+    }
+  }
+
+  &--container {
+    --background: #{$white};
+  }
+
   &--send-back {
     height: 24px;
     width: 24px;
   }
 
   &--card {
-    box-shadow: 0 0 8px #0000001a;
-    border: 1px solid #e5e5e5;
-    margin: 20px 0;
-    padding: 16px;
-    border-radius: 4px;
-
-    &__no-shadow {
-      box-shadow: none;
-    }
-
-    &__block-action {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-    }
-
-    &__zero-state {
-      text-align: center;
-    }
-
-    &__external-component {
-      margin: 0;
-    }
+    background: url('../../../assets/images/card.png') no-repeat bottom;
+    background-size: 100% 100%;
+    margin: 12px 0;
+    padding: 8px;
+    border-radius: 16px;
+    height: 140px;
+    position: relative;
   }
 
   &--view-info {
@@ -49,7 +44,7 @@ $sent-back-color: #da1e28;
     float: right;
     padding: 1px 4px;
     font-size: 12px;
-    font-weight: 400;
+    color: $light-grey;
 
     &__icon {
       height: 18px;
@@ -63,53 +58,81 @@ $sent-back-color: #da1e28;
     }
   }
 
-  &--alert-block {
+  &--approvers-section {
+    background-color: $pure-white;
+    border-radius: 16px;
+    box-shadow: 0px 4px 4px rgba(22, 21, 40, 0.08);
+    margin-top: -10%;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  &--approvers {
+    color: $black-light;
+    padding: 18px 12px 0;
+    font-size: 14px;
+  }
+
+  &--approvers-title-block {
     display: flex;
-    margin: 10px 0;
+    align-items: baseline;
+  }
+
+  &--approvers-list {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 12px;
+  }
+
+  &--approved-date {
+    margin-right: 8px;
+    font-size: 10px;
+    font-weight: normal;
+  }
+
+  &--approver-state-section {
+    display: flex;
     align-items: center;
   }
 
-  &--alert-icon {
-    color: red;
-    font-size: 16px;
-  }
+  &--approver-state-pill {
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    margin-right: 4px;
 
-  &--divider {
-    border-top: 1px solid #e5e5e5;
-    margin: 16px 0;
-  }
-
-  &--approvals {
-    padding-bottom: 8px;
-  }
-
-  &--zero-state-header {
-    font-size: 16px;
-    margin-bottom: 16px;
-    color: #4a4a4a;
-    line-height: 1.5;
-    font-weight: 500;
-    margin-top: 8px;
-  }
-
-  &--zero-state-sub-header {
-    color: #ababab;
-    font-size: 16px;
-    font-weight: 300;
-    line-height: 1.5;
-    margin-bottom: 24px;
-    padding: 0 8px;
-  }
-
-  &--block-action {
-    margin-left: 4px;
-    &__comment {
-      color: #0077ee;
+    &__approval_pending {
+      background-color: $fyled-color;
     }
 
-    &__delete {
-      color: red;
+    &__approval_done {
+      background-color: $approved-color;
     }
+
+    &__approval_disabled {
+      background-color: $gray-3;
+    }
+  }
+
+  &--history-container {
+    background: $pure-white;
+    border-radius: 16px;
+    padding: 24px 0;
+  }
+
+  &--comments {
+    background-color: $pure-white;
+    height: 100%;
+    position: absolute;
+  }
+
+  &--unreported-cta {
+    padding: 10px 16px;
+    background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
+    border-radius: 4px;
+    color: $pure-white;
+    letter-spacing: 0px;
+    font-size: 12px;
   }
 
   &--card-header {
@@ -132,10 +155,6 @@ $sent-back-color: #da1e28;
     }
   }
 
-  &--approver-title {
-    margin-bottom: 10px;
-  }
-
   &--approval-state {
     &__reported {
       color: $reported-color;
@@ -155,11 +174,12 @@ $sent-back-color: #da1e28;
   }
 
   &--report-state-pill {
-    color: white;
     font-size: 12px;
-    padding: 4px 8px;
-    display: inline-block;
-    border-radius: 4px;
+    margin-top: 2px;
+    color: $pure-white;
+    padding: 1px 16px;
+    border-radius: 16px;
+    float: right;
     &__fyled {
       background-color: #f90;
     }
@@ -193,54 +213,231 @@ $sent-back-color: #da1e28;
     }
   }
 
-  &--currency {
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 700;
-  }
-
-  &--amount {
-    font-size: 24px;
-    color: #000;
-    font-weight: 500;
-  }
-
   &--count {
     font-size: 16px;
     color: #ababab;
     font-weight: 300;
     line-height: 1;
-    margin: 8px 0;
-  }
-
-  &--view-hide-btn {
-    font-size: 16px;
-    color: #0077ee;
-    margin: 16px 0 0;
-  }
-
-  &--share {
-    font-size: 16px;
-    color: #ff3366;
-    font-weight: 500;
-    margin: 0 0 10px;
-  }
-
-  &--clickable {
-    color: #0077ee;
-  }
-
-  &--block-action-icon {
-    color: #ababab;
+    margin-top: 8px;
+    margin-bottom: 8px;
   }
 
   &--primary-cta {
-    height: 48px;
-    display: block;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
-    border-radius: 8px;
     margin: 12px;
+    height: 48px;
+  }
+
+  &--amount {
+    color: $white;
+    float: right;
+  }
+
+  &--purpose-amount-block {
+    display: flex;
+    justify-content: space-between;
+    color: $pure-white;
+
+    &__purpose {
+      font-size: 14px;
+      line-height: 18px;
+      font-weight: 500;
+      max-width: 60%;
+    }
+
+    &__amount {
+      font-size: 20px;
+      font-weight: 500;
+    }
+  }
+
+  &--date-info-block {
+    margin-top: 8px;
+  }
+
+  &--submitted-date {
+    font-weight: 500;
+
+    &__text {
+      color: $light-grey;
+    }
+
+    &__date {
+      color: $pure-white;
+    }
+  }
+
+  &--segment-block-container {
+    --border-width: 0 !important;
+
+    &__segment.ios {
+      margin: 12px auto;
+    }
+
+    &__segment.md {
+      padding: 0 16px;
+      border-bottom: 1px solid $grey-lighter;
+    }
+
+    &__btn {
+      color: $blue-black;
+      font-size: 14px;
+      font-weight: 500;
+      width: 100%;
+    }
+  }
+
+  &--primary-cta {
+    --background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
+    border-radius: 4px;
+    line-height: 18px;
+    color: $pure-white;
+    height: 52px;
+    text-transform: inherit;
+    width: 94%;
+    letter-spacing: 0px;
+    margin: 12px;
+  }
+}
+
+.view-comment {
+  &--container {
+    background: $pure-white;
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
+  }
+
+  &--card {
+    border-radius: 16px;
+    word-break: break-word;
+  }
+
+  &--title {
+    letter-spacing: 0 !important;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  &--self-comment {
+    background-color: $light-blue;
+    margin-left: 24px;
+    margin-right: 10px;
+  }
+
+  &--others-comment {
+    background-color: $light-purple;
+    margin-right: 24px;
+    margin-left: 10px;
+  }
+
+  &--name-container {
+    left: 5px;
+    font-size: 14px;
+    line-height: 18px;
+    color: $black-light;
+    margin-top: 8px;
+  }
+
+  &--comment-timestamp {
+    font-size: 12px;
+    line-height: 20px;
+    color: $grey-light;
+  }
+
+  &--type-comment-block {
+    height: 40px;
+    display: flex;
+    background-color: $pure-white;
+    border: 1px solid $outline-grey;
+    border-radius: 4px;
+    padding: 6px;
+    color: $black-2;
+
+    &:focus {
+      border: 1px solid $black-light;
+    }
+  }
+
+  &--text-area {
+    width: calc(100% - 40px);
+    height: 30px;
+    border: none;
+    padding-top: 5px;
+  }
+
+  &--send-icon {
+    margin-left: 10px;
+    padding: 2px 0;
+  }
+
+  &--add-comment-container {
+    padding: 20px;
+    background-color: $pure-white;
+  }
+
+  &--close {
+    text-transform: none !important;
+  }
+
+  &--profile {
+    height: 44px;
+    width: 44px;
+    border-radius: 50%;
+    box-shadow: 0px -2px 8px rgba(215, 215, 215, 0.25);
+  }
+
+  &--self-profile {
+    background: linear-gradient(0deg, $light-blue, $light-blue);
+    margin-right: 8px;
+  }
+
+  &--others-profile {
+    background: $light-purple;
+    margin-left: 8px;
+  }
+
+  &--profile-icon {
+    margin: 10px;
+    padding: 2px;
+  }
+
+  &--block {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 6px;
+  }
+
+  &--no-date {
+    margin-top: 12px;
+  }
+
+  &--spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+
+  &--date {
+    font-size: 12px;
+    line-height: 20px;
+    color: $grey-light;
+    margin-top: 16px;
+  }
+
+  &--comment-detail {
+    font-size: 16px;
+    line-height: 20px;
+    color: $dark-blue;
+  }
+
+  &--zero-state-block {
+    --overflow: hidden;
+  }
+
+  &--zero-state {
+    margin: 16% 0;
+    padding: 12px 0;
   }
 }

@@ -1,0 +1,169 @@
+@import '../../../theme/colors.scss';
+
+.view-per-diem {
+  &--toolbar {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &--container {
+    padding: 0 16px 16px;
+  }
+
+  &--title {
+    padding: 12px 0 0 12px;
+  }
+
+  &--subtitle {
+    font-size: 12px;
+    line-height: 1.2;
+    color: $black-light;
+    margin-bottom: 10px;
+  }
+
+  &--header-btn-container {
+    margin-right: 10px;
+    &__btn {
+      --padding-start: 8px !important;
+      --padding-end: 8px !important;
+      width: auto !important;
+    }
+  }
+
+  &--policy-container {
+    border-radius: 6px;
+    background: $light-grey;
+    padding: 8px 16px;
+    margin: 8px 0;
+    font-size: 14px;
+    color: $grey-light-2;
+  }
+
+  &--card-container {
+    padding: 14px 16px;
+    margin-top: 16px;
+    background: $purple-gradient;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 400;
+    width: 100%;
+    color: $black-light;
+
+    &__block {
+      width: 100%;
+    }
+
+    &__category {
+      color: $black;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    &__merchant {
+      padding-top: 2px;
+      color: $blue-black;
+    }
+
+    &__project {
+      padding-top: 8px;
+      color: $black-light;
+    }
+
+    &__icon {
+      vertical-align: text-bottom;
+      color: $grey-light;
+      height: 18px;
+      width: 18px;
+    }
+
+    &__amount {
+      font-size: 20px;
+      font-weight: 500;
+      color: $blue-black;
+    }
+
+    &__state-pill {
+      display: inline-block;
+      margin-top: 6px;
+      white-space: nowrap;
+
+      &__state {
+        font-size: 12px;
+        line-height: 1.25;
+        color: $pure-white;
+        background-color: $highlight-black;
+        border-radius: 16px;
+        padding: 5px 15px;
+      }
+
+      &--with-project {
+        padding-top: 20px;
+      }
+    }
+  }
+
+  &--label {
+    color: $black-light;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  &--value {
+    color: $blue-black;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+    padding-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &--icon-container {
+    flex: 0 0 38px;
+    max-height: 38px;
+
+    &__background {
+      background-color: $off-white;
+      border-radius: 50%;
+      height: 100%;
+      display: flex;
+    }
+
+    &__icon {
+      color: $grey-light;
+      height: 18px;
+      width: 18px;
+      margin: auto;
+    }
+
+    &__icon-lg {
+      color: $grey-light;
+      height: 22px;
+      width: 22px;
+      margin: auto;
+    }
+
+    &__icon-stroke-lg {
+      stroke: $grey-light;
+      height: 22px;
+      width: 22px;
+      margin: auto;
+    }
+  }
+
+  &--grid {
+    --ion-grid-padding: 0;
+    --ion-grid-column-padding: 0;
+    margin-top: 16px;
+  }
+
+  &--content-container {
+    margin-left: 8px;
+    width: calc(100% - 46px);
+  }
+
+  &--divider {
+    margin-top: 16px;
+    border-bottom: 1px solid $grey;
+  }
+}

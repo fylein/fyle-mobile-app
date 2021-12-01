@@ -1,59 +1,72 @@
 $black: #161528 !default;
-$black-light: #5a5d72 !default;
 $black-2: #161528 !default;
-$grey-light: #a9acbc !default;
-$grey-light-2: #4a4a4a !default;
-$white: #fafafa !default;
-$grey-lightest: #e6e6e6 !default;
-$pure-white: #fff !default;
-$blue-black: #2c304e !default;
-$translucent-white: #ffffff66 !default;
-$translucent-white-2: #ffffff99 !default;
+$black-3: #0000004d !default;
+$black-4: rgba(0, 0, 0, 0.3) !default;
+$black-light: #5a5d72 !default;
 $translucent-black: rgba(0, 0, 0, 0.2) !default;
+$pure-black: #000 !default;
+
 $grey: #dfdfe2 !default;
-$translucent-grey: #dfdfe280 !default;
 $grey-2: rgba(223, 223, 226, 0.7) !default;
 $gray-3: #ababab !default;
-$highlight-black: #464d57 !default;
-$highlight-green: #66bb6a !default;
-$highlight-blue: #5c98e5 !default;
-$pink-shadow: #d7d7d799 !default;
-$brand-primary: #f36 !default;
-$brand-primary-light: #fe5196 !default;
-$pink: #fe4c8e !default;
-$primary: #f36 !default;
-$primary-shadow: #fe4c8e94 !default;
-$green: #24a148 !default;
-$grey-lighter: #dfdfe2 !default;
-$red: #da1e28 !default;
-$blue: #0077ee !default;
-$blue-1: #2896f3 !default;
-$blue-2: #ebf3fc !default;
-$green-1: #24a148 !default;
-$red-1: #da1e2817 !default;
-$red-2: #b8141d;
 $grey-4: #f9f9f9;
 $grey-5: #e5e5e5;
 $grey-6: #e0e0e0 !default;
-$grey-7: #eee !default;
-$dark-yellow: #e1af05 !default;
-
+$grey-7: #eeeeee !default;
+$grey-8: #f5f5f5 !default;
+$grey-light: #a9acbc !default;
+$grey-light-2: #4a4a4a !default;
+$grey-lighter: #dfdfe2 !default;
+$grey-lightest: #e6e6e6 !default;
 $light-grey: #f2f2f2 !default;
-$border-grey: #dfdfe2d7 !default;
 $lighter-grey: #ececec !default;
-$light-blue: #f7f7fb !default;
-$light-purple: #fbf7f9 !default;
-$outline-grey: #eaeaeb !default;
-$dark-blue: #1c1f36 !default;
-$black-3: #0000004d !default;
-$black-4: rgba(0, 0, 0, 0.3) !default;
 $dark-grey: #414562 !default;
+$outline-grey: #eaeaeb !default;
+$border-grey: #dfdfe2d7 !default;
+$translucent-grey: #dfdfe280 !default;
 $transparent-grey: rgba(255, 255, 255, 0.12) !default;
 $transparent-pearl-grey: rgba(215, 215, 215, 0.5) !default;
 
-$pure-black: #000 !default;
+$white: #fafafa !default;
+$pure-white: #fff !default;
+$translucent-white: #ffffff66 !default;
+$translucent-white-2: #ffffff99 !default;
+$off-white: #f5f5f5 !default;
 
-$pink-gradient: linear-gradient(137.88deg, $brand-primary 14.22%, $brand-primary-light 85.5%);
-$pink-gradient-1: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
-$pink-gradient-2: linear-gradient(162.38deg, $brand-primary 3.01%, $brand-primary-light 111.5%);
-$pink-gradient-3: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
+$highlight-black: #464d57 !default;
+$highlight-green: #66bb6a !default;
+$highlight-blue: #5c98e5 !default;
+
+$pink-shadow: #d7d7d799 !default;
+
+$brand-primary: #ff3366 !default;
+$brand-primary-light: #fe5196 !default;
+
+$pink: #fe4c8e !default;
+
+$primary-shadow: #fe4c8e94 !default;
+
+$green: #24a148 !default;
+$green-1: #24a148 !default;
+
+$blue: #0077ee !default;
+$blue-1: #2896f3 !default;
+$blue-2: #ebf3fc !default;
+$blue-black: #2c304e !default;
+$light-blue: #f7f7fb !default;
+$dark-blue: #1c1f36 !default;
+
+$red: #da1e28 !default;
+$red-1: #da1e2817 !default;
+$red-2: #b8141d;
+
+$dark-yellow: #e1af05 !default;
+
+$light-purple: #fbf7f9 !default;
+
+$purple-gradient: linear-gradient(97.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
+
+$pink-gradient: linear-gradient(162.38deg, $brand-primary 3.01%, $brand-primary-light 111.5%);
+$pink-gradient-light: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
+
+$text-button-grey: #8c8fa6;

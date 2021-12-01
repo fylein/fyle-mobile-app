@@ -11,6 +11,7 @@ import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 import { HighlightPipe } from './pipes/highlight.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake-case-to-space-case.pipe';
+import { ToLowerCase } from './pipes/to-lowercase.pipe';
 import { TripState } from './pipes/trip-state.pipe';
 import { FySelectComponent } from './components/fy-select/fy-select.component';
 import { FySelectModalComponent } from './components/fy-select/fy-select-modal/fy-select-modal.component';
@@ -71,6 +72,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { FyAlertInfoComponent } from './components/fy-alert-info.component.html/fy-alert-info.component';
 import { MatRippleModule } from '@angular/material/core';
 import { ReviewFooterComponent } from './components/review-footer/review-footer.component';
+import { NavigationFooterComponent } from './components/navigation-footer/navigation-footer.component';
 import { FyConnectionComponent } from './components/fy-connection/fy-connection.component';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PopupAlertComponentComponent } from './components/popup-alert-component/popup-alert-component.component';
@@ -94,8 +96,11 @@ import { BankAccountCardsComponent } from './components/bank-account-cards/bank-
 import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
 import { DeleteButtonComponent } from './components/bank-account-cards/bank-account-card/delete-button/delete-button-component';
 import { AddApproversPopoverComponent } from './components/fy-approver/add-approvers-popover/add-approvers-popover.component';
+import { ExpenseCardLiteComponent } from './components/expense-card-lite/expense-card-lite.component';
 import { FyInputPopoverComponent } from './components/fy-input-popover/fy-input-popover.component';
 import { FyPopoverComponent } from './components/fy-popover/fy-popover.component';
+import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
+import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
 
 @NgModule({
   declarations: [
@@ -106,6 +111,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
+    ToLowerCase,
     TripState,
     DateFormatPipe,
     FySelectComponent,
@@ -150,6 +156,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
     ReviewFooterComponent,
+    NavigationFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponentComponent,
@@ -170,8 +177,14 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     BankAccountCardComponent,
     DeleteButtonComponent,
     AddApproversPopoverComponent,
+    ExpenseCardLiteComponent,
+    BankAccountCardsComponent,
+    BankAccountCardComponent,
+    DeleteButtonComponent,
+    PersonalCardTransactionComponent,
     FyInputPopoverComponent,
     FyPopoverComponent,
+    FyNavFooterComponent,
   ],
   imports: [
     CommonModule,
@@ -209,6 +222,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     FyDuplicateDetectionComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
+    ToLowerCase,
     TripState,
     InitialsPipe,
     DelegatedAccMessageComponent,
@@ -239,6 +253,7 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     FyLoadingScreenComponent,
     FyAlertInfoComponent,
     ReviewFooterComponent,
+    NavigationFooterComponent,
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponentComponent,
@@ -254,8 +269,11 @@ import { FyPopoverComponent } from './components/fy-popover/fy-popover.component
     RouteSelectorComponent,
     MatChipsModule,
     PolicyViolationDetailsComponent,
+    ExpenseCardLiteComponent,
     BankAccountCardsComponent,
+    PersonalCardTransactionComponent,
     FyPopoverComponent,
+    FyNavFooterComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
 })
