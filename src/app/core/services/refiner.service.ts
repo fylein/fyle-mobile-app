@@ -59,14 +59,16 @@ export class RefinerService {
   getRegion(homeCurrency: string) {
     if (homeCurrency === 'INR') {
       return 'India';
-    } else if (this.americasCurrencyList.indexOf(homeCurrency) > -1) {
+    } else if (this.americasCurrencyList.includes(homeCurrency)) {
       return 'International Americas';
-    } else if (this.europeCurrencyList.indexOf(homeCurrency) > -1) {
+    } else if (this.europeCurrencyList.includes(homeCurrency)) {
       return 'Europe';
-    } else if (this.apacCurrencyList.indexOf(homeCurrency) > -1){
+    } else if (this.apacCurrencyList.includes(homeCurrency)){
       return 'International APAC';
-    } else {
+    } else if (this.middleEastAfricaCurrencyList.includes(homeCurrency)) {
       return 'International Africa';
+    } else {
+      return 'Undefined';
     }
   };
 
