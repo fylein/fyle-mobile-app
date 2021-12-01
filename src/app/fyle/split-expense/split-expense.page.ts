@@ -314,7 +314,7 @@ export class SplitExpensePage implements OnInit {
               return forkJoin(observables$);
             }),
             tap((res) => {
-              const message = 'The expense has split successfully';
+              const message = 'Your expense was split successfully';
               this.matSnackBar.openFromComponent(ToastMessageComponent, {
                 ...this.snackbarProperties.setSnackbarProperties('success', { message }),
                 panelClass: ['msb-success-with-camera-icon'],
