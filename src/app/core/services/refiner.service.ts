@@ -20,6 +20,7 @@ const { Device } = Plugins;
 })
 export class RefinerService {
   isConnected$: Observable<boolean>;
+
   americasCurrencyList = ['USD', 'XCD', 'ARS', 'AWG', 'BSD', 'BBD', 'BMD', 'BOB', 'BOV', 'BRL',
       'CAD', 'KYD', 'CLF', 'CLP', 'COP', 'COU', 'CRC', 'CUC', 'CUP', 'DOP',
       'SVC', 'FKP', 'GTQ', 'GYD', 'HTG', 'HNL', 'JMD', 'MXN', 'MXV', 'NIO',
