@@ -104,7 +104,7 @@ export class RefinerService {
           account: {
             company_id: eou.ou.org_id,
             company_name: eou.ou.org_name,
-            region: this.getRegion(homeCurrency)
+            region: this.getRegion(homeCurrency) + ' - ' + homeCurrency
           },
           source: 'Mobile' + ' - ' + device,
           is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
