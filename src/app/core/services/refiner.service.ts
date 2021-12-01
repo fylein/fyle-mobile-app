@@ -75,7 +75,6 @@ export class RefinerService {
           },
           source: 'Mobile' + ' - ' + device,
           is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
-          is_lite_user: 'F',
           action_name: properties.actionName
 
         });
