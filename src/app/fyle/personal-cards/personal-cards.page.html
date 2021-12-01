@@ -173,7 +173,7 @@
             [useNewStyling]="true"
           ></app-fy-zero-state>
         </div>
-        <ng-container *ngIf="transactions$ | async as transactions">
+        <ng-container *ngIf="((transactionsCount$ | async) !== 0) && transactions$ | async as transactions">
           <ng-container *ngFor="let transaction of transactions; let i = index">
             <app-personal-card-transaction
               (click)="createExpense(transaction)"
