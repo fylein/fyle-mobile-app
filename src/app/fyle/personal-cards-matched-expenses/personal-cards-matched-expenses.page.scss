@@ -30,6 +30,7 @@
     font-size: 16px;
     margin: 0 0 0 16px;
     color: $blue-black;
+    font-weight: 500;
   }
 
   &--icon {
@@ -49,7 +50,7 @@
 
   &--title {
     font-size: 14px;
-    padding: 16px 50px 16px 16px;
+    padding: 16px 50px 8px 16px;
     font-weight: 400;
     color: $grey-light;
   }

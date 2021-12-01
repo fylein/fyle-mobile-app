@@ -11,6 +11,8 @@ export class DateRangeModalComponent implements OnInit {
 
   @ViewChild('dateRangeEnd') dateRangeEnd: ElementRef;
 
+  isCalenderVisible = false;
+
   constructor(private modalController: ModalController) {}
 
   ngOnInit(): void {}
@@ -27,5 +29,13 @@ export class DateRangeModalComponent implements OnInit {
       startDate: this.dateRangeStart.nativeElement.value,
       endDate: this.dateRangeEnd.nativeElement.value,
     });
+  }
+
+  calenderOpened() {
+    this.isCalenderVisible = true;
+  }
+
+  calenderClosed() {
+    this.isCalenderVisible = false;
   }
 }

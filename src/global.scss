@@ -1014,6 +1014,7 @@ ion-modal.auto-height {
     right: 30px;
     width: fit-content;
     padding: 7px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
 
   .popover-arrow {
@@ -1046,12 +1047,16 @@ ion-modal.auto-height {
   .modal-wrapper {
     --border-radius: 16px 16px 0 0 !important;
     position: absolute;
-    max-height: 80%;
     bottom: 0;
+    max-height: 90%;
   }
 
-  .modal-shadow {
-    display: none;
+  --height: auto;
+
+  .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
   }
 }
 
