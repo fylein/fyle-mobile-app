@@ -25,6 +25,8 @@ import { DeviceService } from 'src/app/core/services/device.service';
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
   @ViewChild('search') searchRef: ElementRef;
 
+  @ViewChild('content') contentRef: ElementRef;
+
   @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef;
 
   orgs$: Observable<Org[]>;
@@ -255,10 +257,15 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   openSearchBar() {
     this.searchRef.nativeElement.classList.add('switch-org__content-container__show-search-block');
     setTimeout(() => this.searchOrgsInput.nativeElement.focus(), 400);
+    setTimeout(
+      () => this.contentRef.nativeElement.classList.add('switch-org__content-container__content-block--hide'),
+      300
+    );
   }
 
   cancelSearch() {
     this.resetSearch();
     this.searchRef.nativeElement.classList.remove('switch-org__content-container__show-search-block');
+    this.contentRef.nativeElement.classList.remove('switch-org__content-container__content-block--hide');
   }
 }

@@ -37,6 +37,10 @@
     &__content-block {
       z-index: 4;
       width: 100%;
+
+      &--hide {
+        display: none;
+      }
     }
 
     &__search-block {
