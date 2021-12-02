@@ -47,7 +47,7 @@
   }
 
   &--icon {
-    font-size: 14px;
+    font-size: 16px;
     color: $black-light;
     vertical-align: text-bottom;
     margin-left: 2px;
@@ -312,6 +312,7 @@
       margin: -10px;
       font-size: 18px;
       background-color: transparent;
+      color: $black-light;
     }
   }
 
