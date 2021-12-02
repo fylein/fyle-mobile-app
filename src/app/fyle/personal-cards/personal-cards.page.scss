@@ -243,11 +243,11 @@
     border-radius: 8px;
   }
 
-  &--segment-block {
-    padding-right: 16px;
-    margin: 3px;
-    width: 90%;
+  &--segment-container {
+    border-bottom: 1px solid #dfdfe2;
+  }
 
+  &--segment-block {
     &__btn {
       color: $blue-black;
       font-size: 3.5vw;
@@ -258,6 +258,10 @@
 
     &__btn::before {
       opacity: 0;
+    }
+
+    &__space-left {
+      margin-left: 6px;
     }
   }
 

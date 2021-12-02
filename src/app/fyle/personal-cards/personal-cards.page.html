@@ -32,7 +32,7 @@
     </ion-buttons>
   </ng-container>
   <ng-container personalCardContent *ngIf="!isLoading && ((linkedAccountsCount$ | async) !== 0)">
-    <ion-toolbar mode="{{mode}}">
+    <ion-toolbar mode="{{mode}}" class="personal-cards--segment-container">
       <ion-segment
         class="personal-cards-segment-block"
         (ionChange)="segmentChanged($event)"
@@ -41,7 +41,10 @@
         <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn">
           Transactions
         </ion-segment-button>
-        <ion-segment-button value="MATCHED" class="personal-cards--segment-block__btn">
+        <ion-segment-button
+          value="MATCHED"
+          class="personal-cards--segment-block__btn personal-cards--segment-block__space-left"
+        >
           Expenses Created
         </ion-segment-button>
         <ion-segment-button value="HIDDEN" class="personal-cards--segment-block__btn"> Hidden </ion-segment-button>
@@ -166,9 +169,19 @@
         >
           <app-fy-zero-state
             class="stats--zero-state"
+            *ngIf="!isSearchBarFocused"
             image="../../../../assets/images/no-transactions.svg"
             header="No Transactions Found!"
             message="Looks like you have no transactions"
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
+          <app-fy-zero-state
+            class="stats--zero-state"
+            *ngIf="isSearchBarFocused"
+            image="../../../../assets/images/no-search-result.svg"
+            header="No Search Results found !"
+            message="No transactions matched for your search"
             [unscaledImage]="true"
             [useNewStyling]="true"
           ></app-fy-zero-state>
@@ -229,7 +242,7 @@
         <ion-button
           (click)="hideSelectedTransactions()"
           [disabled]="isHiding"
-          [loadingText]="'hiding'"
+          [loadingText]="'Hiding'"
           [loading]="isHiding"
           appFormButtonValidation
           class="btn-primary"

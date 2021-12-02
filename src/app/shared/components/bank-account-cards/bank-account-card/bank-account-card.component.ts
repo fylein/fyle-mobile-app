@@ -79,7 +79,7 @@ export class BankAccountCardComponent implements OnInit {
       component: PopupAlertComponentComponent,
       componentProps: {
         title: 'Delete Card',
-        message: `Are you sure want to delete this card (${this.accountDetails.bank_name} ${this.accountDetails.account_number})?`,
+        message: `Are you sure want to delete this card <p> (${this.accountDetails.bank_name} ${this.accountDetails.account_number})?`,
         primaryCta: {
           text: 'Delete',
           action: 'delete',
