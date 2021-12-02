@@ -68,14 +68,28 @@
     max-width: 32px;
 
     &__icon {
-      height: 20px;
-      width: 20px;
+      height: 22px;
+      width: 22px;
       color: $grey-light;
+      vertical-align: text-bottom;
+      transform: rotate(180deg);
+      transition: 0.5s all ease;
 
-      &--lg {
-        height: 22px;
-        width: 22px;
+      &--rotate {
+        transform: rotate(0deg);
       }
+    }
+  }
+
+  &__dropdown-items {
+    transform: scaleY(0);
+    opacity: 0;
+    transform-origin: top;
+    transition: all 0.3s ease;
+
+    &--show {
+      transform: scaleY(1);
+      opacity: 1;
     }
   }
 }

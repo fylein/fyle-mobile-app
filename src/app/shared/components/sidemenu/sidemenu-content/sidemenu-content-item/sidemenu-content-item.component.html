@@ -28,10 +28,16 @@
         </ion-col>
         <ion-col class="sidemenu-item__dropdown-container" *ngIf="sidemenuItem.dropdownOptions?.length">
           <div>
-            <ion-icon
+            <!-- <ion-icon
               class="sidemenu-item__dropdown-container__icon"
               [ngClass]="{ 'sidemenu-item__dropdown-container__icon--lg': !sidemenuItem.isDropdownOpen }"
               [src]="'../../../../../assets/svg/fy-arrow-' + (sidemenuItem.isDropdownOpen ? 'up' : 'down') + '.svg'"
+            ></ion-icon> -->
+
+            <ion-icon
+              class="sidemenu-item__dropdown-container__icon"
+              [ngClass]="{ 'sidemenu-item__dropdown-container__icon--rotate': !sidemenuItem.isDropdownOpen }"
+              [src]="'../../../../../assets/svg/fy-arrow-down.svg'"
             ></ion-icon>
           </div>
         </ion-col>
@@ -39,12 +45,17 @@
     </ion-grid>
   </a>
 </ion-item>
-<ng-container *ngIf="sidemenuItem.isDropdownOpen">
-  <ng-container *ngFor="let sidemenuSubItem of sidemenuItem.dropdownOptions">
-    <app-sidemenu-content-item
-      [sidemenuItem]="sidemenuSubItem"
-      (redirect)="goToRoute(sidemenuSubItem)"
-    ></app-sidemenu-content-item>
+<div
+  class="sidemenu-item__dropdown-items"
+  [ngClass]="{ 'sidemenu-item__dropdown-items--show': sidemenuItem.isDropdownOpen }"
+>
+  <ng-container *ngIf="sidemenuItem.isDropdownOpen">
+    <ng-container *ngFor="let sidemenuSubItem of sidemenuItem.dropdownOptions">
+      <app-sidemenu-content-item
+        [sidemenuItem]="sidemenuSubItem"
+        (redirect)="goToRoute(sidemenuSubItem)"
+      ></app-sidemenu-content-item>
+    </ng-container>
   </ng-container>
-</ng-container>
+</div>
 <div *ngIf="sidemenuItem.title === 'Teams'" class="sidemenu-item__divider"></div>

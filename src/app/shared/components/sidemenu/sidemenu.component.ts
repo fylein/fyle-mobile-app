@@ -42,7 +42,7 @@ export class SidemenuComponent implements OnInit {
 
   orgUserSettings;
 
-  isConnected;
+  // isConnected;
 
   allowedActions;
 
@@ -69,7 +69,7 @@ export class SidemenuComponent implements OnInit {
       shareReplay(1)
     );
 
-    this.isConnected$.pipe((isConnected) => (this.isConnected = isConnected)).subscribe(noop);
+    // this.isConnected$.pipe((isConnected) => (this.isConnected = isConnected)).subscribe(noop);
   }
 
   async showSideMenu() {
@@ -221,10 +221,10 @@ export class SidemenuComponent implements OnInit {
     ];
   }
 
-  setPrimarySidemenuOptions() {
+  setPrimarySidemenuOptions(isConnected) {
     const { allowedReportsActions, allowedTripsActions, allowedAdvancesActions } = this.allowedActions;
 
-    const isConnected = this.isConnected;
+    // const isConnected = this.isConnected;
     return [
       {
         title: 'Dashboard',
@@ -342,24 +342,27 @@ export class SidemenuComponent implements OnInit {
     // ]
 
     const sidemenuList = [
-      ...this.setPrimarySidemenuOptions(),
+      ...this.setPrimarySidemenuOptions(isConnected),
       {
         title: 'Delegated Accounts',
         isVisible: isDelegatee && !this.isSwitchedToDelegator,
         icon: 'delegate-switch',
         route: ['/', 'enterprise', 'delegated_accounts'],
+        disabled: !isConnected,
       },
       {
         title: 'Switch back to my account',
         isVisible: this.isSwitchedToDelegator,
         icon: 'fy-switch',
         route: ['/', 'enterprise', 'delegated_accounts', { switchToOwn: true }],
+        disabled: !isConnected,
       },
       {
         title: 'Switch Organization',
         isVisible: orgs.length > 1 && !this.isSwitchedToDelegator,
         icon: 'swap',
         route: ['/', 'auth', 'switch_org', { choose: true }],
+        disabled: !isConnected,
       },
       {
         title: 'Settings',
@@ -376,12 +379,14 @@ export class SidemenuComponent implements OnInit {
           this.orgUserSettings.in_app_chat_settings.enabled,
         icon: 'fy-chat-2',
         openLiveChat: true,
+        disabled: !isConnected,
       },
       {
         title: 'Help',
         isVisible: true,
         icon: 'help',
         route: ['/', 'enterprise', 'help'],
+        disabled: !isConnected,
       },
     ];
 
