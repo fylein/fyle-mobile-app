@@ -180,7 +180,12 @@ export class MyAdvancesPage {
                 let newArr = cloneDeep(advArray);
 
                 if (filters && filters.state && filters.state.length > 0) {
-                  newArr = advArray.filter((adv) => filters.state.includes(adv.areq_state));
+                  newArr = advArray.filter((adv) => {
+                    if (filters.state.includes(AdvancesStates.sentBack)) {
+                      return adv.areq_is_sent_back;
+                    }
+                    return filters.state.includes(adv.areq_state) && !adv.areq_is_sent_back;
+                  });
                 }
 
                 newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
