@@ -9,6 +9,7 @@ import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.mode
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 @Component({
   selector: 'app-create-new-report',
@@ -44,7 +45,8 @@ export class CreateNewReportComponent implements OnInit {
     private offlineService: OfflineService,
     private modalController: ModalController,
     private reportService: ReportService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private refinerService: RefinerService
   ) {}
 
   getReportTitle() {
@@ -148,12 +150,13 @@ export class CreateNewReportComponent implements OnInit {
       this.reportService
         .create(report, txnIds)
         .pipe(
-          tap(() =>
+          tap(() => {
             this.trackingService.createReport({
               Expense_Count: txnIds.length,
               Report_Value: this.selectedTotalAmount,
-            })
-          ),
+            });
+            this.refinerService.startSurvey({ actionName: 'Submit Report' });
+          }),
           finalize(() => {
             this.submitReportLoader = false;
           })

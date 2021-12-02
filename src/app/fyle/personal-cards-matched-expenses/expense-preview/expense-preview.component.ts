@@ -6,6 +6,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-expense-preview',
@@ -35,7 +36,8 @@ export class ExpensePreviewComponent implements OnInit {
     private router: Router,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private platform: Platform
+    private platform: Platform,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit(): void {
@@ -62,6 +64,7 @@ export class ExpensePreviewComponent implements OnInit {
           panelClass: ['msb-success'],
         });
         this.router.navigate(['/', 'enterprise', 'personal_cards']);
+        this.trackingService.oldExpensematchedFromPersonalCard();
       });
   }
 
@@ -79,6 +82,7 @@ export class ExpensePreviewComponent implements OnInit {
           panelClass: ['msb-success'],
         });
         this.router.navigate(['/', 'enterprise', 'personal_cards']);
+        this.trackingService.unmatchedExpensesFromPersonalCard();
       });
   }
 
