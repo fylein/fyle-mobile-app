@@ -23,7 +23,7 @@ import { DeviceService } from 'src/app/core/services/device.service';
   styleUrls: ['./switch-org.page.scss'],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
-  @ViewChild('searchDiv') searchDiv: ElementRef;
+  @ViewChild('search') searchRef: ElementRef;
 
   @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef;
 
@@ -245,7 +245,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
   }
 
-  clearSearchInput() {
+  resetSearch() {
     this.searchInput = '';
     const searchInputElement = this.searchOrgsInput.nativeElement as HTMLInputElement;
     searchInputElement.value = '';
@@ -253,12 +253,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   openSearchBar() {
-    this.searchDiv.nativeElement.classList.add('switch-org__content-container__show-search-block');
+    this.searchRef.nativeElement.classList.add('switch-org__content-container__show-search-block');
     setTimeout(() => this.searchOrgsInput.nativeElement.focus(), 400);
   }
 
   cancelSearch() {
-    this.clearSearchInput();
-    this.searchDiv.nativeElement.classList.remove('switch-org__content-container__show-search-block');
+    this.resetSearch();
+    this.searchRef.nativeElement.classList.remove('switch-org__content-container__show-search-block');
   }
 }

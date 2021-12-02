@@ -47,7 +47,7 @@
         ></ion-icon>
       </div>
     </div>
-    <div #searchDiv class="switch-org__content-container__block switch-org__content-container__search-block">
+    <div #search class="switch-org__content-container__block switch-org__content-container__search-block">
       <div class="expense-report-search switch-org__searchbar-container">
         <mat-form-field
           appearance="outline"
@@ -67,7 +67,7 @@
               autocomplete="off"
             />
             <button
-              (click)="clearSearchInput()"
+              (click)="resetSearch()"
               *ngIf="searchInput.length"
               aria-label="Clear"
               class="switch-org__searchbar-container__searchbar__clear-icon"
