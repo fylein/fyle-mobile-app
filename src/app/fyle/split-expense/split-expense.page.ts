@@ -324,16 +324,16 @@ export class SplitExpensePage implements OnInit {
             }),
             catchError((err) => {
               const toastMessageData = {
-                message: 'Seems to be a stormy day. You should try this after sometime',
+                message: 'We were unable to split your expense. Please try again later',
                 redirectionText: 'Retry',
               };
               const splitExpenseErroeSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
                 ...this.snackbarProperties.setSnackbarProperties('failure', toastMessageData),
-                panelClass: ['msb-failure'],
+                panelClass: ['msb-failure-with-camera-icon'],
               });
               this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
               splitExpenseErroeSnackBar.onAction().subscribe(() => {
-                this.router.navigate(['/', 'enterprise', 'my_view_report']);
+                this.router.navigate(['/', 'enterprise', 'my_expenses']);
               });
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
               return throwError(err);
