@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
+import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 
 @Component({
   selector: 'app-sidemenu-content',
@@ -11,7 +12,7 @@ import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
   styleUrls: ['./sidemenu-content.component.scss'],
 })
 export class SidemenuContentComponent implements OnInit {
-  @Input() sideMenuList: any[];
+  @Input() sideMenuList: SidemenuItem[];
 
   constructor(
     private router: Router,
@@ -22,7 +23,7 @@ export class SidemenuContentComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  goToRoute(sidemenuItem) {
+  goToRoute(sidemenuItem: SidemenuItem) {
     if (sidemenuItem.dropdownOptions?.length) {
       sidemenuItem.isDropdownOpen = !sidemenuItem.isDropdownOpen;
       return;

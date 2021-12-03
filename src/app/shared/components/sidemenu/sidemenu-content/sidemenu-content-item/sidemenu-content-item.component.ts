@@ -1,31 +1,28 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 
-// type SideMenuItem = {
-//   key: string;
-//   icon: string;
-//   title: string;
-//   isDisabled: boolean;
-//   dropdownOptions: SideMenuItem[];
-// };
 @Component({
   selector: 'app-sidemenu-content-item',
   templateUrl: './sidemenu-content-item.component.html',
   styleUrls: ['./sidemenu-content-item.component.scss'],
 })
 export class SidemenuContentItemComponent implements OnInit {
-  @Input() sidemenuItem;
+  @Input() sidemenuItem: SidemenuItem;
 
-  @Output() redirect = new EventEmitter<string>();
+  @Output() redirect = new EventEmitter<SidemenuItem>();
 
   isRoute = true;
+
+  dropdownHeight = 0;
 
   constructor() {}
 
   ngOnInit() {
     this.isRoute = !this.sidemenuItem.dropdownOptions?.length && !this.sidemenuItem.hasOwnProperty('openLiveChat');
+    this.dropdownHeight = this.sidemenuItem.dropdownOptions?.length * 50;
   }
 
-  goToRoute(sidemenuItem) {
+  goToRoute(sidemenuItem: SidemenuItem) {
     this.redirect.emit(sidemenuItem);
   }
 }
