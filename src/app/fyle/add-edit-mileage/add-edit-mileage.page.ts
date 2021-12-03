@@ -1152,9 +1152,9 @@ export class AddEditMileagePage implements OnInit {
                 );
               } else if (txnFieldKey === 'project_id') {
                 control.setValidators(
-                  orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length > 0
-                    ? Validators.required
-                    : null
+                  orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
+                    ? null
+                    : Validators.required
                 );
               } else {
                 control.setValidators(isConnected ? Validators.required : null);
