@@ -440,7 +440,6 @@ export class PersonalCardsService {
   }
 
   generateCreditTrasactionsFilterPills(filters, filterPills: FilterPill[]) {
-    alert(filters.transactionType);
     if (filters.transactionType === 'Credit') {
       filterPills.push({
         label: 'Transactions Type',

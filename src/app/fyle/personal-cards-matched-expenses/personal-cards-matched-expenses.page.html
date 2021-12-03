@@ -45,7 +45,7 @@
     </div>
 
     <div class="matched-expenses--action-content">
-      <div class="matched-expenses--action-title text-capitalize">SELECT A MATCHING EXPENSE</div>
+      <div class="matched-expenses--action-title">SELECT A MATCHING EXPENSE</div>
       <div class="matched-expenses--expenses-preview">
         <ng-container *ngIf="matchedExpenses$| async as matchedExpenses">
           <ng-container *ngFor="let expense of matchedExpenses; let first = first;">
@@ -56,7 +56,7 @@
           </ng-container>
         </ng-container>
       </div>
-      <div class="matched-expenses--action-title text-capitalize">IN CASE THERE IS NO MATCH</div>
+      <div class="matched-expenses--action-title">IN CASE THERE IS NO MATCH</div>
       <div class="matched-expenses--action-container">
         <div class="matched-expenses--action-card" (click)="createExpense()">
           <div class="matched-expenses--block-action">
