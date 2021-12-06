@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import * as Sentry from '@sentry/angular';
 import { Observable, noop, from, forkJoin, of, iif, concat } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
@@ -21,6 +21,8 @@ import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
   styleUrls: ['./sidemenu.component.scss'],
 })
 export class SidemenuComponent implements OnInit {
+  @Output() switchDelegator = new EventEmitter<boolean>();
+
   appVersion: string;
 
   activeOrg: string;
@@ -139,8 +141,8 @@ export class SidemenuComponent implements OnInit {
           });
         }
 
+        this.switchDelegator.emit(this.isSwitchedToDelegator);
         this.freshChatService.setupNetworkWatcher();
-
         this.setupSideMenu(isConnected, orgs, isDelegatee);
       });
   }

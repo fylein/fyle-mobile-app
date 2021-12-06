@@ -47,6 +47,8 @@ export class AppComponent implements OnInit {
 
   previousUrl: string;
 
+  isSwitchedToDelegator: boolean;
+
   constructor(
     private platform: Platform,
     private statusBar: StatusBar,
@@ -226,5 +228,9 @@ export class AppComponent implements OnInit {
         }
       }
     });
+  }
+
+  switchDelegator(isSwitchedToDelegator: boolean) {
+    this.isSwitchedToDelegator = isSwitchedToDelegator;
   }
 }

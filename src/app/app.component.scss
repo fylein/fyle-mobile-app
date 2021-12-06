@@ -1,15 +1,3 @@
-$sidenav-bg: #161528;
-
-.list-md {
-  // This is needed for android, need to overwrite internal css
-  padding: 0;
-  background: $sidenav-bg;
-}
-
-.list-ios {
-  background: $sidenav-bg;
-}
-
 .main-outlet {
   margin-top: 20px;
 }
