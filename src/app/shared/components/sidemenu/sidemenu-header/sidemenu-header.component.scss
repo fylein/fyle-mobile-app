@@ -1,6 +1,10 @@
 @import '../../../../../theme/colors.scss';
 
 .sidemenu-header {
+  &__toolbar {
+    --background: #{$black};
+  }
+
   &__grid {
     padding: 56px 8px 36px 24px;
     line-height: 1.3;
