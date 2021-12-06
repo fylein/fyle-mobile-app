@@ -23,6 +23,8 @@ import { DeviceService } from 'src/app/core/services/device.service';
   styleUrls: ['./switch-org.page.scss'],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
+  @ViewChild('activeOrgCard') activeOrgCard: ElementRef;
+
   @ViewChild('search') searchRef: ElementRef;
 
   @ViewChild('content') contentRef: ElementRef;
@@ -111,6 +113,19 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
 
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
+
+    const observer = new IntersectionObserver(
+      ([element]) => {
+        if (element.intersectionRatio < 0.25) {
+          this.openSearchBar();
+        } else if (element.intersectionRatio > 0.5 && this.searchInput.length === 0) {
+          this.cancelSearch();
+        }
+      },
+      { threshold: [0.25, 0.5] }
+    );
+
+    observer.observe(this.activeOrgCard.nativeElement);
   }
 
   async proceed() {
@@ -255,17 +270,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   openSearchBar() {
-    this.searchRef.nativeElement.classList.add('switch-org__content-container__show-search-block');
-    setTimeout(() => this.searchOrgsInput.nativeElement.focus(), 400);
-    setTimeout(
-      () => this.contentRef.nativeElement.classList.add('switch-org__content-container__content-block--hide'),
-      300
-    );
+    this.contentRef.nativeElement.classList.add('switch-org__content-container__content-block--hide');
+    this.searchRef.nativeElement.classList.add('switch-org__content-container__search-block--show');
+    setTimeout(() => this.searchOrgsInput.nativeElement.focus(), 200);
   }
 
   cancelSearch() {
     this.resetSearch();
-    this.searchRef.nativeElement.classList.remove('switch-org__content-container__show-search-block');
     this.contentRef.nativeElement.classList.remove('switch-org__content-container__content-block--hide');
+    this.searchRef.nativeElement.classList.remove('switch-org__content-container__search-block--show');
   }
 }

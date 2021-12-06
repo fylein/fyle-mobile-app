@@ -37,9 +37,11 @@
     &__content-block {
       z-index: 4;
       width: 100%;
+      opacity: 1;
+      transition: all 0.2s;
 
       &--hide {
-        display: none;
+        opacity: 0;
       }
     }
 
@@ -48,13 +50,13 @@
       opacity: 0;
       width: 0;
       right: 0;
-      transition: all 0.4s ease-in-out;
-    }
+      transition: all 0.2s;
 
-    &__show-search-block {
-      z-index: 100 !important;
-      opacity: 1 !important;
-      width: 100% !important;
+      &--show {
+        z-index: 100 !important;
+        opacity: 1 !important;
+        width: 100% !important;
+      }
     }
 
     &__content {

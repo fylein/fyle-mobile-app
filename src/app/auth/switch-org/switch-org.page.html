@@ -19,17 +19,18 @@
 </ion-header>
 
 <ion-content>
-  <ng-container *ngIf="!isLoading; else skeletonActiveOrg">
-    <ng-container *ngIf="activeOrg$ | async as activeOrg">
-      <ng-container *ngIf="primaryOrg$ | async as primaryOrg">
-        <app-active-org-card [org]="activeOrg" [isPrimaryOrg]="activeOrg.id === primaryOrg.id"></app-active-org-card>
+  <div #activeOrgCard>
+    <ng-container *ngIf="!isLoading; else skeletonActiveOrg">
+      <ng-container *ngIf="activeOrg$ | async as activeOrg">
+        <ng-container *ngIf="primaryOrg$ | async as primaryOrg">
+          <app-active-org-card [org]="activeOrg" [isPrimaryOrg]="activeOrg.id === primaryOrg.id"></app-active-org-card>
+        </ng-container>
       </ng-container>
     </ng-container>
-  </ng-container>
-
-  <ng-template #skeletonActiveOrg>
-    <app-active-org-card [isLoading]="true"></app-active-org-card>
-  </ng-template>
+    <ng-template #skeletonActiveOrg>
+      <app-active-org-card [isLoading]="true"></app-active-org-card>
+    </ng-template>
+  </div>
 
   <div class="switch-org__content-container">
     <div #content class="switch-org__content-container__block switch-org__content-container__content-block">
