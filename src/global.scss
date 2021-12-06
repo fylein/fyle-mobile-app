@@ -910,11 +910,11 @@ ref - https://stackoverflow.com/a/31162426
 .ios .personal-cards-segment-block {
   height: 40px;
   padding: 2px !important;
-  margin: 0 auto;
+  margin: 12px auto;
   background: $pure-white;
   border: 2px solid $pure-white;
   box-sizing: border-box;
-  box-shadow: 0px -2px 40px $transparent-pearl-grey;
+  box-shadow: 0px -2px 13px 4px $transparent-pearl-grey;
   border-radius: 8px;
 }
 
@@ -1014,6 +1014,7 @@ ion-modal.auto-height {
     right: 30px;
     width: fit-content;
     padding: 7px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
 
   .popover-arrow {
@@ -1046,12 +1047,16 @@ ion-modal.auto-height {
   .modal-wrapper {
     --border-radius: 16px 16px 0 0 !important;
     position: absolute;
-    max-height: 62%;
     bottom: 0;
+    max-height: 90%;
   }
 
-  .modal-shadow {
-    display: none;
+  --height: auto;
+
+  .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
   }
 }
 
@@ -1125,4 +1130,8 @@ ion-toggle.toggle-checked::before {
     width: 100%;
     color: $blue-black;
   }
+}
+
+.mat-snack-bar-handset .mat-snack-bar-container {
+  margin-bottom: 133px !important;
 }
