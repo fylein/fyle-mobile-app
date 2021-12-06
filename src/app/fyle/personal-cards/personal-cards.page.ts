@@ -775,17 +775,4 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       event.target.complete();
     }
   }
-
-  onScroll(event) {
-    // if (event.detail.scrollTop > 0) {
-    //   this.scrolled = true;
-    // } else {
-    //   this.scrolled = false;
-    // }
-    // if (event.detail.deltaY > 0) {
-    //   this.scrollingDirection = 'down';
-    // } else {
-    //   this.scrollingDirection = 'up';
-    // }
-  }
 }
