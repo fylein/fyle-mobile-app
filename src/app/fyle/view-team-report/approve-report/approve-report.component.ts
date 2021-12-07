@@ -20,7 +20,11 @@ export class ApproveReportComponent implements OnInit {
 
   approveReportLoading = false;
 
-  constructor(private popoverController: PopoverController, private reportService: ReportService, private refinerService: RefinerService) {}
+  constructor(
+    private popoverController: PopoverController,
+    private reportService: ReportService,
+    private refinerService: RefinerService
+  ) {}
 
   ngOnInit() {
     this.numIssues = this.getNumIssues(this.etxns);
@@ -62,7 +66,7 @@ export class ApproveReportComponent implements OnInit {
         this.popoverController.dismiss({
           goBack: true,
         });
-        this.refinerService.startSurvey({actionName: 'Approve Report'});
+        this.refinerService.startSurvey({ actionName: 'Approve Report' });
       });
   }
 }
