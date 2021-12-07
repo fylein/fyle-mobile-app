@@ -116,13 +116,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
     const observer = new IntersectionObserver(
       ([element]) => {
-        if (element.intersectionRatio < 0.25) {
-          this.openSearchBar();
-        } else if (element.intersectionRatio > 0.5 && this.searchInput.length === 0) {
+        if (element.intersectionRatio === 0) {
+          this.contentRef.nativeElement.classList.add('switch-org__content-container__content-block--hide');
+          this.searchRef.nativeElement.classList.add('switch-org__content-container__search-block--show');
+        } else if (element.intersectionRatio > 0.25 && this.searchInput.length === 0) {
           this.cancelSearch();
         }
       },
-      { threshold: [0.25, 0.5] }
+      { threshold: [0, 0.25] }
     );
 
     observer.observe(this.activeOrgCard.nativeElement);
