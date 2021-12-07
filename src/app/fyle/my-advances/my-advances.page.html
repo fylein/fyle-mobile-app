@@ -8,6 +8,14 @@
     </ion-buttons>
     <ion-title class="page-title" mode="md"> Advances </ion-title>
     <ion-buttons mode="md" slot="end">
+      <ion-button class="my-advances--header-btn" (click)="openFilters()">
+        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+        </ng-container>
+        <ng-template #noFilterAppliedIcon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+        </ng-template>
+      </ion-button>
       <ion-button class="my-advances--header-btn" [routerLink]="['/', 'enterprise', 'add_edit_advance_request']">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
@@ -16,6 +24,18 @@
 </ion-header>
 
 <ion-content class="my-advances--content">
+  <ng-container *ngIf="filterPills?.length">
+    <div class="filter-pills-container">
+      <app-fy-filter-pills
+        class="filter-pills"
+        (filterClose)="onFilterClose($event)"
+        (filterClicked)="onFilterClick($event)"
+        (clearAll)="onFilterPillsClearAll()"
+        [filterPills]="filterPills"
+      ></app-fy-filter-pills>
+    </div>
+  </ng-container>
+
   <div class="my-advances--body" [ngClass]="{'my-advances--zero-state-body': (advances$|async)?.length === 0 }">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>

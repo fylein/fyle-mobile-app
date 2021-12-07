@@ -437,7 +437,7 @@ export class ViewTeamReportPage implements OnInit {
           panelClass: ['msb-success-with-camera-icon'],
         });
         this.trackingService.showToastMessage({ ToastContent: message });
-        this.refinerService.startSurvey({actionName: 'Send Back Report'});
+        this.refinerService.startSurvey({ actionName: 'Send Back Report' });
       });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }

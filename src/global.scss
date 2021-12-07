@@ -1043,6 +1043,18 @@ ion-modal.auto-height {
   margin-left: 7px !important;
 }
 
+.filter-pills-container {
+  display: block;
+  min-height: 52px;
+}
+
+.filter-pills {
+  position: fixed;
+  width: 100%;
+  background-color: $white;
+  z-index: 99;
+}
+
 .personal-cards-range-modal {
   .modal-wrapper {
     --border-radius: 16px 16px 0 0 !important;
