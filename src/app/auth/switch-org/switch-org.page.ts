@@ -23,8 +23,6 @@ import { DeviceService } from 'src/app/core/services/device.service';
   styleUrls: ['./switch-org.page.scss'],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
-  @ViewChild('activeOrgCard') activeOrgCard: ElementRef;
-
   @ViewChild('search') searchRef: ElementRef;
 
   @ViewChild('content') contentRef: ElementRef;
@@ -113,20 +111,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
 
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
-
-    const observer = new IntersectionObserver(
-      ([element]) => {
-        if (element.intersectionRatio === 0) {
-          this.contentRef.nativeElement.classList.add('switch-org__content-container__content-block--hide');
-          this.searchRef.nativeElement.classList.add('switch-org__content-container__search-block--show');
-        } else if (element.intersectionRatio > 0.25 && this.searchInput.length === 0) {
-          this.cancelSearch();
-        }
-      },
-      { threshold: [0, 0.25] }
-    );
-
-    observer.observe(this.activeOrgCard.nativeElement);
   }
 
   async proceed() {
