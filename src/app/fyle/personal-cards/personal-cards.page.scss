@@ -13,6 +13,7 @@
   &--filter-pills-container {
     display: block;
     min-height: 52px;
+    background-color: $pure-white;
   }
 
   &--toolbar {
@@ -244,13 +245,13 @@
   }
 
   &--segment-container {
-    border-bottom: 1px solid #dfdfe2;
+    border-bottom: 1px solid $grey;
   }
 
   &--segment-block {
     &__btn {
       color: $blue-black;
-      font-size: 3.5vw;
+      font-size: 3.2vw;
       font-weight: 500;
       width: 150px;
       text-transform: none;
