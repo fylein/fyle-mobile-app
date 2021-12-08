@@ -1,9 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar mode="md">
-    <ion-buttons slot="start">
-      <ion-button>
-        <ion-icon src="../../../assets/svg/arrow-back.svg"></ion-icon>
-      </ion-button>
+    <ion-buttons *ngIf="navigateBack" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
     <div class="switch-org__toolbar__header-container">
       <ion-icon
@@ -28,15 +26,14 @@
       </ng-container>
     </ng-container>
   </ng-container>
-
   <ng-template #skeletonActiveOrg>
     <app-active-org-card [isLoading]="true"></app-active-org-card>
   </ng-template>
 
   <div class="switch-org__content-container">
-    <div [hidden]="isSearchBarShown">
+    <div #content class="switch-org__content-container__block switch-org__content-container__content-block">
       <div class="switch-org__content-container__content d-flex">
-        <div>
+        <div class="switch-org__content-container__content__sub-block">
           <div class="switch-org__content-container__content__title">Switch Organization</div>
           <div class="switch-org__content-container__content__sub-title">
             Select the organization you want to switch to.
@@ -49,8 +46,7 @@
         ></ion-icon>
       </div>
     </div>
-
-    <div [hidden]="!isSearchBarShown">
+    <div #search class="switch-org__content-container__block switch-org__content-container__search-block">
       <div class="expense-report-search switch-org__searchbar-container">
         <mat-form-field
           appearance="outline"
@@ -67,11 +63,11 @@
               [(ngModel)]="searchInput"
               matInput
               placeholder="Search for an org"
-              (focus)="onSearchBarFocus()"
               autocomplete="off"
             />
             <button
-              (click)="clearText('isFromSearchBar')"
+              (click)="resetSearch()"
+              *ngIf="searchInput.length"
               aria-label="Clear"
               class="switch-org__searchbar-container__searchbar__clear-icon"
               mat-button
@@ -82,10 +78,12 @@
             </button>
           </div>
         </mat-form-field>
-        <div class="switch-org__searchbar-container__cancel" (click)="closeSearchBar()">Cancel</div>
+        <div class="switch-org__searchbar-container__cancel" (click)="cancelSearch()">Cancel</div>
       </div>
     </div>
+  </div>
 
+  <div class="switch-org__orgs-container">
     <ng-container *ngIf="!isLoading; else skeletonOrgCards">
       <ng-container *ngIf="filteredOrgs$ | async as filteredOrgs">
         <ng-container *ngIf="filteredOrgs.length; else zeroState">
@@ -103,13 +101,17 @@
     </ng-container>
 
     <ng-template #zeroState>
-      <app-fy-zero-state
-        header="Sorry, no results found!"
-        [message]="'We could not find what you were looking for.\nKindly check the keywords again.'"
-        image="../../../assets/images/zero-states/search-not-found.svg"
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-      ></app-fy-zero-state>
+      <ng-container *ngIf="orgs$ | async as orgs">
+        <ng-container *ngIf="orgs.length > 1">
+          <app-fy-zero-state
+            header="Sorry, no results found!"
+            [message]="'We could not find what you were looking for.\nKindly check the keywords again.'"
+            image="../../../assets/images/zero-states/search-not-found.svg"
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
+        </ng-container>
+      </ng-container>
     </ng-template>
 
     <ng-template #skeletonOrgCards>

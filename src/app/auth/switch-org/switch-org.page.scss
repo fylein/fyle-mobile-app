@@ -23,11 +23,49 @@
   }
 
   &__content-container {
-    padding: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+
+    &__block {
+      position: absolute;
+      top: 0;
+      background-color: $pure-white;
+      padding: 0 16px;
+    }
+
+    &__content-block {
+      z-index: 4;
+      width: 100%;
+      opacity: 1;
+      transition: all 0.3s;
+
+      &--hide {
+        opacity: 0;
+      }
+    }
+
+    &__search-block {
+      z-index: 3;
+      opacity: 0;
+      width: 0;
+      right: 0;
+      transition: all 0.2s;
+
+      &--show {
+        z-index: 100 !important;
+        opacity: 1 !important;
+        width: 100% !important;
+      }
+    }
 
     &__content {
       justify-content: space-between;
       padding: 16px 0 20px;
+
+      &__sub-block {
+        width: calc(100% - 34px);
+      }
 
       &__title {
         font-size: 18px;
@@ -41,12 +79,11 @@
       }
 
       &__icon {
-        height: 16px;
-        width: 16px;
-        padding: 8px;
+        height: 20px;
+        width: 20px;
+        padding: 6px;
         border: 1px solid $black-light;
         border-radius: 4px;
-        margin-left: 8px;
       }
     }
   }
@@ -55,6 +92,7 @@
     display: flex;
     align-items: center;
     height: 62px;
+    padding-top: 8px;
 
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
@@ -84,5 +122,11 @@
       color: $black-light;
       padding-left: 8px;
     }
+  }
+
+  &__orgs-container {
+    position: relative;
+    top: 80px;
+    padding: 16px;
   }
 }

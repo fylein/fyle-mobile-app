@@ -23,6 +23,10 @@ import { DeviceService } from 'src/app/core/services/device.service';
   styleUrls: ['./switch-org.page.scss'],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
+  @ViewChild('search') searchRef: ElementRef;
+
+  @ViewChild('content') contentRef: ElementRef;
+
   @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef;
 
   orgs$: Observable<Org[]>;
@@ -37,7 +41,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   primaryOrg$: Observable<Org>;
 
-  isSearchBarShown = false;
+  navigateBack = false;
 
   constructor(
     private offlineService: OfflineService,
@@ -69,7 +73,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     that.orgs$ = that.offlineService.getOrgs().pipe(shareReplay(1));
 
     that.orgs$.subscribe(() => {
-      that.isLoading = false;
+      setTimeout(() => (that.isLoading = false), 500);
       that.cdRef.detectChanges();
     });
 
@@ -92,6 +96,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
     this.primaryOrg$ = this.offlineService.getPrimaryOrg();
 
+    this.activeOrg$.subscribe(noop);
+    this.primaryOrg$.subscribe(noop);
+
     const currentOrgs$ = forkJoin([this.orgs$, this.activeOrg$]).pipe(
       switchMap(([orgs, activeOrg]) => of(orgs.filter((org) => org.id !== activeOrg.id)))
     );
@@ -102,6 +109,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       distinctUntilChanged(),
       switchMap((searchText) => currentOrgs$.pipe(map((orgs) => this.getOrgsWhichContainSearchText(orgs, searchText))))
     );
+
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
   }
 
   async proceed() {
@@ -238,11 +247,22 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
   }
 
-  openSearchBar() {
-    this.isSearchBarShown = true;
+  resetSearch() {
+    this.searchInput = '';
+    const searchInputElement = this.searchOrgsInput.nativeElement as HTMLInputElement;
+    searchInputElement.value = '';
+    searchInputElement.dispatchEvent(new Event('keyup'));
   }
 
-  closeSearchBar() {
-    this.isSearchBarShown = false;
+  openSearchBar() {
+    this.contentRef.nativeElement.classList.add('switch-org__content-container__content-block--hide');
+    this.searchRef.nativeElement.classList.add('switch-org__content-container__search-block--show');
+    setTimeout(() => this.searchOrgsInput.nativeElement.focus(), 200);
+  }
+
+  cancelSearch() {
+    this.resetSearch();
+    this.contentRef.nativeElement.classList.remove('switch-org__content-container__content-block--hide');
+    this.searchRef.nativeElement.classList.remove('switch-org__content-container__search-block--show');
   }
 }
