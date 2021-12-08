@@ -25,6 +25,7 @@ import { DateRangeModalComponent } from './date-range-modal/date-range-modal.com
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
 import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 type Filters = Partial<{
   amount: number;
@@ -137,7 +138,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private dateService: DateService,
     private apiV2Service: ApiV2Service,
     private platform: Platform,
-    private spinnerDialog: SpinnerDialog
+    private spinnerDialog: SpinnerDialog,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit() {
@@ -155,6 +157,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       const currentParams = this.loadData$.getValue();
       this.loadData$.next(currentParams);
     }
+    this.trackingService.personalCardsViewed();
   }
 
   ngAfterViewInit() {
@@ -334,11 +337,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           panelClass: ['msb-success'],
         });
         this.loadCardData$.next({});
+        this.trackingService.newCardLinkedOnPersonalCards();
       });
   }
 
   onDeleted() {
     this.loadCardData$.next({});
+    this.trackingService.cardDeletedOnPersonalCards();
   }
 
   onCardChanged(event) {
@@ -426,6 +431,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           const params = this.loadData$.getValue();
           params.pageNumber = 1;
           this.loadData$.next(params);
+          this.trackingService.transactionsFetchedOnPersonalCards();
         })
       )
       .subscribe(noop);
@@ -455,6 +461,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
             this.switchSelectionMode();
           }
           this.loadData$.next(params);
+          this.trackingService.transactionsHiddenOnPersonalCards();
         })
       )
       .subscribe(noop);
@@ -747,8 +754,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       this.zone.run(() => {
         this.txnDateRange = data.range;
         if (data.range === 'Custom Range') {
-          const startDate = data.startDate && moment(data.startDate).format('MMM-D');
-          const endDate = data.endDate && moment(data.endDate).format('MMM-D');
+          const startDate = data.startDate && moment(data.startDate).format('MMM D');
+          const endDate = data.endDate && moment(data.endDate).format('MMM D');
           this.txnDateRange = `${startDate} - ${endDate}`;
         }
       });
@@ -766,20 +773,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadData$.next(currentParams);
     if (event) {
       event.target.complete();
-    }
-  }
-
-  onScroll(event) {
-    if (event.detail.scrollTop > 0) {
-      this.scrolled = true;
-    } else {
-      this.scrolled = false;
-    }
-
-    if (event.detail.deltaY > 0) {
-      this.scrollingDirection = 'down';
-    } else {
-      this.scrollingDirection = 'up';
     }
   }
 }

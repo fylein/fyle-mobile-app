@@ -15,7 +15,6 @@ import {
   Observable,
   Subject,
 } from 'rxjs';
-
 import { concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
 
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -181,7 +180,20 @@ export class MyAdvancesPage {
                 let newArr = cloneDeep(advArray);
 
                 if (filters && filters.state && filters.state.length > 0) {
-                  newArr = advArray.filter((adv) => filters.state.includes(adv.areq_state));
+                  newArr = advArray.filter((adv) => {
+                    const sentBackAdvance =
+                      filters.state.includes(AdvancesStates.sentBack) &&
+                      adv.areq_state === 'DRAFT' &&
+                      adv.areq_is_sent_back;
+
+                    const plainDraft =
+                      filters.state.includes(AdvancesStates.draft) &&
+                      adv.areq_state === 'DRAFT' &&
+                      !adv.areq_is_sent_back &&
+                      !adv.areq_is_pulled_back;
+
+                    return sentBackAdvance || plainDraft;
+                  });
                 }
 
                 newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);

@@ -1,4 +1,7 @@
-<div class="bank-accounts" [ngClass]="{ 'bank-accounts--minimal': minimal }">
+<div
+  class="bank-accounts"
+  [ngClass]="{ 'bank-accounts--minimal': minimal, 'bank-accounts--single-card': linkedAccounts.length === 1 }"
+>
   <swiper
     #swiper
     class="bank-accounts--swiper"
