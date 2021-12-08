@@ -9,14 +9,16 @@
   (click)="goToRoute(sidemenuItem)"
 >
   <a class="sidemenu-item__content" [routerLinkActive]="isRoute ? 'sidemenu-item__content--active' : ''">
-    <ion-grid>
+    <ion-grid class="sidemenu-item__content__block">
       <ion-row>
         <ion-col class="sidemenu-item__icon-container">
-          <div>
+          <div *ngIf="sidemenuItem.icon">
             <ion-icon
               class="sidemenu-item__icon-container__icon"
               [ngClass]="{
-                'sidemenu-item__icon-container__icon--sm': ['fy-report', 'fy-dashboard-new'].includes(sidemenuItem.icon)
+                'sidemenu-item__icon-container__icon--sm': ['fy-report', 'fy-dashboard-new', 'fy-switch'].includes(
+                  sidemenuItem.icon
+                )
               }"
               [src]="'../../../../../assets/svg/' + sidemenuItem.icon + '.svg'"
               slot="icon-only"
@@ -30,8 +32,8 @@
           <div>
             <ion-icon
               class="sidemenu-item__dropdown-container__icon"
-              [ngClass]="{ 'sidemenu-item__dropdown-container__icon--lg': !sidemenuItem.isDropdownOpen }"
-              [src]="'../../../../../assets/svg/fy-arrow-' + (sidemenuItem.isDropdownOpen ? 'up' : 'down') + '.svg'"
+              [ngClass]="{ 'sidemenu-item__dropdown-container__icon--rotate': !sidemenuItem.isDropdownOpen }"
+              [src]="'../../../../../assets/svg/fy-arrow-down.svg'"
             ></ion-icon>
           </div>
         </ion-col>
@@ -39,12 +41,16 @@
     </ion-grid>
   </a>
 </ion-item>
-<ng-container *ngIf="sidemenuItem.isDropdownOpen">
+<div
+  class="sidemenu-item__dropdown-items"
+  [ngStyle]="{ height: dropdownHeight + 'px' }"
+  [ngClass]="{ 'sidemenu-item__dropdown-items--hide': !sidemenuItem.isDropdownOpen }"
+>
   <ng-container *ngFor="let sidemenuSubItem of sidemenuItem.dropdownOptions">
     <app-sidemenu-content-item
       [sidemenuItem]="sidemenuSubItem"
       (redirect)="goToRoute(sidemenuSubItem)"
     ></app-sidemenu-content-item>
   </ng-container>
-</ng-container>
+</div>
 <div *ngIf="sidemenuItem.title === 'Teams'" class="sidemenu-item__divider"></div>

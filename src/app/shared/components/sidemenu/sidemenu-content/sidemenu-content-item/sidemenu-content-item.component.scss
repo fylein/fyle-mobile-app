@@ -15,7 +15,7 @@
   }
 
   &__divider {
-    margin: 8px 0;
+    margin: 8px 20px;
     border-bottom: 1px solid $border-translucent-grey;
   }
 
@@ -28,6 +28,10 @@
     color: $grey-light;
     text-decoration: none;
     font-size: 14px;
+
+    &__block {
+      padding-left: 12px;
+    }
 
     &--active {
       ion-icon {
@@ -67,14 +71,26 @@
     max-width: 32px;
 
     &__icon {
-      height: 20px;
-      width: 20px;
+      height: 22px;
+      width: 22px;
       color: $grey-light;
+      vertical-align: text-bottom;
+      transform: rotate(180deg);
+      transition: 0.3s all ease;
 
-      &--lg {
-        height: 22px;
-        width: 22px;
+      &--rotate {
+        transform: rotate(0deg);
       }
+    }
+  }
+
+  &__dropdown-items {
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
+
+    &--hide {
+      height: 0 !important;
+      opacity: 0 !important;
     }
   }
 }
