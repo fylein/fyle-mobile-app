@@ -1,3 +1,14 @@
+<div>
+  <ion-list>
+    <ng-container *ngFor="let sidemenuItem of sideMenuList">
+      <app-sidemenu-content-item
+        [sidemenuItem]="sidemenuItem"
+        (redirect)="goToRoute($event)"
+      ></app-sidemenu-content-item>
+    </ng-container>
+  </ion-list>
+</div>
+
 <!-- <ion-content class="sidemenu--content">
   <div class="sidemenu--items-wrapper">
     <ion-list>
@@ -47,10 +58,10 @@
       <ion-list>
         <div *ngFor="let sideMenuSecondaryItem of sideMenuSecondaryList; index as i">
           <ng-container *ngIf="!sideMenuSecondaryItem.openHelp">
+            [routerLink]="sideMenuSecondaryItem.route"
             <ion-item
               detail="false"
               [disabled]="sideMenuSecondaryItem.disabled"
-              [routerLink]="sideMenuSecondaryItem.route"
               routerLinkActive="item-active"
               class="sidemenu--items"
               [class]="sideMenuSecondaryItem.cssClass"
