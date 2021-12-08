@@ -268,7 +268,7 @@ export class SidemenuComponent implements OnInit {
         title: 'Switch Organization',
         isVisible: orgs.length > 1 && !this.isSwitchedToDelegator,
         icon: 'swap',
-        route: ['/', 'auth', 'switch_org', { choose: true }],
+        route: ['/', 'auth', 'switch_org', { choose: true, navigate_back: true }],
         disabled: !isConnected,
       },
       {
