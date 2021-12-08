@@ -148,7 +148,7 @@ export class SidemenuComponent implements OnInit {
   }
 
   getCardOptions() {
-    return [
+    const cardOptions = [
       {
         title: 'Corporate Cards',
         isVisible: this.orgSettings.corporate_credit_card_settings.enabled,
@@ -156,14 +156,19 @@ export class SidemenuComponent implements OnInit {
       },
       {
         title: 'Personal Cards',
-        isVisible: environment.ROOT_URL === 'https://staging.fyle.tech',
+        isVisible:
+          this.orgSettings.org_personal_cards_settings.allowed &&
+          this.orgSettings.org_personal_cards_settings.enabled &&
+          this.orgUserSettings.personal_cards_settings?.enabled,
         route: ['/', 'enterprise', 'personal_cards'],
       },
     ];
+    return cardOptions.filter((cardOption) => cardOption.isVisible);
   }
 
-  getTeamOptions(allowedReportsActions, allowedTripsActions, allowedAdvancesActions) {
-    return [
+  getTeamOptions() {
+    const { allowedReportsActions, allowedTripsActions, allowedAdvancesActions } = this.allowedActions;
+    const teamOptions = [
       {
         title: 'Team Reports',
         isVisible: allowedReportsActions && allowedReportsActions.approve,
@@ -180,10 +185,12 @@ export class SidemenuComponent implements OnInit {
         route: ['/', 'enterprise', 'team_advance'],
       },
     ];
+    return teamOptions.filter((teamOption) => teamOption.isVisible);
   }
 
   getPrimarySidemenuOptions(isConnected: boolean) {
-    const { allowedReportsActions, allowedTripsActions, allowedAdvancesActions } = this.allowedActions;
+    const teamOptions = this.getTeamOptions();
+    const cardOptions = this.getCardOptions();
     return [
       {
         title: 'Dashboard',
@@ -199,13 +206,11 @@ export class SidemenuComponent implements OnInit {
       },
       {
         title: 'Cards',
-        isVisible:
-          this.orgSettings.corporate_credit_card_settings.enabled ||
-          environment.ROOT_URL === 'https://staging.fyle.tech',
+        isVisible: cardOptions.length ? true : false,
         icon: 'fy-corporate-card',
         disabled: !isConnected,
         isDropdownOpen: false,
-        dropdownOptions: this.getCardOptions(),
+        dropdownOptions: cardOptions,
       },
       {
         title: 'Reports',
@@ -234,11 +239,11 @@ export class SidemenuComponent implements OnInit {
       },
       {
         title: 'Teams',
-        isVisible: allowedReportsActions && allowedReportsActions.approve,
+        isVisible: teamOptions.length ? true : false,
         icon: 'teams',
         isDropdownOpen: false,
         disabled: !isConnected,
-        dropdownOptions: this.getTeamOptions(allowedReportsActions, allowedTripsActions, allowedAdvancesActions),
+        dropdownOptions: teamOptions,
       },
     ];
   }
