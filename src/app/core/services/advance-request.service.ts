@@ -32,7 +32,7 @@ type Filters = Partial<{
   sortDir: SortingDirection;
 }>;
 
-type config = Partial<{
+type Config = Partial<{
   offset: number;
   limit: number;
   queryParams: any;
@@ -61,7 +61,7 @@ export class AdvanceRequestService {
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
   getMyadvanceRequests(
-    config: config = {
+    config: Config = {
       offset: 0,
       limit: 10,
       queryParams: {},
@@ -177,11 +177,11 @@ export class AdvanceRequestService {
     return of(null);
   }
 
-  // @Cacheable({
-  //   cacheBusterObserver: advanceRequestsCacheBuster$,
-  // })
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$,
+  })
   getTeamAdvanceRequests(
-    config: config = {
+    config: Config = {
       offset: 0,
       limit: 10,
       queryParams: {},
