@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { Observable, from, noop, concat, Subject } from 'rxjs';
+import { Observable, from, noop, concat, Subject, iif, of, forkJoin } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
@@ -8,7 +8,7 @@ import { map, switchMap, finalize, shareReplay, takeUntil, tap, startWith } from
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ShareReportComponent } from './share-report/share-report.component';
@@ -39,6 +39,8 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 })
 export class MyViewReportPage implements OnInit {
   @ViewChild('commentInput') commentInput: ElementRef;
+
+  @ViewChild(IonContent, { static: false }) content: IonContent;
 
   erpt$: Observable<ExtendedReport>;
 
@@ -104,19 +106,17 @@ export class MyViewReportPage implements OnInit {
 
   deleteExpensesIdList = [];
 
-  selectedElements: Expense[];
-
-  selectionMode = false;
-
   isReportEdited: any;
 
   selectedTotalAmount: any;
 
   selectedTotalTxns: any;
 
-  selectAll = false;
-
   reportEtxnIds: string[];
+
+  isExpensesLoading: boolean;
+
+  reportId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -241,12 +241,13 @@ export class MyViewReportPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
-    this.selectionMode = false;
+    this.isExpensesLoading = true;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.erpt$.subscribe((erpt) => {
       this.reportCurrencySymbol = getCurrencySymbol(erpt.rp_currency, 'wide');
       this.reportName = erpt.rp_purpose;
+      this.reportId = erpt.rp_id;
     });
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
@@ -280,7 +281,8 @@ export class MyViewReportPage implements OnInit {
           return etxn;
         })
       ),
-      shareReplay(1)
+      shareReplay(1),
+      finalize(() => (this.isExpensesLoading = false))
     );
 
     const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
@@ -543,6 +545,9 @@ export class MyViewReportPage implements OnInit {
         this.isCommentsView = true;
         this.isExpensesView = false;
         this.isHistoryView = false;
+        setTimeout(() => {
+          this.content.scrollToBottom(500);
+        }, 500);
       } else if (event.detail.value === 'history') {
         this.isHistoryView = true;
         this.isCommentsView = false;
@@ -566,6 +571,9 @@ export class MyViewReportPage implements OnInit {
         .pipe()
         .subscribe((res) => {
           this.refreshEstatuses$.next();
+          setTimeout(() => {
+            this.content.scrollToBottom(500);
+          }, 500);
         });
     }
   }
@@ -597,62 +605,44 @@ export class MyViewReportPage implements OnInit {
       this.selectedTotalAmount = data.selectedTotalAmount;
       this.selectedTotalTxns = data.selectedTotalTxns;
       this.checkReportEdited();
+      this.saveReport();
     }
   }
 
-  selectExpense(expense: Expense) {
-    let isSelectedElementsIncludesExpense = false;
-    if (expense.tx_id) {
-      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
-    } else {
-      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => isEqual(txn, expense));
-    }
-
-    if (isSelectedElementsIncludesExpense) {
-      if (expense.tx_id) {
-        this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== expense.tx_id);
-      } else {
-        this.selectedElements = this.selectedElements.filter((txn) => !isEqual(txn, expense));
-      }
-    } else {
-      this.selectedElements.push(expense);
-    }
-
-    let count;
-    const expensescount = this.etxns$.subscribe((res) => {
-      count = res;
+  removeTxnFromReport() {
+    const removeTxnList$ = [];
+    this.deleteExpensesIdList.forEach((txnId) => {
+      removeTxnList$.push(this.reportService.removeTransaction(this.activatedRoute.snapshot.params.id, txnId));
     });
 
-    // setting Expenses count and amount stats on select
-    if (count === this.selectedElements.length) {
-      this.selectAll = true;
-    } else {
-      this.selectAll = false;
-    }
+    return forkJoin(removeTxnList$);
   }
 
-  switchSelectionMode(expense?) {
-    this.selectionMode = !this.selectionMode;
-    // if (!this.selectionMode) {
-    //   if (this.loadData$.getValue().searchString) {
-    //     this.headerState = HeaderState.simpleSearch;
-    //   } else {
-    //     this.headerState = HeaderState.base;
-    //   }
+  saveReport() {
+    const report = {
+      purpose: this.reportName,
+      id: this.activatedRoute.snapshot.params.id,
+    };
 
-    //   this.selectedElements = [];
-    //   this.setAllExpensesCountAndAmount();
-    // } else {
-    //   this.headerState = HeaderState.multiselect;
-    //   // setting Expense amount & count stats to zero on select init
-    //   this.allExpensesStats$ = of({
-    //     count: 0,
-    //     amount: 0,
-    //   });
-    // }
-
-    // if (expense) {
-    //   this.selectExpense(expense);
-    // }
+    this.reportService
+      .createDraft(report)
+      .pipe(
+        switchMap((res) =>
+          iif(
+            () => this.addedExpensesIdList.length > 0,
+            this.reportService
+              .addTransactions(this.activatedRoute.snapshot.params.id, this.addedExpensesIdList)
+              .pipe(tap(() => this.trackingService.addToExistingReport())),
+            of(false)
+          )
+        ),
+        switchMap((res) => iif(() => this.deleteExpensesIdList.length > 0, this.removeTxnFromReport(), of(false))),
+        finalize(() => {
+          this.addedExpensesIdList = [];
+          this.deleteExpensesIdList = [];
+          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
+        })
+      )
+      .subscribe(noop);
   }
 }

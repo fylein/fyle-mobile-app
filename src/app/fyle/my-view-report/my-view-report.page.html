@@ -115,8 +115,7 @@
       </div>
 
       <!-- Display Associated trip request info, if there is one. Otherwise don't display this block at all -->
-      <div class="view-reports--card" *ngIf="erpt.rp_trip_request_id">
-        <div class="view-reports--card-header">Associated Trip Request</div>
+      <div *ngIf="erpt.rp_trip_request_id">
         <!-- Display this block if trip requests are handled with T&A module of Fyle -->
         <div class="view-reports--card-body" *ngIf="tripRequest$|async as tripRequest; else showOnlyId">
           <div>Request number is {{tripRequest.trp_request_number}}</div>
@@ -125,7 +124,10 @@
         </div>
         <!-- If trip requests are handled externally by the clients, display only the associated trip request ID -->
         <ng-template #showOnlyId>
-          <div class="view-reports--card-body">Trip Request ID is {{erpt.rp_trip_request_id}}</div>
+          <app-fy-alert-info
+            [type]="'information'"
+            [message]="'Associated Trip Request ID is ' + erpt.rp_trip_request_id"
+          ></app-fy-alert-info>
         </ng-template>
       </div>
 
@@ -150,20 +152,19 @@
           </ion-segment-button>
         </ion-segment>
 
+        <!-- Expenses section -->
         <div *ngIf="isExpensesView">
-          <div *ngIf="erpt.rp_num_transactions > 0">
+          <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
+          <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
             <div class="view-reports--divider"></div>
             <div class="view-reports-expense-card-block">
               <div *ngFor="let etxn of etxns$|async as list; let i = index;">
                 <app-expense-card
                   [expense]="etxn"
+                  [etxnIndex]="i"
                   [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
                   [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
-                  [isSelectionModeEnabled]="selectionMode"
-                  [selectedElements]="selectedElements"
                   (goToTransaction)="goToTransaction($event)"
-                  (setMultiselectMode)="switchSelectionMode($event)"
-                  (cardClickedForSelection)="selectExpense($event)"
                   [isFromReports]="true"
                   [isFromViewReports]="true"
                 >
@@ -174,7 +175,7 @@
               <ion-spinner name="crescent"></ion-spinner>
             </ng-template>
           </div>
-          <div class="view-reports--expenses-zero-state" *ngIf="erpt.rp_num_transactions === 0">
+          <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && erpt.rp_num_transactions === 0">
             <div class="text-center">
               <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
               <div class="view-reports--zero-state-header">Looks like this report is empty.</div>
@@ -314,21 +315,44 @@
   *ngIf="!isCommentsView && (((erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0) || (canResubmitReport$ | async))"
 >
   <ion-toolbar class="fy-footer-cta-container" mode="md">
-    <ion-button
-      class="fy-footer-cta fy-footer-cta--primary"
-      *ngIf="canResubmitReport$ | async"
-      (click)="showResubmitReportSummaryPopover()"
-    >
-      Resubmit Report
-    </ion-button>
-    <ion-button
-      class="fy-footer-cta fy-footer-cta--primary"
-      *ngIf="(erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
-      (click)="showSubmitReportSummaryPopover()"
-    >
-      Submit Report
-    </ion-button>
+    <div class="view-reports--cta-container">
+      <div class="view-reports--add-expenses-container">
+        <mat-icon
+          *ngIf="(canResubmitReport$ | async) || (erpt$|async)?.rp_state === 'DRAFT'"
+          (click)="showAddExpensesToReportModal()"
+          class="view-reports--add-expenses-container__icon"
+          svgIcon="plus"
+        >
+        </mat-icon>
+      </div>
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        *ngIf="canResubmitReport$ | async"
+        (click)="showResubmitReportSummaryPopover()"
+      >
+        Resubmit Report
+      </ion-button>
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        *ngIf="(erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
+        (click)="showSubmitReportSummaryPopover()"
+      >
+        Submit Report
+      </ion-button>
+    </div>
   </ion-toolbar>
+</ion-footer>
+
+<ion-footer
+  class="view-reports--add-expense-footer"
+  *ngIf="!isCommentsView && (erpt$|async)?.rp_state === 'APPROVER_PENDING'"
+>
+  <div class="view-reports--add-expense-footer__block">
+    <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">
+      <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
+      <div class="view-reports--add-more-text">Add Expenses to report</div>
+    </div>
+  </div>
 </ion-footer>
 
 <ion-footer *ngIf="isCommentsView" class="view-comment--add-comment-container">

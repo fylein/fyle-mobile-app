@@ -55,9 +55,8 @@ $sent-back-color: #da1e28;
 
   &--card-header {
     display: flex;
-    font-size: 16px;
-    color: #4a4a4a;
-    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+    color: $blue-black;
     padding-bottom: 8px;
     margin-bottom: 8px;
 
@@ -176,7 +175,7 @@ $sent-back-color: #da1e28;
       font-size: 14px;
       line-height: 18px;
       font-weight: 500;
-      max-width: 60%;
+      max-width: 100%;
     }
 
     &__amount {
@@ -209,7 +208,8 @@ $sent-back-color: #da1e28;
     }
 
     &__segment.md {
-      padding: 0 16px 8px;
+      padding: 0 16px;
+      border-bottom: 1px solid $grey-lighter;
     }
 
     &__btn {
@@ -290,6 +290,40 @@ $sent-back-color: #da1e28;
     justify-content: center;
     border-radius: 16px;
     padding: 40px 12px;
+  }
+
+  &--cta-container {
+    display: flex;
+    align-items: center;
+  }
+
+  &--add-expenses-container {
+    border: 1px solid $grey-lightest;
+    padding: 12px;
+    margin-right: 12px;
+    border-radius: 4px;
+    height: 50px;
+
+    &__icon {
+      color: $pink-gradient;
+    }
+  }
+
+  &--add-expense-footer {
+    padding: 12px;
+
+    &__block {
+      border-radius: 4px;
+      border: 1px solid $grey-lightest;
+      height: 40px;
+    }
+
+    &__cta {
+      display: flex;
+      justify-content: center;
+      height: 36px;
+      align-items: center;
+    }
   }
 
   &--add-more-container {
