@@ -14,6 +14,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { SplitExpenseStatusComponent } from './split-expense-status/split-expense-status.component';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { ReportService } from 'src/app/core/services/report.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -61,6 +62,8 @@ export class SplitExpensePage implements OnInit {
 
   showErrorBlock: boolean;
 
+  reportId: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -73,7 +76,8 @@ export class SplitExpensePage implements OnInit {
     private fileService: FileService,
     private navController: NavController,
     private router: Router,
-    private transactionsOutboxService: TransactionsOutboxService
+    private transactionsOutboxService: TransactionsOutboxService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit() {}
@@ -237,10 +241,26 @@ export class SplitExpensePage implements OnInit {
 
     return forkJoin(splitExpense$).pipe(
       switchMap((data: any) => {
+        this.saveToReports(data);
         const txnIds = data.txns.map((txn) => txn.id);
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
       })
     );
+  }
+
+  saveToReports(data) {
+    const reportId = this.reportId;
+    if (reportId) {
+      const splitExpense = data.txns.map((txn) => txn);
+      const txnIds = splitExpense
+        .filter((tx) => {
+          if (tx.state === 'COMPLETE') {
+            return true;
+          }
+        })
+        .map((txn) => txn.id);
+      return this.reportService.addTransactions(reportId, txnIds).subscribe(noop);
+    }
   }
 
   async showSplitExpenseStatusPopup(isSplitSuccessful: boolean) {
@@ -357,7 +377,7 @@ export class SplitExpensePage implements OnInit {
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
       this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
-
+      this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
       if (this.splitType === 'categories') {
         this.categories$ = this.getActiveCategories().pipe(
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
