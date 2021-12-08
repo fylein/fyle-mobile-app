@@ -19,6 +19,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
@@ -70,7 +71,8 @@ export class MyViewReportPage implements OnInit {
     private networkService: NetworkService,
     private trackingService: TrackingService,
     private modalController: ModalController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private refinerService: RefinerService
   ) {}
 
   setupNetworkWatcher() {
@@ -251,7 +253,7 @@ export class MyViewReportPage implements OnInit {
     await popover.present();
 
     const { data } = await popover.onWillDismiss();
-
+    this.refinerService.startSurvey({ actionName: 'Resubmit Report' });
     if (data && data.goBack) {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
     }

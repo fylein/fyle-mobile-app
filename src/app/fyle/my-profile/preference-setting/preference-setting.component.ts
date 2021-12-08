@@ -5,7 +5,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { Currency } from 'src/app/core/models/currency.model';
 
 type EventData = {
-  key: 'instaFyle' | 'bulkFyle' | 'defaultCurrency' | 'formAutofill';
+  key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
   isEnabled: boolean;
   selectedCurrency?: Currency;
 };
