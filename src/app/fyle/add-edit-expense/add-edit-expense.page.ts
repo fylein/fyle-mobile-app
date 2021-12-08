@@ -2185,7 +2185,7 @@ export class AddEditExpensePage implements OnInit {
               }
 
               if (etxn.tx.extracted_data.date) {
-                etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.date);
+                etxn.tx.txn_dt = etxn.tx.extracted_data.date.slice(0, -1);
               }
 
               if (etxn.tx.extracted_data.invoice_dt) {
