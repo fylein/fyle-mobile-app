@@ -131,11 +131,13 @@ export class TeamAdvancePage {
 
   changeState(event?: any, incrementPageNumber = false) {
     this.currentPageNumber = incrementPageNumber ? this.currentPageNumber + 1 : 1;
-    this.loadData$.next({
-      pageNumber: this.currentPageNumber,
-      state: this.filters.state || [],
-      sortParam: this.filters.sortParam,
-      sortDir: this.filters.sortDir,
+    this.advanceRequestService.destroyAdvanceRequestsCacheBuster().subscribe(() => {
+      this.loadData$.next({
+        pageNumber: this.currentPageNumber,
+        state: this.filters.state || [],
+        sortParam: this.filters.sortParam,
+        sortDir: this.filters.sortDir,
+      });
     });
     if (event) {
       event.target.complete();
@@ -164,11 +166,11 @@ export class TeamAdvancePage {
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Creation Date - New to Old',
+            label: 'Created At - New to Old',
             value: SortingValue.creationDateAsc,
           },
           {
-            label: 'Creation Date - Old to New',
+            label: 'Created At - Old to New',
             value: SortingValue.creationDateDesc,
           },
           {
@@ -249,8 +251,13 @@ export class TeamAdvancePage {
     const isApproved = state.includes(AdvancesStates.approved);
     let extraParams: any;
 
-    if ((isPending && isApproved) || (!isPending && !isApproved)) {
-      extraParams = { areq_trip_request_id: ['is.null'] };
+    if (isPending && isApproved) {
+      extraParams = {
+        areq_trip_request_id: ['is.null'],
+        areq_state: ['not.eq.DRAFT'],
+        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
+        or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
+      };
     } else if (isPending) {
       extraParams = {
         areq_state: ['eq.APPROVAL_PENDING'],
@@ -261,6 +268,11 @@ export class TeamAdvancePage {
       extraParams = {
         areq_trip_request_id: ['is.null'],
         areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
+      };
+    } else {
+      extraParams = {
+        areq_trip_request_id: ['is.null'],
+        areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}'],
       };
     }
 

@@ -54,8 +54,7 @@ export class AdvanceRequestService {
     private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
-    private fileService: FileService,
-    private transactionsOutboxService: TransactionsOutboxService
+    private fileService: FileService
   ) {}
 
   @Cacheable({
@@ -178,9 +177,9 @@ export class AdvanceRequestService {
     return of(null);
   }
 
-  @Cacheable({
-    cacheBusterObserver: advanceRequestsCacheBuster$,
-  })
+  // @Cacheable({
+  //   cacheBusterObserver: advanceRequestsCacheBuster$,
+  // })
   getTeamAdvanceRequests(
     config: config = {
       offset: 0,
@@ -193,9 +192,9 @@ export class AdvanceRequestService {
         const defaultParams = {};
         const isPending = config.filter.state.includes(AdvancesStates.pending);
         const isApproved = config.filter.state.includes(AdvancesStates.approved);
-        let approvalState = '';
+        let approvalState;
 
-        if ((isPending && isApproved) || (!isPending && !isApproved)) {
+        if (isPending && isApproved) {
           approvalState = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
         } else if (isApproved) {
           approvalState = 'eq.APPROVAL_DONE';
@@ -203,7 +202,9 @@ export class AdvanceRequestService {
           approvalState = 'eq.APPROVAL_PENDING';
         }
 
-        defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = [approvalState];
+        if (approvalState) {
+          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = [approvalState];
+        }
 
         const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
         return this.apiv2Service.get('/advance_requests', {
@@ -345,67 +346,58 @@ export class AdvanceRequestService {
   }
 
   getInternalStateAndDisplayName(advanceRequest: ExtendedAdvanceRequest): { state: string; name: string } {
-    let state: { state: string; name: string };
-    state = this.getStateIfDraft(advanceRequest, state);
-
-    if (advanceRequest.areq_state === 'INQUIRY') {
-      state = {
+    let internalRepresentation: { state: string; name: string } = {
+      state: null,
+      name: null,
+    };
+    if (advanceRequest.areq_state === 'DRAFT') {
+      internalRepresentation = this.getStateIfDraft(advanceRequest);
+    } else if (advanceRequest.areq_state === 'INQUIRY') {
+      internalRepresentation = {
         state: 'inquiry',
         name: 'Sent Back',
       };
-    }
-
-    if (advanceRequest.areq_state === 'SUBMITTED' || advanceRequest.areq_state === 'APPROVAL_PENDING') {
-      state = {
+    } else if (advanceRequest.areq_state === 'SUBMITTED' || advanceRequest.areq_state === 'APPROVAL_PENDING') {
+      internalRepresentation = {
         state: 'pendingApproval',
-        name: 'Pending Approval',
+        name: 'Pending',
       };
-    }
-
-    if (advanceRequest.areq_state === 'APPROVED') {
-      state = {
+    } else if (advanceRequest.areq_state === 'APPROVED') {
+      internalRepresentation = {
         state: 'approved',
         name: 'Approved',
       };
-    }
-
-    if (advanceRequest.areq_state === 'PAID') {
-      state = {
+    } else if (advanceRequest.areq_state === 'PAID') {
+      internalRepresentation = {
         state: 'paid',
         name: 'Paid',
       };
-    }
-
-    if (advanceRequest.areq_state === 'REJECTED') {
-      state = {
+    } else if (advanceRequest.areq_state === 'REJECTED') {
+      internalRepresentation = {
         state: 'rejected',
         name: 'Rejected',
       };
     }
 
-    return state;
+    return internalRepresentation;
   }
 
-  getStateIfDraft(advanceRequest: ExtendedAdvanceRequest, state: { state: string; name: string }) {
-    if (advanceRequest.areq_state === 'DRAFT') {
-      if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
-        state = {
-          state: 'draft',
-          name: 'Draft',
-        };
-      } else if (advanceRequest.areq_is_pulled_back) {
-        state = {
-          state: 'pulledBack',
-          name: 'Pulled Back',
-        };
-      } else if (advanceRequest.areq_is_sent_back) {
-        state = {
-          state: 'inquiry',
-          name: 'Sent Back',
-        };
-      }
+  getStateIfDraft(advanceRequest: ExtendedAdvanceRequest) {
+    const internalRepresentation: { state: string; name: string } = {
+      state: null,
+      name: null,
+    };
+    if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
+      internalRepresentation.state = 'draft';
+      internalRepresentation.name = 'Draft';
+    } else if (advanceRequest.areq_is_pulled_back) {
+      internalRepresentation.state = 'pulledBack';
+      internalRepresentation.name = 'Pulled Back';
+    } else if (advanceRequest.areq_is_sent_back) {
+      internalRepresentation.state = 'inquiry';
+      internalRepresentation.name = 'Sent Back';
     }
-    return state;
+    return internalRepresentation;
   }
 
   createAdvReqWithFilesAndSubmit(advanceRequest, fileObservables?: Observable<any[]>) {
@@ -463,9 +455,9 @@ export class AdvanceRequestService {
     }
 
     if (sortDir === SortingDirection.ascending) {
-      order += '.asc';
+      order += '.asc,areq_id.desc';
     } else {
-      order += '.desc'; //default
+      order += '.desc,areq_id.desc'; //default
     }
 
     return order;
