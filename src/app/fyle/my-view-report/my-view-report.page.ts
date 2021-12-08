@@ -72,11 +72,11 @@ export class MyViewReportPage implements OnInit {
 
   reportName: string;
 
-  isCommentsView: boolean = false;
+  isCommentsView = false;
 
-  isHistoryView: boolean = false;
+  isHistoryView = false;
 
-  isExpensesView: boolean = true;
+  isExpensesView = true;
 
   estatuses$: Observable<ExtendedStatus[]>;
 
@@ -259,11 +259,9 @@ export class MyViewReportPage implements OnInit {
       )
     );
 
-    this.reportApprovals$ = this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id).pipe(
-      map((reportApprovals) => {
-        return reportApprovals;
-      })
-    );
+    this.reportApprovals$ = this.reportService
+      .getApproversByReportId(this.activatedRoute.snapshot.params.id)
+      .pipe(map((reportApprovals) => reportApprovals));
 
     this.etxns$ = from(this.authService.getEou()).pipe(
       switchMap((eou) =>
