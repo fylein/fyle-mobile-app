@@ -13,6 +13,7 @@
   &--filter-pills-container {
     display: block;
     min-height: 52px;
+    background-color: $pure-white;
   }
 
   &--toolbar {
@@ -47,10 +48,11 @@
   }
 
   &--icon {
-    font-size: 14px;
+    font-size: 16px;
     color: $black-light;
     vertical-align: text-bottom;
-    margin: 0 2px;
+    margin-left: 2px;
+    margin-right: 5px;
   }
 
   &--state-pill {
@@ -142,7 +144,7 @@
   }
 
   &--transactions-zero-state {
-    height: 60%;
+    height: 80%;
   }
 
   &--body {
@@ -220,7 +222,7 @@
   }
 
   &--range-button {
-    padding: 8px 16px;
+    padding: 8px 8px;
     background: $pure-white;
     color: $black-light;
     border: solid 1px $grey;
@@ -242,15 +244,25 @@
     border-radius: 8px;
   }
 
-  &--segment-block {
-    padding-right: 16px;
+  &--segment-container {
+    border-bottom: 1px solid $grey;
+  }
 
+  &--segment-block {
     &__btn {
       color: $blue-black;
-      font-size: 10px;
+      font-size: 3.2vw;
       font-weight: 500;
-      width: 100%;
+      width: 150px;
       text-transform: none;
+    }
+
+    &__btn::before {
+      opacity: 0;
+    }
+
+    &__space-left {
+      margin-left: 6px;
     }
   }
 
@@ -259,6 +271,7 @@
     padding: 5px 14px;
     justify-content: flex-end;
     z-index: 1000;
+    background-color: $pure-white;
 
     &__left {
       margin-right: auto;
@@ -300,6 +313,7 @@
       margin: -10px;
       font-size: 18px;
       background-color: transparent;
+      color: $black-light;
     }
   }
 

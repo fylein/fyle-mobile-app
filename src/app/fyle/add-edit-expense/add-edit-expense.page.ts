@@ -4118,6 +4118,7 @@ export class AddEditExpensePage implements OnInit {
           panelClass: ['msb-success'],
         });
         this.router.navigate(['/', 'enterprise', 'personal_cards']);
+        this.trackingService.newExpenseCreatedFromPersonalCard();
       });
   }
 

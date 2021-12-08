@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { ReportService } from 'src/app/core/services/report.service';
 import { finalize } from 'rxjs/operators';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 @Component({
   selector: 'app-approve-report',
@@ -19,7 +20,11 @@ export class ApproveReportComponent implements OnInit {
 
   approveReportLoading = false;
 
-  constructor(private popoverController: PopoverController, private reportService: ReportService) {}
+  constructor(
+    private popoverController: PopoverController,
+    private reportService: ReportService,
+    private refinerService: RefinerService
+  ) {}
 
   ngOnInit() {
     this.numIssues = this.getNumIssues(this.etxns);
@@ -61,6 +66,7 @@ export class ApproveReportComponent implements OnInit {
         this.popoverController.dismiss({
           goBack: true,
         });
+        this.refinerService.startSurvey({ actionName: 'Approve Report' });
       });
   }
 }
