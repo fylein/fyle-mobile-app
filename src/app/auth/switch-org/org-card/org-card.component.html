@@ -2,7 +2,9 @@
   <ion-row>
     <ion-col class="org-card__icon-container">
       <div class="org-card__icon-container__icon content-center">
-        {{ org.currency }}
+        <ng-container *ngIf="!isLoading; else skeletonText">
+          {{ org.currency }}
+        </ng-container>
       </div>
     </ion-col>
     <ion-col class="org-card__content-container">
@@ -10,21 +12,29 @@
         <ion-row>
           <ion-col>
             <div class="org-card__content-container__title">
-              {{ org.name }}
+              <ng-container *ngIf="!isLoading; else skeletonText">
+                {{ org.name }}
+              </ng-container>
             </div>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col>
             <div class="org-card__content-container__sub-title">
-              {{ org.domain }}
+              <ng-container *ngIf="!isLoading; else skeletonText">
+                {{ org.domain }}
+              </ng-container>
             </div>
           </ion-col>
         </ion-row>
       </ion-grid>
     </ion-col>
     <ion-col *ngIf="isPrimaryOrg" class="org-card__pill-container">
-      <div class="org-card__pill-container__pill">Default Org</div>
+      <div class="org-card__pill-container__pill">Default</div>
     </ion-col>
   </ion-row>
 </ion-grid>
+
+<ng-template #skeletonText>
+  <ion-skeleton-text animated></ion-skeleton-text>
+</ng-template>
