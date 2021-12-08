@@ -102,6 +102,13 @@
                 *ngIf="(attachedReceiptsCount === 0 && !attachmentUploadInProgress)"
                 class="add-edit-expense--receipt-image"
               >
+                <input
+                  *ngIf="platform.is('ios')"
+                  type="file"
+                  #fileUpload
+                  accept="application/pdf,image/*"
+                  style="display: none"
+                />
                 <mat-icon class="add-edit-expense--receipt-image-icon" svgIcon="add-to-list"></mat-icon>
               </div>
 

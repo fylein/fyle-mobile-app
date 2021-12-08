@@ -61,7 +61,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
-import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -109,6 +109,8 @@ export class AddEditExpensePage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef;
 
   @ViewChild('comments') commentsContainer: ElementRef;
+
+  @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
   etxn$: Observable<any>;
 
@@ -351,7 +353,8 @@ export class AddEditExpensePage implements OnInit {
     private sanitizer: DomSanitizer,
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private platform: Platform
   ) {}
 
   goBack() {
@@ -3696,19 +3699,18 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  async addAttachments(event) {
-    event.stopPropagation();
-    event.preventDefault();
+  // async addAttachments(event) {
+  //   event.stopPropagation();
+  //   event.preventDefault();
+  //   if (this.platform.is('ios')) {
+  //     const data = this.getImageFromImagePicker();
+  //     this.newMethod(data);
+  //   } else {
+  //     this.addAttachmentsNew(event);
+  //   }
+  // }
 
-    const popup = await this.popoverController.create({
-      component: CameraOptionsPopupComponent,
-      cssClass: 'camera-options-popover',
-    });
-
-    await popup.present();
-
-    const { data } = await popup.onWillDismiss();
-
+  newMethod(data) {
     if (data) {
       const fileInfo = {
         type: data.type,
@@ -3782,6 +3784,118 @@ export class AddEditExpensePage implements OnInit {
           });
       }
     }
+  }
+
+  async addAttachments(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    let data1;
+
+    if (this.platform.is('ios')) {
+      const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
+
+      nativeElement.onchange = async () => {
+        const file = nativeElement.files[0];
+        console.log('check what is file->', file);
+
+        if (file) {
+          const dataUrl = this.fileService.readFile(file);
+          console.log('check what is url-->', dataUrl);
+          data1 = {
+            type: file.type,
+            dataUrl,
+            actionSource: 'gallery_upload',
+          };
+        }
+      };
+
+      nativeElement.click();
+      this.newMethod(data1);
+    } else {
+      const popup = await this.popoverController.create({
+        component: CameraOptionsPopupComponent,
+        cssClass: 'camera-options-popover',
+      });
+
+      await popup.present();
+
+      const { data } = await popup.onWillDismiss();
+      this.newMethod(data);
+    }
+
+    // if (data) {
+    //   const fileInfo = {
+    //     type: data.type,
+    //     url: data.dataUrl,
+    //     thumbnail: data.dataUrl,
+    //   };
+    //   if (this.mode === 'add') {
+    //     const fileInfo = {
+    //       type: data.type,
+    //       url: data.dataUrl,
+    //       thumbnail: data.dataUrl,
+    //     };
+    //     this.newExpenseDataUrls.push(fileInfo);
+    //     this.sanitizer.bypassSecurityTrustUrl(fileInfo.url);
+    //     this.newExpenseDataUrls.forEach((fileObj) => {
+    //       fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
+    //       return fileObj;
+    //     });
+
+    //     if (this.source.includes('MOBILE') && !(this.source.includes('_CAMERA') || this.source.includes('_FILE'))) {
+    //       if (this.newExpenseDataUrls.some((fileObj) => fileObj.type === 'pdf')) {
+    //         this.source = 'MOBILE_FILE';
+    //       } else if (this.newExpenseDataUrls.some((fileObj) => fileObj.type === 'image')) {
+    //         this.source = 'MOBILE_CAMERA';
+    //       }
+    //     }
+
+    //     this.attachedReceiptsCount = this.newExpenseDataUrls.length;
+    //     this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
+    //       if (isConnected && this.attachedReceiptsCount === 1) {
+    //         this.parseFile(fileInfo);
+    //       }
+    //     });
+    //   } else {
+    //     const editExpenseAttachments$ = this.etxn$.pipe(
+    //       switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
+    //       map((fileObjs) => (fileObjs && fileObjs.length) || 0)
+    //     );
+
+    //     this.attachmentUploadInProgress = true;
+    //     let attachmentType = 'image';
+
+    //     if (data.type === 'application/pdf' || data.type === 'pdf') {
+    //       attachmentType = 'pdf';
+    //     }
+    //     from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType))
+    //       .pipe(
+    //         switchMap((fileObj: any) => {
+    //           fileObj.transaction_id = this.activatedRoute.snapshot.params.id;
+    //           return this.fileService.post(fileObj);
+    //         }),
+    //         switchMap(() =>
+    //           editExpenseAttachments$.pipe(
+    //             withLatestFrom(this.isConnected$),
+    //             map(([attachments, isConnected]) => ({
+    //               attachments,
+    //               isConnected,
+    //             }))
+    //           )
+    //         ),
+    //         finalize(() => {
+    //           this.loadAttachments$.next();
+    //           this.attachmentUploadInProgress = false;
+    //         })
+    //       )
+    //       .subscribe(({ attachments, isConnected }) => {
+    //         this.attachedReceiptsCount = attachments;
+    //         if (isConnected && this.attachedReceiptsCount === 1) {
+    //           this.parseFile(fileInfo);
+    //         }
+    //       });
+    //   }
+    // }
   }
 
   getReceiptExtension(name) {
@@ -4154,5 +4268,30 @@ export class AddEditExpensePage implements OnInit {
     return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
       switchMap((fileObj: any) => this.postToFileService(fileObj, txnId))
     );
+  }
+
+  getImageFromImagePicker() {
+    this.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
+
+    const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
+
+    nativeElement.onchange = async () => {
+      const file = nativeElement.files[0];
+      console.log('check what is file->', file);
+
+      if (file) {
+        const dataUrl = this.fileService.readFile(file);
+        console.log('check what is url-->', dataUrl);
+        return {
+          type: file.type,
+          dataUrl,
+          actionSource: 'gallery_upload',
+        };
+      } else {
+        return {};
+      }
+    };
+
+    nativeElement.click();
   }
 }
