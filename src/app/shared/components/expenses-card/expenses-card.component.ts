@@ -45,7 +45,9 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isFromViewReports: boolean;
 
-  @Output() goToTransaction: EventEmitter<Expense> = new EventEmitter();
+  @Input() etxnIndex: number;
+
+  @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter();
 
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
 
@@ -108,7 +110,7 @@ export class ExpensesCardComponent implements OnInit {
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
-      this.goToTransaction.emit(this.expense);
+      this.goToTransaction.emit({ etxn: this.expense, etxnIndex: this.etxnIndex });
     }
   }
 
@@ -327,9 +329,9 @@ export class ExpensesCardComponent implements OnInit {
 
   async addAttachments(event) {
     if (
+      !this.isFromViewReports &&
       !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) &&
-      !this.isSelectionModeEnabled &&
-      !this.isFromViewReports
+      !this.isSelectionModeEnabled
     ) {
       event.stopPropagation();
       event.preventDefault();

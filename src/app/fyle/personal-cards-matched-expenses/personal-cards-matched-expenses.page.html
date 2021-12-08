@@ -1,10 +1,16 @@
-<app-fy-header [currentState]="headerState" [navigateBack]="navigateBack" [title]="'Matching Expenses Found'">
-</app-fy-header>
+<ion-header class="fy-header" mode="md">
+  <ion-toolbar mode="md" class="fy-header--toolbar">
+    <ion-buttons mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
+    <ion-title mode="md" class="fy-header--title"> Matching Expenses Found </ion-title>
+  </ion-toolbar>
+</ion-header>
 
 <ion-content class="matched-expenses">
   <div class="matched-expenses--body">
     <div class="matched-expenses--transaction">
-      <div class="matched-expenses--title">Transaction Details</div>
+      <div class="matched-expenses--title">TRANSACTION DETAILS</div>
       <div class="matched-expenses--transaction-details">
         <div class="matched-expenses--main-info">
           <div class="matched-expenses--purpose-amount-block">
@@ -22,7 +28,7 @@
                 class="matched-expenses--amount"
                 [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
               >
-                {{txnDetails.btxn_amount}}
+                {{ txnDetails.btxn_amount | number: '1.2-2' }}
               </span>
               <span
                 class="matched-expenses--type"
@@ -39,7 +45,7 @@
     </div>
 
     <div class="matched-expenses--action-content">
-      <div class="matched-expenses--action-title">Select a matching expense</div>
+      <div class="matched-expenses--action-title">SELECT A MATCHING EXPENSE</div>
       <div class="matched-expenses--expenses-preview">
         <ng-container *ngIf="matchedExpenses$| async as matchedExpenses">
           <ng-container *ngFor="let expense of matchedExpenses; let first = first;">
@@ -50,7 +56,7 @@
           </ng-container>
         </ng-container>
       </div>
-      <div class="matched-expenses--action-title">In case ther is no match</div>
+      <div class="matched-expenses--action-title">IN CASE THERE IS NO MATCH</div>
       <div class="matched-expenses--action-container">
         <div class="matched-expenses--action-card" (click)="createExpense()">
           <div class="matched-expenses--block-action">
@@ -58,7 +64,7 @@
               <ion-icon class="matched-expenses--icon" [src]="'assets/svg/list.svg'" slot="icon-only"> </ion-icon>
               <p class="matched-expenses--heading">Create Expense</p>
             </div>
-            <ion-icon class="matched-expenses--icon" [src]="'assets/svg/arrow.svg'" slot="icon-only"> </ion-icon>
+            <ion-icon class="matched-expenses--arrow" [src]="'assets/svg/arrow.svg'" slot="icon-only"> </ion-icon>
           </div>
         </div>
       </div>

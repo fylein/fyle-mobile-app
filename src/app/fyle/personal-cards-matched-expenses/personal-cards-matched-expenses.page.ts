@@ -31,20 +31,6 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
 
   ionViewWillEnter() {
     const txnDate = moment(this.txnDetails.btxn_transaction_dt).format('yyyy-MM-DD');
-    this.personalCardsService.getMatchedExpensesCount(this.txnDetails.btxn_amount, txnDate).subscribe((count) => {
-      if (count === 0) {
-        this.router.navigate(
-          [
-            '/',
-            'enterprise',
-            'add_edit_expense',
-            { personalCardTxn: JSON.stringify(this.txnDetails), navigate_back: true },
-          ],
-          { replaceUrl: true }
-        );
-      }
-    });
-
     this.matchedExpenses$ = this.personalCardsService.getMatchedExpenses(this.txnDetails.btxn_amount, txnDate);
   }
 
@@ -64,6 +50,7 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
         expenseId,
         card: this.txnDetails.ba_account_number,
         cardTxnId: this.txnDetails.btxn_id,
+        type: 'match',
       },
       cssClass: 'expense-preview-modal',
       showBackdrop: true,

@@ -862,7 +862,6 @@ export class MyExpensesPage implements OnInit {
     const newQueryParams: any = {
       or: [],
     };
-
     this.generateDateParams(newQueryParams);
 
     this.generateReceiptAttachedParams(newQueryParams);
@@ -1350,7 +1349,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  goToTransaction(expense) {
+  goToTransaction({ etxn: expense, etxnIndex }) {
     let category;
 
     if (expense.tx_org_category) {

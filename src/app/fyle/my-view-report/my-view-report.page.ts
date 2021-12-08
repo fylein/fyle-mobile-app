@@ -27,8 +27,10 @@ import * as moment from 'moment';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AddExpensesToReportComponent } from '../my-edit-report/add-expenses-to-report/add-expenses-to-report.component';
-import { Expense } from 'src/app/core/models/expense.model';
 import { cloneDeep, isEqual } from 'lodash';
+import { RefinerService } from 'src/app/core/services/refiner.service';
+import { Expense } from 'src/app/core/models/expense.model';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 @Component({
   selector: 'app-my-view-report',
@@ -40,7 +42,7 @@ export class MyViewReportPage implements OnInit {
 
   erpt$: Observable<ExtendedReport>;
 
-  etxns$: Observable<any[]>;
+  etxns$: Observable<Expense[]>;
 
   sharedWith$: Observable<any[]>;
 
@@ -107,10 +109,14 @@ export class MyViewReportPage implements OnInit {
   selectionMode = false;
 
   isReportEdited: any;
+
   selectedTotalAmount: any;
+
   selectedTotalTxns: any;
 
   selectAll = false;
+
+  reportEtxnIds: string[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -127,7 +133,8 @@ export class MyViewReportPage implements OnInit {
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private refinerService: RefinerService
   ) {}
 
   setupNetworkWatcher() {
@@ -385,7 +392,7 @@ export class MyViewReportPage implements OnInit {
     await popover.present();
 
     const { data } = await popover.onWillDismiss();
-
+    this.refinerService.startSurvey({ actionName: 'Resubmit Report' });
     if (data && data.goBack) {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
     }
@@ -412,7 +419,7 @@ export class MyViewReportPage implements OnInit {
     }
   }
 
-  async goToTransaction(etxn) {
+  async goToTransaction({ etxn, etxnIndex }) {
     const erpt = await this.erpt$.toPromise();
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
@@ -422,29 +429,30 @@ export class MyViewReportPage implements OnInit {
     }
 
     if (category === 'activity') {
-      this.popupService.showPopup({
-        header: 'Cannot Edit Activity',
-        message: 'Editing activity is not supported in mobile app.',
+      const action = canEdit ? 'Edit' : 'View';
+      return this.popupService.showPopup({
+        header: `Cannot ${action} Activity`,
+        message: `${action}ing activity is not supported in mobile app.`,
         primaryCta: {
           text: 'Cancel',
         },
       });
     }
 
-    let route;
+    let route: string;
 
     if (category === 'mileage') {
-      route = '/enterprise/my_view_mileage';
+      route = '/enterprise/view_mileage';
       if (canEdit) {
         route = '/enterprise/add_edit_mileage';
       }
     } else if (category === 'per diem') {
-      route = '/enterprise/my_view_per_diem';
+      route = '/enterprise/view_per_diem';
       if (canEdit) {
         route = '/enterprise/add_edit_per_diem';
       }
     } else {
-      route = '/enterprise/my_view_expense';
+      route = '/enterprise/view_expense';
       if (canEdit) {
         route = '/enterprise/add_edit_expense';
       }
@@ -459,7 +467,16 @@ export class MyViewReportPage implements OnInit {
         },
       ]);
     } else {
-      this.router.navigate([route, { id: etxn.tx_id }]);
+      this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
+      this.router.navigate([
+        route,
+        {
+          id: etxn.tx_id,
+          txnIds: JSON.stringify(this.reportEtxnIds),
+          activeIndex: etxnIndex,
+          view: ExpenseView.individual,
+        },
+      ]);
     }
   }
 
@@ -500,7 +517,7 @@ export class MyViewReportPage implements OnInit {
       componentProps: {
         erpt$: this.erpt$,
         etxns$: this.etxns$,
-        view: 'Individual',
+        view: ExpenseView.individual,
       },
       presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
@@ -509,7 +526,7 @@ export class MyViewReportPage implements OnInit {
     await viewInfoModal.present();
     await viewInfoModal.onWillDismiss();
 
-    this.trackingService.clickViewReportInfo({ view: 'Individual' });
+    this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
 
   canEditTxn(txState) {

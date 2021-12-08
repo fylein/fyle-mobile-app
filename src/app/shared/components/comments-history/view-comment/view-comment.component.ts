@@ -232,7 +232,7 @@ export class ViewCommentComponent implements OnInit {
       this.router.navigate([
         '/',
         'enterprise',
-        'my_view_expense',
+        'view_expense',
         {
           id: this.matchedExpense.tx_id,
         },

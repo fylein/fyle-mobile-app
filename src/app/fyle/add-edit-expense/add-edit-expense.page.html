@@ -2,11 +2,7 @@
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
-        <ion-icon
-          class="icon--navigate-left"
-          [src]="'../../../../assets/svg/navigate-left.svg'"
-          slot="icon-only"
-        ></ion-icon>
+        <ion-icon class="icon--navigate" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
@@ -83,9 +79,12 @@
           </ng-container>
 
           <ng-container *ngIf="isAmountCapped$|async">
-            <div class="add-edit-expense--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
-              Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
-              '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+            <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
+              <mat-icon class="capped-icon" svgIcon="fy-info"></mat-icon>
+              <div class="capped-message">
+                Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
+                '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+              </div>
             </div>
           </ng-container>
         </ng-container>
@@ -153,6 +152,7 @@
           [attachments]="newExpenseDataUrls"
           (addMoreAttachments)="addAttachments($event)"
           (viewAttachments)="viewAttachments()"
+          [canEdit]="true"
         >
         </app-receipt-preview-thumbnail>
 
@@ -163,6 +163,7 @@
             (addMoreAttachments)="addAttachments($event)"
             (viewAttachments)="viewAttachments()"
             [isUploading]="attachmentUploadInProgress"
+            [canEdit]="true"
           >
           </app-receipt-preview-thumbnail>
         </ng-container>
@@ -359,9 +360,10 @@
                 </mat-checkbox>
               </div>
             </div>
-
-            <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
-              Please select a project.
+            <div *ngIf="isProjectsVisible$|async">
+              <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
+                Please select a project.
+              </div>
             </div>
           </ng-container>
 

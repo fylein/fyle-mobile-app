@@ -1,0 +1,46 @@
+<div class="date-range-modal" *ngIf="!isCalenderVisible">
+  <ion-list>
+    <div class="date-range-modal--title">DATE RANGE</div>
+    <ion-item (click)="selectRange('This Month')">
+      <ion-label>
+        <div class="date-range-modal--label">This Month</div>
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="selectRange('Last Month')">
+      <ion-label>
+        <div class="date-range-modal--label">Last Month</div>
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="selectRange('Last 30 Days')">
+      <ion-label>
+        <div class="date-range-modal--label">Last 30 Days</div>
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="selectRange('Last 60 Days')">
+      <ion-label>
+        <div class="date-range-modal--label">Last 60 Days</div>
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="selectRange('All Time')">
+      <ion-label>
+        <div class="date-range-modal--label">All Time</div>
+      </ion-label>
+    </ion-item>
+    <ion-item (click)="picker.open()">
+      <ion-label>
+        <div class="date-range-modal--label">Custom Range</div>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</div>
+<mat-date-range-input [rangePicker]="picker" class="date-range-modal--range-picker">
+  <input matStartDate placeholder="Start date" #dateRangeStart />
+  <input matEndDate placeholder="End date" (dateChange)="datePicked()" #dateRangeEnd />
+</mat-date-range-input>
+<mat-date-range-picker
+  touchUi="true"
+  (opened)="calenderOpened()"
+  (closed)="calenderClosed()"
+  panelClass="datepickerOne"
+  #picker
+></mat-date-range-picker>
