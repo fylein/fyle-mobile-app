@@ -15,6 +15,9 @@ import { SplitExpenseService } from 'src/app/core/services/split-expense.service
 import { SplitExpenseStatusComponent } from './split-expense-status/split-expense-status.component';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 @Component({
   selector: 'app-split-expense',
@@ -77,7 +80,9 @@ export class SplitExpensePage implements OnInit {
     private navController: NavController,
     private router: Router,
     private transactionsOutboxService: TransactionsOutboxService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {}
@@ -242,7 +247,8 @@ export class SplitExpensePage implements OnInit {
     return forkJoin(splitExpense$).pipe(
       switchMap((data: any) => {
         if (this.reportId) {
-          this.addToReport(data);
+          const dem = this.addToReport(data);
+          console.log('de', dem);
         }
         const txnIds = data.txns.map((txn) => txn.id);
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
@@ -260,8 +266,29 @@ export class SplitExpensePage implements OnInit {
         }
       })
       .map((txn) => txn.id);
-    return this.reportService.addTransactions(reportId, txnIds).subscribe(noop);
+    return this.reportService
+      .addTransactions(reportId, txnIds)
+      .pipe
+      // tap(() => this.showAddToReportSuccessToast(reportId)),
+      ()
+      .subscribe(noop);
   }
+
+  // showAddToReportSuccessToast(reportId: string){
+  //   const toastMessageData = {
+  //     message: 'Expense added to report successfully',
+  //     redirectionText: 'View Report',
+  //   };
+
+  //   const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+  //     ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+  //     panelClass: ['msb-success-with-camera-icon'],
+  //   });
+
+  //   expensesAddedToReportSnackBar.onAction().subscribe(() => {
+  //     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
+  //   });
+  // }
 
   async showSplitExpenseStatusPopup(isSplitSuccessful: boolean) {
     const splitExpenseStatusPopup = await this.popoverController.create({
