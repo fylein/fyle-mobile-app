@@ -4,6 +4,7 @@
   [title]="'Personal Cards'"
   (simpleSearchCancel)="onSimpleSearchCancel()"
   (multiselectBack)="switchSelectionMode()"
+  [isHiddenBorder]="true"
 >
   <ng-container base>
     <ion-buttons mode="md" slot="end">
@@ -32,7 +33,7 @@
     </ion-buttons>
   </ng-container>
   <ng-container personalCardContent *ngIf="!isLoading && ((linkedAccountsCount$ | async) !== 0)">
-    <ion-toolbar mode="{{mode}}">
+    <ion-toolbar mode="{{mode}}" class="personal-cards--segment-container">
       <ion-segment
         class="personal-cards-segment-block"
         (ionChange)="segmentChanged($event)"
@@ -41,7 +42,10 @@
         <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn">
           Transactions
         </ion-segment-button>
-        <ion-segment-button value="MATCHED" class="personal-cards--segment-block__btn">
+        <ion-segment-button
+          value="MATCHED"
+          class="personal-cards--segment-block__btn personal-cards--segment-block__space-left"
+        >
           Expenses Created
         </ion-segment-button>
         <ion-segment-button value="HIDDEN" class="personal-cards--segment-block__btn"> Hidden </ion-segment-button>
@@ -124,7 +128,7 @@
     </div>
   </ng-container>
 </ng-container>
-<ion-content class="personal-cards--content" [scrollEvents]="true" (ionScroll)="onScroll($event)">
+<ion-content class="personal-cards--content" [scrollEvents]="true">
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -166,14 +170,24 @@
         >
           <app-fy-zero-state
             class="stats--zero-state"
+            *ngIf="!isSearchBarFocused"
             image="../../../../assets/images/no-transactions.svg"
             header="No Transactions Found!"
             message="Looks like you have no transactions"
             [unscaledImage]="true"
             [useNewStyling]="true"
           ></app-fy-zero-state>
+          <app-fy-zero-state
+            class="stats--zero-state"
+            *ngIf="isSearchBarFocused"
+            image="../../../../assets/images/no-search-result.svg"
+            header="No Search Results found !"
+            message="No transactions matched for your search"
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
         </div>
-        <ng-container *ngIf="transactions$ | async as transactions">
+        <ng-container *ngIf="((transactionsCount$ | async) !== 0) && transactions$ | async as transactions">
           <ng-container *ngFor="let transaction of transactions; let i = index">
             <app-personal-card-transaction
               (click)="createExpense(transaction)"
@@ -229,7 +243,7 @@
         <ion-button
           (click)="hideSelectedTransactions()"
           [disabled]="isHiding"
-          [loadingText]="'hiding'"
+          [loadingText]="'Hiding'"
           [loading]="isHiding"
           appFormButtonValidation
           class="btn-primary"

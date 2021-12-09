@@ -65,6 +65,7 @@
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
             {{ expenseDetails.tx_vendor }}
+            <ng-container *ngIf="!expenseDetails.tx_vendor">-</ng-container>
           </div>
         </ion-col>
       </ion-row>

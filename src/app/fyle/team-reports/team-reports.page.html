@@ -57,9 +57,9 @@
     </ion-refresher>
 
     <ng-container *ngIf="filterPills?.length">
-      <div class="reports--filter-pills-container">
+      <div class="filter-pills-container">
         <app-fy-filter-pills
-          class="reports--filter-pills"
+          class="filter-pills"
           (filterClose)="onFilterClose($event)"
           (filterClicked)="onFilterClick($event)"
           (clearAll)="onFilterPillsClearAll()"

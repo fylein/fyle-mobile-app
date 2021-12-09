@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, Subject, from, noop } from 'rxjs';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, switchMap, finalize, map, scan, shareReplay, tap, take } from 'rxjs/operators';

@@ -754,8 +754,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       this.zone.run(() => {
         this.txnDateRange = data.range;
         if (data.range === 'Custom Range') {
-          const startDate = data.startDate && moment(data.startDate).format('MMM-D');
-          const endDate = data.endDate && moment(data.endDate).format('MMM-D');
+          const startDate = data.startDate && moment(data.startDate).format('MMM D');
+          const endDate = data.endDate && moment(data.endDate).format('MMM D');
           this.txnDateRange = `${startDate} - ${endDate}`;
         }
       });
@@ -773,20 +773,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadData$.next(currentParams);
     if (event) {
       event.target.complete();
-    }
-  }
-
-  onScroll(event) {
-    if (event.detail.scrollTop > 0) {
-      this.scrolled = true;
-    } else {
-      this.scrolled = false;
-    }
-
-    if (event.detail.deltaY > 0) {
-      this.scrollingDirection = 'down';
-    } else {
-      this.scrollingDirection = 'up';
     }
   }
 }
