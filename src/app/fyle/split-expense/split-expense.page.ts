@@ -314,7 +314,7 @@ export class SplitExpensePage implements OnInit {
               return forkJoin(observables$);
             }),
             tap((res) => {
-              const message = 'Your expense was split successfully';
+              const message = 'Your expense was split successfully.';
               this.matSnackBar.openFromComponent(ToastMessageComponent, {
                 ...this.snackbarProperties.setSnackbarProperties('success', { message }),
                 panelClass: ['msb-success-with-camera-icon'],
@@ -323,18 +323,12 @@ export class SplitExpensePage implements OnInit {
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
             }),
             catchError((err) => {
-              const toastMessageData = {
-                message: 'We were unable to split your expense. Please try again later',
-                redirectionText: 'Retry',
-              };
+              const message = 'We were unable to split your expense. Please try again later.';
               const splitExpenseErroeSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-                ...this.snackbarProperties.setSnackbarProperties('failure', toastMessageData),
+                ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
                 panelClass: ['msb-failure-with-camera-icon'],
               });
-              this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
-              splitExpenseErroeSnackBar.onAction().subscribe(() => {
-                this.router.navigate(['/', 'enterprise', 'my_expenses']);
-              });
+              this.trackingService.showToastMessage({ ToastContent: message });
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
               return throwError(err);
             }),
