@@ -241,26 +241,26 @@ export class SplitExpensePage implements OnInit {
 
     return forkJoin(splitExpense$).pipe(
       switchMap((data: any) => {
-        this.saveToReports(data);
+        if (this.reportId) {
+          this.addToReport(data);
+        }
         const txnIds = data.txns.map((txn) => txn.id);
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
       })
     );
   }
 
-  saveToReports(data) {
+  addToReport(data) {
     const reportId = this.reportId;
-    if (reportId) {
-      const splitExpense = data.txns.map((txn) => txn);
-      const txnIds = splitExpense
-        .filter((tx) => {
-          if (tx.state === 'COMPLETE') {
-            return true;
-          }
-        })
-        .map((txn) => txn.id);
-      return this.reportService.addTransactions(reportId, txnIds).subscribe(noop);
-    }
+    const splitExpense = data.txns.map((txn) => txn);
+    const txnIds = splitExpense
+      .filter((tx) => {
+        if (tx.state === 'COMPLETE') {
+          return true;
+        }
+      })
+      .map((txn) => txn.id);
+    return this.reportService.addTransactions(reportId, txnIds).subscribe(noop);
   }
 
   async showSplitExpenseStatusPopup(isSplitSuccessful: boolean) {
