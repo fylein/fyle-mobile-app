@@ -267,6 +267,9 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
   }
 
   async review() {
+    setTimeout(() => {
+      this.stopCamera();
+    }, 500);
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
@@ -329,7 +332,6 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
       };
 
       const result = await CameraPreview.capture(cameraPreviewPictureOptions);
-      await this.stopCamera();
       const base64PictureData = 'data:image/jpeg;base64,' + result.value;
       this.lastImage = base64PictureData;
       if (!this.isBulkMode) {
