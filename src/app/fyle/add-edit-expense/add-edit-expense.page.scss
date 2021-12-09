@@ -165,12 +165,9 @@
   }
 
   &--receipt-image-icon {
-    color: $brand-primary;
     height: 36px;
-    width: 34px;
-    position: relative;
-    top: 24%;
-    left: 5px;
+    width: 35px;
+    margin: 14px;
   }
 
   &--receipt-add-more-icon {
