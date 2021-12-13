@@ -20,7 +20,6 @@ export class TeamAdvCardComponent implements OnInit {
 
   ngOnInit() {
     this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(this.advanceRequest);
-    console.log(this.internalState);
   }
 
   onGoToAdvances() {
