@@ -26,10 +26,10 @@ export class FiltersHelperService {
     const filterPills: FilterPill[] = [];
 
     const filterPillsMap = {
-      [SortingValue.creationDateAsc]: 'creation date - new to old',
-      [SortingValue.creationDateDesc]: 'creation date - old to new',
-      [SortingValue.approvalDateAsc]: 'approval date - new to old',
-      [SortingValue.approvalDateDesc]: 'approval date - old to new',
+      [SortingValue.creationDateAsc]: 'created at - new to old',
+      [SortingValue.creationDateDesc]: 'created at - old to new',
+      [SortingValue.approvalDateAsc]: 'approved at - new to old',
+      [SortingValue.approvalDateDesc]: 'approved at - old to new',
       [SortingValue.projectAsc]: 'project - A to Z',
       [SortingValue.projectDesc]: 'project - Z to A',
     };
