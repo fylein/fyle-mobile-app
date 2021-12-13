@@ -446,4 +446,9 @@
     --ion-grid-padding: 0;
     --ion-grid-column-padding: 0;
   }
+
+  &--cost-center-alert {
+    margin-top: 8px;
+    display: block;
+  }
 }

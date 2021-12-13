@@ -107,6 +107,8 @@ export class AddEditMileagePage implements OnInit {
 
   isProjectsEnabled$: Observable<boolean>;
 
+  isCostCentersEnabled$: Observable<boolean>;
+
   customInputs$: Observable<any>;
 
   costCenters$: Observable<any>;
@@ -1069,6 +1071,8 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.customInputs$ = this.getCustomInputs();
+
+    this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,

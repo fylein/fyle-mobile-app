@@ -152,6 +152,8 @@ export class AddEditExpensePage implements OnInit {
 
   isProjectsEnabled$: Observable<boolean>;
 
+  isCostCentersEnabled$: Observable<boolean>;
+
   flightJourneyTravelClassOptions$: Observable<any>;
 
   customInputs$: Observable<any>;
@@ -846,6 +848,8 @@ export class AddEditExpensePage implements OnInit {
 
   setupCostCenters() {
     const orgSettings$ = this.offlineService.getOrgSettings();
+
+    this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
