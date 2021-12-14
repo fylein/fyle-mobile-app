@@ -12,8 +12,11 @@ import { FileService } from 'src/app/core/services/file.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
-import { SplitExpenseStatusComponent } from './split-expense-status/split-expense-status.component';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -73,7 +76,10 @@ export class SplitExpensePage implements OnInit {
     private fileService: FileService,
     private navController: NavController,
     private router: Router,
-    private transactionsOutboxService: TransactionsOutboxService
+    private trackingService: TrackingService,
+    private transactionsOutboxService: TransactionsOutboxService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {}
@@ -243,23 +249,6 @@ export class SplitExpensePage implements OnInit {
     );
   }
 
-  async showSplitExpenseStatusPopup(isSplitSuccessful: boolean) {
-    const splitExpenseStatusPopup = await this.popoverController.create({
-      component: SplitExpenseStatusComponent,
-      componentProps: {
-        isSplitSuccessful,
-      },
-    });
-
-    await splitExpenseStatusPopup.present();
-
-    const { data } = await splitExpenseStatusPopup.onWillDismiss();
-
-    if (isSplitSuccessful) {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    }
-  }
-
   getAttachedFiles(transactionId) {
     return this.fileService.findByTransactionId(transactionId).pipe(
       map((uploadedFiles) => {
@@ -325,10 +314,22 @@ export class SplitExpensePage implements OnInit {
               return forkJoin(observables$);
             }),
             tap((res) => {
-              this.showSplitExpenseStatusPopup(true);
+              const message = 'Your expense was split successfully.';
+              this.matSnackBar.openFromComponent(ToastMessageComponent, {
+                ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+                panelClass: ['msb-success-with-camera-icon'],
+              });
+              this.trackingService.showToastMessage({ ToastContent: message });
+              this.router.navigate(['/', 'enterprise', 'my_expenses']);
             }),
             catchError((err) => {
-              this.showSplitExpenseStatusPopup(false);
+              const message = 'We were unable to split your expense. Please try again later.';
+              const splitExpenseErroeSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+                ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+                panelClass: ['msb-failure-with-camera-icon'],
+              });
+              this.trackingService.showToastMessage({ ToastContent: message });
+              this.router.navigate(['/', 'enterprise', 'my_expenses']);
               return throwError(err);
             }),
             finalize(() => {

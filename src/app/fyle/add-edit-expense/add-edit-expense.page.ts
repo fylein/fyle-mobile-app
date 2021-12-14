@@ -61,7 +61,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
-import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -110,6 +110,8 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('comments') commentsContainer: ElementRef;
 
+  @ViewChild('fileUpload', { static: false }) fileUpload: any;
+
   etxn$: Observable<any>;
 
   paymentModes$: Observable<any[]>;
@@ -149,6 +151,8 @@ export class AddEditExpensePage implements OnInit {
   reports$: Observable<any>;
 
   isProjectsEnabled$: Observable<boolean>;
+
+  isCostCentersEnabled$: Observable<boolean>;
 
   flightJourneyTravelClassOptions$: Observable<any>;
 
@@ -351,7 +355,8 @@ export class AddEditExpensePage implements OnInit {
     private sanitizer: DomSanitizer,
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private platform: Platform
   ) {}
 
   goBack() {
@@ -843,6 +848,8 @@ export class AddEditExpensePage implements OnInit {
 
   setupCostCenters() {
     const orgSettings$ = this.offlineService.getOrgSettings();
+
+    this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
@@ -2185,7 +2192,7 @@ export class AddEditExpensePage implements OnInit {
               }
 
               if (etxn.tx.extracted_data.date) {
-                etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.date);
+                etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.date));
               }
 
               if (etxn.tx.extracted_data.invoice_dt) {
@@ -3696,19 +3703,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  async addAttachments(event) {
-    event.stopPropagation();
-    event.preventDefault();
-
-    const popup = await this.popoverController.create({
-      component: CameraOptionsPopupComponent,
-      cssClass: 'camera-options-popover',
-    });
-
-    await popup.present();
-
-    const { data } = await popup.onWillDismiss();
-
+  attachReceipts(data) {
     if (data) {
       const fileInfo = {
         type: data.type,
@@ -3781,6 +3776,38 @@ export class AddEditExpensePage implements OnInit {
             }
           });
       }
+    }
+  }
+
+  async addAttachments(event) {
+    event.stopPropagation();
+    let fileData;
+
+    if (this.platform.is('ios')) {
+      const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
+      nativeElement.onchange = async () => {
+        const file = nativeElement.files[0];
+        if (file) {
+          const dataUrl = await this.fileService.readFile(file);
+          fileData = {
+            type: file.type,
+            dataUrl,
+            actionSource: 'gallery_upload',
+          };
+          this.attachReceipts(fileData);
+        }
+      };
+      nativeElement.click();
+    } else {
+      const popup = await this.popoverController.create({
+        component: CameraOptionsPopupComponent,
+        cssClass: 'camera-options-popover',
+      });
+
+      await popup.present();
+
+      const { data } = await popup.onWillDismiss();
+      this.attachReceipts(data);
     }
   }
 
