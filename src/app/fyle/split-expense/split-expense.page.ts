@@ -67,6 +67,10 @@ export class SplitExpensePage implements OnInit {
 
   reportId: string;
 
+  splitExpenseTxn: any;
+
+  completeTxnIds: any;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -247,8 +251,7 @@ export class SplitExpensePage implements OnInit {
     return forkJoin(splitExpense$).pipe(
       switchMap((data: any) => {
         if (this.reportId) {
-          const dem = this.addToReport(data);
-          console.log('de', dem);
+          this.addToReport(data);
         }
         const txnIds = data.txns.map((txn) => txn.id);
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
@@ -258,8 +261,8 @@ export class SplitExpensePage implements OnInit {
 
   addToReport(data) {
     const reportId = this.reportId;
-    const splitExpense = data.txns.map((txn) => txn);
-    const txnIds = splitExpense
+    this.splitExpenseTxn = data.txns.map((txn) => txn);
+    this.completeTxnIds = this.splitExpenseTxn
       .filter((tx) => {
         if (tx.state === 'COMPLETE') {
           return true;
@@ -267,28 +270,49 @@ export class SplitExpensePage implements OnInit {
       })
       .map((txn) => txn.id);
     return this.reportService
-      .addTransactions(reportId, txnIds)
-      .pipe
-      // tap(() => this.showAddToReportSuccessToast(reportId)),
-      ()
+      .addTransactions(reportId, this.completeTxnIds)
+      .pipe(tap(() => this.showSuccessToast()))
       .subscribe(noop);
   }
 
-  // showAddToReportSuccessToast(reportId: string){
-  //   const toastMessageData = {
-  //     message: 'Expense added to report successfully',
-  //     redirectionText: 'View Report',
-  //   };
+  showSuccessToast() {
+    if (this.reportId && this.completeTxnIds.length > 1 && this.splitExpenseTxn.length > 0) {
+      const toastMessageData = {
+        message: 'Test greter than ' + this.completeTxnIds.length + ' and ' + this.splitExpenseTxn.length + ' lol',
+        redirectionText: 'View Report',
+      };
 
-  //   const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-  //     ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-  //     panelClass: ['msb-success-with-camera-icon'],
-  //   });
+      const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+        panelClass: ['msb-success-with-camera-icon'],
+      });
 
-  //   expensesAddedToReportSnackBar.onAction().subscribe(() => {
-  //     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
-  //   });
-  // }
+      expensesAddedToReportSnackBar.onAction().subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
+      });
+    } else if (this.reportId && this.completeTxnIds.length === 1 && this.splitExpenseTxn.length > 0) {
+      const toastMessageData = {
+        message: 'Test greter than ' + this.completeTxnIds.length + ' lol',
+        redirectionText: 'View Report',
+      };
+
+      const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+
+      expensesAddedToReportSnackBar.onAction().subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
+      });
+    } else {
+      const message = 'Your expense was split successfully.';
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+    }
+    this.router.navigate(['/', 'enterprise', 'my_expenses']);
+  }
 
   getAttachedFiles(transactionId) {
     return this.fileService.findByTransactionId(transactionId).pipe(
@@ -355,12 +379,9 @@ export class SplitExpensePage implements OnInit {
               return forkJoin(observables$);
             }),
             tap((res) => {
-              const message = 'Your expense was split successfully.';
-              this.matSnackBar.openFromComponent(ToastMessageComponent, {
-                ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-                panelClass: ['msb-success-with-camera-icon'],
-              });
-              this.router.navigate(['/', 'enterprise', 'my_expenses']);
+              if (!this.reportId) {
+                this.showSuccessToast();
+              }
             }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
