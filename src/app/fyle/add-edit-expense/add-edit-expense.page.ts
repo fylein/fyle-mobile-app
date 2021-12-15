@@ -356,7 +356,7 @@ export class AddEditExpensePage implements OnInit {
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private platform: Platform
+    public platform: Platform
   ) {}
 
   goBack() {
