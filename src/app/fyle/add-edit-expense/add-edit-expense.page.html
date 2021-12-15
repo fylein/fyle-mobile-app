@@ -109,7 +109,7 @@
                   accept="application/pdf,image/*"
                   style="display: none"
                 />
-                <mat-icon class="add-edit-expense--receipt-image-icon" svgIcon="add-to-list"></mat-icon>
+                <img class="add-edit-expense--receipt-image-icon" src="../../../assets/images/add-to-list.png" />
               </div>
 
               <div
@@ -1075,6 +1075,22 @@
                 >
                 </app-fy-alert-info>
               </ng-container>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="isConnected$">
+        <ng-container *ngIf="txnFields$|async as txnFields">
+          <ng-container *ngIf="isCostCentersEnabled$|async as isCostCentersEnabled">
+            <ng-container *ngIf="costCenters$|async as allowedCostCenters">
+              <app-fy-alert-info
+                class="add-edit-expense--cost-center-alert"
+                *ngIf="txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0"
+                [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                [type]="'warning'"
+              >
+              </app-fy-alert-info>
             </ng-container>
           </ng-container>
         </ng-container>
