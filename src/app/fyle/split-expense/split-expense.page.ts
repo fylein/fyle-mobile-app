@@ -269,41 +269,51 @@ export class SplitExpensePage implements OnInit {
         }
       })
       .map((txn) => txn.id);
-    return this.reportService
-      .addTransactions(reportId, this.completeTxnIds)
-      .pipe(tap(() => this.showSuccessToast()))
-      .subscribe(noop);
+    return this.reportService.addTransactions(reportId, this.completeTxnIds).subscribe(noop);
   }
 
   showSuccessToast() {
-    if (this.reportId && this.completeTxnIds.length > 1 && this.splitExpenseTxn.length > 0) {
-      const toastMessageData = {
-        message: 'Test greter than ' + this.completeTxnIds.length + ' and ' + this.splitExpenseTxn.length + ' lol',
-        redirectionText: 'View Report',
-      };
+    if (this.reportId) {
+      if (this.completeTxnIds.length === this.splitExpenseTxn.length) {
+        const toastMessageData = {
+          message: 'Your expense was split successfully. All the split expenses were added to report',
+          redirectionText: 'View Report',
+        };
 
-      const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-        panelClass: ['msb-success-with-camera-icon'],
-      });
+        const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
 
-      expensesAddedToReportSnackBar.onAction().subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
-      });
-    } else if (this.reportId && this.completeTxnIds.length === 1 && this.splitExpenseTxn.length > 0) {
-      const toastMessageData = {
-        message: 'Test greter than ' + this.completeTxnIds.length + ' lol',
-        redirectionText: 'View Report',
-      };
+        expensesAddedToReportSnackBar.onAction().subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
+        });
+      } else if (this.completeTxnIds.length > 0 && this.splitExpenseTxn.length > 0) {
+        const toastMessageData = {
+          message:
+            'Your expense was split successfully. ' +
+            this.completeTxnIds.length +
+            ' out of ' +
+            this.splitExpenseTxn.length +
+            ' expenses were added to report.',
+          redirectionText: 'View Report',
+        };
 
-      const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-        panelClass: ['msb-success-with-camera-icon'],
-      });
+        const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
 
-      expensesAddedToReportSnackBar.onAction().subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
-      });
+        expensesAddedToReportSnackBar.onAction().subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
+        });
+      } else {
+        const message = 'Your expense was split successfully. But no Expense was added to report.';
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
+      }
     } else {
       const message = 'Your expense was split successfully.';
       this.matSnackBar.openFromComponent(ToastMessageComponent, {
@@ -379,9 +389,7 @@ export class SplitExpensePage implements OnInit {
               return forkJoin(observables$);
             }),
             tap((res) => {
-              if (!this.reportId) {
-                this.showSuccessToast();
-              }
+              this.showSuccessToast();
             }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
