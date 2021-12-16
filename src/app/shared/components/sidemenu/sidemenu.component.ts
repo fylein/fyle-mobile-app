@@ -9,7 +9,6 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { PermissionsService } from 'src/app/core/services/permissions.service';
 import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -39,7 +38,7 @@ export class SidemenuComponent implements OnInit {
 
   allowedActions: any;
 
-  filteredSidemenuList: SidemenuItem[];
+  filteredSidemenuList: Partial<SidemenuItem>[];
 
   constructor(
     private offlineService: OfflineService,

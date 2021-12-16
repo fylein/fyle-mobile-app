@@ -12,7 +12,7 @@ import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
   styleUrls: ['./sidemenu-content.component.scss'],
 })
 export class SidemenuContentComponent implements OnInit {
-  @Input() sideMenuList: SidemenuItem[];
+  @Input() sideMenuList: Partial<SidemenuItem>[];
 
   constructor(
     private router: Router,
@@ -23,7 +23,7 @@ export class SidemenuContentComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  goToRoute(sidemenuItem: SidemenuItem) {
+  goToRoute(sidemenuItem: Partial<SidemenuItem>) {
     if (sidemenuItem.dropdownOptions?.length) {
       sidemenuItem.isDropdownOpen = !sidemenuItem.isDropdownOpen;
       return;

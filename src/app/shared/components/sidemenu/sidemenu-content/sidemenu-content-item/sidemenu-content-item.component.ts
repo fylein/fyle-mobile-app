@@ -7,9 +7,9 @@ import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
   styleUrls: ['./sidemenu-content-item.component.scss'],
 })
 export class SidemenuContentItemComponent implements OnInit {
-  @Input() sidemenuItem: SidemenuItem;
+  @Input() sidemenuItem: Partial<SidemenuItem>;
 
-  @Output() redirect = new EventEmitter<SidemenuItem>();
+  @Output() redirect = new EventEmitter<Partial<SidemenuItem>>();
 
   isRoute = true;
 
