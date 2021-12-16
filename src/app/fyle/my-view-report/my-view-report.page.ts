@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, from, noop, concat, Subject, iif, of, forkJoin } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -178,10 +178,6 @@ export class MyViewReportPage implements OnInit {
     );
 
     this.estatuses$.subscribe((estatuses) => {
-      const reversalStatus = estatuses.filter(
-        (status) => status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1
-      );
-
       this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
 
       this.type =

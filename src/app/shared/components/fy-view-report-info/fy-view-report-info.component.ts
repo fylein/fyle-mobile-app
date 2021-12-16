@@ -69,7 +69,8 @@ export class FyViewReportInfoComponent implements OnInit {
     public platform: Platform,
     private elementRef: ElementRef,
     private trackingService: TrackingService,
-    private offlineService: OfflineService
+    private offlineService: OfflineService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {}
@@ -176,22 +177,29 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  createEmployeeDetails(erpt: ExtendedReport) {
-    this.orgUserSettingsService.getAllowedCostCentersByOuId(erpt.ou_id).subscribe((costCenters) => {
-      const allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
-      this.employeeDetails = {
-        'Employee ID': erpt.ou_employee_id,
-        Organization: erpt.ou_org_name,
-        Department: erpt.ou_department,
-        'Sub Department': erpt.ou_sub_department,
-        Location: erpt.ou_location,
-        Level: erpt.ou_level,
-        'Employee Title': erpt.ou_title,
-        'Business Unit': erpt.ou_business_unit,
-        Mobile: erpt.ou_mobile,
-        'Allowed Cost Centers': allowedCostCenters,
-      };
-    });
+  async createEmployeeDetails(erpt: ExtendedReport) {
+    this.employeeDetails = {
+      'Employee ID': erpt.ou_employee_id,
+      Organization: erpt.ou_org_name,
+      Department: erpt.ou_department,
+      'Sub Department': erpt.ou_sub_department,
+      Location: erpt.ou_location,
+      Level: erpt.ou_level,
+      'Employee Title': erpt.ou_title,
+      'Business Unit': erpt.ou_business_unit,
+      Mobile: erpt.ou_mobile,
+    };
+    try {
+      const orgUser = await this.authService.getEou();
+      if (erpt.ou_org_id === orgUser.ou.org_id) {
+        this.orgUserSettingsService.getAllowedCostCentersByOuId(erpt.ou_id).subscribe((costCenters) => {
+          const allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
+          this.employeeDetails['Allowed Cost Centers'] = allowedCostCenters;
+        });
+      }
+    } catch (err) {
+      return;
+    }
   }
 
   getCCCAdvanceSummary(paymentModeWiseData: PaymentMode, orgSettings: any) {
