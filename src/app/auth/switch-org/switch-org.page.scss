@@ -38,7 +38,7 @@
       z-index: 4;
       width: 100%;
       opacity: 1;
-      transition: all 0.3s;
+      transition: all 0.4s;
 
       &--hide {
         opacity: 0;
@@ -50,7 +50,7 @@
       opacity: 0;
       width: 0;
       right: 0;
-      transition: all 0.2s;
+      transition: all 0.3s;
 
       &--show {
         z-index: 100 !important;
@@ -115,6 +115,7 @@
         margin: -10px;
         font-size: 18px;
         background-color: transparent;
+        color: $black;
       }
     }
 

@@ -262,6 +262,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   cancelSearch() {
     this.resetSearch();
+    this.searchOrgsInput.nativeElement.blur();
     this.contentRef.nativeElement.classList.remove('switch-org__content-container__content-block--hide');
     this.searchRef.nativeElement.classList.remove('switch-org__content-container__search-block--show');
   }
