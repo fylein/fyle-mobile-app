@@ -6,11 +6,11 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PageState } from 'src/app/core/models/page-state.model';
 
 @Component({
-  selector: 'app-reset-password',
-  templateUrl: './reset-password.page.html',
-  styleUrls: ['./reset-password.page.scss'],
+  selector: 'app-pending-verification',
+  templateUrl: './pending-verification.page.html',
+  styleUrls: ['./pending-verification.page.scss'],
 })
-export class ResetPasswordPage implements OnInit {
+export class PendingVerificationPage implements OnInit {
   currentPageState: PageState = PageState.notSent;
 
   isLoading = false;
@@ -19,11 +19,11 @@ export class ResetPasswordPage implements OnInit {
 
   ngOnInit() {}
 
-  sendResetLink(email: string) {
+  resendVerificationLink(email: string) {
     this.isLoading = true;
 
     this.routerAuthService
-      .sendResetPassword(email)
+      .resendVerificationLink(email)
       .pipe(
         finalize(async () => {
           this.isLoading = false;

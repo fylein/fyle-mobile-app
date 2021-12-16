@@ -101,6 +101,7 @@ import { FyInputPopoverComponent } from './components/fy-input-popover/fy-input-
 import { FyPopoverComponent } from './components/fy-popover/fy-popover.component';
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
+import { SendEmailComponent } from './components/send-email/send-email.component';
 
 @NgModule({
   declarations: [
@@ -185,6 +186,7 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     FyInputPopoverComponent,
     FyPopoverComponent,
     FyNavFooterComponent,
+    SendEmailComponent,
   ],
   imports: [
     CommonModule,
@@ -274,6 +276,7 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     PersonalCardTransactionComponent,
     FyPopoverComponent,
     FyNavFooterComponent,
+    SendEmailComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
 })
