@@ -1,5 +1,5 @@
 <div *ngIf="showDate" class="advance-card--date">
-  {{ advanceRequest.created_at | date: 'EEEE' }},{{ advanceRequest.created_at | date: 'MMM dd, yyyy' }}
+  {{ advanceRequest.created_at | date: 'MMM dd, yyyy' }}
 </div>
 
 <div class="advance-card" (click)="onAdvanceClick()" [ngClass]="{ 'advance-card__with-border': !showDate }">

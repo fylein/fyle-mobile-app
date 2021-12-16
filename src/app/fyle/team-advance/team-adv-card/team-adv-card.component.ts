@@ -26,7 +26,6 @@ export class TeamAdvCardComponent implements OnInit {
   constructor(private advanceRequestService: AdvanceRequestService) {}
 
   ngOnInit() {
-    console.log('sam', this.advanceRequest);
     this.showDate =
       (this.advanceRequest && new Date(this.advanceRequest.areq_created_at).toDateString()) !==
       (this.prevDate && new Date(this.prevDate).toDateString());

@@ -1,5 +1,5 @@
 <div *ngIf="showDate" class="advance-card--date">
-  {{ advanceRequest.areq_created_at | date: 'EEEE' }},{{ advanceRequest.areq_created_at | date: 'MMM dd, yyyy' }}
+  {{ advanceRequest.areq_created_at | date: 'MMM dd, yyyy' }}
 </div>
 
 <div class="advance-card" (click)="onGoToAdvances()" *ngIf="!actionOpened" matRipple>
