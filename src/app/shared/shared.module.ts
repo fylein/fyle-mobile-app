@@ -4,6 +4,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { SwiperModule } from 'swiper/angular';
+import { RouterModule } from '@angular/router';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -209,6 +210,7 @@ import { SendEmailComponent } from './components/send-email/send-email.component
     MatChipsModule,
     SwiperModule,
     MatSnackBarModule,
+    RouterModule,
   ],
   exports: [
     EllipsisPipe,
