@@ -190,11 +190,8 @@ export class MyViewReportPage implements OnInit {
           : this.objectType.substring(0, this.objectType.length - 1);
 
       this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
-      console.log('check estatus-->', this.systemEstatuses);
 
       this.userComments = estatuses.filter((status) => status.us_full_name);
-
-      console.log('check user commnets-->', this.userComments);
 
       for (let i = 0; i < this.userComments.length; i++) {
         const prevCommentDt = moment(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
@@ -273,7 +270,6 @@ export class MyViewReportPage implements OnInit {
       ),
       map((etxns) =>
         etxns.map((etxn) => {
-          console.log('check etxn-->', etxns, etxn);
           etxn.vendor = this.getVendorName(etxn);
           etxn.violation = this.getShowViolation(etxn);
           return etxn;
@@ -543,9 +539,11 @@ export class MyViewReportPage implements OnInit {
         this.isCommentsView = true;
         this.isExpensesView = false;
         this.isHistoryView = false;
-        setTimeout(() => {
-          this.content.scrollToBottom(500);
-        }, 500);
+        if (this.userComments && this.userComments.length > 0) {
+          setTimeout(() => {
+            this.content.scrollToBottom(500);
+          }, 500);
+        }
       } else if (event.detail.value === 'history') {
         this.isHistoryView = true;
         this.isCommentsView = false;
@@ -590,9 +588,6 @@ export class MyViewReportPage implements OnInit {
       componentProps: {
         unReportedEtxns: this.unReportedEtxns,
       },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await AddExpensesToReportModal.present();
