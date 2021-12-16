@@ -178,7 +178,11 @@
             <div class="text-center">
               <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
               <div class="view-reports--zero-state-header">Looks like this report is empty.</div>
-              <button class="view-reports--unreported-cta" (click)="showAddExpensesToReportModal()">
+              <button
+                *ngIf="unReportedEtxns && unReportedEtxns.length > 0"
+                class="view-reports--unreported-cta"
+                (click)="showAddExpensesToReportModal()"
+              >
                 Add unreported expenses to report
               </button>
               <div class="view-reports--add-more-container" (click)="addExpense()">
