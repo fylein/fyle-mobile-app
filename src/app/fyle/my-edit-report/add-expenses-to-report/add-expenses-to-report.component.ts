@@ -85,9 +85,9 @@ export class AddExpensesToReportComponent implements OnInit {
   ionViewWillEnter() {
     this.isSelectedAll = true;
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-    let selectedTxns = [];
-    for (var i = 0; i < this.unReportedEtxns.length; i++) {
-      this.unReportedEtxns[i]['isSelected'] = true;
+    const selectedTxns = [];
+    for (let i = 0; i < this.unReportedEtxns.length; i++) {
+      this.unReportedEtxns[i].isSelected = true;
       selectedTxns.push(this.unReportedEtxns[i]);
     }
     this.selectedElements = selectedTxns;
