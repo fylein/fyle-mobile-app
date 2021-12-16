@@ -10,8 +10,11 @@
   }
 
   &__content-container {
-    background-color: $grey-8;
-    padding: 24px 16px;
+    --background: #{$off-white};
+
+    &__content {
+      padding: 24px 16px;
+    }
   }
 
   &__section-header {
