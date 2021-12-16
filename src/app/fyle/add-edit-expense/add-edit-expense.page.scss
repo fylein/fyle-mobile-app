@@ -166,12 +166,9 @@
   }
 
   &--receipt-image-icon {
-    color: $brand-primary;
-    height: 36px;
-    width: 34px;
-    position: relative;
-    top: 24%;
-    left: 5px;
+    height: 32px;
+    width: 31px;
+    margin: 16px;
   }
 
   &--receipt-add-more-icon {
@@ -641,5 +638,10 @@
 
   &--text-block {
     margin-bottom: 12px;
+  }
+
+  &--cost-center-alert {
+    margin-top: 8px;
+    display: block;
   }
 }
