@@ -178,8 +178,8 @@ export class AppComponent implements OnInit {
       .pipe(
         switchMap((deviceInfo) => {
           const data = {
-            app_version: '4.68.0',
-            device_os: 'IOS',
+            app_version: deviceInfo.appVersion,
+            device_os: deviceInfo.platform,
           };
 
           return this.appVersionService.isSupported(data);

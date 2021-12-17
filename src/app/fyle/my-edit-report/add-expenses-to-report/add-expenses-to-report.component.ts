@@ -86,10 +86,10 @@ export class AddExpensesToReportComponent implements OnInit {
     this.isSelectedAll = true;
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const selectedTxns = [];
-    for (let i = 0; i < this.unReportedEtxns.length; i++) {
+    this.unReportedEtxns.forEach((etxn, i) => {
       this.unReportedEtxns[i].isSelected = true;
       selectedTxns.push(this.unReportedEtxns[i]);
-    }
+    });
     this.selectedElements = selectedTxns;
     this.updateSelectedTxns();
   }

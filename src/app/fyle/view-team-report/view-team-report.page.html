@@ -105,7 +105,7 @@
                   {{ ap.updated_at | date: 'MMM dd, yyyy'}}
                 </span>
                 <div
-                  class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | toLowerCase}}"
+                  class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
                 ></div>
                 <span
                   >{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase | snakeCaseToSpaceCase)}}</span
