@@ -8,7 +8,6 @@ import { PageState } from 'src/app/core/models/page-state.model';
 @Component({
   selector: 'app-pending-verification',
   templateUrl: './pending-verification.page.html',
-  styleUrls: ['./pending-verification.page.scss'],
 })
 export class PendingVerificationPage implements OnInit {
   currentPageState: PageState = PageState.notSent;

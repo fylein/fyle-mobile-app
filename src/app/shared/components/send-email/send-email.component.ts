@@ -1,12 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-
-enum PageState {
-  notSent,
-  success,
-  failure,
-}
+import { PageState } from 'src/app/core/models/page-state.model';
 
 @Component({
   selector: 'app-send-email',
@@ -18,7 +13,7 @@ export class SendEmailComponent implements OnInit {
 
   @Input() content: string;
 
-  @Input() content2: string;
+  @Input() subcontent: string;
 
   @Input() ctaText: string;
 

@@ -8,7 +8,6 @@ import { PageState } from 'src/app/core/models/page-state.model';
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.page.html',
-  styleUrls: ['./reset-password.page.scss'],
 })
 export class ResetPasswordPage implements OnInit {
   currentPageState: PageState = PageState.notSent;

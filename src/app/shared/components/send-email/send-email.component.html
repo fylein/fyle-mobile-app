@@ -11,7 +11,7 @@
       <div class="send-email__form" *ngIf="pageState === pageStates.notSent">
         <div class="send-email__form__title">{{ title }}</div>
         <div class="send-email__form__content">{{ content }}</div>
-        <div *ngIf="content2" class="send-email__form__content">{{ content2 }}</div>
+        <div *ngIf="subcontent" class="send-email__form__content">{{ subcontent }}</div>
         <form [formGroup]="fg">
           <mat-form-field class="full-width mat-form-field-no-padding" appearance="outline">
             <input formControlName="email" type="email" matInput placeholder="Work Email" />
