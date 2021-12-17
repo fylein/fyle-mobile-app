@@ -1,13 +1,13 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import * as Sentry from '@sentry/angular';
-import { Observable, noop, from, forkJoin, of, iif, concat } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { PermissionsService } from 'src/app/core/services/permissions.service';
 import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
+import { SidemenuService } from 'src/app/core/services/sidemenu.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
@@ -45,9 +45,9 @@ export class SidemenuComponent implements OnInit {
     private deviceService: DeviceService,
     private routerAuthService: RouterAuthService,
     private orgUserService: OrgUserService,
-    private permissionsService: PermissionsService,
     private freshChatService: FreshChatService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private sidemenuService: SidemenuService
   ) {}
 
   ngOnInit(): void {
@@ -76,74 +76,58 @@ export class SidemenuComponent implements OnInit {
       .pipe(map((res) => this.orgUserService.excludeByStatus(res, 'DISABLED')));
     const deviceInfo$ = this.deviceService.getDeviceInfo();
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
+    const allowedActions$ = this.sidemenuService.getAllowedActions();
 
-    const allowedActions$ = orgSettings$.pipe(
-      switchMap((orgSettings) => {
-        const allowedReportsActions$ = this.offlineService.getReportActions(orgSettings);
-        const allowedAdvancesActions$ = this.permissionsService.allowedActions(
-          'advances',
-          ['approve', 'create', 'delete'],
-          orgSettings
-        );
-        const allowedTripsActions$ = this.permissionsService.allowedActions(
-          'trips',
-          ['approve', 'create', 'edit', 'cancel'],
-          orgSettings
-        );
+    combineLatest([
+      forkJoin({
+        orgs: orgs$,
+        currentOrg: currentOrg$,
+        orgSettings: orgSettings$,
+        orgUserSettings: orgUserSettings$,
+        delegatedAccounts: delegatedAccounts$,
+        allowedActions: allowedActions$,
+        deviceInfo: deviceInfo$,
+        isSwitchedToDelegator: isSwitchedToDelegator$,
+        eou: this.offlineService.getCurrentUser(),
+      }),
+      this.isConnected$,
+    ]).subscribe(
+      ([
+        {
+          orgs,
+          currentOrg,
+          orgSettings,
+          orgUserSettings,
+          delegatedAccounts,
+          allowedActions,
+          deviceInfo,
+          isSwitchedToDelegator,
+          eou,
+        },
+        isConnected,
+      ]) => {
+        this.activeOrg = currentOrg;
+        this.orgSettings = orgSettings;
+        this.orgUserSettings = orgUserSettings;
+        const isDelegatee = delegatedAccounts.length > 0;
+        this.appVersion = (deviceInfo && deviceInfo.appVersion) || '1.2.3';
+        this.allowedActions = allowedActions;
+        this.isSwitchedToDelegator = isSwitchedToDelegator;
+        this.eou = eou;
 
-        return forkJoin({
-          allowedReportsActions: allowedReportsActions$,
-          allowedAdvancesActions: iif(
-            () => orgSettings.advance_requests.enabled || orgSettings.advances.enabled,
-            allowedAdvancesActions$,
-            of(null)
-          ),
-          allowedTripsActions: iif(() => orgSettings.trip_requests.enabled, allowedTripsActions$, of(null)),
-        });
-      })
-    );
-
-    this.isConnected$
-      .pipe(
-        switchMap((isConnected) =>
-          forkJoin({
-            orgs: orgs$,
-            currentOrg: currentOrg$,
-            orgSettings: orgSettings$,
-            orgUserSettings: orgUserSettings$,
-            delegatedAccounts: delegatedAccounts$,
-            allowedActions: allowedActions$,
-            deviceInfo: deviceInfo$,
-            isSwitchedToDelegator: isSwitchedToDelegator$,
-            isConnected: of(isConnected),
-            eou: this.offlineService.getCurrentUser(),
-          })
-        )
-      )
-      .subscribe((res) => {
-        const orgs = res.orgs;
-        this.activeOrg = res.currentOrg;
-        this.orgSettings = res.orgSettings;
-        this.orgUserSettings = res.orgUserSettings;
-        const isDelegatee = res.delegatedAccounts.length > 0;
-        this.appVersion = (res.deviceInfo && res.deviceInfo.appVersion) || '1.2.3';
-        this.allowedActions = res.allowedActions;
-        this.isSwitchedToDelegator = res.isSwitchedToDelegator;
-        const isConnected = res.isConnected;
-        this.eou = res.eou;
-
-        if (res.eou) {
+        if (eou) {
           Sentry.setUser({
-            id: res.eou.us.email + ' - ' + res.eou.ou.id,
-            email: res.eou.us.email,
-            orgUserId: res.eou.ou.id,
+            id: eou.us.email + ' - ' + eou.ou.id,
+            email: eou.us.email,
+            orgUserId: eou.ou.id,
           });
         }
 
         this.switchDelegator.emit(this.isSwitchedToDelegator);
         this.freshChatService.setupNetworkWatcher();
         this.setupSideMenu(isConnected, orgs, isDelegatee);
-      });
+      }
+    );
   }
 
   getCardOptions() {
