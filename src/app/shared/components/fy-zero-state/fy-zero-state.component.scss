@@ -18,7 +18,7 @@
   &--header {
     font-size: 16px;
     display: block;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
     color: #4a4a4a;
     line-height: 1.5;
     font-weight: 500;
@@ -32,7 +32,7 @@
 
   &--description {
     color: #ababab;
-    display: block;
+    display: flex;
     font-size: 16px;
     font-weight: 300;
     line-height: 1.5;
@@ -47,5 +47,11 @@
       font-weight: 400;
       padding: 0 24px;
     }
+  }
+
+  :host ::ng-deep &--icon {
+    height: 20px;
+    width: 18px;
+    padding: 0 4px;
   }
 }

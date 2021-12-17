@@ -845,7 +845,13 @@ export class MyExpensesPage implements OnInit {
       label: 'Type',
       type: 'state',
       value: filter.state
-        .map((state) => state.replace(/_/g, ' ').toLowerCase())
+        .map((state) => {
+          if (state === 'DRAFT') {
+            return 'Incomplete';
+          } else {
+            return state.replace(/_/g, ' ').toLowerCase();
+          }
+        })
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
@@ -856,7 +862,6 @@ export class MyExpensesPage implements OnInit {
     const newQueryParams: any = {
       or: [],
     };
-
     this.generateDateParams(newQueryParams);
 
     this.generateReceiptAttachedParams(newQueryParams);
@@ -1136,7 +1141,7 @@ export class MyExpensesPage implements OnInit {
                 value: 'CANNOT_REPORT',
               },
               {
-                label: 'Draft',
+                label: 'Incomplete',
                 value: 'DRAFT',
               },
             ],
@@ -1344,7 +1349,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  goToTransaction(expense) {
+  goToTransaction({ etxn: expense, etxnIndex }) {
     let category;
 
     if (expense.tx_org_category) {

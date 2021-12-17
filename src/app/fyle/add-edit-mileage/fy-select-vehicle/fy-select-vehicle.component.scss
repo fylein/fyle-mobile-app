@@ -21,11 +21,11 @@
     font-size: 24px;
     color: #ababab;
     &__selected {
-      color: $primary;
+      color: $brand-primary;
     }
   }
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     font-size: 14px;
     font-weight: 400;
   }

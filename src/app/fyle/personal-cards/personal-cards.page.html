@@ -1,33 +1,149 @@
-<app-fy-header [currentState]="headerState" [navigateBack]="navigateBack" [title]="'Personal Cards'">
+<app-fy-header
+  [currentState]="headerState"
+  [navigateBack]="navigateBack"
+  [title]="'Personal Cards'"
+  (simpleSearchCancel)="onSimpleSearchCancel()"
+  (multiselectBack)="switchSelectionMode()"
+  [isHiddenBorder]="true"
+>
   <ng-container base>
     <ion-buttons mode="md" slot="end">
+      <ion-button
+        class="personal-cards--header-btn"
+        (click)="searchClick()"
+        *ngIf="(linkedAccountsCount$ | async) !== 0"
+      >
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
+      </ion-button>
+      <ion-button
+        class="personal-cards--header-btn"
+        (click)="openFilters()"
+        *ngIf="(linkedAccountsCount$ | async) !== 0"
+      >
+        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+        </ng-container>
+        <ng-template #noFilterAppliedIcon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+        </ng-template>
+      </ion-button>
       <ion-button class="personal-cards--header-btn" (click)="linkAccount()">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ng-container>
-</app-fy-header>
-
-<ion-content class="personal-cards--content">
-  <ng-container *ngIf="!(isConnected$|async)">
-    <div class="personal-cards--zero-state">
-      <app-fy-zero-state
-        class="stats--zero-state"
-        image="../../../../assets/images/no-internet.svg"
-        header="You're Offline!"
-        message="Fear not, you can still add expenses offline."
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-      ></app-fy-zero-state>
-    </div>
+  <ng-container personalCardContent *ngIf="!isLoading && ((linkedAccountsCount$ | async) !== 0)">
+    <ion-toolbar mode="{{mode}}" class="personal-cards--segment-container">
+      <ion-segment
+        class="personal-cards-segment-block"
+        (ionChange)="segmentChanged($event)"
+        value="{{selectedTrasactionType}}"
+      >
+        <ion-segment-button value="INITIALIZED" class="personal-cards--segment-block__btn">
+          Transactions
+        </ion-segment-button>
+        <ion-segment-button
+          value="MATCHED"
+          class="personal-cards--segment-block__btn personal-cards--segment-block__space-left"
+        >
+          Expenses Created
+        </ion-segment-button>
+        <ion-segment-button value="HIDDEN" class="personal-cards--segment-block__btn"> Hidden </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
   </ng-container>
 
-  <ng-container *ngIf="((linkedAccountsCount$ | async) === 0) && isConnected$|async">
+  <ng-container simpleSearch>
+    <div class="expense-report-search personal-cards--simple-search-container">
+      <mat-form-field appearance="outline" class="mat-form-field-no-padding personal-cards--simple-search">
+        <div class="personal-cards--simple-search-block">
+          <mat-icon class="personal-cards--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+          <input
+            #simpleSearchInput
+            [(ngModel)]="simpleSearchText"
+            class="personal-cards--simple-search-input"
+            matInput
+            placeholder="Search"
+            (focus)="onSearchBarFocus()"
+          />
+          <button
+            (click)="clearText('isFromSearchBar')"
+            *ngIf="simpleSearchText"
+            aria-label="Clear"
+            class="personal-cards--simple-search-close"
+            mat-button
+            mat-icon-button
+            matSuffix
+          >
+            <mat-icon svgIcon="fy-clear"></mat-icon>
+          </button>
+        </div>
+      </mat-form-field>
+    </div>
+  </ng-container>
+</app-fy-header>
+<ng-container *ngIf="((linkedAccountsCount$ | async) > 0) && (isConnected$|async)">
+  <ng-container *ngIf="linkedAccounts$ | async as linkedAccounts">
+    <app-bank-account-cards
+      *ngIf="!isLoading && scrollingDirection !== 'down'"
+      [linkedAccounts]="linkedAccounts"
+      [minimal]="scrolled && scrollingDirection === 'up'"
+      (deleted)="onDeleted()"
+      (changed)="onCardChanged($event)"
+    ></app-bank-account-cards>
+  </ng-container>
+  <div class="personal-cards--actions-header" *ngIf="scrollingDirection === 'up' || !scrolled">
+    <button
+      type="submit"
+      class="personal-cards--range-button text-center personal-cards--actions-header__left"
+      (click)="openDateRangeModal()"
+    >
+      <ng-container>
+        <ion-icon slot="icon-only" class="personal-cards--icon" src="../../../assets/svg/calendar.svg"></ion-icon>
+        {{txnDateRange}}
+      </ng-container>
+    </button>
+    <button
+      type="submit"
+      class="personal-cards--fetch-button text-center personal-cards--actions-header__right"
+      (click)="fetchNewTransactions()"
+      [disabled]="isfetching"
+    >
+      <ng-container *ngIf="!isfetching"> Fetch Transactions </ng-container>
+      <ng-container *ngIf="isfetching">
+        Fetching <ion-spinner name="crescent" class="personal-cards--fetching-spinner"></ion-spinner>
+      </ng-container>
+    </button>
+  </div>
+  <ng-container *ngIf="filterPills?.length">
+    <div class="personal-cards--filter-pills-container">
+      <app-fy-filter-pills
+        class="personal-cards--filter-pills"
+        (filterClose2)="onFilterClose($event)"
+        (filterClicked2)="onFilterClick($event)"
+        (clearAll)="onFilterPillsClearAll()"
+        [filterPills]="filterPills"
+      >
+      </app-fy-filter-pills>
+    </div>
+  </ng-container>
+</ng-container>
+<ion-content class="personal-cards--content" [scrollEvents]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ng-container *ngIf="isLoading && ((linkedAccountsCount$ | async) !== 0)">
+    <div class="ion-padding">
+      <ion-skeleton-text class="personal-cards--bank-account-shimmer" animated></ion-skeleton-text>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="((linkedAccountsCount$ | async) === 0) && (isConnected$|async)">
     <div class="personal-cards--zero-state">
       <app-fy-zero-state
         class="stats--zero-state"
         image="../../../../assets/images/no-card.svg"
-        message="Paying your work bills using your personal card? View your transactions here by linking your account."
+        message="Paying your work bills using your personal card? View your transactions here by linking your card."
         [unscaledImage]="true"
         [useNewStyling]="true"
       ></app-fy-zero-state>
@@ -36,8 +152,105 @@
       </button>
     </div>
   </ng-container>
+
+  <ng-container *ngIf="((linkedAccountsCount$ | async) > 0) && (isConnected$|async)">
+    <ng-container *ngIf="selectionMode">
+      <ion-item class="personal-cards--select-all-container">
+        <mat-checkbox class="custom-mat-checkbox" [(ngModel)]="selectAll" (ngModelChange)="onSelectAll($event)">
+          Select All
+        </mat-checkbox>
+      </ion-item>
+    </ng-container>
+
+    <ng-container *ngIf="isCardsLoaded">
+      <ng-container>
+        <div
+          class="personal-cards--zero-state personal-cards--transactions-zero-state"
+          *ngIf="((transactionsCount$ | async) === 0) && !isTrasactionsLoading"
+        >
+          <app-fy-zero-state
+            class="stats--zero-state"
+            *ngIf="!isSearchBarFocused"
+            image="../../../../assets/images/no-transactions.svg"
+            header="No Transactions Found!"
+            message="Looks like you have no transactions"
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
+          <app-fy-zero-state
+            class="stats--zero-state"
+            *ngIf="isSearchBarFocused"
+            image="../../../../assets/images/no-search-result.svg"
+            header="No Search Results found !"
+            message="No transactions matched for your search"
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
+        </div>
+        <ng-container *ngIf="((transactionsCount$ | async) !== 0) && transactions$ | async as transactions">
+          <ng-container *ngFor="let transaction of transactions; let i = index">
+            <app-personal-card-transaction
+              (click)="createExpense(transaction)"
+              *ngIf="!isTrasactionsLoading"
+              [description]="transaction.btxn_description"
+              [amount]="transaction.btxn_amount"
+              [currency]="transaction.btxn_currency"
+              [type]="transaction.btxn_transaction_type"
+              [txnDate]="transaction.btxn_transaction_dt"
+              [previousTxnDate]="transactions[i-1]?.btxn_transaction_dt"
+              [txnId]="transaction.btxn_id"
+              [isMatchedCountLoading]="transaction.btxn_id === loadingTxnId"
+              [status]="selectedTrasactionType"
+              [isSelectionModeEnabled]="selectionMode"
+              [selectedElements]="selectedElements"
+              (setMultiselectMode)="switchSelectionMode($event)"
+              (cardClickedForSelection)="selectExpense($event)"
+            >
+            </app-personal-card-transaction>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+  <ng-container *ngIf="((linkedAccountsCount$ | async) !== 0) && isTrasactionsLoading || isLoadingDataInfiniteScroll">
+    <app-transactions-shimmer> </app-transactions-shimmer>
+  </ng-container>
+
+  <ng-container *ngIf="isConnected$|async">
+    <ng-container *ngIf="!isLoadingDataInfiniteScroll && isCardsLoaded">
+      <ng-container *ngIf="!selectionMode">
+        <ion-infinite-scroll
+          (ionInfinite)="loadData($event)"
+          *ngIf="isInfiniteScrollRequired$ | async"
+          threshold="100px"
+        >
+          <ion-infinite-scroll-content></ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+      </ng-container>
+    </ng-container>
+  </ng-container>
 </ion-content>
-<ion-footer>
-  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()">
-  </app-fy-footer>
+
+<ion-footer *ngIf="!isSearchBarFocused">
+  <ng-container *ngIf="!selectionMode">
+    <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()">
+    </app-fy-footer>
+  </ng-container>
+  <ion-toolbar mode="md" *ngIf="selectionMode">
+    <div class="personal-cards--footer-toolbar">
+      <ion-buttons>
+        <ion-button (click)="switchSelectionMode()" [disabled]="isHiding" class="btn-secondary"> Cancel </ion-button>
+        <ion-button
+          (click)="hideSelectedTransactions()"
+          [disabled]="isHiding"
+          [loadingText]="'Hiding'"
+          [loading]="isHiding"
+          appFormButtonValidation
+          class="btn-primary"
+        >
+          Hide
+        </ion-button>
+      </ion-buttons>
+    </div>
+  </ion-toolbar>
 </ion-footer>

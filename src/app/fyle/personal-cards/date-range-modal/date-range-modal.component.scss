@@ -1,0 +1,23 @@
+@import '../../../../theme/colors';
+
+.date-range-modal {
+  padding: 20px 0;
+  background-color: $pure-white;
+
+  &--title {
+    color: $grey;
+    font-weight: 500;
+    margin-left: 18px;
+  }
+
+  &--label {
+    color: $black;
+    font-size: 18px;
+    line-height: 23px;
+    margin: 8px 0;
+  }
+
+  &--range-picker {
+    display: none;
+  }
+}

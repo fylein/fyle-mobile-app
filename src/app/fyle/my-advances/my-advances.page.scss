@@ -1,3 +1,5 @@
+@import '../../../theme/colors';
+
 .my-advances {
   &--toolbar-header {
     border-bottom: 1px solid #e6e6e6;
@@ -12,53 +14,30 @@
     margin: 14px;
   }
 
+  &--content {
+    --background: #{$white};
+    --padding-bottom: 82px;
+  }
+
+  &--body {
+    padding-bottom: 20px;
+    background-color: $white;
+  }
+
+  &--zero-state-body {
+    height: 100%;
+  }
+
   &--zero-state {
-    margin-top: 80px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    text-align: center;
+  }
 
-    &-action-button-container {
-      position: absolute;
-      margin-top: auto;
-      bottom: 0;
-      width: 100%;
-    }
-
-    &-action-button {
-      padding: 24px 16px;
-      border-radius: 6px;
-      color: #f36;
-      font-size: 18px;
-      font-weight: 500;
-      width: 275px;
-      margin: 0 auto 20px;
-      position: relative;
-      background: white;
-      border: 1px solid #f36;
-      text-align: center;
-
-      &:after,
-      &:before {
-        top: 100%;
-        left: 50%;
-        border: solid transparent;
-        content: ' ';
-        height: 0;
-        width: 0;
-        position: absolute;
-        pointer-events: none;
-      }
-
-      &:after {
-        border-color: rgba(255, 255, 255, 0);
-        border-top-color: white;
-        border-width: 20px;
-        margin-left: -20px;
-      }
-      &:before {
-        border-color: rgba(255, 51, 102, 0);
-        border-top-color: #f36;
-        border-width: 21px;
-        margin-left: -21px;
-      }
-    }
+  &--header-btn {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
   }
 }

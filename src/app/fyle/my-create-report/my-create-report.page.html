@@ -100,12 +100,10 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar mode="md" class="my-create-report--footer">
-    <div class="my-create-report--cta-container">
-      <button
-        class="my-create-report--cta-button my-create-report--secondary-cta text-center"
-        fill="outline"
-        color="fyle-primary"
+  <ion-toolbar mode="md">
+    <div class="fy-footer-cta-container">
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--tertiary-secondary"
         (click)="ctaClickedEvent('create_draft_report')"
         appFormButtonValidation
         [loading]="saveDraftReportLoading"
@@ -113,11 +111,9 @@
         [disabled]="saveDraftReportLoading || saveReportLoading"
       >
         Save Draft
-      </button>
-      <button
-        class="my-create-report--cta-button my-create-report--primary-cta text-center"
-        fill="solid"
-        color="fyle-primary"
+      </ion-button>
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
         (click)="ctaClickedEvent('submit_report')"
         appFormButtonValidation
         [loading]="saveReportLoading"
@@ -125,7 +121,7 @@
         [disabled]="(this.selectedElements?.length === 0) || saveDraftReportLoading  || saveReportLoading"
       >
         Submit Report
-      </button>
+      </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

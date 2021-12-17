@@ -1,0 +1,12 @@
+@import '../../../../../../theme/colors';
+
+.delete-button {
+  font-size: 16px;
+  color: $dark-grey;
+
+  &--icon {
+    vertical-align: middle;
+    font-size: 18px;
+    margin-top: -4px;
+  }
+}

@@ -14,7 +14,7 @@
 
   &--clear-all {
     text-transform: capitalize;
-    color: $primary;
+    color: $brand-primary;
     font-size: 16px;
     line-height: 20px;
   }
@@ -79,36 +79,5 @@
     .mat-form-field {
       width: 100%;
     }
-  }
-
-  &--footer-toolbar {
-    display: flex;
-    justify-content: center;
-    padding: 14px;
-  }
-
-  &--save {
-    width: 160px;
-    height: 60px;
-    background: $pink-gradient-2;
-    border-radius: 4px;
-    padding: 16px 24px;
-    font-size: 14px;
-    line-height: 18px;
-    color: $pure-white;
-    text-align: center;
-    --ion-color-base: none;
-    --box-shadow: none;
-  }
-
-  &--cancel {
-    width: 160px;
-    height: 60px;
-    border-radius: 4px;
-    padding: 16px 24px;
-    font-size: 14px;
-    line-height: 18px;
-    --color: $black;
-    text-align: center;
   }
 }
