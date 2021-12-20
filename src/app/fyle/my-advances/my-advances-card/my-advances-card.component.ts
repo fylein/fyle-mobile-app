@@ -2,6 +2,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-my-advances-card',
@@ -26,8 +27,8 @@ export class MyAdvancesCardComponent implements OnInit {
 
   ngOnInit() {
     this.showDate =
-      (this.advanceRequest && new Date(this.advanceRequest.created_at).toDateString()) !==
-      (this.prevDate && new Date(this.prevDate).toDateString());
+      (this.advanceRequest && moment(new Date(this.advanceRequest.created_at)).format('ddd MMM DD YYYY')) !==
+      (this.prevDate && moment(new Date(this.prevDate)).format('ddd MMM DD YYYY'));
     this.currencySymbol = getCurrencySymbol(this.advanceRequest.currency, 'wide');
     this.internalState =
       this.advanceRequest.type === 'request'
