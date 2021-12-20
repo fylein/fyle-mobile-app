@@ -22,7 +22,7 @@ export class SidemenuContentItemComponent implements OnInit {
     this.dropdownHeight = this.sidemenuItem.dropdownOptions?.length * 50;
   }
 
-  goToRoute(sidemenuItem: SidemenuItem) {
+  goToRoute(sidemenuItem: Partial<SidemenuItem>) {
     this.redirect.emit(sidemenuItem);
   }
 }
