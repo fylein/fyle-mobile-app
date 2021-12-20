@@ -1,0 +1,13 @@
+@import '../../../../theme/colors.scss';
+
+.sidemenu {
+  --ion-background-color: #{$black};
+  --ion-text-color: #{$pure-white};
+
+  &__content-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+}

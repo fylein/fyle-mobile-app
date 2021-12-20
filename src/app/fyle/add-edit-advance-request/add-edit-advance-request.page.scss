@@ -15,6 +15,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
+      color: $black-light;
     }
   }
 
@@ -47,14 +48,6 @@
 
   &--receipt-text {
     margin-top: 20px;
-  }
-
-  &--receipt-image-icon {
-    font-size: 32px;
-    color: $brand-primary;
-    position: absolute;
-    left: 20px;
-    bottom: -8px;
   }
 
   &--receipt-spinner-icon {
@@ -243,12 +236,9 @@
   }
 
   &--receipt-image-icon {
-    color: $brand-primary;
-    height: 36px;
-    width: 34px;
-    position: relative;
-    top: 24%;
-    left: 5px;
+    height: 32px;
+    width: 31px;
+    margin: 16px;
   }
 
   &--receipt-background {
