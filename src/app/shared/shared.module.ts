@@ -12,7 +12,6 @@ import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 import { HighlightPipe } from './pipes/highlight.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake-case-to-space-case.pipe';
-import { ToLowerCase } from './pipes/to-lowercase.pipe';
 import { TripState } from './pipes/trip-state.pipe';
 import { FySelectComponent } from './components/fy-select/fy-select.component';
 import { FySelectModalComponent } from './components/fy-select/fy-select-modal/fy-select-modal.component';
@@ -117,7 +116,6 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
-    ToLowerCase,
     TripState,
     DateFormatPipe,
     FySelectComponent,
@@ -234,7 +232,6 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     FyDuplicateDetectionComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
-    ToLowerCase,
     TripState,
     InitialsPipe,
     DelegatedAccMessageComponent,
