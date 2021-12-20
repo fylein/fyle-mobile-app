@@ -22,6 +22,7 @@ $lighter-grey: #ececec !default;
 $dark-grey: #414562 !default;
 $outline-grey: #eaeaeb !default;
 $border-grey: #dfdfe2d7 !default;
+$border-translucent-grey: #dfdfe24d !default;
 $translucent-grey: #dfdfe280 !default;
 $transparent-grey: rgba(255, 255, 255, 0.12) !default;
 $transparent-pearl-grey: rgba(215, 215, 215, 0.5) !default;
@@ -51,6 +52,7 @@ $green-1: #24a148 !default;
 $blue: #0077ee !default;
 $blue-1: #2896f3 !default;
 $blue-2: #ebf3fc !default;
+$blue-3: #252841 !default;
 $blue-black: #2c304e !default;
 $light-blue: #f7f7fb !default;
 $dark-blue: #1c1f36 !default;
@@ -69,3 +71,12 @@ $pink-gradient: linear-gradient(162.38deg, $brand-primary 3.01%, $brand-primary-
 $pink-gradient-light: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
 
 $text-button-grey: #8c8fa6;
+
+$reported-color: #4798ff;
+$approved-color: #67bc53;
+$paid-color: #3d8b3d;
+$fyled-color: #f90;
+$sent-back-color: #da1e28;
+$draft-color: #464d57;
+$payment-pending-color: #66bb6a;
+$payment-processing-color: #47a447;

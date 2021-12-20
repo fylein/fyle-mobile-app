@@ -1,0 +1,10 @@
+<div>
+  <ion-list>
+    <ng-container *ngFor="let sidemenuItem of sideMenuList">
+      <app-sidemenu-content-item
+        [sidemenuItem]="sidemenuItem"
+        (redirect)="goToRoute($event)"
+      ></app-sidemenu-content-item>
+    </ng-container>
+  </ion-list>
+</div>
