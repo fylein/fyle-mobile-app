@@ -14,10 +14,17 @@ export class SnackbarPropertiesService {
    */
 
   setSnackbarProperties(
-    toastMessageType: 'success' | 'failure',
+    toastMessageType: 'success' | 'failure' | 'information',
     toastMessageData: { message: string; redirectiontext?: string }
   ) {
-    const snackbarIcon = toastMessageType === 'success' ? 'tick-square-filled' : 'danger';
+    let snackbarIcon;
+    if (toastMessageType === 'success') {
+      snackbarIcon = 'tick-square-filled';
+    } else if (toastMessageType === 'failure') {
+      snackbarIcon = 'danger';
+    } else {
+      snackbarIcon = '';
+    }
     return {
       data: {
         icon: snackbarIcon,
