@@ -106,6 +106,7 @@ import { SidemenuContentComponent } from './components/sidemenu/sidemenu-content
 import { SidemenuContentItemComponent } from './components/sidemenu/sidemenu-content/sidemenu-content-item/sidemenu-content-item.component';
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
+import { SendEmailComponent } from './components/send-email/send-email.component';
 
 @NgModule({
   declarations: [
@@ -194,6 +195,7 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     SidemenuContentComponent,
     SidemenuContentItemComponent,
     FyNavFooterComponent,
+    SendEmailComponent,
   ],
   imports: [
     CommonModule,
@@ -217,6 +219,7 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     MatChipsModule,
     SwiperModule,
     MatSnackBarModule,
+    RouterModule,
   ],
   exports: [
     EllipsisPipe,
@@ -284,6 +287,7 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     FyPopoverComponent,
     SidemenuComponent,
     FyNavFooterComponent,
+    SendEmailComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
 })

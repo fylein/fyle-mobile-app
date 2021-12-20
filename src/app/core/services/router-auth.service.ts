@@ -138,6 +138,12 @@ export class RouterAuthService {
       .pipe(switchMap((data) => this.handleSignInResponse(data)));
   }
 
+  resendVerificationLink(email: string) {
+    return this.routerApiService.post('/auth/resend_email_verification', {
+      email: email?.trim().toLowerCase(),
+    });
+  }
+
   getRegions() {
     return this.routerApiService.get('/regions').pipe(map((data) => data.regions));
   }
