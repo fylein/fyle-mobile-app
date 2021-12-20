@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { PageState } from 'src/app/core/models/page-state.model';
+import { PageState } from 'src/app/core/models/page-state.enum';
 
 @Component({
   selector: 'app-send-email',
@@ -21,7 +21,7 @@ export class SendEmailComponent implements OnInit {
 
   @Input() successContent: string;
 
-  @Input() pageState: PageState;
+  @Input() sendEmailPageState: PageState;
 
   @Input() isLoading: boolean;
 

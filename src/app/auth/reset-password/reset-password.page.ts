@@ -3,18 +3,22 @@ import { Router } from '@angular/router';
 import { throwError } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { PageState } from 'src/app/core/models/page-state.model';
+import { PageState } from 'src/app/core/models/page-state.enum';
 
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.page.html',
 })
 export class ResetPasswordPage implements OnInit {
-  currentPageState: PageState = PageState.notSent;
+  currentPageState: PageState;
 
   isLoading = false;
 
   constructor(private routerAuthService: RouterAuthService, private router: Router) {}
+
+  ionViewWillEnter() {
+    this.currentPageState = PageState.notSent;
+  }
 
   ngOnInit() {}
 

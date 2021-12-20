@@ -8,7 +8,7 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-      <div class="send-email__form" *ngIf="pageState === pageStates.notSent">
+      <div class="send-email__form" *ngIf="sendEmailPageState === pageStates.notSent">
         <div class="send-email__form__title">{{ title }}</div>
         <div class="send-email__form__content">{{ content }}</div>
         <div *ngIf="subcontent" class="send-email__form__content">{{ subcontent }}</div>
@@ -34,13 +34,13 @@
           </button>
         </div>
       </div>
-      <div class="send-email__form" *ngIf="pageState === pageStates.success">
+      <div class="send-email__form" *ngIf="sendEmailPageState === pageStates.success">
         <div class="send-email__form__title">{{ successTitle }}</div>
         <div class="send-email__form__content">
           {{ successContent }}
         </div>
       </div>
-      <div class="send-email__form" *ngIf="pageState === pageStates.failure">
+      <div class="send-email__form" *ngIf="sendEmailPageState === pageStates.failure">
         <div class="send-email__form__title">Request failed</div>
         <div class="send-email__form__content">Something went wrong. Please send us a note at support@fylehq.com</div>
       </div>

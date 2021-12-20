@@ -6,7 +6,7 @@
   ctaText="Resend Verification Link"
   successTitle="Verification email sent"
   successContent="An activation link has been sent to your email. Please click on it to verify your account and proceed with Fyle."
-  [pageState]="currentPageState"
+  [sendEmailPageState]="currentPageState"
   [isLoading]="isLoading"
   (sendEmail)="resendVerificationLink($event)"
 ></app-send-email>

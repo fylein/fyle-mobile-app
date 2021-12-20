@@ -3,20 +3,24 @@ import { Router } from '@angular/router';
 import { throwError } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { PageState } from 'src/app/core/models/page-state.model';
+import { PageState } from 'src/app/core/models/page-state.enum';
 
 @Component({
   selector: 'app-pending-verification',
   templateUrl: './pending-verification.page.html',
 })
 export class PendingVerificationPage implements OnInit {
-  currentPageState: PageState = PageState.notSent;
+  currentPageState: PageState;
 
   isLoading = false;
 
   constructor(private routerAuthService: RouterAuthService, private router: Router) {}
 
   ngOnInit() {}
+
+  ionViewWillEnter() {
+    this.currentPageState = PageState.notSent;
+  }
 
   resendVerificationLink(email: string) {
     this.isLoading = true;
