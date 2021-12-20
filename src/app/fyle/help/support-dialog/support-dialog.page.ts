@@ -26,7 +26,7 @@ export class SupportDialogPage implements OnInit {
 
   openHelpLink() {
     this.trackingService.engageWithHelpCard();
-    Browser.open({ toolbarColor: '#280a31', url: 'https://fylehq.com/help/' });
+    Browser.open({ toolbarColor: '#280a31', url: 'https://help.fylehq.com' });
   }
 
   openChromeExtLink() {
