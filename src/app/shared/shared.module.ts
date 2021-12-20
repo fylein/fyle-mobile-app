@@ -4,7 +4,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { SwiperModule } from 'swiper/angular';
-import { RouterModule } from '@angular/router';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -100,11 +99,6 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
 import { ExpenseCardLiteComponent } from './components/expense-card-lite/expense-card-lite.component';
 import { FyInputPopoverComponent } from './components/fy-input-popover/fy-input-popover.component';
 import { FyPopoverComponent } from './components/fy-popover/fy-popover.component';
-import { SidemenuComponent } from './components/sidemenu/sidemenu.component';
-import { SidemenuHeaderComponent } from './components/sidemenu/sidemenu-header/sidemenu-header.component';
-import { SidemenuFooterComponent } from './components/sidemenu/sidemenu-footer/sidemenu-footer.component';
-import { SidemenuContentComponent } from './components/sidemenu/sidemenu-content/sidemenu-content.component';
-import { SidemenuContentItemComponent } from './components/sidemenu/sidemenu-content/sidemenu-content-item/sidemenu-content-item.component';
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
 
@@ -190,18 +184,12 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     PersonalCardTransactionComponent,
     FyInputPopoverComponent,
     FyPopoverComponent,
-    SidemenuComponent,
-    SidemenuHeaderComponent,
-    SidemenuFooterComponent,
-    SidemenuContentComponent,
-    SidemenuContentItemComponent,
     FyNavFooterComponent,
   ],
   imports: [
     CommonModule,
     IonicModule,
     FormsModule,
-    RouterModule,
     ReactiveFormsModule,
     MatInputModule,
     MatFormFieldModule,
@@ -285,7 +273,6 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     BankAccountCardsComponent,
     PersonalCardTransactionComponent,
     FyPopoverComponent,
-    SidemenuComponent,
     FyNavFooterComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
