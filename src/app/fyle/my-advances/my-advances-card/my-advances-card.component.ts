@@ -21,14 +21,14 @@ export class MyAdvancesCardComponent implements OnInit {
 
   currencySymbol = '';
 
-  showDate = true;
+  showDate = false;
 
   constructor(private advanceRequestService: AdvanceRequestService) {}
 
   ngOnInit() {
-    this.showDate =
-      (this.advanceRequest && moment(new Date(this.advanceRequest.created_at)).format('ddd MMM DD YYYY')) !==
-      (this.prevDate && moment(new Date(this.prevDate)).format('ddd MMM DD YYYY'));
+    if (this.advanceRequest && this.prevDate) {
+      this.showDate = moment(this.advanceRequest.created_at).isSame(this.prevDate, 'day');
+    }
     this.currencySymbol = getCurrencySymbol(this.advanceRequest.currency, 'wide');
     this.internalState =
       this.advanceRequest.type === 'request'

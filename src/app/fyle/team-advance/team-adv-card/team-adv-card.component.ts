@@ -20,16 +20,16 @@ export class TeamAdvCardComponent implements OnInit {
 
   currencySymbol = '';
 
-  showDate = true;
+  showDate = false;
 
   actionOpened = false;
 
   constructor(private advanceRequestService: AdvanceRequestService) {}
 
   ngOnInit() {
-    this.showDate =
-      (this.advanceRequest && moment(new Date(this.advanceRequest.areq_created_at)).format('ddd MMM DD YYYY')) !==
-      (this.prevDate && moment(new Date(this.prevDate)).format('ddd MMM DD YYYY'));
+    if (this.advanceRequest && this.prevDate) {
+      this.showDate = moment(this.advanceRequest.areq_created_at).isSame(this.prevDate, 'day');
+    }
     this.currencySymbol = getCurrencySymbol(this.advanceRequest.areq_currency, 'wide');
     this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(this.advanceRequest);
   }
