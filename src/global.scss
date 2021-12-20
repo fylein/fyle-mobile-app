@@ -58,11 +58,6 @@ body {
   --ion-color-tint: var(--ion-color-fyle-primary-tint);
 }
 
-.ion-grid-no-padding {
-  --ion-grid-padding: 0;
-  --ion-grid-column-padding: 0;
-}
-
 input:focus,
 textarea:focus {
   outline: none !important;
