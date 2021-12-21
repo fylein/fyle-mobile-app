@@ -325,6 +325,21 @@ export class TransactionsOutboxService {
     });
   }
 
+  matchIfRequired(transactionId, entry) {
+    return new Promise((resolve, reject) => {
+      if (entry.transaction.matchCCCId) {
+        this.transactionService
+          .matchCCCExpense(transactionId, entry.transaction.matchCCCId)
+          .toPromise()
+          .then(() => {
+            resolve(entry);
+          });
+      } else {
+        resolve(entry);
+      }
+    });
+  }
+
   syncEntry(entry) {
     const that = this;
     const fileObjPromiseArray = [];
@@ -390,34 +405,37 @@ export class TransactionsOutboxService {
               });
           }
 
-          if (reportId) {
-            const txnIds = [resp.id];
-            that.reportService
-              .addTransactions(reportId, txnIds)
-              .toPromise()
-              .then((result) => {
-                this.trackingService.addToExistingReportAddEditExpense();
-                return result;
-              });
-          }
-
-          that.removeEntry(entry);
-
           if (entry.applyMagic) {
             that.addDataExtractionEntry(resp, entry.dataUrls);
           }
 
-          // that would be on matching an expense for the first time
-          if (entry.transaction.matchCCCId) {
-            that.transactionService
-              .matchCCCExpense(resp.id, entry.transaction.matchCCCId)
-              .toPromise()
-              .then(() => {
+          that
+            .matchIfRequired(resp.id, entry)
+            .then(() => {
+              if (reportId) {
+                const txnIds = [resp.id];
+                that.reportService
+                  .addTransactions(reportId, txnIds)
+                  .toPromise()
+                  .then(() => {
+                    this.trackingService.addToExistingReportAddEditExpense();
+                    that.removeEntry(entry);
+                    resolve(entry);
+                  })
+                  .catch((err) => {
+                    this.trackingService.syncError({ label: err });
+                    that.removeEntry(entry);
+                    reject(err);
+                  });
+              } else {
+                that.removeEntry(entry);
                 resolve(entry);
-              });
-          } else {
-            resolve(entry);
-          }
+              }
+            })
+            .catch((err) => {
+              this.trackingService.syncError({ label: err });
+              reject(err);
+            });
         })
         .catch((err) => {
           this.trackingService.syncError({ label: err });
