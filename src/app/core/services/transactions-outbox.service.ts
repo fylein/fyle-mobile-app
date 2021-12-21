@@ -325,17 +325,17 @@ export class TransactionsOutboxService {
     });
   }
 
-  matchIfRequired(transactionId, entry) {
+  matchIfRequired(transactionId: string, cccId: string) {
     return new Promise((resolve, reject) => {
-      if (entry.transaction.matchCCCId) {
+      if (cccId) {
         this.transactionService
-          .matchCCCExpense(transactionId, entry.transaction.matchCCCId)
+          .matchCCCExpense(transactionId, cccId)
           .toPromise()
           .then(() => {
-            resolve(entry);
+            resolve(null);
           });
       } else {
-        resolve(entry);
+        resolve(null);
       }
     });
   }
@@ -410,7 +410,7 @@ export class TransactionsOutboxService {
           }
 
           that
-            .matchIfRequired(resp.id, entry)
+            .matchIfRequired(resp.id, entry.transaction.matchCCCId)
             .then(() => {
               if (reportId) {
                 const txnIds = [resp.id];
@@ -424,7 +424,6 @@ export class TransactionsOutboxService {
                   })
                   .catch((err) => {
                     this.trackingService.syncError({ label: err });
-                    that.removeEntry(entry);
                     reject(err);
                   });
               } else {
