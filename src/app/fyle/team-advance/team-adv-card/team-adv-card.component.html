@@ -1,26 +1,29 @@
-<div class="advance-card">
-  <div class="advance-card--header">
-    <span class="day">{{ advanceRequest.areq_created_at | date: 'EEEE' }}</span
-    >,
-    <span class="month-year">{{ advanceRequest.areq_created_at | date: 'MMM dd, yyyy' }}</span>
-  </div>
-  <div class="advance-card--body" (click)="onGoToAdvances()" *ngIf="!actionOpened" matRipple>
-    <div class="advance-card--info">
-      <div>
-        <span class="advance-card--currency" *ngIf="advanceRequest.areq_currency && advanceRequest.areq_amount">{{
-          advanceRequest.areq_currency
-        }}</span>
-        <span class="advance-card--amount" *ngIf="advanceRequest.areq_amount && advanceRequest.areq_currency">{{
-          advanceRequest.areq_amount | number: '1.2-2'
-        }}</span>
-      </div>
-      <p>{{ advanceRequest.us_full_name }}</p>
-      <p>{{ advanceRequest.areq_purpose | ellipsis: 30 }}</p>
-    </div>
+<div *ngIf="!showDate" class="advance-card--date">
+  {{ advanceRequest.areq_created_at | date: 'MMM dd, yyyy' }}
+</div>
 
-    <div class="advance-card--status">
-      <div *ngIf="advanceRequest.areq_approved_at">
-        Approved on {{ advanceRequest.areq_approved_at | date: 'MMM dd, yyyy' }}
+<div class="advance-card" (click)="onGoToAdvances()" *ngIf="!actionOpened" matRipple>
+  <div class="advance-card--divider" *ngIf="showDate"></div>
+  <div class="advance-card--main-info">
+    <div class="advance-card--purpose-amount-block">
+      <div class="advance-card--purpose">
+        <span>{{ advanceRequest.areq_purpose | ellipsis: 30 }}</span>
+      </div>
+      <div class="advance-card--amount-block">
+        <span class="advance-card--currency">{{ currencySymbol }}</span>
+        <span class="advance-card--amount" *ngIf="advanceRequest.areq_amount && advanceRequest.areq_currency"
+          >{{ advanceRequest.areq_amount || 0 | humanizeCurrency: advanceRequest.areq_currency:2:true }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="advance-card--secondary-info">
+    <div class="advance-card--secondary-info-block">
+      <div class="advance-card--approval">
+        <div *ngIf="advanceRequest.areq_approved_at">
+          <span>Approved on {{ advanceRequest.areq_approved_at | date: 'MMM dd, yyyy' }}</span>
+        </div>
       </div>
       <div class="advance-card--pill" [class]="'advance-card--pill__' + internalState.state">
         {{ internalState.name }}
