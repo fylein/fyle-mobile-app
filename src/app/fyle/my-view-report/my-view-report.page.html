@@ -307,7 +307,7 @@
 <ion-footer
   *ngIf="!isCommentsView && (((erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0) || (canResubmitReport$ | async))"
 >
-  <ion-toolbar class="fy-footer-cta-container" mode="md">
+  <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
     <div class="view-reports--cta-container">
       <div class="view-reports--add-expenses-container">
         <mat-icon
