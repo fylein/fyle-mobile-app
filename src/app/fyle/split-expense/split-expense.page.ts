@@ -67,9 +67,9 @@ export class SplitExpensePage implements OnInit {
 
   reportId: string;
 
-  splitExpenseTxn;
+  splitExpenseTxn: any[];
 
-  completeTxnIds;
+  completeTxnIds: string[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
