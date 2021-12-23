@@ -14,13 +14,39 @@ export class PopupAlertComponentComponent implements OnInit {
 
   @Input() secondaryCta: { text: string; action: string; type?: string };
 
+  @Input() etxns;
+
   constructor(private popoverController: PopoverController) {}
 
-  ngOnInit() {}
+  numIssues = 0;
+
+  ngOnInit() {
+    if (this.etxns) {
+      this.numIssues = this.getNumIssues(this.etxns);
+    }
+  }
 
   ctaClickedEvent(action) {
     this.popoverController.dismiss({
       action,
     });
+  }
+
+  getNumIssues(etxns) {
+    let count = 0;
+    for (let i = 0; i < etxns.length; i++) {
+      const etxn = etxns[i];
+      if (etxn.tx_policy_flag) {
+        count = count + 1;
+      }
+    }
+
+    for (let i = 0; i < etxns.length; i++) {
+      const etxn = etxns[i];
+      if (etxn.tx_manual_flag) {
+        count = count + 1;
+      }
+    }
+    return count;
   }
 }

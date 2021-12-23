@@ -26,6 +26,8 @@ import { getCurrencySymbol } from '@angular/common';
 import * as moment from 'moment';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 
 @Component({
   selector: 'app-view-team-report',
@@ -122,7 +124,8 @@ export class ViewTeamReportPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private refinerService: RefinerService,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private humanizeCurrency: HumanizeCurrencyPipe
   ) {}
 
   ngOnInit() {
@@ -335,21 +338,33 @@ export class ViewTeamReportPage implements OnInit {
     const erpt = await this.erpt$.pipe(take(1)).toPromise();
     const etxns = await this.etxns$.toPromise();
 
+    const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, 2, false);
     const popover = await this.popoverController.create({
       componentProps: {
-        erpt,
         etxns,
+        title: 'Approve Report',
+        message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be approved',
+        primaryCta: {
+          text: 'Approve',
+          action: 'approve',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'cancel',
+        },
       },
-      component: ApproveReportComponent,
-      cssClass: 'dialog-popover',
+      component: PopupAlertComponentComponent,
+      cssClass: 'pop-up-in-center',
     });
 
     await popover.present();
 
     const { data } = await popover.onWillDismiss();
 
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'team_reports']);
+    if (data && data.action === 'approve') {
+      this.reportService.approve(erpt.rp_id).subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'team_reports']);
+      });
     }
   }
 

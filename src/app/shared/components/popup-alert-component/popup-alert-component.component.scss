@@ -13,10 +13,32 @@ $small-screen: 700px;
   }
 
   &--body {
-    margin-bottom: 33px;
+    margin-bottom: 25px;
+  }
+
+  &--info-container {
+    border: 1px solid $grey-lighter;
+    box-sizing: border-box;
+    border-radius: 8px;
+    padding: 12px 8px;
+    display: flex;
+    align-items: center;
+
+    &__icon {
+      width: 20px;
+      height: 20px;
+      color: $highlight-blue;
+    }
+
+    &__message {
+      line-height: 15px;
+      color: $blue-black;
+      margin-left: 10px;
+    }
   }
 
   &--cta-container {
+    margin-top: 25px;
     display: flex;
     justify-content: space-between;
     &__single-content {
