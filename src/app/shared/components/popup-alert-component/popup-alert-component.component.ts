@@ -16,9 +16,9 @@ export class PopupAlertComponentComponent implements OnInit {
 
   @Input() etxns: [];
 
-  constructor(private popoverController: PopoverController) {}
+  numIssues: number = 0;
 
-  numIssues = 0;
+  constructor(private popoverController: PopoverController) {}
 
   ngOnInit() {
     if (this.etxns) {
