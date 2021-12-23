@@ -14,7 +14,7 @@ export class PopupAlertComponentComponent implements OnInit {
 
   @Input() secondaryCta: { text: string; action: string; type?: string };
 
-  @Input() etxns;
+  @Input() etxns: [];
 
   constructor(private popoverController: PopoverController) {}
 
@@ -34,19 +34,12 @@ export class PopupAlertComponentComponent implements OnInit {
 
   getNumIssues(etxns) {
     let count = 0;
-    for (let i = 0; i < etxns.length; i++) {
-      const etxn = etxns[i];
-      if (etxn.tx_policy_flag) {
-        count = count + 1;
-      }
-    }
 
-    for (let i = 0; i < etxns.length; i++) {
-      const etxn = etxns[i];
-      if (etxn.tx_manual_flag) {
+    etxns.forEach((etxn) => {
+      if (etxn.tx_policy_flag || etxn.tx_manual_flag) {
         count = count + 1;
       }
-    }
+    });
     return count;
   }
 }
