@@ -16,7 +16,7 @@ export class PopupAlertComponentComponent implements OnInit {
 
   @Input() etxns: [];
 
-  numIssues: number = 0;
+  numIssues = 0;
 
   constructor(private popoverController: PopoverController) {}
 
