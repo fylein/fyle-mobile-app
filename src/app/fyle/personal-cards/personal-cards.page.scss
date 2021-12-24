@@ -13,6 +13,7 @@
   &--filter-pills-container {
     display: block;
     min-height: 52px;
+    background-color: $pure-white;
   }
 
   &--toolbar {
@@ -25,7 +26,6 @@
   &--content {
     --background: #{$pure-white};
     --padding-bottom: 82px;
-    border-top: $grey solid 1px;
   }
 
   &--select-all-container {
@@ -45,6 +45,14 @@
 
   &--shimmers {
     overflow-y: scroll;
+  }
+
+  &--icon {
+    font-size: 16px;
+    color: $black-light;
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    margin-right: 5px;
   }
 
   &--state-pill {
@@ -136,7 +144,7 @@
   }
 
   &--transactions-zero-state {
-    height: 50%;
+    height: 80%;
   }
 
   &--body {
@@ -213,6 +221,17 @@
     width: fit-content;
   }
 
+  &--range-button {
+    padding: 8px 8px;
+    background: $pure-white;
+    color: $black-light;
+    border: solid 1px $grey;
+    font-size: 12px;
+    line-height: 1.3;
+    border-radius: 8px;
+    width: fit-content;
+  }
+
   &--fetching-spinner {
     height: 14px;
     vertical-align: middle;
@@ -225,14 +244,25 @@
     border-radius: 8px;
   }
 
-  &--segment-block {
-    padding-right: 16px;
+  &--segment-container {
+    border-bottom: 1px solid $grey;
+  }
 
+  &--segment-block {
     &__btn {
       color: $blue-black;
-      font-size: 14px;
+      font-size: 3.2vw;
       font-weight: 500;
-      width: 100%;
+      width: 150px;
+      text-transform: none;
+    }
+
+    &__btn::before {
+      opacity: 0;
+    }
+
+    &__space-left {
+      margin-left: 6px;
     }
   }
 
@@ -240,6 +270,8 @@
     display: flex;
     padding: 5px 14px;
     justify-content: flex-end;
+    z-index: 1000;
+    background-color: $pure-white;
 
     &__left {
       margin-right: auto;
@@ -252,5 +284,41 @@
 
   &--footer-toolbar {
     padding: 14px 16px;
+  }
+
+  &--simple-search-container {
+    display: flex;
+    align-items: center;
+    height: 62px;
+    padding-left: 12px;
+    mat-form-field {
+      ::ng-deep .mat-form-field-outline {
+        color: $black-light !important;
+      }
+    }
+  }
+
+  &--simple-search {
+    width: 100%;
+    font-size: 14px;
+
+    &-icon {
+      font-size: 18px;
+      margin: auto 8px auto 0;
+      color: $black-light;
+      height: auto;
+    }
+
+    &-close {
+      margin: -10px;
+      font-size: 18px;
+      background-color: transparent;
+      color: $black-light;
+    }
+  }
+
+  &--simple-search-block {
+    display: flex;
+    vertical-align: baseline;
   }
 }

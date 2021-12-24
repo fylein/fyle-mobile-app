@@ -35,4 +35,9 @@
     justify-content: center;
     text-align: center;
   }
+
+  &--header-btn {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
+  }
 }

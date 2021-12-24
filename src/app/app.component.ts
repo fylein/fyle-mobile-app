@@ -493,14 +493,17 @@ export class AppComponent implements OnInit {
         route: ['/', 'enterprise', 'my_expenses'],
       },
       {
-        title: 'Cards',
+        title: 'Corporate Cards',
         isVisible: orgSettings.corporate_credit_card_settings.enabled,
         icon: 'fy-cards-new',
         route: ['/', 'enterprise', 'corporate_card_expenses'],
       },
       {
         title: 'Personal Cards',
-        isVisible: environment.ROOT_URL === 'https://staging.fyle.tech',
+        isVisible:
+          orgSettings.org_personal_cards_settings.allowed &&
+          orgSettings.org_personal_cards_settings.enabled &&
+          orgUserSettings.personal_cards_settings?.enabled,
         icon: 'fy-cards-new',
         route: ['/', 'enterprise', 'personal_cards'],
       },
@@ -568,7 +571,7 @@ export class AppComponent implements OnInit {
         title: 'Switch Organization',
         isVisible: orgs.length > 1 && !this.isSwitchedToDelegator,
         icon: 'fy-switch-new',
-        route: ['/', 'auth', 'switch_org', { choose: true }],
+        route: ['/', 'auth', 'switch_org', { choose: true, navigate_back: true }],
       },
       {
         title: 'Delegated Accounts',

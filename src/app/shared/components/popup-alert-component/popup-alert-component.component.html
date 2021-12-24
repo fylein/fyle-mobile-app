@@ -5,9 +5,7 @@
     </div>
   </ion-header>
 
-  <div class="popup-alert--body ion-text-center">
-    {{ message }}
-  </div>
+  <div class="popup-alert--body ion-text-center" [innerHtml]="message"></div>
 
   <ion-footer class="popup-alert--footer">
     <div [ngClass]="{ 'popup-alert--cta-container': secondaryCta, 'text-center': !secondaryCta }">

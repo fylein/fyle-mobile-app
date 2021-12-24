@@ -121,6 +121,10 @@ export interface ExpenseFormAutofills {
   allowed: boolean;
   enabled: boolean;
 }
+export interface PersonalCardsSettings {
+  enabled: boolean;
+  personal_cards_data_aggregator: string;
+}
 
 export interface OrgUserSettings {
   id: string;
@@ -147,4 +151,5 @@ export interface OrgUserSettings {
   locale: Locale;
   in_app_chat_settings: InAppChatSettings;
   expense_form_autofills: ExpenseFormAutofills;
+  personal_cards_settings: PersonalCardsSettings;
 }

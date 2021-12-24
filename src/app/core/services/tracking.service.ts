@@ -913,4 +913,37 @@ export class TrackingService {
   onSettingsToggle(properties) {
     this.eventTrack('Toggle Setting', properties);
   }
+
+  //Personal Cards
+  personalCardsViewed(properties = {}) {
+    this.eventTrack('Personal cards page opened', properties);
+  }
+
+  newCardLinkedOnPersonalCards(properties = {}) {
+    this.eventTrack('New card linked on personal cards', properties);
+  }
+
+  cardDeletedOnPersonalCards(properties = {}) {
+    this.eventTrack('Card deleted on personal cards', properties);
+  }
+
+  newExpenseCreatedFromPersonalCard(properties = {}) {
+    this.eventTrack('New expense created from personal card transaction', properties);
+  }
+
+  oldExpensematchedFromPersonalCard(properties = {}) {
+    this.eventTrack('Expense matched created from personal card transaction', properties);
+  }
+
+  unmatchedExpensesFromPersonalCard(properties = {}) {
+    this.eventTrack('Expense matched created from personal card transaction', properties);
+  }
+
+  transactionsHiddenOnPersonalCards(properties = {}) {
+    this.eventTrack('Transactions hidden on personal cards', properties);
+  }
+
+  transactionsFetchedOnPersonalCards(properties = {}) {
+    this.eventTrack('Transactions fetched on perosnal cards', properties);
+  }
 }

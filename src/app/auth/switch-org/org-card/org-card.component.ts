@@ -11,6 +11,8 @@ export class OrgCardComponent implements OnInit {
 
   @Input() isPrimaryOrg: boolean;
 
+  @Input() isLoading = false;
+
   @Output() selectOrg = new EventEmitter();
 
   constructor() {}

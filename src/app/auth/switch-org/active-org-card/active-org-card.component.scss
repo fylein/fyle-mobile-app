@@ -6,6 +6,7 @@
   padding: 20px 16px;
   color: $black;
   line-height: 1.3;
+  margin-bottom: 16px;
 
   &__header {
     font-size: 18px;
@@ -29,6 +30,12 @@
       color: $blue-black;
       font-weight: 500;
     }
+
+    &__skeleton-icon {
+      height: 100%;
+      border-radius: 8px;
+      padding: 0 8px 8px 0;
+    }
   }
 
   &__content-container {
@@ -49,7 +56,7 @@
 
   &__pill-container {
     margin-left: 8px;
-    max-width: 90px;
+    max-width: 64px;
 
     &__pill {
       padding: 4px 12px;

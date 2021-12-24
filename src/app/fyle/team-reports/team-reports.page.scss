@@ -17,18 +17,6 @@
     width: 90%;
   }
 
-  &--filter-pills {
-    position: fixed;
-    width: 100%;
-    background-color: $white;
-    z-index: 99;
-  }
-
-  &--filter-pills-container {
-    display: block;
-    min-height: 52px;
-  }
-
   &--body {
     padding-bottom: 20px;
     background-color: $white;

@@ -31,43 +31,42 @@
     </div>
   </ng-container>
 
-  <ion-slides
+  <swiper
     #slides
-    [options]="sliderOptions"
-    (ionSlidesDidLoad)="getActiveIndex()"
-    (ionSlideDidChange)="getActiveIndex()"
+    (onSwiper)="getActiveIndex()"
+    (slideChange)="getActiveIndex()"
+    [slidesPerView]="1"
+    [spaceBetween]="80"
   >
-    <ng-container *ngFor="let attachment of attachments">
-      <ion-slide (click)="previewAttachments()">
-        <div class="receipt-preview-thumbnail--container">
+    <ng-template *ngFor="let attachment of attachments" swiperSlide>
+      <div class="receipt-preview-thumbnail--container" (click)="previewAttachments()">
+        <pinch-zoom
+          class="pinch-zoom"
+          *ngIf="attachment?.type !== 'pdf'"
+          disableZoomControl="disable"
+          backgroundColor="white"
+        >
+          <img class="receipt-preview-thumbnail--image" [src]="attachment?.url" />
+        </pinch-zoom>
+        <div class="receipt-preview-thumbnail--image" *ngIf="attachment?.type === 'pdf'">
           <pinch-zoom
             class="pinch-zoom"
-            *ngIf="attachment?.type !== 'pdf'"
+            *ngIf="attachment?.type === 'pdf'"
             disableZoomControl="disable"
             backgroundColor="white"
           >
-            <img class="receipt-preview-thumbnail--image" [src]="attachment?.url" />
+            <pdf-viewer
+              class="receipt-preview-thumbnail--pdf-viewer"
+              [page]="1"
+              [src]="attachment?.url"
+              [original-size]="false"
+              [render-text]="true"
+              [show-all]="false"
+              [fit-to-page]="true"
+            ></pdf-viewer>
           </pinch-zoom>
-          <div class="receipt-preview-thumbnail--image" *ngIf="attachment?.type === 'pdf'">
-            <pinch-zoom
-              class="pinch-zoom"
-              *ngIf="attachment?.type === 'pdf'"
-              disableZoomControl="disable"
-              backgroundColor="white"
-            >
-              <pdf-viewer
-                class="receipt-preview-thumbnail--pdf-viewer"
-                [page]="1"
-                [src]="attachment?.url"
-                [original-size]="false"
-                [render-text]="true"
-                [show-all]="false"
-                [fit-to-page]="true"
-              ></pdf-viewer>
-            </pinch-zoom>
-          </div>
         </div>
-      </ion-slide>
-    </ng-container>
-  </ion-slides>
+      </div>
+    </ng-template>
+  </swiper>
 </div>
