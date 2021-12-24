@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -23,6 +24,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
     MatIconModule,
     PinchZoomModule,
     MatBottomSheetModule,
+    ImageCropperModule,
   ],
   declarations: [CaptureReceiptPage, ReceiptPreviewComponent, AddMorePopupComponent],
   providers: [ImagePicker],

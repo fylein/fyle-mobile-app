@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { ImageCropperComponent } from 'ngx-image-cropper';
 import { ActionSheetController, ModalController, Platform, PopoverController } from '@ionic/angular';
 import { from } from 'rxjs';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
@@ -18,6 +19,8 @@ type Image = Partial<{
 export class ReceiptPreviewComponent implements OnInit {
   @ViewChild('slides') imageSlides: any;
 
+  @ViewChild('imageCropper') imageCropper: ImageCropperComponent;
+
   @Input() base64ImagesWithSource: Image[];
 
   @Input() mode: string;
@@ -25,6 +28,10 @@ export class ReceiptPreviewComponent implements OnInit {
   sliderOptions: { initialSlide: number; slidesPerView: number; autoHeight: boolean; zoom: { maxRatio: number } };
 
   activeIndex: number;
+
+  isCropperShown = false;
+
+  canvasRotation = 0;
 
   constructor(
     private platform: Platform,
@@ -43,6 +50,10 @@ export class ReceiptPreviewComponent implements OnInit {
     });
   }
 
+  showCropper() {
+    this.isCropperShown = true;
+  }
+
   ngOnInit() {
     this.sliderOptions = {
       initialSlide: 0,
@@ -59,13 +70,26 @@ export class ReceiptPreviewComponent implements OnInit {
     this.imageSlides.update();
   }
 
+  rotateLeft() {
+    this.canvasRotation--;
+  }
+
   async finish() {
+    if (this.isCropperShown) {
+      this.base64ImagesWithSource[this.activeIndex].base64Image = this.imageCropper.crop().base64;
+      this.isCropperShown = false;
+      return;
+    }
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
     });
   }
 
   async close() {
+    if (this.isCropperShown) {
+      this.isCropperShown = false;
+      return;
+    }
     let message;
     if (this.base64ImagesWithSource.length > 1) {
       message = `Are you sure you want to discard the ${this.base64ImagesWithSource.length} receipts you just captured?`;
