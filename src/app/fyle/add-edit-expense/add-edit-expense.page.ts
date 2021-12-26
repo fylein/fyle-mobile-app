@@ -1296,6 +1296,19 @@ export class AddEditExpensePage implements OnInit {
           ),
           of(null)
         )
+      ),
+      switchMap(() =>
+        iif(
+          () => this.activatedRoute.snapshot.params.rp_id,
+          this.reports$.pipe(
+            map((reportOptions) =>
+              reportOptions
+                .map((res) => res.value)
+                .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
+            )
+          ),
+          of(null)
+        )
       )
     );
 
