@@ -365,6 +365,7 @@ export class ViewTeamReportPage implements OnInit {
       this.reportService.approve(erpt.rp_id).subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'team_reports']);
       });
+      this.refinerService.startSurvey({ actionName: 'Approve Report' });
     }
   }
 
