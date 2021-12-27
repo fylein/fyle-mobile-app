@@ -250,10 +250,14 @@ export class SplitExpensePage implements OnInit {
     }
 
     return forkJoin(splitExpense$).pipe(
-      switchMap((data: any) => {
+      switchMap((data) => {
         if (this.reportId) {
-          this.addToReport(data);
+          return this.addToReport(data).pipe(map((_) => data));
+        } else {
+          return of(data);
         }
+      }),
+      switchMap((data: any) => {
         const txnIds = data.txns.map((txn) => txn.id);
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
       })
@@ -270,61 +274,57 @@ export class SplitExpensePage implements OnInit {
         }
       })
       .map((txn) => txn.id);
-    return this.reportService.addTransactions(reportId, this.completeTxnIds).subscribe(noop);
+    console.log('com-1', this.completeTxnIds);
+    return this.reportService.addTransactions(reportId, this.completeTxnIds);
+  }
+
+  toastWithCTA(toastMessage) {
+    const toastMessageData = {
+      message: toastMessage,
+      redirectionText: 'View Report',
+    };
+
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessage });
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
+    });
+  }
+
+  toastWithoutCTA(toastMessage, toastType, panelClass) {
+    const message = toastMessage;
+
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(toastType, { message }),
+      panelClass: [panelClass],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
   }
 
   showSuccessToast() {
     if (this.reportId) {
+      console.log('com-2 in toast', this.completeTxnIds);
       if (this.completeTxnIds.length === this.splitExpenseTxn.length) {
-        const toastMessageData = {
-          message: 'Your expense was split successfully. All the split expenses were added to report',
-          redirectionText: 'View Report',
-        };
-
-        const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-          panelClass: ['msb-success-with-camera-icon'],
-        });
-        this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
-
-        expensesAddedToReportSnackBar.onAction().subscribe(() => {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
-        });
+        const toastMessage = 'Your expense was split successfully. All the split expenses were added to report';
+        this.toastWithCTA(toastMessage);
       } else if (this.completeTxnIds.length > 0 && this.splitExpenseTxn.length > 0) {
-        const toastMessageData = {
-          message:
-            'Your expense was split successfully. ' +
-            this.completeTxnIds.length +
-            ' out of ' +
-            this.splitExpenseTxn.length +
-            ' expenses were added to report.',
-          redirectionText: 'View Report',
-        };
-        this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
-
-        const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-          panelClass: ['msb-success-with-camera-icon'],
-        });
-
-        expensesAddedToReportSnackBar.onAction().subscribe(() => {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
-        });
+        const toastMessage =
+          'Your expense was split successfully. ' +
+          this.completeTxnIds.length +
+          ' out of ' +
+          this.splitExpenseTxn.length +
+          ' expenses were added to report.';
+        this.toastWithCTA(toastMessage);
       } else {
-        const message = 'Your expense was split successfully. Review split expenses to add it to the report.';
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('information', { message }),
-          panelClass: ['msb-info'],
-        });
-        this.trackingService.showToastMessage({ ToastContent: message });
+        const toastMessage = 'Your expense was split successfully. Review split expenses to add it to the report.';
+        this.toastWithoutCTA(toastMessage, 'information', 'msb-info');
       }
     } else {
-      const message = 'Your expense was split successfully.';
-      this.matSnackBar.openFromComponent(ToastMessageComponent, {
-        ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-        panelClass: ['msb-success-with-camera-icon'],
-      });
-      this.trackingService.showToastMessage({ ToastContent: message });
+      const toastMessage = 'Your expense was split successfully.';
+      this.toastWithoutCTA(toastMessage, 'success', 'msb-success-with-camera-icon');
     }
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
@@ -397,12 +397,9 @@ export class SplitExpensePage implements OnInit {
               this.showSuccessToast();
             }),
             catchError((err) => {
+              console.log('ssam', err);
               const message = 'We were unable to split your expense. Please try again later.';
-              const splitExpenseErroeSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-                ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
-                panelClass: ['msb-failure-with-camera-icon'],
-              });
-              this.trackingService.showToastMessage({ ToastContent: message });
+              this.toastWithoutCTA(message, 'failure', 'msb-failure-with-camera-icon');
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
               return throwError(err);
             }),
