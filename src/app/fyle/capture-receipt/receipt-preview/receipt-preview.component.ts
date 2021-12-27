@@ -29,9 +29,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   activeIndex: number;
 
-  isCropperShown = false;
-
-  canvasRotation = 0;
+  isCropMode = false;
 
   constructor(
     private platform: Platform,
@@ -50,8 +48,8 @@ export class ReceiptPreviewComponent implements OnInit {
     });
   }
 
-  showCropper() {
-    this.isCropperShown = true;
+  switchMode() {
+    this.isCropMode = true;
   }
 
   ngOnInit() {
@@ -70,14 +68,11 @@ export class ReceiptPreviewComponent implements OnInit {
     this.imageSlides.update();
   }
 
-  rotateLeft() {
-    this.canvasRotation--;
-  }
-
   async finish() {
-    if (this.isCropperShown) {
+    if (this.isCropMode) {
       this.base64ImagesWithSource[this.activeIndex].base64Image = this.imageCropper.crop().base64;
-      this.isCropperShown = false;
+      this.isCropMode = false;
+      await this.imageSlides.update();
       return;
     }
     this.modalController.dismiss({
@@ -86,8 +81,8 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   async close() {
-    if (this.isCropperShown) {
-      this.isCropperShown = false;
+    if (this.isCropMode) {
+      this.isCropMode = false;
       return;
     }
     let message;

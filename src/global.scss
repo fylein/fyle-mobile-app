@@ -340,6 +340,10 @@ textarea:focus {
   margin-bottom: 0 !important;
 }
 
+.pb-0 {
+  padding-bottom: 0 !important;
+}
+
 .m-0 {
   margin: 0;
 }
@@ -779,6 +783,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .btn-secondary {
+  background: $pure-white;
   color: $black-2;
   font-size: 16px !important;
   line-height: 20px;
