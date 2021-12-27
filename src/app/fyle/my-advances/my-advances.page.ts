@@ -155,15 +155,9 @@ export class MyAdvancesPage {
       startWith([])
     );
 
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 1200);
-
     const sortResults = map((res: any[]) => res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)));
     this.advances$ = this.refreshAdvances$.pipe(
-      // startWith(0),
-      // switchMap(() =>
-      // from(this.loaderService.showLoader('Retrieving advance...')).pipe(
+      startWith(0),
       concatMap(() => this.offlineService.getOrgSettings()),
       switchMap((orgSettings) =>
         combineLatest([
@@ -209,11 +203,10 @@ export class MyAdvancesPage {
           })
         )
       )
-      // finalize(() => from(this.loaderService.hideLoader()))
-      // )
     );
-    this.advances$.subscribe(console.log);
-    // );
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 500);
   }
 
   updateMyAdvances(myAdvances: any) {
@@ -250,7 +243,7 @@ export class MyAdvancesPage {
     })
       .pipe(
         map(() => {
-          // this.refreshAdvances$.next();
+          this.refreshAdvances$.next();
           event.target.complete();
         })
       )
