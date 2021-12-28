@@ -252,13 +252,7 @@ export class SplitExpensePage implements OnInit {
     return forkJoin(splitExpense$).pipe(
       switchMap((data: any) => {
         this.splitExpenseTxn = data.txns.map((txn) => txn);
-        this.completeTxnIds = this.splitExpenseTxn
-          .filter((tx) => {
-            if (tx.state === 'COMPLETE') {
-              return true;
-            }
-          })
-          .map((txn) => txn.id);
+        this.completeTxnIds = this.splitExpenseTxn.filter((tx) => tx.state === 'COMPLETE').map((txn) => txn.id);
         if (this.completeTxnIds.length !== 0 && this.reportId) {
           return this.reportService.addTransactions(this.reportId, this.completeTxnIds).pipe(map(() => data));
         } else {
