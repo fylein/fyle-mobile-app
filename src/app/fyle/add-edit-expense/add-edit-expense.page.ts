@@ -766,6 +766,7 @@ export class AddEditExpensePage implements OnInit {
           currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
           fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
           selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
+          selectedReportId: this.fg.value.report ? JSON.stringify(this.fg.value.report.rp.id) : null,
         },
       ]);
     });
