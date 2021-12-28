@@ -77,6 +77,7 @@ export class ReceiptPreviewComponent implements OnInit {
     if (this.isCropMode) {
       this.base64ImagesWithSource[this.activeIndex].base64Image = this.imageCropper.crop().base64;
       this.isCropMode = false;
+      this.imageSlides.centeredSlides = true;
       await this.imageSlides.update();
       this.trackingService.cropReceipt({ action: 'crop' });
       return;
