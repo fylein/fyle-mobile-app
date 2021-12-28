@@ -35,6 +35,8 @@
         #imageCropper
         [imageBase64]="base64ImagesWithSource[activeIndex].base64Image"
         [maintainAspectRatio]="false"
+        (imageLoaded)="imageLoaded()"
+        class="receipt-preview__cropper"
       ></image-cropper>
     </ng-container>
     <ion-slides

@@ -59,6 +59,10 @@
     background-color: $white;
   }
 
+  &__cropper {
+    --cropper-overlay-color: #{$white};
+  }
+
   &__controls {
     position: relative;
     z-index: 99;

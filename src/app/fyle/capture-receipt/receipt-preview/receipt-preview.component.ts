@@ -2,10 +2,12 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { ImageCropperComponent } from 'ngx-image-cropper';
-import { ActionSheetController, ModalController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { from } from 'rxjs';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
+import { LoaderService } from '../../../core/services/loader.service';
+import { TrackingService } from '../../../core/services/tracking.service';
 
 type Image = Partial<{
   source: string;
@@ -35,9 +37,10 @@ export class ReceiptPreviewComponent implements OnInit {
     private platform: Platform,
     private modalController: ModalController,
     private popoverController: PopoverController,
-    private actionSheetController: ActionSheetController,
     private matBottomSheet: MatBottomSheet,
-    private imagePicker: ImagePicker
+    private imagePicker: ImagePicker,
+    private loaderService: LoaderService,
+    private trackingService: TrackingService
   ) {
     this.registerBackButtonAction();
   }
@@ -49,7 +52,9 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   switchMode() {
+    this.loaderService.showLoader();
     this.isCropMode = true;
+    this.trackingService.cropReceipt({ action: 'click' });
   }
 
   ngOnInit() {
@@ -73,11 +78,16 @@ export class ReceiptPreviewComponent implements OnInit {
       this.base64ImagesWithSource[this.activeIndex].base64Image = this.imageCropper.crop().base64;
       this.isCropMode = false;
       await this.imageSlides.update();
+      this.trackingService.cropReceipt({ action: 'crop' });
       return;
     }
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
     });
+  }
+
+  imageLoaded() {
+    this.loaderService.hideLoader();
   }
 
   async close() {
