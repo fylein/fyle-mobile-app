@@ -250,9 +250,17 @@ export class SplitExpensePage implements OnInit {
     }
 
     return forkJoin(splitExpense$).pipe(
-      switchMap((data) => {
-        if (this.reportId) {
-          return this.addToReport(data).pipe(map((_) => data));
+      switchMap((data: any) => {
+        this.splitExpenseTxn = data.txns.map((txn) => txn);
+        this.completeTxnIds = this.splitExpenseTxn
+          .filter((tx) => {
+            if (tx.state === 'COMPLETE') {
+              return true;
+            }
+          })
+          .map((txn) => txn.id);
+        if (this.completeTxnIds.length !== 0 && this.reportId) {
+          return this.reportService.addTransactions(this.reportId, this.completeTxnIds).pipe(map(() => data));
         } else {
           return of(data);
         }
@@ -262,20 +270,6 @@ export class SplitExpensePage implements OnInit {
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
       })
     );
-  }
-
-  addToReport(data) {
-    const reportId = this.reportId;
-    this.splitExpenseTxn = data.txns.map((txn) => txn);
-    this.completeTxnIds = this.splitExpenseTxn
-      .filter((tx) => {
-        if (tx.state === 'COMPLETE') {
-          return true;
-        }
-      })
-      .map((txn) => txn.id);
-    console.log('com-1', this.completeTxnIds);
-    return this.reportService.addTransactions(reportId, this.completeTxnIds);
   }
 
   toastWithCTA(toastMessage) {
@@ -306,7 +300,6 @@ export class SplitExpensePage implements OnInit {
 
   showSuccessToast() {
     if (this.reportId) {
-      console.log('com-2 in toast', this.completeTxnIds);
       if (this.completeTxnIds.length === this.splitExpenseTxn.length) {
         const toastMessage = 'Your expense was split successfully. All the split expenses were added to report';
         this.toastWithCTA(toastMessage);
@@ -397,7 +390,6 @@ export class SplitExpensePage implements OnInit {
               this.showSuccessToast();
             }),
             catchError((err) => {
-              console.log('ssam', err);
               const message = 'We were unable to split your expense. Please try again later.';
               this.toastWithoutCTA(message, 'failure', 'msb-failure-with-camera-icon');
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
