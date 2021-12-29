@@ -2,27 +2,25 @@
   <ion-toolbar
     mode="md"
     class="receipt-preview__toolbar"
-    [ngClass]="{ 'receipt-preview__toolbar--no-index': isCropMode || base64ImagesWithSource.length <= 1 }"
+    [ngClass]="{ 'receipt-preview__toolbar--no-index': base64ImagesWithSource.length === 1 }"
   >
-    <ion-title [ngClass]="{ 'receipt-preview__title--with-delete': !isCropMode && base64ImagesWithSource.length > 1 }">
-      <div class="text-center receipt-preview__title" [ngClass]="{ 'receipt-preview__title--crop-mode': isCropMode }">
-        {{ isCropMode ? 'Crop Receipt' : 'Receipt Preview' }}
-      </div>
-      <div *ngIf="!isCropMode && base64ImagesWithSource.length > 1" class="receipt-preview__sub-title text-center">
+    <ion-title [ngClass]="{ 'receipt-preview__title--with-delete': base64ImagesWithSource.length > 1 }">
+      <div class="text-center receipt-preview__title">Receipt Preview</div>
+      <div *ngIf="base64ImagesWithSource.length > 1" class="receipt-preview__sub-title text-center">
         {{ activeIndex + 1 }}/{{ base64ImagesWithSource.length }}
       </div>
     </ion-title>
-    <ion-buttons class="receipt-preview__btns" slot="start">
-      <ion-button (click)="close()">
+    <ion-buttons class="receipt-preview__btn" slot="start">
+      <ion-button (click)="closeModal()">
         <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-buttons *ngIf="!isCropMode" class="receipt-preview__btns" slot="end">
-      <ion-button class="receipt-preview__btns--crop" (click)="switchMode()">
+    <ion-buttons class="receipt-preview__btn" slot="end">
+      <ion-button class="receipt-preview__btn--crop" (click)="openCropReceiptModal()">
         <ion-icon src="../../../../assets/svg/crop.svg"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="base64ImagesWithSource.length > 1" (click)="delete()">
-        <mat-icon class="fy-icon-close receipt-preview__btns--delete" svgIcon="fy-delete"></mat-icon>
+      <ion-button *ngIf="base64ImagesWithSource.length > 1" (click)="deleteReceipt()">
+        <mat-icon class="fy-icon-close receipt-preview__btn--delete" svgIcon="fy-delete"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -30,23 +28,7 @@
 
 <ion-content>
   <div class="receipt-preview__content">
-    <ng-container *ngIf="isCropMode">
-      <image-cropper
-        #imageCropper
-        [imageBase64]="base64ImagesWithSource[activeIndex].base64Image"
-        [maintainAspectRatio]="false"
-        (imageLoaded)="imageLoaded()"
-        class="receipt-preview__cropper"
-      ></image-cropper>
-    </ng-container>
-    <ion-slides
-      [hidden]="isCropMode"
-      class="ion-slides"
-      #slides
-      [options]="sliderOptions"
-      zoom
-      (ionSlideDidChange)="ionSlideDidChange()"
-    >
+    <ion-slides class="ion-slides" #slides [options]="sliderOptions" zoom (ionSlideDidChange)="ionSlideDidChange()">
       <ng-container *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i">
         <ion-slide>
           <div>
@@ -58,7 +40,7 @@
       </ng-container>
     </ion-slides>
 
-    <div [hidden]="isCropMode" class="receipt-preview__controls" *ngIf="base64ImagesWithSource.length > 1">
+    <div class="receipt-preview__controls" *ngIf="base64ImagesWithSource.length > 1">
       <div
         *ngIf="activeIndex > 0"
         class="receipt-preview__controls__btn receipt-preview__controls__btn--back"
@@ -80,19 +62,15 @@
 <ion-footer>
   <ion-toolbar mode="md" class="pb-0">
     <div class="receipt-preview__cta-container">
-      <ng-container *ngIf="!isCropMode">
-        <ng-container *ngIf="mode === 'single' && base64ImagesWithSource.length === 1; else bulkMode">
-          <button type="button" class="btn-secondary" (click)="retake()">Retake</button>
-        </ng-container>
-        <ng-template #bulkMode>
-          <button *ngIf="base64ImagesWithSource.length < 20" type="button" class="btn-secondary" (click)="addMore()">
-            Add More
-          </button>
-        </ng-template>
+      <ng-container *ngIf="mode === 'single' && base64ImagesWithSource.length === 1; else bulkMode">
+        <button type="button" class="btn-secondary" (click)="retake()">Retake</button>
       </ng-container>
-      <button type="submit" class="btn-primary" (click)="finish()">
-        {{ isCropMode ? 'Crop' : 'Finish' }}
-      </button>
+      <ng-template #bulkMode>
+        <button *ngIf="base64ImagesWithSource.length < 20" type="button" class="btn-secondary" (click)="addMore()">
+          Add More
+        </button>
+      </ng-template>
+      <button type="submit" class="btn-primary" (click)="saveReceipt()">Finish</button>
     </div>
   </ion-toolbar>
 </ion-footer>

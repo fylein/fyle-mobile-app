@@ -1182,3 +1182,9 @@ ion-toggle.toggle-checked::before {
 .mat-snack-bar-handset .mat-snack-bar-container {
   margin-bottom: 133px !important;
 }
+
+ion-slides {
+  div {
+    align-items: center !important;
+  }
+}
