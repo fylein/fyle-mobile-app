@@ -5,7 +5,6 @@ import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { from } from 'rxjs';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
-import { LoaderService } from '../../../core/services/loader.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { CropReceiptComponent } from 'src/app/fyle/capture-receipt/crop-receipt/crop-receipt.component';
 
@@ -35,7 +34,6 @@ export class ReceiptPreviewComponent implements OnInit {
     private popoverController: PopoverController,
     private matBottomSheet: MatBottomSheet,
     private imagePicker: ImagePicker,
-    private loaderService: LoaderService,
     private trackingService: TrackingService
   ) {
     this.registerBackButtonAction();
@@ -48,8 +46,6 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   async openCropReceiptModal() {
-    this.loaderService.showLoader();
-
     const cropReceiptModal = await this.modalController.create({
       component: CropReceiptComponent,
       componentProps: {
@@ -86,10 +82,6 @@ export class ReceiptPreviewComponent implements OnInit {
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
     });
-  }
-
-  imageLoaded() {
-    this.loaderService.hideLoader();
   }
 
   async closeModal() {
