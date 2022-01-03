@@ -273,6 +273,7 @@
   &--add-expense-footer {
     padding: 16px;
     box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+    background-color: $pure-white;
 
     &__block {
       border-radius: 4px;
@@ -412,6 +413,7 @@
   &--add-comment-container {
     padding: 16px;
     box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+    background-color: $pure-white;
   }
 
   &--close {

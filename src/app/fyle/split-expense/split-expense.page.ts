@@ -13,9 +13,10 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { ReportService } from 'src/app/core/services/report.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
@@ -64,6 +65,12 @@ export class SplitExpensePage implements OnInit {
 
   showErrorBlock: boolean;
 
+  reportId: string;
+
+  splitExpenseTxn: any[];
+
+  completeTxnIds: string[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -76,10 +83,11 @@ export class SplitExpensePage implements OnInit {
     private fileService: FileService,
     private navController: NavController,
     private router: Router,
-    private trackingService: TrackingService,
     private transactionsOutboxService: TransactionsOutboxService,
+    private reportService: ReportService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit() {}
@@ -243,10 +251,69 @@ export class SplitExpensePage implements OnInit {
 
     return forkJoin(splitExpense$).pipe(
       switchMap((data: any) => {
+        this.splitExpenseTxn = data.txns.map((txn) => txn);
+        this.completeTxnIds = this.splitExpenseTxn.filter((tx) => tx.state === 'COMPLETE').map((txn) => txn.id);
+        if (this.completeTxnIds.length !== 0 && this.reportId) {
+          return this.reportService.addTransactions(this.reportId, this.completeTxnIds).pipe(map(() => data));
+        } else {
+          return of(data);
+        }
+      }),
+      switchMap((data: any) => {
         const txnIds = data.txns.map((txn) => txn.id);
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
       })
     );
+  }
+
+  toastWithCTA(toastMessage) {
+    const toastMessageData = {
+      message: toastMessage,
+      redirectionText: 'View Report',
+    };
+
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessage });
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
+    });
+  }
+
+  toastWithoutCTA(toastMessage, toastType, panelClass) {
+    const message = toastMessage;
+
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(toastType, { message }),
+      panelClass: [panelClass],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  showSuccessToast() {
+    if (this.reportId) {
+      if (this.completeTxnIds.length === this.splitExpenseTxn.length) {
+        const toastMessage = 'Your expense was split successfully. All the split expenses were added to report';
+        this.toastWithCTA(toastMessage);
+      } else if (this.completeTxnIds.length > 0 && this.splitExpenseTxn.length > 0) {
+        const toastMessage =
+          'Your expense was split successfully. ' +
+          this.completeTxnIds.length +
+          ' out of ' +
+          this.splitExpenseTxn.length +
+          ' expenses were added to report.';
+        this.toastWithCTA(toastMessage);
+      } else {
+        const toastMessage = 'Your expense was split successfully. Review split expenses to add it to the report.';
+        this.toastWithoutCTA(toastMessage, 'information', 'msb-info');
+      }
+    } else {
+      const toastMessage = 'Your expense was split successfully.';
+      this.toastWithoutCTA(toastMessage, 'success', 'msb-success-with-camera-icon');
+    }
+    this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
   getAttachedFiles(transactionId) {
@@ -314,21 +381,11 @@ export class SplitExpensePage implements OnInit {
               return forkJoin(observables$);
             }),
             tap((res) => {
-              const message = 'Your expense was split successfully.';
-              this.matSnackBar.openFromComponent(ToastMessageComponent, {
-                ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-                panelClass: ['msb-success-with-camera-icon'],
-              });
-              this.trackingService.showToastMessage({ ToastContent: message });
-              this.router.navigate(['/', 'enterprise', 'my_expenses']);
+              this.showSuccessToast();
             }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
-              const splitExpenseErroeSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-                ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
-                panelClass: ['msb-failure-with-camera-icon'],
-              });
-              this.trackingService.showToastMessage({ ToastContent: message });
+              this.toastWithoutCTA(message, 'failure', 'msb-failure-with-camera-icon');
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
               return throwError(err);
             }),
@@ -358,7 +415,7 @@ export class SplitExpensePage implements OnInit {
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
       this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
-
+      this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
       if (this.splitType === 'categories') {
         this.categories$ = this.getActiveCategories().pipe(
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))

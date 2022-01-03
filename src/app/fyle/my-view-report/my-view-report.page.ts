@@ -281,7 +281,7 @@ export class MyViewReportPage implements OnInit {
     this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
 
-    this.etxns$.subscribe(noop);
+    this.etxns$.subscribe((etxns) => (this.reportEtxnIds = etxns.map((etxn) => etxn.tx_id)));
 
     const queryParams = {
       tx_report_id: 'is.null',
