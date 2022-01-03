@@ -1296,19 +1296,6 @@ export class AddEditExpensePage implements OnInit {
           ),
           of(null)
         )
-      ),
-      switchMap(() =>
-        iif(
-          () => this.activatedRoute.snapshot.params.rp_id,
-          this.reports$.pipe(
-            map((reportOptions) =>
-              reportOptions
-                .map((res) => res.value)
-                .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
-            )
-          ),
-          of(null)
-        )
       )
     );
 
@@ -1434,6 +1421,14 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
+    const paramReport$ = this.reports$.pipe(
+      map((reportOptions) =>
+        reportOptions
+          .map((res) => res.value)
+          .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
+      )
+    );
+
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>
         this.offlineService
@@ -1462,7 +1457,7 @@ export class AddEditExpensePage implements OnInit {
             paymentMode: selectedPaymentMode$,
             project: selectedProject$,
             category: selectedCategory$,
-            report: selectedReport$,
+            report: this.activatedRoute.snapshot.params.rp_id ? paramReport$ : selectedReport$,
             costCenter: selectedCostCenter$,
             customInputs: selectedCustomInputs$,
             txnReceiptsCount: txnReceiptsCount$,
