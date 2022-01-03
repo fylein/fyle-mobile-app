@@ -78,10 +78,6 @@ export class ViewMileagePage implements OnInit {
 
   isProjectShown: boolean;
 
-  get ExpenseView() {
-    return ExpenseView;
-  }
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -98,6 +94,10 @@ export class ViewMileagePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService
   ) {}
+
+  get ExpenseView() {
+    return ExpenseView;
+  }
 
   ionViewWillLeave() {
     this.onPageExit.next();
