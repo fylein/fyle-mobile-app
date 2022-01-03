@@ -42,7 +42,7 @@
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <app-fy-loading-screen *ngIf="isLoading" [isSelectionModeEnabled]="selectionMode"></app-fy-loading-screen>
+    <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
 
     <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async as list; let i=index">
       <app-team-adv-card

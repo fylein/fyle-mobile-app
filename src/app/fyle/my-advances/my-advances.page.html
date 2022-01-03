@@ -36,7 +36,7 @@
     </div>
   </ng-container>
 
-  <app-fy-loading-screen *ngIf="isLoading" [isSelectionModeEnabled]="selectionMode"></app-fy-loading-screen>
+  <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
 
   <div class="my-advances--body" [ngClass]="{'my-advances--zero-state-body': (advances$|async)?.length === 0 }">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
