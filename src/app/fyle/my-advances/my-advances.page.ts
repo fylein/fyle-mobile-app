@@ -54,7 +54,7 @@ export class MyAdvancesPage {
 
   navigateBack = false;
 
-  refreshAdvances$ = new BehaviorSubject<void>(null);
+  refreshAdvances$: Subject<void> = new Subject();
 
   advances$: Observable<any>;
 

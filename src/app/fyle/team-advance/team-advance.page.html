@@ -42,6 +42,8 @@
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
+    <app-fy-loading-screen *ngIf="isLoading" [isSelectionModeEnabled]="selectionMode"></app-fy-loading-screen>
+
     <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async as list; let i=index">
       <app-team-adv-card
         [advanceRequest]="teamAdvancerequest"
@@ -53,7 +55,7 @@
   </div>
 
   <ng-template #zeroState>
-    <div class="advance-request--zero-state">
+    <div class="advance-request--zero-state" *ngIf="!isLoading">
       <app-fy-zero-state
         [unscaledImage]="true"
         [useNewStyling]="true"

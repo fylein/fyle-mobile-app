@@ -24,6 +24,8 @@ export class TeamAdvancePage implements OnInit {
 
   state = 'PENDING';
 
+  isLoading = false;
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
@@ -34,6 +36,7 @@ export class TeamAdvancePage implements OnInit {
 
   ionViewWillEnter() {
     this.currentPageNumber = 1;
+    this.isLoading = true;
     this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
         const extraParams =
@@ -110,6 +113,10 @@ export class TeamAdvancePage implements OnInit {
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
+
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 500);
   }
 
   loadData(event) {
