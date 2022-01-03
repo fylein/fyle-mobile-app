@@ -107,6 +107,11 @@ import { SidemenuContentItemComponent } from './components/sidemenu/sidemenu-con
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
 import { SendEmailComponent } from './components/send-email/send-email.component';
+import { CaptureReceiptComponent } from './components/capture-receipt/capture-receipt.component';
+import { ReceiptPreviewComponent } from './components/capture-receipt/receipt-preview/receipt-preview.component';
+import { AddMorePopupComponent } from './components/capture-receipt/add-more-popup/add-more-popup.component';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 @NgModule({
   declarations: [
@@ -196,6 +201,9 @@ import { SendEmailComponent } from './components/send-email/send-email.component
     SidemenuContentItemComponent,
     FyNavFooterComponent,
     SendEmailComponent,
+    CaptureReceiptComponent,
+    ReceiptPreviewComponent,
+    AddMorePopupComponent,
   ],
   imports: [
     CommonModule,
@@ -220,6 +228,7 @@ import { SendEmailComponent } from './components/send-email/send-email.component
     SwiperModule,
     MatSnackBarModule,
     RouterModule,
+    MatBottomSheetModule,
   ],
   exports: [
     EllipsisPipe,
@@ -288,7 +297,10 @@ import { SendEmailComponent } from './components/send-email/send-email.component
     SidemenuComponent,
     FyNavFooterComponent,
     SendEmailComponent,
+    CaptureReceiptComponent,
+    ReceiptPreviewComponent,
+    AddMorePopupComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })
 export class SharedModule {}

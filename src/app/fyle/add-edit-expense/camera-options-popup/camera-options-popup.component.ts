@@ -1,11 +1,12 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, ModalController } from '@ionic/angular';
 import { Plugins, CameraResultType, CameraSource, CameraDirection } from '@capacitor/core';
 const { Camera } = Plugins;
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-camera-options-popup',
@@ -19,7 +20,8 @@ export class CameraOptionsPopupComponent implements OnInit {
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private fileService: FileService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private modalController: ModalController
   ) {}
 
   ngOnInit() {}
@@ -29,19 +31,32 @@ export class CameraOptionsPopupComponent implements OnInit {
   }
 
   async getImageFromPicture() {
+    console.log('Click a Picture');
     this.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
 
-    const image = await Camera.getPhoto({
-      quality: 70,
-      source: CameraSource.Camera,
-      direction: CameraDirection.Rear,
-      resultType: CameraResultType.DataUrl,
+    const captureReceiptModal = await this.modalController.create({
+      component: CaptureReceiptComponent,
+      componentProps: {
+        isNewExpense: false,
+      },
     });
 
-    if (image) {
+    await captureReceiptModal.present();
+
+    const { data } = await captureReceiptModal.onWillDismiss();
+    console.log('Inside Camera options popup and capture receipt modal dismissed');
+
+    // const image = await Camera.getPhoto({
+    //   quality: 70,
+    //   source: CameraSource.Camera,
+    //   direction: CameraDirection.Rear,
+    //   resultType: CameraResultType.DataUrl,
+    // });
+
+    if (data && data.dataUrl) {
       this.popoverController.dismiss({
-        type: image.format,
-        dataUrl: image.dataUrl,
+        type: data.dataUrl.split(';')[0].split('/')[1],
+        dataUrl: data.dataUrl,
         actionSource: 'camera',
       });
     } else {

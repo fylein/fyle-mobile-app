@@ -4,7 +4,7 @@ import { concat, forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { filter, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from 'src/app/core/services/storage.service';
-import { ActionSheetController, PopoverController } from '@ionic/angular';
+import { ModalController, ActionSheetController, PopoverController } from '@ionic/angular';
 import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
@@ -14,6 +14,7 @@ import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 enum DashboardState {
   home,
@@ -64,7 +65,8 @@ export class DashboardPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private modalController: ModalController
   ) {}
 
   ionViewWillLeave() {
@@ -168,15 +170,24 @@ export class DashboardPage implements OnInit {
     this.tasksComponent.openFilters();
   }
 
-  onCameraClicked() {
-    this.router.navigate([
-      '/',
-      'enterprise',
-      'camera_overlay',
-      {
-        navigate_back: true,
+  async onCameraClicked() {
+    // this.router.navigate([
+    //   '/',
+    //   'enterprise',
+    //   'camera_overlay',
+    //   {
+    //     navigate_back: true,
+    //   },
+    // ]);
+
+    const captureReceiptModal = await this.modalController.create({
+      component: CaptureReceiptComponent,
+      componentProps: {
+        isNewExpense: true,
       },
-    ]);
+    });
+
+    await captureReceiptModal.present();
   }
 
   onHomeClicked() {
