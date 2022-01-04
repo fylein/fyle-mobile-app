@@ -51,19 +51,14 @@ export class TeamAdvancePage implements OnInit {
                 areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
               };
 
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() =>
-            this.advanceRequestService.getTeamadvanceRequests({
-              offset: (pageNumber - 1) * 10,
-              limit: 10,
-              queryParams: {
-                ...extraParams,
-              },
-              filter: state,
-            })
-          ),
-          finalize(() => from(this.loaderService.hideLoader()))
-        );
+        return this.advanceRequestService.getTeamadvanceRequests({
+          offset: (pageNumber - 1) * 10,
+          limit: 10,
+          queryParams: {
+            ...extraParams,
+          },
+          filter: state,
+        });
       }),
       map((res) => res.data),
       scan((acc, curr) => {

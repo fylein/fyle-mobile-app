@@ -44,18 +44,20 @@
 
     <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
 
-    <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async as list; let i=index">
-      <app-team-adv-card
-        [advanceRequest]="teamAdvancerequest"
-        [prevDate]="list[i-1]?.areq_created_at"
-        (gotoAdvance)="onAdvanceClick($event)"
-      >
-      </app-team-adv-card>
+    <div *ngIf="!isLoading">
+      <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async as list; let i=index">
+        <app-team-adv-card
+          [advanceRequest]="teamAdvancerequest"
+          [prevDate]="list[i-1]?.areq_created_at"
+          (gotoAdvance)="onAdvanceClick($event)"
+        >
+        </app-team-adv-card>
+      </div>
     </div>
   </div>
 
   <ng-template #zeroState>
-    <div class="advance-request--zero-state" *ngIf="!isLoading">
+    <div class="advance-request--zero-state" *ngIf="(teamAdvancerequests$ | async)?.length===0 && !isLoading">
       <app-fy-zero-state
         [unscaledImage]="true"
         [useNewStyling]="true"
