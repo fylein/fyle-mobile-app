@@ -27,36 +27,38 @@
 </ion-header>
 
 <ion-content>
-  <div class="receipt-preview__content">
-    <ion-slides class="ion-slides" #slides [options]="sliderOptions" zoom (ionSlideDidChange)="ionSlideDidChange()">
-      <ng-container *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i">
-        <ion-slide>
-          <div>
-            <pinch-zoom>
-              <img class="image receipt-preview__image" [src]="base64ImageWithSource.base64Image" />
-            </pinch-zoom>
-          </div>
-        </ion-slide>
-      </ng-container>
-    </ion-slides>
+  <!-- <div class="receipt-preview__content"> -->
+  <!-- <ion-slides class="ion-slides" #slides [options]="sliderOptions" zoom (ionSlideDidChange)="ionSlideDidChange()"> -->
+  <ion-slides class="full-height" #slides [options]="sliderOptions" zoom (ionSlideDidChange)="ionSlideDidChange()">
+    <ng-container *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i">
+      <ion-slide>
+        <div>
+          <pinch-zoom class="receipt-preview__image-container">
+            <img [src]="base64ImageWithSource.base64Image" />
+            <!-- <img class="image receipt-preview__image-container__image" [src]="base64ImageWithSource.base64Image" /> -->
+          </pinch-zoom>
+        </div>
+      </ion-slide>
+    </ng-container>
+  </ion-slides>
 
-    <div class="receipt-preview__controls" *ngIf="base64ImagesWithSource.length > 1">
-      <div
-        *ngIf="activeIndex > 0"
-        class="receipt-preview__controls__btn receipt-preview__controls__btn--back"
-        (click)="goToPrevSlide()"
-      >
-        <mat-icon class="receipt-preview__controls__btn__icon"> arrow_back_ios</mat-icon>
-      </div>
-      <div
-        class="receipt-preview__controls__btn receipt-preview__controls__btn--forward"
-        *ngIf="activeIndex < base64ImagesWithSource.length - 1"
-        (click)="goToNextSlide()"
-      >
-        <mat-icon class="receipt-preview__controls__btn__icon">arrow_forward_ios</mat-icon>
-      </div>
+  <div class="receipt-preview__controls" *ngIf="base64ImagesWithSource.length > 1">
+    <div
+      *ngIf="activeIndex > 0"
+      class="receipt-preview__controls__btn receipt-preview__controls__btn--back"
+      (click)="goToPrevSlide()"
+    >
+      <mat-icon class="receipt-preview__controls__btn__icon"> arrow_back_ios</mat-icon>
+    </div>
+    <div
+      class="receipt-preview__controls__btn receipt-preview__controls__btn--forward"
+      *ngIf="activeIndex < base64ImagesWithSource.length - 1"
+      (click)="goToNextSlide()"
+    >
+      <mat-icon class="receipt-preview__controls__btn__icon">arrow_forward_ios</mat-icon>
     </div>
   </div>
+  <!-- </div> -->
 </ion-content>
 
 <ion-footer>
