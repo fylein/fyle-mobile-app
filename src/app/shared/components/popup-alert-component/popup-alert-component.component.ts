@@ -17,13 +17,19 @@ export class PopupAlertComponentComponent implements OnInit {
 
   @Input() etxns: Expense[];
 
-  numIssues = 0;
+  numIssues: number = 0;
 
   constructor(private popoverController: PopoverController) {}
 
   ngOnInit() {
     if (this.etxns) {
-      this.numIssues = this.getNumIssues(this.etxns);
+      this.numIssues = this.etxns.reduce((acc, etxn) => {
+        if (etxn.tx_policy_flag || etxn.tx_manual_flag) {
+          return acc + 1;
+        } else {
+          return acc;
+        }
+      }, 0);
     }
   }
 
@@ -31,16 +37,5 @@ export class PopupAlertComponentComponent implements OnInit {
     this.popoverController.dismiss({
       action,
     });
-  }
-
-  getNumIssues(etxns: Expense[]) {
-    let count = 0;
-
-    etxns.forEach((etxn) => {
-      if (etxn.tx_policy_flag || etxn.tx_manual_flag) {
-        count = count + 1;
-      }
-    });
-    return count;
   }
 }
