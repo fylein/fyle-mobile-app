@@ -17,12 +17,12 @@ export class PopupAlertComponentComponent implements OnInit {
 
   @Input() etxns: Expense[];
 
-  numIssues: number = 0;
+  numIssues = 0;
 
   constructor(private popoverController: PopoverController) {}
 
   ngOnInit() {
-    if (this.etxns) {
+    if (this.etxns && this.etxns.length > 0) {
       this.numIssues = this.etxns.reduce((acc, etxn) => {
         if (etxn.tx_policy_flag || etxn.tx_manual_flag) {
           return acc + 1;

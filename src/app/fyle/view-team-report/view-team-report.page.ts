@@ -11,7 +11,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { ApproveReportComponent } from './approve-report/approve-report.component';
 import { NetworkService } from '../../core/services/network.service';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -363,9 +362,9 @@ export class ViewTeamReportPage implements OnInit {
 
     if (data && data.action === 'approve') {
       this.reportService.approve(erpt.rp_id).subscribe(() => {
+        this.refinerService.startSurvey({ actionName: 'Approve Report' });
         this.router.navigate(['/', 'enterprise', 'team_reports']);
       });
-      this.refinerService.startSurvey({ actionName: 'Approve Report' });
     }
   }
 
