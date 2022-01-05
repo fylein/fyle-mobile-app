@@ -32,7 +32,7 @@
   <ion-slides class="full-height" #slides [options]="sliderOptions" zoom (ionSlideDidChange)="ionSlideDidChange()">
     <ng-container *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i">
       <ion-slide>
-        <div>
+        <div class="receipt-preview__container">
           <pinch-zoom class="receipt-preview__image-container">
             <img [src]="base64ImageWithSource.base64Image" />
             <!-- <img class="image receipt-preview__image-container__image" [src]="base64ImageWithSource.base64Image" /> -->
