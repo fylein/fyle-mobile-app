@@ -1185,3 +1185,14 @@ ion-toggle.toggle-checked::before {
 .mat-snack-bar-handset .mat-snack-bar-container {
   margin-bottom: 133px !important;
 }
+
+.receipt-loader {
+  .swiper-wrapper {
+    .swiper-slide:not(:first-child) {
+      img {
+        background: url('assets/images/loading.gif') no-repeat center;
+        background-size: 50px;
+      }
+    }
+  }
+}

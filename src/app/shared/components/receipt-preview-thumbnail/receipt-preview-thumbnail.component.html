@@ -8,11 +8,16 @@
   </div>
 </div>
 
-<div class="receipt-preview-thumbnail--slider-container">
-  <div class="receipt-preview-thumbnail--spinner-overlay" *ngIf="isUploading">
+<div
+  class="receipt-preview-thumbnail--slider-container"
+  [ngClass]="{ 'receipt-loader': numLoadedImage === attachments.length ? false : true }"
+>
+  <div class="receipt-preview-thumbnail--spinner-overlay" *ngIf="isUploading || !numLoadedImage">
     <div class="receipt-preview-thumbnail--spinner-container">
       <ion-spinner class="receipt-preview-thumbnail--spinner" name="crescent"></ion-spinner>
-      <span class="receipt-preview-thumbnail--spinner-text">Uploading receipt</span>
+      <div class="text-center receipt-preview-thumbnail--spinner-text">
+        {{ (isUploading ? 'Uploading' : 'Loading') + ' receipt' }}
+      </div>
     </div>
   </div>
 
@@ -46,7 +51,7 @@
           disableZoomControl="disable"
           backgroundColor="white"
         >
-          <img class="receipt-preview-thumbnail--image" [src]="attachment?.url" />
+          <img (load)="onLoad()" class="receipt-preview-thumbnail--image" [src]="attachment?.url" />
         </pinch-zoom>
         <div class="receipt-preview-thumbnail--image" *ngIf="attachment?.type === 'pdf'">
           <pinch-zoom
