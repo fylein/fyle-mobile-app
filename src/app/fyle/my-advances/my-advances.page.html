@@ -44,7 +44,7 @@
     </ion-refresher>
 
     <ng-container *ngIf="!isLoading">
-      <ng-container *ngIf="(advances$ | async)?.length===0">
+      <ng-container *ngIf="(advances$ | async)?.length === 0">
         <div class="my-advances--zero-state">
           <app-fy-zero-state
             [unscaledImage]="true"

@@ -57,7 +57,7 @@
   </div>
 
   <ng-template #zeroState>
-    <div class="advance-request--zero-state" *ngIf="(teamAdvancerequests$ | async)?.length===0 && !isLoading">
+    <div class="advance-request--zero-state" *ngIf="(teamAdvancerequests$ | async)?.length === 0 && !isLoading">
       <app-fy-zero-state
         [unscaledImage]="true"
         [useNewStyling]="true"
