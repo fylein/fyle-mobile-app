@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+import { Expense } from 'src/app/core/models/expense.model';
 @Component({
   selector: 'app-popup-alert-component',
   templateUrl: './popup-alert-component.component.html',
@@ -14,9 +15,23 @@ export class PopupAlertComponentComponent implements OnInit {
 
   @Input() secondaryCta: { text: string; action: string; type?: string };
 
+  @Input() etxns: Expense[];
+
+  numIssues = 0;
+
   constructor(private popoverController: PopoverController) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.etxns && this.etxns.length > 0) {
+      this.numIssues = this.etxns.reduce((acc, etxn) => {
+        if (etxn.tx_policy_flag || etxn.tx_manual_flag) {
+          return acc + 1;
+        } else {
+          return acc;
+        }
+      }, 0);
+    }
+  }
 
   ctaClickedEvent(action) {
     this.popoverController.dismiss({
