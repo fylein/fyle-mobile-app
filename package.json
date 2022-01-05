@@ -62,6 +62,7 @@
     "lodash": "^4.17.20",
     "moment": "^2.27.0",
     "ng2-pdf-viewer": "^6.3.2",
+    "ngx-image-cropper": "^5.0.1",
     "ngx-pinch-zoom": "^2.5.4",
     "rxjs": "~6.5.5",
     "swiper": "^7.0.6",
