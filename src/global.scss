@@ -348,6 +348,10 @@ textarea:focus {
   margin-bottom: 0 !important;
 }
 
+.pb-0 {
+  padding-bottom: 0 !important;
+}
+
 .m-0 {
   margin: 0;
 }
@@ -787,6 +791,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .btn-secondary {
+  background: $pure-white;
   color: $black-2;
   font-size: 16px !important;
   line-height: 20px;
@@ -1184,4 +1189,23 @@ ion-toggle.toggle-checked::before {
 
 .mat-snack-bar-handset .mat-snack-bar-container {
   margin-bottom: 133px !important;
+}
+
+ion-slides {
+  div {
+    align-items: center !important;
+    height: 100% !important;
+    width: 100% !important;
+  }
+}
+
+.receipt-loader {
+  .swiper-wrapper {
+    .swiper-slide:not(:first-child) {
+      img {
+        background: url('assets/images/loading.gif') no-repeat center;
+        background-size: 50px;
+      }
+    }
+  }
 }

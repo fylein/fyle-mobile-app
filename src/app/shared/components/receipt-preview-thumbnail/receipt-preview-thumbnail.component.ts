@@ -28,6 +28,8 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   previousCount: number;
 
+  numLoadedImage = 0;
+
   constructor() {}
 
   ngOnInit() {
@@ -64,5 +66,9 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
       timer(100).subscribe(() => this.imageSlides.swiperRef.slideTo(this.attachments.length));
       this.getActiveIndex();
     }
+  }
+
+  onLoad() {
+    this.numLoadedImage++;
   }
 }
