@@ -418,11 +418,21 @@
                       />
 
                       <input
-                        *ngIf="customInput.type === 'NUMBER'"
+                        *ngIf="!isIos && customInput.type === 'NUMBER'"
                         class="add-edit-mileage--text-input"
                         formControlName="value"
                         inputmode="decimal"
                         type="number"
+                        [placeholder]="'Enter ' + customInput.name"
+                      />
+                      <input
+                        *ngIf="isIos && customInput.type === 'NUMBER'"
+                        class="add-edit-mileage--text-input"
+                        formControlName="value"
+                        type="text"
+                        pattern="[0-9]*"
+                        decimal="true"
+                        decimal-char="."
                         [placeholder]="'Enter ' + customInput.name"
                       />
 

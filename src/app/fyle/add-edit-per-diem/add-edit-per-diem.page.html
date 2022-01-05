@@ -240,6 +240,7 @@
                           <div class="add-edit-per-diem--mandatory">*</div>
                         </div>
                         <input
+                          *ngIf="!isIos"
                           [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
                           [min]="0"
                           class="add-edit-per-diem--text-input"
@@ -247,6 +248,18 @@
                           inputmode="decimal"
                           [placeholder]="'Enter ' + txnFields?.num_days.field_name"
                           type="number"
+                        />
+                        <input
+                          *ngIf="isIos"
+                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
+                          [min]="0"
+                          class="add-edit-per-diem--text-input"
+                          formControlName="num_days"
+                          [placeholder]="'Enter ' + txnFields?.num_days.field_name"
+                          type="text"
+                          pattern="[0-9]*"
+                          decimal="true"
+                          decimal-char="."
                         />
                       </div>
                       <div
@@ -492,12 +505,22 @@
                             />
 
                             <input
-                              *ngIf="customInput.type === 'NUMBER'"
+                              *ngIf="!isIos && customInput.type === 'NUMBER'"
                               class="add-edit-per-diem--text-input"
                               formControlName="value"
                               [placeholder]="'Enter ' + customInput.name"
                               inputmode="decimal"
                               type="number"
+                            />
+                            <input
+                              *ngIf="isIos && customInput.type === 'NUMBER'"
+                              class="add-edit-per-diem--text-input"
+                              formControlName="value"
+                              [placeholder]="'Enter ' + customInput.name"
+                              type="text"
+                              pattern="[0-9]*"
+                              decimal="true"
+                              decimal-char="."
                             />
 
                             <input

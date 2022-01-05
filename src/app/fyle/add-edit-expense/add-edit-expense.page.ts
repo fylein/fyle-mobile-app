@@ -315,6 +315,8 @@ export class AddEditExpensePage implements OnInit {
 
   source = 'MOBILE';
 
+  isIos: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -833,6 +835,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ngOnInit() {
+    this.isIos = this.platform.is('ios');
     if (this.activatedRoute.snapshot.params.remove_from_report) {
       this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
     }

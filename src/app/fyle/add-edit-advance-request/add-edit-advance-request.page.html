@@ -148,7 +148,18 @@
                     inputmode="decimal"
                     type="number"
                     formControlName="value"
-                    *ngIf="customInput.type === 'NUMBER'"
+                    *ngIf="!isIos && customInput.type === 'NUMBER'"
+                    [placeholder]="'Enter ' + customInput.name"
+                  />
+
+                  <input
+                    class="add-edit-advance-request--text-input"
+                    type="text"
+                    pattern="[0-9]*"
+                    decimal="true"
+                    decimal-char="."
+                    formControlName="value"
+                    *ngIf="isIos && customInput.type === 'NUMBER'"
                     [placeholder]="'Enter ' + customInput.name"
                   />
 

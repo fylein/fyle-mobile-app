@@ -13,6 +13,15 @@
         <span class="fy-currency--mandatory"> * </span>
       </div>
       <input
+        *ngIf="!isIos"
+        class="fy-currency--input fy-currency--amount"
+        formControlName="amount"
+        (blur)="onBlur()"
+        type="number"
+        inputmode="decimal"
+        placeholder="00.00"
+      />
+      <input
         *ngIf="isIos"
         class="fy-currency--input fy-currency--amount"
         formControlName="amount"
@@ -21,15 +30,6 @@
         pattern="[0-9]*"
         decimal="true"
         decimal-char="."
-        placeholder="00.00"
-      />
-      <input
-        *ngIf="!isIos"
-        class="fy-currency--input fy-currency--amount"
-        formControlName="amount"
-        (blur)="onBlur()"
-        type="number"
-        inputmode="decimal"
         placeholder="00.00"
       />
     </div>

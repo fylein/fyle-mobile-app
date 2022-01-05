@@ -33,7 +33,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   exchangeRate = 1;
 
-  isIos: boolean = false;
+  isIos = false;
 
   fg: FormGroup;
 
