@@ -100,7 +100,7 @@
   }
 
   &__image-container {
-    height: 100%;
+    height: calc(100% - 16px);
     margin: 16px;
     background-color: white !important;
     z-index: 12;

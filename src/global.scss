@@ -1186,5 +1186,7 @@ ion-toggle.toggle-checked::before {
 ion-slides {
   div {
     align-items: center !important;
+    height: 100% !important;
+    width: 100% !important;
   }
 }
