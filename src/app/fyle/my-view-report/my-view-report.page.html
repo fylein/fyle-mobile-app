@@ -103,6 +103,9 @@
             <div class="view-reports--approvers-list">
               <div>{{ ap.approver_name }}</div>
               <div class="view-reports--approver-state-section">
+                <div class="view-reports--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
+                  <span>{{ap.updated_at | date: 'MMM dd, yyyy'}}</span>
+                </div>
                 <div
                   class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
                 ></div>

@@ -224,6 +224,12 @@
   &--approver-state-section {
     display: flex;
     align-items: center;
+
+    &__date {
+      margin: 0 4px;
+      font-size: 10px;
+      color: $black-light;
+    }
   }
 
   &--approver-state-pill {
