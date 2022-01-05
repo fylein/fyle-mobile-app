@@ -12,7 +12,7 @@ import {
   noop,
   Observable,
   of,
-  Subject,
+  BehaviorSubject,
   throwError,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -202,7 +202,7 @@ export class AddEditExpensePage implements OnInit {
 
   newExpenseDataUrls = [];
 
-  loadAttachments$ = new Subject();
+  loadAttachments$ = new BehaviorSubject<void>(null);
 
   attachments$: Observable<FileObject[]>;
 
@@ -1671,7 +1671,6 @@ export class AddEditExpensePage implements OnInit {
             });
 
             this.fg.controls.custom_inputs.patchValue(customInputValues);
-            this.loadAttachments$.next();
           }, 600);
 
           this.attachedReceiptsCount = txnReceiptsCount;
