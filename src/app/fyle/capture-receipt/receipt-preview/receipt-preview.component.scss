@@ -1,10 +1,5 @@
 @import '../../../../theme/colors.scss';
 
-.ion-slides {
-  max-width: 100% !important;
-  max-height: 100% !important;
-}
-
 .receipt-preview {
   &__toolbar {
     border-bottom: 1px solid $grey-lighter;
@@ -44,15 +39,6 @@
     }
   }
 
-  // &__content {
-  //   height: 100%;
-  //   padding: 16px;
-  //   display: flex;
-  //   justify-content: center;
-  //   align-items: center;
-  //   background-color: $white;
-  // }
-
   &__controls {
     position: relative;
     z-index: 99;
@@ -83,20 +69,6 @@
         color: $pure-white;
       }
     }
-  }
-
-  // &__image-container {
-  //   background-color: $white;
-
-  //   &__image {
-  //     max-width: 100% !important;
-  //     max-height: auto !important;
-  //   }
-  // }
-
-  &__container {
-    height: 100%;
-    width: 100%;
   }
 
   &__image-container {
