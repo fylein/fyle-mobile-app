@@ -345,6 +345,7 @@ export class MyViewReportPage implements OnInit {
   }
 
   async deleteReport() {
+    const erpt = await this.erpt$.toPromise();
     const deleteReportPopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -352,7 +353,10 @@ export class MyViewReportPage implements OnInit {
       componentProps: {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
-        infoMessage: 'Deleting the report will not delete any of the expenses.',
+        infoMessage:
+          erpt.rp_state === 'DRAFT' && erpt.rp_num_transactions === 0
+            ? null
+            : 'Deleting the report will not delete any of the expenses.',
         deleteMethod: () =>
           this.reportService
             .delete(this.activatedRoute.snapshot.params.id)
