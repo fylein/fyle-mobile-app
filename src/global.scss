@@ -110,6 +110,14 @@ textarea:focus {
   padding: 12px 8px !important;
 }
 
+.msb-info {
+  color: $pure-white;
+  background-color: $dark-blue;
+  border-radius: 8px !important;
+  margin: 0 16px 30px !important;
+  padding: 12px 8px !important;
+}
+
 .msb-success-with-camera-icon {
   color: $pure-white;
   background-color: $green;
@@ -1188,5 +1196,16 @@ ion-slides {
     align-items: center !important;
     height: 100% !important;
     width: 100% !important;
+  }
+}
+
+.receipt-loader {
+  .swiper-wrapper {
+    .swiper-slide:not(:first-child) {
+      img {
+        background: url('assets/images/loading.gif') no-repeat center;
+        background-size: 50px;
+      }
+    }
   }
 }
