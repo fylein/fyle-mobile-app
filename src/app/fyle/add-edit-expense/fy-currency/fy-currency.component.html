@@ -16,12 +16,12 @@
         class="fy-currency--input fy-currency--amount"
         formControlName="amount"
         (blur)="onBlur()"
-        [type]="isIos ? text : number"
+        [type]="isIos ? 'text' : 'number'"
         pattern="[0-9]*"
         decimal="true"
         decimal-char="."
         placeholder="00.00"
-        [inputmode]="isIos ? undefined : decimal"
+        [inputmode]="isIos ? 'undefined' : 'decimal'"
       />
     </div>
   </form>
