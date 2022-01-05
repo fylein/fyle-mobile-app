@@ -207,7 +207,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
-        toBack: true,
+        toBack: false,
         width: window.innerWidth,
         height: window.innerHeight,
         parent: 'cameraPreview',
