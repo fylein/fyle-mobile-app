@@ -189,6 +189,7 @@ export class DashboardPage implements OnInit {
       componentProps: {
         isNewExpense: true,
       },
+      cssClass: 'hide-modal-test',
     });
 
     await captureReceiptModal.present();
