@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -6,7 +6,9 @@ import { PopoverController } from '@ionic/angular';
   templateUrl: './fy-input-popover.component.html',
   styleUrls: ['./fy-input-popover.component.scss'],
 })
-export class FyInputPopoverComponent implements OnInit {
+export class FyInputPopoverComponent implements OnInit, AfterViewInit {
+  @ViewChild('input') inputEl: ElementRef;
+
   @Input() title: string;
 
   @Input() ctaText: string;
@@ -20,6 +22,10 @@ export class FyInputPopoverComponent implements OnInit {
   constructor(private popoverController: PopoverController) {}
 
   ngOnInit(): void {}
+
+  ngAfterViewInit() {
+    this.inputEl.nativeElement.focus();
+  }
 
   closePopover() {
     this.popoverController.dismiss();
