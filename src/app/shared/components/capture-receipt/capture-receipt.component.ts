@@ -69,7 +69,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
     private accountsService: AccountsService,
     private popoverController: PopoverController,
     private loaderService: LoaderService
-  ) {}
+  ) {
+    document.body.style.backgroundColor = 'transparent !important';
+  }
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -207,7 +209,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
-        toBack: false,
+        toBack: true,
         width: window.innerWidth,
         height: window.innerHeight,
         parent: 'cameraPreview',
