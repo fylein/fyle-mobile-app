@@ -56,7 +56,7 @@
         </div>
       </ng-container>
     </ng-container>
-    <div *ngIf="!isLoading">
+    <ng-container *ngIf="!isLoading">
       <div *ngFor="let advances of advances$ | async as list; let i=index">
         <app-my-advances-card
           [advanceRequest]="advances"
@@ -65,7 +65,7 @@
         >
         </app-my-advances-card>
       </div>
-    </div>
+    </ng-container>
   </div>
 </ion-content>
 

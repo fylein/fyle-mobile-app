@@ -176,7 +176,7 @@ export class MyAdvancesPage {
         )
       ),
       switchMap((advArray) =>
-        //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
+        // piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
         this.filterParams$.pipe(
           map((filters) => {
             let newArr = cloneDeep(advArray);

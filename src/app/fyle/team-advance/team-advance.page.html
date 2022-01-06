@@ -44,7 +44,7 @@
 
     <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
 
-    <div *ngIf="!isLoading">
+    <ng-container *ngIf="!isLoading">
       <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async as list; let i=index">
         <app-team-adv-card
           [advanceRequest]="teamAdvancerequest"
@@ -53,7 +53,7 @@
         >
         </app-team-adv-card>
       </div>
-    </div>
+    </ng-container>
   </div>
 
   <ng-template #zeroState>
