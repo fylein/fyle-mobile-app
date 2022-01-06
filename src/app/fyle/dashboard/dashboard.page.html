@@ -1,4 +1,10 @@
-<ion-header class="tasks--header" mode="md" translucent="true" *ngIf="currentStateIndex===1">
+<ion-header
+  class="tasks--header"
+  mode="md"
+  translucent="true"
+  *ngIf="currentStateIndex===1"
+  [ngClass]="{'d-none': isCameraShown}"
+>
   <ion-toolbar class="dashboard--toolbar">
     <ion-buttons slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>
@@ -19,7 +25,12 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-header mode="md" class="dashboard--header" *ngIf="!(currentStateIndex === 1)">
+<ion-header
+  mode="md"
+  [ngClass]="{'d-none': isCameraShown}"
+  class="dashboard--header"
+  *ngIf="!(currentStateIndex === 1)"
+>
   <ion-toolbar class="stats--toolbar">
     <ion-buttons slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>
@@ -33,7 +44,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="dashboard--body">
+<ion-content [ngClass]="{'d-none': isCameraShown}" class="dashboard--body">
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">
       <app-stats #stats></app-stats>
@@ -44,7 +55,7 @@
   </mat-tab-group>
 </ion-content>
 
-<ion-footer>
+<ion-footer [ngClass]="{'d-none': isCameraShown}">
   <app-fy-footer
     (homeClicked)="onHomeClicked()"
     (taskClicked)="onTaskClicked()"

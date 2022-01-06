@@ -47,6 +47,8 @@ export class DashboardPage implements OnInit {
 
   taskCount = 0;
 
+  isCameraShown = false;
+
   get displayedTaskCount() {
     if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
       return this.tasksComponent?.taskCount;
@@ -180,6 +182,8 @@ export class DashboardPage implements OnInit {
     //   },
     // ]);
 
+    this.isCameraShown = true;
+
     const captureReceiptModal = await this.modalController.create({
       component: CaptureReceiptComponent,
       componentProps: {
@@ -188,6 +192,9 @@ export class DashboardPage implements OnInit {
     });
 
     await captureReceiptModal.present();
+
+    await captureReceiptModal.onWillDismiss();
+    this.isCameraShown = false;
   }
 
   onHomeClicked() {
