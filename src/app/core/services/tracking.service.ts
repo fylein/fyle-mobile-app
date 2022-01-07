@@ -946,4 +946,8 @@ export class TrackingService {
   transactionsFetchedOnPersonalCards(properties = {}) {
     this.eventTrack('Transactions fetched on perosnal cards', properties);
   }
+
+  cropReceipt(properties = {}) {
+    this.eventTrack('Receipt Cropped', properties);
+  }
 }

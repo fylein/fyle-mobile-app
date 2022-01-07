@@ -571,7 +571,7 @@ export class MyViewReportPage implements OnInit {
   }
 
   addExpense() {
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.activatedRoute.snapshot.params.id }]);
   }
 
   checkReportEdited() {

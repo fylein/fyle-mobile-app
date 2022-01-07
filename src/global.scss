@@ -110,6 +110,14 @@ textarea:focus {
   padding: 12px 8px !important;
 }
 
+.msb-info {
+  color: $pure-white;
+  background-color: $dark-blue;
+  border-radius: 8px !important;
+  margin: 0 16px 30px !important;
+  padding: 12px 8px !important;
+}
+
 .msb-success-with-camera-icon {
   color: $pure-white;
   background-color: $green;
@@ -342,6 +350,10 @@ textarea:focus {
 
 .mb-0 {
   margin-bottom: 0 !important;
+}
+
+.pb-0 {
+  padding-bottom: 0 !important;
 }
 
 .m-0 {
@@ -783,6 +795,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .btn-secondary {
+  background: $pure-white;
   color: $black-2;
   font-size: 16px !important;
   line-height: 20px;
@@ -1187,5 +1200,24 @@ ion-toggle.toggle-checked::before {
 
   & > div {
     background: transparent !important;
+  }
+}
+
+ion-slides {
+  div {
+    align-items: center !important;
+    height: 100% !important;
+    width: 100% !important;
+  }
+}
+
+.receipt-loader {
+  .swiper-wrapper {
+    .swiper-slide:not(:first-child) {
+      img {
+        background: url('assets/images/loading.gif') no-repeat center;
+        background-size: 50px;
+      }
+    }
   }
 }
