@@ -37,12 +37,11 @@
 </ion-header>
 
 <ion-content>
+  <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
   <div *ngIf="count$|async; else zeroState">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
-
-    <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
 
     <ng-container *ngIf="!isLoading">
       <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async as list; let i=index">

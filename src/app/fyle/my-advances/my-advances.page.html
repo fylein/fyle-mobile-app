@@ -37,7 +37,6 @@
   </ng-container>
 
   <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
-
   <div class="my-advances--body" [ngClass]="{'my-advances--zero-state-body': (advances$|async)?.length === 0 }">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>

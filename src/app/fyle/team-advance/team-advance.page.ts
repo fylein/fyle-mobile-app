@@ -104,14 +104,14 @@ export class TeamAdvancePage implements OnInit {
     );
 
     this.loadData$.subscribe(noop);
-    this.teamAdvancerequests$.subscribe(noop);
+    this.teamAdvancerequests$.subscribe((res) => {
+      if (res) {
+        this.isLoading = false;
+      }
+    });
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
-
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
   }
 
   loadData(event) {

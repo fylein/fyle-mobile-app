@@ -15,7 +15,7 @@ import {
   Observable,
   Subject,
 } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
@@ -135,6 +135,9 @@ export class MyAdvancesPage {
         ),
         map((res) => res.data),
         reduce((acc, curr) => acc.concat(curr)),
+        tap(() => {
+          this.isLoading = false;
+        }),
         startWith([])
       );
 
@@ -204,9 +207,6 @@ export class MyAdvancesPage {
         )
       )
     );
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
   }
 
   updateMyAdvances(myAdvances: any) {
