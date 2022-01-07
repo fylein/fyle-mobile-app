@@ -34,17 +34,18 @@ export class CameraOptionsPopupComponent implements OnInit {
     console.log('Click a Picture');
     this.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
 
-    const captureReceiptModal = await this.modalController.create({
-      component: CaptureReceiptComponent,
-      componentProps: {
-        isNewExpense: false,
-      },
-    });
+    return this.popoverController.dismiss({ option: 'camera' });
 
-    await captureReceiptModal.present();
+    // const captureReceiptModal = await this.modalController.create({
+    //   component: CaptureReceiptComponent,
+    //   componentProps: {
+    //     isNewExpense: false,
+    //   },
+    // });
 
-    const { data } = await captureReceiptModal.onWillDismiss();
-    console.log('Inside Camera options popup and capture receipt modal dismissed');
+    // await captureReceiptModal.present();
+
+    // const { data } = await captureReceiptModal.onWillDismiss();
 
     // const image = await Camera.getPhoto({
     //   quality: 70,
@@ -53,15 +54,15 @@ export class CameraOptionsPopupComponent implements OnInit {
     //   resultType: CameraResultType.DataUrl,
     // });
 
-    if (data && data.dataUrl) {
-      this.popoverController.dismiss({
-        type: data.dataUrl.split(';')[0].split('/')[1],
-        dataUrl: data.dataUrl,
-        actionSource: 'camera',
-      });
-    } else {
-      this.closeClicked();
-    }
+    // if (data && data.dataUrl) {
+    //   this.popoverController.dismiss({
+    //     type: data.dataUrl.split(';')[0].split('/')[1],
+    //     dataUrl: data.dataUrl,
+    //     actionSource: 'camera',
+    //   });
+    // } else {
+    //   this.closeClicked();
+    // }
   }
 
   async getImageFromImagePicker() {

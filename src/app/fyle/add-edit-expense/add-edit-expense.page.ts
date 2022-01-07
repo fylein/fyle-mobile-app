@@ -97,6 +97,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -314,6 +315,8 @@ export class AddEditExpensePage implements OnInit {
   policyDetails;
 
   source = 'MOBILE';
+
+  isCameraShown = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -3838,7 +3841,32 @@ export class AddEditExpensePage implements OnInit {
       await popup.present();
 
       const { data } = await popup.onWillDismiss();
-      this.attachReceipts(data);
+
+      if (data && data.option === 'camera') {
+        this.isCameraShown = true;
+        const captureReceiptModal = await this.modalController.create({
+          component: CaptureReceiptComponent,
+          componentProps: {
+            isNewExpense: false,
+          },
+          cssClass: 'hide-modal-test',
+        });
+
+        await captureReceiptModal.present();
+
+        const { data } = await captureReceiptModal.onWillDismiss();
+        this.isCameraShown = false;
+
+        if (data && data.dataUrl) {
+          return this.attachReceipts({
+            type: data.dataUrl.split(';')[0].split('/')[1],
+            dataUrl: data.dataUrl,
+            actionSource: 'camera',
+          });
+        }
+      } else if (data && data.dataUrl) {
+        this.attachReceipts(data);
+      }
     }
   }
 
