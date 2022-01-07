@@ -24,7 +24,7 @@ export class FyInputPopoverComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {}
 
   ngAfterViewInit() {
-    this.inputEl.nativeElement.focus();
+    setTimeout(() => this.inputEl.nativeElement.focus(), 400);
   }
 
   closePopover() {
