@@ -110,8 +110,10 @@ import { SendEmailComponent } from './components/send-email/send-email.component
 import { CaptureReceiptComponent } from './components/capture-receipt/capture-receipt.component';
 import { ReceiptPreviewComponent } from './components/capture-receipt/receipt-preview/receipt-preview.component';
 import { AddMorePopupComponent } from './components/capture-receipt/add-more-popup/add-more-popup.component';
+import { CropReceiptComponent } from './components/capture-receipt/crop-receipt/crop-receipt.component';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 @NgModule({
   declarations: [
@@ -204,6 +206,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
     CaptureReceiptComponent,
     ReceiptPreviewComponent,
     AddMorePopupComponent,
+    CropReceiptComponent,
   ],
   imports: [
     CommonModule,
@@ -229,6 +232,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
     MatSnackBarModule,
     RouterModule,
     MatBottomSheetModule,
+    ImageCropperModule,
   ],
   exports: [
     EllipsisPipe,
@@ -300,6 +304,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
     CaptureReceiptComponent,
     ReceiptPreviewComponent,
     AddMorePopupComponent,
+    CropReceiptComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })
