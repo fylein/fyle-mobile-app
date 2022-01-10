@@ -24,18 +24,13 @@ type Image = Partial<{
   base64Image: string;
 }>;
 
-type receiptTransaction = {
-  transaction: { id: string };
-  dataUrls: { url: string }[];
-};
-
 @Component({
   selector: 'app-capture-receipt',
   templateUrl: './capture-receipt.component.html',
   styleUrls: ['./capture-receipt.component.scss'],
 })
 export class CaptureReceiptComponent implements OnInit, OnDestroy {
-  @Input() isNewExpense: boolean;
+  @Input() isEditExpense = false;
 
   isCameraShown: boolean;
 
@@ -69,9 +64,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
     private accountsService: AccountsService,
     private popoverController: PopoverController,
     private loaderService: LoaderService
-  ) {
-    document.body.style.backgroundColor = 'transparent !important';
-  }
+  ) {}
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -174,8 +167,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
 
   close() {
     this.stopCamera();
-    this.modalController.dismiss();
-    // this.navController.back();
+    if (this.isEditExpense) {
+      this.modalController.dismiss();
+    } else {
+      this.navController.back();
+    }
   }
 
   toggleFlashMode() {
@@ -243,13 +239,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
         base64ImagesWithSource: this.base64ImagesWithSource,
         mode: 'single',
       },
-      presentingElement: await this.modalController.getTop(),
     });
 
     await modal.present();
 
     const { data } = await modal.onDidDismiss();
-
     if (data) {
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
@@ -261,8 +255,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          console.log('Here n0w');
-          if (!this.isNewExpense) {
+          if (this.isEditExpense) {
             this.loaderService.showLoader();
             setTimeout(() => {
               this.modalController.dismiss({
@@ -271,10 +264,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
               this.loaderService.hideLoader();
             }, 0);
           } else {
-            // this.loaderService.showLoader();
-            // setTimeout(() => {
-            console.log('Dismissing the capture receipt modal...');
-            setTimeout(() => this.modalController.dismiss(), 0);
             this.router.navigate([
               '/',
               'enterprise',
@@ -284,8 +273,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
                 canExtractData: this.isInstafyleEnabled,
               },
             ]);
-            // this.loaderService.hideLoader();
-            // }, 0);
           }
         }
       }

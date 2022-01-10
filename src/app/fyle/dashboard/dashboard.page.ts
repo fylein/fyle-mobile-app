@@ -14,7 +14,6 @@ import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
-import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 enum DashboardState {
   home,
@@ -46,8 +45,6 @@ export class DashboardPage implements OnInit {
   actionSheetButtons = [];
 
   taskCount = 0;
-
-  isCameraShown = false;
 
   get displayedTaskCount() {
     if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
@@ -173,29 +170,14 @@ export class DashboardPage implements OnInit {
   }
 
   async onCameraClicked() {
-    // this.router.navigate([
-    //   '/',
-    //   'enterprise',
-    //   'camera_overlay',
-    //   {
-    //     navigate_back: true,
-    //   },
-    // ]);
-
-    this.isCameraShown = true;
-
-    const captureReceiptModal = await this.modalController.create({
-      component: CaptureReceiptComponent,
-      componentProps: {
-        isNewExpense: true,
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'camera_overlay',
+      {
+        navigate_back: true,
       },
-      cssClass: 'hide-modal-test',
-    });
-
-    await captureReceiptModal.present();
-
-    await captureReceiptModal.onWillDismiss();
-    this.isCameraShown = false;
+    ]);
   }
 
   onHomeClicked() {

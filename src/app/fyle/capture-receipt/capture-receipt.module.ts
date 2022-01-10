@@ -15,6 +15,7 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { AddMorePopupComponent } from './add-more-popup/add-more-popup.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { CropReceiptComponent } from './crop-receipt/crop-receipt.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -26,6 +27,7 @@ import { CropReceiptComponent } from './crop-receipt/crop-receipt.component';
     PinchZoomModule,
     MatBottomSheetModule,
     ImageCropperModule,
+    SharedModule,
   ],
   declarations: [CaptureReceiptPage, ReceiptPreviewComponent, AddMorePopupComponent, CropReceiptComponent],
   providers: [ImagePicker],
