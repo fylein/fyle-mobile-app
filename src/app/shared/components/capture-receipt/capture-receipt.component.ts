@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Input } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit } from '@angular/core';
 import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor, Plugins } from '@capacitor/core';
 import '@capacitor-community/camera-preview';
@@ -29,7 +29,7 @@ type Image = Partial<{
   templateUrl: './capture-receipt.component.html',
   styleUrls: ['./capture-receipt.component.scss'],
 })
-export class CaptureReceiptComponent implements OnInit, OnDestroy {
+export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() isEditExpense = false;
 
   isCameraShown: boolean;
@@ -77,6 +77,19 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.setupNetworkWatcher();
+    this.isCameraShown = false;
+    this.isBulkMode = false;
+    this.base64ImagesWithSource = [];
+    this.flashMode = null;
+    this.offlineService.getHomeCurrency().subscribe((res) => {
+      this.homeCurrency = res;
+    });
+    this.captureCount = 0;
+
+    this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
+      this.isInstafyleEnabled =
+        orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
+    });
   }
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
@@ -416,24 +429,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy {
     });
   }
 
-  ionViewDidEnter() {
+  ngAfterViewInit() {
     this.setUpAndStartCamera();
-  }
-
-  ionViewWillEnter() {
-    this.isCameraShown = false;
-    this.isBulkMode = false;
-    this.base64ImagesWithSource = [];
-    this.flashMode = null;
-    this.offlineService.getHomeCurrency().subscribe((res) => {
-      this.homeCurrency = res;
-    });
-    this.captureCount = 0;
-
-    this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
-      this.isInstafyleEnabled =
-        orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
-    });
   }
 
   ngOnDestroy() {
