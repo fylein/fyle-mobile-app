@@ -81,7 +81,7 @@ $sent-back-color: #da1e28;
   &--approvers-list {
     display: flex;
     justify-content: space-between;
-    padding: 6px 12px;
+    padding: 8px 14px 0;
   }
 
   &--approved-date {
@@ -171,6 +171,10 @@ $sent-back-color: #da1e28;
     &__paid {
       color: $paid-color;
     }
+  }
+
+  &--approval-state-block {
+    padding: 8px;
   }
 
   &--report-state-pill {
