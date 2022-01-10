@@ -27,7 +27,13 @@
 </ion-header>
 
 <ion-content>
-  <ion-slides class="full-height" #slides [options]="sliderOptions" zoom (ionSlideDidChange)="ionSlideDidChange()">
+  <ion-slides
+    class="full-height ion-slides"
+    #slides
+    [options]="sliderOptions"
+    zoom
+    (ionSlideDidChange)="ionSlideDidChange()"
+  >
     <ng-container *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i">
       <ion-slide>
         <div>
