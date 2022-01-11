@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="reports-card--name-state-block">
-      <div class="reports-card--employee-name">Employee: {{ erpt.us_full_name | ellipsis: 30 }}</div>
+      <div class="reports-card--employee-name">Employee: {{ erpt.us_full_name | ellipsis: 24 }}</div>
       <div class="text-capitalize reports-card--pill  reports-card--pill__{{ erpt.rp_state | reportState }}">
         {{ erpt.rp_state | reportState | snakeCaseToSpaceCase }}
       </div>
