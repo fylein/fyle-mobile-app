@@ -255,10 +255,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
 
     await modal.present();
-    await modal.onWillDismiss();
-    this.loaderService.showLoader();
 
-    const { data } = await modal.onDidDismiss();
+    const { data } = await modal.onWillDismiss();
     if (data) {
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
@@ -270,7 +268,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
+          this.loaderService.showLoader();
           if (this.isEditExpense) {
+            await modal.onDidDismiss();
             setTimeout(() => {
               this.modalController.dismiss({
                 dataUrl: this.base64ImagesWithSource[0].base64Image,
@@ -287,10 +287,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
               },
             ]);
           }
+          this.loaderService.hideLoader();
         }
       }
     }
-    this.loaderService.hideLoader();
   }
 
   async review() {
