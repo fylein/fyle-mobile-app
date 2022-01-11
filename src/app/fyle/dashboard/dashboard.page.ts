@@ -4,7 +4,7 @@ import { concat, forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { filter, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from 'src/app/core/services/storage.service';
-import { ModalController, ActionSheetController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, PopoverController } from '@ionic/angular';
 import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
@@ -64,8 +64,7 @@ export class DashboardPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
-    private tasksService: TasksService,
-    private modalController: ModalController
+    private tasksService: TasksService
   ) {}
 
   ionViewWillLeave() {
@@ -169,7 +168,7 @@ export class DashboardPage implements OnInit {
     this.tasksComponent.openFilters();
   }
 
-  async onCameraClicked() {
+  onCameraClicked() {
     this.router.navigate([
       '/',
       'enterprise',
