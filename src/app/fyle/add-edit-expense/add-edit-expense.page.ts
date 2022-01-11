@@ -1287,17 +1287,25 @@ export class AddEditExpensePage implements OnInit {
       )
     );
     const selectedReport$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.report_id,
-          this.reports$.pipe(
+      switchMap((etxn) => {
+        if (etxn.tx.report_id) {
+          return this.reports$.pipe(
             map((reportOptions) =>
               reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
             )
-          ),
-          of(null)
-        )
-      )
+          );
+        } else if (!etxn.tx.report_id && this.activatedRoute.snapshot.params.rp_id) {
+          return this.reports$.pipe(
+            map((reportOptions) =>
+              reportOptions
+                .map((res) => res.value)
+                .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
+            )
+          );
+        } else {
+          return of(null);
+        }
+      })
     );
 
     const selectedPaymentMode$ = this.etxn$.pipe(
