@@ -3848,9 +3848,9 @@ export class AddEditExpensePage implements OnInit {
 
       await popup.present();
 
-      const { data } = await popup.onWillDismiss();
+      let { data: receiptDetails } = await popup.onWillDismiss();
 
-      if (data && data.option === 'camera') {
+      if (receiptDetails && receiptDetails.option === 'camera') {
         this.isCameraShown = true;
         const captureReceiptModal = await this.modalController.create({
           component: CaptureReceiptComponent,
@@ -3866,14 +3866,15 @@ export class AddEditExpensePage implements OnInit {
         this.isCameraShown = false;
 
         if (data && data.dataUrl) {
-          return this.attachReceipts({
-            type: data.dataUrl.split(';')[0].split('/')[1],
+          receiptDetails = {
+            type: data.dataUrl.split(';')[0].split(':')[1],
             dataUrl: data.dataUrl,
             actionSource: 'camera',
-          });
+          };
         }
-      } else if (data && data.dataUrl) {
-        this.attachReceipts(data);
+      }
+      if (receiptDetails && receiptDetails.dataUrl) {
+        this.attachReceipts(receiptDetails);
       }
     }
   }

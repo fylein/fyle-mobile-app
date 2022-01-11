@@ -26,6 +26,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -70,6 +71,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   saveAdvanceLoading = false;
 
   isDeviceWidthSmall = window.innerWidth < 375;
+
+  isCameraShown = false;
 
   constructor(
     private offlineService: OfflineService,
@@ -179,7 +182,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
       const { data } = await policyViolationModal.onWillDismiss();
       if (data) {
-        // this.loaderService.showLoader('Creating Advance Request...');
         return this.saveAndSubmit(event, advanceRequest)
           .pipe(
             switchMap((res) =>
@@ -191,7 +193,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
             ),
             finalize(() => {
               this.fg.reset();
-              // this.loaderService.hideLoader();
               if (event === 'draft') {
                 this.saveDraftAdvanceLoading = false;
               } else {
@@ -367,13 +368,31 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     await cameraOptionsPopup.present();
 
-    const { data } = await cameraOptionsPopup.onWillDismiss();
+    let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss();
 
-    if (data) {
+    if (receiptDetails && receiptDetails.option === 'camera') {
+      this.isCameraShown = true;
+      const captureReceiptModal = await this.modalController.create({
+        component: CaptureReceiptComponent,
+        componentProps: {
+          isEditExpense: true,
+        },
+        cssClass: 'hide-modal',
+      });
+
+      await captureReceiptModal.present();
+
+      const { data } = await captureReceiptModal.onWillDismiss();
+      if (data && data.dataUrl) {
+        receiptDetails = { ...data, type: data.dataUrl.split(';')[0].split(':')[1] };
+      }
+      this.isCameraShown = false;
+    }
+    if (receiptDetails && receiptDetails.dataUrl) {
       this.dataUrls.push({
-        type: data.type,
-        url: data.dataUrl,
-        thumbnail: data.dataUrl,
+        type: receiptDetails.type,
+        url: receiptDetails.dataUrl,
+        thumbnail: receiptDetails.dataUrl,
       });
     }
   }
