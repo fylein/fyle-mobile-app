@@ -255,6 +255,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
 
     await modal.present();
+    await modal.onWillDismiss();
+    this.loaderService.showLoader();
 
     const { data } = await modal.onDidDismiss();
     if (data) {
@@ -269,12 +271,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.setUpAndStartCamera();
         } else {
           if (this.isEditExpense) {
-            this.loaderService.showLoader();
             setTimeout(() => {
               this.modalController.dismiss({
                 dataUrl: this.base64ImagesWithSource[0].base64Image,
               });
-              this.loaderService.hideLoader();
             }, 0);
           } else {
             this.router.navigate([
@@ -290,6 +290,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         }
       }
     }
+    this.loaderService.hideLoader();
   }
 
   async review() {
@@ -318,8 +319,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.isBulkMode = true;
           this.setUpAndStartCamera();
         } else {
+          this.loaderService.showLoader();
           this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {
             this.router.navigate(['/', 'enterprise', 'my_expenses']);
+            this.loaderService.hideLoader();
           });
         }
       }
