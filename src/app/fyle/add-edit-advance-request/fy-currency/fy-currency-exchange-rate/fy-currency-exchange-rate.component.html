@@ -17,6 +17,7 @@
           {{ newCurrency }}
         </div>
         <input
+          *ngIf="!isIos"
           formControlName="newCurrencyAmount"
           class="exchange-rate-modal--input"
           inputmode="decimal"
@@ -24,14 +25,37 @@
           matInput
           placeholder="e.g. 9.99"
         />
+        <input
+          *ngIf="isIos"
+          formControlName="newCurrencyAmount"
+          class="exchange-rate-modal--input"
+          type="text"
+          pattern="[0-9]*"
+          decimal="true"
+          decimal-char="."
+          matInput
+          placeholder="e.g. 9.99"
+        />
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">Rate</div>
         <input
+          *ngIf="!isIos"
           formControlName="exchangeRate"
           class="exchange-rate-modal--input"
           inputmode="decimal"
           type="number"
+          matInput
+          placeholder="e.g. 9.99"
+        />
+        <input
+          *ngIf="isIos"
+          formControlName="exchangeRate"
+          class="exchange-rate-modal--input"
+          type="text"
+          pattern="[0-9]*"
+          decimal="true"
+          decimal-char="."
           matInput
           placeholder="e.g. 9.99"
         />
@@ -41,10 +65,22 @@
           {{ currentCurrency }}
         </div>
         <input
+          *ngIf="!isIos"
           formControlName="homeCurrencyAmount"
           class="exchange-rate-modal--input"
           inputmode="decimal"
           type="number"
+          matInput
+          placeholder="e.g. 9.99"
+        />
+        <input
+          *ngIf="isIos"
+          formControlName="homeCurrencyAmount"
+          class="exchange-rate-modal--input"
+          type="text"
+          pattern="[0-9]*"
+          decimal="true"
+          decimal-char="."
           matInput
           placeholder="e.g. 9.99"
         />

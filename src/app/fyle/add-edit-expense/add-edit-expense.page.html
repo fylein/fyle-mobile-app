@@ -451,12 +451,25 @@
                       {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
                     </div>
                     <input
+                      *ngIf="!isIos"
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       class="add-edit-expense--text-input"
                       formControlName="tax_amount"
                       inputmode="decimal"
                       type="number"
+                      [placeholder]="'Enter Tax Amount'"
+                    />
+                    <input
+                      *ngIf="isIos"
+                      (blur)="focusState = false"
+                      (focus)="focusState = true"
+                      class="add-edit-expense--text-input"
+                      formControlName="tax_amount"
+                      type="text"
+                      pattern="[0-9]*"
+                      decimal="true"
+                      decimal-char="."
                       [placeholder]="'Enter Tax Amount'"
                     />
                   </div>
@@ -701,6 +714,7 @@
                       <span class="add-edit-expense--mandatory">*</span>
                     </div>
                     <input
+                      *ngIf="!isIos"
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       [disabled]="!txnFields.distance?.canEdit"
@@ -709,6 +723,19 @@
                       inputmode="decimal"
                       [placeholder]="'Enter ' + txnFields.distance?.field_name"
                       type="number"
+                    />
+                    <input
+                      *ngIf="isIos"
+                      (blur)="focusState = false"
+                      (focus)="focusState = true"
+                      [disabled]="!txnFields.distance?.canEdit"
+                      class="add-edit-expense--text-input"
+                      formControlName="distance"
+                      [placeholder]="'Enter ' + txnFields.distance?.field_name"
+                      type="text"
+                      pattern="[0-9]*"
+                      decimal="true"
+                      decimal-char="."
                     />
                   </div>
 
@@ -868,6 +895,7 @@
                     />
 
                     <input
+                      *ngIf="!isIos"
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       *ngIf="customInput.type === 'NUMBER'"
@@ -875,6 +903,19 @@
                       formControlName="value"
                       inputmode="decimal"
                       type="number"
+                      [placeholder]="'Enter ' + customInput.name"
+                    />
+                    <input
+                      *ngIf="isIos"
+                      (blur)="focusState = false"
+                      (focus)="focusState = true"
+                      *ngIf="customInput.type === 'NUMBER'"
+                      class="add-edit-expense--text-input"
+                      formControlName="value"
+                      type="text"
+                      pattern="[0-9]*"
+                      decimal="true"
+                      decimal-char="."
                       [placeholder]="'Enter ' + customInput.name"
                     />
 

@@ -19,10 +19,22 @@
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">Expense amount in {{ newCurrency }}</div>
         <input
+          *ngIf="!isIos"
           formControlName="newCurrencyAmount"
           class="exchange-rate-modal--input"
           inputmode="decimal"
           type="number"
+          matInput
+          placeholder="00.00"
+        />
+        <input
+          *ngIf="isIos"
+          formControlName="newCurrencyAmount"
+          class="exchange-rate-modal--input"
+          type="text"
+          pattern="[0-9]*"
+          decimal="true"
+          decimal-char="."
           matInput
           placeholder="00.00"
         />
@@ -33,6 +45,7 @@
           <span class="exchange-rate-value">{{ fg.controls.exchangeRate.value }}</span> {{ currentCurrency }}
         </div>
         <input
+          *ngIf="!isIos"
           formControlName="exchangeRate"
           class="exchange-rate-modal--input"
           inputmode="decimal"
@@ -40,14 +53,37 @@
           matInput
           placeholder="00.00"
         />
+        <input
+          *ngIf="isIos"
+          formControlName="exchangeRate"
+          class="exchange-rate-modal--input"
+          type="text"
+          pattern="[0-9]*"
+          decimal="true"
+          decimal-char="."
+          matInput
+          placeholder="00.00"
+        />
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">Expense amount in {{ currentCurrency }}</div>
         <input
+          *ngIf="!isIos"
           formControlName="homeCurrencyAmount"
           class="exchange-rate-modal--input"
           inputmode="decimal"
           type="number"
+          matInput
+          placeholder="00.00"
+        />
+        <input
+          *ngIf="isIos"
+          formControlName="homeCurrencyAmount"
+          class="exchange-rate-modal--input"
+          type="text"
+          pattern="[0-9]*"
+          decimal="true"
+          decimal-char="."
           matInput
           placeholder="00.00"
         />
