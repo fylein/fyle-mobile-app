@@ -2,7 +2,7 @@ import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
@@ -24,6 +24,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   @Input() homeCurrency: string;
 
   fg: FormGroup;
+
+  isIos: boolean;
 
   private ngControl: NgControl;
 
@@ -48,10 +50,12 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     private fb: FormBuilder,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
+    private platform: Platform,
     private injector: Injector
   ) {}
 
   ngOnInit() {
+    this.isIos = this.platform.is('ios');
     this.ngControl = this.injector.get(NgControl);
 
     this.fg = this.fb.group({
