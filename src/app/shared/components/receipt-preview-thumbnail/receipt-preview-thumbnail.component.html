@@ -68,6 +68,7 @@
               [render-text]="true"
               [show-all]="false"
               [fit-to-page]="true"
+              (after-load-complete)="onLoad()"
             ></pdf-viewer>
           </pinch-zoom>
         </div>
