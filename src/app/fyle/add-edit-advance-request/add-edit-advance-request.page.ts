@@ -371,7 +371,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
     let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss();
 
     if (receiptDetails && receiptDetails.option === 'camera') {
-      this.isCameraShown = true;
       const captureReceiptModal = await this.modalController.create({
         component: CaptureReceiptComponent,
         componentProps: {
@@ -379,14 +378,15 @@ export class AddEditAdvanceRequestPage implements OnInit {
         },
         cssClass: 'hide-modal',
       });
-
       await captureReceiptModal.present();
+      this.isCameraShown = true;
 
       const { data } = await captureReceiptModal.onWillDismiss();
+      this.isCameraShown = false;
+
       if (data && data.dataUrl) {
         receiptDetails = { ...data, type: data.dataUrl.split(';')[0].split(':')[1] };
       }
-      this.isCameraShown = false;
     }
     if (receiptDetails && receiptDetails.dataUrl) {
       this.dataUrls.push({

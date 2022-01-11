@@ -3851,7 +3851,6 @@ export class AddEditExpensePage implements OnInit {
       let { data: receiptDetails } = await popup.onWillDismiss();
 
       if (receiptDetails && receiptDetails.option === 'camera') {
-        this.isCameraShown = true;
         const captureReceiptModal = await this.modalController.create({
           component: CaptureReceiptComponent,
           componentProps: {
@@ -3861,6 +3860,7 @@ export class AddEditExpensePage implements OnInit {
         });
 
         await captureReceiptModal.present();
+        this.isCameraShown = true;
 
         const { data } = await captureReceiptModal.onWillDismiss();
         this.isCameraShown = false;
