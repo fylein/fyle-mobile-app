@@ -115,10 +115,12 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   get isSelected() {
-    if (this.expense.tx_id) {
-      return this.selectedElements.some((txn) => this.expense.tx_id === txn.tx_id);
-    } else {
-      return this.selectedElements.some((txn) => isEqual(this.expense, txn));
+    if (this.selectedElements) {
+      if (this.expense.tx_id) {
+        return this.selectedElements.some((txn) => this.expense.tx_id === txn.tx_id);
+      } else {
+        return this.selectedElements.some((txn) => isEqual(this.expense, txn));
+      }
     }
   }
 

@@ -13,10 +13,11 @@ $small-screen: 700px;
   }
 
   &--body {
-    margin-bottom: 33px;
+    margin-bottom: 24px;
   }
 
   &--cta-container {
+    margin-top: 24px;
     display: flex;
     justify-content: space-between;
     &__single-content {
