@@ -9,17 +9,14 @@
 
       <div class="split-expense--header-block">
         <div class="split-expense--header-title" mode="md">Split by {{ splitType }}</div>
-        <ion-buttons>
-          <ion-button
-            (click)="save()"
-            [loadingText]="'Saving'"
-            [loading]="saveSplitExpenseLoading"
-            appFormButtonValidation
-            class="split-expense--header-save text-right"
-          >
-            Save
-          </ion-button>
-        </ion-buttons>
+        <div
+          class="split-expense--header-save text-right"
+          [ngClass]="{'no-pointer-events': saveSplitExpenseLoading}"
+          (click)="save()"
+          appFormButtonValidation
+        >
+          Save
+        </div>
       </div>
     </ion-toolbar>
   </div>
@@ -68,9 +65,21 @@
             >
             <span class="split-expense--mandatory">*</span>
             <input
+              *ngIf="!isIos"
               inputmode="decimal"
               [min]="(isCorporateCardsEnabled$|async) ? null : 0.01"
               type="number"
+              class="split-expense--input"
+              formControlName="amount"
+              (ngModelChange)="onChangeAmount(splitExpenseForm, i)"
+            />
+            <input
+              *ngIf="isIos"
+              [min]="(isCorporateCardsEnabled$|async) ? null : 0.01"
+              type="text"
+              pattern="[0-9]*"
+              decimal="true"
+              decimal-char="."
               class="split-expense--input"
               formControlName="amount"
               (ngModelChange)="onChangeAmount(splitExpenseForm, i)"
@@ -80,8 +89,20 @@
           <div class="split-expense--item split-expense--percentage">
             <span class="split-expense--label">Percentage</span>
             <input
+              *ngIf="!isIos"
               inputmode="decimal"
               type="number"
+              class="split-expense--input"
+              formControlName="percentage"
+              [min]="0.01"
+              (ngModelChange)="onChangePercentage(splitExpenseForm, i)"
+            />
+            <input
+              *ngIf="isIos"
+              type="text"
+              pattern="[0-9]*"
+              decimal="true"
+              decimal-char="."
               class="split-expense--input"
               formControlName="percentage"
               [min]="0.01"
