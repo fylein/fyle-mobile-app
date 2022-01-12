@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController, PopoverController } from '@ionic/angular';
+import { NavController, Platform, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
@@ -71,6 +71,8 @@ export class SplitExpensePage implements OnInit {
 
   completeTxnIds: string[];
 
+  isIos: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -87,10 +89,13 @@ export class SplitExpensePage implements OnInit {
     private reportService: ReportService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private platform: Platform
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.isIos = this.platform.is('ios');
+  }
 
   goBack() {
     this.navController.back();
