@@ -8,7 +8,10 @@
   [ngClass]="{ 'sidemenu-item--disabled': sidemenuItem.disabled }"
   (click)="goToRoute(sidemenuItem)"
 >
-  <a class="sidemenu-item__content" [routerLinkActive]="isRoute ? 'sidemenu-item__content--active' : ''">
+  <a
+    class="sidemenu-item__content ion-grid-no-padding"
+    [routerLinkActive]="isRoute ? 'sidemenu-item__content--active' : ''"
+  >
     <ion-grid class="sidemenu-item__content__block">
       <ion-row>
         <ion-col class="sidemenu-item__icon-container">
