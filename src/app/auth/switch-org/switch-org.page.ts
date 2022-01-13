@@ -81,7 +81,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
     that.orgs$.subscribe(() => {
-      setTimeout(() => (that.isLoading = false), 500);
       that.cdRef.detectChanges();
     });
 
@@ -113,6 +112,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       }),
       shareReplay(1)
     );
+
+    currentOrgs$.subscribe(() => (this.isLoading = false));
 
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
