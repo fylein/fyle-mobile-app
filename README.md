@@ -42,4 +42,4 @@ Please install node v14.17.2 or above via nvm.
   - run ionic build --staging 
   - npx cap sync
   - npx cap open ios
-  - In Xcode, select the connected device from the top bar and click on run button.
+  - In Xcode, select the connected device from the top bar and click on run button
