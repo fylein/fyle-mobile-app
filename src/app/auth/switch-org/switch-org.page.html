@@ -19,24 +19,32 @@
 </ion-header>
 
 <ion-content>
-  <ng-container *ngIf="!isLoading; else skeletonActiveOrg">
-    <ng-container *ngIf="activeOrg$ | async as activeOrg">
-      <ng-container *ngIf="primaryOrg$ | async as primaryOrg">
-        <app-active-org-card [org]="activeOrg" [isPrimaryOrg]="activeOrg.id === primaryOrg.id"></app-active-org-card>
+  <ng-container *ngIf="navigateBack">
+    <ng-container *ngIf="!isLoading; else skeletonActiveOrg">
+      <ng-container *ngIf="activeOrg$ | async as activeOrg">
+        <ng-container *ngIf="primaryOrg$ | async as primaryOrg">
+          <app-active-org-card
+            [org]="activeOrg"
+            [isPrimaryOrg]="activeOrg.id === primaryOrg.id"
+            (orgSelected)="switchToOrg(activeOrg)"
+          ></app-active-org-card>
+        </ng-container>
       </ng-container>
     </ng-container>
+    <ng-template #skeletonActiveOrg>
+      <app-active-org-card [isLoading]="true"></app-active-org-card>
+    </ng-template>
   </ng-container>
-  <ng-template #skeletonActiveOrg>
-    <app-active-org-card [isLoading]="true"></app-active-org-card>
-  </ng-template>
 
-  <div class="switch-org__content-container">
+  <div #searchContainer class="switch-org__content-container">
     <div #content class="switch-org__content-container__block switch-org__content-container__content-block">
       <div class="switch-org__content-container__content d-flex">
         <div class="switch-org__content-container__content__sub-block">
-          <div class="switch-org__content-container__content__title">Switch Organization</div>
+          <div class="switch-org__content-container__content__title">
+            {{ navigateBack ? 'Switch' : 'Select' }} Organization
+          </div>
           <div class="switch-org__content-container__content__sub-title">
-            Select the organization you want to switch to.
+            Select the organization you want to {{ navigateBack ? 'switch to' : 'view' }}.
           </div>
         </div>
         <ion-icon

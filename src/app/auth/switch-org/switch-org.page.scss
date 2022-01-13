@@ -23,10 +23,15 @@
   }
 
   &__content-container {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
+    position: absolute;
+    width: 100vw;
     z-index: 5;
+
+    &--sticky {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+    }
 
     &__block {
       position: absolute;

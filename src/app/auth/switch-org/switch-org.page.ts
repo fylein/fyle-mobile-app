@@ -2,6 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, Vie
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of } from 'rxjs';
 import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { Platform } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -23,6 +24,8 @@ import { DeviceService } from 'src/app/core/services/device.service';
   styleUrls: ['./switch-org.page.scss'],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
+  @ViewChild('searchContainer') searchContainerRef: ElementRef;
+
   @ViewChild('search') searchRef: ElementRef;
 
   @ViewChild('content') contentRef: ElementRef;
@@ -44,6 +47,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   navigateBack = false;
 
   constructor(
+    private platform: Platform,
     private offlineService: OfflineService,
     private loaderService: LoaderService,
     private userService: UserService,
@@ -67,10 +71,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   ionViewWillEnter() {
+    if (!this.platform.is('ios')) {
+      this.searchContainerRef.nativeElement.classList.add('switch-org__content-container--sticky');
+    }
     const that = this;
     that.searchInput = '';
     that.isLoading = true;
     that.orgs$ = that.offlineService.getOrgs().pipe(shareReplay(1));
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
     that.orgs$.subscribe(() => {
       setTimeout(() => (that.isLoading = false), 500);
@@ -93,14 +101,17 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       });
     }
     this.activeOrg$ = this.offlineService.getCurrentOrg();
-
     this.primaryOrg$ = this.offlineService.getPrimaryOrg();
 
-    this.activeOrg$.subscribe(noop);
-    this.primaryOrg$.subscribe(noop);
-
-    const currentOrgs$ = forkJoin([this.orgs$, this.activeOrg$]).pipe(
-      switchMap(([orgs, activeOrg]) => of(orgs.filter((org) => org.id !== activeOrg.id)))
+    const currentOrgs$ = forkJoin([this.orgs$, this.primaryOrg$, this.activeOrg$]).pipe(
+      map(([orgs, primaryOrg, activeOrg]) => {
+        const currentOrgs = [primaryOrg, ...orgs.filter((org) => org.id !== primaryOrg.id)];
+        if (this.navigateBack) {
+          return currentOrgs.filter((org) => org.id !== activeOrg.id);
+        }
+        return currentOrgs;
+      }),
+      shareReplay(1)
     );
 
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
@@ -109,8 +120,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       distinctUntilChanged(),
       switchMap((searchText) => currentOrgs$.pipe(map((orgs) => this.getOrgsWhichContainSearchText(orgs, searchText))))
     );
-
-    this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
   }
 
   async proceed() {
