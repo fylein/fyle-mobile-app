@@ -174,7 +174,8 @@ export class SidemenuComponent implements OnInit {
   getPrimarySidemenuOptions(isConnected: boolean) {
     const teamOptions = this.getTeamOptions();
     const cardOptions = this.getCardOptions();
-    return [
+
+    const primaryOptions = [
       {
         title: 'Dashboard',
         isVisible: true,
@@ -229,6 +230,32 @@ export class SidemenuComponent implements OnInit {
         dropdownOptions: teamOptions,
       },
     ];
+
+    if (cardOptions.length === 1) {
+      primaryOptions.splice(
+        primaryOptions.findIndex((option) => option.title === 'Cards'),
+        1,
+        {
+          ...cardOptions[0],
+          icon: 'fy-corporate-card',
+          disabled: !isConnected,
+        }
+      );
+    }
+
+    if (teamOptions.length === 1) {
+      primaryOptions.splice(
+        primaryOptions.findIndex((option) => option.title === 'Teams'),
+        1,
+        {
+          ...teamOptions[0],
+          icon: 'teams',
+          disabled: !isConnected,
+        }
+      );
+    }
+
+    return primaryOptions;
   }
 
   getSecondarySidemenuOptions(orgs: Org[], isDelegatee: boolean, isConnected: boolean) {
