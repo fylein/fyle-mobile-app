@@ -2,7 +2,7 @@
 
 # Node version
 
-Please install node v14.17.2 or above via nvm
+Please install node v14.17.2 or above via nvm.
 
 ## How to run this locally?
 
@@ -16,24 +16,24 @@ Please install node v14.17.2 or above via nvm
 
  - go to .git/hooks
  - run in the shell - chmod +x pre-commit 
+ - Note: It is to prevent keys from accidentally leaking.
 
-This is to prevent keys from accidentally leaking
 
 ## For setting environment variables
 
  - Ping mobile app team for environment files
- - Add them inside environments folder
- - Note: Do not make any changes to environment.ts file - it is to be a template folder for creating configuirations.
+ - Add them inside the environments folder
+ - Note: Do not make any changes to the environment.ts file - this is a template folder for creating configurations.
 
 ## For creating pull requests
 
-  - Ping mobile ap team for write access to the repository
+  - Ping mobile app team for write access to the repository
 
 ## For running app directly in android device for staging
 
   - ionic capacitor run android -l --external --configuration=staging
-    This will open android studio, let it build index file and gradle build for sometime
-    Then check that studio recgnized the right device in top bar. Press run button. After every change you make in `src` directory. It will automatically build the app in device.
+    It will open android studio, let it build index file and Gradle build for sometime
+    Then check that studio recognized the right device in the top bar. Press the run button. After every change, you make in the `src` directory. It will automatically build the app on the device.
 
 ## For running app directly in ios device for staging
 
