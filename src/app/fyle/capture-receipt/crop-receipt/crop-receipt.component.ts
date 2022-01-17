@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { ImageCropperComponent } from 'ngx-image-cropper';
 import { ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -17,6 +17,8 @@ export class CropReceiptComponent implements OnInit {
   @Input() base64ImageWithSource: Image;
 
   @ViewChild('imageCropper') imageCropper: ImageCropperComponent;
+
+  // @ViewChild('imageCropper') imageRef: ElementRef;
 
   constructor(private modalController: ModalController, private loaderService: LoaderService) {}
 
@@ -37,5 +39,20 @@ export class CropReceiptComponent implements OnInit {
 
   imageLoaded() {
     this.loaderService.hideLoader();
+  }
+
+  rotate() {
+    const img = this.imageCropper.wrapper.nativeElement.getElementsByTagName('img')[0];
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = img.naturalHeight;
+    canvas.height = img.naturalWidth;
+
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(0.5 * Math.PI);
+    ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+    img.src = canvas.toDataURL('image/png');
+    this.base64ImageWithSource.base64Image = canvas.toDataURL('image/png');
   }
 }

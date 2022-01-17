@@ -20,6 +20,8 @@ type Image = Partial<{
 export class ReceiptPreviewComponent implements OnInit {
   @ViewChild('slides') imageSlides: any;
 
+  // @ViewChild('imageRef') imageRef: any;
+
   @Input() base64ImagesWithSource: Image[];
 
   @Input() mode: string;
@@ -225,4 +227,20 @@ export class ReceiptPreviewComponent implements OnInit {
     const activeIndex = await this.imageSlides.getActiveIndex();
     this.activeIndex = activeIndex;
   }
+
+  // rotate() {
+  //   const img = this.imageRef.nativeElement;
+  //   const canvas = document.createElement("canvas");
+  //   const ctx = canvas.getContext("2d");
+  //   const angle = 90;
+
+  //   canvas.width = img.naturalHeight;
+  //   canvas.height = img.naturalWidth;
+
+  //   ctx.translate(canvas.width / 2,canvas.height / 2);
+  //   ctx.rotate(angle/180 * Math.PI);
+  //   ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+  //   img.src = canvas.toDataURL("image/png");
+  //   this.base64ImagesWithSource[this.activeIndex].base64Image = canvas.toDataURL("image/png");
+  // }
 }
