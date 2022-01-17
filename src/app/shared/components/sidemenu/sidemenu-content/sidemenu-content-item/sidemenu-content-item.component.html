@@ -1,4 +1,4 @@
-<div *ngIf="sidemenuItem.title === 'Teams'" class="sidemenu-item__divider"></div>
+<div *ngIf="sidemenuItem.icon === 'teams' || showDivider" class="sidemenu-item__divider"></div>
 <ion-item
   detail="false"
   [disabled]="sidemenuItem.disabled"
@@ -56,4 +56,3 @@
     ></app-sidemenu-content-item>
   </ng-container>
 </div>
-<div *ngIf="sidemenuItem.title === 'Teams'" class="sidemenu-item__divider"></div>

@@ -40,6 +40,8 @@ export class SidemenuComponent implements OnInit {
 
   filteredSidemenuList: Partial<SidemenuItem>[];
 
+  numPrimaryOptions: number;
+
   constructor(
     private offlineService: OfflineService,
     private deviceService: DeviceService,
@@ -229,7 +231,9 @@ export class SidemenuComponent implements OnInit {
         disabled: !isConnected,
         dropdownOptions: teamOptions,
       },
-    ];
+    ].filter((sidemenuItem) => sidemenuItem.isVisible);
+
+    this.numPrimaryOptions = primaryOptions.length;
 
     if (cardOptions.length === 1) {
       primaryOptions.splice(
@@ -305,14 +309,13 @@ export class SidemenuComponent implements OnInit {
         route: ['/', 'enterprise', 'help'],
         disabled: !isConnected,
       },
-    ];
+    ].filter((sidemenuItem) => sidemenuItem.isVisible);
   }
 
   setupSideMenu(isConnected: boolean, orgs: Org[], isDelegatee: boolean) {
-    const sidemenuList = [
+    this.filteredSidemenuList = [
       ...this.getPrimarySidemenuOptions(isConnected),
       ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected),
     ];
-    this.filteredSidemenuList = sidemenuList.filter((sidemenuItem) => sidemenuItem.isVisible);
   }
 }

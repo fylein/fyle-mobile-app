@@ -14,6 +14,8 @@ import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 export class SidemenuContentComponent implements OnInit {
   @Input() sideMenuList: Partial<SidemenuItem>[];
 
+  @Input() numPrimaryOptions: number;
+
   constructor(
     private router: Router,
     private userEventService: UserEventService,
