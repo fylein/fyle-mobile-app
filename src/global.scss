@@ -1180,11 +1180,12 @@ ion-toggle.toggle-checked::before {
     color: $highlight-blue;
     height: 20px;
     width: 20px;
-    margin-right: 8px;
+    margin: 5.3px;
   }
   .capped-message {
     width: 100%;
     color: $blue-black;
+    font-size: 0.86em;
   }
 }
 
