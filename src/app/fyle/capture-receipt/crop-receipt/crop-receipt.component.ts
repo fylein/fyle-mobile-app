@@ -18,7 +18,7 @@ export class CropReceiptComponent implements OnInit {
 
   @ViewChild('imageCropper') imageCropper: ImageCropperComponent;
 
-  // @ViewChild('imageCropper') imageRef: ElementRef;
+  canvasRotation = 0;
 
   constructor(private modalController: ModalController, private loaderService: LoaderService) {}
 
@@ -42,17 +42,21 @@ export class CropReceiptComponent implements OnInit {
   }
 
   rotate() {
-    const img = this.imageCropper.wrapper.nativeElement.getElementsByTagName('img')[0];
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = img.naturalHeight;
-    canvas.height = img.naturalWidth;
-
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.rotate(0.5 * Math.PI);
-    ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
-    img.src = canvas.toDataURL('image/png');
-    this.base64ImageWithSource.base64Image = canvas.toDataURL('image/png');
+    this.canvasRotation++;
   }
+
+  // rotate() {
+  //   const img = this.imageCropper.wrapper.nativeElement.getElementsByTagName('img')[0];
+  //   const canvas = document.createElement('canvas');
+  //   const ctx = canvas.getContext('2d');
+
+  //   canvas.width = img.naturalHeight;
+  //   canvas.height = img.naturalWidth;
+
+  //   ctx.translate(canvas.width / 2, canvas.height / 2);
+  //   ctx.rotate(0.5 * Math.PI);
+  //   ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+  //   img.src = canvas.toDataURL('image/png');
+  //   this.base64ImageWithSource.base64Image = canvas.toDataURL('image/png');
+  // }
 }
