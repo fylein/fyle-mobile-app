@@ -733,7 +733,7 @@
                       formControlName="distance"
                       [placeholder]="'Enter ' + txnFields.distance?.field_name"
                       type="text"
-                      pattern="[0-9]*"
+                      pattern="[0-9.]*"
                       decimal="true"
                       decimal-char="."
                     />
@@ -911,6 +911,7 @@
                       class="add-edit-expense--text-input"
                       formControlName="value"
                       type="text"
+                      inputmode="decimal"
                       pattern="[0-9]*"
                       decimal="true"
                       decimal-char="."
