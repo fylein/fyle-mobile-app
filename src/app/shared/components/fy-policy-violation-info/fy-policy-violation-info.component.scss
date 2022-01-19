@@ -22,6 +22,10 @@
     margin-left: 16px;
     padding-left: 6px;
     font-size: 12px;
+    &__no-bullet {
+      list-style-type: none;
+      margin: 0px;
+    }
   }
 
   &--content {
@@ -34,9 +38,4 @@
     margin-left: 4px;
     font-size: 12px;
   }
-}
-
-.list-type-none {
-  list-style-type: none;
-  margin: 0px;
 }
