@@ -40,7 +40,7 @@ export class SidemenuComponent implements OnInit {
 
   filteredSidemenuList: Partial<SidemenuItem>[];
 
-  numPrimaryOptions: number;
+  primaryOptionsCount: number;
 
   constructor(
     private offlineService: OfflineService,
@@ -233,7 +233,7 @@ export class SidemenuComponent implements OnInit {
       },
     ].filter((sidemenuItem) => sidemenuItem.isVisible);
 
-    this.numPrimaryOptions = primaryOptions.length;
+    this.primaryOptionsCount = primaryOptions.length;
 
     if (cardOptions.length === 1) {
       primaryOptions.splice(
