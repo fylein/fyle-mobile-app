@@ -84,7 +84,7 @@ export class HelpPage implements OnInit {
   }
 
   openHelpLink() {
-    Browser.open({ toolbarColor: '#280a31', url: 'https://fylehq.com/help/' });
+    Browser.open({ toolbarColor: '#280a31', url: 'https://help.fylehq.com' });
   }
 
   ngOnInit() {}

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ApproveReportComponent } from './approve-report.component';
+import { CropReceiptComponent } from './crop-receipt.component';
 
-describe('ApproveReportComponent', () => {
-  let component: ApproveReportComponent;
-  let fixture: ComponentFixture<ApproveReportComponent>;
+describe('CropReceiptComponent', () => {
+  let component: CropReceiptComponent;
+  let fixture: ComponentFixture<CropReceiptComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [ApproveReportComponent],
+        declarations: [CropReceiptComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(ApproveReportComponent);
+      fixture = TestBed.createComponent(CropReceiptComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })

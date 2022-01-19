@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -13,6 +14,7 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { AddMorePopupComponent } from './add-more-popup/add-more-popup.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { CropReceiptComponent } from './crop-receipt/crop-receipt.component';
 
 @NgModule({
   imports: [
@@ -23,8 +25,9 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
     MatIconModule,
     PinchZoomModule,
     MatBottomSheetModule,
+    ImageCropperModule,
   ],
-  declarations: [CaptureReceiptPage, ReceiptPreviewComponent, AddMorePopupComponent],
+  declarations: [CaptureReceiptPage, ReceiptPreviewComponent, AddMorePopupComponent, CropReceiptComponent],
   providers: [ImagePicker],
 })
 export class CaptureReceiptPageModule {}

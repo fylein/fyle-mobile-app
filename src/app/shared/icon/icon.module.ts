@@ -165,6 +165,7 @@ export class IconModule {
     'send-back.svg',
     'success-tick.svg',
     'search-not-found.svg',
+    'share.svg',
     'single-mode.svg',
     'tag.svg',
     'tax.svg',

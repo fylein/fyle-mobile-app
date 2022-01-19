@@ -12,7 +12,7 @@ import {
   noop,
   Observable,
   of,
-  Subject,
+  BehaviorSubject,
   throwError,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -202,7 +202,7 @@ export class AddEditExpensePage implements OnInit {
 
   newExpenseDataUrls = [];
 
-  loadAttachments$ = new Subject();
+  loadAttachments$ = new BehaviorSubject<void>(null);
 
   attachments$: Observable<FileObject[]>;
 
@@ -314,6 +314,8 @@ export class AddEditExpensePage implements OnInit {
   policyDetails;
 
   source = 'MOBILE';
+
+  isIos: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -766,6 +768,7 @@ export class AddEditExpensePage implements OnInit {
           currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
           fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
           selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
+          selectedReportId: this.fg.value.report ? JSON.stringify(this.fg.value.report.rp.id) : null,
         },
       ]);
     });
@@ -832,6 +835,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ngOnInit() {
+    this.isIos = this.platform.is('ios');
     if (this.activatedRoute.snapshot.params.remove_from_report) {
       this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
     }
@@ -1286,17 +1290,25 @@ export class AddEditExpensePage implements OnInit {
       )
     );
     const selectedReport$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.report_id,
-          this.reports$.pipe(
+      switchMap((etxn) => {
+        if (etxn.tx.report_id) {
+          return this.reports$.pipe(
             map((reportOptions) =>
               reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
             )
-          ),
-          of(null)
-        )
-      )
+          );
+        } else if (!etxn.tx.report_id && this.activatedRoute.snapshot.params.rp_id) {
+          return this.reports$.pipe(
+            map((reportOptions) =>
+              reportOptions
+                .map((res) => res.value)
+                .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
+            )
+          );
+        } else {
+          return of(null);
+        }
+      })
     );
 
     const selectedPaymentMode$ = this.etxn$.pipe(
@@ -1670,7 +1682,6 @@ export class AddEditExpensePage implements OnInit {
             });
 
             this.fg.controls.custom_inputs.patchValue(customInputValues);
-            this.loadAttachments$.next();
           }, 600);
 
           this.attachedReceiptsCount = txnReceiptsCount;

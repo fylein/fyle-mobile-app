@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { Observable, forkJoin, noop, of, from, zip, combineLatest, throwError } from 'rxjs';
 import { Component, OnInit, Input, ViewChild, ElementRef, TemplateRef } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { FormGroup, FormArray, FormBuilder, Validators } from '@angular/forms';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -90,6 +90,8 @@ export class OtherRequestsComponent implements OnInit {
 
   hotelDate;
 
+  isIos: boolean;
+
   otherDetailsForm: FormGroup;
 
   constructor(
@@ -108,7 +110,8 @@ export class OtherRequestsComponent implements OnInit {
     private popoverController: PopoverController,
     private tripRequestPolicyService: TripRequestPolicyService,
     private statusService: StatusService,
-    private dateService: DateService
+    private dateService: DateService,
+    private platform: Platform
   ) {}
 
   goBack() {
@@ -965,6 +968,7 @@ export class OtherRequestsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.isIos = this.platform.is('ios');
     this.tripDate = {
       startMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
       endMin: moment(this.dateService.addDaysToDate(new Date(), -1)).format('y-MM-DD'),
