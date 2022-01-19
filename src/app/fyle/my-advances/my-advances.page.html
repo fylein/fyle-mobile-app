@@ -36,13 +36,14 @@
     </div>
   </ng-container>
 
+  <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
   <div class="my-advances--body" [ngClass]="{'my-advances--zero-state-body': (advances$|async)?.length === 0 }">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ng-container *ngIf="advances$|async as advances">
-      <ng-container *ngIf="advances?.length === 0">
+    <ng-container *ngIf="!isLoading">
+      <ng-container *ngIf="(advances$ | async)?.length === 0">
         <div class="my-advances--zero-state">
           <app-fy-zero-state
             [unscaledImage]="true"
@@ -54,15 +55,16 @@
         </div>
       </ng-container>
     </ng-container>
-
-    <div *ngFor="let advances of advances$ | async as list; let i=index">
-      <app-my-advances-card
-        [advanceRequest]="advances"
-        [prevDate]="list[i-1]?.created_at"
-        (advanceClick)="onAdvanceClick($event)"
-      >
-      </app-my-advances-card>
-    </div>
+    <ng-container *ngIf="!isLoading">
+      <div *ngFor="let advances of advances$ | async as list; let i=index">
+        <app-my-advances-card
+          [advanceRequest]="advances"
+          [prevDate]="list[i-1]?.created_at"
+          (advanceClick)="onAdvanceClick($event)"
+        >
+        </app-my-advances-card>
+      </div>
+    </ng-container>
   </div>
 </ion-content>
 

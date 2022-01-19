@@ -137,7 +137,7 @@
     color: $pure-white;
 
     &__purpose {
-      font-size: 14px;
+      font-size: 16px;
       line-height: 18px;
       font-weight: 500;
       max-width: 100%;
@@ -244,6 +244,12 @@
   &--approver-state-section {
     display: flex;
     align-items: center;
+
+    &__date {
+      margin: 0 4px;
+      font-size: 10px;
+      color: $black-light;
+    }
   }
 
   &--approver-state-pill {

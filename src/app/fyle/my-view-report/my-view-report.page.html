@@ -81,7 +81,9 @@
               <div>
                 <div class="view-reports--submitted-date">
                   <div>
-                    <span class="view-reports--submitted-date__text">Submitted on : </span>
+                    <span class="view-reports--submitted-date__text"
+                      >{{erpt.rp_state === "DRAFT" ? "Created on : " : "Submitted on : " }}
+                    </span>
                     <span class="view-reports--submitted-date__date"
                       >{{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</span
                     >
@@ -112,6 +114,9 @@
             <div class="view-reports--approvers-list">
               <div>{{ ap.approver_name }}</div>
               <div class="view-reports--approver-state-section">
+                <div class="view-reports--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
+                  <span>{{ap.updated_at | date: 'MMM dd, yyyy'}}</span>
+                </div>
                 <div
                   class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
                 ></div>
@@ -194,7 +199,7 @@
                 class="view-reports--unreported-cta"
                 (click)="showAddExpensesToReportModal()"
               >
-                Add unreported expenses to report
+                Add unreported expenses
               </button>
               <div class="view-reports--add-more-container" (click)="addExpense()">
                 <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
