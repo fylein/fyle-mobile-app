@@ -328,7 +328,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
       await this.showLimitMessage();
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
-        quality: 50,
+        quality: 30,
       };
 
       const result = await CameraPreview.capture(cameraPreviewPictureOptions);
