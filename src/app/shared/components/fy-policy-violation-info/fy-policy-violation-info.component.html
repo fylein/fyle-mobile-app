@@ -2,15 +2,18 @@
   <div class="policy-violation-info--block">
     <mat-icon class="icon--alert-warning" svgIcon="danger"></mat-icon>
     <div class="policy-violation-info--list-container">
-      <ul class="policy-violation-info--list">
-        <li *ngIf="policyViolations.length === 1">
-          <span class="policy-violation-info--content">Policy violation found.</span>
+      <ul class="policy-violation-info--list" [ngClass]="{ 'list-type-none': !criticalPolicyViolated }">
+        <li *ngIf="policyViolations.length >= 1">
+          <span class="policy-violation-info--content"
+            >Policy <span *ngIf="policyViolations.length === 1">violation</span>
+            <span *ngIf="policyViolations.length > 1">violations</span> found.</span
+          >
           <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View details</span>
         </li>
-        <li *ngIf="policyViolations.length > 1">
+        <!-- <li *ngIf="policyViolations.length > 1">
           <span class="policy-violation-info--content">Policy violations found.</span>
           <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View details</span>
-        </li>
+        </li> -->
         <li *ngIf="criticalPolicyViolated" class="policy-violation-info--content">
           This expense has a critical policy violation. It cannot be added to a report until resolved.
         </li>

@@ -19,10 +19,9 @@
   }
 
   &--list {
-    margin: 0;
-    padding-left: 7px;
+    margin-left: 16px;
+    padding-left: 6px;
     font-size: 12px;
-    list-style-type: none;
   }
 
   &--content {
@@ -35,4 +34,9 @@
     margin-left: 4px;
     font-size: 12px;
   }
+}
+
+.list-type-none {
+  list-style-type: none;
+  margin: 0px;
 }
