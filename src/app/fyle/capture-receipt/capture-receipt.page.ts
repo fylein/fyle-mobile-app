@@ -66,7 +66,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     private accountsService: AccountsService,
     private popoverController: PopoverController,
     private loaderService: LoaderService
-  ) { }
+  ) {}
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -127,12 +127,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
             this.isInstafyleEnabled
           );
         } else {
-          return this.transactionsOutboxService.addEntryAndSync(
-            transaction,
-            attachmentUrls,
-            null,
-            null
-          );
+          return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
         }
       })
     );
@@ -264,7 +259,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
             'add_edit_expense',
             {
               dataUrl: this.base64ImagesWithSource[0].base64Image,
-              canExtractData: this.isInstafyleEnabled
+              canExtractData: this.isInstafyleEnabled,
             },
           ]);
         }
@@ -333,7 +328,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
       await this.showLimitMessage();
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
-        quality: 70,
+        quality: 50,
       };
 
       const result = await CameraPreview.capture(cameraPreviewPictureOptions);
