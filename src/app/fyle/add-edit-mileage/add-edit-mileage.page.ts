@@ -93,7 +93,12 @@ export class AddEditMileagePage implements OnInit {
 
   paymentModes$: Observable<any>;
 
-  vehicleTypeOptions$: Observable<any>;
+  vehicleTypeOptions$: Observable<
+    {
+      label: string;
+      value: string;
+    }[]
+  >;
 
   homeCurrency$: Observable<any>;
 
@@ -637,9 +642,9 @@ export class AddEditMileagePage implements OnInit {
           const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1'];
 
           orgUserMileageSettings.forEach((mileageLabel) => {
-            const i = allVehicleTypes.indexOf(mileageLabel);
-            if (i > -1) {
-              allVehicleTypes.splice(i, 1);
+            const index = allVehicleTypes.indexOf(mileageLabel);
+            if (index > -1) {
+              allVehicleTypes.splice(index, 1);
             }
           });
 
