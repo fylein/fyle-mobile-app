@@ -99,7 +99,6 @@ export class AppComponent implements OnInit {
 
     const { data } = await popover.onWillDismiss();
 
-    console.log('da', data);
     if (data && data.action === 'close') {
       App.exitApp();
     }
