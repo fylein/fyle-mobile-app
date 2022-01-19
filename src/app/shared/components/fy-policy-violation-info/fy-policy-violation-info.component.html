@@ -10,10 +10,6 @@
           >
           <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View details</span>
         </li>
-        <!-- <li *ngIf="policyViolations.length > 1">
-          <span class="policy-violation-info--content">Policy violations found.</span>
-          <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View details</span>
-        </li> -->
         <li *ngIf="criticalPolicyViolated" class="policy-violation-info--content">
           This expense has a critical policy violation. It cannot be added to a report until resolved.
         </li>
