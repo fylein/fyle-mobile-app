@@ -199,7 +199,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     });
   }
 
-  async switchToOrg(org: Org) {
+  async switchOrg(org: Org) {
     const originalEou = await this.authService.getEou();
     from(this.loaderService.showLoader())
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))

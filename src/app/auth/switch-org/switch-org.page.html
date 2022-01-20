@@ -26,7 +26,7 @@
           <app-active-org-card
             [org]="activeOrg"
             [isPrimaryOrg]="activeOrg.id === primaryOrg.id"
-            (orgSelected)="switchToOrg(activeOrg)"
+            (orgSelected)="switchOrg(activeOrg)"
           ></app-active-org-card>
         </ng-container>
       </ng-container>
@@ -100,7 +100,7 @@
               *ngFor="let org of filteredOrgs"
               [org]="org"
               [isPrimaryOrg]="org.id === primaryOrg.id"
-              (selectOrg)="switchToOrg(org)"
+              (selectOrg)="switchOrg(org)"
             >
             </app-org-card>
           </ng-container>
