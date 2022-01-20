@@ -16,21 +16,8 @@
     </div>
     <div class="currency-component--amount-input">
       <input
-        *ngIf="!isIos"
         inputmode="decimal"
         type="number"
-        class="currency-component--amount-input-amount"
-        [(ngModel)]="extnInternal.tx_orig_amount"
-        name="amount"
-        placeholder="Amount"
-        [disabled]="true"
-      />
-      <input
-        *ngIf="isIos"
-        type="text"
-        pattern="[0-9]*"
-        decimal="true"
-        decimal-char="."
         class="currency-component--amount-input-amount"
         [(ngModel)]="extnInternal.tx_orig_amount"
         name="amount"
@@ -55,21 +42,8 @@
       </div>
       <div class="currency-component--amount-input">
         <input
-          *ngIf="!isIos"
           inputmode="decimal"
           type="number"
-          class="currency-component--amount-input-amount"
-          [(ngModel)]="extnInternal.tx_amount"
-          name="amount"
-          placeholder="Amount"
-          [disabled]="true"
-        />
-        <input
-          *ngIf="isIos"
-          type="text"
-          pattern="[0-9]*"
-          decimal="true"
-          decimal-char="."
           class="currency-component--amount-input-amount"
           [(ngModel)]="extnInternal.tx_amount"
           name="amount"

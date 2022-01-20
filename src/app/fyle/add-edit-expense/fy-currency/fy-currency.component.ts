@@ -2,7 +2,7 @@ import { Component, OnInit, forwardRef, Input, Injector, SimpleChanges, OnChange
 
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
 import { noop, of, from } from 'rxjs';
-import { ModalController, Platform } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { isEqual } from 'lodash';
@@ -33,8 +33,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   exchangeRate = 1;
 
-  isIos: boolean;
-
   fg: FormGroup;
 
   private ngControl: NgControl;
@@ -63,12 +61,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     private modalController: ModalController,
     private currencyService: CurrencyService,
     private modalProperties: ModalPropertiesService,
-    private platform: Platform,
     private injector: Injector
   ) {}
 
   ngOnInit() {
-    this.isIos = this.platform.is('ios');
     this.ngControl = this.injector.get(NgControl);
 
     this.fg = this.fb.group({
