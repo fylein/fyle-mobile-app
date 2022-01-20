@@ -311,6 +311,8 @@ export class AddEditExpensePage implements OnInit {
 
   canDeleteExpense = true;
 
+  isReportMandatory = false;
+
   policyDetails;
 
   source = 'MOBILE';
@@ -2506,6 +2508,11 @@ export class AddEditExpensePage implements OnInit {
 
     this.isExpandedView = this.mode !== 'add';
 
+    if (this.mode === 'add') {
+      this.fg.controls.report.setValidators(Validators.required);
+      this.isReportMandatory = true;
+    }
+
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList =
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
@@ -2912,7 +2919,7 @@ export class AddEditExpensePage implements OnInit {
 
   async reloadCurrentRoute() {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
-    await this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
+    await this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.fg.controls.report.value.rp.id }]);
   }
 
   addToNewReport(txnId: string) {

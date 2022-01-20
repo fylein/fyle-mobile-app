@@ -644,4 +644,15 @@
     margin-top: 8px;
     display: block;
   }
+
+  &--report-section {
+    background-color: $blue-4;
+    border-radius: 4px;
+    border: 1px solid $grey-lighter;
+    padding: 16px;
+  }
+
+  &--report-error {
+    margin-top: 0;
+  }
 }
