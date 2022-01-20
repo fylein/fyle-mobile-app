@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ModalController, Platform } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -31,16 +31,13 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
 
   @Input() exchangeRate;
 
-  isIos: boolean;
-
   fg: FormGroup;
 
   constructor(
     private modalController: ModalController,
     private currencyService: CurrencyService,
     private formBuilder: FormBuilder,
-    private loaderService: LoaderService,
-    private platform: Platform
+    private loaderService: LoaderService
   ) {}
 
   toFixed(num, fixed) {
@@ -49,7 +46,6 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.isIos = this.platform.is('ios');
     this.fg = this.formBuilder.group({
       newCurrencyAmount: [, Validators.compose([Validators.required])],
       exchangeRate: [, Validators.compose([Validators.required])],

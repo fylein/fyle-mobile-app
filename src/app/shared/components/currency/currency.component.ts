@@ -5,7 +5,6 @@ import { filter, map, switchMap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { Expense } from '../../../core/models/expense.model';
 import { cloneDeep } from 'lodash';
-import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-currency',
@@ -27,16 +26,9 @@ export class CurrencyComponent implements OnInit {
 
   homeCurrency$: Observable<string>;
 
-  isIos: boolean;
-
-  constructor(
-    private currencyService: CurrencyService,
-    private offlineService: OfflineService,
-    private platform: Platform
-  ) {}
+  constructor(private currencyService: CurrencyService, private offlineService: OfflineService) {}
 
   ngOnInit() {
-    this.isIos = this.platform.is('ios');
     this.extnInternal = cloneDeep(this.etxn);
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
 
