@@ -21,7 +21,7 @@ export class FyPopoverComponent implements AfterViewInit {
     const formInput = this.simpleFormInput.nativeElement as HTMLInputElement;
     setTimeout(() => {
       formInput.focus();
-    }, 400);
+    }, 200);
   }
 
   dismiss() {

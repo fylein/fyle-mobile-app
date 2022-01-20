@@ -37,6 +37,6 @@ export class ShareReportComponent implements OnInit, AfterViewInit {
     const emailIn = this.simpleEmailInput.nativeElement as HTMLInputElement;
     setTimeout(() => {
       emailIn.focus();
-    }, 300);
+    }, 550);
   }
 }
