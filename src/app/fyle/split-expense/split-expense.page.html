@@ -9,14 +9,17 @@
 
       <div class="split-expense--header-block">
         <div class="split-expense--header-title" mode="md">Split by {{ splitType }}</div>
-        <div
-          class="split-expense--header-save text-right"
-          [ngClass]="{'no-pointer-events': saveSplitExpenseLoading}"
-          (click)="save()"
-          appFormButtonValidation
-        >
-          Save
-        </div>
+        <ion-buttons>
+          <ion-button
+            (click)="save()"
+            [loadingText]="'Saving'"
+            [loading]="saveSplitExpenseLoading"
+            appFormButtonValidation
+            class="split-expense--header-save text-right"
+          >
+            Save
+          </ion-button>
+        </ion-buttons>
       </div>
     </ion-toolbar>
   </div>
