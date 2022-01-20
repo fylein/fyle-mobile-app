@@ -68,21 +68,9 @@
             >
             <span class="split-expense--mandatory">*</span>
             <input
-              *ngIf="!isIos"
               inputmode="decimal"
               [min]="(isCorporateCardsEnabled$|async) ? null : 0.01"
               type="number"
-              class="split-expense--input"
-              formControlName="amount"
-              (ngModelChange)="onChangeAmount(splitExpenseForm, i)"
-            />
-            <input
-              *ngIf="isIos"
-              [min]="(isCorporateCardsEnabled$|async) ? null : 0.01"
-              type="text"
-              pattern="[0-9]*"
-              decimal="true"
-              decimal-char="."
               class="split-expense--input"
               formControlName="amount"
               (ngModelChange)="onChangeAmount(splitExpenseForm, i)"
@@ -92,20 +80,8 @@
           <div class="split-expense--item split-expense--percentage">
             <span class="split-expense--label">Percentage</span>
             <input
-              *ngIf="!isIos"
               inputmode="decimal"
               type="number"
-              class="split-expense--input"
-              formControlName="percentage"
-              [min]="0.01"
-              (ngModelChange)="onChangePercentage(splitExpenseForm, i)"
-            />
-            <input
-              *ngIf="isIos"
-              type="text"
-              pattern="[0-9]*"
-              decimal="true"
-              decimal-char="."
               class="split-expense--input"
               formControlName="percentage"
               [min]="0.01"
