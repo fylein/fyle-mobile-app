@@ -450,7 +450,7 @@
                     <div class="add-edit-expense--text-label">
                       {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
                     </div>
-                    <input
+                    <!-- <input
                       *ngIf="!isIos"
                       (blur)="focusState = false"
                       (focus)="focusState = true"
@@ -459,8 +459,8 @@
                       inputmode="decimal"
                       type="number"
                       [placeholder]="'Enter Tax Amount'"
-                    />
-                    <input
+                    /> -->
+                    <!-- <input
                       *ngIf="isIos"
                       (blur)="focusState = false"
                       (focus)="focusState = true"
@@ -471,7 +471,10 @@
                       decimal="true"
                       decimal-char="."
                       [placeholder]="'Enter Tax Amount'"
-                    />
+                    /> -->
+                    ***
+                    <app-fy-number formControlName="tax_amount"> </app-fy-number>
+                    **
                   </div>
                   <div
                     *ngIf="fg.controls.tax_amount.touched && !fg.controls.tax_amount.valid"
@@ -894,7 +897,7 @@
                       type="text"
                     />
 
-                    <input
+                    <!-- <input
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       *ngIf="!isIos && customInput.type === 'NUMBER'"
@@ -916,7 +919,9 @@
                       decimal="true"
                       decimal-char="."
                       [placeholder]="'Enter ' + customInput.name"
-                    />
+                    /> -->
+                    <app-fy-number formControlName="value" *ngIf="isIos && customInput.type === 'NUMBER'">
+                    </app-fy-number>
 
                     <input
                       appFormatDate

@@ -479,18 +479,18 @@ export class AddEditExpensePage implements OnInit {
             this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1)
           ).toFixed(2)
         );
-        this.fg.controls.tax_amount.setValidators(Validators.required);
-        this.fg.controls.tax_amount.updateValueAndValidity();
+        // this.fg.controls.tax_amount.setValidators(Validators.required);
+        // this.fg.controls.tax_amount.updateValueAndValidity();
 
         // if (this.fg.controls.tax_amount.errors.pattern) {
         //   this.fg.controls.tax_amount.clearValidators();
         // }
-        console.log(
-          'check tax amount val and type--2',
-          this.fg.controls.tax_amount,
-          typeof this.fg.controls.tax_amount.value
-        );
-        console.log('check what is form val', this.fg.value.tax_amount);
+        // console.log(
+        //   'check tax amount val and type--2',
+        //   this.fg.controls.tax_amount,
+        //   typeof this.fg.controls.tax_amount.value
+        // );
+        // console.log('check what is form val', this.fg.value.tax_amount);
       } else {
         this.fg.controls.tax_amount.setValue(null);
       }
