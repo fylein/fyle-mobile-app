@@ -811,7 +811,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .fy-footer-cta-container {
-  padding: 16px !important;
+  padding: 14px 16px;
   display: flex;
   column-gap: 18px;
 }
@@ -824,6 +824,7 @@ ref - https://stackoverflow.com/a/31162426
   font-weight: 500;
   margin: 0;
   width: 100%;
+  letter-spacing: 0;
 
   &--primary {
     --background: #{$pink-gradient};

@@ -35,7 +35,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
@@ -204,8 +204,6 @@ export class AddEditMileagePage implements OnInit {
 
   canDeleteExpense = true;
 
-  isIos: boolean;
-
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -238,12 +236,10 @@ export class AddEditMileagePage implements OnInit {
     private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private platform: Platform
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {
-    this.isIos = this.platform.is('ios');
     if (this.activatedRoute.snapshot.params.remove_from_report) {
       this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
     }
