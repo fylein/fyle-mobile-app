@@ -36,7 +36,7 @@
     </ng-template>
   </ng-container>
 
-  <div #searchContainer class="switch-org__content-container">
+  <div class="switch-org__content-container" [ngClass]="{'switch-org__content-container--sticky': !isIos}">
     <div #content class="switch-org__content-container__block switch-org__content-container__content-block">
       <div class="switch-org__content-container__content d-flex">
         <div class="switch-org__content-container__content__sub-block">

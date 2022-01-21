@@ -24,8 +24,6 @@ import { DeviceService } from 'src/app/core/services/device.service';
   styleUrls: ['./switch-org.page.scss'],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
-  @ViewChild('searchContainer') searchContainerRef: ElementRef;
-
   @ViewChild('search') searchRef: ElementRef;
 
   @ViewChild('content') contentRef: ElementRef;
@@ -46,6 +44,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   navigateBack = false;
 
+  isIos = false;
+
   constructor(
     private platform: Platform,
     private offlineService: OfflineService,
@@ -64,16 +64,15 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private deviceService: DeviceService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.isIos = this.platform.is('ios');
+  }
 
   ngAfterViewChecked() {
     this.cdRef.detectChanges();
   }
 
   ionViewWillEnter() {
-    if (!this.platform.is('ios')) {
-      this.searchContainerRef.nativeElement.classList.add('switch-org__content-container--sticky');
-    }
     const that = this;
     that.searchInput = '';
     that.isLoading = true;
