@@ -37,26 +37,23 @@
 </ion-header>
 
 <ion-content>
-  <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
   <div *ngIf="count$|async; else zeroState">
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ng-container *ngIf="!isLoading">
-      <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async as list; let i=index">
-        <app-team-adv-card
-          [advanceRequest]="teamAdvancerequest"
-          [prevDate]="list[i-1]?.areq_created_at"
-          (gotoAdvance)="onAdvanceClick($event)"
-        >
-        </app-team-adv-card>
-      </div>
-    </ng-container>
+    <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async as list; let i=index">
+      <app-team-adv-card
+        [advanceRequest]="teamAdvancerequest"
+        [prevDate]="list[i-1]?.areq_created_at"
+        (gotoAdvance)="onAdvanceClick($event)"
+      >
+      </app-team-adv-card>
+    </div>
   </div>
 
   <ng-template #zeroState>
-    <div class="advance-request--zero-state" *ngIf="(teamAdvancerequests$ | async)?.length === 0 && !isLoading">
+    <div class="advance-request--zero-state">
       <app-fy-zero-state
         [unscaledImage]="true"
         [useNewStyling]="true"
