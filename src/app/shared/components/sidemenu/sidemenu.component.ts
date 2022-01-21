@@ -236,30 +236,34 @@ export class SidemenuComponent implements OnInit {
     this.primaryOptionsCount = primaryOptions.length;
 
     if (cardOptions.length === 1) {
-      primaryOptions.splice(
-        primaryOptions.findIndex((option) => option.title === 'Cards'),
-        1,
-        {
-          ...cardOptions[0],
-          icon: 'fy-corporate-card',
-          disabled: !isConnected,
-        }
-      );
+      this.updateSidemenuOption(primaryOptions, 'Cards', {
+        ...cardOptions[0],
+        icon: 'fy-corporate-card',
+        disabled: !isConnected,
+      });
     }
 
     if (teamOptions.length === 1) {
-      primaryOptions.splice(
-        primaryOptions.findIndex((option) => option.title === 'Teams'),
-        1,
-        {
-          ...teamOptions[0],
-          icon: 'teams',
-          disabled: !isConnected,
-        }
-      );
+      this.updateSidemenuOption(primaryOptions, 'Teams', {
+        ...teamOptions[0],
+        icon: 'teams',
+        disabled: !isConnected,
+      });
     }
 
     return primaryOptions;
+  }
+
+  updateSidemenuOption(
+    primaryOptions: Partial<SidemenuItem>[],
+    dropdownTitle: string,
+    updatedOption: Partial<SidemenuItem>
+  ) {
+    return primaryOptions.splice(
+      primaryOptions.findIndex((option) => option.title === dropdownTitle),
+      1,
+      updatedOption
+    );
   }
 
   getSecondarySidemenuOptions(orgs: Org[], isDelegatee: boolean, isConnected: boolean) {
