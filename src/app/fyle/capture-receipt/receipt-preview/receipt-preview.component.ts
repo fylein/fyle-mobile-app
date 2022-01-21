@@ -239,11 +239,9 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   rotate() {
-    const prevAngle = this.base64ImagesWithSource[this.activeIndex].rotate;
-    const angle = (prevAngle + 90) % 360;
-    this.base64ImagesWithSource[this.activeIndex].rotate = angle;
+    this.base64ImagesWithSource[this.activeIndex].rotate += 90;
+    const angle = this.base64ImagesWithSource[this.activeIndex].rotate;
     const imageRef = this.imageRefs.get(this.activeIndex).nativeElement;
-    imageRef.classList.add('receipt-preview__image-container__image--rotate-' + angle.toString());
-    imageRef.classList.remove('receipt-preview__image-container__image--rotate-' + prevAngle.toString());
+    imageRef.style.transform = `rotate(${angle}deg)`;
   }
 }

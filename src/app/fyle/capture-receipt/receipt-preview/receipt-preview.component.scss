@@ -79,23 +79,7 @@
     z-index: 12;
 
     &__image {
-      transition: none;
-
-      &--rotate-0 {
-        transform: rotate(0) !important;
-      }
-
-      &--rotate-90 {
-        transform: rotate(90deg) !important;
-      }
-
-      &--rotate-180 {
-        transform: rotate(180deg) !important;
-      }
-
-      &--rotate-270 {
-        transform: rotate(270deg) !important;
-      }
+      transition: all 0.3s;
     }
   }
 
