@@ -1176,6 +1176,7 @@ ion-toggle.toggle-checked::before {
   border: 1px solid $grey-lighter;
   border-radius: 8px;
   padding: 12px 8px;
+  align-items: center;
   .capped-icon {
     color: $highlight-blue;
     height: 20px;
