@@ -22,6 +22,7 @@ const { CameraPreview } = Plugins;
 type Image = Partial<{
   source: string;
   base64Image: string;
+  rotate: number;
 }>;
 
 type receiptTransaction = {
@@ -66,7 +67,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     private accountsService: AccountsService,
     private popoverController: PopoverController,
     private loaderService: LoaderService
-  ) { }
+  ) {}
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
@@ -127,12 +128,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
             this.isInstafyleEnabled
           );
         } else {
-          return this.transactionsOutboxService.addEntryAndSync(
-            transaction,
-            attachmentUrls,
-            null,
-            null
-          );
+          return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
         }
       })
     );
@@ -258,13 +254,14 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
+          this.base64ImagesWithSource[0].base64Image = this.rotate(this.base64ImagesWithSource[0]);
           this.router.navigate([
             '/',
             'enterprise',
             'add_edit_expense',
             {
               dataUrl: this.base64ImagesWithSource[0].base64Image,
-              canExtractData: this.isInstafyleEnabled
+              canExtractData: this.isInstafyleEnabled,
             },
           ]);
         }
@@ -298,6 +295,11 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = true;
           this.setUpAndStartCamera();
         } else {
+          this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
+            if (base64ImageWithSource.rotate) {
+              base64ImageWithSource.base64Image = this.rotate(base64ImageWithSource);
+            }
+          });
           this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {
             this.router.navigate(['/', 'enterprise', 'my_expenses']);
           });
@@ -431,5 +433,25 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopCamera();
+  }
+
+  rotate(base64ImageWithSource: Image) {
+    const img = new Image();
+    img.src = base64ImageWithSource.base64Image;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (base64ImageWithSource.rotate % 180) {
+      canvas.width = img.naturalHeight;
+      canvas.height = img.naturalWidth;
+    } else {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+    }
+
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((base64ImageWithSource.rotate / 180) * Math.PI);
+    ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+    return canvas.toDataURL('image/png');
   }
 }

@@ -6,6 +6,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 type Image = Partial<{
   source: string;
   base64Image: string;
+  rotate: number;
 }>;
 
 @Component({

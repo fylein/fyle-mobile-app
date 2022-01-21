@@ -1,7 +1,7 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, QueryList, ViewChildren } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController, IonSlides } from '@ionic/angular';
 import { from } from 'rxjs';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
@@ -11,6 +11,7 @@ import { CropReceiptComponent } from 'src/app/fyle/capture-receipt/crop-receipt/
 type Image = Partial<{
   source: string;
   base64Image: string;
+  rotate: number;
 }>;
 @Component({
   selector: 'app-receipt-preview',
@@ -18,7 +19,9 @@ type Image = Partial<{
   styleUrls: ['./receipt-preview.component.scss'],
 })
 export class ReceiptPreviewComponent implements OnInit {
-  @ViewChild('slides') imageSlides: any;
+  @ViewChild('slides') imageSlides: IonSlides;
+
+  @ViewChildren('imageRef') imageRefs: QueryList<ElementRef>;
 
   @Input() base64ImagesWithSource: Image[];
 
@@ -55,8 +58,11 @@ export class ReceiptPreviewComponent implements OnInit {
     await cropReceiptModal.present();
     const { data } = await cropReceiptModal.onWillDismiss();
 
-    if (data && data.base64ImagesWithSource) {
-      this.base64ImagesWithSource = data.base64ImagesWithSource;
+    if (data && data.base64ImageWithSource) {
+      this.base64ImagesWithSource[this.activeIndex] = {
+        ...data.base64ImageWithSource,
+        rotate: 0,
+      };
       await this.imageSlides.update();
       this.trackingService.cropReceipt({ action: 'crop' });
     }
@@ -69,9 +75,15 @@ export class ReceiptPreviewComponent implements OnInit {
       },
     };
     this.activeIndex = 0;
+    this.base64ImagesWithSource.map((img) => (img.rotate = img.rotate || 0));
   }
 
   ionViewWillEnter() {
+    this.imageRefs.map((image, index) =>
+      image.nativeElement.classList.add(
+        'receipt-preview__image-container__image--rotate-' + this.base64ImagesWithSource[index].rotate.toString()
+      )
+    );
     this.imageSlides.update();
   }
 
@@ -224,5 +236,14 @@ export class ReceiptPreviewComponent implements OnInit {
   async ionSlideDidChange() {
     const activeIndex = await this.imageSlides.getActiveIndex();
     this.activeIndex = activeIndex;
+  }
+
+  rotate() {
+    const prevAngle = this.base64ImagesWithSource[this.activeIndex].rotate;
+    const angle = (prevAngle + 90) % 360;
+    this.base64ImagesWithSource[this.activeIndex].rotate = angle;
+    const imageRef = this.imageRefs.get(this.activeIndex).nativeElement;
+    imageRef.classList.add('receipt-preview__image-container__image--rotate-' + angle.toString());
+    imageRef.classList.remove('receipt-preview__image-container__image--rotate-' + prevAngle.toString());
   }
 }

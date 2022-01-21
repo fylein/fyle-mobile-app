@@ -16,6 +16,7 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons class="receipt-preview__btn" slot="end">
+      <ion-button (click)="rotate()"> R </ion-button>
       <ion-button class="receipt-preview__btn--crop" (click)="openCropReceiptModal()">
         <ion-icon src="../../../../assets/svg/crop.svg"></ion-icon>
       </ion-button>
@@ -38,7 +39,7 @@
       <ion-slide>
         <div>
           <pinch-zoom class="receipt-preview__image-container">
-            <img [src]="base64ImageWithSource.base64Image" />
+            <img class="receipt-preview__image-container__image" #imageRef [src]="base64ImageWithSource.base64Image" />
           </pinch-zoom>
         </div>
       </ion-slide>
