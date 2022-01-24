@@ -1,12 +1,13 @@
 import { Component, ElementRef, Input, OnInit, ViewChild, QueryList, ViewChildren } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
-import { ModalController, Platform, PopoverController, IonSlides } from '@ionic/angular';
+import { ModalController, Platform, PopoverController, IonSlides, LoadingController } from '@ionic/angular';
 import { from } from 'rxjs';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { CropReceiptComponent } from 'src/app/fyle/capture-receipt/crop-receipt/crop-receipt.component';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 type Image = Partial<{
   source: string;
@@ -37,7 +38,9 @@ export class ReceiptPreviewComponent implements OnInit {
     private popoverController: PopoverController,
     private matBottomSheet: MatBottomSheet,
     private imagePicker: ImagePicker,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private loaderService: LoaderService,
+    private loadingController: LoadingController
   ) {
     this.registerBackButtonAction();
   }
@@ -87,10 +90,20 @@ export class ReceiptPreviewComponent implements OnInit {
     this.imageSlides.update();
   }
 
-  saveReceipt() {
+  async saveReceipt() {
+    const loading = await this.loadingController.create({
+      message: 'Please wait...',
+    });
+    await loading.present();
+    this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
+      if (base64ImageWithSource.rotate) {
+        base64ImageWithSource.base64Image = this.updateImageBase64(base64ImageWithSource);
+      }
+    });
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
     });
+    this.loadingController.dismiss();
   }
 
   async closeModal() {
@@ -243,5 +256,25 @@ export class ReceiptPreviewComponent implements OnInit {
     const angle = this.base64ImagesWithSource[this.activeIndex].rotate;
     const imageRef = this.imageRefs.get(this.activeIndex).nativeElement;
     imageRef.style.transform = `rotate(${angle}deg)`;
+  }
+
+  updateImageBase64(base64ImageWithSource: Image) {
+    const img = new Image();
+    img.src = base64ImageWithSource.base64Image;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (base64ImageWithSource.rotate % 180) {
+      canvas.width = img.naturalHeight;
+      canvas.height = img.naturalWidth;
+    } else {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+    }
+
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((base64ImageWithSource.rotate / 180) * Math.PI);
+    ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+    return canvas.toDataURL('image/png');
   }
 }
