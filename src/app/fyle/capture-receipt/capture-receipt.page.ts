@@ -242,7 +242,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
 
     await modal.present();
 
-    const { data } = await modal.onDidDismiss();
+    const { data } = await modal.onWillDismiss();
     if (data) {
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
@@ -254,8 +254,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          console.log('Loader shown here');
-          this.loaderService.showLoader('Saving receipt...', 10000);
+          this.loaderService.showLoader();
           this.base64ImagesWithSource[0].base64Image = this.rotate(this.base64ImagesWithSource[0]);
           this.router.navigate([
             '/',
@@ -284,7 +283,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
 
     await modal.present();
 
-    const { data } = await modal.onDidDismiss();
+    const { data } = await modal.onWillDismiss();
     if (data) {
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
@@ -298,8 +297,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = true;
           this.setUpAndStartCamera();
         } else {
-          console.log('Loader shown here');
-          this.loaderService.showLoader('Saving receipt...', 10000);
+          this.loaderService.showLoader();
           this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
             if (base64ImageWithSource.rotate) {
               base64ImageWithSource.base64Image = this.rotate(base64ImageWithSource);
