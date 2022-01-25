@@ -49,12 +49,12 @@
       background-color: $highlight-black;
     }
 
-    &__approver_pending,
-    &__complete {
+    &__approver_pending {
       background-color: $highlight-blue;
     }
 
     &__approved,
+    &__complete,
     &__payment_pending {
       background-color: $highlight-green;
     }
