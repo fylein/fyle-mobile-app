@@ -32,8 +32,31 @@ export class DashboardService {
             (aggregate) => aggregate.function_name === 'sum(tx_amount)'
           );
           return {
-            totalCount: countAggregate && countAggregate.function_value,
-            totalAmount: amountAggregate && amountAggregate.function_value,
+            count: countAggregate && countAggregate.function_value,
+            sum: amountAggregate && amountAggregate.function_value,
+          };
+        })
+      );
+  }
+
+  getIncompleteExpensesStats() {
+    return this.transactionService
+      .getTransactionStats('count(tx_id),sum(tx_amount)', {
+        scalar: true,
+        tx_state: 'in.(DRAFT)',
+        tx_report_id: 'is.null',
+      })
+      .pipe(
+        map((rawStatsResponse) => {
+          const countAggregate = rawStatsResponse[0].aggregates.find(
+            (aggregate) => aggregate.function_name === 'count(tx_id)'
+          );
+          const amountAggregate = rawStatsResponse[0].aggregates.find(
+            (aggregate) => aggregate.function_name === 'sum(tx_amount)'
+          );
+          return {
+            count: countAggregate && countAggregate.function_value,
+            sum: amountAggregate && amountAggregate.function_value,
           };
         })
       );

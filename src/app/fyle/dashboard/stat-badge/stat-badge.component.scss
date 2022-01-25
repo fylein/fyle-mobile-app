@@ -49,7 +49,8 @@
       background-color: $highlight-black;
     }
 
-    &__approver_pending {
+    &__approver_pending,
+    &__complete {
       background-color: $highlight-blue;
     }
 
