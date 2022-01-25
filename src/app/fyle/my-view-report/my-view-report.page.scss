@@ -117,6 +117,10 @@
     }
   }
 
+  &--approval-state-block {
+    padding: 8px;
+  }
+
   &--primary-cta {
     margin: 12px;
     height: 48px;
@@ -145,18 +149,33 @@
     }
   }
 
-  &--date-info-block {
-    margin-top: 8px;
-  }
-
   &--submitted-date {
     font-weight: 500;
-
+    font-size: 12px;
     &__text {
       color: $light-grey;
+      opacity: 0.8;
     }
 
     &__date {
+      color: $pure-white;
+    }
+  }
+
+  &--employee-name-block {
+    padding: 0 6px;
+  }
+
+  &--employee-name {
+    font-weight: 500;
+    font-size: 12px;
+
+    &__text {
+      color: $light-grey;
+      opacity: 0.8;
+    }
+
+    &__name {
       color: $pure-white;
     }
   }
@@ -186,7 +205,7 @@
     float: right;
     padding: 1px 4px;
     font-size: 12px;
-    font-weight: 400;
+    font-weight: 500;
     color: $light-grey;
 
     &__icon {
@@ -198,6 +217,7 @@
 
     &__content {
       padding-left: 2px;
+      opacity: 0.8;
     }
   }
 
@@ -212,13 +232,13 @@
 
   &--approvers {
     color: $black-light;
-    padding: 18px 12px 0;
+    padding: 18px 10px 0;
   }
 
   &--approvers-list {
     display: flex;
     justify-content: space-between;
-    padding: 6px 12px;
+    padding: 6px 10px 0;
   }
 
   &--approver-state-section {
