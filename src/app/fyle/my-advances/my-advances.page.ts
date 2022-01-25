@@ -131,7 +131,6 @@ export class MyAdvancesPage {
         ),
         map((res) => res.data),
         reduce((acc, curr) => acc.concat(curr)),
-        tap(() => (this.isLoading = false)),
         startWith([])
       );
 
@@ -149,7 +148,6 @@ export class MyAdvancesPage {
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr)),
-      tap(() => (this.isLoading = false)),
       startWith([])
     );
 
@@ -201,6 +199,12 @@ export class MyAdvancesPage {
         )
       )
     );
+
+    this.advances$.subscribe((res) => {
+      if (res && res.length > 0) {
+        this.isLoading = false;
+      }
+    });
   }
 
   updateMyAdvances(myAdvances: any) {
