@@ -378,6 +378,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    console.log('INside my expenses');
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
     });

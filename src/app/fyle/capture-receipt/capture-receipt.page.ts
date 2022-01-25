@@ -295,7 +295,9 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.setUpAndStartCamera();
         } else {
           this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {
+            console.log('NAVIGATE TO MY EXPENSES');
             this.router.navigate(['/', 'enterprise', 'my_expenses']);
+            console.log('DONE');
           });
         }
       }
