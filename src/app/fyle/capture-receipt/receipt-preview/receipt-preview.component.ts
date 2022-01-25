@@ -95,15 +95,30 @@ export class ReceiptPreviewComponent implements OnInit {
       message: 'Please wait...',
     });
     await loading.present();
-    this.base64ImagesWithSource.forEach((base64ImageWithSource) => {
-      if (base64ImageWithSource.rotate) {
-        base64ImageWithSource.base64Image = this.updateImageBase64(base64ImageWithSource);
-      }
+    const count = this.base64ImagesWithSource.length;
+
+    const rotatedBase64Images = this.base64ImagesWithSource.map((el, i) => {
+      console.log('Rotated', i + 1, 'of', count);
+      return el.rotate
+        ? {
+            source: el.source,
+            base64Image: this.updateImageBase64(el),
+          }
+        : el;
     });
-    this.modalController.dismiss({
-      base64ImagesWithSource: this.base64ImagesWithSource,
-    });
+
+    // this.base64ImagesWithSource.forEach((base64ImageWithSource, i) => {
+    //   if (base64ImageWithSource.rotate) {
+    //     base64ImageWithSource.base64Image = this.updateImageBase64(base64ImageWithSource);
+    //   }
+    //   console.log('Rotated', i+1, 'of', count);
+    // });
     this.loadingController.dismiss();
+    console.log('Loader dismiss');
+    this.modalController.dismiss({
+      base64ImagesWithSource: rotatedBase64Images,
+    });
+    console.log('Modal dismiss');
   }
 
   async closeModal() {
@@ -252,10 +267,17 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   rotate() {
-    this.base64ImagesWithSource[this.activeIndex].rotate += 90;
-    const angle = this.base64ImagesWithSource[this.activeIndex].rotate;
+    // this.base64ImagesWithSource[this.activeIndex].rotate += 90;
+    // const angle = this.base64ImagesWithSource[this.activeIndex].rotate;
+    // const imageRef = this.imageRefs.get(this.activeIndex).nativeElement;
+    // imageRef.style.transform = `rotate(${angle}deg)`;
+
+    const prevAngle = this.base64ImagesWithSource[this.activeIndex].rotate;
+    const angle = (prevAngle + 90) % 360;
+    this.base64ImagesWithSource[this.activeIndex].rotate = angle;
     const imageRef = this.imageRefs.get(this.activeIndex).nativeElement;
-    imageRef.style.transform = `rotate(${angle}deg)`;
+    imageRef.classList.add('receipt-preview__image-container__image--rotate-' + angle.toString());
+    imageRef.classList.remove('receipt-preview__image-container__image--rotate-' + prevAngle.toString());
   }
 
   updateImageBase64(base64ImageWithSource: Image) {

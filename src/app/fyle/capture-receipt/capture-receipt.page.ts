@@ -259,7 +259,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
             'enterprise',
             'add_edit_expense',
             {
-              dataUrl: this.base64ImagesWithSource[0].base64Image,
+              dataUrl: data.base64ImagesWithSource[0].base64Image,
               canExtractData: this.isInstafyleEnabled,
             },
           ]);
@@ -281,6 +281,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     await modal.present();
 
     const { data } = await modal.onWillDismiss();
+    console.log('Modal oN will dismiss');
     if (data) {
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
@@ -294,10 +295,11 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = true;
           this.setUpAndStartCamera();
         } else {
-          this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {
+          console.log('Adding expesnes to queue');
+          this.addMultipleExpensesToQueue(data.base64ImagesWithSource).subscribe(() => {
             console.log('NAVIGATE TO MY EXPENSES');
             this.router.navigate(['/', 'enterprise', 'my_expenses']);
-            console.log('DONE');
+            console.log('ROuter navigate');
           });
         }
       }
