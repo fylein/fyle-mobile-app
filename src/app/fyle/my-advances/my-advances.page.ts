@@ -130,8 +130,7 @@ export class MyAdvancesPage {
           })
         ),
         map((res) => res.data),
-        reduce((acc, curr) => acc.concat(curr)),
-        startWith([])
+        reduce((acc, curr) => acc.concat(curr))
       );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
@@ -147,8 +146,7 @@ export class MyAdvancesPage {
         })
       ),
       map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr)),
-      startWith([])
+      reduce((acc, curr) => acc.concat(curr))
     );
 
     const sortResults = map((res: any[]) => res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)));
@@ -201,7 +199,7 @@ export class MyAdvancesPage {
     );
 
     this.advances$.subscribe((res) => {
-      if (res && res.length > 0) {
+      if (res && res.length >= 0) {
         this.isLoading = false;
       }
     });
