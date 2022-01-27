@@ -378,7 +378,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    console.log('INside my expenses');
+    // console.log('INside my expenses');
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
     });
@@ -494,7 +494,7 @@ export class MyExpensesPage implements OnInit {
         return this.acc;
       }),
       tap(() => {
-        console.log('After data is loaded from paginated pipe');
+        // console.log('After data is loaded from paginated pipe');
         this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );

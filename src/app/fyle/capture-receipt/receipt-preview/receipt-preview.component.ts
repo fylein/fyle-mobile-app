@@ -95,6 +95,7 @@ export class ReceiptPreviewComponent implements OnInit {
       message: 'Please wait...',
     });
     await loading.present();
+    // this.loaderService.showLoader('Please wait...', 10000);
     const count = this.base64ImagesWithSource.length;
 
     const rotatedBase64Images = this.base64ImagesWithSource.map((el, i) => {
@@ -113,12 +114,12 @@ export class ReceiptPreviewComponent implements OnInit {
     //   }
     //   console.log('Rotated', i+1, 'of', count);
     // });
-    this.loadingController.dismiss();
-    console.log('Loader dismiss');
+    // this.loadingController.dismiss();
+    // console.log('Loader dismiss');
     this.modalController.dismiss({
       base64ImagesWithSource: rotatedBase64Images,
     });
-    console.log('Modal dismiss');
+    // console.log('Modal dismiss');
   }
 
   async closeModal() {

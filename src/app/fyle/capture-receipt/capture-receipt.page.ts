@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
 import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor, Plugins } from '@capacitor/core';
 import '@capacitor-community/camera-preview';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, LoadingController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -66,7 +66,8 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private loadingController: LoadingController
   ) {}
 
   setupNetworkWatcher() {
@@ -281,7 +282,7 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     await modal.present();
 
     const { data } = await modal.onWillDismiss();
-    console.log('Modal oN will dismiss');
+    // console.log('Modal oN will dismiss');
     if (data) {
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
@@ -295,11 +296,13 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = true;
           this.setUpAndStartCamera();
         } else {
-          console.log('Adding expesnes to queue');
+          // console.log('Adding expesnes to queue');
+          // this.loaderService.showLoader('Please wait...', 10000);
           this.addMultipleExpensesToQueue(data.base64ImagesWithSource).subscribe(() => {
-            console.log('NAVIGATE TO MY EXPENSES');
+            // console.log('NAVIGATE TO MY EXPENSES');
             this.router.navigate(['/', 'enterprise', 'my_expenses']);
-            console.log('ROuter navigate');
+            this.loadingController.dismiss();
+            // console.log('ROuter navigate');
           });
         }
       }

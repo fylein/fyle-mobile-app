@@ -87,6 +87,7 @@
 
       &--rotate-90 {
         transform: rotate(90deg) !important;
+        height: calc(100vw - 32px);
       }
 
       &--rotate-180 {
@@ -95,6 +96,7 @@
 
       &--rotate-270 {
         transform: rotate(270deg) !important;
+        height: calc(100vw - 32px);
       }
     }
   }
