@@ -297,6 +297,6 @@ export class ReceiptPreviewComponent implements OnInit {
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate((base64ImageWithSource.rotate / 180) * Math.PI);
     ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
-    return canvas.toDataURL('image/png');
+    return canvas.toDataURL('image/jpeg');
   }
 }
