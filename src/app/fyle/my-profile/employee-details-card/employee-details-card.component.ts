@@ -57,6 +57,7 @@ export class EmployeeDetailsCardComponent implements OnInit, AfterViewChecked {
         inputLabel: 'Mobile Number',
         inputValue: this.eou.ou.mobile,
         inputType: 'tel',
+        isRequired: false,
       },
       cssClass: 'fy-dialog-popover',
     });
@@ -64,7 +65,7 @@ export class EmployeeDetailsCardComponent implements OnInit, AfterViewChecked {
     await updateMobileNumberPopover.present();
     const { data } = await updateMobileNumberPopover.onWillDismiss();
 
-    if (data && data.newValue) {
+    if (data) {
       this.eou.ou.mobile = data.newValue;
       this.orgUserService
         .postOrgUser(this.eou.ou)
