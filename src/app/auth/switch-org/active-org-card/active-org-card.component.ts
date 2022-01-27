@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Org } from 'src/app/core/models/org.model';
 
 @Component({
@@ -13,7 +13,13 @@ export class ActiveOrgCardComponent implements OnInit {
 
   @Input() isLoading = false;
 
+  @Output() orgSelected = new EventEmitter<void>();
+
   constructor() {}
 
   ngOnInit(): void {}
+
+  switchOrg() {
+    this.orgSelected.emit();
+  }
 }

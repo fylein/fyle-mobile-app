@@ -2,6 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, Vie
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of } from 'rxjs';
 import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { Platform } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -43,7 +44,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   navigateBack = false;
 
+  isIos = false;
+
   constructor(
+    private platform: Platform,
     private offlineService: OfflineService,
     private loaderService: LoaderService,
     private userService: UserService,
@@ -60,7 +64,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private deviceService: DeviceService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.isIos = this.platform.is('ios');
+  }
 
   ngAfterViewChecked() {
     this.cdRef.detectChanges();
@@ -71,9 +77,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     that.searchInput = '';
     that.isLoading = true;
     that.orgs$ = that.offlineService.getOrgs().pipe(shareReplay(1));
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
     that.orgs$.subscribe(() => {
-      setTimeout(() => (that.isLoading = false), 500);
       that.cdRef.detectChanges();
     });
 
@@ -93,15 +99,20 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       });
     }
     this.activeOrg$ = this.offlineService.getCurrentOrg();
-
     this.primaryOrg$ = this.offlineService.getPrimaryOrg();
 
-    this.activeOrg$.subscribe(noop);
-    this.primaryOrg$.subscribe(noop);
-
-    const currentOrgs$ = forkJoin([this.orgs$, this.activeOrg$]).pipe(
-      switchMap(([orgs, activeOrg]) => of(orgs.filter((org) => org.id !== activeOrg.id)))
+    const currentOrgs$ = forkJoin([this.orgs$, this.primaryOrg$, this.activeOrg$]).pipe(
+      map(([orgs, primaryOrg, activeOrg]) => {
+        const currentOrgs = [primaryOrg, ...orgs.filter((org) => org.id !== primaryOrg.id)];
+        if (this.navigateBack) {
+          return currentOrgs.filter((org) => org.id !== activeOrg.id);
+        }
+        return currentOrgs;
+      }),
+      shareReplay(1)
     );
+
+    currentOrgs$.subscribe(() => (this.isLoading = false));
 
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
@@ -109,8 +120,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       distinctUntilChanged(),
       switchMap((searchText) => currentOrgs$.pipe(map((orgs) => this.getOrgsWhichContainSearchText(orgs, searchText))))
     );
-
-    this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
   }
 
   async proceed() {
@@ -189,7 +198,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     });
   }
 
-  async switchToOrg(org: Org) {
+  async switchOrg(org: Org) {
     const originalEou = await this.authService.getEou();
     from(this.loaderService.showLoader())
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
