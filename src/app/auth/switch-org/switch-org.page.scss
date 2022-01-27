@@ -1,75 +1,139 @@
-$header-background: #f5f5f5;
-$header-border: #ddd;
-$header-input: #f8f8f8;
-$org-thumb: #f8f8f8;
-$org-thumb-header: #333;
-$org-thumb-text: #666;
+@import '../../../theme/colors.scss';
 
 .switch-org {
-  &--toolbar {
-    --background: #f5f5f5;
-  }
+  &__toolbar {
+    &__header-container {
+      padding: 8px 0 0 12px;
 
-  &--form-field {
-    font-size: 11px;
-    width: 100%;
-    padding: 4px 8px 4px 8px;
-    background-color: $header-input;
-  }
+      &__header {
+        height: 30px;
+        width: 84px;
+      }
+    }
 
-  &--search-icon {
-    font-size: 14px;
-    padding-right: 10px;
-    color: #aaaaaa;
-    font-weight: bolder;
-  }
+    &__icon-container {
+      color: $red;
+      text-transform: none;
 
-  &--search-input {
-    font-size: 14px;
-
-    &::placeholder {
-      color: #ababab;
+      &__icon {
+        height: 16px;
+        padding-right: 4px;
+        margin-bottom: 2px;
+      }
     }
   }
 
-  &--header {
-    text-align: center;
-    font-size: 16px;
-    font-weight: 500;
-    padding: 8px 0;
-    color: #222222;
-    background-color: $header-background;
-    border: 1px solid $header-border;
-  }
+  &__content-container {
+    position: absolute;
+    width: 100vw;
+    z-index: 5;
 
-  &--org-thumb {
-    background: $org-thumb;
-    border: 1px solid $header-border;
-    border-radius: 50%;
-    height: 44px;
-    width: 44px;
-    line-height: 44px;
-    text-align: center;
-    color: $org-thumb-text;
-    font-size: 16px;
-    &__no-border {
-      border: none;
+    &--sticky {
+      position: sticky;
+      top: 0;
+    }
+
+    &__block {
+      position: absolute;
+      top: 0;
+      background-color: $pure-white;
+      padding: 0 16px;
+    }
+
+    &__content-block {
+      z-index: 4;
+      width: 100%;
+      opacity: 1;
+      transition: all 0.3s;
+
+      &--hide {
+        opacity: 0;
+      }
+    }
+
+    &__search-block {
+      z-index: 3;
+      opacity: 0;
+      width: 0;
+      right: 0;
+      transition: all 0.3s;
+
+      &--show {
+        z-index: 100 !important;
+        opacity: 1 !important;
+        width: 100% !important;
+      }
+    }
+
+    &__content {
+      justify-content: space-between;
+      padding: 16px 0 20px;
+
+      &__sub-block {
+        width: calc(100% - 34px);
+      }
+
+      &__title {
+        font-size: 18px;
+        font-weight: 500;
+        color: $black;
+      }
+
+      &__sub-title {
+        color: $black-light;
+        padding-top: 4px;
+      }
+
+      &__icon {
+        height: 20px;
+        width: 20px;
+        padding: 6px;
+        border: 1px solid $black-light;
+        border-radius: 4px;
+      }
     }
   }
 
-  &--org-element {
-    padding: 4px;
-    border-bottom: 1px solid $header-border;
+  &__searchbar-container {
+    display: flex;
+    align-items: center;
+    height: 62px;
+    padding-top: 8px;
 
-    &-name {
-      margin-top: 4px;
-      font-size: 16px;
-      color: $org-thumb-header;
+    mat-form-field {
+      ::ng-deep .mat-form-field-outline {
+        color: $black-light !important;
+      }
     }
 
-    &-domain {
-      font-size: 12px;
-      color: $org-thumb-text;
+    &__searchbar {
+      width: 100%;
+      font-size: 14px;
+
+      &__search-icon {
+        font-size: 18px;
+        margin: auto 8px auto 0;
+        color: $black-light;
+        height: auto;
+      }
+
+      &__clear-icon {
+        margin: -10px;
+        font-size: 18px;
+        background-color: transparent;
+        color: $black;
+      }
     }
+
+    &__cancel {
+      color: $black-light;
+      padding-left: 8px;
+    }
+  }
+
+  &__orgs-container {
+    position: relative;
+    top: 80px;
+    padding: 16px;
   }
 }

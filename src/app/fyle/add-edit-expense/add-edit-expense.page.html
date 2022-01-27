@@ -197,7 +197,7 @@
         </ng-container>
 
         <div class="add-edit-expense--primary-block">
-          <ion-grid class="add-edit-expense--grid">
+          <ion-grid class="ion-grid-no-padding">
             <ion-row>
               <ion-col size="6">
                 <ng-container *ngIf="txnFields$|async as txnFields">
@@ -474,7 +474,7 @@
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="isConnected$|async as isConnected">
               <div>
-                <ion-grid class="add-edit-expense--grid">
+                <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
                       *ngIf="txnFields.location1?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -509,7 +509,7 @@
                   </ion-row>
                 </ion-grid>
 
-                <ion-grid class="add-edit-expense--grid">
+                <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
                       *ngIf="txnFields.from_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -564,7 +564,7 @@
                   </ion-row>
                 </ion-grid>
 
-                <ion-grid class="add-edit-expense--grid">
+                <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
                       *ngIf="txnFields.flight_journey_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
