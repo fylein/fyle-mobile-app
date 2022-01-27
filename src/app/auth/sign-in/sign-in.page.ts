@@ -146,7 +146,8 @@ export class SignInPage implements OnInit {
     let header = 'Incorrect Email or Password';
 
     if (error.status === 400) {
-      header = 'Account Not Verified!';
+      this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value }]);
+      return;
     } else if (error.status === 401) {
       header = 'Unauthorized';
 

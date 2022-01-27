@@ -1,72 +1,57 @@
 <ion-header mode="md">
-  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
-  <ion-toolbar class="add-expenses-to-report--toolbar fy-modal-toolbar">
-    <ion-buttons mode="md" slot="end" (click)="close()">
-      <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+  <ion-toolbar class="add-expenses-to-report--toolbar">
+    <ion-buttons mode="md" slot="start" (click)="close()" class="add-expenses-to-report--close">
+      <ion-icon class="icon--navigate" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
     </ion-buttons>
     <ion-title mode="md">
-      <span>Add Expenses</span>
+      <div class="add-expenses-to-report--title-container text-center">
+        <div class="add-expenses-to-report--title">
+          {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }} -
+          {{ homeCurrencySymbol }} {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency:2:true }}
+        </div>
+      </div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="add-expenses-to-report--container">
-    <div *ngFor="let etxn of unReportedEtxns as list; let i = index">
-      <p class="add-expenses-to-report--expense-date" *ngIf="etxn.showDt">
-        <span>{{ etxn.tx_txn_dt | date: 'EEEE, MMM dd, yyyy' }}</span>
-      </p>
-      <ion-grid
-        class="add-expenses-to-report--item-card"
-        [ngClass]="{ 'add-expenses-to-report--item-card-selected': etxn.isSelected }"
-        (click)="toggleTransaction(etxn)"
+  <div>
+    <div *ngIf="unReportedEtxns?.length > 0" class="add-expenses-to-report--select-all-checkbox">
+      <mat-checkbox
+        class="custom-mat-checkbox create-new-report--checkbox"
+        [(ngModel)]="isSelectedAll"
+        (ngModelChange)="toggleSelectAll($event)"
       >
-        <ion-row>
-          <ion-col size="3">
-            <ion-checkbox
-              mode="ios"
-              class="add-expenses-to-report--item-card-checkbox"
-              checked="{{ etxn.isSelected }}"
-            ></ion-checkbox>
-          </ion-col>
-          <ion-col size="9">
-            <ion-row>
-              <span [ngClass]="{ 'add-expenses-to-report--non-reimbursable': etxn.tx_skip_reimbursement }">
-                <span class="add-expenses-to-report--item-card-currency">{{ etxn.tx_currency }}</span>
-                <span
-                  class="add-expenses-to-report--item-card-amount"
-                  [ngClass]="{
-                    'add-expenses-to-report--item-card-amount__non-reimbursable': etxn.tx_skip_reimbursement
-                  }"
-                  >{{ etxn.tx_amount }}</span
-                >
-              </span>
-            </ion-row>
+        Select all</mat-checkbox
+      >
+    </div>
 
-            <ion-row class="add-expenses-to-report--item-card-vendor">{{ etxn.vendorDetails }}</ion-row>
-            <ion-row class="add-expenses-to-report--item-card-category">{{ etxn.tx_org_category }}</ion-row>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+    <div *ngFor="let etxn of unReportedEtxns as list; let i = index">
+      <app-expense-card
+        [expense]="etxn"
+        [etxnIndex]="i"
+        [previousExpenseTxnDate]="list[i - 1]?.tx_txn_dt"
+        [previousExpenseCreatedAt]="list[i - 1]?.tx_created_at"
+        [isSelectionModeEnabled]="true"
+        [selectedElements]="selectedElements"
+        (cardClickedForSelection)="toggleTransaction(etxn)"
+        [isFromViewReports]="true"
+      >
+      </app-expense-card>
     </div>
   </div>
 </ion-content>
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <div class="add-expenses-to-report--footer">
-      <div>
-        <span class="add-expenses-to-report--footer-currency">{{ homeCurrency$ | async }}</span>
-        <span class="add-expenses-to-report--footer-amount"> {{ selectedTotalAmount.toFixed(2) }} </span>
-      </div>
-      <div class="add-expenses-to-report--footer-summary">{{ selectedTotalTxns }} expenses selected</div>
+    <div>
       <div class="fy-footer-cta-container">
         <ion-button
           class="fy-footer-cta fy-footer-cta--primary"
           [disabled]="!(selectedTotalTxns > 0)"
           (click)="addExpensestoReport()"
         >
-          ADD TO REPORT
+          Add to Report
         </ion-button>
       </div>
     </div>

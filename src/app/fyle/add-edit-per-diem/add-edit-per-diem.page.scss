@@ -20,6 +20,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
+      color: $black-light;
     }
   }
 
@@ -499,5 +500,10 @@
     font-size: 12px;
     color: $grey-light;
     margin-top: 5px;
+  }
+
+  &--cost-center-alert {
+    margin-top: 8px;
+    display: block;
   }
 }

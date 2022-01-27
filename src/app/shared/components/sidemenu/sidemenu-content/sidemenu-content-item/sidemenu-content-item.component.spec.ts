@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { SplitExpenseStatusComponent } from './split-expense-status.component';
+import { SidemenuContentItemComponent } from './sidemenu-content-item.component';
 
-describe('SplitExpenseStatusComponent', () => {
-  let component: SplitExpenseStatusComponent;
-  let fixture: ComponentFixture<SplitExpenseStatusComponent>;
+describe('SidemenuContentItemComponent', () => {
+  let component: SidemenuContentItemComponent;
+  let fixture: ComponentFixture<SidemenuContentItemComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [SplitExpenseStatusComponent],
+        declarations: [SidemenuContentItemComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(SplitExpenseStatusComponent);
+      fixture = TestBed.createComponent(SidemenuContentItemComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })

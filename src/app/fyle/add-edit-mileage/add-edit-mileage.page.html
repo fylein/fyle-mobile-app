@@ -164,7 +164,7 @@
               </div>
             </ng-container>
 
-            <ion-grid class="add-edit-mileage--grid">
+            <ion-grid class="ion-grid-no-padding">
               <ion-row>
                 <ion-col size="6">
                   <ng-container *ngIf="txnFields$|async as txnFields">
@@ -565,6 +565,22 @@
                     >
                     </app-fy-alert-info>
                   </ng-container>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+
+          <ng-container *ngIf="isConnected$">
+            <ng-container *ngIf="txnFields$|async as txnFields">
+              <ng-container *ngIf="isCostCentersEnabled$|async as isCostCentersEnabled">
+                <ng-container *ngIf="costCenters$|async as allowedCostCenters">
+                  <app-fy-alert-info
+                    class="add-edit-mileage--cost-center-alert"
+                    *ngIf="txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0"
+                    [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                    [type]="'warning'"
+                  >
+                  </app-fy-alert-info>
                 </ng-container>
               </ng-container>
             </ng-container>

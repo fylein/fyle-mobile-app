@@ -52,6 +52,17 @@
             </ion-col>
           </ion-row>
 
+          <ion-row>
+            <ion-col size="12" class="view-reports--employee-name-block">
+              <div class="view-reports--employee-name">
+                <div>
+                  <span class="view-reports--employee-name__text">Employee : </span>
+                  <span class="view-reports--employee-name__name">{{erpt.us_full_name | ellipsis: 30}}</span>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+
           <ion-row class="view-reports--date-info-block">
             <ion-col size="8">
               <div>
@@ -105,7 +116,7 @@
                   {{ ap.updated_at | date: 'MMM dd, yyyy'}}
                 </span>
                 <div
-                  class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | toLowerCase}}"
+                  class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
                 ></div>
                 <span
                   >{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase | snakeCaseToSpaceCase)}}</span
@@ -117,8 +128,7 @@
       </div>
 
       <!-- Display Associated trip request info, if there is one. Otherwise don't display this block at all -->
-      <div class="view-reports--card" *ngIf="erpt.rp_trip_request_id">
-        <div class="view-reports--card-header">Associated Trip Request</div>
+      <div class="view-reports" *ngIf="erpt.rp_trip_request_id">
         <!-- Display this block if trip requests are handled with T&A module of Fyle -->
         <div class="view-reports--card-body" *ngIf="tripRequest$|async as tripRequest; else showOnlyId">
           <div>Request number is {{tripRequest.trp_request_number}}</div>
@@ -127,7 +137,10 @@
         </div>
         <!-- If trip requests are handled externally by the clients, display only the associated trip request ID -->
         <ng-template #showOnlyId>
-          <div class="view-reports--card-body">Trip Request ID is {{erpt.rp_trip_request_id}}</div>
+          <app-fy-alert-info
+            [type]="'information'"
+            [message]="'Associated Trip Request ID is ' + erpt.rp_trip_request_id"
+          ></app-fy-alert-info>
         </ng-template>
       </div>
 
