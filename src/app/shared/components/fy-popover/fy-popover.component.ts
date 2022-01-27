@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 
 @Component({
@@ -6,7 +6,9 @@ import { PopoverController } from '@ionic/angular';
   templateUrl: './fy-popover.component.html',
   styleUrls: ['./fy-popover.component.scss'],
 })
-export class FyPopoverComponent {
+export class FyPopoverComponent implements AfterViewInit {
+  @ViewChild('simpleFormInput') simpleFormInput: ElementRef;
+
   @Input() title = '';
 
   @Input() formLabel = '';
@@ -14,6 +16,13 @@ export class FyPopoverComponent {
   formValue = '';
 
   constructor(private popoverController: PopoverController) {}
+
+  ngAfterViewInit() {
+    const formInput = this.simpleFormInput.nativeElement as HTMLInputElement;
+    setTimeout(() => {
+      formInput.focus();
+    }, 400);
+  }
 
   dismiss() {
     this.popoverController.dismiss();
