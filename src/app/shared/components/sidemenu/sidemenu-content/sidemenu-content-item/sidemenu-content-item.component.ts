@@ -9,6 +9,8 @@ import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 export class SidemenuContentItemComponent implements OnInit {
   @Input() sidemenuItem: Partial<SidemenuItem>;
 
+  @Input() showDivider: boolean;
+
   @Output() redirect = new EventEmitter<Partial<SidemenuItem>>();
 
   isRoute = true;
