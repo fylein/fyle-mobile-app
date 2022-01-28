@@ -1198,11 +1198,11 @@ export class AddEditExpensePage implements OnInit {
           }
 
           if (extractedData.date) {
-            etxn.tx.txn_dt = new Date(extractedData.date);
+            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.date));
           }
 
           if (extractedData.invoice_dt) {
-            etxn.tx.txn_dt = new Date(extractedData.invoice_dt);
+            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.invoice_dt));
           }
 
           if (extractedData.vendor) {
@@ -2235,7 +2235,7 @@ export class AddEditExpensePage implements OnInit {
               }
 
               if (etxn.tx.extracted_data.invoice_dt) {
-                etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.invoice_dt);
+                etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
               }
 
               if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
