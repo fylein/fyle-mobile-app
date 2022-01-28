@@ -221,6 +221,32 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       );
   }
 
+  signOut() {
+    try {
+      forkJoin({
+        device: this.deviceService.getDeviceInfo(),
+        eou: from(this.authService.getEou()),
+      })
+        .pipe(
+          switchMap(({ device, eou }) =>
+            this.authService.logout({
+              device_id: device.uuid,
+              user_id: eou.us.id,
+            })
+          ),
+          finalize(() => {
+            this.storageService.clearAll();
+            globalCacheBusterNotifier.next();
+            this.userEventService.logout();
+          })
+        )
+        .subscribe(noop);
+    } catch (e) {
+      this.storageService.clearAll();
+      globalCacheBusterNotifier.next();
+    }
+  }
+
   getOrgsWhichContainSearchText(orgs: Org[], searchText: string) {
     return orgs.filter((org) =>
       Object.values(org)
