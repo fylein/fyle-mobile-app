@@ -157,6 +157,11 @@ const routes: Routes = [
     path: 'view_per_diem',
     loadChildren: () => import('./view-per-diem/view-per-diem.module').then((m) => m.ViewPerDiemPageModule),
   },
+  {
+    path: 'potential-duplicates',
+    loadChildren: () =>
+      import('./potential-duplicates/potential-duplicates.module').then((m) => m.PotentialDuplicatesPageModule),
+  },
 ];
 
 @NgModule({

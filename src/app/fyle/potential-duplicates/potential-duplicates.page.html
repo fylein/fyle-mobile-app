@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>potential-duplicates</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="potential-duplicates--body">
+    <div class="potential-duplicates--navigation">
+      <div class="potential-duplicates--navigation-button">Prev</div>
+      <div class="potential-duplicates--navigation-count">1 of 4</div>
+      <div class="potential-duplicates--navigation-button">Next</div>
+    </div>
+
+    <div class="potential-duplicates--container">
+      <div class="potential-duplicates--header">2 expenses for $10</div>
+      <app-expense-card-lite [expense]="expense" (click)="openExpensePreview(expense.split_group_id)">
+      </app-expense-card-lite>
+      <div class="potential-duplicates--divider"></div>
+      <app-expense-card-lite [expense]="expense" (click)="openExpensePreview(expense.split_group_id)">
+      </app-expense-card-lite>
+    </div>
+  </div>
+</ion-content>
