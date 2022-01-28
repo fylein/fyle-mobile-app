@@ -42,18 +42,16 @@
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <ng-container *ngIf="!isLoading">
-      <ng-container *ngIf="(advances$ | async)?.length === 0">
-        <div class="my-advances--zero-state">
-          <app-fy-zero-state
-            [unscaledImage]="true"
-            [useNewStyling]="true"
-            image="../../../assets/images/zero-states/expenses.png"
-            header="You've got no advances!"
-            message='Create one by clicking <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon> on top'
-          ></app-fy-zero-state>
-        </div>
-      </ng-container>
+    <ng-container *ngIf="(advances$ | async)?.length === 0">
+      <div class="my-advances--zero-state">
+        <app-fy-zero-state
+          [unscaledImage]="true"
+          [useNewStyling]="true"
+          image="../../../assets/images/zero-states/expenses.png"
+          header="You've got no advances!"
+          message='Create one by clicking <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon> on top'
+        ></app-fy-zero-state>
+      </div>
     </ng-container>
 
     <ng-container *ngIf="!isLoading">
