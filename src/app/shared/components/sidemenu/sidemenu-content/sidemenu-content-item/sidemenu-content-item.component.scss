@@ -34,10 +34,15 @@
     }
 
     &--active {
+      color: $pure-white;
+
       ion-icon {
         fill: $pure-white !important;
       }
-      color: $pure-white;
+
+      & > ion-grid {
+        padding-left: 9px;
+      }
     }
   }
 
@@ -53,7 +58,6 @@
 
       &--sm {
         width: 20px;
-        height: 20px;
         padding-left: 2px;
       }
     }

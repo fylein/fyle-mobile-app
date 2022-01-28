@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -6,7 +6,9 @@ import { ModalController } from '@ionic/angular';
   templateUrl: './share-report.component.html',
   styleUrls: ['./share-report.component.scss'],
 })
-export class ShareReportComponent implements OnInit {
+export class ShareReportComponent implements OnInit, AfterViewInit {
+  @ViewChild('simpleEmailInput') simpleEmailInput: ElementRef;
+
   email = '';
 
   constructor(private modalController: ModalController) {}
@@ -30,4 +32,11 @@ export class ShareReportComponent implements OnInit {
   }
 
   ngOnInit() {}
+
+  ngAfterViewInit() {
+    const emailInputField = this.simpleEmailInput.nativeElement as HTMLInputElement;
+    setTimeout(() => {
+      emailInputField.focus();
+    }, 600);
+  }
 }

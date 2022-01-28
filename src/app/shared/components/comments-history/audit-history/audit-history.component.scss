@@ -33,6 +33,13 @@
     color: $pure-white;
   }
 
+  &--delete {
+    height: 18px;
+    width: 18px;
+    margin: 0 20px 0 -10px;
+    color: $red;
+  }
+
   &--timestamp {
     margin: 0 0 8px 20px;
     color: rgba(44, 48, 78, 0.7);
