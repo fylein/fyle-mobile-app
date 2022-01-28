@@ -21,11 +21,11 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   @Input() min: number;
 
-  private innerValue;
-
   isDisabled = false;
 
   fc: FormControl;
+
+  private innerValue;
 
   private onTouchedCallback: () => void = noop;
 
