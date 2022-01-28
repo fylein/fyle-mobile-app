@@ -9,7 +9,11 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <button [disabled]="!inputValue?.trim().length" class="input-popover--toolbar__btn" (click)="saveValue()">
+      <button
+        [disabled]="isRequired && !inputValue?.trim().length"
+        class="input-popover--toolbar__btn"
+        (click)="saveValue()"
+      >
         {{ ctaText }}
       </button>
     </ion-buttons>

@@ -1,0 +1,54 @@
+@import '../../../../theme/colors.scss';
+
+.org-card {
+  &__container {
+    padding: 14px 0 14px 16px;
+    margin-bottom: 16px;
+    border: 0.5px solid $outline-grey;
+    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+    border-radius: 8px;
+  }
+
+  &__icon-container {
+    max-width: 46px;
+    margin-right: 12px;
+
+    &__icon {
+      border: 1px solid $outline-grey;
+      border-radius: 8px;
+      height: 46px;
+      color: $black-light;
+      font-weight: 500;
+    }
+  }
+
+  &__content-container {
+    width: calc(100% - 158px);
+    padding-right: 8px;
+
+    &__title {
+      font-size: 16px;
+      font-weight: 500;
+      color: $black;
+      padding-top: 2px;
+    }
+
+    &__sub-title {
+      font-size: 12px;
+      color: $black-light;
+      padding-top: 4px;
+    }
+  }
+
+  &__pill-container {
+    max-width: 64px;
+
+    &__pill {
+      background: $blue-black;
+      border-radius: 16px 0 0 16px;
+      color: $pure-white;
+      padding: 4px 12px;
+      font-size: 12px;
+    }
+  }
+}
