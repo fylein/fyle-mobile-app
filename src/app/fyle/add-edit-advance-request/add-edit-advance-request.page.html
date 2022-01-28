@@ -149,9 +149,16 @@
                     inputmode="decimal"
                     type="number"
                     formControlName="value"
-                    *ngIf="customInput.type === 'NUMBER'"
+                    *ngIf="!isIos && customInput.type === 'NUMBER'"
                     [placeholder]="'Enter ' + customInput.name"
                   />
+
+                  <app-fy-number
+                    *ngIf="isIos && customInput.type === 'NUMBER'"
+                    [placeholder]="'Enter ' + customInput.name"
+                    formControlName="value"
+                  >
+                  </app-fy-number>
 
                   <input
                     appFormatDate

@@ -13,6 +13,7 @@
         <span class="fy-currency--mandatory"> * </span>
       </div>
       <input
+        *ngIf="!isIos"
         class="fy-currency--input fy-currency--amount"
         formControlName="amount"
         (blur)="onBlur()"
@@ -20,6 +21,7 @@
         type="number"
         placeholder="00.00"
       />
+      <app-fy-number *ngIf="isIos" placeholder="00.00" formControlName="amount"></app-fy-number>
     </div>
   </form>
 </div>

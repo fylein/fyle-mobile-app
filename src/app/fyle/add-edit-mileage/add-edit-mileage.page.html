@@ -418,13 +418,18 @@
                       />
 
                       <input
-                        *ngIf="customInput.type === 'NUMBER'"
+                        *ngIf="!isIos && customInput.type === 'NUMBER'"
                         class="add-edit-mileage--text-input"
                         formControlName="value"
                         inputmode="decimal"
                         type="number"
                         [placeholder]="'Enter ' + customInput.name"
                       />
+                      <app-fy-number
+                        formControlName="value"
+                        *ngIf="isIos && customInput.type === 'NUMBER'"
+                        [placeholder]="'Enter ' + customInput.name"
+                      ></app-fy-number>
 
                       <input
                         appFormatDate

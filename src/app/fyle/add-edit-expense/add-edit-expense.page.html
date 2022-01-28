@@ -451,6 +451,7 @@
                       {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
                     </div>
                     <input
+                      *ngIf="!isIos"
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       class="add-edit-expense--text-input"
@@ -459,6 +460,11 @@
                       type="number"
                       [placeholder]="'Enter Tax Amount'"
                     />
+                    <app-fy-number
+                      *ngIf="isIos"
+                      formControlName="tax_amount"
+                      [placeholder]="'Enter Tax Amount'"
+                    ></app-fy-number>
                   </div>
                   <div
                     *ngIf="fg.controls.tax_amount.touched && !fg.controls.tax_amount.valid"
@@ -701,6 +707,7 @@
                       <span class="add-edit-expense--mandatory">*</span>
                     </div>
                     <input
+                      *ngIf="!isIos"
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       [disabled]="!txnFields.distance?.canEdit"
@@ -710,6 +717,11 @@
                       [placeholder]="'Enter ' + txnFields.distance?.field_name"
                       type="number"
                     />
+                    <app-fy-number
+                      *ngIf="isIos"
+                      formControlName="distance"
+                      [placeholder]="'Enter ' + txnFields.distance?.field_name"
+                    ></app-fy-number>
                   </div>
 
                   <div class="add-edit-expense--internal-block">
@@ -870,13 +882,19 @@
                     <input
                       (blur)="focusState = false"
                       (focus)="focusState = true"
-                      *ngIf="customInput.type === 'NUMBER'"
+                      *ngIf="!isIos && customInput.type === 'NUMBER'"
                       class="add-edit-expense--text-input"
                       formControlName="value"
                       inputmode="decimal"
                       type="number"
                       [placeholder]="'Enter ' + customInput.name"
                     />
+                    <app-fy-number
+                      formControlName="value"
+                      *ngIf="isIos && customInput.type === 'NUMBER'"
+                      [placeholder]="'Enter ' + customInput.name"
+                    >
+                    </app-fy-number>
 
                     <input
                       appFormatDate

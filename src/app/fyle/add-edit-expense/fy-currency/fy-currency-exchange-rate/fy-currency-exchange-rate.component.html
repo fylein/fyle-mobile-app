@@ -19,6 +19,7 @@
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">Expense amount in {{ newCurrency }}</div>
         <input
+          *ngIf="!isIos"
           formControlName="newCurrencyAmount"
           class="exchange-rate-modal--input"
           inputmode="decimal"
@@ -26,6 +27,7 @@
           matInput
           placeholder="00.00"
         />
+        <app-fy-number *ngIf="isIos" placeholder="00.00" formControlName="newCurrencyAmount"> </app-fy-number>
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">
@@ -33,6 +35,7 @@
           <span class="exchange-rate-value">{{ fg.controls.exchangeRate.value }}</span> {{ currentCurrency }}
         </div>
         <input
+          *ngIf="!isIos"
           formControlName="exchangeRate"
           class="exchange-rate-modal--input"
           inputmode="decimal"
@@ -40,10 +43,12 @@
           matInput
           placeholder="00.00"
         />
+        <app-fy-number *ngIf="isIos" placeholder="00.00" formControlName="exchangeRate"> </app-fy-number>
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">Expense amount in {{ currentCurrency }}</div>
         <input
+          *ngIf="!isIos"
           formControlName="homeCurrencyAmount"
           class="exchange-rate-modal--input"
           inputmode="decimal"
@@ -51,6 +56,7 @@
           matInput
           placeholder="00.00"
         />
+        <app-fy-number *ngIf="isIos" placeholder="00.00" formControlName="homeCurrencyAmount"> </app-fy-number>
       </div>
     </form>
   </div>
