@@ -18,8 +18,6 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
   styleUrls: ['./employee-details-card.component.scss'],
 })
 export class EmployeeDetailsCardComponent implements OnInit, AfterViewChecked {
-  @ViewChild('mobileNumberRef', { read: ElementRef }) mobileNumberRef: ElementRef;
-
   @ViewChild('employeeIdRef', { read: ElementRef }) employeeIdRef: ElementRef;
 
   @Input() eou: ExtendedOrgUser;
@@ -41,8 +39,6 @@ export class EmployeeDetailsCardComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {}
 
   ngAfterViewChecked() {
-    const mobileNumberEl = this.mobileNumberRef?.nativeElement;
-    this.isMobileNumberHidden = mobileNumberEl && mobileNumberEl.scrollWidth > mobileNumberEl.offsetWidth;
     const employeeIdEl = this.employeeIdRef?.nativeElement;
     this.isEmployeeIdHidden = employeeIdEl && employeeIdEl.scrollWidth > employeeIdEl.offsetWidth;
     this.cdRef.detectChanges();
