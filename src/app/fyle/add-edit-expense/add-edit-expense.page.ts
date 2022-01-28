@@ -43,7 +43,6 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
-  PatternValidator,
   ValidationErrors,
   Validators,
 } from '@angular/forms';
@@ -436,10 +435,6 @@ export class AddEditExpensePage implements OnInit {
     };
   }
 
-  // taxAmountValidator(c: AbstractControl) {
-  //  console.log('check c', c);
-  // }
-
   setUpTaxCalculations() {
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax_group.valueChanges).subscribe(() => {
       if (
@@ -447,48 +442,12 @@ export class AddEditExpensePage implements OnInit {
         this.fg.controls.tax_group.value.percentage &&
         this.fg.controls.currencyObj.value
       ) {
-        console.log(
-          'check tax amount val and type--1',
-          this.fg.controls.tax_amount,
-          typeof this.fg.controls.tax_amount.value
-        );
-        console.log('check currencyobj-->', this.fg.controls.currencyObj, typeof this.fg.controls.currencyObj.value);
-        //this.fg.controls.tax_amount.setValue(parseFloat(this.fg.controls.tax_amount.value))
-        const test1 = this.fg.controls.currencyObj.value.amount;
-        console.log('check test1', test1, typeof test1);
-        const test2 = this.fg.controls.tax_group.value.percentage;
-        const test3 = this.fg.controls.tax_group.value.percentage + 1;
-        console.log('check test2', test2, typeof test2);
-        console.log('check test3', test3, typeof test3);
-        const test4 = this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1);
-        const test5 =
-          this.fg.controls.currencyObj.value.amount -
-          this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1);
-        const test6 = (
-          this.fg.controls.currencyObj.value.amount -
-          this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1)
-        ).toFixed(2);
-        console.log('check test4', test4, typeof test4);
-        console.log('check test5', test5, typeof test5);
-        console.log('check test6', test6, typeof test6);
         this.fg.controls.tax_amount.setValue(
           (
             this.fg.controls.currencyObj.value.amount -
             this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1)
           ).toFixed(2)
         );
-        // this.fg.controls.tax_amount.setValidators(Validators.required);
-        // this.fg.controls.tax_amount.updateValueAndValidity();
-
-        // if (this.fg.controls.tax_amount.errors.pattern) {
-        //   this.fg.controls.tax_amount.clearValidators();
-        // }
-        // console.log(
-        //   'check tax amount val and type--2',
-        //   this.fg.controls.tax_amount,
-        //   typeof this.fg.controls.tax_amount.value
-        // );
-        // console.log('check what is form val', this.fg.value.tax_amount);
       } else {
         this.fg.controls.tax_amount.setValue(null);
       }
@@ -4262,9 +4221,5 @@ export class AddEditExpensePage implements OnInit {
     return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
       switchMap((fileObj: any) => this.postToFileService(fileObj, txnId))
     );
-  }
-
-  customInputsValidators() {
-    this.fg.controls.custom_inputs;
   }
 }

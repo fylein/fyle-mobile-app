@@ -93,9 +93,6 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
             invalidDistance: true,
           };
     }
-    if (typeof passedInDistance === 'number' && !Number.isInteger(passedInDistance)) {
-      return null;
-    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {

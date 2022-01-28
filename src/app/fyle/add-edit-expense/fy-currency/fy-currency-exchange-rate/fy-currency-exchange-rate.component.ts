@@ -52,8 +52,6 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
       homeCurrencyAmount: [, Validators.compose([Validators.required])],
     });
 
-    this.fg.updateValueAndValidity();
-
     if (this.exchangeRate) {
       this.fg.setValue({
         newCurrencyAmount: this.amount,
@@ -88,10 +86,6 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
           emitEvent: false,
         });
       }
-      if (this.fg.controls.newCurrencyAmount.errors.pattern) {
-        this.fg.controls.newCurrencyAmount.clearValidators();
-        this.fg.controls.newCurrencyAmount.updateValueAndValidity();
-      }
     });
 
     this.fg.controls.exchangeRate.valueChanges.pipe(distinctUntilChanged()).subscribe(() => {
@@ -105,10 +99,6 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
           emitEvent: false,
         });
       }
-      if (this.fg.controls.exchangeRate.errors.pattern) {
-        this.fg.controls.exchangeRate.clearValidators();
-        this.fg.controls.exchangeRate.updateValueAndValidity();
-      }
     });
 
     this.fg.controls.homeCurrencyAmount.valueChanges.pipe(distinctUntilChanged()).subscribe((e) => {
@@ -119,10 +109,6 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
             emitEvent: false,
           }
         );
-      }
-      if (this.fg.controls.homeCurrencyAmount.errors.pattern) {
-        this.fg.controls.homeCurrencyAmount.clearValidators();
-        this.fg.controls.homeCurrencyAmount.updateValueAndValidity();
       }
     });
   }
