@@ -21,17 +21,7 @@
         type="number"
         placeholder="00.00"
       />
-      <input
-        *ngIf="isIos"
-        class="fy-currency--input fy-currency--amount"
-        formControlName="amount"
-        (blur)="onBlur()"
-        type="text"
-        pattern="[0-9]*"
-        decimal="true"
-        decimal-char="."
-        placeholder="00.00"
-      />
+      <app-fy-number *ngIf="isIos" placeholder="00.00" formControlName="amount"> </app-fy-number>
     </div>
   </form>
 </div>

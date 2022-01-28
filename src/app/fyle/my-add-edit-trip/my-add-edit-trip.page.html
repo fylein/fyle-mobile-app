@@ -300,15 +300,8 @@
                     inputmode="decimal"
                     type="number"
                   />
-                  <input
-                    *ngIf="isIos && customInput.input_type === 'NUMBER'"
-                    class="add-edit-trip--text-input"
-                    formControlName="value"
-                    type="text"
-                    pattern="[0-9]*"
-                    decimal="true"
-                    decimal-char="."
-                  />
+                  <app-fy-number *ngIf="isIos && customInput.input_type === 'NUMBER'" formControlName="value">
+                  </app-fy-number>
 
                   <input
                     appFormatDate

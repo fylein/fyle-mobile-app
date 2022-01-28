@@ -160,18 +160,14 @@
         type="number"
         placeholder="Enter Distance"
       />
-      <input
+      <app-fy-number
         *ngIf="isIos"
         [disabled]="isAmountDisabled || !txnFields?.distance.canEdit"
         [min]="0"
-        class="route-selector--text-input"
         formControlName="distance"
-        type="text"
-        pattern="[0-9]*"
-        decimal="true"
-        decimal-char="."
         placeholder="Enter Distance"
-      />
+      >
+      </app-fy-number>
     </div>
     <div
       *ngIf="form.controls.distance.touched && !form.controls.distance.valid"

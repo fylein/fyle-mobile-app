@@ -1,4 +1,4 @@
-import { Component, forwardRef, OnDestroy, OnInit } from '@angular/core';
+import { Component, forwardRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 
@@ -15,7 +15,14 @@ import { noop } from 'rxjs';
   ],
 })
 export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestroy {
+  @Input() placeholder: string;
+
+  @Input() disabled: boolean;
+
+  @Input() min: number;
+
   private innerValue;
+
   isDisabled = false;
 
   fc: FormControl;
@@ -57,12 +64,16 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
     this.isDisabled = isDisabled;
   }
 
+  onBlur() {
+    this.onTouchedCallback();
+  }
+
   ngOnDestroy(): void {}
 
   ngOnInit() {
     this.fc = new FormControl();
-    this.fc.valueChanges.subscribe((val) => {
-      this.value = val;
+    this.fc.valueChanges.subscribe((value) => {
+      this.value = value;
     });
   }
 }
