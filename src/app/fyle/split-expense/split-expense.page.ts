@@ -71,6 +71,8 @@ export class SplitExpensePage implements OnInit {
 
   completeTxnIds: string[];
 
+  selectProjectMessage = 'a Project';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -454,6 +456,10 @@ export class SplitExpensePage implements OnInit {
         this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
       });
     });
+
+    if (this.txnFields.project_id.field_name !== 'Project' || this.txnFields.project_id.field_name !== 'project') {
+      this.selectProjectMessage = this.txnFields.project_id.field_name;
+    }
   }
 
   setValuesForCCC(currencyObj: any, homeCurrency: any, isCorporateCardsEnabled: boolean) {

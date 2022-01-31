@@ -8,7 +8,9 @@
       </ion-buttons>
 
       <div class="split-expense--header-block">
-        <div class="split-expense--header-title" mode="md">Split by {{ splitType }}</div>
+        <div class="split-expense--header-title" mode="md">
+          Split by {{ splitType === 'projects' ? txnFields.project_id.field_name : splitType}}
+        </div>
         <ion-buttons>
           <ion-button
             (click)="save()"
@@ -112,7 +114,8 @@
 
           <div class="split-expense--internal-block" *ngIf="splitType === 'projects'">
             <app-fy-select-project
-              [label]="'Project'"
+              [label]="txnFields?.project_id?.field_name"
+              [placeholder]="txnFields?.project_id?.placeholder"
               formControlName="project"
               [mandatory]="true"
               [cacheName]="'splitExpenseProjectCache'"
@@ -122,7 +125,7 @@
               *ngIf="splitExpenseForm.controls.project.touched && !splitExpenseForm.controls.project.valid"
               class="split-expense--error"
             >
-              Please select a project.
+              Please select {{ selectProjectMessage }}.
             </div>
           </div>
 
