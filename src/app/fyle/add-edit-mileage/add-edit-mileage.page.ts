@@ -790,7 +790,9 @@ export class AddEditMileagePage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
       recentValue: this.recentlyUsedValues$,
     }).pipe(
+      tap(() => console.log('AutofilledLocation forkJoin resolved')),
       map(({ eou, currentLocation, orgUserSettings, orgSettings, recentValue }) => {
+        console.log('CURRENTLOCATION IS', currentLocation);
         const isRecentLocationPresent =
           orgSettings.org_expense_form_autofills &&
           orgSettings.org_expense_form_autofills.allowed &&
@@ -812,6 +814,7 @@ export class AddEditMileagePage implements OnInit {
         }
       }),
       concatMap((info: locationInfo) => {
+        console.log('INFO IS', info);
         if (info && info.recentStartLocation && info.eou && info.currentLocation) {
           return this.locationService.getAutocompletePredictions(
             info.recentStartLocation,
@@ -823,6 +826,7 @@ export class AddEditMileagePage implements OnInit {
         }
       }),
       concatMap((isPredictedLocation) => {
+        console.log('PREDICTED LOCATION IS', isPredictedLocation);
         if (isPredictedLocation && isPredictedLocation.length > 0) {
           return this.locationService
             .getGeocode(isPredictedLocation[0].place_id, isPredictedLocation[0].description)
@@ -836,10 +840,13 @@ export class AddEditMileagePage implements OnInit {
               })
             );
         } else {
+          console.log('RETURN NULL');
           return of(null);
         }
       })
     );
+
+    autofillLocation$.subscribe((autofillLocation) => console.log('autofillLocation', autofillLocation));
 
     return forkJoin({
       mileageContainer: this.getMileageCategories(),
@@ -978,6 +985,8 @@ export class AddEditMileagePage implements OnInit {
       duplicate_detection_reason: [],
     });
 
+    console.log('Formgroup', this.fg);
+
     const today = new Date();
     this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
 
@@ -1053,6 +1062,8 @@ export class AddEditMileagePage implements OnInit {
     this.mileageConfig$ = this.getMileageConfig();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
+
+    this.etxn$.subscribe((etxn) => console.log('MILEAGE ETXN', etxn));
 
     this.setupTfcDefaultValues();
 

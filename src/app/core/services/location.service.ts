@@ -31,7 +31,12 @@ export class LocationService {
         timeout: 5000,
         enableHighAccuracy: config.enableHighAccuracy,
       })
-    ).pipe(catchError(() => of(null)));
+    ).pipe(
+      catchError((err) => {
+        console.log('ERror in getting current location', err);
+        return of(null);
+      })
+    );
   }
 
   setRoot(rootUrl: string) {

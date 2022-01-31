@@ -40,12 +40,15 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
   constructor(private locationService: LocationService, private gmapsService: GmapsService) {}
 
   ngOnInit() {
+    console.log('INside ngOnInit');
     this.locationService.getCurrentLocation().subscribe((geoLocationPosition) => {
       if (geoLocationPosition) {
+        console.log('Got the geoLocationPosition', geoLocationPosition);
         this.currentLocation = {
           lat: geoLocationPosition.coords?.latitude,
           lng: geoLocationPosition.coords?.longitude,
         };
+        console.log('So the current location is ', this.currentLocation);
       }
     });
   }
@@ -56,6 +59,7 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
       lat: mileageLocation?.latitude,
       lng: mileageLocation?.longitude,
     }));
+    console.log('transformedLocations', transformedLocations);
 
     this.directionsResults$ = of(null);
 
@@ -63,17 +67,21 @@ export class RouteVisualizerComponent implements OnInit, OnChanges {
       this.origin = null;
       this.destination = null;
       this.waypoints = null;
+      console.log('Origin, Destination and waypoints set to null');
 
       if (
         transformedLocations.every((location) => !location.lat || !location.lng) ||
         transformedLocations.length === 0
       ) {
         this.showEmptyMap = true;
+        console.log('SHOW EMPTY MAP');
       }
     } else {
       if (transformedLocations?.length >= 2) {
         this.origin = transformedLocations[0];
         this.destination = transformedLocations[transformedLocations.length - 1];
+        console.log('ORIGIN', this.origin);
+        console.log('DESTINATION', this.destination);
         if (transformedLocations?.length > 2) {
           const copyOfMileageLocations = cloneDeep(transformedLocations);
           copyOfMileageLocations.shift();
