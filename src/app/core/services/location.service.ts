@@ -39,7 +39,7 @@ export class LocationService {
         enableHighAccuracy: config.enableHighAccuracy,
       })
     ).pipe(
-      timeout(5000),
+      timeout(10000),
       tap(() => console.log('GEtting current location inside location service')),
       catchError((err) => {
         console.log('ERror in getting current location', err);
