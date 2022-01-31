@@ -17,11 +17,10 @@ export class AuditHistoryComponent implements OnInit {
 
   getAndUpdateProjectName() {
     this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
-      expenseFields.map((expenseField) => {
+      expenseFields.forEach((expenseField) => {
         if (expenseField.column_name === 'project_id') {
           this.projectFieldName = expenseField.field_name;
         }
-        return expenseField;
       });
 
       this.updateProjectNameKey();
@@ -31,9 +30,15 @@ export class AuditHistoryComponent implements OnInit {
   updateProjectNameKey() {
     this.estatuses = this.estatuses.map((estatus) => {
       if (estatus && estatus.st_diff && estatus.st_diff['project name']) {
-        const projectName = estatus.st_diff['project name'];
+        const project = estatus.st_diff['project name'];
         delete estatus.st_diff['project name'];
-        estatus.st_diff = { ...estatus.st_diff, [this.projectFieldName]: projectName };
+
+        // Failsafe - if a property similar to projectFieldName already exists
+        if (estatus.st_diff.hasOwnProperty(this.projectFieldName)) {
+          this.projectFieldName = `project name (${this.projectFieldName})`;
+        }
+
+        estatus.st_diff = { ...estatus.st_diff, [this.projectFieldName]: project };
       }
       return estatus;
     });
