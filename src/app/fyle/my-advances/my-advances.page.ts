@@ -202,12 +202,6 @@ export class MyAdvancesPage {
         }
       })
     );
-
-    // this.advances$.subscribe((res) => {
-    //   if (res && res.length >= 0) {
-    //     this.isLoading = false;
-    //   }
-    // });
   }
 
   updateMyAdvances(myAdvances: any) {
