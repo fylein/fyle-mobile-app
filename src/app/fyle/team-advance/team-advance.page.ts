@@ -67,7 +67,12 @@ export class TeamAdvancePage implements OnInit {
         }
         return acc.concat(curr);
       }, [] as ExtendedAdvanceRequest[]),
-      shareReplay(1)
+      shareReplay(1),
+      tap((res) => {
+        if (res) {
+          this.isLoading = false;
+        }
+      })
     );
 
     this.count$ = this.loadData$.pipe(
@@ -104,11 +109,7 @@ export class TeamAdvancePage implements OnInit {
     );
 
     this.loadData$.subscribe(noop);
-    this.teamAdvancerequests$.subscribe((res) => {
-      if (res) {
-        this.isLoading = false;
-      }
-    });
+    this.teamAdvancerequests$.subscribe(noop);
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });

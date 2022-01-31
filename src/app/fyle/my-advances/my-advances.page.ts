@@ -195,14 +195,19 @@ export class MyAdvancesPage {
             return newArr;
           })
         )
-      )
+      ),
+      tap((res) => {
+        if (res && res.length >= 0) {
+          this.isLoading = false;
+        }
+      })
     );
 
-    this.advances$.subscribe((res) => {
-      if (res && res.length >= 0) {
-        this.isLoading = false;
-      }
-    });
+    // this.advances$.subscribe((res) => {
+    //   if (res && res.length >= 0) {
+    //     this.isLoading = false;
+    //   }
+    // });
   }
 
   updateMyAdvances(myAdvances: any) {
