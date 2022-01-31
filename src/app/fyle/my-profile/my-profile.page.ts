@@ -123,8 +123,8 @@ export class MyProfilePage implements OnInit {
 
   async reset() {
     this.eou$ = from(this.authService.getEou());
-    let orgUserSettings$ = await this.offlineService.clearOrgUserSettings().pipe(
-      switchMap(() => {
+    const orgUserSettings$ = await this.offlineService.clearOrgUserSettings().pipe(
+      switchMap((val) => {
         return this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
       })
     );
