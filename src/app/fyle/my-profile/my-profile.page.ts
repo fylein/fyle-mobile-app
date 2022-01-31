@@ -124,7 +124,7 @@ export class MyProfilePage implements OnInit {
   async reset() {
     this.eou$ = from(this.authService.getEou());
     const orgUserSettings$ = await this.offlineService.clearOrgUserSettings().pipe(
-      switchMap((val) => {
+      switchMap(() => {
         return this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
       })
     );
