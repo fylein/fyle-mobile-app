@@ -121,9 +121,13 @@ export class MyProfilePage implements OnInit {
     this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
   }
 
-  reset() {
+  async reset() {
     this.eou$ = from(this.authService.getEou());
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
+    let orgUserSettings$ = await this.offlineService.clearOrgUserSettings().pipe(
+      switchMap(() => {
+        return this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
+      })
+    );
     this.org$ = this.offlineService.getCurrentOrg();
     const orgSettings$ = this.offlineService.getOrgSettings();
 
