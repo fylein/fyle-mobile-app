@@ -457,6 +457,7 @@ export class SplitExpensePage implements OnInit {
       });
     });
 
+    // if the project field name is not project, this will remove "a" from the required text
     if (this.txnFields.project_id.field_name !== 'Project' || this.txnFields.project_id.field_name !== 'project') {
       this.selectProjectMessage = this.txnFields.project_id.field_name;
     }
