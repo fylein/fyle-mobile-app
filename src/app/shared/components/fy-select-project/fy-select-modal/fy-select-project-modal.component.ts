@@ -41,6 +41,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
+  @Input() label = 'Project';
+
   recentrecentlyUsedItems$: Observable<any[]>;
 
   value;

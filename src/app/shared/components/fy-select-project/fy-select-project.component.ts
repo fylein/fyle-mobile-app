@@ -33,6 +33,8 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
 
   @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
+  @Input() placeholder = 'Select Project';
+
   displayValue;
 
   private ngControl: NgControl;
@@ -91,6 +93,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
         categoryIds: this.categoryIds,
         defaultValue: this.defaultValue,
         recentlyUsed: this.recentlyUsed,
+        label: this.label,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
