@@ -736,6 +736,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getNewExpense() {
+    console.log('Inside get new expense');
     const defaultVehicle$ = forkJoin({
       vehicleType: this.transactionService.getDefaultVehicleType(),
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
@@ -775,14 +776,19 @@ export class AddEditMileagePage implements OnInit {
         return vehicleType as string;
       })
     );
+    defaultVehicle$.subscribe((defaultVehicle) => console.log('defaultVehicle', defaultVehicle));
 
     const defaultMileage$ = forkJoin({
       defaultVehicle: defaultVehicle$,
       orgSettings: this.offlineService.getOrgSettings(),
     }).pipe(map(({ defaultVehicle, orgSettings }) => orgSettings.mileage[defaultVehicle]));
+    defaultMileage$.subscribe((defaultMileage) => console.log('defaultMileage', defaultMileage));
 
     type locationInfo = { recentStartLocation: string; eou: ExtendedOrgUser; currentLocation: GeolocationPosition };
 
+    this.locationService
+      .getCurrentLocation()
+      .subscribe((location) => console.log('LOCATION inside add-edit-mileage', location));
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
       currentLocation: this.locationService.getCurrentLocation(),
