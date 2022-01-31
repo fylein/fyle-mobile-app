@@ -57,21 +57,10 @@ export class NotificationsPage implements OnInit {
   updateDelegateeSubscription() {
     return this.orgUserSettings$.pipe(
       map((ouSetting) => {
-        if (
-          ouSetting.notification_settings.notify_delegatee === true &&
-          ouSetting.notification_settings.notify_user === false
-        ) {
+        if (ouSetting.notification_settings.notify_only_delegatee) {
           return this.delegationOptions[1];
-        } else if (
-          ouSetting.notification_settings.notify_delegatee === true &&
-          ouSetting.notification_settings.notify_user === true
-        ) {
+        } else {
           return this.delegationOptions[0];
-        } else if (
-          ouSetting.notification_settings.notify_delegatee === false &&
-          ouSetting.notification_settings.notify_user === true
-        ) {
-          return this.delegationOptions[2];
         }
       })
     );
@@ -218,17 +207,9 @@ export class NotificationsPage implements OnInit {
       .subscribe(noop);
   }
 
-  updateDelegateeNotifyPreference(event) {
-    if (event.value === 'Notify my delegate') {
-      this.orgUserSettings.notification_settings.notify_delegatee = true;
-      this.orgUserSettings.notification_settings.notify_user = false;
-    } else if (event.value === 'Notify me and my delegate') {
-      this.orgUserSettings.notification_settings.notify_delegatee = true;
-      this.orgUserSettings.notification_settings.notify_user = true;
-    } else if (event.value === 'Notify me only') {
-      this.orgUserSettings.notification_settings.notify_delegatee = false;
-      this.orgUserSettings.notification_settings.notify_user = true;
-    }
+  updateDelegateeNotifyPreference() {
+    this.orgUserSettings.notification_settings.notify_only_delegatee =
+      !this.orgUserSettings.notification_settings.notify_only_delegatee;
   }
 
   removeDisabledFeatures() {
@@ -280,7 +261,7 @@ export class NotificationsPage implements OnInit {
   }
 
   ngOnInit() {
-    this.delegationOptions = ['Notify me and my delegate', 'Notify my delegate', 'Notify me only'];
+    this.delegationOptions = ['Notify me and my delegate', 'Notify my delegate'];
 
     this.isAllSelected = {
       emailEvents: false,
@@ -292,10 +273,6 @@ export class NotificationsPage implements OnInit {
     let notifyOption;
     this.updateDelegateeSubscription().subscribe((option) => {
       notifyOption = option;
-      if (this.notificationForm) {
-        // Introduced this if block to populate the form control value initially, if we make any changes and visiting this page again
-        this.notificationForm.controls.notifyOption.setValue(notifyOption);
-      }
     });
 
     // creating form
