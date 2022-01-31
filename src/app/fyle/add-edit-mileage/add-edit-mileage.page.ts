@@ -789,6 +789,7 @@ export class AddEditMileagePage implements OnInit {
     this.locationService
       .getCurrentLocation()
       .subscribe((location) => console.log('LOCATION inside add-edit-mileage', location));
+
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
       currentLocation: this.locationService.getCurrentLocation(),
