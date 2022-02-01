@@ -2509,8 +2509,12 @@ export class AddEditExpensePage implements OnInit {
     this.isExpandedView = this.mode !== 'add';
 
     if (this.mode === 'add') {
-      this.fg.controls.report.setValidators(Validators.required);
-      this.isReportMandatory = true;
+      this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
+        if (isConnected) {
+          this.fg.controls.report.setValidators(Validators.required);
+          this.isReportMandatory = true;
+        }
+      });
     }
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
