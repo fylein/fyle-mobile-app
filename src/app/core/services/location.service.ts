@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, timeout } from 'rxjs/operators';
 import { from, Observable, of, Subject } from 'rxjs';
 import { GeolocationPosition, Plugins } from '@capacitor/core';
 import { Cacheable } from 'ts-cacheable';
@@ -31,7 +31,10 @@ export class LocationService {
         timeout: 5000,
         enableHighAccuracy: config.enableHighAccuracy,
       })
-    ).pipe(catchError(() => of(null)));
+    ).pipe(
+      timeout(2000),
+      catchError(() => of(null))
+    );
   }
 
   setRoot(rootUrl: string) {
