@@ -47,11 +47,15 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() etxnIndex: number;
 
+  @Input() isDismissable: boolean;
+
   @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter();
 
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
 
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
+
+  @Output() dismissed: EventEmitter<Expense> = new EventEmitter();
 
   inlineReceiptDataUrl: string;
 
@@ -392,5 +396,11 @@ export class ExpensesCardComponent implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       startWith(true)
     );
+  }
+
+  dismiss(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.dismissed.emit(this.expense);
   }
 }

@@ -16,6 +16,7 @@ import { OfflineService } from './offline.service';
 import { ReportService } from './report.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
+import { HandleDuplicatesService } from './handle-duplicates.service';
 
 type TaskDict = {
   sentBackReports: DashboardTask[];
@@ -43,7 +44,8 @@ export class TasksService {
     private humanizeCurrency: HumanizeCurrencyPipe,
     private offlineService: OfflineService,
     private userEventService: UserEventService,
-    private authService: AuthService
+    private authService: AuthService,
+    private handleDuplicatesService: HandleDuplicatesService
   ) {
     this.userEventService.onTaskCacheClear(() => {
       this.getTasks().subscribe(noop);
@@ -216,41 +218,53 @@ export class TasksService {
       unsubmittedReports: this.getUnsubmittedReportsTasks(),
       draftExpenses: this.getDraftExpensesTasks(),
       teamReports: this.getTeamReportsTasks(),
+      potentialDuplicates: this.getPotentialDuplicates(),
     }).pipe(
-      map(({ sentBackReports, unreportedExpenses, unsubmittedReports, draftExpenses, teamReports }) => {
-        this.totalTaskCount$.next(
-          sentBackReports.length +
-            draftExpenses.length +
-            unsubmittedReports.length +
-            unreportedExpenses.length +
-            teamReports.length
-        );
-        this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length);
-        this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
-        this.teamReportsTaskCount$.next(teamReports.length);
+      map(
+        ({
+          sentBackReports,
+          unreportedExpenses,
+          unsubmittedReports,
+          draftExpenses,
+          teamReports,
+          potentialDuplicates,
+        }) => {
+          this.totalTaskCount$.next(
+            sentBackReports.length +
+              draftExpenses.length +
+              unsubmittedReports.length +
+              unreportedExpenses.length +
+              teamReports.length +
+              potentialDuplicates.length
+          );
+          this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length);
+          this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
+          this.teamReportsTaskCount$.next(teamReports.length);
 
-        if (
-          !filters?.draftExpenses &&
-          !filters?.draftReports &&
-          !filters?.sentBackReports &&
-          !filters?.unreportedExpenses &&
-          !filters?.teamReports
-        ) {
-          return sentBackReports
-            .concat(draftExpenses)
-            .concat(unsubmittedReports)
-            .concat(unreportedExpenses)
-            .concat(teamReports);
-        } else {
-          return this.getFilteredTaskList(filters, {
-            sentBackReports,
-            draftExpenses,
-            unsubmittedReports,
-            unreportedExpenses,
-            teamReports,
-          });
+          if (
+            !filters?.draftExpenses &&
+            !filters?.draftReports &&
+            !filters?.sentBackReports &&
+            !filters?.unreportedExpenses &&
+            !filters?.teamReports
+          ) {
+            return sentBackReports
+              .concat(draftExpenses)
+              .concat(unsubmittedReports)
+              .concat(unreportedExpenses)
+              .concat(teamReports)
+              .concat(potentialDuplicates);
+          } else {
+            return this.getFilteredTaskList(filters, {
+              sentBackReports,
+              draftExpenses,
+              unsubmittedReports,
+              unreportedExpenses,
+              teamReports,
+            });
+          }
         }
-      })
+      )
     );
   }
 
@@ -339,6 +353,38 @@ export class TasksService {
       map(({ reportsStats, homeCurrency }) =>
         this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
+    );
+  }
+
+  private getPotentialDuplicates() {
+    return this.handleDuplicatesService.getDuplicatesSet().pipe(
+      switchMap((duplicatesSets) => {
+        if (duplicatesSets.length > 0) {
+          const duplicateIds = [].concat.apply(
+            [],
+            duplicatesSets.map((value) => value.transaction_ids)
+          );
+
+          const task = [
+            {
+              isAmountHidden: true,
+              count: duplicatesSets.length,
+              header: `${duplicateIds.length} Potential duplicates`,
+              subheader: `we detected ${duplicateIds.length} expenses which may be duplicates`,
+              icon: TaskIcon.REPORT,
+              ctas: [
+                {
+                  content: `Review`,
+                  event: TASKEVENT.openPotentialDuplicates,
+                },
+              ],
+            } as DashboardTask,
+          ];
+          return [task];
+        } else {
+          return [];
+        }
+      })
     );
   }
 

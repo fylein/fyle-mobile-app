@@ -1,24 +1,56 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>potential-duplicates</ion-title>
+    <ion-buttons mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
+    <ion-title mode="md" class="page-title"> Potential Duplicates </ion-title>
   </ion-toolbar>
 </ion-header>
-
 <ion-content>
   <div class="potential-duplicates--body">
     <div class="potential-duplicates--navigation">
-      <div class="potential-duplicates--navigation-button">Prev</div>
-      <div class="potential-duplicates--navigation-count">1 of 4</div>
-      <div class="potential-duplicates--navigation-button">Next</div>
+      <div class="potential-duplicates--navigation-button">
+        <span *ngIf="selectedSet !== 0" (click)="prev()"> Prev </span>
+      </div>
+      <div class="potential-duplicates--navigation-count">{{selectedSet + 1}} of {{duplicatesSetCount}}</div>
+      <div class="potential-duplicates--navigation-button">
+        <span *ngIf="selectedSet+1 !== duplicatesSetCount" (click)="next()"> Next </span>
+      </div>
     </div>
 
     <div class="potential-duplicates--container">
-      <div class="potential-duplicates--header">2 expenses for $10</div>
-      <app-expense-card-lite [expense]="expense" (click)="openExpensePreview(expense.split_group_id)">
-      </app-expense-card-lite>
-      <div class="potential-duplicates--divider"></div>
-      <app-expense-card-lite [expense]="expense" (click)="openExpensePreview(expense.split_group_id)">
-      </app-expense-card-lite>
+      <ng-container *ngIf="duplicatesSet$| async as duplicatesSets">
+        <ng-container *ngFor="let duplicatesSet of duplicatesSets; let setIndex=index">
+          <div *ngIf="setIndex === selectedSet" class="potential-duplicates--header">
+            {{duplicatesSet.length}} expenses for {{ 0 | currency: duplicatesSet[0].tx_currency:'symbol-narrow' | slice:
+            0:1 }} {{ duplicatesSet[0].tx_amount | number : '1.2-2'}}
+          </div>
+          <ng-container *ngFor="let expense of duplicatesSet as list; let i = index;">
+            <ng-container *ngIf="setIndex === selectedSet">
+              <app-expense-card
+                [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
+                [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+                [expense]="expense"
+                [isDismissable]="duplicatesSet.length > 2"
+                (dismissed)="dismiss($event)"
+                (goToTransaction)="goToTransaction($event)"
+              >
+              </app-expense-card>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </ng-container>
     </div>
   </div>
 </ion-content>
+
+<ion-footer class="potential-duplicates--footer-container">
+  <ion-toolbar mode="md">
+    <div class="potential-duplicates--footer-toolbar">
+      <ion-buttons>
+        <ion-button (click)="dismissAll()" class="btn-secondary"> Dismiss All </ion-button>
+        <ion-button class="btn-primary"> Merge </ion-button>
+      </ion-buttons>
+    </div>
+  </ion-toolbar>
+</ion-footer>

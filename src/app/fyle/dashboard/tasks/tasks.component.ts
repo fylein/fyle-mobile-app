@@ -272,6 +272,9 @@ export class TasksComponent implements OnInit {
       case TASKEVENT.openTeamReport:
         this.onTeamReportsTaskClick(taskCta, task);
         break;
+      case TASKEVENT.openPotentialDuplicates:
+        this.onPotentialDuplicatesTaskClick(taskCta, task);
+        break;
       default:
         break;
     }
@@ -427,6 +430,10 @@ export class TasksComponent implements OnInit {
 
   onCreateReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
     this.router.navigate(['/', 'enterprise', 'my_create_report']);
+  }
+
+  onPotentialDuplicatesTaskClick(taskCta: TaskCta, task: DashboardTask) {
+    this.router.navigate(['/', 'enterprise', 'potential-duplicates']);
   }
 
   addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
