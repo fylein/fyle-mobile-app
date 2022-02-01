@@ -80,6 +80,7 @@
           <div class="split-expense--item split-expense--percentage">
             <span class="split-expense--label">Percentage</span>
             <input
+              *ngIf="!isIos"
               inputmode="decimal"
               type="number"
               class="split-expense--input"
@@ -87,6 +88,12 @@
               [min]="0.01"
               (ngModelChange)="onChangePercentage(splitExpenseForm, i)"
             />
+            <app-fy-number
+              *ngIf="true"
+              formControlName="percentage"
+              [min]="0.01"
+              (val)="onChangePercentage(splitExpenseForm, i, $event)"
+            ></app-fy-number>
           </div>
         </div>
 

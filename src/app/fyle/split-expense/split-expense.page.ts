@@ -127,7 +127,14 @@ export class SplitExpensePage implements OnInit {
     this.getTotalSplitAmount();
   }
 
-  onChangePercentage(splitExpenseForm, index) {
+  onChangePercentage(splitExpenseForm, index, event) {
+    splitExpenseForm.controls.percentage.setValue(parseFloat(event));
+    console.log('testttt', splitExpenseForm.controls.percentage._pendingChange);
+    console.log('checlk event ->>>', event);
+    console.log('check if % value-->', splitExpenseForm.controls);
+    console.log('check type of valu-->', typeof splitExpenseForm.value.percentage);
+    console.log('check type of 1 -->', typeof splitExpenseForm.value.percentage);
+
     if (
       !splitExpenseForm.controls.percentage._pendingChange ||
       !this.amount ||

@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 
@@ -20,6 +20,8 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() disabled: boolean;
 
   @Input() min: number;
+
+  @Output() val: EventEmitter<number> = new EventEmitter();
 
   isDisabled = false;
 
@@ -48,7 +50,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
   writeValue(value: any): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
-      this.fc.setValue(value);
+      this.fc.setValue(parseFloat(value));
     }
   }
 
@@ -66,6 +68,11 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   onBlur() {
     this.onTouchedCallback();
+  }
+
+  onModelChange() {
+    console.log('check emit value', typeof parseFloat(this.fc.value));
+    this.val.emit(parseFloat(this.fc.value));
   }
 
   ngOnDestroy(): void {}
