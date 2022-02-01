@@ -499,7 +499,7 @@ export class TripRequestsService {
     return this.apiService.get('/trip_requests', data);
   }
 
-  async getTripDeprecationMsg(view: 'individual' | 'team') {
+  getTripDeprecationMsg(view: 'individual' | 'team') {
     const orgsWithExtension = [
       'or8F8XiG9jSQ',
       'or9gSt4mWedY',
@@ -519,22 +519,23 @@ export class TripRequestsService {
       'orAQ0g05flq6',
       'orcnfOH4mR5t',
     ];
-    const eou = await this.authService.getEou();
-    const orgId = eou.ou.org_id;
 
-    let spenderLastDate = 'Feb 7';
-    let approverLastDate = 'Feb 28';
+    return from(this.authService.getEou()).pipe(
+      map((eou) => {
+        let lastTripCreationDate = 'Feb 7';
+        let lastApprovalSendBackDate = 'Feb 28';
+        if (orgsWithExtension.indexOf(eou.ou.org_id) > -1) {
+          lastTripCreationDate = 'Mar 31';
+          lastApprovalSendBackDate = 'Apr 30';
+        }
 
-    if (orgsWithExtension.indexOf(orgId) > -1) {
-      spenderLastDate = 'Mar 31';
-      approverLastDate = 'Apr 30';
-    }
+        let msg = `We are removing Trips from our app. You won't be able to create new trip requests after ${lastTripCreationDate}, 2022.`;
 
-    let msg = `We are removing Trips from our app. You won't be able to create new trip requests after ${spenderLastDate}, 2022.`;
-
-    if (view === 'team') {
-      msg = `We are removing Trips from our app. Users won't be able to create new trip requests after ${spenderLastDate}, 2022. You cannot approve or send back trip requests after ${approverLastDate}, 2022.`;
-    }
-    return msg;
+        if (view === 'team') {
+          msg = `We are removing Trips from our app. Users won't be able to create new trip requests after ${lastTripCreationDate}, 2022. You cannot approve or send back trip requests after ${lastApprovalSendBackDate}, 2022.`;
+        }
+        return msg;
+      })
+    );
   }
 }

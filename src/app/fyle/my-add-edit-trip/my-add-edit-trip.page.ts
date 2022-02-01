@@ -105,7 +105,7 @@ export class MyAddEditTripPage implements OnInit {
 
   fg: FormGroup;
 
-  deprecationMsg: string;
+  deprecationMsg$: Observable<string>;
 
   constructor(
     private router: Router,
@@ -126,9 +126,7 @@ export class MyAddEditTripPage implements OnInit {
   ) {}
 
   ionViewWillEnter() {
-    this.tripRequestsService
-      .getTripDeprecationMsg('individual')
-      .then((deprecationMsg) => (this.deprecationMsg = deprecationMsg));
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('individual');
   }
 
   async goBack() {

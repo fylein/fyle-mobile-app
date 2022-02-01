@@ -27,7 +27,7 @@ export class MyTripsPage implements OnInit {
 
   navigateBack = false;
 
-  deprecationMsg: string;
+  deprecationMsg$: Observable<string>;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -40,9 +40,7 @@ export class MyTripsPage implements OnInit {
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.tripRequestsService
-      .getTripDeprecationMsg('individual')
-      .then((deprecationMsg) => (this.deprecationMsg = deprecationMsg));
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('individual');
 
     this.currentPageNumber = 1;
 

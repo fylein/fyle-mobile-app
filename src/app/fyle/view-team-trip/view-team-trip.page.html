@@ -15,7 +15,9 @@
 </ion-header>
 
 <ion-content>
-  <app-fy-alert-info [message]="deprecationMsg" type="warning" class="deprecate-msg"></app-fy-alert-info>
+  <ng-container *ngIf="deprecationMsg$|async as deprecationMsg">
+    <app-fy-alert-info [message]="deprecationMsg" type="warning" class="deprecate-msg"></app-fy-alert-info>
+  </ng-container>
   <div *ngIf="transformedTripRequests$|async as tripRequest">
     <div *ngIf="tripExtraInfo$| async as tripExtraInfo">
       <div class="trip-request--content-header">Trip Information</div>

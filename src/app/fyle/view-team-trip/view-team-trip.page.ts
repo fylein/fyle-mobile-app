@@ -82,7 +82,7 @@ export class ViewTeamTripPage implements OnInit {
 
   actionsLoading = false;
 
-  deprecationMsg: string;
+  deprecationMsg$: Observable<string>;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -428,9 +428,7 @@ export class ViewTeamTripPage implements OnInit {
       })
     );
 
-    this.tripRequestsService
-      .getTripDeprecationMsg('team')
-      .then((deprecationMsg) => (this.deprecationMsg = deprecationMsg));
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('team');
   }
 
   ngOnInit() {}

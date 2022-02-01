@@ -10,11 +10,13 @@
 </ion-header>
 
 <ion-content>
-  <app-fy-alert-info
-    [message]="deprecationMsg"
-    type="warning"
-    class="deprecate-msg deprecate-msg--mb-0"
-  ></app-fy-alert-info>
+  <ng-container *ngIf="deprecationMsg$|async as deprecationMsg">
+    <app-fy-alert-info
+      [message]="deprecationMsg"
+      type="warning"
+      class="deprecate-msg deprecate-msg--mb-0"
+    ></app-fy-alert-info>
+  </ng-container>
 
   <form #formContainer (ngSubmit)="onSubmit()" [formGroup]="fg">
     <div class="add-edit-trip--container">

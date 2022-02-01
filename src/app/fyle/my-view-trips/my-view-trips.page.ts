@@ -75,7 +75,7 @@ export class MyViewTripsPage implements OnInit {
 
   closeLoading = false;
 
-  deprecationMsg: string;
+  deprecationMsg$: Observable<string>;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -427,9 +427,7 @@ export class MyViewTripsPage implements OnInit {
       })
     );
 
-    this.tripRequestsService
-      .getTripDeprecationMsg('individual')
-      .then((deprecationMsg) => (this.deprecationMsg = deprecationMsg));
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('individual');
   }
 
   ngOnInit() {}
