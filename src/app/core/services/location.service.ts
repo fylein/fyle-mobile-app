@@ -32,7 +32,7 @@ export class LocationService {
         enableHighAccuracy: config.enableHighAccuracy,
       })
     ).pipe(
-      timeout(2000),
+      timeout(5000),
       catchError(() => of(null))
     );
   }
