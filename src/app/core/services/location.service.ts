@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { catchError, map, tap, timeout } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { from, Observable, of, Subject } from 'rxjs';
 import { GeolocationPosition, Plugins } from '@capacitor/core';
 import { Cacheable } from 'ts-cacheable';
@@ -26,26 +26,12 @@ export class LocationService {
   getCurrentLocation(
     config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false }
   ): Observable<GeolocationPosition> {
-    console.log(
-      'Using geolocation plugin, location is ',
-      Geolocation.getCurrentPosition({
-        timeout: 5000,
-        enableHighAccuracy: config.enableHighAccuracy,
-      })
-    );
     return from(
       Geolocation.getCurrentPosition({
         timeout: 5000,
         enableHighAccuracy: config.enableHighAccuracy,
       })
-    ).pipe(
-      timeout(10000),
-      tap(() => console.log('GEtting current location inside location service')),
-      catchError((err) => {
-        console.log('ERror in getting current location', err);
-        return of(null);
-      })
-    );
+    ).pipe(catchError(() => of(null)));
   }
 
   setRoot(rootUrl: string) {
