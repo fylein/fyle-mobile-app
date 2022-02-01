@@ -522,16 +522,19 @@ export class TripRequestsService {
     const eou = await this.authService.getEou();
     const orgId = eou.ou.org_id;
 
-    let msg = "We are removing Trips from our app. You won't be able to create new trip requests after Feb 7, 2022.";
-    if (view === 'team') {
-      msg = msg.replace('You', 'Users');
-      msg += ' You cannot approve or send back trip requests after Feb 28, 2022.';
-    }
+    let spenderLastDate = 'Feb 7';
+    let approverLastDate = 'Feb 28';
 
     if (orgsWithExtension.indexOf(orgId) > -1) {
-      msg = msg.replace('Feb 7', 'Mar 31').replace('Feb 28', 'Apr 30');
+      spenderLastDate = 'Mar 31';
+      approverLastDate = 'Apr 30';
     }
 
+    let msg = `We are removing Trips from our app. You won't be able to create new trip requests after ${spenderLastDate}, 2022.`;
+
+    if (view === 'team') {
+      msg = `We are removing Trips from our app. Users won't be able to create new trip requests after ${spenderLastDate}, 2022. You cannot approve or send back trip requests after ${approverLastDate}, 2022.`;
+    }
     return msg;
   }
 }
