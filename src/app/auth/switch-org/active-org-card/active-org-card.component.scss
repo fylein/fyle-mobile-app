@@ -56,10 +56,10 @@
 
   &__pill-container {
     margin-left: 8px;
-    max-width: 64px;
+    max-width: 66px;
 
     &__pill {
-      padding: 4px 12px;
+      padding: 4px 0 4px 12px;
       background-color: $blue-black;
       border-radius: 16px;
       color: $pure-white;
