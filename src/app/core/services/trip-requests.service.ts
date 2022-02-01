@@ -500,7 +500,7 @@ export class TripRequestsService {
   }
 
   async getTripDeprecationMsg(view: 'individual' | 'team') {
-    const orgsList = [
+    const orgsWithExtension = [
       'or8F8XiG9jSQ',
       'or9gSt4mWedY',
       'orahMQy7UIlk',
@@ -528,7 +528,7 @@ export class TripRequestsService {
       msg += ' You cannot approve or send back trip requests after Feb 28, 2022.';
     }
 
-    if (orgsList.indexOf(orgId) > -1) {
+    if (orgsWithExtension.indexOf(orgId) > -1) {
       msg = msg.replace('Feb 7', 'Mar 31').replace('Feb 28', 'Apr 30');
     }
 
