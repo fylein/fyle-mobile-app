@@ -96,8 +96,8 @@ export class SplitExpensePage implements OnInit {
     this.navController.back();
   }
 
-  onChangeAmount(splitExpenseForm, index) {
-    if (!splitExpenseForm.controls.amount._pendingChange || !this.amount || !isNumber(splitExpenseForm.value.amount)) {
+  onChangeAmount(splitExpenseForm, index, event) {
+    if (!splitExpenseForm.value.amount || !this.amount || !isNumber(splitExpenseForm.value.amount)) {
       return;
     }
 
@@ -128,18 +128,7 @@ export class SplitExpensePage implements OnInit {
   }
 
   onChangePercentage(splitExpenseForm, index, event) {
-    splitExpenseForm.controls.percentage.setValue(parseFloat(event));
-    console.log('testttt', splitExpenseForm.controls.percentage._pendingChange);
-    console.log('checlk event ->>>', event);
-    console.log('check if % value-->', splitExpenseForm.controls);
-    console.log('check type of valu-->', typeof splitExpenseForm.value.percentage);
-    console.log('check type of 1 -->', typeof splitExpenseForm.value.percentage);
-
-    if (
-      !splitExpenseForm.controls.percentage._pendingChange ||
-      !this.amount ||
-      !isNumber(splitExpenseForm.value.percentage)
-    ) {
+    if (!splitExpenseForm.value.percentage || !this.amount || !isNumber(splitExpenseForm.value.percentage)) {
       return;
     }
 

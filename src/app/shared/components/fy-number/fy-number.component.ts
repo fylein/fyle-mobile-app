@@ -49,8 +49,8 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   writeValue(value: any): void {
     if (value !== this.innerValue) {
-      this.innerValue = value;
-      this.fc.setValue(parseFloat(value));
+      this.innerValue = value && parseFloat(value);
+      this.fc.setValue(value && parseFloat(value));
     }
   }
 
@@ -71,8 +71,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   onModelChange() {
-    console.log('check emit value', typeof parseFloat(this.fc.value));
-    this.val.emit(parseFloat(this.fc.value));
+    this.val.emit(this.fc.value && parseFloat(this.fc.value));
   }
 
   ngOnDestroy(): void {}
@@ -80,7 +79,11 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
   ngOnInit() {
     this.fc = new FormControl();
     this.fc.valueChanges.subscribe((value) => {
-      this.value = value;
+      if (typeof value === 'string') {
+        this.value = value && parseFloat(value);
+      } else {
+        this.value = null;
+      }
     });
   }
 }
