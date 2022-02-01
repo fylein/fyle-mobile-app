@@ -1,5 +1,6 @@
 import { Component, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Platform } from '@ionic/angular';
 import { noop } from 'rxjs';
 
 @Component({
@@ -27,13 +28,15 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   fc: FormControl;
 
+  isIos = false;
+
   private innerValue;
 
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
 
-  constructor() {}
+  constructor(private platform: Platform) {}
 
   get value(): any {
     return this.innerValue;
@@ -76,10 +79,12 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
   ngOnDestroy(): void {}
 
   ngOnInit() {
+    this.isIos = this.platform.is('ios');
     this.fc = new FormControl();
     this.fc.valueChanges.subscribe((value) => {
       if (typeof value === 'string') {
         this.value = value && parseFloat(value);
+        console.log('test value on init', this.value);
       } else {
         this.value = null;
       }

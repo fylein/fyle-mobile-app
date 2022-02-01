@@ -150,18 +150,7 @@
         </ng-template>
         <div class="route-selector--mandatory" *ngIf="isDistanceMandatory">*</div>
       </div>
-      <input
-        *ngIf="!isIos"
-        [disabled]="isAmountDisabled || !txnFields?.distance.canEdit"
-        [min]="0"
-        class="route-selector--text-input"
-        formControlName="distance"
-        inputmode="decimal"
-        type="number"
-        placeholder="Enter Distance"
-      />
       <app-fy-number
-        *ngIf="isIos"
         [disabled]="isAmountDisabled || !txnFields?.distance.canEdit"
         [min]="0"
         formControlName="distance"

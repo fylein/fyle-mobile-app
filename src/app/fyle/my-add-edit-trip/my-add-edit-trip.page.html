@@ -293,15 +293,7 @@
                     type="text"
                   />
 
-                  <input
-                    *ngIf="!isIos && customInput.input_type === 'NUMBER'"
-                    class="add-edit-trip--text-input"
-                    formControlName="value"
-                    inputmode="decimal"
-                    type="number"
-                  />
-                  <app-fy-number *ngIf="isIos && customInput.input_type === 'NUMBER'" formControlName="value">
-                  </app-fy-number>
+                  <app-fy-number *ngIf="customInput.input_type === 'NUMBER'" formControlName="value"> </app-fy-number>
 
                   <input
                     appFormatDate

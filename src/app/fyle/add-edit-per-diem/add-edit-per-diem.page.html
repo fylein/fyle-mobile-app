@@ -239,18 +239,7 @@
                           {{ txnFields?.num_days.field_name }}
                           <div class="add-edit-per-diem--mandatory">*</div>
                         </div>
-                        <input
-                          *ngIf="!isIos"
-                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
-                          [min]="0"
-                          class="add-edit-per-diem--text-input"
-                          formControlName="num_days"
-                          inputmode="decimal"
-                          [placeholder]="'Enter ' + txnFields?.num_days.field_name"
-                          type="number"
-                        />
                         <app-fy-number
-                          *ngIf="isIos"
                           formControlName="num_days"
                           [min]="0"
                           [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
@@ -499,16 +488,8 @@
                               type="text"
                             />
 
-                            <input
-                              *ngIf="!isIos && customInput.type === 'NUMBER'"
-                              class="add-edit-per-diem--text-input"
-                              formControlName="value"
-                              [placeholder]="'Enter ' + customInput.name"
-                              inputmode="decimal"
-                              type="number"
-                            />
                             <app-fy-number
-                              *ngIf="isIos && customInput.type === 'NUMBER'"
+                              *ngIf="customInput.type === 'NUMBER'"
                               formControlName="value"
                               [placeholder]="'Enter ' + customInput.name"
                             ></app-fy-number>

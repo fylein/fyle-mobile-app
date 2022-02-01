@@ -144,17 +144,8 @@
                     [placeholder]="'Enter ' + customInput.name"
                   />
 
-                  <input
-                    class="add-edit-advance-request--text-input"
-                    inputmode="decimal"
-                    type="number"
-                    formControlName="value"
-                    *ngIf="!isIos && customInput.type === 'NUMBER'"
-                    [placeholder]="'Enter ' + customInput.name"
-                  />
-
                   <app-fy-number
-                    *ngIf="isIos && customInput.type === 'NUMBER'"
+                    *ngIf="customInput.type === 'NUMBER'"
                     [placeholder]="'Enter ' + customInput.name"
                     formControlName="value"
                   >
