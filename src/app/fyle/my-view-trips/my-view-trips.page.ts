@@ -75,6 +75,8 @@ export class MyViewTripsPage implements OnInit {
 
   closeLoading = false;
 
+  deprecationMsg: string;
+
   constructor(
     private tripRequestsService: TripRequestsService,
     private tripRequestCustomFieldsService: TripRequestCustomFieldsService,
@@ -424,6 +426,10 @@ export class MyViewTripsPage implements OnInit {
         });
       })
     );
+
+    this.tripRequestsService
+      .getTripDeprecationMsg('individual')
+      .then((deprecationMsg) => (this.deprecationMsg = deprecationMsg));
   }
 
   ngOnInit() {}

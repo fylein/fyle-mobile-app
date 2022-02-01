@@ -498,4 +498,40 @@ export class TripRequestsService {
 
     return this.apiService.get('/trip_requests', data);
   }
+
+  async getTripDeprecationMsg(view: 'individual' | 'team') {
+    const orgsList = [
+      'or8F8XiG9jSQ',
+      'or9gSt4mWedY',
+      'orahMQy7UIlk',
+      'orB0JRZSgPOs',
+      'orbqR544i6rm',
+      'orkHq6G6Dv7t',
+      'orO46ZzIv6Qd',
+      'oroa6z21qLKi',
+      'orS4ivpQ663E',
+      'orsB1jOO4Zky',
+      'orSJnVpDYxOQ',
+      'oruut31vVaoA',
+      'orYasjvDiS6i',
+      'orzE2Hzwd32D',
+      'orZlFsj9iNSY',
+      'orAQ0g05flq6',
+      'orcnfOH4mR5t',
+    ];
+    const eou = await this.authService.getEou();
+    const orgId = eou.ou.org_id;
+
+    let msg = "We are removing Trips from our app. You won't be able to create new trip requests after Feb 7, 2022.";
+    if (view === 'team') {
+      msg = msg.replace('You', 'Users');
+      msg += ' You cannot approve or send back trip requests after Feb 28, 2022.';
+    }
+
+    if (orgsList.indexOf(orgId) > -1) {
+      msg = msg.replace('Feb 7', 'Mar 31').replace('Feb 28', 'Apr 30');
+    }
+
+    return msg;
+  }
 }
