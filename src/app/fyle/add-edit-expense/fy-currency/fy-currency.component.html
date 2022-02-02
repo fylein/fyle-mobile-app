@@ -12,14 +12,7 @@
         Amount
         <span class="fy-currency--mandatory"> * </span>
       </div>
-      <input
-        class="fy-currency--input fy-currency--amount"
-        formControlName="amount"
-        (blur)="onBlur()"
-        inputmode="decimal"
-        type="number"
-        placeholder="00.00"
-      />
+      <app-fy-number placeholder="00.00" formControlName="amount"> </app-fy-number>
     </div>
   </form>
 </div>
