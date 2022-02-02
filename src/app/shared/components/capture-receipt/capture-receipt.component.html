@@ -41,7 +41,7 @@
     class="capture-receipt--single-bulk-gallery-container"
     [ngClass]="{ 'capture-receipt--single-bulk-gallery-container__offline': isOffline$ | async }"
   >
-    <div *ngIf="!isEditExpense" class="capture-receipt--gallery-icon-block text-center">
+    <div *ngIf="allowGalleryUploads" class="capture-receipt--gallery-icon-block text-center">
       <img
         class="capture-receipt--gallery-icon"
         src="../../../../assets/images/gallery.png"
@@ -61,7 +61,7 @@
         {{ isBulkMode ? 'Bulk Mode' : 'Single Mode' }}
       </div>
     </div>
-    <div *ngIf="!isEditExpense" class="capture-receipt--bulk-mode-icon-block text-center">
+    <div *ngIf="allowBulkFyle" class="capture-receipt--bulk-mode-icon-block text-center">
       <ng-container *ngIf="captureCount === 0">
         <div (click)="switchMode()">
           <img

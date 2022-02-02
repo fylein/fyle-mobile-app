@@ -3855,6 +3855,8 @@ export class AddEditExpensePage implements OnInit {
           component: CaptureReceiptComponent,
           componentProps: {
             isEditExpense: true,
+            allowGalleryUploads: false,
+            allowBulkFyle: false,
           },
           cssClass: 'hide-modal',
         });
@@ -3867,7 +3869,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (data && data.dataUrl) {
           receiptDetails = {
-            type: data.dataUrl.split(';')[0].split(':')[1],
+            type: this.getImageTypeFromDataUrl(data.dataUrl),
             dataUrl: data.dataUrl,
             actionSource: 'camera',
           };
@@ -3877,6 +3879,10 @@ export class AddEditExpensePage implements OnInit {
         this.attachReceipts(receiptDetails);
       }
     }
+  }
+
+  getImageTypeFromDataUrl(dataUrl: string) {
+    return dataUrl.split(';')[0].split(':')[1];
   }
 
   getReceiptExtension(name) {

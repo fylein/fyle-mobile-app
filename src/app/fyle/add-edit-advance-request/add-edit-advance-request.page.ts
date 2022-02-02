@@ -375,6 +375,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
         component: CaptureReceiptComponent,
         componentProps: {
           isEditExpense: true,
+          allowGalleryUploads: false,
+          allowBulkFyle: false,
         },
         cssClass: 'hide-modal',
       });
@@ -385,7 +387,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       this.isCameraShown = false;
 
       if (data && data.dataUrl) {
-        receiptDetails = { ...data, type: data.dataUrl.split(';')[0].split(':')[1] };
+        receiptDetails = { ...data, type: this.getImageTypeFromDataUrl(data.dataUrl) };
       }
     }
     if (receiptDetails && receiptDetails.dataUrl) {
@@ -395,6 +397,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
         thumbnail: receiptDetails.dataUrl,
       });
     }
+  }
+
+  getImageTypeFromDataUrl(dataUrl: string) {
+    return dataUrl.split(';')[0].split(':')[1];
   }
 
   async viewAttachments() {

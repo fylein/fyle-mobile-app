@@ -32,6 +32,10 @@ type Image = Partial<{
 export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() isEditExpense = false;
 
+  @Input() allowGalleryUploads = true;
+
+  @Input() allowBulkFyle = true;
+
   isCameraShown: boolean;
 
   isBulkMode: boolean;
@@ -320,10 +324,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.setUpAndStartCamera();
         } else {
           this.loaderService.showLoader();
-          this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-            this.loaderService.hideLoader();
-          });
+          this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+            .pipe(finalize(() => this.loaderService.hideLoader()))
+            .subscribe(() => {
+              this.router.navigate(['/', 'enterprise', 'my_expenses']);
+            });
         }
       }
     }
