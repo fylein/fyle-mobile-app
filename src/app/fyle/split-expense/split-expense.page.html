@@ -67,22 +67,26 @@
               >Amount</span
             >
             <span class="split-expense--mandatory">*</span>
-            <app-fy-number
-              formControlName="amount"
+            <input
+              inputmode="decimal"
               [min]="(isCorporateCardsEnabled$|async) ? null : 0.01"
-              (val)="onChangeAmount(splitExpenseForm, i, $event)"
-              [placeholder]="0"
-            ></app-fy-number>
+              type="number"
+              class="split-expense--input"
+              formControlName="amount"
+              (ngModelChange)="onChangeAmount(splitExpenseForm, i)"
+            />
           </div>
 
           <div class="split-expense--item split-expense--percentage">
             <span class="split-expense--label">Percentage</span>
-            <app-fy-number
+            <input
+              inputmode="decimal"
+              type="number"
+              class="split-expense--input"
               formControlName="percentage"
               [min]="0.01"
-              (val)="onChangePercentage(splitExpenseForm, i, $event)"
-              [placeholder]="0"
-            ></app-fy-number>
+              (ngModelChange)="onChangePercentage(splitExpenseForm, i)"
+            />
           </div>
         </div>
 
