@@ -20,6 +20,8 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -53,6 +55,8 @@ export class ViewTeamAdvancePage implements OnInit {
 
   rejectLoading = false;
 
+  projectFieldName = 'Project';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private advanceRequestService: AdvanceRequestService,
@@ -67,8 +71,19 @@ export class ViewTeamAdvancePage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
+    private offlineService: OfflineService,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
+
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      expenseFields.forEach((expenseField) => {
+        if (expenseField.column_name === 'project_id') {
+          this.projectFieldName = expenseField.field_name;
+        }
+      });
+    });
+  }
 
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
@@ -144,6 +159,7 @@ export class ViewTeamAdvancePage implements OnInit {
     );
 
     this.setupActionScheet();
+    this.getAndUpdateProjectName();
   }
 
   edit() {

@@ -69,7 +69,7 @@
       </div>
 
       <div *ngIf="advanceRequest.project_name" class="view-advances--element">
-        <div class="view-advances--element-label">Project</div>
+        <div class="view-advances--element-label">{{projectFieldName | titlecase}}</div>
         <div class="view-advances--element-value">{{advanceRequest.project_name || '-'}}</div>
       </div>
 
