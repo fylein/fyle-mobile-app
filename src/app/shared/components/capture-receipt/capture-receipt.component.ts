@@ -323,7 +323,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.isBulkMode = true;
           this.setUpAndStartCamera();
         } else {
-          this.loaderService.showLoader();
+          this.loaderService.showLoader('Please wait...', 5000);
           this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
             .pipe(finalize(() => this.loaderService.hideLoader()))
             .subscribe(() => {
