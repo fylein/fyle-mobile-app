@@ -133,6 +133,7 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
           title: 'New Draft Report',
           ctaText: 'Save',
           inputLabel: 'Report Name',
+          isRequired: true,
         },
         cssClass: 'fy-dialog-popover',
       });

@@ -40,6 +40,8 @@ export class SidemenuComponent implements OnInit {
 
   filteredSidemenuList: Partial<SidemenuItem>[];
 
+  primaryOptionsCount: number;
+
   constructor(
     private offlineService: OfflineService,
     private deviceService: DeviceService,
@@ -174,7 +176,8 @@ export class SidemenuComponent implements OnInit {
   getPrimarySidemenuOptions(isConnected: boolean) {
     const teamOptions = this.getTeamOptions();
     const cardOptions = this.getCardOptions();
-    return [
+
+    const primaryOptions = [
       {
         title: 'Dashboard',
         isVisible: true,
@@ -228,7 +231,39 @@ export class SidemenuComponent implements OnInit {
         disabled: !isConnected,
         dropdownOptions: teamOptions,
       },
-    ];
+    ].filter((sidemenuItem) => sidemenuItem.isVisible);
+
+    this.primaryOptionsCount = primaryOptions.length;
+
+    if (cardOptions.length === 1) {
+      this.updateSidemenuOption(primaryOptions, 'Cards', {
+        ...cardOptions[0],
+        icon: 'fy-corporate-card',
+        disabled: !isConnected,
+      });
+    }
+
+    if (teamOptions.length === 1) {
+      this.updateSidemenuOption(primaryOptions, 'Teams', {
+        ...teamOptions[0],
+        icon: 'teams',
+        disabled: !isConnected,
+      });
+    }
+
+    return primaryOptions;
+  }
+
+  updateSidemenuOption(
+    primaryOptions: Partial<SidemenuItem>[],
+    dropdownTitle: string,
+    updatedOption: Partial<SidemenuItem>
+  ) {
+    return primaryOptions.splice(
+      primaryOptions.findIndex((option) => option.title === dropdownTitle),
+      1,
+      updatedOption
+    );
   }
 
   getSecondarySidemenuOptions(orgs: Org[], isDelegatee: boolean, isConnected: boolean) {
@@ -278,14 +313,13 @@ export class SidemenuComponent implements OnInit {
         route: ['/', 'enterprise', 'help'],
         disabled: !isConnected,
       },
-    ];
+    ].filter((sidemenuItem) => sidemenuItem.isVisible);
   }
 
   setupSideMenu(isConnected: boolean, orgs: Org[], isDelegatee: boolean) {
-    const sidemenuList = [
+    this.filteredSidemenuList = [
       ...this.getPrimarySidemenuOptions(isConnected),
       ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected),
     ];
-    this.filteredSidemenuList = sidemenuList.filter((sidemenuItem) => sidemenuItem.isVisible);
   }
 }

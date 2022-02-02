@@ -1,4 +1,4 @@
-<div *ngIf="sidemenuItem.title === 'Teams'" class="sidemenu-item__divider"></div>
+<div *ngIf="sidemenuItem.icon === 'teams' || showDivider" class="sidemenu-item__divider"></div>
 <ion-item
   detail="false"
   [disabled]="sidemenuItem.disabled"
@@ -8,7 +8,10 @@
   [ngClass]="{ 'sidemenu-item--disabled': sidemenuItem.disabled }"
   (click)="goToRoute(sidemenuItem)"
 >
-  <a class="sidemenu-item__content" [routerLinkActive]="isRoute ? 'sidemenu-item__content--active' : ''">
+  <a
+    class="sidemenu-item__content ion-grid-no-padding"
+    [routerLinkActive]="isRoute ? 'sidemenu-item__content--active' : ''"
+  >
     <ion-grid class="sidemenu-item__content__block">
       <ion-row>
         <ion-col class="sidemenu-item__icon-container">
@@ -53,4 +56,3 @@
     ></app-sidemenu-content-item>
   </ng-container>
 </div>
-<div *ngIf="sidemenuItem.title === 'Teams'" class="sidemenu-item__divider"></div>

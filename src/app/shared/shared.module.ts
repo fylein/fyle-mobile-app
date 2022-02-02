@@ -114,6 +114,7 @@ import { CropReceiptComponent } from './components/capture-receipt/crop-receipt/
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ImageCropperModule } from 'ngx-image-cropper';
+import { FyNumberComponent } from './components/fy-number/fy-number.component';
 
 @NgModule({
   declarations: [
@@ -207,6 +208,7 @@ import { ImageCropperModule } from 'ngx-image-cropper';
     ReceiptPreviewComponent,
     AddMorePopupComponent,
     CropReceiptComponent,
+    FyNumberComponent,
   ],
   imports: [
     CommonModule,
@@ -305,6 +307,7 @@ import { ImageCropperModule } from 'ngx-image-cropper';
     ReceiptPreviewComponent,
     AddMorePopupComponent,
     CropReceiptComponent,
+    FyNumberComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })

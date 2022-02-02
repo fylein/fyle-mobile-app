@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
-import { Platform, MenuController, NavController } from '@ionic/angular';
+import { Platform, MenuController, NavController, PopoverController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { from, concat, Observable, noop } from 'rxjs';
@@ -23,6 +23,7 @@ import { LoginInfoService } from './core/services/login-info.service';
 import { PopupService } from './core/services/popup.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
+import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 
 const { App } = Plugins;
 const CapStatusBar = Plugins.StatusBar;
@@ -69,26 +70,36 @@ export class AppComponent implements OnInit {
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private popupService: PopupService,
-    private navController: NavController
+    private navController: NavController,
+    private popoverController: PopoverController
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
   }
 
   async showAppCloseAlert() {
-    const popupResults = await this.popupService.showPopup({
-      header: 'Exit Fyle App',
-      message: 'Are you sure you want to exit the app?',
-      secondaryCta: {
-        text: 'CANCEL',
+    const popover = await this.popoverController.create({
+      componentProps: {
+        title: 'Exit Fyle App',
+        message: 'Are you sure you want to exit the app?',
+        primaryCta: {
+          text: 'OK',
+          action: 'close',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'cancel',
+        },
       },
-      primaryCta: {
-        text: 'OK',
-      },
-      showCancelButton: false,
+      component: PopupAlertComponentComponent,
+      cssClass: 'pop-up-in-center',
     });
 
-    if (popupResults === 'primary') {
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data && data.action === 'close') {
       App.exitApp();
     }
   }

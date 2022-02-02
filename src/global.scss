@@ -348,6 +348,12 @@ textarea:focus {
   white-space: nowrap;
 }
 
+.content-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .mb-0 {
   margin-bottom: 0 !important;
 }
@@ -1180,15 +1186,17 @@ ion-toggle.toggle-checked::before {
   border: 1px solid $grey-lighter;
   border-radius: 8px;
   padding: 12px 8px;
+  align-items: center;
   .capped-icon {
     color: $highlight-blue;
     height: 20px;
     width: 20px;
-    margin-right: 8px;
+    margin: 6px;
   }
   .capped-message {
     width: 100%;
     color: $blue-black;
+    font-size: 12px;
   }
 }
 
@@ -1219,6 +1227,18 @@ ion-toggle.toggle-checked::before {
         background: url('assets/images/loading.gif') no-repeat center;
         background-size: 50px;
       }
+    }
+  }
+}
+
+.deprecate-msg {
+  & > div {
+    margin: 16px;
+  }
+
+  &--mb-0 {
+    & > div {
+      margin-bottom: 0;
     }
   }
 }

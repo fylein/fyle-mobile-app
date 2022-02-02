@@ -19,6 +19,8 @@ export class FyInputPopoverComponent implements OnInit, AfterViewInit {
 
   @Input() inputType = 'text';
 
+  @Input() isRequired = true;
+
   constructor(private popoverController: PopoverController) {}
 
   ngOnInit(): void {}
