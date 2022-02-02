@@ -26,6 +26,13 @@ export class LocationService {
   getCurrentLocation(
     config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false }
   ): Observable<GeolocationPosition> {
+    console.log(
+      'Current location is ',
+      Geolocation.getCurrentPosition({
+        timeout: 5000,
+        enableHighAccuracy: config.enableHighAccuracy,
+      })
+    );
     return from(
       Geolocation.getCurrentPosition({
         timeout: 5000,
@@ -33,7 +40,10 @@ export class LocationService {
       })
     ).pipe(
       timeout(5000),
-      catchError(() => of(null))
+      catchError((err) => {
+        console.log('Error while finding geolocation ', err);
+        return of(null);
+      })
     );
   }
 
