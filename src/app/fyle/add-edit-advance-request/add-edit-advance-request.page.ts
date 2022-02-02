@@ -26,6 +26,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
+import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -70,6 +71,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   saveAdvanceLoading = false;
 
   isDeviceWidthSmall = window.innerWidth < 375;
+
+  expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
 
   constructor(
     private offlineService: OfflineService,
@@ -119,6 +122,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
         can_submit: true,
       };
     }
+
+    this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
   }
 
   goBack() {
