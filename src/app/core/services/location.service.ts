@@ -29,7 +29,7 @@ export class LocationService {
     console.log(
       'Current location is ',
       Geolocation.getCurrentPosition({
-        timeout: 5000,
+        timeout: 10000,
         enableHighAccuracy: config.enableHighAccuracy,
       })
     );
@@ -39,7 +39,7 @@ export class LocationService {
         enableHighAccuracy: config.enableHighAccuracy,
       })
     ).pipe(
-      timeout(5000),
+      timeout(10000),
       catchError((err) => {
         console.log('Error while finding geolocation ', err);
         return of(null);
