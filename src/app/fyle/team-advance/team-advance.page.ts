@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Observable, Subject, from, noop } from 'rxjs';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, switchMap, finalize, map, scan, shareReplay, tap, take } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { Router } from '@angular/router';
@@ -11,7 +10,7 @@ import { Router } from '@angular/router';
   templateUrl: './team-advance.page.html',
   styleUrls: ['./team-advance.page.scss'],
 })
-export class TeamAdvancePage implements OnInit {
+export class TeamAdvancePage implements OnInit, AfterViewChecked {
   teamAdvancerequests$: Observable<any[]>;
 
   loadData$: Subject<{ pageNumber: number; state: string }> = new Subject();
@@ -28,8 +27,8 @@ export class TeamAdvancePage implements OnInit {
 
   constructor(
     private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {}
@@ -68,11 +67,7 @@ export class TeamAdvancePage implements OnInit {
         return acc.concat(curr);
       }, [] as ExtendedAdvanceRequest[]),
       shareReplay(1),
-      tap((res) => {
-        if (res) {
-          this.isLoading = false;
-        }
-      })
+      finalize(() => (this.isLoading = false))
     );
 
     this.count$ = this.loadData$.pipe(
@@ -113,6 +108,10 @@ export class TeamAdvancePage implements OnInit {
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
+  }
+
+  ngAfterViewChecked() {
+    this.cdr.detectChanges();
   }
 
   loadData(event) {
