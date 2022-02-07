@@ -10,7 +10,6 @@
   pattern="[0-9]*"
   decimal="true"
   decimal-char="."
-  (ngModelChange)="onModelChange()"
 />
 <input
   *ngIf="!isIos"
@@ -22,5 +21,4 @@
   (blur)="(onBlur)"
   type="number"
   inputmode="decimal"
-  (ngModelChange)="onModelChange()"
 />

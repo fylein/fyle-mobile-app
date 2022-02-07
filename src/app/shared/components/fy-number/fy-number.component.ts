@@ -22,8 +22,6 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   @Input() min: number;
 
-  @Output() val: EventEmitter<number> = new EventEmitter();
-
   isDisabled = false;
 
   fc: FormControl;
@@ -72,10 +70,6 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
     this.onTouchedCallback();
   }
 
-  onModelChange() {
-    this.val.emit(this.fc.value && parseFloat(this.fc.value));
-  }
-
   ngOnDestroy(): void {}
 
   ngOnInit() {
@@ -84,7 +78,8 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
     this.fc.valueChanges.subscribe((value) => {
       if (typeof value === 'string') {
         this.value = value && parseFloat(value);
-        console.log('test value on init', this.value);
+      } else if (typeof value === 'number') {
+        this.value = value;
       } else {
         this.value = null;
       }
