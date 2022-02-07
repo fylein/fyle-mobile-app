@@ -519,7 +519,7 @@ export class TripRequestsService {
       'orAQ0g05flq6',
       'orcnfOH4mR5t',
     ];
-    return from(this.authService.getEou()).pipe(map((eou) => orgsWithExtension.indexOf(eou.ou.org_id) > -1));
+    return from(this.authService.getEou()).pipe(map((eou) => orgsWithExtension.includes(eou.ou.org_id)));
   }
 
   getTripDeprecationMsg(view: 'individual' | 'team') {
