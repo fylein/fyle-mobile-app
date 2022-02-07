@@ -1,6 +1,5 @@
 import { Component, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { ModalController } from '@ionic/angular';
 
 import {
   concat,
@@ -33,6 +32,8 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -66,6 +67,8 @@ export class MyAdvancesPage {
 
   filterParams$ = new BehaviorSubject<Filters>({});
 
+  advancesTaskCount = 0;
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private loaderService: LoaderService,
@@ -74,9 +77,10 @@ export class MyAdvancesPage {
     private advanceService: AdvanceService,
     private networkService: NetworkService,
     private offlineService: OfflineService,
-    private modalController: ModalController,
     private filtersHelperService: FiltersHelperService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private trackingService: TrackingService,
+    private tasksService: TasksService
   ) {}
 
   ionViewWillLeave() {
@@ -100,6 +104,11 @@ export class MyAdvancesPage {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+
+    this.tasksService.getAdvancesTaskCount().subscribe((advancesTaskCount) => {
+      this.advancesTaskCount = advancesTaskCount;
+    });
+
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     const oldFilters = this.activatedRoute.snapshot.queryParams.filters;
@@ -273,9 +282,13 @@ export class MyAdvancesPage {
   }
 
   onTaskClicked() {
-    const queryParams: Params = { state: 'tasks' };
+    const queryParams: Params = { state: 'tasks', tasksFilters: 'advances' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'My Advances',
     });
   }
 

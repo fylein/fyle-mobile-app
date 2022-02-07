@@ -39,6 +39,7 @@ export class TasksComponent implements OnInit {
     draftExpenses: false,
     unreportedExpenses: false,
     teamReports: false,
+    sentBackAdvances: false,
   });
 
   isConnected$: Observable<boolean>;
@@ -93,6 +94,7 @@ export class TasksComponent implements OnInit {
         draftReports: false,
         sentBackReports: false,
         teamReports: false,
+        sentBackAdvances: false,
       });
     }
 
@@ -103,6 +105,7 @@ export class TasksComponent implements OnInit {
         draftReports: true,
         sentBackReports: true,
         teamReports: false,
+        sentBackAdvances: false,
       });
     }
 
@@ -113,6 +116,18 @@ export class TasksComponent implements OnInit {
         draftReports: false,
         sentBackReports: false,
         teamReports: true,
+        sentBackAdvances: false,
+      });
+    }
+
+    if (paramFilters === 'advances') {
+      this.loadData$.next({
+        draftExpenses: false,
+        unreportedExpenses: false,
+        draftReports: false,
+        sentBackReports: false,
+        teamReports: false,
+        sentBackAdvances: true,
       });
     }
 
@@ -177,6 +192,20 @@ export class TasksComponent implements OnInit {
               {
                 label: 'Unapproved',
                 value: 'TEAM',
+              },
+            ],
+          } as FilterOptions<string>,
+          {
+            name: 'Advances',
+            optionType: FilterOptionType.multiselect,
+            options: [
+              {
+                label: 'Sent Back',
+                value: 'SENT_BACK',
+              },
+              {
+                label: 'Unsubmitted',
+                value: 'DRAFT',
               },
             ],
           } as FilterOptions<string>,
