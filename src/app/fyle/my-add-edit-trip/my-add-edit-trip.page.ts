@@ -105,6 +105,8 @@ export class MyAddEditTripPage implements OnInit {
 
   fg: FormGroup;
 
+  deprecationMsg$: Observable<string>;
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -122,6 +124,10 @@ export class MyAddEditTripPage implements OnInit {
     private tripRequestPolicyService: TripRequestPolicyService,
     private statusService: StatusService
   ) {}
+
+  ionViewWillEnter() {
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('individual');
+  }
 
   async goBack() {
     const addExpensePopover = await this.popoverController.create({

@@ -107,6 +107,7 @@ import { SidemenuContentItemComponent } from './components/sidemenu/sidemenu-con
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
 import { SendEmailComponent } from './components/send-email/send-email.component';
+import { FyNumberComponent } from './components/fy-number/fy-number.component';
 
 @NgModule({
   declarations: [
@@ -196,6 +197,7 @@ import { SendEmailComponent } from './components/send-email/send-email.component
     SidemenuContentItemComponent,
     FyNavFooterComponent,
     SendEmailComponent,
+    FyNumberComponent,
   ],
   imports: [
     CommonModule,
@@ -288,6 +290,7 @@ import { SendEmailComponent } from './components/send-email/send-email.component
     SidemenuComponent,
     FyNavFooterComponent,
     SendEmailComponent,
+    FyNumberComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
 })

@@ -41,13 +41,13 @@
   }
 
   &__pill-container {
-    max-width: 64px;
+    max-width: 66px;
 
     &__pill {
       background: $blue-black;
       border-radius: 16px 0 0 16px;
       color: $pure-white;
-      padding: 4px 12px;
+      padding: 4px 0 4px 12px;
       font-size: 12px;
     }
   }
