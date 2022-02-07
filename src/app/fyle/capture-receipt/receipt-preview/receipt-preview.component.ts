@@ -41,7 +41,6 @@ export class ReceiptPreviewComponent implements OnInit {
 
   registerBackButtonAction() {
     this.platform.backButton.subscribe(async () => {
-      console.log('Back button pressed inside receipt preview');
       this.retake();
     });
   }
