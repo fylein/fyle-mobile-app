@@ -387,7 +387,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       this.isCameraShown = false;
 
       if (data && data.dataUrl) {
-        receiptDetails = { ...data, type: this.getImageTypeFromDataUrl(data.dataUrl) };
+        receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };
       }
     }
     if (receiptDetails && receiptDetails.dataUrl) {
@@ -397,10 +397,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
         thumbnail: receiptDetails.dataUrl,
       });
     }
-  }
-
-  getImageTypeFromDataUrl(dataUrl: string) {
-    return dataUrl.split(';')[0].split(':')[1];
   }
 
   async viewAttachments() {

@@ -3869,7 +3869,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (data && data.dataUrl) {
           receiptDetails = {
-            type: this.getImageTypeFromDataUrl(data.dataUrl),
+            type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
             dataUrl: data.dataUrl,
             actionSource: 'camera',
           };
@@ -3879,10 +3879,6 @@ export class AddEditExpensePage implements OnInit {
         this.attachReceipts(receiptDetails);
       }
     }
-  }
-
-  getImageTypeFromDataUrl(dataUrl: string) {
-    return dataUrl.split(';')[0].split(':')[1];
   }
 
   getReceiptExtension(name) {
