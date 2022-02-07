@@ -1218,3 +1218,15 @@ ion-toggle.toggle-checked::before {
     }
   }
 }
+
+.deprecate-msg {
+  & > div {
+    margin: 16px;
+  }
+
+  &--mb-0 {
+    & > div {
+      margin-bottom: 0;
+    }
+  }
+}

@@ -30,6 +30,8 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
 
   onPageExit = new Subject();
 
+  deprecationMsg$: Observable<string>;
+
   constructor(
     private loaderService: LoaderService,
     private tripRequestsService: TripRequestsService,
@@ -115,7 +117,7 @@ export class TeamTripsPage implements OnInit, ViewWillEnter {
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
-
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('team');
     this.setupNetworkWatcher();
   }
 
