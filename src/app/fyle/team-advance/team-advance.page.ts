@@ -91,7 +91,8 @@ export class TeamAdvancePage implements OnInit, AfterViewChecked {
           state
         );
       }),
-      shareReplay(1)
+      shareReplay(1),
+      finalize(() => (this.isLoading = false))
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
