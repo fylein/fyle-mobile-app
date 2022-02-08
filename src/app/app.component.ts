@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
-import { Platform, MenuController, NavController, ModalController, PopoverController } from '@ionic/angular';
+import { Platform, MenuController, NavController, PopoverController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { from, concat, Observable, noop } from 'rxjs';
@@ -71,7 +71,6 @@ export class AppComponent implements OnInit {
     private loginInfoService: LoginInfoService,
     private popupService: PopupService,
     private navController: NavController,
-    private modalController: ModalController,
     private popoverController: PopoverController
   ) {
     this.initializeApp();
@@ -122,12 +121,6 @@ export class AppComponent implements OnInit {
       } else {
         this.navController.back();
       }
-    });
-
-    this.platform.backButton.subscribeWithPriority(100, (processNextHandler) => {
-      console.log('CLOSING MODAL...');
-      this.modalController.dismiss();
-      processNextHandler();
     });
   }
 

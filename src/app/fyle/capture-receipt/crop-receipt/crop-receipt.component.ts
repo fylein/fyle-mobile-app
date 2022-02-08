@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ImageCropperComponent } from 'ngx-image-cropper';
-import { ModalController } from '@ionic/angular';
+import { Platform, ModalController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
 type Image = Partial<{
@@ -18,7 +18,13 @@ export class CropReceiptComponent implements OnInit {
 
   @ViewChild('imageCropper') imageCropper: ImageCropperComponent;
 
-  constructor(private modalController: ModalController, private loaderService: LoaderService) {}
+  constructor(
+    private modalController: ModalController,
+    private loaderService: LoaderService,
+    private platform: Platform
+  ) {
+    this.registerBackButtonAction();
+  }
 
   ngOnInit() {
     this.loaderService.showLoader();
@@ -37,5 +43,13 @@ export class CropReceiptComponent implements OnInit {
 
   imageLoaded() {
     this.loaderService.hideLoader();
+  }
+
+  registerBackButtonAction() {
+    console.log('Back button action registered for crop receipt');
+    this.platform.backButton.subscribe(() => {
+      console.log('Closing crop receipt modal');
+      this.closeModal();
+    });
   }
 }
