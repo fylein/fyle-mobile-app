@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Observable, Subject, from, noop } from 'rxjs';
@@ -26,7 +26,7 @@ type Filters = Partial<{
   templateUrl: './team-advance.page.html',
   styleUrls: ['./team-advance.page.scss'],
 })
-export class TeamAdvancePage {
+export class TeamAdvancePage implements AfterViewChecked {
   teamAdvancerequests$: Observable<any[]>;
 
   loadData$: Subject<{
@@ -46,9 +46,11 @@ export class TeamAdvancePage {
 
   filterPills = [];
 
+  isLoading = false;
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService,
+    private cdRef: ChangeDetectorRef,
     private router: Router,
     private filtersHelperService: FiltersHelperService
   ) {}
@@ -58,25 +60,22 @@ export class TeamAdvancePage {
 
     this.currentPageNumber = 1;
 
+    this.isLoading = true;
+
     this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state, sortParam, sortDir }) =>
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() =>
-            this.advanceRequestService.getTeamAdvanceRequests({
-              offset: (pageNumber - 1) * 10,
-              limit: 10,
-              queryParams: {
-                ...this.getExtraParams(state),
-              },
-              filter: {
-                state,
-                sortParam,
-                sortDir,
-              },
-            })
-          ),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
+        this.advanceRequestService.getTeamAdvanceRequests({
+          offset: (pageNumber - 1) * 10,
+          limit: 10,
+          queryParams: {
+            ...this.getExtraParams(state),
+          },
+          filter: {
+            state,
+            sortParam,
+            sortDir,
+          },
+        })
       ),
       map((res) => res.data),
       scan((acc, curr) => {
@@ -85,7 +84,8 @@ export class TeamAdvancePage {
         }
         return acc.concat(curr);
       }, [] as ExtendedAdvanceRequest[]),
-      shareReplay(1)
+      shareReplay(1),
+      finalize(() => (this.isLoading = false))
     );
 
     this.count$ = this.loadData$.pipe(
@@ -101,7 +101,8 @@ export class TeamAdvancePage {
           }
         )
       ),
-      shareReplay(1)
+      shareReplay(1),
+      finalize(() => (this.isLoading = false))
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
@@ -123,6 +124,10 @@ export class TeamAdvancePage {
       sortParam: this.filters.sortParam,
       sortDir: this.filters.sortDir,
     });
+  }
+
+  ngAfterViewChecked() {
+    this.cdRef.detectChanges();
   }
 
   onAdvanceClick(areq: ExtendedAdvanceRequest) {
