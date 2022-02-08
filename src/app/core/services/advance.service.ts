@@ -24,6 +24,7 @@ export class AdvanceService {
       queryParams: {},
     }
   ) {
+    console.log('hello', config);
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.apiv2Service.get('/advances', {

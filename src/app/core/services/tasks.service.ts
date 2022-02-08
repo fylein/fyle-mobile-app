@@ -175,6 +175,10 @@ export class TasksService {
       generatedFilters.teamReports = true;
     }
 
+    if (selectedFilters.some((filter) => filter.name === 'Advances' && filter.value.includes('SENT_BACK'))) {
+      generatedFilters.sentBackAdvances = true;
+    }
+
     return generatedFilters;
   }
 
@@ -211,6 +215,20 @@ export class TasksService {
     };
   }
 
+  getAdvancesPill(filters: TaskFilters): FilterPill {
+    const advancePill = [];
+    const sentBackAdvancesContent = filters.sentBackAdvances && 'Sent Back';
+    if (sentBackAdvancesContent) {
+      advancePill.push(sentBackAdvancesContent);
+    }
+
+    return {
+      label: 'Advances',
+      type: 'Advances',
+      value: advancePill.join(', '),
+    };
+  }
+
   generateFilterPills(filters: TaskFilters): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
@@ -220,6 +238,10 @@ export class TasksService {
 
     if (filters.draftReports || filters.sentBackReports || filters.teamReports) {
       filterPills.push(this.getReportsPill(filters));
+    }
+
+    if (filters.sentBackAdvances) {
+      filterPills.push(this.getAdvancesPill(filters));
     }
 
     return filterPills;
@@ -510,7 +532,7 @@ export class TasksService {
           ctas: [
             {
               content: `View Advance${aggregate.totalCount === 1 ? '' : 's'}`,
-              event: TASKEVENT.openSentBackReport,
+              event: TASKEVENT.openSentBackAdvance,
             },
           ],
         },

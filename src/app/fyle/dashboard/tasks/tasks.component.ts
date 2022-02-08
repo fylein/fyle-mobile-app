@@ -10,6 +10,7 @@ import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
 import { DashboardTask } from 'src/app/core/models/task.model';
+import { AdvanceService } from 'src/app/core/services/advance.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -52,6 +53,7 @@ export class TasksComponent implements OnInit {
     private taskService: TasksService,
     private transactionService: TransactionService,
     private reportService: ReportService,
+    private advanceService: AdvanceService,
     private modalController: ModalController,
     private trackingService: TrackingService,
     private loaderService: LoaderService,
@@ -246,6 +248,13 @@ export class TasksComponent implements OnInit {
       });
     }
 
+    if (filterPillType === 'Advances') {
+      this.applyFilters({
+        ...this.loadData$.getValue(),
+        sentBackAdvances: false,
+      });
+    }
+
     this.filterPills = this.taskService.generateFilterPills(this.loadData$.getValue());
     this.trackingService.tasksFilterPillClicked({
       Asset: 'Mobile',
@@ -300,6 +309,9 @@ export class TasksComponent implements OnInit {
         break;
       case TASKEVENT.openTeamReport:
         this.onTeamReportsTaskClick(taskCta, task);
+        break;
+      case TASKEVENT.openSentBackAdvance:
+        this.onSentBackAdvanceTaskClick(taskCta, task);
         break;
       default:
         break;
@@ -396,6 +408,24 @@ export class TasksComponent implements OnInit {
           filters: JSON.stringify({ state: ['APPROVER_INQUIRY'] }),
         },
       });
+    }
+  }
+
+  onSentBackAdvanceTaskClick(taskCta: TaskCta, task: DashboardTask) {
+    if (task.count === 1) {
+      const queryParams = {
+        areq_is_sent_back: 'is.true',
+      };
+
+      from(this.loaderService.showLoader('Opening your advance...'))
+        .pipe(
+          switchMap(() => this.advanceService.getMyadvances({ queryParams, offset: 0, limit: 1 })),
+          finalize(() => this.loaderService.hideLoader())
+        )
+        .subscribe((res) => {
+          console.log('pp', res);
+          // this.router.navigate(['/', 'enterprise', 'my_advances', { id: res.data[0]. }]);
+        });
     }
   }
 
