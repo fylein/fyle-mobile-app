@@ -124,7 +124,11 @@ export class AppComponent implements OnInit {
       }
     });
 
-    this.platform.backButton.subscribeWithPriority(100, () => this.modalController.dismiss());
+    this.platform.backButton.subscribeWithPriority(100, (processNextHandler) => {
+      console.log('CLOSING MODAL...');
+      this.modalController.dismiss();
+      processNextHandler();
+    });
   }
 
   initializeApp() {
