@@ -14,11 +14,10 @@ import {
   Observable,
   Subject,
 } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
+import { concatMap, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { NetworkService } from '../../core/services/network.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -53,6 +52,8 @@ export class MyAdvancesPage {
 
   loadData$: Subject<number> = new Subject();
 
+  isLoading = false;
+
   navigateBack = false;
 
   refreshAdvances$: Subject<void> = new Subject();
@@ -71,7 +72,6 @@ export class MyAdvancesPage {
 
   constructor(
     private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private advanceService: AdvanceService,
@@ -117,6 +117,8 @@ export class MyAdvancesPage {
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
     }
 
+    this.isLoading = true;
+
     this.myAdvancerequests$ = this.advanceRequestService
       .getMyAdvanceRequestsCount({
         areq_trip_request_id: 'is.null',
@@ -139,8 +141,7 @@ export class MyAdvancesPage {
           })
         ),
         map((res) => res.data),
-        reduce((acc, curr) => acc.concat(curr)),
-        startWith([])
+        reduce((acc, curr) => acc.concat(curr))
       );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
@@ -156,63 +157,61 @@ export class MyAdvancesPage {
         })
       ),
       map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr)),
-      startWith([])
+      reduce((acc, curr) => acc.concat(curr))
     );
 
     const sortResults = map((res: any[]) => res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)));
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
-      switchMap(() =>
-        from(this.loaderService.showLoader('Retrieving advance...')).pipe(
-          concatMap(() => this.offlineService.getOrgSettings()),
-          switchMap((orgSettings) =>
-            combineLatest([
-              iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),
-              iif(() => orgSettings.advances.enabled, this.myAdvances$, of(null)),
-            ]).pipe(
-              map((res) => {
-                const [myAdvancerequestsRes, myAdvancesRes] = res;
-                let myAdvancerequests = myAdvancerequestsRes || [];
-                let myAdvances = myAdvancesRes || [];
-                myAdvancerequests = this.updateMyAdvanceRequests(myAdvancerequests);
-                myAdvances = this.updateMyAdvances(myAdvances);
-                return myAdvances.concat(myAdvancerequests);
-              }),
-              sortResults
-            )
-          ),
-          switchMap((advArray) =>
-            //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
-            this.filterParams$.pipe(
-              map((filters) => {
-                let newArr = cloneDeep(advArray);
-
-                if (filters && filters.state && filters.state.length > 0) {
-                  newArr = advArray.filter((adv) => {
-                    const sentBackAdvance =
-                      filters.state.includes(AdvancesStates.sentBack) &&
-                      adv.areq_state === 'DRAFT' &&
-                      adv.areq_is_sent_back;
-
-                    const plainDraft =
-                      filters.state.includes(AdvancesStates.draft) &&
-                      adv.areq_state === 'DRAFT' &&
-                      !adv.areq_is_sent_back &&
-                      !adv.areq_is_pulled_back;
-
-                    return sentBackAdvance || plainDraft;
-                  });
-                }
-
-                newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
-                return newArr;
-              })
-            )
-          ),
-          finalize(() => from(this.loaderService.hideLoader()))
+      concatMap(() => this.offlineService.getOrgSettings()),
+      switchMap((orgSettings) =>
+        combineLatest([
+          iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),
+          iif(() => orgSettings.advances.enabled, this.myAdvances$, of(null)),
+        ]).pipe(
+          map((res) => {
+            const [myAdvancerequestsRes, myAdvancesRes] = res;
+            let myAdvancerequests = myAdvancerequestsRes || [];
+            let myAdvances = myAdvancesRes || [];
+            myAdvancerequests = this.updateMyAdvanceRequests(myAdvancerequests);
+            myAdvances = this.updateMyAdvances(myAdvances);
+            return myAdvances.concat(myAdvancerequests);
+          }),
+          sortResults
         )
-      )
+      ),
+      switchMap((advArray) =>
+        //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
+        this.filterParams$.pipe(
+          map((filters) => {
+            let newArr = cloneDeep(advArray);
+
+            if (filters && filters.state && filters.state.length > 0) {
+              newArr = advArray.filter((adv) => {
+                const sentBackAdvance =
+                  filters.state.includes(AdvancesStates.sentBack) &&
+                  adv.areq_state === 'DRAFT' &&
+                  adv.areq_is_sent_back;
+
+                const plainDraft =
+                  filters.state.includes(AdvancesStates.draft) &&
+                  adv.areq_state === 'DRAFT' &&
+                  !adv.areq_is_sent_back &&
+                  !adv.areq_is_pulled_back;
+
+                return sentBackAdvance || plainDraft;
+              });
+            }
+            newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
+            return newArr;
+          })
+        )
+      ),
+      tap((res) => {
+        if (res && res.length >= 0) {
+          this.isLoading = false;
+        }
+      })
     );
   }
 
@@ -251,7 +250,9 @@ export class MyAdvancesPage {
       .pipe(
         map(() => {
           this.refreshAdvances$.next();
-          event.target.complete();
+          if (event) {
+            event.target.complete();
+          }
         })
       )
       .subscribe(noop);
