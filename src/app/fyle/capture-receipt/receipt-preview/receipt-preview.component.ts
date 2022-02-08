@@ -41,7 +41,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   registerBackButtonAction() {
     console.log('BAck button action registered for receipt preview');
-    this.platform.backButton.subscribe(async () => {
+    this.platform.backButton.subscribeWithPriority(200, () => {
       console.log('Closing receipt preview modal');
       this.retake();
     });

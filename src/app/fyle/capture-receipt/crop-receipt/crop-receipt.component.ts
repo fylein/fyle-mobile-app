@@ -47,7 +47,7 @@ export class CropReceiptComponent implements OnInit {
 
   registerBackButtonAction() {
     console.log('Back button action registered for crop receipt');
-    this.platform.backButton.subscribe(() => {
+    this.platform.backButton.subscribeWithPriority(300, () => {
       console.log('Closing crop receipt modal');
       this.closeModal();
     });
