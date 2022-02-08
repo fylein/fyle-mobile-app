@@ -55,10 +55,10 @@ export class ReceiptPreviewComponent implements OnInit {
     await cropReceiptModal.present();
     const { data } = await cropReceiptModal.onWillDismiss();
 
-    if (data && data.base64ImagesWithSource) {
-      this.base64ImagesWithSource = data.base64ImagesWithSource;
+    if (data && data.base64ImageWithSource) {
+      this.base64ImagesWithSource[this.activeIndex] = data.base64ImageWithSource;
       await this.imageSlides.update();
-      this.trackingService.cropReceipt({ action: 'crop' });
+      this.trackingService.cropReceipt();
     }
   }
 

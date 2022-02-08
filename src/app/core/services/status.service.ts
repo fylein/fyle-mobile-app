@@ -82,6 +82,12 @@ export class StatusService {
           icon: 'no-attachment',
         };
         break;
+      case lowerCaseComment.indexOf('removed from the report') > -1:
+        statusCategory = {
+          category: 'Expense removed',
+          icon: 'fy-delete',
+        };
+        break;
       case lowerCaseComment.indexOf('report') > -1:
         statusCategory = {
           category: 'Report',

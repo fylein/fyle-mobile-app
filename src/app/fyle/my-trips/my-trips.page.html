@@ -11,6 +11,9 @@
 </ion-header>
 
 <ion-content>
+  <ng-container *ngIf="deprecationMsg$|async as  deprecationMsg">
+    <app-fy-alert-info [message]="deprecationMsg" type="warning" class="deprecate-msg"></app-fy-alert-info>
+  </ng-container>
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -45,6 +48,7 @@
       class="fy-footer-cta fy-footer-cta--primary"
       [routerLink]="['/', 'enterprise', 'my_add_edit_trip']"
       routerLinkActive="router-link-active"
+      [disabled]="isCreateTripRequestDisabled"
     >
       Request new trip
     </ion-button>
