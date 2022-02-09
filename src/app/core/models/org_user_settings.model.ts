@@ -91,8 +91,7 @@ export interface NotificationSettings {
   email: Email;
   push: Push;
   whatsapp: Whatsapp;
-  notify_delegatee: boolean;
-  notify_user: boolean;
+  notify_only_delegatee: boolean;
 }
 
 export interface CurrencySettings {
