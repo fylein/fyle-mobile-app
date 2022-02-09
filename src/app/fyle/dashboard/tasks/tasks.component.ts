@@ -10,7 +10,7 @@ import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
 import { DashboardTask } from 'src/app/core/models/task.model';
-import { AdvanceService } from 'src/app/core/services/advance.service';
+import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -53,7 +53,7 @@ export class TasksComponent implements OnInit {
     private taskService: TasksService,
     private transactionService: TransactionService,
     private reportService: ReportService,
-    private advanceService: AdvanceService,
+    private advanceRequestService: AdvanceRequestService,
     private modalController: ModalController,
     private trackingService: TrackingService,
     private loaderService: LoaderService,
@@ -204,10 +204,6 @@ export class TasksComponent implements OnInit {
               {
                 label: 'Sent Back',
                 value: 'SENT_BACK',
-              },
-              {
-                label: 'Unsubmitted',
-                value: 'DRAFT',
               },
             ],
           } as FilterOptions<string>,
@@ -414,18 +410,24 @@ export class TasksComponent implements OnInit {
   onSentBackAdvanceTaskClick(taskCta: TaskCta, task: DashboardTask) {
     if (task.count === 1) {
       const queryParams = {
+        areq_state: 'in.(DRAFT)',
         areq_is_sent_back: 'is.true',
       };
 
       from(this.loaderService.showLoader('Opening your advance...'))
         .pipe(
-          switchMap(() => this.advanceService.getMyadvances({ queryParams, offset: 0, limit: 1 })),
+          switchMap(() => this.advanceRequestService.getMyadvanceRequests({ queryParams, offset: 0, limit: 1 })),
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
-          console.log('pp', res);
-          // this.router.navigate(['/', 'enterprise', 'my_advances', { id: res.data[0]. }]);
+          this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: res.data[0].areq_id }]);
         });
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_advances'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['SENT_BACK'] }),
+        },
+      });
     }
   }
 

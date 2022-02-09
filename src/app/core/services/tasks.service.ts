@@ -528,7 +528,7 @@ export class TasksService {
             aggregate.totalAmount,
             homeCurrency
           )} ${aggregate.totalCount === 1 ? 'was' : 'were'} sent back by your approver`,
-          icon: TaskIcon.REPORT,
+          icon: TaskIcon.ADVANCE,
           ctas: [
             {
               content: `View Advance${aggregate.totalCount === 1 ? '' : 's'}`,

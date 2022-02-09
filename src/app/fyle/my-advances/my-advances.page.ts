@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import {
@@ -45,7 +45,7 @@ type Filters = Partial<{
   templateUrl: './my-advances.page.html',
   styleUrls: ['./my-advances.page.scss'],
 })
-export class MyAdvancesPage {
+export class MyAdvancesPage implements AfterViewChecked {
   myAdvancerequests$: Observable<any[]>;
 
   myAdvances$: Observable<any>;
@@ -80,7 +80,8 @@ export class MyAdvancesPage {
     private filtersHelperService: FiltersHelperService,
     private utilityService: UtilityService,
     private trackingService: TrackingService,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ionViewWillLeave() {
@@ -213,6 +214,10 @@ export class MyAdvancesPage {
         }
       })
     );
+  }
+
+  ngAfterViewChecked() {
+    this.cdr.detectChanges();
   }
 
   updateMyAdvances(myAdvances: any) {
