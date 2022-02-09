@@ -3854,7 +3854,7 @@ export class AddEditExpensePage implements OnInit {
         const captureReceiptModal = await this.modalController.create({
           component: CaptureReceiptComponent,
           componentProps: {
-            isEditExpense: true,
+            isModal: true,
             allowGalleryUploads: false,
             allowBulkFyle: false,
           },

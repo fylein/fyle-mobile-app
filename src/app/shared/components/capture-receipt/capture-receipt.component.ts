@@ -30,7 +30,7 @@ type Image = Partial<{
   styleUrls: ['./capture-receipt.component.scss'],
 })
 export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() isEditExpense = false;
+  @Input() isModal = false;
 
   @Input() allowGalleryUploads = true;
 
@@ -184,7 +184,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   close() {
     this.stopCamera();
-    if (this.isEditExpense) {
+    if (this.isModal) {
       this.modalController.dismiss();
     } else {
       this.navController.back();
@@ -273,7 +273,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.setUpAndStartCamera();
         } else {
           this.loaderService.showLoader();
-          if (this.isEditExpense) {
+          if (this.isModal) {
             await modal.onDidDismiss();
             setTimeout(() => {
               this.modalController.dismiss({
