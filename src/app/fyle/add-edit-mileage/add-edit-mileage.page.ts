@@ -1000,6 +1000,8 @@ export class AddEditMileagePage implements OnInit {
       this.mode = 'edit';
     }
 
+    this.setupNetworkWatcher();
+
     this.isExpandedView = this.mode !== 'add';
 
     if (this.mode === 'add') {
@@ -1021,8 +1023,6 @@ export class AddEditMileagePage implements OnInit {
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
       )
     );
-
-    this.setupNetworkWatcher();
 
     this.recentlyUsedValues$ = this.isConnected$.pipe(
       take(1),

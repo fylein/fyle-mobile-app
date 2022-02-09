@@ -863,6 +863,8 @@ export class AddEditPerDiemPage implements OnInit {
       this.mode = 'edit';
     }
 
+    this.setupNetworkWatcher();
+
     this.isExpandedView = this.mode !== 'add';
 
     if (this.mode === 'add') {
@@ -889,8 +891,6 @@ export class AddEditPerDiemPage implements OnInit {
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates)
     );
-
-    this.setupNetworkWatcher();
 
     this.recentlyUsedValues$ = this.isConnected$.pipe(
       take(1),
