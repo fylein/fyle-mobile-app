@@ -188,6 +188,10 @@ export class AddEditPerDiemPage implements OnInit {
 
   canDeleteExpense = true;
 
+  isReportMandatory = false;
+
+  saveWithCriticalPolicyViolation = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -860,6 +864,15 @@ export class AddEditPerDiemPage implements OnInit {
     }
 
     this.isExpandedView = this.mode !== 'add';
+
+    if (this.mode === 'add') {
+      this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
+        if (isConnected) {
+          this.fg.controls.report.setValidators(Validators.required);
+          this.isReportMandatory = true;
+        }
+      });
+    }
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const perDiemRates$ = this.offlineService.getPerDiemRates();
@@ -1656,6 +1669,9 @@ export class AddEditPerDiemPage implements OnInit {
     await fyCriticalPolicyViolationPopOver.present();
 
     const { data } = await fyCriticalPolicyViolationPopOver.onWillDismiss();
+    if (data) {
+      this.saveWithCriticalPolicyViolation = true;
+    }
     return !!data;
   }
 
@@ -1796,12 +1812,15 @@ export class AddEditPerDiemPage implements OnInit {
             }
 
             let reportId;
-            if (
-              this.fg.value.report &&
-              (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
-            ) {
-              reportId = this.fg.value.report.rp.id;
+            if (!this.saveWithCriticalPolicyViolation) {
+              if (
+                this.fg.value.report &&
+                (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
+              ) {
+                reportId = this.fg.value.report.rp.id;
+              }
             }
+
             let entry;
             if (this.fg.value.add_to_new_report) {
               entry = {
@@ -1966,7 +1985,7 @@ export class AddEditPerDiemPage implements OnInit {
               switchMap((tx) => {
                 const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
                 const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-                if (!criticalPolicyViolated) {
+                if (!this.saveWithCriticalPolicyViolation && !criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
@@ -2070,9 +2089,19 @@ export class AddEditPerDiemPage implements OnInit {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
             that.addExpense('SAVE_PER_DIEM').subscribe((res: any) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
+              if (
+                !this.saveWithCriticalPolicyViolation &&
+                that.fg.controls.add_to_new_report.value &&
+                res &&
+                res.transaction
+              ) {
                 this.addToNewReport(res.transaction.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+              } else if (
+                !this.saveWithCriticalPolicyViolation &&
+                that.fg.value.report &&
+                that.fg.value.report.rp &&
+                that.fg.value.report.rp.id
+              ) {
                 that.goBack();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
@@ -2081,9 +2110,14 @@ export class AddEditPerDiemPage implements OnInit {
             });
           } else {
             that.editExpense('SAVE_PER_DIEM').subscribe((res) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.id) {
+              if (!this.saveWithCriticalPolicyViolation && that.fg.controls.add_to_new_report.value && res && res.id) {
                 this.addToNewReport(res.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+              } else if (
+                !this.saveWithCriticalPolicyViolation &&
+                that.fg.value.report &&
+                that.fg.value.report.rp &&
+                that.fg.value.report.rp.id
+              ) {
                 that.goBack();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
@@ -2115,7 +2149,13 @@ export class AddEditPerDiemPage implements OnInit {
 
   async reloadCurrentRoute() {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
-    await this.router.navigate(['/', 'enterprise', 'add_edit_per_diem']);
+    await this.router.navigate([
+      '/',
+      'enterprise',
+      'add_edit_per_diem',
+      ,
+      { rp_id: this.fg.controls.report.value.rp.id },
+    ]);
   }
 
   saveAndNewExpense() {
