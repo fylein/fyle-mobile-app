@@ -311,10 +311,6 @@ export class AddEditExpensePage implements OnInit {
 
   canDeleteExpense = true;
 
-  isReportMandatory = false;
-
-  saveWithCriticalPolicyViolation = false;
-
   policyDetails;
 
   source = 'MOBILE';
@@ -2510,15 +2506,6 @@ export class AddEditExpensePage implements OnInit {
 
     this.isExpandedView = this.mode !== 'add';
 
-    if (this.mode === 'add') {
-      this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
-        if (isConnected) {
-          this.fg.controls.report.setValidators(Validators.required);
-          this.isReportMandatory = true;
-        }
-      });
-    }
-
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList =
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
@@ -2925,7 +2912,7 @@ export class AddEditExpensePage implements OnInit {
 
   async reloadCurrentRoute() {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
-    await this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.fg.controls.report.value.rp.id }]);
+    await this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
   }
 
   addToNewReport(txnId: string) {
@@ -2974,19 +2961,9 @@ export class AddEditExpensePage implements OnInit {
               that.saveAndMatchWithPersonalCardTxn();
             } else {
               that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
-                if (
-                  !this.saveWithCriticalPolicyViolation &&
-                  that.fg.controls.add_to_new_report.value &&
-                  res &&
-                  res.transaction
-                ) {
+                if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
                   this.addToNewReport(res.transaction.id);
-                } else if (
-                  !this.saveWithCriticalPolicyViolation &&
-                  that.fg.value.report &&
-                  that.fg.value.report.rp &&
-                  that.fg.value.report.rp.id
-                ) {
+                } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
                   that.goBack();
                   this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
                 } else {
@@ -2997,14 +2974,9 @@ export class AddEditExpensePage implements OnInit {
           } else {
             // to do edit
             that.editExpense('SAVE_EXPENSE').subscribe((res) => {
-              if (!this.saveWithCriticalPolicyViolation && that.fg.controls.add_to_new_report.value && res && res.id) {
+              if (that.fg.controls.add_to_new_report.value && res && res.id) {
                 this.addToNewReport(res.id);
-              } else if (
-                !this.saveWithCriticalPolicyViolation &&
-                that.fg.value.report &&
-                that.fg.value.report.rp &&
-                that.fg.value.report.rp.id
-              ) {
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
                 that.goBack();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
@@ -3154,9 +3126,6 @@ export class AddEditExpensePage implements OnInit {
     await fyCriticalPolicyViolationPopOver.present();
 
     const { data } = await fyCriticalPolicyViolationPopOver.onWillDismiss();
-    if (data) {
-      this.saveWithCriticalPolicyViolation = true;
-    }
     return !!data;
   }
 
@@ -3328,7 +3297,7 @@ export class AddEditExpensePage implements OnInit {
               switchMap((tx) => {
                 const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
                 const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-                if (!this.saveWithCriticalPolicyViolation && !criticalPolicyViolated) {
+                if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
@@ -3582,15 +3551,12 @@ export class AddEditExpensePage implements OnInit {
             }
 
             let reportId;
-            if (!this.saveWithCriticalPolicyViolation) {
-              if (
-                this.fg.value.report &&
-                (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
-              ) {
-                reportId = this.fg.value.report.rp.id;
-              }
+            if (
+              this.fg.value.report &&
+              (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
+            ) {
+              reportId = this.fg.value.report.rp.id;
             }
-
             let entry;
             if (this.fg.value.add_to_new_report) {
               entry = {
