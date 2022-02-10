@@ -72,7 +72,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   ionViewWillEnter() {
     this.backButtonAction = this.platform.backButton.pipe(filter(() => !this.isModalOpen)).subscribe(() => {
-      this.closeModal();
+      this.retake();
     });
     this.imageSlides.update();
   }
