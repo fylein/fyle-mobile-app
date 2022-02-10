@@ -1,15 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 import { IonicModule } from '@ionic/angular';
-
 import { AddEditMileagePageRoutingModule } from './add-edit-mileage-routing.module';
-
 import { AddEditMileagePage } from './add-edit-mileage.page';
-
 import { SharedModule } from 'src/app/shared/shared.module';
-
 import { FySelectVehicleComponent } from './fy-select-vehicle/fy-select-vehicle.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -18,6 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   imports: [
@@ -34,6 +30,7 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatSnackBarModule,
   ],
   declarations: [AddEditMileagePage, FySelectVehicleComponent, PolicyViolationComponent],
 })

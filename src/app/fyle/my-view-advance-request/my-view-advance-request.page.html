@@ -153,16 +153,8 @@
 </ion-content>
 <ng-container *ngIf="actions$|async as actions">
   <ion-footer *ngIf="actions?.can_pull_back">
-    <ion-toolbar mode="md">
-      <ion-button
-        class="view-advance-request--primary-cta flat-button"
-        fill="solid"
-        color="fyle-primary"
-        expand="block"
-        (click)="pullBack()"
-      >
-        Pull Back
-      </ion-button>
+    <ion-toolbar class="fy-footer-cta-container" mode="md">
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="pullBack()"> Pull Back </ion-button>
     </ion-toolbar>
   </ion-footer>
 </ng-container>

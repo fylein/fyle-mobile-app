@@ -147,7 +147,7 @@ export class ReportService {
     };
     return this.apiService
       .post('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+      .pipe(tap(() => this.clearTransactionCache()));
   }
 
   @CacheBuster({
@@ -196,6 +196,16 @@ export class ReportService {
   })
   removeApprover(rptId, approvalId) {
     return this.apiService.post('/reports/' + rptId + '/approvals/' + approvalId + '/disable');
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  updateReportDetails(erpt) {
+    const reportData = this.dataTransformService.unflatten(erpt);
+    return this.apiService
+      .post('/reports', reportData.rp)
+      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
   }
 
   getUserReportParams(state: string) {
@@ -503,16 +513,17 @@ export class ReportService {
     });
   }
 
-  getReportStatsData(params) {
+  getReportStatsData(params, defaultOwnStats: boolean = true) {
     return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get('/reports/stats', {
+      switchMap((eou) => {
+        const defaultStats = defaultOwnStats ? { rp_org_user_id: `eq.${eou.ou.id}` } : {};
+        return this.apiv2Service.get('/reports/stats', {
           params: {
-            rp_org_user_id: `eq.${eou.ou.id}`,
+            ...defaultStats,
             ...params,
           },
-        })
-      ),
+        });
+      }),
       map((rawStatsResponse) => rawStatsResponse.data)
     );
   }

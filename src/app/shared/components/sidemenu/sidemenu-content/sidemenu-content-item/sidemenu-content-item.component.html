@@ -1,0 +1,58 @@
+<div *ngIf="sidemenuItem.icon === 'teams' || showDivider" class="sidemenu-item__divider"></div>
+<ion-item
+  detail="false"
+  [disabled]="sidemenuItem.disabled"
+  [routerLink]="sidemenuItem.route"
+  [routerLinkActive]="isRoute ? 'sidemenu-item--active' : ''"
+  class="sidemenu-item"
+  [ngClass]="{ 'sidemenu-item--disabled': sidemenuItem.disabled }"
+  (click)="goToRoute(sidemenuItem)"
+>
+  <a
+    class="sidemenu-item__content ion-grid-no-padding"
+    [routerLinkActive]="isRoute ? 'sidemenu-item__content--active' : ''"
+  >
+    <ion-grid class="sidemenu-item__content__block">
+      <ion-row>
+        <ion-col class="sidemenu-item__icon-container">
+          <div *ngIf="sidemenuItem.icon">
+            <ion-icon
+              class="sidemenu-item__icon-container__icon"
+              [ngClass]="{
+                'sidemenu-item__icon-container__icon--sm': ['fy-report', 'fy-dashboard-new', 'fy-switch'].includes(
+                  sidemenuItem.icon
+                )
+              }"
+              [src]="'../../../../../assets/svg/' + sidemenuItem.icon + '.svg'"
+              slot="icon-only"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="sidemenu-item__label-container">
+          <ion-label class="sidemenu-item__label-container__label">{{ sidemenuItem.title }}</ion-label>
+        </ion-col>
+        <ion-col class="sidemenu-item__dropdown-container" *ngIf="sidemenuItem.dropdownOptions?.length">
+          <div>
+            <ion-icon
+              class="sidemenu-item__dropdown-container__icon"
+              [ngClass]="{ 'sidemenu-item__dropdown-container__icon--rotate': !sidemenuItem.isDropdownOpen }"
+              [src]="'../../../../../assets/svg/fy-arrow-down.svg'"
+            ></ion-icon>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </a>
+</ion-item>
+<div
+  class="sidemenu-item__dropdown-items"
+  [ngStyle]="{ height: dropdownHeight + 'px' }"
+  [ngClass]="{ 'sidemenu-item__dropdown-items--hide': !sidemenuItem.isDropdownOpen }"
+>
+  <ng-container *ngFor="let sidemenuSubItem of sidemenuItem.dropdownOptions">
+    <app-sidemenu-content-item
+      [sidemenuItem]="sidemenuSubItem"
+      (redirect)="goToRoute(sidemenuSubItem)"
+    ></app-sidemenu-content-item>
+  </ng-container>
+</div>

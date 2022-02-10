@@ -1,0 +1,621 @@
+<ion-header mode="md">
+  <ion-toolbar class="view-expense--toolbar">
+    <ion-buttons *ngIf="this.reportId" mode="md" slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon class="icon--navigate" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title
+      mode="md"
+      class="page-title"
+      [ngClass]="{'view-expense--title': numEtxnsInReport > 1, 'pl-0': isDeviceWidthSmall}"
+      >View Expense
+      <p class="view-expense--subtitle" *ngIf="numEtxnsInReport > 1">
+        Showing {{ activeEtxnIndex + 1 }} of {{ numEtxnsInReport }} expenses
+      </p>
+    </ion-title>
+    <ion-buttons class="view-expense--header-btn-container" slot="end">
+      <ion-button class="view-expense--header-btn-container__btn" (click)="openCommentsModal()">
+        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+
+      <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
+        <ion-button
+          class="view-expense--header-btn-container__btn"
+          (click)="flagUnflagExpense()"
+          [ngClass]="isExpenseFlagged ? 'icon--flagged' : 'icon--unflagged'"
+        >
+          <ion-icon [src]="'../../../assets/svg/fy-flag-2.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+
+      <ng-container *ngIf="view === ExpenseView.team && canDelete$|async">
+        <ion-button class="view-expense--header-btn-container__btn" (click)="removeExpenseFromReport()">
+          <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="view-expense--container" *ngIf="etxn$|async as etxn">
+    <ng-container *ngIf="etxn.tx_policy_flag">
+      <ng-container *ngIf="policyDetails">
+        <app-fy-policy-violation-info
+          [policyDetails]="policyDetails"
+          [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+        ></app-fy-policy-violation-info>
+      </ng-container>
+    </ng-container>
+
+    <div class="view-expense--policy-container" *ngIf="(isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)">
+      <span class="info-text m-0">
+        Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to {{
+        etxn.tx_amount | currency:etxn.tx_currency: 'symbol-narrow'}} due to policy.
+      </span>
+    </div>
+
+    <div class="d-flex view-expense--card-container">
+      <div class="view-expense--card-container__block">
+        <div class="view-expense--card-container__category">{{ etxn.tx_categoryDisplayName || 'Unspecified' }}</div>
+        <div class="view-expense--card-container__merchant">
+          {{ etxn.tx_vendor || merchantFieldName + ' Unspecified'}}
+        </div>
+        <div *ngIf="isProjectShown" class="view-expense--card-container__project">
+          Project: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
+        </div>
+      </div>
+      <div class="ion-text-right view-expense--card-container__block">
+        <div>
+          <span>{{ etxnCurrencySymbol }}</span>
+          <span class="view-expense--card-container__amount">
+            {{ etxn.tx_orig_amount || etxn.tx_amount || 0 | humanizeCurrency: etxn.tx_currency:2:true }}
+          </span>
+          <ion-icon
+            class="view-expense--card-container__icon"
+            [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+          ></ion-icon>
+        </div>
+
+        <div class="view-expense--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
+          {{ foreignCurrencySymbol }}{{ etxn.tx_orig_amount | humanizeCurrency: etxn.tx_orig_currency:2:true }} at {{
+          etxnCurrencySymbol }}{{ etxn.tx_amount / etxn.tx_orig_amount | number: '1.0-2' }}
+        </div>
+        <div
+          class="view-expense--card-container__state-pill ion-text-right"
+          [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
+        >
+          <div class="view-expense--card-container__state-pill__state">
+            {{ etxn.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-container *ngIf="attachments$|async as attachments">
+      <app-receipt-preview-thumbnail
+        *ngIf="attachments.length > 0; else noAttachment"
+        [attachments]="attachments"
+        (viewAttachments)="viewAttachments()"
+        [canEdit]="false"
+      >
+      </app-receipt-preview-thumbnail>
+    </ng-container>
+
+    <ng-template #noAttachment>
+      <ion-grid class="view-expense--grid">
+        <ion-row>
+          <ion-col class="view-expense--icon-container">
+            <div class="view-expense--icon-container__background">
+              <ion-icon
+                class="view-expense--icon-container__icon-lg"
+                src="../../../assets/svg/no-attachment.svg"
+              ></ion-icon>
+            </div>
+          </ion-col>
+          <ion-col class="view-expense--content-container">
+            <div class="view-expense--label">Receipt</div>
+            <div class="view-expense--value">Not Attached</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ng-template>
+
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon" src="../../../assets/svg/fy-report.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Report Name</div>
+          <div class="view-expense--value">{{ etxn.rp_purpose }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="view === ExpenseView.team" class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon" src="../../../assets/svg/profile.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Employee</div>
+          <div class="view-expense--value">{{ etxn.us_full_name }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Expense ID</div>
+          <div class="view-expense--value">{{ etxn.tx_expense_number }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <div class="view-expense--divider"></div>
+
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-stroke-lg"
+                    src="../../../assets/svg/fy-calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Created Date</div>
+                <div class="view-expense--value">{{ etxn.tx_created_at | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        <ion-col *ngIf="etxn.tx_txn_dt">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon-stroke-lg"
+                    src="../../../assets/svg/fy-calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Spend Date</div>
+                <div class="view-expense--value">{{ etxn.tx_txn_dt | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon
+              class="view-expense--icon-container__icon-lg"
+              [src]="'../../../assets/svg/' + (paymentModeIcon === 'fy-matched' ? 'fy-unmatched' : paymentModeIcon) + '.svg'"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Payment Mode</div>
+          <div class="view-expense--value">{{ paymentMode }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="isCCCTransaction" class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon
+              class="view-expense--icon-container__icon-lg"
+              src="../../../assets/svg/fy-unmatched.svg"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Card Transaction</div>
+          <div class="view-expense--value">
+            <ng-container *ngIf="matchingCCCTransaction$ | async as matchingCCCTransaction; else NoMatchingTxn">
+              {{ (matchingCCCTransaction.vendor || matchingCCCTransaction.description) | ellipsis:20}}
+            </ng-container>
+            <ng-template #NoMatchingTxn> No matching card transaction </ng-template>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="etxn.tx_purpose" class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Purpose</div>
+          <div class="view-expense--value">{{ etxn.tx_purpose }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="etxn.tg_name" class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon
+              class="view-expense--icon-container__icon-lg"
+              src="../../../assets/svg/fy-reimbursable.svg"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">Tax Group</div>
+          <div class="view-expense--value">{{ etxn.tg_name }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="orgSettings?.tax_settings?.enabled && orgSettings?.tax_settings?.name" class="view-expense--grid">
+      <ion-row>
+        <ion-col class="view-expense--icon-container">
+          <div class="view-expense--icon-container__background">
+            <ion-icon
+              class="view-expense--icon-container__icon-lg"
+              src="../../../assets/svg/fy-reimbursable.svg"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-expense--content-container">
+          <div class="view-expense--label">{{ orgSettings?.tax_settings?.name }}</div>
+          <div class="view-expense--value">
+            {{ (etxn.tx_tax | currency:etxn.tx_currency: 'symbol-narrow') || 'Not Added' }}
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="orgSettings?.cost_centers?.enabled && etxn.tx_cost_center_id" class="view-expense--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon"
+                    src="../../../assets/svg/building.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Cost Center</div>
+                <div class="view-expense--value">{{ etxn.tx_cost_center_name }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        <ion-col *ngIf="etxn.tx_cost_center_id">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-expense--icon-container">
+                <div class="view-expense--icon-container__background">
+                  <ion-icon
+                    class="view-expense--icon-container__icon"
+                    src="../../../assets/svg/building.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-expense--content-container">
+                <div class="view-expense--label">Cost Center Code</div>
+                <div class="view-expense--value">{{ etxn.tx_cost_center_id }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ng-container *ngIf="['Taxi', 'Train', 'Flight', 'Bus', 'Hotel'].includes(etxn.tx_fyle_category)">
+      <div class="view-expense--divider"></div>
+      <ng-container *ngIf="etxn.tx_fyle_category === 'Taxi'">
+        <ion-grid *ngIf="etxn.tx_distance" class="view-expense--grid">
+          <ion-row>
+            <ion-col class="view-expense--icon-container">
+              <div class="view-expense--icon-container__background">
+                <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/car.svg"></ion-icon>
+              </div>
+            </ion-col>
+            <ion-col class="view-expense--content-container">
+              <div class="view-expense--label">Distance</div>
+              <div class="view-expense--value">{{ etxn.tx_distance }}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid *ngIf="etxn.tx_distance_unit" class="view-expense--grid">
+          <ion-row>
+            <ion-col class="view-expense--icon-container">
+              <div class="view-expense--icon-container__background">
+                <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/car.svg"></ion-icon>
+              </div>
+            </ion-col>
+            <ion-col class="view-expense--content-container">
+              <div class="view-expense--label">Unit</div>
+              <div class="view-expense--value">{{ etxn.tx_distance_unit | titlecase }}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Train'].includes(etxn.tx_fyle_category)">
+        <ion-grid
+          *ngIf="etxn.tx_locations && etxn.tx_locations.length && etxn.tx_locations[0]?.display"
+          class="view-expense--grid"
+        >
+          <ion-row>
+            <ion-col size="6">
+              <ion-grid>
+                <ion-row>
+                  <ion-col class="view-expense--icon-container">
+                    <div class="view-expense--icon-container__background">
+                      <ion-icon
+                        class="view-expense--icon-container__icon-lg"
+                        src="../../../assets/svg/fy-location.svg"
+                      ></ion-icon>
+                    </div>
+                  </ion-col>
+                  <ion-col class="view-expense--content-container">
+                    <div class="view-expense--label">From</div>
+                    <div class="view-expense--value">{{ etxn.tx_locations[0].display }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-col>
+            <ion-col *ngIf="etxn.tx_locations[1]?.display" size="6">
+              <ion-grid>
+                <ion-row>
+                  <ion-col class="view-expense--icon-container">
+                    <div class="view-expense--icon-container__background">
+                      <ion-icon
+                        class="view-expense--icon-container__icon-lg"
+                        src="../../../assets/svg/fy-location.svg"
+                      ></ion-icon>
+                    </div>
+                  </ion-col>
+                  <ion-col class="view-expense--content-container">
+                    <div class="view-expense--label">To</div>
+                    <div class="view-expense--value">{{ etxn.tx_locations[1].display }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid *ngIf="etxn.tx_from_dt" class="view-expense--grid">
+          <ion-row>
+            <ion-col size="6">
+              <ion-grid>
+                <ion-row>
+                  <ion-col class="view-expense--icon-container">
+                    <div class="view-expense--icon-container__background">
+                      <ion-icon
+                        class="view-expense--icon-container__icon-stroke-lg"
+                        src="../../../assets/svg/fy-calendar.svg"
+                      ></ion-icon>
+                    </div>
+                  </ion-col>
+                  <ion-col class="view-expense--content-container">
+                    <div class="view-expense--label">Onward Date</div>
+                    <div class="view-expense--value">{{ etxn.tx_from_dt | date: 'MMM dd, yyyy' }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-col>
+            <ion-col *ngIf="etxn.tx_to_dt">
+              <ion-grid>
+                <ion-row>
+                  <ion-col class="view-expense--icon-container">
+                    <div class="view-expense--icon-container__background">
+                      <ion-icon
+                        class="view-expense--icon-container__icon-stroke-lg"
+                        src="../../../assets/svg/fy-calendar.svg"
+                      ></ion-icon>
+                    </div>
+                  </ion-col>
+                  <ion-col class="view-expense--content-container">
+                    <div class="view-expense--label">Return Date</div>
+                    <div class="view-expense--value">{{ etxn.tx_to_dt | date: 'MMM dd, yyyy' }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
+
+      <ng-container *ngIf="['Train', 'Bus'].includes(etxn.tx_fyle_category)">
+        <ion-grid *ngIf="etxn.tx_train_travel_class || etxn.tx_bus_travel_class" class="view-expense--grid">
+          <ion-row>
+            <ion-col class="view-expense--icon-container">
+              <div class="view-expense--icon-container__background">
+                <ion-icon
+                  class="view-expense--icon-container__icon-lg"
+                  [src]="'../../../assets/svg/fy-' + etxn.tx_fyle_category.toLowerCase() + '.svg'"
+                ></ion-icon>
+              </div>
+            </ion-col>
+            <ion-col class="view-expense--content-container">
+              <div class="view-expense--label">Travel Class</div>
+              <div class="view-expense--value">{{ etxn.tx_train_travel_class || etxn.tx_bus_travel_class }}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
+
+      <ng-container *ngIf="etxn.tx_fyle_category === 'Flight' && etxn.tx_flight_journey_travel_class">
+        <ion-grid class="view-expense--grid">
+          <ion-row>
+            <ion-col size="6">
+              <ion-grid>
+                <ion-row>
+                  <ion-col class="view-expense--icon-container">
+                    <div class="view-expense--icon-container__background">
+                      <ion-icon
+                        class="view-expense--icon-container__icon-stroke-lg"
+                        src="../../../assets/svg/fy-calendar.svg"
+                      ></ion-icon>
+                    </div>
+                  </ion-col>
+                  <ion-col class="view-expense--content-container">
+                    <div class="view-expense--label">Onward Class</div>
+                    <div class="view-expense--value">{{ etxn.tx_flight_journey_travel_class }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-col>
+            <ion-col *ngIf="etxn.tx_flight_return_travel_class">
+              <ion-grid>
+                <ion-row>
+                  <ion-col class="view-expense--icon-container">
+                    <div class="view-expense--icon-container__background">
+                      <ion-icon
+                        class="view-expense--icon-container__icon-stroke-lg"
+                        src="../../../assets/svg/fy-calendar.svg"
+                      ></ion-icon>
+                    </div>
+                  </ion-col>
+                  <ion-col class="view-expense--content-container">
+                    <div class="view-expense--label">Return Class</div>
+                    <div class="view-expense--value">{{ etxn.tx_flight_return_travel_class }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
+
+      <ng-container
+        *ngIf="etxn.tx_fyle_category === 'Hotel' && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)"
+      >
+        <ion-grid *ngIf="etxn.tx_locations[0]?.display" class="view-expense--grid">
+          <ion-row>
+            <ion-col class="view-expense--icon-container">
+              <div class="view-expense--icon-container__background">
+                <ion-icon
+                  class="view-expense--icon-container__icon-lg"
+                  src="../../../assets/svg/fy-location.svg"
+                ></ion-icon>
+              </div>
+            </ion-col>
+            <ion-col class="view-expense--content-container">
+              <div class="view-expense--label">City</div>
+              <div class="view-expense--value">{{ etxn.tx_locations[0]?.display }}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid *ngIf="etxn.tx_from_dt" class="view-expense--grid">
+          <ion-row>
+            <ion-col size="6">
+              <ion-grid>
+                <ion-row>
+                  <ion-col class="view-expense--icon-container">
+                    <div class="view-expense--icon-container__background">
+                      <ion-icon
+                        class="view-expense--icon-container__icon-stroke-lg"
+                        src="../../../assets/svg/fy-calendar.svg"
+                      ></ion-icon>
+                    </div>
+                  </ion-col>
+                  <ion-col class="view-expense--content-container">
+                    <div class="view-expense--label">Check In</div>
+                    <div class="view-expense--value">{{ etxn.tx_from_dt | date: 'MMM dd, yyyy' }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-col>
+            <ion-col *ngIf="etxn.tx_to_dt">
+              <ion-grid>
+                <ion-row>
+                  <ion-col class="view-expense--icon-container">
+                    <div class="view-expense--icon-container__background">
+                      <ion-icon
+                        class="view-expense--icon-container__icon-stroke-lg"
+                        src="../../../assets/svg/fy-calendar.svg"
+                      ></ion-icon>
+                    </div>
+                  </ion-col>
+                  <ion-col class="view-expense--content-container">
+                    <div class="view-expense--label">Check Out</div>
+                    <div class="view-expense--value">{{ etxn.tx_to_dt | date: 'MMM dd, yyyy' }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-grid *ngIf="etxn.tx_hotel_is_breakfast_provided" class="view-expense--grid">
+          <ion-row>
+            <ion-col class="view-expense--icon-container">
+              <div class="view-expense--icon-container__background">
+                <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+              </div>
+            </ion-col>
+            <ion-col class="view-expense--content-container">
+              <div class="view-expense--label">Breakfast Provided</div>
+              <div class="view-expense--value">{{ etxn.tx_hotel_is_breakfast_provided ? 'Yes' : 'No' }}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="etxn.tx_custom_properties && etxn.tx_custom_properties.length">
+      <div class="view-expense--divider"></div>
+      <ion-grid *ngFor="let customProperty of etxn.tx_custom_properties" class="view-expense--grid">
+        <ion-row>
+          <ion-col class="view-expense--icon-container">
+            <div class="view-expense--icon-container__background">
+              <ion-icon class="view-expense--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+            </div>
+          </ion-col>
+          <ion-col class="view-expense--content-container">
+            <div class="view-expense--label">{{customProperty.name}}</div>
+            <div class="view-expense--value">{{ getDisplayValue(customProperty) }}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ng-container>
+  </div>
+</ion-content>
+
+<app-navigation-footer
+  *ngIf="numEtxnsInReport > 1"
+  [activeEtxnIndex]="activeEtxnIndex"
+  [numEtxnsInReport]="numEtxnsInReport"
+></app-navigation-footer>

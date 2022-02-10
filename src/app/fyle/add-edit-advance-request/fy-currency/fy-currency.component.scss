@@ -1,40 +1,58 @@
+@import '../../../../theme/colors.scss';
+
 .fy-currency {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1) !important;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
-  padding: 20px 0;
-  height: 88px;
-  &__invalid {
-    border: 1px solid red;
+  &--label {
+    width: 100%;
+    margin-right: 2px;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+    color: $black-light;
   }
-  &--currency {
-    font-size: 16px;
-    font-weight: 500;
-    color: #4a4a4a;
-    padding: 12px 16px;
-    line-height: 1.5;
-    height: auto;
-    text-align: center;
-    letter-spacing: 1px;
-    border: 0;
-    border-right: 1px solid #e0e0e0;
-    width: 70px;
-    font-size: 16px;
-    font-weight: 500;
-    color: #4a4a4a;
+
+  &--input {
+    font-size: 14px;
+    line-height: 18px;
+    color: $blue-black;
+    border: none;
+    width: 100%;
+    margin: 6px 0;
+    padding-left: 0;
+  }
+
+  &--mandatory {
+    color: $brand-primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  &--input-container {
+    border-bottom: 1px solid $grey-lighter;
+  }
+
+  &--form {
+    display: flex;
+    align-items: center;
+    height: 70px;
   }
 
   &--amount {
-    width: calc(100% - 70px);
-    padding: 6px 16px;
-    line-height: 1;
-    height: auto;
-    font-size: 24px;
+    font-size: 20px;
+    line-height: 1.2;
     font-weight: 500;
-    border: 0;
+    margin-top: 0;
+  }
 
-    &::placeholder {
-      color: #acb3bd;
-    }
+  &--currency-block {
+    margin-right: 8px;
+  }
+
+  &--amount-block {
+    margin-left: 8px;
+  }
+
+  &__invalid {
+    border-bottom: 1px solid $red;
   }
 }

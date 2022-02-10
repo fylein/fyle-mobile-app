@@ -1,32 +1,51 @@
 <ion-header mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
-    <mat-form-field class="select-currency-modal--form-field mat-form-field-no-padding" appearance="outline">
-      <span class="material-icons select-currency-modal--search-icon" matPrefix> search </span>
+    <ion-title>
+      <div class="selection-modal--title">Select Currency</div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="onDoneClick()">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar class="selection-modal--form-field-container">
+    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
       <input
         #searchBar
         id="select-currency-modal--search-input"
-        class="elect-currency-modal--search-input"
+        class="selection-modal--search-input"
         matInput
         placeholder="Search"
+        [(ngModel)]="value"
       />
+      <button
+        mat-button
+        *ngIf="value"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear"
+        class="selection-modal--clear"
+        (click)="clearValue()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
     </mat-form-field>
-    <ion-buttons slot="end">
-      <ion-button (click)="onDoneClick()"> Done </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="select-currency-modal--header">All Currencies</div>
-  <div
-    matRipple
-    class="select-currency-modal--currency-element"
-    [attr.id]="'currency' + currency.shortCode"
-    *ngFor="let currency of filteredCurrencies$ | async as list"
-    (click)="onCurrencySelect(currency)"
-  >
-    <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
-    <mat-icon *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
-  </div>
+  <div class="selection-modal--sub-title">All Currencies</div>
+  <ng-container *ngFor="let currency of filteredCurrencies$ | async as list">
+    <div
+      matRipple
+      class="selection-modal--list-element"
+      [attr.id]="'currency' + currency.shortCode"
+      (click)="onCurrencySelect(currency)"
+    >
+      <div>{{ currency.shortCode }} - {{ currency.longName }}</div>
+      <mat-icon class="selection-modal--check" *ngIf="currency.shortCode === currentSelection"> check </mat-icon>
+    </div>
+  </ng-container>
 </ion-content>

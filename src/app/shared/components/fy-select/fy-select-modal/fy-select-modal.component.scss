@@ -5,8 +5,8 @@ $list-element-color: #333;
 .selection-modal {
   color: black;
   &--list-element {
-    padding: 6px 0;
-    margin: 16px 0px 0px 16px;
+    padding: 18px 0;
+    margin: 0 16px;
     // border-color-font
     @extend %fy-select-list-element-default-border-color-font;
     // list-item-layout
@@ -71,6 +71,7 @@ $list-element-color: #333;
 
   &--recently-used-item-content {
     @extend %flex-layout-row;
+    align-items: center;
   }
 
   &--check {

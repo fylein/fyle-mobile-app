@@ -1,8 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Observable, Subject, from, noop } from 'rxjs';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { concatMap, switchMap, finalize, map, scan, shareReplay, tap, take } from 'rxjs/operators';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { Router } from '@angular/router';
@@ -12,7 +10,7 @@ import { Router } from '@angular/router';
   templateUrl: './team-advance.page.html',
   styleUrls: ['./team-advance.page.scss'],
 })
-export class TeamAdvancePage implements OnInit {
+export class TeamAdvancePage implements OnInit, AfterViewChecked {
   teamAdvancerequests$: Observable<any[]>;
 
   loadData$: Subject<{ pageNumber: number; state: string }> = new Subject();
@@ -25,16 +23,19 @@ export class TeamAdvancePage implements OnInit {
 
   state = 'PENDING';
 
+  isLoading = false;
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {}
 
   ionViewWillEnter() {
     this.currentPageNumber = 1;
+    this.isLoading = true;
     this.teamAdvancerequests$ = this.loadData$.pipe(
       concatMap(({ pageNumber, state }) => {
         const extraParams =
@@ -49,19 +50,14 @@ export class TeamAdvancePage implements OnInit {
                 areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
               };
 
-        return from(this.loaderService.showLoader()).pipe(
-          switchMap(() =>
-            this.advanceRequestService.getTeamadvanceRequests({
-              offset: (pageNumber - 1) * 10,
-              limit: 10,
-              queryParams: {
-                ...extraParams,
-              },
-              filter: state,
-            })
-          ),
-          finalize(() => from(this.loaderService.hideLoader()))
-        );
+        return this.advanceRequestService.getTeamadvanceRequests({
+          offset: (pageNumber - 1) * 10,
+          limit: 10,
+          queryParams: {
+            ...extraParams,
+          },
+          filter: state,
+        });
       }),
       map((res) => res.data),
       scan((acc, curr) => {
@@ -70,7 +66,8 @@ export class TeamAdvancePage implements OnInit {
         }
         return acc.concat(curr);
       }, [] as ExtendedAdvanceRequest[]),
-      shareReplay(1)
+      shareReplay(1),
+      finalize(() => (this.isLoading = false))
     );
 
     this.count$ = this.loadData$.pipe(
@@ -94,7 +91,8 @@ export class TeamAdvancePage implements OnInit {
           state
         );
       }),
-      shareReplay(1)
+      shareReplay(1),
+      finalize(() => (this.isLoading = false))
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
@@ -111,6 +109,10 @@ export class TeamAdvancePage implements OnInit {
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     this.loadData$.next({ pageNumber: this.currentPageNumber, state: this.state });
+  }
+
+  ngAfterViewChecked() {
+    this.cdr.detectChanges();
   }
 
   loadData(event) {

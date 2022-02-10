@@ -2,13 +2,15 @@
   <div class="policy-violation-info--block">
     <mat-icon class="icon--alert-warning" svgIcon="danger"></mat-icon>
     <div class="policy-violation-info--list-container">
-      <ul class="policy-violation-info--list">
-        <li *ngIf="policyViolations.length === 1">
-          <span class="policy-violation-info--content">{{policyViolations.length}} policy is violated by this expense.</span>
-          <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View details</span>
-        </li>
-        <li *ngIf="policyViolations.length > 1">
-          <span class="policy-violation-info--content">{{policyViolations.length}} policies were violated by this expense.</span>
+      <ul
+        class="policy-violation-info--list"
+        [ngClass]="{ 'policy-violation-info--list__no-bullet': !criticalPolicyViolated }"
+      >
+        <li *ngIf="policyViolations.length >= 1">
+          <span class="policy-violation-info--content"
+            >Policy <span *ngIf="policyViolations.length === 1">violation</span>
+            <span *ngIf="policyViolations.length > 1">violations</span> found.</span
+          >
           <span class="policy-violation-info--view-more" (click)="openPolicyViolationDetails()">View details</span>
         </li>
         <li *ngIf="criticalPolicyViolated" class="policy-violation-info--content">

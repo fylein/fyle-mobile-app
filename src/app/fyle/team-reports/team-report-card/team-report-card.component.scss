@@ -29,6 +29,11 @@
     margin-bottom: 6px;
   }
 
+  &--grid {
+    --ion-grid-padding: 0;
+    --ion-grid-column-padding: 0;
+  }
+
   &--icon-policy-violation {
     height: 16px;
     width: 18px;
@@ -36,11 +41,6 @@
   }
 
   &--secondary-info-block {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  &--purpose-amount-block {
     display: flex;
     justify-content: space-between;
   }
@@ -66,7 +66,6 @@
     color: $black-2;
     font-size: 18px;
     font-weight: 500;
-    max-width: 60%;
   }
 
   &--no-transactions {
@@ -75,11 +74,15 @@
     color: $blue-black;
   }
 
+  &--pill-block {
+    margin-top: 2px;
+  }
+
   &--pill {
     font-size: 12px;
     color: white;
     border-radius: 16px;
-    padding: 2px 16px;
+    padding: 6px 16px;
 
     &__fyled {
       background-color: #f90;
@@ -118,6 +121,11 @@
     color: #686872;
     font-size: 34px;
     margin-right: 20px;
+  }
+
+  &--employee-name {
+    color: $blue-black;
+    font-size: 14px;
   }
 }
 

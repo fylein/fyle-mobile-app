@@ -1,12 +1,21 @@
 <ion-header mode="md">
   <ion-toolbar mode="md" class="add-edit-advance-request--toolbar">
-    <ion-buttons mode="md" slot="start" [ngClass]="{'add-edit-advance-request--header-btn-container-sm': isDeviceWidthSmall}">
+    <ion-buttons
+      mode="md"
+      slot="start"
+      [ngClass]="{'add-edit-advance-request--header-btn-container-sm': isDeviceWidthSmall}"
+    >
       <ion-button (click)="goBack()">
         <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
 
-    <ion-title mode="md" *ngIf="mode" class="page-title" [ngClass]="{'add-edit-advance-request--title-sm': isDeviceWidthSmall}">
+    <ion-title
+      mode="md"
+      *ngIf="mode"
+      class="page-title"
+      [ngClass]="{'add-edit-advance-request--title-sm': isDeviceWidthSmall}"
+    >
       <div *ngIf="mode === 'add'">Request Advance</div>
       <div *ngIf="mode === 'edit'">Edit Advance Request</div>
     </ion-title>
@@ -17,11 +26,15 @@
       [ngClass]="{'add-edit-advance-request--header-btn-container-sm': isDeviceWidthSmall}"
       slot="end"
     >
-      <ion-button  class="add-edit-advance-request--header-btn-container__btn" (click)="openCommentsModal()">
+      <ion-button class="add-edit-advance-request--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
       <ng-container *ngIf="actions$|async as actions">
-        <ion-button *ngIf="actions?.can_delete" class="add-edit-advance-request--header-btn-container__btn" (click)="delete()">
+        <ion-button
+          *ngIf="actions?.can_delete"
+          class="add-edit-advance-request--header-btn-container__btn"
+          (click)="delete()"
+        >
           <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
         </ion-button>
       </ng-container>
@@ -31,54 +44,39 @@
 
 <ion-content>
   <form [formGroup]="fg" class="add-edit-advance-request--form" #formContainer>
-    <div class="add-edit-advance-request--receipt-currency">
-      <div class="add-edit-advance-request--receipt-container text-center">
-        <div *ngIf="attachmentUploadInProgress">
-          <ion-spinner class="add-edit-advance-request--receipt-spinner-icon" icon="circles"></ion-spinner>
-          <div>Uploading</div>
-        </div>
-
-        <div
-          *ngIf="(dataUrls && dataUrls.length === 0) && !attachmentUploadInProgress"
-          (click)="addAttachments($event)"
-        >
-          <p class="add-edit-advance-request--receipt-text">Add Receipt</p>
-          <mat-icon class="add-edit-advance-request--receipt-image-icon"> add_circle </mat-icon>
-        </div>
-
-        <div (click)="viewAttachments()" *ngIf="(dataUrls && dataUrls.length > 0) && !attachmentUploadInProgress">
-          <div
-            *ngIf="dataUrls[0]?.type.indexOf('image') > -1"
-            class="add-edit-advance-request--receipt-background"
-            [ngStyle]="{'background-image': 'url(' + dataUrls[0]?.thumbnail + ')'}"
-          ></div>
-          <div *ngIf="dataUrls[0]?.type.indexOf('pdf') > -1">
-            <img src="assets/images/fy-pdf.svg" alt="" />
-          </div>
-          <div *ngIf="dataUrls.length > 1" class="add-edit-advance-request--receipt-count-container">
-            <span class="add-edit-advance-request--receipt-count">{{dataUrls.length}}</span>
-          </div>
-          <mat-icon class="add-edit-advance-request--receipt-image-icon" (click)="addAttachments($event)">
-            add_circle
-          </mat-icon>
+    <div class="add-edit-advance-request--receipt-currency-container">
+      <div *ngIf="dataUrls && dataUrls.length === 0" class="add-edit-advance-request--receipt text-center">
+        <div class="add-edit-advance-request--receipt-image" (click)="addAttachments($event)">
+          <img class="add-edit-advance-request--receipt-image-icon" src="../../../assets/images/add-to-list.png" />
         </div>
       </div>
 
-      <div class="add-edit-advance-request--currency" *ngIf="extendedAdvanceRequest$|async as extendedAdvanceRequest">
-        <app-fy-currency
-          formControlName="currencyObj"
-          [txnDt]="extendedAdvanceRequest?.created_at"
-          [homeCurrency]="extendedAdvanceRequest.currency"
-        >
-        </app-fy-currency>
-        <div
-          *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
-          class="add-edit-advance-request--amount-error"
-        >
-          Please enter the amount.
-        </div>
+      <div *ngIf="extendedAdvanceRequest$|async as extendedAdvanceRequest" class="add-edit-advance-request--currency">
+        <ng-container *ngIf="homeCurrency$|async as homeCurrency">
+          <app-fy-currency
+            formControlName="currencyObj"
+            [homeCurrency]="extendedAdvanceRequest.currency"
+            [txnDt]="extendedAdvanceRequest?.created_at"
+          >
+          </app-fy-currency>
+          <div
+            *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
+            class="add-edit-advance-request--amount-error"
+          >
+            Please enter the amount.
+          </div>
+        </ng-container>
       </div>
     </div>
+
+    <app-receipt-preview-thumbnail
+      *ngIf="dataUrls && dataUrls.length > 0"
+      [attachments]="dataUrls"
+      (addMoreAttachments)="addAttachments($event)"
+      (viewAttachments)="viewAttachments()"
+      [canEdit]="true"
+    >
+    </app-receipt-preview-thumbnail>
 
     <div class="add-edit-advance-request--primary-block">
       <div class="add-edit-advance-request--internal-block">
@@ -146,14 +144,12 @@
                     [placeholder]="'Enter ' + customInput.name"
                   />
 
-                  <input
-                    class="add-edit-advance-request--text-input"
-                    inputmode="decimal"
-                    type="number"
-                    formControlName="value"
+                  <app-fy-number
                     *ngIf="customInput.type === 'NUMBER'"
                     [placeholder]="'Enter ' + customInput.name"
-                  />
+                    formControlName="value"
+                  >
+                  </app-fy-number>
 
                   <input
                     appFormatDate

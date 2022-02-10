@@ -5,11 +5,7 @@
   >
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
-        <ion-icon
-          class="icon--navigate-left"
-          [src]="'../../../../assets/svg/navigate-left.svg'"
-          slot="icon-only"
-        ></ion-icon>
+        <ion-icon class="icon--navigate" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
@@ -32,7 +28,11 @@
         </div>
       </div>
     </ion-title>
-    <ion-buttons *ngIf="reviewList?.length || mode === 'edit'" class="add-edit-per-diem--header-btn-container" slot="end">
+    <ion-buttons
+      *ngIf="reviewList?.length || mode === 'edit'"
+      class="add-edit-per-diem--header-btn-container"
+      slot="end"
+    >
       <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
@@ -62,14 +62,18 @@
             <ng-container *ngIf="etxn$|async as etxn">
               <ng-container *ngIf="mode === 'edit'">
                 <ng-container *ngIf="policyDetails">
-                  <app-fy-policy-violation-info [policyDetails]="policyDetails" [criticalPolicyViolated]="isCriticalPolicyViolated$|async">
+                  <app-fy-policy-violation-info
+                    [policyDetails]="policyDetails"
+                    [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+                  >
                   </app-fy-policy-violation-info>
                 </ng-container>
               </ng-container>
 
               <ng-container *ngIf="isAmountCapped$|async">
-                <div class="add-edit-per-diem--critical-policy"  *ngIf="!(isCriticalPolicyViolated$|async)">
-                  <div>
+                <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
+                  <mat-icon class="capped-icon" svgIcon="fy-info"></mat-icon>
+                  <div class="capped-message">
                     Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
                     '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
                   </div>
@@ -235,15 +239,12 @@
                           {{ txnFields?.num_days.field_name }}
                           <div class="add-edit-per-diem--mandatory">*</div>
                         </div>
-                        <input
-                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
-                          [min]="0"
-                          class="add-edit-per-diem--text-input"
+                        <app-fy-number
                           formControlName="num_days"
-                          inputmode="decimal"
+                          [min]="0"
+                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
                           [placeholder]="'Enter ' + txnFields?.num_days.field_name"
-                          type="number"
-                        />
+                        ></app-fy-number>
                       </div>
                       <div
                         *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid"
@@ -301,9 +302,12 @@
                   </ng-container>
                   <ng-container *ngIf="isAdvancesEnabled$">
                     <ng-container
-                      *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount">
-                      <app-fy-alert-info [message]="'You have outstanding balance in your advance account(s)'"
-                        [type]="'information'"></app-fy-alert-info>
+                      *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount"
+                    >
+                      <app-fy-alert-info
+                        [message]="'You have outstanding balance in your advance account(s)'"
+                        [type]="'information'"
+                      ></app-fy-alert-info>
                     </ng-container>
                   </ng-container>
 
@@ -343,10 +347,14 @@
                     </div>
 
                     <div
-                      *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
-                      class="add-edit-per-diem--error"
+                      *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
                     >
-                      Please select a project.
+                      <div
+                        *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
+                        class="add-edit-per-diem--error"
+                      >
+                        Please select a project.
+                      </div>
                     </div>
                   </ng-container>
 
@@ -410,24 +418,26 @@
                   <ng-container *ngIf="txnFields$|async as txnFields">
                     <ng-container *ngIf="txnFields?.purpose?.is_mandatory || isExpandedView">
                       <ng-container *ngIf="txnFields?.purpose">
-                        <div
-                          *ngIf="txnFields?.purpose.type === 'TEXT'"
-                          [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
-                          class="add-edit-per-diem--text"
-                        >
-                          <div class="add-edit-per-diem--text-label">
-                            {{ ('Enter ' + txnFields?.purpose.field_name)| slice: 0:30 }}
-                            <span class="add-edit-per-diem--mandatory" *ngIf="txnFields?.purpose?.is_mandatory">*</span>
+                        <div class="add-edit-per-diem--internal-block" *ngIf="txnFields?.purpose.type === 'TEXT'">
+                          <div
+                            [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.purpose.touched && !fg.controls.purpose.valid}"
+                            class="add-edit-per-diem--text"
+                          >
+                            <div class="add-edit-per-diem--text-label">
+                              {{ ('Enter ' + txnFields?.purpose.field_name)| slice: 0:30 }}
+                              <span class="add-edit-per-diem--mandatory" *ngIf="txnFields?.purpose?.is_mandatory"
+                                >*</span
+                              >
+                            </div>
+                            <input
+                              [disabled]="!txnFields.purpose?.canEdit"
+                              [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:30"
+                              [required]="txnFields.purpose?.is_mandatory"
+                              [title]="'Enter'+txnFields.purpose?.field_name"
+                              class="add-edit-per-diem--text-input"
+                              formControlName="purpose"
+                            />
                           </div>
-
-                          <input
-                            [disabled]="!txnFields.purpose?.canEdit"
-                            [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:30"
-                            [required]="txnFields.purpose?.is_mandatory"
-                            [title]="'Enter'+txnFields.purpose?.field_name"
-                            class="add-edit-per-diem--text-input"
-                            formControlName="purpose"
-                          />
                         </div>
                         <div *ngIf="txnFields?.purpose.type === 'SELECT'" class="add-edit-per-diem--internal-block">
                           <app-fy-select
@@ -445,7 +455,7 @@
                           *ngIf="fg.controls.purpose.touched && !fg.controls.purpose.valid"
                           class="add-edit-per-diem--error"
                         >
-                          Please enter {{ txnFields?.purpose.field_name }}.
+                          Please enter {{ txnFields?.purpose.field_name }}
                         </div>
                       </ng-container>
                     </ng-container>
@@ -478,14 +488,11 @@
                               type="text"
                             />
 
-                            <input
+                            <app-fy-number
                               *ngIf="customInput.type === 'NUMBER'"
-                              class="add-edit-per-diem--text-input"
                               formControlName="value"
                               [placeholder]="'Enter ' + customInput.name"
-                              inputmode="decimal"
-                              type="number"
-                            />
+                            ></app-fy-number>
 
                             <input
                               appFormatDate
@@ -555,14 +562,10 @@
                         <ng-container>
                           <div class="add-edit-per-diem--internal-block">
                             <app-fy-add-to-report
-                              *ngIf="reports.length > 0"
                               [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
                               [options]="reports"
                               formControlName="report"
                             ></app-fy-add-to-report>
-                            <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                              <span class="add-edit-per-diem--text-label"> Add to New Report </span>
-                            </mat-checkbox>
                           </div>
                         </ng-container>
                       </ng-container>
@@ -574,11 +577,29 @@
                       <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
                         <ng-container *ngIf="isIndividualProjectsEnabled$|async as isIndividualProjectsEnabled">
                           <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
-                            <app-fy-alert-info *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
+                            <app-fy-alert-info
+                              *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
                               [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
-                              [type]="'warning'">
+                              [type]="'warning'"
+                            >
                             </app-fy-alert-info>
                           </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-container *ngIf="isConnected$">
+                    <ng-container *ngIf="txnFields$|async as txnFields">
+                      <ng-container *ngIf="isCostCentersEnabled$|async as isCostCentersEnabled">
+                        <ng-container *ngIf="costCenters$|async as allowedCostCenters">
+                          <app-fy-alert-info
+                            class="add-edit-per-diem--cost-center-alert"
+                            *ngIf="txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0"
+                            [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                            [type]="'warning'"
+                          >
+                          </app-fy-alert-info>
                         </ng-container>
                       </ng-container>
                     </ng-container>
@@ -710,12 +731,7 @@
     <ion-toolbar mode="md" [ngClass]="{'add-edit-per-diem--footer-toolbar__offline': !(isConnected$|async)}">
       <div class="add-edit-per-diem--cta-container">
         <ion-buttons *ngIf="!reviewList">
-          <ion-button
-              (click)="close()"
-              *ngIf="mode === 'edit'"
-              [disabled]="savePerDiemLoader"
-              class="btn-secondary"
-          >
+          <ion-button (click)="close()" *ngIf="mode === 'edit'" [disabled]="savePerDiemLoader" class="btn-secondary">
             Cancel
           </ion-button>
           <ion-button

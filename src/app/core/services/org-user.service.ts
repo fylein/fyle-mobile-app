@@ -98,6 +98,10 @@ export class OrgUserService {
     }).pipe(map((res) => res.data));
   }
 
+  getUserById(userId: string) {
+    return this.apiService.get('/eous/' + userId);
+  }
+
   exclude(eous: ExtendedOrgUser[], userIds: string[]) {
     return eous.filter((eou) => userIds.indexOf(eou.ou.id) === -1);
   }

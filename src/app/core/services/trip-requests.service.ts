@@ -498,4 +498,49 @@ export class TripRequestsService {
 
     return this.apiService.get('/trip_requests', data);
   }
+
+  doesOrgHaveExtension() {
+    const orgsWithExtension = [
+      'or8F8XiG9jSQ',
+      'or9gSt4mWedY',
+      'orahMQy7UIlk',
+      'orB0JRZSgPOs',
+      'orbqR544i6rm',
+      'orkHq6G6Dv7t',
+      'orO46ZzIv6Qd',
+      'oroa6z21qLKi',
+      'orS4ivpQ663E',
+      'orsB1jOO4Zky',
+      'orSJnVpDYxOQ',
+      'oruut31vVaoA',
+      'orYasjvDiS6i',
+      'orzE2Hzwd32D',
+      'orZlFsj9iNSY',
+      'orAQ0g05flq6',
+      'orcnfOH4mR5t',
+    ];
+    return from(this.authService.getEou()).pipe(map((eou) => orgsWithExtension.includes(eou.ou.org_id)));
+  }
+
+  getTripDeprecationMsg(view: 'individual' | 'team') {
+    return this.doesOrgHaveExtension().pipe(
+      map((doesOrgHaveExtension) => {
+        const lastTripCreationDate = 'Mar 31';
+        let lastApprovalSendBackDate = 'Apr 30';
+        let msg = `We are removing Trips from our app. You won't be able to create new trip requests after ${lastTripCreationDate}, 2022.`;
+
+        if (!doesOrgHaveExtension) {
+          lastApprovalSendBackDate = 'Feb 28';
+          msg = `We are removing Trips from our app. You won't be able to create new trip requests going forward.`;
+        }
+
+        if (view === 'team') {
+          msg = msg.replace('You', 'Users');
+          msg += ` You cannot approve or send back trip requests after ${lastApprovalSendBackDate}, 2022.`;
+        }
+
+        return msg;
+      })
+    );
+  }
 }

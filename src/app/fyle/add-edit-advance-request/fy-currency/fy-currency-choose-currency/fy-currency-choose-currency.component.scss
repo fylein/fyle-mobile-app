@@ -1,36 +1,52 @@
-$header-border: #ddd;
-$header-input: #f8f8f8;
+@import '../../../../../assets/styles/fy_select';
 
-.select-currency-modal {
+.selection-modal {
   color: black;
-  &--currency-element {
-    padding: 24px;
-    border-bottom: 1px solid $header-border;
-    font-size: 16px;
-    color: #333;
-    background-color: #f8f8f8;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  &--list-element {
+    padding: 18px 0;
+    margin: 0 16px;
+    @extend %fy-select-list-element-default-border-color-font;
+    @extend %fy-select-list-element-layout;
+  }
+
+  &--title {
+    @extend %fy-select-title;
   }
 
   &--header {
-    margin: 0;
-    padding: 10px 15px 10px 24px;
-    font-size: 14px;
-    border-bottom: 1px solid $header-border;
+    @extend %fy-select-header;
+  }
+
+  &--search-input {
+    @extend %fy-select-search-input;
   }
 
   &--form-field {
-    font-size: 11px;
-    width: 100%;
-    padding: 4px;
+    @extend %fy-select-mat-form-field;
+    .mat-form-field-wrapper {
+      box-shadow: rgba(0, 0, 0, 0.1) 0 4px 8px 0 !important;
+    }
   }
-  &--search-icon {
+
+  &--form-field-container {
+    text-align: center;
+  }
+
+  &--sub-title {
+    color: $gray-3;
     font-size: 14px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-bottom: 1px solid $grey-light;
   }
-  &--search-input {
-    padding: 0 12px;
-    font-size: 16px;
+
+  &--clear {
+    background-color: $pure-white;
+    color: $black-light;
+    padding: 8px 5px;
+  }
+
+  &--check {
+    @extend %fy-select-check;
   }
 }
