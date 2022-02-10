@@ -31,7 +31,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
   backButtonAction: Subscription;
 
-  isModalOpen = false;
+  isCropModalOpen = false;
 
   constructor(
     private platform: Platform,
@@ -50,9 +50,9 @@ export class ReceiptPreviewComponent implements OnInit {
       },
     });
     await cropReceiptModal.present();
-    this.isModalOpen = true;
+    this.isCropModalOpen = true;
     const { data } = await cropReceiptModal.onWillDismiss();
-    this.isModalOpen = false;
+    this.isCropModalOpen = false;
 
     if (data && data.base64ImageWithSource) {
       this.base64ImagesWithSource[this.activeIndex] = data.base64ImageWithSource;
