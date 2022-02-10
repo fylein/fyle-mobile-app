@@ -1,4 +1,4 @@
-<ion-header mode="md">
+<ion-header [ngClass]="{'d-none': isCameraShown}" mode="md">
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
@@ -48,7 +48,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [ngClass]="{'d-none': isCameraShown}">
   <ng-container *ngIf="fg">
     <div class="add-edit-expense--duplicate-pointer-container">
       <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-expense--duplicate-pointer">
@@ -1110,7 +1110,11 @@
     (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
-  <ion-footer class="add-edit-expense--footer-container" *ngIf="!reviewList?.length">
+  <ion-footer
+    [ngClass]="{'d-none': isCameraShown}"
+    class="add-edit-expense--footer-container"
+    *ngIf="!reviewList?.length"
+  >
     <ion-toolbar mode="md" [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}">
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">
