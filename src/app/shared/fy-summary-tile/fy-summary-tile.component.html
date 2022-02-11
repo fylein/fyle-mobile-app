@@ -1,0 +1,35 @@
+<div class="d-flex view-expense--card-container">
+  <div class="view-expense--card-container__block">
+    <div *ngIf="categoryDisplayName" class="view-expense--card-container__category">{{ categoryDisplayName }}</div>
+    <div *ngIf="merchantName" class="view-expense--card-container__merchant">
+      {{ merchantName }}
+    </div>
+    <div *ngIf="projectName" class="view-expense--card-container__project">Project: {{ projectName }}</div>
+  </div>
+  <div class="ion-text-right view-expense--card-container__block">
+    <div>
+      <span *ngIf="currencySymbol">{{ currencySymbol }}</span>
+      <span class="view-expense--card-container__amount">
+        {{ etxn.tx_orig_amount || etxn.tx_amount || 0 | humanizeCurrency: etxn.tx_currency:2:true }}
+      </span>
+      <ion-icon
+        *ngIf="paymentModeIcon"
+        class="view-expense--card-container__icon"
+        [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+      ></ion-icon>
+    </div>
+
+    <div class="view-expense--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
+      {{ foreignCurrencySymbol }}{{ etxn.tx_orig_amount | humanizeCurrency: etxn.tx_orig_currency:2:true }} at
+      {{ etxnCurrencySymbol }}{{ etxn.tx_amount / etxn.tx_orig_amount | number: '1.0-2' }}
+    </div>
+    <div
+      class="view-expense--card-container__state-pill ion-text-right"
+      [ngClass]="{ 'view-expense--card-container__no-exchange': !foreignCurrencySymbol && projectName }"
+    >
+      <div class="view-expense--card-container__state-pill__state">
+        {{ etxn.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
+      </div>
+    </div>
+  </div>
+</div>
