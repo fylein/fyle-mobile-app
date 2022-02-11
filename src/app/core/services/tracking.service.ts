@@ -63,7 +63,7 @@ export class TrackingService {
       properties = {
         ...properties,
         Asset: 'Mobile',
-        Platform: deviceInfo.platform,
+        DeviceType: deviceInfo.platform,
       };
       if (this.tracking) {
         this.tracking.track(action, properties);
