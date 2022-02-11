@@ -12,6 +12,14 @@
     </app-fy-alert-info>
   </div>
 
+  <div class="popup-alert--info-container" *ngIf="showCriticalViolated">
+    <app-fy-alert-info
+      [message]="'This report has ' + numCriticalPolicies + ' expense(s) with critical policy violation(s)'"
+      [type]="'warning'"
+    >
+    </app-fy-alert-info>
+  </div>
+
   <ion-footer class="popup-alert--footer">
     <div [ngClass]="{ 'popup-alert--cta-container': secondaryCta, 'text-center': !secondaryCta }">
       <button

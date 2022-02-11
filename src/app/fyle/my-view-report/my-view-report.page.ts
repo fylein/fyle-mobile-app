@@ -31,6 +31,8 @@ import { cloneDeep, isEqual } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 
 @Component({
   selector: 'app-my-view-report',
@@ -134,7 +136,8 @@ export class MyViewReportPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
-    private refinerService: RefinerService
+    private refinerService: RefinerService,
+    private humanizeCurrency: HumanizeCurrencyPipe
   ) {}
 
   setupNetworkWatcher() {
@@ -379,21 +382,37 @@ export class MyViewReportPage implements OnInit {
   async showResubmitReportSummaryPopover() {
     const erpt = await this.erpt$.toPromise();
     const etxns = await this.etxns$.toPromise();
+    const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, 2, false);
+    const showCriticalViolated = false;
     const popover = await this.popoverController.create({
       componentProps: {
+        title: 'Review Report',
+        message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be resubmitted',
         erpt,
         etxns,
+        showCriticalViolated,
+        primaryCta: {
+          text: 'Resubmit',
+          action: 'submit',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'cancel',
+        },
       },
-      component: ResubmitReportPopoverComponent,
-      cssClass: 'dialog-popover',
+      component: PopupAlertComponentComponent,
+      cssClass: 'pop-up-in-center',
     });
 
     await popover.present();
 
     const { data } = await popover.onWillDismiss();
-    this.refinerService.startSurvey({ actionName: 'Resubmit Report' });
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'my_reports']);
+
+    if (data && data.action === 'submit') {
+      this.reportService.resubmit(erpt.rp_id).subscribe(() => {
+        this.refinerService.startSurvey({ actionName: 'Resubmit Report' });
+        this.router.navigate(['/', 'enterprise', 'my_reports']);
+      });
     }
   }
 
