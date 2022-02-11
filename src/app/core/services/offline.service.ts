@@ -13,10 +13,10 @@ import { AccountsService } from './accounts.service';
 import { StorageService } from './storage.service';
 import { CurrencyService } from './currency.service';
 import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
-import { forkJoin, from, Observable } from 'rxjs';
+import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { PermissionsService } from './permissions.service';
 import { Org } from '../models/org.model';
-import { Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
+import { Cacheable, CacheBuster, globalCacheBusterNotifier } from 'ts-cacheable';
 import { OrgUserService } from './org-user.service';
 import { intersection } from 'lodash';
 import { DeviceService } from './device.service';
@@ -25,6 +25,8 @@ import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { TaxGroupService } from './tax_group.service';
+
+const orgUserSettingsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root',
@@ -102,7 +104,16 @@ export class OfflineService {
     );
   }
 
-  @Cacheable()
+  @CacheBuster({
+    cacheBusterNotifier: orgUserSettingsCacheBuster$,
+  })
+  clearOrgUserSettings() {
+    return of(null);
+  }
+
+  @Cacheable({
+    cacheBusterObserver: orgUserSettingsCacheBuster$,
+  })
   getOrgUserSettings(): Observable<OrgUserSettings> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
