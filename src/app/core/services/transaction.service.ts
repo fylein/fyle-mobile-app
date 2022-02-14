@@ -16,6 +16,7 @@ import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
+import * as moment from 'moment';
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -496,6 +497,11 @@ export class TransactionService {
         if (etxn.tx_tax) {
           delete etxn.tx_tax;
         }
+
+        if (etxn.tx_created_at) {
+          etxn.tx_created_at = moment(etxn.tx_created_at).format('YYYY-MM-DDTHH:mm:ss.SSSS');
+        }
+
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (etxn.tx_txn_dt) {
           etxn.tx_txn_dt.setHours(12);
