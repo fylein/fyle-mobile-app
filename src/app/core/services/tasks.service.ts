@@ -139,6 +139,11 @@ export class TasksService {
       const existingFilter = selectedFilters.find((filter) => filter.name === 'Advances');
       if (existingFilter) {
         existingFilter.value.push('SENT_BACK');
+      } else {
+        selectedFilters.push({
+          name: 'Advances',
+          value: ['SENT_BACK'],
+        });
       }
     }
 
@@ -374,7 +379,7 @@ export class TasksService {
       homeCurrency: this.offlineService.getHomeCurrency(),
     }).pipe(
       map(({ advancesStats, homeCurrency }) =>
-        this.mapSentBackAdvacnesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
+        this.mapSentBackAdvancesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
       )
     );
   }
@@ -514,7 +519,7 @@ export class TasksService {
     }
   }
 
-  mapSentBackAdvacnesToTasks(
+  private mapSentBackAdvancesToTasks(
     aggregate: { totalCount: number; totalAmount: number },
     homeCurrency: string
   ): DashboardTask[] {

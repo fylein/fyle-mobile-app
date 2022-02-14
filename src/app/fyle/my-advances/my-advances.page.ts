@@ -293,7 +293,6 @@ export class MyAdvancesPage implements AfterViewChecked {
       queryParams,
     });
     this.trackingService.tasksPageOpened({
-      Asset: 'Mobile',
       from: 'My Advances',
     });
   }
