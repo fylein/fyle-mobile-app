@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@import '../../../../theme/colors.scss';
 
 .capture-receipt {
   &--camera-preview {
@@ -100,6 +100,7 @@
 
   &--capture-icon-block {
     min-width: 84px;
+    margin: auto;
   }
 
   &--capture-icon {
