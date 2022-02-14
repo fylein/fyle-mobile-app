@@ -93,13 +93,7 @@ export class TasksService {
     }
 
     if (filters.unreportedExpenses) {
-      const existingFilter = this.getExistingFilter(selectedFilters, 'Expenses', 'UNREPORTED');
-      if (!existingFilter) {
-        selectedFilters.push({
-          name: 'Expenses',
-          value: ['UNREPORTED'],
-        });
-      }
+      this.getSelectedFilter(selectedFilters, 'Expenses', 'UNREPORTED');
     }
 
     if (filters.draftReports) {
@@ -110,44 +104,42 @@ export class TasksService {
     }
 
     if (filters.sentBackReports) {
-      const existingFilter = this.getExistingFilter(selectedFilters, 'Reports', 'SENT_BACK');
-      if (!existingFilter) {
-        selectedFilters.push({
-          name: 'Reports',
-          value: ['SENT_BACK'],
-        });
-      }
+      this.getSelectedFilter(selectedFilters, 'Reports', 'SENT_BACK');
     }
 
     if (filters.teamReports) {
-      const existingFilter = this.getExistingFilter(selectedFilters, 'Reports', 'TEAM');
-      if (!existingFilter) {
-        selectedFilters.push({
-          name: 'Reports',
-          value: ['TEAM'],
-        });
-      } else {
-      }
+      this.getSelectedFilter(selectedFilters, 'Reports', 'TEAM');
     }
 
     if (filters.sentBackAdvances) {
-      const existingFilter = this.getExistingFilter(selectedFilters, 'Advances', 'SENT_BACK');
-      if (!existingFilter) {
-        selectedFilters.push({
-          name: 'Advances',
-          value: ['SENT_BACK'],
-        });
-      }
+      this.getSelectedFilter(selectedFilters, 'Advances', 'SENT_BACK');
     }
-
     return selectedFilters;
+  }
+
+  getSelectedFilter(selectedFilters, filterName, value) {
+    const existingFilters = selectedFilters.find((filter) => filter.name === filterName);
+    if (existingFilters) {
+      return existingFilters.value.push(value);
+    } else {
+      return selectedFilters.push({
+        name: filterName,
+        value: [value],
+      });
+    }
   }
 
   getExistingFilter(selectedFilters, filterName, value) {
     const existingFilters = selectedFilters.find((filter) => filter.name === filterName);
+    console.log('tpp', existingFilters);
 
     if (existingFilters) {
       return existingFilters.value.push(value);
+    } else {
+      return selectedFilters.push({
+        name: filterName,
+        value: [value],
+      });
     }
   }
 
