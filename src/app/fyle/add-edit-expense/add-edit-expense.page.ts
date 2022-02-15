@@ -2971,7 +2971,11 @@ export class AddEditExpensePage implements OnInit {
       .checkIfInvalidPaymentMode()
       .pipe(take(1))
       .subscribe((invalidPaymentMode) => {
-        if (that.fg.valid && !invalidPaymentMode) {
+        const saveIncompleteExpense =
+          that.activatedRoute.snapshot.params.dataUrl &&
+          !that.fg.controls.add_to_new_report.value &&
+          !that.fg.value.report?.rp?.id;
+        if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode)) {
           if (that.mode === 'add') {
             if (that.isCreatedFromPersonalCard) {
               that.saveAndMatchWithPersonalCardTxn();
