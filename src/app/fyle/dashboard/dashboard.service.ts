@@ -25,10 +25,10 @@ export class DashboardService {
       })
       .pipe(
         map((rawStatsResponse) => {
-          const countAggregate = rawStatsResponse[0].aggregates.find(
+          const countAggregate = rawStatsResponse[0]?.aggregates?.find(
             (aggregate) => aggregate.function_name === 'count(tx_id)'
           );
-          const amountAggregate = rawStatsResponse[0].aggregates.find(
+          const amountAggregate = rawStatsResponse[0]?.aggregates?.find(
             (aggregate) => aggregate.function_name === 'sum(tx_amount)'
           );
           return {
@@ -48,10 +48,10 @@ export class DashboardService {
       })
       .pipe(
         map((rawStatsResponse) => {
-          const countAggregate = rawStatsResponse[0].aggregates.find(
+          const countAggregate = rawStatsResponse[0]?.aggregates?.find(
             (aggregate) => aggregate.function_name === 'count(tx_id)'
           );
-          const amountAggregate = rawStatsResponse[0].aggregates.find(
+          const amountAggregate = rawStatsResponse[0]?.aggregates?.find(
             (aggregate) => aggregate.function_name === 'sum(tx_amount)'
           );
           return {
