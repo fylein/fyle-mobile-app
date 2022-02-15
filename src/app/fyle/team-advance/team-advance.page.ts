@@ -179,14 +179,6 @@ export class TeamAdvancePage implements AfterViewChecked {
             value: SortingValue.creationDateDesc,
           },
           {
-            label: 'Approval Date - New to Old',
-            value: SortingValue.approvalDateAsc,
-          },
-          {
-            label: 'Approval Date - Old to New',
-            value: SortingValue.approvalDateDesc,
-          },
-          {
             label: 'Project - A to Z',
             value: SortingValue.projectAsc,
           },
@@ -245,8 +237,6 @@ export class TeamAdvancePage implements AfterViewChecked {
   setupDefaultFilters() {
     this.filters = {
       state: [AdvancesStates.pending],
-      sortParam: SortingParam.creationDate,
-      sortDir: SortingDirection.descending,
     };
     this.filterPills = this.filtersHelperService.generateFilterPills(this.filters);
   }
