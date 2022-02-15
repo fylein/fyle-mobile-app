@@ -3,11 +3,21 @@
     <ion-grid class="stat-badge--grid">
       <ion-row>
         <ion-col class="stat-badge--count-col" size="4">
-          <div
-            *ngIf="!loading"
-            [ngClass]="'stat-badge--count stat-badge--count__' + reportState.toString().toLowerCase()"
-          >
-            {{ count }}
+          <div *ngIf="!loading && reportState">
+            <div
+              *ngIf="!loading"
+              [ngClass]="'stat-badge--count stat-badge--count__' + reportState.toString().toLowerCase()"
+            >
+              {{ count }}
+            </div>
+          </div>
+          <div *ngIf="!loading && expenseState">
+            <div
+              *ngIf="!loading"
+              [ngClass]="'stat-badge--count stat-badge--count__' + expenseState.toString().toLowerCase()"
+            >
+              {{ count }}
+            </div>
           </div>
           <div class="stat-badge--count-loader" *ngIf="loading">
             <ion-skeleton-text animated></ion-skeleton-text>
