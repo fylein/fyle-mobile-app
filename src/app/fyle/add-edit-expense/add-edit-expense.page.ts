@@ -97,6 +97,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -311,9 +312,15 @@ export class AddEditExpensePage implements OnInit {
 
   canDeleteExpense = true;
 
+  isReportMandatory = false;
+
+  saveWithCriticalPolicyViolation = false;
+
   policyDetails;
 
   source = 'MOBILE';
+
+  isCameraShown = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1198,11 +1205,11 @@ export class AddEditExpensePage implements OnInit {
           }
 
           if (extractedData.date) {
-            etxn.tx.txn_dt = new Date(extractedData.date);
+            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.date));
           }
 
           if (extractedData.invoice_dt) {
-            etxn.tx.txn_dt = new Date(extractedData.invoice_dt);
+            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.invoice_dt));
           }
 
           if (extractedData.vendor) {
@@ -2235,7 +2242,7 @@ export class AddEditExpensePage implements OnInit {
               }
 
               if (etxn.tx.extracted_data.invoice_dt) {
-                etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.invoice_dt);
+                etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
               }
 
               if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
@@ -2505,6 +2512,15 @@ export class AddEditExpensePage implements OnInit {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
 
     this.isExpandedView = this.mode !== 'add';
+
+    if (this.mode === 'add') {
+      this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
+        if (isConnected) {
+          this.fg.controls.report.setValidators(Validators.required);
+          this.isReportMandatory = true;
+        }
+      });
+    }
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
     this.reviewList =
@@ -2912,7 +2928,7 @@ export class AddEditExpensePage implements OnInit {
 
   async reloadCurrentRoute() {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
-    await this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
+    await this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.fg.controls.report.value.rp.id }]);
   }
 
   addToNewReport(txnId: string) {
@@ -2961,9 +2977,19 @@ export class AddEditExpensePage implements OnInit {
               that.saveAndMatchWithPersonalCardTxn();
             } else {
               that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
-                if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
+                if (
+                  !this.saveWithCriticalPolicyViolation &&
+                  that.fg.controls.add_to_new_report.value &&
+                  res &&
+                  res.transaction
+                ) {
                   this.addToNewReport(res.transaction.id);
-                } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                } else if (
+                  !this.saveWithCriticalPolicyViolation &&
+                  that.fg.value.report &&
+                  that.fg.value.report.rp &&
+                  that.fg.value.report.rp.id
+                ) {
                   that.goBack();
                   this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
                 } else {
@@ -2974,9 +3000,14 @@ export class AddEditExpensePage implements OnInit {
           } else {
             // to do edit
             that.editExpense('SAVE_EXPENSE').subscribe((res) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.id) {
+              if (!this.saveWithCriticalPolicyViolation && that.fg.controls.add_to_new_report.value && res && res.id) {
                 this.addToNewReport(res.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+              } else if (
+                !this.saveWithCriticalPolicyViolation &&
+                that.fg.value.report &&
+                that.fg.value.report.rp &&
+                that.fg.value.report.rp.id
+              ) {
                 that.goBack();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
@@ -3126,6 +3157,9 @@ export class AddEditExpensePage implements OnInit {
     await fyCriticalPolicyViolationPopOver.present();
 
     const { data } = await fyCriticalPolicyViolationPopOver.onWillDismiss();
+    if (data) {
+      this.saveWithCriticalPolicyViolation = true;
+    }
     return !!data;
   }
 
@@ -3297,7 +3331,7 @@ export class AddEditExpensePage implements OnInit {
               switchMap((tx) => {
                 const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
                 const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-                if (!criticalPolicyViolated) {
+                if (!this.saveWithCriticalPolicyViolation && !criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
@@ -3551,12 +3585,15 @@ export class AddEditExpensePage implements OnInit {
             }
 
             let reportId;
-            if (
-              this.fg.value.report &&
-              (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
-            ) {
-              reportId = this.fg.value.report.rp.id;
+            if (!this.saveWithCriticalPolicyViolation) {
+              if (
+                this.fg.value.report &&
+                (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
+              ) {
+                reportId = this.fg.value.report.rp.id;
+              }
             }
+
             let entry;
             if (this.fg.value.add_to_new_report) {
               entry = {
@@ -3845,8 +3882,36 @@ export class AddEditExpensePage implements OnInit {
 
       await popup.present();
 
-      const { data } = await popup.onWillDismiss();
-      this.attachReceipts(data);
+      let { data: receiptDetails } = await popup.onWillDismiss();
+
+      if (receiptDetails && receiptDetails.option === 'camera') {
+        const captureReceiptModal = await this.modalController.create({
+          component: CaptureReceiptComponent,
+          componentProps: {
+            isModal: true,
+            allowGalleryUploads: false,
+            allowBulkFyle: false,
+          },
+          cssClass: 'hide-modal',
+        });
+
+        await captureReceiptModal.present();
+        this.isCameraShown = true;
+
+        const { data } = await captureReceiptModal.onWillDismiss();
+        this.isCameraShown = false;
+
+        if (data && data.dataUrl) {
+          receiptDetails = {
+            type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
+            dataUrl: data.dataUrl,
+            actionSource: 'camera',
+          };
+        }
+      }
+      if (receiptDetails && receiptDetails.dataUrl) {
+        this.attachReceipts(receiptDetails);
+      }
     }
   }
 
