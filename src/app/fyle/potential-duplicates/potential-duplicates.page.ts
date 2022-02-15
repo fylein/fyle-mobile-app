@@ -17,7 +17,7 @@ export class PotentialDuplicatesPage implements OnInit {
 
   duplicatesSetCount: number;
 
-  duplicatesSetData;
+  duplicatesSetData: any[];
 
   constructor(private handleDuplicates: HandleDuplicatesService, private transaction: TransactionService) {}
 

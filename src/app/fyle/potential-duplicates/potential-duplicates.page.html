@@ -9,11 +9,11 @@
 <ion-content>
   <div class="potential-duplicates--body">
     <div class="potential-duplicates--navigation">
-      <div class="potential-duplicates--navigation-button">
+      <div class="potential-duplicates--navigation-button text-center">
         <span *ngIf="selectedSet !== 0" (click)="prev()"> Prev </span>
       </div>
       <div class="potential-duplicates--navigation-count">{{selectedSet + 1}} of {{duplicatesSetCount}}</div>
-      <div class="potential-duplicates--navigation-button">
+      <div class="potential-duplicates--navigation-button text-center">
         <span *ngIf="selectedSet+1 !== duplicatesSetCount" (click)="next()"> Next </span>
       </div>
     </div>

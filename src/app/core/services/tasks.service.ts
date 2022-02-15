@@ -359,7 +359,7 @@ export class TasksService {
   private getPotentialDuplicates() {
     return this.handleDuplicatesService.getDuplicatesSet().pipe(
       switchMap((duplicatesSets) => {
-        if (duplicatesSets.length > 0) {
+        if (duplicatesSets && duplicatesSets.length > 0) {
           const duplicateIds = [].concat.apply(
             [],
             duplicatesSets.map((value) => value.transaction_ids)
