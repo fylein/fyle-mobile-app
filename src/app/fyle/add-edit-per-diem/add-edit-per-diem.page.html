@@ -560,19 +560,12 @@
                     <ng-container *ngIf="reports$|async as reports">
                       <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
                         <ng-container>
-                          <div class="add-edit-per-diem--internal-block add-edit-per-diem--report-section">
+                          <div class="add-edit-per-diem--internal-block">
                             <app-fy-add-to-report
                               [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
                               [options]="reports"
                               formControlName="report"
-                              [mandatory]="isReportMandatory"
                             ></app-fy-add-to-report>
-                            <div
-                              *ngIf="isReportMandatory && fg.controls.report.touched && !fg.controls.report.valid"
-                              class="add-edit-per-diem--error add-edit-per-diem--report-error"
-                            >
-                              Please select a report.
-                            </div>
                           </div>
                         </ng-container>
                       </ng-container>
