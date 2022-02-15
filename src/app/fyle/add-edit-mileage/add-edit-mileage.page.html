@@ -490,12 +490,19 @@
               <ng-container *ngIf="reports$|async as reports">
                 <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
                   <ng-container>
-                    <div class="add-edit-mileage--internal-block">
+                    <div class="add-edit-mileage--internal-block add-edit-mileage--report-section">
                       <app-fy-add-to-report
                         [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                         [options]="reports"
                         formControlName="report"
+                        [mandatory]="isReportMandatory"
                       ></app-fy-add-to-report>
+                      <div
+                        *ngIf="isReportMandatory && fg.controls.report.touched && !fg.controls.report.valid"
+                        class="add-edit-mileage--error add-edit-mileage--report-error"
+                      >
+                        Please select a report.
+                      </div>
                     </div>
                   </ng-container>
                 </ng-container>
