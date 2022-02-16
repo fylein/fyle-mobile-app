@@ -1391,7 +1391,7 @@ export class AddEditMileagePage implements OnInit {
           )
       )
     );
-    from(this.loaderService.showLoader())
+    from(this.loaderService.showLoader('Please wait...', 10000))
       .pipe(
         switchMap(() =>
           combineLatest([

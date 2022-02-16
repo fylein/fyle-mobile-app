@@ -33,9 +33,13 @@ export class StatsComponent implements OnInit {
 
   currencySymbol$: Observable<string>;
 
-  unreportedExpensesCount$: Observable<{ count: number }>;
+  unreportedExpensesStats$: Observable<{ count: number; sum: number }>;
 
-  unreportedExpensesAmount$: Observable<{ amount: number }>;
+  incompleteExpensesStats$: Observable<{ count: number; sum: number }>;
+
+  isUnreportedExpensesStatsLoading = true;
+
+  isIncompleteExpensesStatsLoading = true;
 
   reportStatsLoading = true;
 
@@ -87,11 +91,19 @@ export class StatsComponent implements OnInit {
   }
 
   initializeExpensesStats() {
-    const unreportedExpensesStats$ = this.dashboardService.getUnreportedExpensesStats().pipe(shareReplay(1));
+    this.unreportedExpensesStats$ = this.dashboardService.getUnreportedExpensesStats().pipe(
+      shareReplay(1),
+      tap(() => {
+        this.isUnreportedExpensesStatsLoading = false;
+      })
+    );
 
-    this.unreportedExpensesCount$ = unreportedExpensesStats$.pipe(map((stats) => ({ count: stats.totalCount })));
-
-    this.unreportedExpensesAmount$ = unreportedExpensesStats$.pipe(map((stats) => ({ amount: stats.totalAmount })));
+    this.incompleteExpensesStats$ = this.dashboardService.getIncompleteExpensesStats().pipe(
+      shareReplay(1),
+      tap(() => {
+        this.isIncompleteExpensesStatsLoading = false;
+      })
+    );
   }
 
   initializeCCCStats() {
@@ -146,13 +158,22 @@ export class StatsComponent implements OnInit {
     });
   }
 
-  goToExpensesPage() {
-    const queryParams: Params = { filters: JSON.stringify({ state: ['READY_TO_REPORT'] }) };
-    this.router.navigate(['/', 'enterprise', 'my_expenses'], {
-      queryParams,
-    });
+  goToExpensesPage(state: string) {
+    if (state === 'COMPLETE') {
+      const queryParams: Params = { filters: JSON.stringify({ state: ['READY_TO_REPORT'] }) };
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+        queryParams,
+      });
 
-    this.trackingService.dashboardOnUnreportedExpensesClick();
+      this.trackingService.dashboardOnUnreportedExpensesClick();
+    } else {
+      const queryParams: Params = { filters: JSON.stringify({ state: ['DRAFT'] }) };
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+        queryParams,
+      });
+
+      this.trackingService.dashboardOnIncompleteExpensesClick();
+    }
   }
 
   goToCCCPage(state: string) {

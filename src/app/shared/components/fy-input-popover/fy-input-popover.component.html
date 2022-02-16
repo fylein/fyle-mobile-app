@@ -9,7 +9,11 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <button [disabled]="!inputValue?.trim().length" class="input-popover--toolbar__btn" (click)="saveValue()">
+      <button
+        [disabled]="isRequired && !inputValue?.trim().length"
+        class="input-popover--toolbar__btn"
+        (click)="saveValue()"
+      >
         {{ ctaText }}
       </button>
     </ion-buttons>
@@ -19,9 +23,10 @@
 <div class="input-popover--input-container">
   <div class="input-popover--input-container__label">
     <span> {{ inputLabel }} </span>
-    <span class="input-popover--input-container__mandatory"> * </span>
+    <span *ngIf="isRequired" class="input-popover--input-container__mandatory"> * </span>
   </div>
   <input
+    #input
     matInput
     [(ngModel)]="inputValue"
     class="input-popover--input-container__input"

@@ -1,4 +1,4 @@
-<ion-header mode="md">
+<ion-header mode="md" [ngClass]="{'d-none': isCameraShown}">
   <ion-toolbar mode="md" class="add-edit-advance-request--toolbar">
     <ion-buttons
       mode="md"
@@ -42,7 +42,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [ngClass]="{'d-none': isCameraShown}">
   <form [formGroup]="fg" class="add-edit-advance-request--form" #formContainer>
     <div class="add-edit-advance-request--receipt-currency-container">
       <div *ngIf="dataUrls && dataUrls.length === 0" class="add-edit-advance-request--receipt text-center">
@@ -74,6 +74,7 @@
       [attachments]="dataUrls"
       (addMoreAttachments)="addAttachments($event)"
       (viewAttachments)="viewAttachments()"
+      [canEdit]="true"
     >
     </app-receipt-preview-thumbnail>
 
@@ -143,14 +144,12 @@
                     [placeholder]="'Enter ' + customInput.name"
                   />
 
-                  <input
-                    class="add-edit-advance-request--text-input"
-                    inputmode="decimal"
-                    type="number"
-                    formControlName="value"
+                  <app-fy-number
                     *ngIf="customInput.type === 'NUMBER'"
                     [placeholder]="'Enter ' + customInput.name"
-                  />
+                    formControlName="value"
+                  >
+                  </app-fy-number>
 
                   <input
                     appFormatDate
@@ -220,7 +219,7 @@
   </form>
 </ion-content>
 
-<ion-footer class="cta-footer">
+<ion-footer class="cta-footer" [ngClass]="{'d-none': isCameraShown}">
   <ion-toolbar mode="md">
     <div class="add-edit-advance-request--cta-container">
       <ion-buttons>

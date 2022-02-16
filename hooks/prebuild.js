@@ -31,13 +31,13 @@ module.exports = function (ctx) {
   console.log("Updating app version");
   var buildGradlePath = path.resolve(process.cwd(),"android/app/build.gradle");
   var buildGradlePathContents = fs.readFileSync(buildGradlePath).toString();
-  fs.writeFileSync(buildGradlePath, buildGradlePathContents.replace(/47500/g, ctx.env.FYLE_MOBILE_BUILD_VERSION), 'utf8');
+  fs.writeFileSync(buildGradlePath, buildGradlePathContents.replace(/51000/g, ctx.env.FYLE_MOBILE_BUILD_VERSION), 'utf8');
   buildGradlePathContents = fs.readFileSync(buildGradlePath).toString();
-  fs.writeFileSync(buildGradlePath, buildGradlePathContents.replace(/4.75.0/g, ctx.env.FYLE_MOBILE_RELEASE_VERSION), 'utf8');
+  fs.writeFileSync(buildGradlePath, buildGradlePathContents.replace(/5.10.0/g, ctx.env.FYLE_MOBILE_RELEASE_VERSION), 'utf8');
 
   var pbxprojPath = path.resolve(process.cwd(),"ios/App/App.xcodeproj/project.pbxproj");
   var pbxprojPathContents = fs.readFileSync(pbxprojPath).toString();
-  fs.writeFileSync(pbxprojPath, pbxprojPathContents.replace(/4.75.0/g, ctx.env.FYLE_MOBILE_RELEASE_VERSION), 'utf8');
+  fs.writeFileSync(pbxprojPath, pbxprojPathContents.replace(/5.10.0/g, ctx.env.FYLE_MOBILE_RELEASE_VERSION), 'utf8');
 
   // Creating google-services.json file
   fs.writeFileSync("android/app/google-services.json", secrets.googleCredentialsAndroid);

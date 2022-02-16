@@ -1,4 +1,4 @@
-<ion-header mode="md">
+<ion-header [ngClass]="{'d-none': isCameraShown}" mode="md">
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
@@ -48,7 +48,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [ngClass]="{'d-none': isCameraShown}">
   <ng-container *ngIf="fg">
     <div class="add-edit-expense--duplicate-pointer-container">
       <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-expense--duplicate-pointer">
@@ -197,7 +197,7 @@
         </ng-container>
 
         <div class="add-edit-expense--primary-block">
-          <ion-grid class="add-edit-expense--grid">
+          <ion-grid class="ion-grid-no-padding">
             <ion-row>
               <ion-col size="6">
                 <ng-container *ngIf="txnFields$|async as txnFields">
@@ -450,15 +450,7 @@
                     <div class="add-edit-expense--text-label">
                       {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
                     </div>
-                    <input
-                      (blur)="focusState = false"
-                      (focus)="focusState = true"
-                      class="add-edit-expense--text-input"
-                      formControlName="tax_amount"
-                      inputmode="decimal"
-                      type="number"
-                      [placeholder]="'Enter Tax Amount'"
-                    />
+                    <app-fy-number formControlName="tax_amount" [placeholder]="'Enter Tax Amount'"></app-fy-number>
                   </div>
                   <div
                     *ngIf="fg.controls.tax_amount.touched && !fg.controls.tax_amount.valid"
@@ -474,7 +466,7 @@
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="isConnected$|async as isConnected">
               <div>
-                <ion-grid class="add-edit-expense--grid">
+                <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
                       *ngIf="txnFields.location1?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -509,7 +501,7 @@
                   </ion-row>
                 </ion-grid>
 
-                <ion-grid class="add-edit-expense--grid">
+                <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
                       *ngIf="txnFields.from_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -564,7 +556,7 @@
                   </ion-row>
                 </ion-grid>
 
-                <ion-grid class="add-edit-expense--grid">
+                <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
                       *ngIf="txnFields.flight_journey_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -700,16 +692,10 @@
                       {{txnFields.distance?.field_name}}
                       <span class="add-edit-expense--mandatory">*</span>
                     </div>
-                    <input
-                      (blur)="focusState = false"
-                      (focus)="focusState = true"
-                      [disabled]="!txnFields.distance?.canEdit"
-                      class="add-edit-expense--text-input"
+                    <app-fy-number
                       formControlName="distance"
-                      inputmode="decimal"
                       [placeholder]="'Enter ' + txnFields.distance?.field_name"
-                      type="number"
-                    />
+                    ></app-fy-number>
                   </div>
 
                   <div class="add-edit-expense--internal-block">
@@ -867,16 +853,12 @@
                       type="text"
                     />
 
-                    <input
-                      (blur)="focusState = false"
-                      (focus)="focusState = true"
-                      *ngIf="customInput.type === 'NUMBER'"
-                      class="add-edit-expense--text-input"
+                    <app-fy-number
                       formControlName="value"
-                      inputmode="decimal"
-                      type="number"
+                      *ngIf="customInput.type === 'NUMBER'"
                       [placeholder]="'Enter ' + customInput.name"
-                    />
+                    >
+                    </app-fy-number>
 
                     <input
                       appFormatDate
@@ -1128,7 +1110,11 @@
     (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
-  <ion-footer class="add-edit-expense--footer-container" *ngIf="!reviewList?.length">
+  <ion-footer
+    [ngClass]="{'d-none': isCameraShown}"
+    class="add-edit-expense--footer-container"
+    *ngIf="!reviewList?.length"
+  >
     <ion-toolbar mode="md" [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}">
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">

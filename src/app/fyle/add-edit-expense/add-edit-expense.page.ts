@@ -12,7 +12,7 @@ import {
   noop,
   Observable,
   of,
-  Subject,
+  BehaviorSubject,
   throwError,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -97,6 +97,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -202,7 +203,7 @@ export class AddEditExpensePage implements OnInit {
 
   newExpenseDataUrls = [];
 
-  loadAttachments$ = new Subject();
+  loadAttachments$ = new BehaviorSubject<void>(null);
 
   attachments$: Observable<FileObject[]>;
 
@@ -314,6 +315,8 @@ export class AddEditExpensePage implements OnInit {
   policyDetails;
 
   source = 'MOBILE';
+
+  isCameraShown = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1198,11 +1201,11 @@ export class AddEditExpensePage implements OnInit {
           }
 
           if (extractedData.date) {
-            etxn.tx.txn_dt = new Date(extractedData.date);
+            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.date));
           }
 
           if (extractedData.invoice_dt) {
-            etxn.tx.txn_dt = new Date(extractedData.invoice_dt);
+            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.invoice_dt));
           }
 
           if (extractedData.vendor) {
@@ -1287,17 +1290,25 @@ export class AddEditExpensePage implements OnInit {
       )
     );
     const selectedReport$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.report_id,
-          this.reports$.pipe(
+      switchMap((etxn) => {
+        if (etxn.tx.report_id) {
+          return this.reports$.pipe(
             map((reportOptions) =>
               reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
             )
-          ),
-          of(null)
-        )
-      )
+          );
+        } else if (!etxn.tx.report_id && this.activatedRoute.snapshot.params.rp_id) {
+          return this.reports$.pipe(
+            map((reportOptions) =>
+              reportOptions
+                .map((res) => res.value)
+                .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
+            )
+          );
+        } else {
+          return of(null);
+        }
+      })
     );
 
     const selectedPaymentMode$ = this.etxn$.pipe(
@@ -1671,7 +1682,6 @@ export class AddEditExpensePage implements OnInit {
             });
 
             this.fg.controls.custom_inputs.patchValue(customInputValues);
-            this.loadAttachments$.next();
           }, 600);
 
           this.attachedReceiptsCount = txnReceiptsCount;
@@ -2228,7 +2238,7 @@ export class AddEditExpensePage implements OnInit {
               }
 
               if (etxn.tx.extracted_data.invoice_dt) {
-                etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.invoice_dt);
+                etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
               }
 
               if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
@@ -3838,8 +3848,36 @@ export class AddEditExpensePage implements OnInit {
 
       await popup.present();
 
-      const { data } = await popup.onWillDismiss();
-      this.attachReceipts(data);
+      let { data: receiptDetails } = await popup.onWillDismiss();
+
+      if (receiptDetails && receiptDetails.option === 'camera') {
+        const captureReceiptModal = await this.modalController.create({
+          component: CaptureReceiptComponent,
+          componentProps: {
+            isModal: true,
+            allowGalleryUploads: false,
+            allowBulkFyle: false,
+          },
+          cssClass: 'hide-modal',
+        });
+
+        await captureReceiptModal.present();
+        this.isCameraShown = true;
+
+        const { data } = await captureReceiptModal.onWillDismiss();
+        this.isCameraShown = false;
+
+        if (data && data.dataUrl) {
+          receiptDetails = {
+            type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
+            dataUrl: data.dataUrl,
+            actionSource: 'camera',
+          };
+        }
+      }
+      if (receiptDetails && receiptDetails.dataUrl) {
+        this.attachReceipts(receiptDetails);
+      }
     }
   }
 

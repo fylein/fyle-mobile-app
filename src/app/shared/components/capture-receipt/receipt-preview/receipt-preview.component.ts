@@ -1,10 +1,13 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
-import { ActionSheetController, ModalController, Platform, PopoverController } from '@ionic/angular';
-import { from } from 'rxjs';
+import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { from, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 
 type Image = Partial<{
   source: string;
@@ -22,32 +25,44 @@ export class ReceiptPreviewComponent implements OnInit {
 
   @Input() mode: string;
 
-  sliderOptions: { initialSlide: number; slidesPerView: number; autoHeight: boolean; zoom: { maxRatio: number } };
+  sliderOptions: { zoom: { maxRatio: number } };
 
   activeIndex: number;
+
+  backButtonAction: Subscription;
+
+  isCropModalOpen = false;
 
   constructor(
     private platform: Platform,
     private modalController: ModalController,
     private popoverController: PopoverController,
-    private actionSheetController: ActionSheetController,
     private matBottomSheet: MatBottomSheet,
-    private imagePicker: ImagePicker
-  ) {
-    this.registerBackButtonAction();
-  }
+    private imagePicker: ImagePicker,
+    private trackingService: TrackingService
+  ) {}
 
-  registerBackButtonAction() {
-    this.platform.backButton.subscribe(async () => {
-      this.retake();
+  async openCropReceiptModal() {
+    const cropReceiptModal = await this.modalController.create({
+      component: CropReceiptComponent,
+      componentProps: {
+        base64ImageWithSource: this.base64ImagesWithSource[this.activeIndex],
+      },
     });
+    await cropReceiptModal.present();
+    this.isCropModalOpen = true;
+    const { data } = await cropReceiptModal.onWillDismiss();
+    this.isCropModalOpen = false;
+
+    if (data && data.base64ImageWithSource) {
+      this.base64ImagesWithSource[this.activeIndex] = data.base64ImageWithSource;
+      await this.imageSlides.update();
+      this.trackingService.cropReceipt();
+    }
   }
 
   ngOnInit() {
     this.sliderOptions = {
-      initialSlide: 0,
-      slidesPerView: 1,
-      autoHeight: true,
       zoom: {
         maxRatio: 1,
       },
@@ -56,16 +71,23 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.backButtonAction = this.platform.backButton.subscribeWithPriority(200, () => {
+      this.retake();
+    });
     this.imageSlides.update();
   }
 
-  async finish() {
+  ionViewWillLeave() {
+    this.backButtonAction.unsubscribe();
+  }
+
+  saveReceipt() {
     this.modalController.dismiss({
       base64ImagesWithSource: this.base64ImagesWithSource,
     });
   }
 
-  async close() {
+  async closeModal() {
     let message;
     if (this.base64ImagesWithSource.length > 1) {
       message = `Are you sure you want to discard the ${this.base64ImagesWithSource.length} receipts you just captured?`;
@@ -151,7 +173,7 @@ export class ReceiptPreviewComponent implements OnInit {
     });
   }
 
-  async delete() {
+  async deleteReceipt() {
     const activeIndex = await this.imageSlides.getActiveIndex();
     const deletePopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
