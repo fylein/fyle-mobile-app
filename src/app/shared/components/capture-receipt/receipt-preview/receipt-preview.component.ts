@@ -2,7 +2,8 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
-import { from } from 'rxjs';
+import { from, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -28,6 +29,10 @@ export class ReceiptPreviewComponent implements OnInit {
 
   activeIndex: number;
 
+  backButtonAction: Subscription;
+
+  isCropModalOpen = false;
+
   constructor(
     private platform: Platform,
     private modalController: ModalController,
@@ -35,15 +40,7 @@ export class ReceiptPreviewComponent implements OnInit {
     private matBottomSheet: MatBottomSheet,
     private imagePicker: ImagePicker,
     private trackingService: TrackingService
-  ) {
-    this.registerBackButtonAction();
-  }
-
-  registerBackButtonAction() {
-    this.platform.backButton.subscribe(async () => {
-      this.retake();
-    });
-  }
+  ) {}
 
   async openCropReceiptModal() {
     const cropReceiptModal = await this.modalController.create({
@@ -53,7 +50,9 @@ export class ReceiptPreviewComponent implements OnInit {
       },
     });
     await cropReceiptModal.present();
+    this.isCropModalOpen = true;
     const { data } = await cropReceiptModal.onWillDismiss();
+    this.isCropModalOpen = false;
 
     if (data && data.base64ImageWithSource) {
       this.base64ImagesWithSource[this.activeIndex] = data.base64ImageWithSource;
@@ -72,7 +71,14 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.backButtonAction = this.platform.backButton.subscribeWithPriority(200, () => {
+      this.retake();
+    });
     this.imageSlides.update();
+  }
+
+  ionViewWillLeave() {
+    this.backButtonAction.unsubscribe();
   }
 
   saveReceipt() {

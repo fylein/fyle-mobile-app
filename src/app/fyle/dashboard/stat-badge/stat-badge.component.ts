@@ -20,6 +20,8 @@ export class StatBadgeComponent implements OnInit {
 
   @Input() loading = false;
 
+  @Input() expenseState: string;
+
   @Output() badgeClicked = new EventEmitter();
 
   currencySymbol = '';
@@ -31,8 +33,11 @@ export class StatBadgeComponent implements OnInit {
   }
 
   onBadgeClicked() {
-    if(!this.loading) {
+    if (!this.loading) {
       this.badgeClicked.emit(this.reportState);
+      if (this.expenseState) {
+        this.badgeClicked.emit(this.expenseState);
+      }
     }
   }
 }

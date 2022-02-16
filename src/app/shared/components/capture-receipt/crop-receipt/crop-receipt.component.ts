@@ -1,7 +1,8 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ImageCropperComponent } from 'ngx-image-cropper';
-import { ModalController } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { Subscription } from 'rxjs';
 
 type Image = Partial<{
   source: string;
@@ -18,7 +19,13 @@ export class CropReceiptComponent implements OnInit {
 
   @ViewChild('imageCropper') imageCropper: ImageCropperComponent;
 
-  constructor(private modalController: ModalController, private loaderService: LoaderService) {}
+  backButtonAction: Subscription;
+
+  constructor(
+    private modalController: ModalController,
+    private loaderService: LoaderService,
+    private platform: Platform
+  ) {}
 
   ngOnInit() {
     this.loaderService.showLoader();
@@ -37,5 +44,17 @@ export class CropReceiptComponent implements OnInit {
 
   imageLoaded() {
     this.loaderService.hideLoader();
+  }
+
+  ionViewWillEnter() {
+    // Assigned a higher priority here so it will overwrite the backButtonAction in receipt-preview component
+    // Ref - https://ionicframework.com/docs/developing/hardware-back-button#basic-usage
+    this.backButtonAction = this.platform.backButton.subscribeWithPriority(300, () => {
+      this.closeModal();
+    });
+  }
+
+  ionViewWillLeave() {
+    this.backButtonAction.unsubscribe();
   }
 }
