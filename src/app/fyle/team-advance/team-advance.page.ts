@@ -1,13 +1,9 @@
 import { AfterViewChecked, ChangeDetectorRef, Component } from '@angular/core';
 import { Router } from '@angular/router';
-
 import { Observable, Subject, from, noop } from 'rxjs';
 import { concatMap, switchMap, finalize, map, scan, shareReplay, take } from 'rxjs/operators';
-
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
-
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
@@ -57,9 +53,7 @@ export class TeamAdvancePage implements AfterViewChecked {
 
   ionViewWillEnter() {
     this.setupDefaultFilters();
-
     this.currentPageNumber = 1;
-
     this.isLoading = true;
 
     this.teamAdvancerequests$ = this.loadData$.pipe(
@@ -149,7 +143,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     }
   }
 
-  async openFilters(activeFilterName?: string) {
+  async openFilters(activeFilterInitialName?: string) {
     const filterOptions = [
       {
         name: 'State',
@@ -170,11 +164,11 @@ export class TeamAdvancePage implements AfterViewChecked {
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Submitted At - New to Old',
+            label: 'Requested On - New to Old',
             value: SortingValue.creationDateAsc,
           },
           {
-            label: 'Submitted At - Old to New',
+            label: 'Requested On - Old to New',
             value: SortingValue.creationDateDesc,
           },
           {
@@ -189,7 +183,11 @@ export class TeamAdvancePage implements AfterViewChecked {
       } as FilterOptions<string>,
     ];
 
-    const filters = await this.filtersHelperService.openFilterModal(this.filters, filterOptions, activeFilterName);
+    const filters = await this.filtersHelperService.openFilterModal(
+      this.filters,
+      filterOptions,
+      activeFilterInitialName
+    );
 
     if (filters) {
       this.filters = filters;
