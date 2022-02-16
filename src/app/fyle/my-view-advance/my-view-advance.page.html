@@ -18,86 +18,89 @@
       </div>
 
       <div class="view-advance--content-container">
-        <div class="view-advance--content-section">
-          <div class="view-advance--element">
-            <app-fy-statistic
-              [icon]="'../../../../assets/svg/advances.svg'"
-              [type]="string"
-              [label]="'Advance Number'"
-              [value]="advance.adv_advance_number || '-'"
-            ></app-fy-statistic>
-          </div>
-
-          <div class="view-advance--element">
-            <app-fy-statistic
-              [icon]="'../../../../assets/svg/profile.svg'"
-              [type]="string"
-              [label]="'Issued By'"
-              [value]="advance.creator_us_full_name || '-'"
-            ></app-fy-statistic>
-          </div>
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/advances.svg'"
+            [type]="string"
+            [label]="'Advance Number'"
+            [value]="advance.adv_advance_number || '-'"
+          ></app-fy-statistic>
         </div>
 
-        <div class="view-advance--content-section">
-          <div class="view-advance--row-items">
-            <div class="view-advance--element" *ngIf="advance.areq_approved_at">
-              <app-fy-statistic
-                [icon]="'../../../../assets/svg/calendar.svg'"
-                [type]="date"
-                [label]="'Approved On'"
-                [value]="advance.areq_approved_at | date: 'MMM dd, yyyy'"
-              ></app-fy-statistic>
-            </div>
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/profile.svg'"
+            [type]="string"
+            [label]="'Issued By'"
+            [value]="advance.creator_us_full_name || '-'"
+          ></app-fy-statistic>
+        </div>
 
-            <div class="view-advance--element">
+        <div class="view-advance--divider"></div>
+
+        <ion-grid class="view-advance--padding-0">
+          <ion-row>
+            <ion-col class="view-advance--padding-0" size="6">
+              <div class="view-advance--element" *ngIf="advance.areq_approved_at">
+                <app-fy-statistic
+                  [icon]="'../../../assets/svg/calendar.svg'"
+                  [type]="date"
+                  [label]="'Approved On'"
+                  [value]="advance.areq_approved_at | date: 'MMM dd, yyyy'"
+                ></app-fy-statistic>
+              </div>
+            </ion-col>
+            <ion-col class="view-advance--padding-0" size="6">
               <app-fy-statistic
-                [icon]="'../../../../assets/svg/calendar.svg'"
+                [icon]="'../../../assets/svg/calendar.svg'"
                 [type]="date"
                 [label]="'Issued On'"
                 [value]="advance.adv_issued_at | date: 'MMM dd, yyyy'"
               ></app-fy-statistic>
-            </div>
-          </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
 
-          <div class="view-advance--element">
-            <app-fy-statistic
-              [icon]="'../../../../assets/svg/list.svg'"
-              [type]="string"
-              [label]="'Purpose'"
-              [value]="advance.adv_purpose || '-'"
-            ></app-fy-statistic>
-          </div>
-
-          <div class="view-advance--element">
-            <app-fy-statistic
-              [icon]="'../../../../assets/svg/card.svg'"
-              [type]="string"
-              [label]="'Payment Mode'"
-              [value]="advance.adv_mode || '-'"
-            ></app-fy-statistic>
-          </div>
-
-          <div class="view-advance--element">
-            <app-fy-statistic
-              [icon]="'../../../../assets/svg/list.svg'"
-              [type]="string"
-              [label]="'Project'"
-              [value]="advance.project_name || '-'"
-            ></app-fy-statistic>
-          </div>
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/list.svg'"
+            [type]="string"
+            [label]="'Purpose'"
+            [value]="advance.adv_purpose || '-'"
+          ></app-fy-statistic>
         </div>
 
-        <div class="view-advance--content-section">
-          <div class="view-advance--element">
-            <app-fy-statistic
-              [icon]="'../../../../assets/svg/list.svg'"
-              [type]="string"
-              [label]="'Additional Notes'"
-              [value]="advance.areq_notes || '-'"
-            ></app-fy-statistic>
-          </div>
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/fy-card.svg'"
+            [type]="string"
+            [label]="'Payment Mode'"
+            [value]="advance.adv_mode || '-'"
+          ></app-fy-statistic>
+        </div>
+
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/list.svg'"
+            [type]="string"
+            [label]="'Project'"
+            [value]="advance.project_name || '-'"
+          ></app-fy-statistic>
+        </div>
+
+        <div class="view-advance--divider"></div>
+
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/list.svg'"
+            [type]="string"
+            [label]="'Additional Notes'"
+            [value]="advance.areq_notes || '-'"
+          ></app-fy-statistic>
         </div>
       </div>
+
+      <div class="view-advance--divider"></div>
 
       <div *ngIf="advance.areq_id" class="view-advance--advance-request-block">
         <div class="view-advance--icon-container">
