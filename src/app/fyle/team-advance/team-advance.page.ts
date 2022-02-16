@@ -134,7 +134,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     this.router.navigate(['/', 'enterprise', 'view_team_advance', { id: areq.areq_id }]);
   }
 
-  changeState(event?: any, incrementPageNumber = false) {
+  changeState(event?, incrementPageNumber = false) {
     this.currentPageNumber = incrementPageNumber ? this.currentPageNumber + 1 : 1;
     this.advanceRequestService.destroyAdvanceRequestsCacheBuster().subscribe(() => {
       this.loadData$.next({
@@ -149,7 +149,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     }
   }
 
-  async openFilters(activeFilterInitialName?: string) {
+  async openFilters(activeFilterName?: string) {
     const filterOptions = [
       {
         name: 'State',
@@ -159,7 +159,6 @@ export class TeamAdvancePage implements AfterViewChecked {
             label: 'Approval Pending',
             value: AdvancesStates.pending,
           },
-
           {
             label: 'Approved',
             value: AdvancesStates.approved,
@@ -171,11 +170,11 @@ export class TeamAdvancePage implements AfterViewChecked {
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Created At - New to Old',
+            label: 'Submitted At - New to Old',
             value: SortingValue.creationDateAsc,
           },
           {
-            label: 'Created At - Old to New',
+            label: 'Submitted At - Old to New',
             value: SortingValue.creationDateDesc,
           },
           {
@@ -190,11 +189,7 @@ export class TeamAdvancePage implements AfterViewChecked {
       } as FilterOptions<string>,
     ];
 
-    const filters = await this.filtersHelperService.openFilterModal(
-      this.filters,
-      filterOptions,
-      activeFilterInitialName
-    );
+    const filters = await this.filtersHelperService.openFilterModal(this.filters, filterOptions, activeFilterName);
 
     if (filters) {
       this.filters = filters;
@@ -244,7 +239,7 @@ export class TeamAdvancePage implements AfterViewChecked {
   getExtraParams(state: AdvancesStates[]) {
     const isPending = state.includes(AdvancesStates.pending);
     const isApproved = state.includes(AdvancesStates.approved);
-    let extraParams: any;
+    let extraParams;
 
     if (isPending && isApproved) {
       extraParams = {
