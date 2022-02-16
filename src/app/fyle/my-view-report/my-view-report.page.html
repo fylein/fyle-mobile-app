@@ -25,8 +25,8 @@
 </ion-header>
 
 <ion-content class="view-reports--container">
-  <div class="view-reports--body" *ngIf="erpt$|async as erpt">
-    <div>
+  <div class="view-reports--body full-height" *ngIf="erpt$|async as erpt">
+    <div class="view-reports--wrapper">
       <div class="view-reports--card">
         <ion-grid>
           <ion-row>
@@ -130,7 +130,7 @@
       </div>
 
       <!-- Display Associated trip request info, if there is one. Otherwise don't display this block at all -->
-      <div *ngIf="erpt.rp_trip_request_id">
+      <ng-container *ngIf="erpt.rp_trip_request_id">
         <!-- Display this block if trip requests are handled with T&A module of Fyle -->
         <div class="view-reports--card-body" *ngIf="tripRequest$|async as tripRequest; else showOnlyId">
           <div>Request number is {{tripRequest.trp_request_number}}</div>
@@ -144,7 +144,7 @@
             [message]="'Associated Trip Request ID is ' + erpt.rp_trip_request_id"
           ></app-fy-alert-info>
         </ng-template>
-      </div>
+      </ng-container>
 
       <div class="view-reports--segment-block-container">
         <ion-segment
@@ -168,7 +168,7 @@
         </ion-segment>
 
         <!-- Expenses section -->
-        <div *ngIf="isExpensesView">
+        <ng-container *ngIf="isExpensesView">
           <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
           <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
             <div class="view-reports--divider"></div>
@@ -207,7 +207,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </ng-container>
 
         <!-- Comments section -->
         <div *ngIf="isCommentsView && userComments && userComments.length > 0" class="view-comment--container">

@@ -19,10 +19,16 @@
     margin: 16px;
   }
 
+  &--wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
   &--card {
     background: url('../../../assets/images/card.png') no-repeat bottom;
     background-size: 100% 100%;
-    margin: 12px 0;
+    // margin: 12px 0;
     padding: 8px;
     border-radius: 16px;
     height: 140px;
@@ -181,6 +187,10 @@
   }
 
   &--segment-block-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    margin: 8px 0;
     --border-width: 0 !important;
 
     &__segment.ios {
@@ -275,8 +285,9 @@
     background-color: $pure-white;
     display: flex;
     justify-content: center;
+    align-items: center;
+    flex-grow: 1;
     border-radius: 16px;
-    padding: 40px 12px;
   }
 
   &--cta-container {
