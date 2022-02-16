@@ -1,8 +1,8 @@
 <ion-header mode="md">
   <ion-toolbar class="view-advance--toolbar">
-    <ion-buttons mode="md" slot="end">
+    <ion-buttons mode="md" slot="start">
       <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
-        <mat-icon>close</mat-icon>
+        <img [src]="'../../../../assets/svg/left-arrow-nav.svg'" />
       </ion-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title">View Advance</ion-title>
@@ -17,53 +17,107 @@
         <div class="view-advance--amount">{{advance.adv_amount }}</div>
       </div>
 
-      <div class="view-advance--card">
-        <div class="view-advance--element" *ngIf="advance.areq_approved_at">
-          <div class="view-advance--element-label">Approved On</div>
-          <div class="view-advance--element-value">{{advance.areq_approved_at | date: 'MMM dd, yyyy'}}</div>
+      <div class="view-advance--content-container">
+        <div class="view-advance--content-section">
+          <div class="view-advance--element">
+            <app-fy-statistic
+              [icon]="'../../../../assets/svg/advances.svg'"
+              [type]="string"
+              [label]="'Advance Number'"
+              [value]="advance.adv_advance_number || '-'"
+            ></app-fy-statistic>
+          </div>
+
+          <div class="view-advance--element">
+            <app-fy-statistic
+              [icon]="'../../../../assets/svg/profile.svg'"
+              [type]="string"
+              [label]="'Issued By'"
+              [value]="advance.creator_us_full_name || '-'"
+            ></app-fy-statistic>
+          </div>
         </div>
 
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Issued On</div>
-          <div class="view-advance--element-value">{{advance.adv_issued_at | date: 'MMM dd, yyyy'}}</div>
+        <div class="view-advance--content-section">
+          <div class="view-advance--row-items">
+            <div class="view-advance--element" *ngIf="advance.areq_approved_at">
+              <app-fy-statistic
+                [icon]="'../../../../assets/svg/calendar.svg'"
+                [type]="date"
+                [label]="'Approved On'"
+                [value]="advance.areq_approved_at | date: 'MMM dd, yyyy'"
+              ></app-fy-statistic>
+            </div>
+
+            <div class="view-advance--element">
+              <app-fy-statistic
+                [icon]="'../../../../assets/svg/calendar.svg'"
+                [type]="date"
+                [label]="'Issued On'"
+                [value]="advance.adv_issued_at | date: 'MMM dd, yyyy'"
+              ></app-fy-statistic>
+            </div>
+          </div>
+
+          <div class="view-advance--element">
+            <app-fy-statistic
+              [icon]="'../../../../assets/svg/list.svg'"
+              [type]="string"
+              [label]="'Purpose'"
+              [value]="advance.adv_purpose || '-'"
+            ></app-fy-statistic>
+          </div>
+
+          <div class="view-advance--element">
+            <app-fy-statistic
+              [icon]="'../../../../assets/svg/card.svg'"
+              [type]="string"
+              [label]="'Payment Mode'"
+              [value]="advance.adv_mode || '-'"
+            ></app-fy-statistic>
+          </div>
+
+          <div class="view-advance--element">
+            <app-fy-statistic
+              [icon]="'../../../../assets/svg/list.svg'"
+              [type]="string"
+              [label]="'Project'"
+              [value]="advance.project_name || '-'"
+            ></app-fy-statistic>
+          </div>
         </div>
 
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Issued By</div>
-          <div class="view-advance--element-value">{{advance.creator_us_full_name || '-'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Advance Number</div>
-          <div class="view-advance--element-value">{{advance.adv_advance_number || '-'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Payment Mode</div>
-          <div class="view-advance--element-value">{{advance.adv_mode || '-'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Purpose</div>
-          <div class="view-advance--element-value">{{advance.adv_purpose || '-'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Project</div>
-          <div class="view-advance--element-value">{{advance.project_name || '-'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Additional Notes</div>
-          <div class="view-advance--element-value">{{advance.areq_notes || '-'}}</div>
+        <div class="view-advance--content-section">
+          <div class="view-advance--element">
+            <app-fy-statistic
+              [icon]="'../../../../assets/svg/list.svg'"
+              [type]="string"
+              [label]="'Additional Notes'"
+              [value]="advance.areq_notes || '-'"
+            ></app-fy-statistic>
+          </div>
         </div>
       </div>
 
       <div *ngIf="advance.areq_id" class="view-advance--advance-request-block">
+        <div class="view-advance--icon-container">
+          <img class="view-advance--icon" [src]="'../../../../assets/svg/open-in-new-tab.svg'" />
+        </div>
+        <div>
+          <a
+            class="view-advance--anchor"
+            [routerLink]="['/', 'enterprise', 'my_view_advance_request', {id: advance.areq_id}]"
+          >
+            View Advance Request</a
+          >
+        </div>
+      </div>
+
+      <!-- <div *ngIf="advance.areq_id" class="view-advance--advance-request-block">
         <a [routerLink]="['/', 'enterprise', 'my_view_advance_request', {id: advance.areq_id}]">
           View Advance Request</a
         >
-      </div>
+      </div> -->
     </div>
   </div>
 </ion-content>
