@@ -123,17 +123,18 @@
           from-source="trip"></enterprise-fy-approver-list>
       </div> -->
 
-      <ng-container *ngIf="showTripActionCta">
-        <div class="view-trip--card">
-          <div class="view-trip--card-action">
-            <app-comments-history
-              objectType="trip_requests"
-              [objectId]="tripRequest.trp_id"
-              text="Comments"
-              [showCommentsCount]="true"
-            ></app-comments-history>
-          </div>
+      <div class="view-trip--card">
+        <div class="view-trip--card-action">
+          <app-comments-history
+            objectType="trip_requests"
+            [objectId]="tripRequest.trp_id"
+            text="Comments"
+            [showCommentsCount]="true"
+          ></app-comments-history>
         </div>
+      </div>
+
+      <ng-container *ngIf="showTripActionCta">
         <div class="view-trip--card" *ngIf="canDelete$|async" (click)="deleteTrip()">
           <div class="view-trip--card-action" appFormButtonValidation [loading]="deleteLoading">
             <mat-icon class="view-trip--card-action-icon">delete</mat-icon>

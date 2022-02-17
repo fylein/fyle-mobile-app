@@ -147,19 +147,19 @@
             </div>
           </ng-container>
         </ng-container>
+      </ng-container>
 
-        <div class="trip-request--card">
-          <div class="trip-request--card-action">
-            <div class="trip-request--element trip-request--element_action">
-              <app-comments-history
-                objectType="trip_requests"
-                [objectId]="tripRequest.trp_id"
-                text="Comments"
-              ></app-comments-history>
-            </div>
+      <div class="trip-request--card">
+        <div class="trip-request--card-action">
+          <div class="trip-request--element trip-request--element_action">
+            <app-comments-history
+              objectType="trip_requests"
+              [objectId]="tripRequest.trp_id"
+              text="Comments"
+            ></app-comments-history>
           </div>
         </div>
-      </ng-container>
+      </div>
     </div>
   </div>
 </ion-content>
