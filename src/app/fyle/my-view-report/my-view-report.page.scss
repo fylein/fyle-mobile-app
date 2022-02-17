@@ -83,7 +83,7 @@
   }
 
   &--report-state-pill {
-    margin-top: 2px;
+    margin-top: 4px;
     color: $pure-white;
     padding: 1px 16px;
     border-radius: 16px;
@@ -137,6 +137,10 @@
     float: right;
   }
 
+  &--purpose-row {
+    padding: 0 4px;
+  }
+
   &--purpose-amount-block {
     display: flex;
     justify-content: space-between;
@@ -146,7 +150,7 @@
       font-size: 16px;
       line-height: 18px;
       font-weight: 500;
-      max-width: 100%;
+      max-width: 85%;
     }
 
     &__amount {
@@ -193,12 +197,15 @@
     margin: 8px 0;
     --border-width: 0 !important;
 
+    &__btn-wrapper {
+      padding: 0 14px;
+    }
+
     &__segment.ios {
-      margin: 12px auto;
+      margin: 0 auto 12px;
     }
 
     &__segment.md {
-      padding: 0 16px;
       border-bottom: 1px solid $grey-lighter;
     }
 

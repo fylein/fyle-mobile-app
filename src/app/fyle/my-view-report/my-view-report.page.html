@@ -29,11 +29,11 @@
     <div class="view-reports--wrapper">
       <div class="view-reports--card">
         <ion-grid>
-          <ion-row>
+          <ion-row class="view-reports--purpose-row ion-grid-no-padding">
             <ion-col size="8">
               <div class="view-reports--purpose-amount-block">
                 <div class="view-reports--purpose-amount-block__purpose">
-                  {{reportName | ellipsis: 20}}
+                  {{reportName | ellipsis: 35}}
                   <ion-icon
                     *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY')"
                     [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
@@ -54,7 +54,7 @@
             </ion-col>
           </ion-row>
 
-          <ion-row>
+          <ion-row class="ion-grid-no-padding">
             <ion-col size="5"> </ion-col>
             <ion-col size="7">
               <div
@@ -147,25 +147,27 @@
       </ng-container>
 
       <div class="view-reports--segment-block-container">
-        <ion-segment
-          class="segment-block view-reports--segment-block-container__segment"
-          (ionChange)="segmentChanged($event)"
-          value="expenses"
-        >
-          <ion-segment-button value="expenses" class="view-reports--segment-block-container__btn text-capitalize">
-            Expenses
-          </ion-segment-button>
-          <ion-segment-button value="comments" class="view-reports--segment-block-container__btn text-capitalize">
-            Comments
-          </ion-segment-button>
-          <ion-segment-button
-            *ngIf="systemEstatuses && systemEstatuses.length > 0"
-            value="history"
-            class="view-reports--segment-block-container__btn text-capitalize"
+        <div class="view-reports--segment-block-container__btn-wrapper">
+          <ion-segment
+            class="segment-block view-reports--segment-block-container__segment"
+            (ionChange)="segmentChanged($event)"
+            value="expenses"
           >
-            History
-          </ion-segment-button>
-        </ion-segment>
+            <ion-segment-button value="expenses" class="view-reports--segment-block-container__btn text-capitalize">
+              Expenses
+            </ion-segment-button>
+            <ion-segment-button value="comments" class="view-reports--segment-block-container__btn text-capitalize">
+              Comments
+            </ion-segment-button>
+            <ion-segment-button
+              *ngIf="systemEstatuses && systemEstatuses.length > 0"
+              value="history"
+              class="view-reports--segment-block-container__btn text-capitalize"
+            >
+              History
+            </ion-segment-button>
+          </ion-segment>
+        </div>
 
         <!-- Expenses section -->
         <ng-container *ngIf="isExpensesView">
