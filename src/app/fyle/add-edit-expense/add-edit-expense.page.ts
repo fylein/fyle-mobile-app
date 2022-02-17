@@ -322,6 +322,8 @@ export class AddEditExpensePage implements OnInit {
 
   isCameraShown = false;
 
+  addedReportId: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -374,6 +376,8 @@ export class AddEditExpensePage implements OnInit {
     } else {
       if (bankTxn) {
         this.router.navigate(['/', 'enterprise', 'corporate_card_expenses']);
+      } else if (this.addedReportId) {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.addedReportId, navigateBack: true }]);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
@@ -2949,19 +2953,15 @@ export class AddEditExpensePage implements OnInit {
   }
 
   showAddToReportSuccessToast(reportId: string) {
+    this.addedReportId = reportId;
     const toastMessageData = {
       message: 'Expense added to report successfully',
-      redirectionText: 'View Report',
     };
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
       panelClass: ['msb-success-with-camera-icon'],
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
-
-    expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
-    });
   }
 
   saveExpense() {
@@ -2990,8 +2990,8 @@ export class AddEditExpensePage implements OnInit {
                   that.fg.value.report.rp &&
                   that.fg.value.report.rp.id
                 ) {
-                  that.goBack();
                   this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+                  that.goBack();
                 } else {
                   that.goBack();
                 }
@@ -3008,8 +3008,8 @@ export class AddEditExpensePage implements OnInit {
                 that.fg.value.report.rp &&
                 that.fg.value.report.rp.id
               ) {
-                that.goBack();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+                that.goBack();
               } else {
                 that.goBack();
               }

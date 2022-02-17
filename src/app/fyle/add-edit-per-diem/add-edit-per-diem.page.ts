@@ -192,6 +192,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   saveWithCriticalPolicyViolation = false;
 
+  addedReportId: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -288,6 +290,8 @@ export class AddEditPerDiemPage implements OnInit {
   goBack() {
     if (this.activatedRoute.snapshot.params.persist_filters) {
       this.navController.back();
+    } else if (this.addedReportId) {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.addedReportId, navigateBack: true }]);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
@@ -2102,8 +2106,8 @@ export class AddEditPerDiemPage implements OnInit {
                 that.fg.value.report.rp &&
                 that.fg.value.report.rp.id
               ) {
-                that.goBack();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+                that.goBack();
               } else {
                 that.goBack();
               }
@@ -2118,8 +2122,8 @@ export class AddEditPerDiemPage implements OnInit {
                 that.fg.value.report.rp &&
                 that.fg.value.report.rp.id
               ) {
-                that.goBack();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+                that.goBack();
               } else {
                 that.goBack();
               }

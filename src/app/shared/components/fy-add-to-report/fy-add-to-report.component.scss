@@ -23,6 +23,7 @@
     justify-content: space-between;
     padding: 6px 0;
     border-bottom: 1px solid $grey-lighter;
+    width: 100%;
   }
 
   &--input {
@@ -46,5 +47,17 @@
 
   &--icon {
     color: $grey-light;
+  }
+
+  &--report-block {
+    display: flex;
+    align-items: center;
+  }
+
+  &--icon-report {
+    height: 20px;
+    width: 20px;
+    color: $black-light;
+    margin-right: 10px;
   }
 }

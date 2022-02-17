@@ -208,6 +208,8 @@ export class AddEditMileagePage implements OnInit {
 
   saveWithCriticalPolicyViolation = false;
 
+  addedReportId: string;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -1619,6 +1621,8 @@ export class AddEditMileagePage implements OnInit {
   close() {
     if (this.activatedRoute.snapshot.params.persist_filters) {
       this.navController.back();
+    } else if (this.addedReportId) {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.addedReportId, navigateBack: true }]);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
@@ -1663,19 +1667,15 @@ export class AddEditMileagePage implements OnInit {
   }
 
   showAddToReportSuccessToast(reportId: string) {
+    this.addedReportId = reportId;
     const toastMessageData = {
       message: 'Mileage expense added to report successfully',
-      redirectionText: 'View Report',
     };
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
       panelClass: ['msb-success-with-camera-icon'],
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
-
-    expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
-    });
   }
 
   saveExpense() {
@@ -1702,8 +1702,8 @@ export class AddEditMileagePage implements OnInit {
                 that.fg.value.report.rp &&
                 that.fg.value.report.rp.id
               ) {
-                that.close();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+                that.close();
               } else {
                 that.close();
               }
@@ -1719,8 +1719,8 @@ export class AddEditMileagePage implements OnInit {
                 that.fg.value.report.rp &&
                 that.fg.value.report.rp.id
               ) {
-                that.close();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+                that.close();
               } else {
                 that.close();
               }

@@ -5,21 +5,24 @@
     </span>
     <span *ngIf="mandatory" class="fy-select--mandatory"> * </span>
   </div>
-  <div class="fy-select--input-container" [ngClass]="{ 'fy-select--input-invalid': !valid }">
-    <input
-      class="fy-select--input"
-      type="text"
-      [placeholder]="'Select a report'"
-      [ngModel]="displayValue"
-      (blur)="onBlur()"
-      (click)="openModal()"
-      [ngClass]="{ 'fy-select--input-disabled': disabled }"
-      [disabled]="disabled"
-    />
-    <mat-icon
-      class="fy-select--icon"
-      [ngClass]="{ 'fy-select--input-disabled': disabled }"
-      svgIcon="fy-arrow-down"
-    ></mat-icon>
+  <div class="fy-select--report-block">
+    <ion-icon class="fy-select--icon-report" src="../../../assets/svg/fy-report.svg"></ion-icon>
+    <div class="fy-select--input-container" [ngClass]="{ 'fy-select--input-invalid': !valid }">
+      <input
+        class="fy-select--input"
+        type="text"
+        [placeholder]="'Select a report'"
+        [ngModel]="displayValue"
+        (blur)="onBlur()"
+        (click)="openModal()"
+        [ngClass]="{ 'fy-select--input-disabled': disabled }"
+        [disabled]="disabled"
+      />
+      <mat-icon
+        class="fy-select--icon"
+        [ngClass]="{ 'fy-select--input-disabled': disabled }"
+        svgIcon="fy-arrow-down"
+      ></mat-icon>
+    </div>
   </div>
 </label>
