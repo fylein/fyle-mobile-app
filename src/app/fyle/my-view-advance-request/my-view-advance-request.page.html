@@ -41,39 +41,12 @@
 <ion-content>
   <div *ngIf="advanceRequest$|async as advanceRequest">
     <div class="view-advance-request--container">
-      <div class="view-advance-request--attachment-currency-container">
-        <div class="view-advance-request--attachment-card text-center">
-          <div *ngIf="attachedFiles$|async as attachedFiles">
-            <div class="view-advance-request--no-attachment" *ngIf="attachedFiles.length === 0">
-              <p class="view-advance-request--add-receipt-text">No Receipts</p>
-            </div>
-            <div
-              class="view-advance-request--attachments"
-              *ngIf="attachedFiles.length > 0"
-              (click)="viewAttachments(attachedFiles)"
-            >
-              <img
-                *ngIf="attachedFiles[0]?.file_type === 'image'"
-                class="view-advance-request--receipt-thumbnails"
-                [src]="attachedFiles[0]?.url"
-              />
-              <div class="view-advance-request--pdf-thumbnails" *ngIf="attachedFiles[0]?.file_type === 'pdf'">
-                <img src="assets/images/fy-pdf.svg" alt="" />
-              </div>
-              <div *ngIf="attachedFiles.length > 1" class="view-advance-request--receipt-count">
-                <span class="view-advance-request--additional-icon">
-                  <mat-icon>add</mat-icon>
-                </span>
-                <span class="view-advance-request--count">{{attachedFiles.length-1}}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="view-advance-request--currency-card">
-          <div class="view-advance-request--currency">{{advanceRequest.areq_currency}}</div>
-          <input class="view-advance-request--amount" value="{{advanceRequest.areq_amount}}" disabled />
-        </div>
-      </div>
+      <app-fy-summary-tile
+        [purpose]="advanceRequest.areq_purpose || '-'"
+        [currency]="advanceRequest.areq_currency"
+        [amount]="advanceRequest.areq_amount || 0"
+        [status]="advanceRequest.areq_state"
+      ></app-fy-summary-tile>
 
       <div class="view-advance-request--content-container">
         <div *ngIf="attachedFiles$|async as attachedFiles">

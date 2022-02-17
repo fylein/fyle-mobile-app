@@ -9,9 +9,11 @@ export class FySummaryTileComponent implements OnInit {
   @Input() categoryDisplayName: string;
   @Input() merchantName: string;
   @Input() projectName: string;
-  @Input() currencySymbol: any;
-  @Input() paymentModeIcon: any;
-  @Input() transactionState: any;
+  @Input() currency: any;
+  @Input() amount: any;
+  @Input() paymentModeIcon: string;
+  @Input() purpose: string;
+  @Input() status: string;
 
   constructor() {}
 

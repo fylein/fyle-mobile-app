@@ -1,0 +1,76 @@
+@import '../../../../theme/colors.scss';
+
+.summary-tile {
+  &--card-container {
+    padding: 14px 16px;
+    margin-top: 16px;
+    background: $purple-gradient;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 400;
+    width: 100%;
+    color: $black-light;
+
+    &__block {
+      width: 100%;
+    }
+
+    &__category {
+      color: $black;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    &__purpose {
+      color: $black;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    &__merchant {
+      padding-top: 2px;
+      color: $blue-black;
+    }
+
+    &__project {
+      padding-top: 8px;
+      color: $black-light;
+    }
+
+    &__icon {
+      vertical-align: text-bottom;
+      color: $grey-light;
+      height: 18px;
+      width: 18px;
+    }
+
+    &__amount {
+      font-size: 20px;
+      font-weight: 500;
+      color: $blue-black;
+    }
+
+    &__exchange-rate {
+      color: $black-light;
+    }
+
+    &__no-exchange {
+      padding-top: 20px;
+    }
+
+    &__state-pill {
+      display: inline-block;
+      margin-top: 6px;
+      white-space: nowrap;
+
+      &__state {
+        font-size: 12px;
+        line-height: 1.25;
+        color: $pure-white;
+        background-color: $highlight-black;
+        border-radius: 16px;
+        padding: 5px 15px;
+      }
+    }
+  }
+}

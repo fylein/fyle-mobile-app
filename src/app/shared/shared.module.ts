@@ -116,6 +116,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
 import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.component';
+import { FySummaryTileComponent } from './components/fy-summary-tile/fy-summary-tile.component';
 
 @NgModule({
   declarations: [
@@ -211,6 +212,7 @@ import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.com
     CropReceiptComponent,
     FyNumberComponent,
     FyStatisticComponent,
+    FySummaryTileComponent,
   ],
   imports: [
     CommonModule,
@@ -311,6 +313,7 @@ import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.com
     CropReceiptComponent,
     FyNumberComponent,
     FyStatisticComponent,
+    FySummaryTileComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })
