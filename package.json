@@ -94,7 +94,7 @@
     "@typescript-eslint/parser": "4.28.2",
     "eslint": "^7.26.0",
     "eslint-plugin-import": "latest",
-    "eslint-plugin-jsdoc": "latest",
+    "eslint-plugin-jsdoc": "^37.9.3",
     "eslint-plugin-max-params-no-constructor": "^0.0.4",
     "eslint-plugin-prefer-arrow": "latest",
     "husky": "^7.0.2",
