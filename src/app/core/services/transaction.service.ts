@@ -499,7 +499,7 @@ export class TransactionService {
         }
 
         if (etxn.tx_created_at) {
-          // Just stripping off date and time since created_at is
+          // Just stripping off timezone since created_at is
           // malformed(time zone offset and time stamp pair is incorrect).
           etxn.tx_created_at = moment(etxn.tx_created_at).format('YYYY-MM-DDTHH:mm:ss.SSSS');
         }
