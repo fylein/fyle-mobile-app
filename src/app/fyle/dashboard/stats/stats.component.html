@@ -70,7 +70,7 @@
             [expenseState]="'DRAFT'"
             [count]="(incompleteExpensesStats$ | async)?.count"
             [value]="(incompleteExpensesStats$ | async)?.sum"
-            [loading]="incompleteExpensesStatsLoading"
+            [loading]="isIncompleteExpensesStatsLoading"
             (badgeClicked)="goToExpensesPage($event)"
           ></app-stat-badge>
         </ion-col>

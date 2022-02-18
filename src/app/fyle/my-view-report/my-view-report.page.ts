@@ -351,7 +351,7 @@ export class MyViewReportPage implements OnInit {
   async deleteReportPopup(erpt) {
     const deleteReportPopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
-      cssClass: 'delete-dialog',
+      cssClass: 'pop-up-in-center',
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Report',

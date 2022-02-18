@@ -9,7 +9,7 @@
     line-height: 26px;
     color: $black;
     font-weight: 400;
-    padding: 18px 12px;
+    padding: 18px 12px 14px;
   }
 
   &--clear-all {
@@ -79,5 +79,9 @@
     .mat-form-field {
       width: 100%;
     }
+  }
+
+  &--footer {
+    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
   }
 }
