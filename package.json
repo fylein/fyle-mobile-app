@@ -35,7 +35,6 @@
     "@capacitor/android": "^2.4.0",
     "@capacitor/core": "2.4.0",
     "@capacitor/ios": "^2.4.0",
-    "@capacitor/keyboard": "^1.2.2",
     "@ionic-native/core": "^5.0.0",
     "@ionic-native/google-plus": "^5.28.0",
     "@ionic-native/image-picker": "^5.29.0",
