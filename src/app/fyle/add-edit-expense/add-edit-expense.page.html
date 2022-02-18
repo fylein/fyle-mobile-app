@@ -1110,7 +1110,7 @@
     (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
-  <ion-footer class="add-edit-expense--footer-container" *ngIf="!reviewList?.length">
+  <ion-footer class="add-edit-expense--footer-container" *ngIf="!reviewList?.length" ngClass="{'d-none': !showFooter}">
     <ion-toolbar mode="md" [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}">
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">

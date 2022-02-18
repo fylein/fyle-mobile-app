@@ -97,6 +97,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';
+import { Keyboard } from '@capacitor/keyboard';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -314,6 +315,8 @@ export class AddEditExpensePage implements OnInit {
   policyDetails;
 
   source = 'MOBILE';
+
+  showFooter = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2708,6 +2711,9 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.getPolicyDetails();
+
+    Keyboard.addListener('keyboardWillShow', () => (this.showFooter = false));
+    Keyboard.addListener('keyboardWillHide', () => (this.showFooter = true));
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
