@@ -1,5 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+import { Plugins, CameraResultType, CameraSource, CameraDirection } from '@capacitor/core';
+const { Camera } = Plugins;
+import { from } from 'rxjs';
+import { LoaderService } from 'src/app/core/services/loader.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 
@@ -13,6 +17,7 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   constructor(
     private popoverController: PopoverController,
+    private loaderService: LoaderService,
     private fileService: FileService,
     private trackingService: TrackingService
   ) {}
@@ -25,7 +30,23 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   async getImageFromPicture() {
     this.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
-    this.popoverController.dismiss({ option: 'camera' });
+
+    const image = await Camera.getPhoto({
+      quality: 70,
+      source: CameraSource.Camera,
+      direction: CameraDirection.Rear,
+      resultType: CameraResultType.DataUrl,
+    });
+
+    if (image) {
+      this.popoverController.dismiss({
+        type: image.format,
+        dataUrl: image.dataUrl,
+        actionSource: 'camera',
+      });
+    } else {
+      this.closeClicked();
+    }
   }
 
   async getImageFromImagePicker() {
