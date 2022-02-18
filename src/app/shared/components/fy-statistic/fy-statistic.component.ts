@@ -8,8 +8,11 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class FyStatisticComponent implements OnInit {
   @Input() icon: any;
+
   @Input() label: string;
+
   @Input() value: any;
+
   @Input() type: any;
 
   constructor() {}

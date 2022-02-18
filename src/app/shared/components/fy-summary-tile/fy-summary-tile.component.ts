@@ -7,13 +7,21 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class FySummaryTileComponent implements OnInit {
   @Input() categoryDisplayName: string;
+
   @Input() merchantName: string;
+
   @Input() projectName: string;
+
   @Input() currency: any;
+
   @Input() amount: any;
+
   @Input() paymentModeIcon: string;
+
   @Input() purpose: string;
+
   @Input() status: string;
+
   @Input() approvals: any;
 
   constructor() {}
