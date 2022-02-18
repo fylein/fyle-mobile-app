@@ -73,4 +73,80 @@
       }
     }
   }
+
+  &--approval-container {
+    box-shadow: 0px 4px 4px rgb(22 21 40 / 8%);
+    border-radius: 16px;
+    margin-top: -40px;
+  }
+
+  &--approval-state-block {
+    padding: 35px 6px 17px 6px;
+  }
+
+  &--approver-name {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 35%;
+  }
+
+  &--approval-state {
+    &__reported {
+      color: $reported-color;
+    }
+    &__fyled {
+      color: $fyled-color;
+    }
+    &_sent_back {
+      color: $sent-back-color;
+    }
+    &__approved {
+      color: $approved-color;
+    }
+    &__paid {
+      color: $paid-color;
+    }
+  }
+
+  &--approvers {
+    color: $black-light;
+    padding: 18px 10px 0;
+  }
+
+  &--approvers-list {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 10px 0;
+  }
+
+  &--approver-state-section {
+    display: flex;
+    align-items: center;
+
+    &__date {
+      margin: 0 4px;
+      font-size: 10px;
+      color: $black-light;
+    }
+  }
+
+  &--approver-state-pill {
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    margin-right: 4px;
+
+    &__approval_pending {
+      background-color: $fyled-color;
+    }
+
+    &__approval_done {
+      background-color: $approved-color;
+    }
+
+    &__approval_disabled {
+      background-color: $gray-3;
+    }
+  }
 }

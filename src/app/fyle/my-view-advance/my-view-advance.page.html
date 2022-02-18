@@ -45,7 +45,7 @@
             <ion-col class="view-advance--padding-0" size="6">
               <div class="view-advance--element" *ngIf="advance.areq_approved_at">
                 <app-fy-statistic
-                  [icon]="'../../../assets/svg/calendar.svg'"
+                  [icon]="'../../../../assets/svg/calendar-grey.svg'"
                   [type]="date"
                   [label]="'Approved On'"
                   [value]="advance.areq_approved_at | date: 'MMM dd, yyyy'"
@@ -54,7 +54,7 @@
             </ion-col>
             <ion-col class="view-advance--padding-0" size="6">
               <app-fy-statistic
-                [icon]="'../../../assets/svg/calendar.svg'"
+                [icon]="'../../../../assets/svg/calendar-grey.svg'"
                 [type]="date"
                 [label]="'Issued On'"
                 [value]="advance.adv_issued_at | date: 'MMM dd, yyyy'"
@@ -65,7 +65,7 @@
 
         <div class="view-advance--element">
           <app-fy-statistic
-            [icon]="'../../../../assets/svg/fy-card.svg'"
+            [icon]="'../../../../assets/svg/card-grey.svg'"
             [type]="string"
             [label]="'Payment Mode'"
             [value]="advance.adv_mode || '-'"

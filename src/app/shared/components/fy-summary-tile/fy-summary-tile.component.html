@@ -1,36 +1,60 @@
-<div class="d-flex summary-tile--card-container">
-  <div class="summary-tile--card-container__block">
-    <div *ngIf="categoryDisplayName" class="summary-tile--card-container__category">{{ categoryDisplayName }}</div>
-    <div *ngIf="purpose" class="summary-tile--card-container__purpose">{{ purpose }}</div>
+<div class="summary-tile--card-container">
+  <div class="d-flex">
+    <!-- <div> -->
+    <div class="summary-tile--card-container__block">
+      <div *ngIf="categoryDisplayName" class="summary-tile--card-container__category">{{ categoryDisplayName }}</div>
+      <div *ngIf="purpose" class="summary-tile--card-container__purpose">{{ purpose }}</div>
 
-    <div *ngIf="merchantName" class="summary-tile--card-container__merchant">
-      {{ merchantName }}
+      <div *ngIf="merchantName" class="summary-tile--card-container__merchant">
+        {{ merchantName }}
+      </div>
+      <div *ngIf="projectName" class="summary-tile--card-container__project">Project: {{ projectName }}</div>
     </div>
-    <div *ngIf="projectName" class="summary-tile--card-container__project">Project: {{ projectName }}</div>
+    <div class="ion-text-right summary-tile--card-container__block">
+      <div>
+        <span *ngIf="currency">{{ currency }}</span>
+        <span class="summary-tile--card-container__amount">
+          {{ amount | humanizeCurrency: currency:2:true }}
+        </span>
+        <!-- <ion-icon
+            *ngIf="paymentModeIcon"
+            class="summary-tile--card-container__icon"
+            [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+          ></ion-icon> -->
+      </div>
+
+      <!-- <div class="summary-tile--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
+          {{ foreignCurrencySymbol }}{{ etxn.tx_orig_amount | humanizeCurrency: etxn.tx_orig_currency:2:true }} at
+          {{ etxnCurrencySymbol }}{{ etxn.tx_amount / etxn.tx_orig_amount | number: '1.0-2' }}
+        </div> -->
+      <div
+        class="summary-tile--card-container__state-pill ion-text-right"
+        [ngClass]="{ 'summary-tile--card-container__no-exchange': !foreignCurrencySymbol && projectName }"
+      >
+        <div class="summary-tile--card-container__state-pill__state">
+          {{ status | snakeCaseToSpaceCase | titlecase }}
+        </div>
+      </div>
+    </div>
+    <!-- </div> -->
   </div>
-  <div class="ion-text-right summary-tile--card-container__block">
-    <div>
-      <span *ngIf="currency">{{ currency }}</span>
-      <span class="summary-tile--card-container__amount">
-        {{ amount | humanizeCurrency: currency:2:true }}
-      </span>
-      <!-- <ion-icon
-        *ngIf="paymentModeIcon"
-        class="summary-tile--card-container__icon"
-        [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
-      ></ion-icon> -->
-    </div>
+</div>
 
-    <!-- <div class="summary-tile--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
-      {{ foreignCurrencySymbol }}{{ etxn.tx_orig_amount | humanizeCurrency: etxn.tx_orig_currency:2:true }} at
-      {{ etxnCurrencySymbol }}{{ etxn.tx_amount / etxn.tx_orig_amount | number: '1.0-2' }}
-    </div> -->
-    <div
-      class="summary-tile--card-container__state-pill ion-text-right"
-      [ngClass]="{ 'summary-tile--card-container__no-exchange': !foreignCurrencySymbol && projectName }"
-    >
-      <div class="summary-tile--card-container__state-pill__state">
-        {{ status | snakeCaseToSpaceCase | titlecase }}
+<div *ngIf="approvals?.length > 0" class="summary-tile--approval-container">
+  <div class="summary-tile--approval-state-block">
+    <div class="summary-tile--approvers">Approvers</div>
+    <div *ngFor="let ap of approvals">
+      <div class="summary-tile--approvers-list">
+        <div class="summary-tile--approver-name">{{ ap.approver_name }}</div>
+        <div class="summary-tile--approver-state-section">
+          <div class="summary-tile--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
+            <span>{{ ap.updated_at | date: 'MMM dd, yyyy' }}</span>
+          </div>
+          <div
+            class="summary-tile--approver-state-pill summary-tile--approver-state-pill__{{ ap.state | lowercase }}"
+          ></div>
+          <span>{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase | snakeCaseToSpaceCase) }}</span>
+        </div>
       </div>
     </div>
   </div>

@@ -14,6 +14,7 @@ export class FySummaryTileComponent implements OnInit {
   @Input() paymentModeIcon: string;
   @Input() purpose: string;
   @Input() status: string;
+  @Input() approvals: any;
 
   constructor() {}
 
