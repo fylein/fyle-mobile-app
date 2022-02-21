@@ -31,6 +31,8 @@ type ReceiptDetail = {
   styleUrls: ['./expenses-card.component.scss'],
 })
 export class ExpensesCardComponent implements OnInit {
+  @ViewChild('fileUpload', { static: false }) fileUpload: any;
+
   @Input() expense: Expense;
 
   @Input() previousExpenseTxnDate;
@@ -60,8 +62,6 @@ export class ExpensesCardComponent implements OnInit {
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
 
   @Output() showCamera = new EventEmitter<boolean>();
-
-  @ViewChild('fileUpload') fileUpload: ElementRef;
 
   inlineReceiptDataUrl: string;
 
@@ -121,10 +121,6 @@ export class ExpensesCardComponent implements OnInit {
     private modalController: ModalController,
     private platform: Platform
   ) {}
-
-  ionViewWillEnter() {
-    this.isIos = this.platform.is('ios');
-  }
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {
@@ -301,6 +297,8 @@ export class ExpensesCardComponent implements OnInit {
     this.handleScanStatus();
 
     this.setOtherData();
+
+    this.isIos = this.platform.is('ios');
   }
 
   setOtherData() {
@@ -358,11 +356,10 @@ export class ExpensesCardComponent implements OnInit {
   async addAttachments(event) {
     if (this.canAddAttachment()) {
       event.stopPropagation();
-      event.preventDefault();
 
       let receiptDetails;
 
-      if (this.platform.is('ios')) {
+      if (this.isIos) {
         const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
         nativeElement.onchange = async () => {
           const file = nativeElement.files[0];
