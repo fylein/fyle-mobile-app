@@ -188,6 +188,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   canDeleteExpense = true;
 
+  showFooter = true;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -1537,6 +1539,9 @@ export class AddEditPerDiemPage implements OnInit {
         }
       })
     );
+
+    window.addEventListener('keyboardWillShow', () => (this.showFooter = false));
+    window.addEventListener('keyboardWillHide', () => (this.showFooter = true));
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {

@@ -219,7 +219,7 @@
   </form>
 </ion-content>
 
-<ion-footer class="cta-footer">
+<ion-footer [ngClass]="{'d-none': !showFooter}" class="cta-footer">
   <ion-toolbar mode="md">
     <div class="add-edit-advance-request--cta-container">
       <ion-buttons>

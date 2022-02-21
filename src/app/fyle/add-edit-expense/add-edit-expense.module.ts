@@ -24,7 +24,6 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Keyboard } from '@awesome-cordova-plugins/keyboard/ngx';
 
 @NgModule({
   imports: [
@@ -56,6 +55,5 @@ import { Keyboard } from '@awesome-cordova-plugins/keyboard/ngx';
     CameraOptionsPopupComponent,
     MatchTransactionComponent,
   ],
-  providers: [Keyboard],
 })
 export class AddEditExpensePageModule {}

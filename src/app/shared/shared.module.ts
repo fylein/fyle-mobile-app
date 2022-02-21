@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { SwiperModule } from 'swiper/angular';
 import { RouterModule } from '@angular/router';
+import { Keyboard } from '@awesome-cordova-plugins/keyboard/ngx';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -292,6 +293,6 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
     SendEmailComponent,
     FyNumberComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, Keyboard],
 })
 export class SharedModule {}

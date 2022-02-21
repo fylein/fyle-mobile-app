@@ -97,7 +97,6 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';
-import { Keyboard } from '@awesome-cordova-plugins/keyboard/ngx';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -359,8 +358,7 @@ export class AddEditExpensePage implements OnInit {
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    public platform: Platform,
-    private keyboard: Keyboard
+    public platform: Platform
   ) {}
 
   goBack() {

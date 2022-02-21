@@ -600,7 +600,7 @@
     (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
-  <ion-footer *ngIf="!reviewList?.length">
+  <ion-footer [ngClass]="{'d-none': !showFooter}" *ngIf="!reviewList?.length">
     <ion-toolbar
       mode="md"
       class="add-edit-mileage--footer-toolbar cta-footer-toolbar"

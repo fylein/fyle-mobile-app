@@ -204,6 +204,8 @@ export class AddEditMileagePage implements OnInit {
 
   canDeleteExpense = true;
 
+  showFooter = true;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -1556,6 +1558,9 @@ export class AddEditMileagePage implements OnInit {
           }, 1000);
         }
       );
+
+    window.addEventListener('keyboardWillShow', () => (this.showFooter = false));
+    window.addEventListener('keyboardWillHide', () => (this.showFooter = true));
   }
 
   async showClosePopup() {

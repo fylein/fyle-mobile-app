@@ -71,6 +71,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   isDeviceWidthSmall = window.innerWidth < 375;
 
+  showFooter = true;
+
   constructor(
     private offlineService: OfflineService,
     private activatedRoute: ActivatedRoute,
@@ -627,6 +629,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
 
     this.setupNetworkWatcher();
+
+    window.addEventListener('keyboardWillShow', () => (this.showFooter = false));
+    window.addEventListener('keyboardWillHide', () => (this.showFooter = true));
   }
 
   setupNetworkWatcher() {

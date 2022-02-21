@@ -726,6 +726,7 @@
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
   <ion-footer
+    [ngClass]="{'d-none': !showFooter}"
     *ngIf="(canCreatePerDiem$|async) && (allowedPerDiemRateOptions$|async)?.length > 0 && !reviewList?.length"
   >
     <ion-toolbar mode="md" [ngClass]="{'add-edit-per-diem--footer-toolbar__offline': !(isConnected$|async)}">
