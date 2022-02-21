@@ -31,7 +31,7 @@ type ReceiptDetail = {
   styleUrls: ['./expenses-card.component.scss'],
 })
 export class ExpensesCardComponent implements OnInit {
-  @ViewChild('fileUpload', { static: false }) fileUpload: any;
+  @ViewChild('fileUpload') fileUpload: ElementRef;
 
   @Input() expense: Expense;
 
