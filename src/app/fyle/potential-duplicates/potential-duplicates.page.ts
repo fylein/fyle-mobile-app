@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, from, noop, Observable, Subject } from 'rxjs';
 import { map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
+import { DuplicateSets } from 'src/app/core/models/v2/duplicate-sets.model';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 @Component({
@@ -17,7 +18,7 @@ export class PotentialDuplicatesPage implements OnInit {
 
   duplicatesSetCount: number;
 
-  duplicatesSetData: any[];
+  duplicatesSetData: DuplicateSets;
 
   constructor(private handleDuplicates: HandleDuplicatesService, private transaction: TransactionService) {}
 
@@ -81,8 +82,8 @@ export class PotentialDuplicatesPage implements OnInit {
   }
 
   dismissAll() {
-    const TxnIds = this.duplicatesSetData[this.selectedSet].transaction_ids;
-    this.handleDuplicates.dismissAll(TxnIds, TxnIds).subscribe(() => {
+    const txnIds = this.duplicatesSetData[this.selectedSet].transaction_ids;
+    this.handleDuplicates.dismissAll(txnIds, txnIds).subscribe(() => {
       if (this.selectedSet === 0) {
         this.selectedSet = 1;
       } else {

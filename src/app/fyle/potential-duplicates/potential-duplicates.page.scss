@@ -11,8 +11,6 @@
     height: 60px;
     justify-content: space-between;
     padding: 20px 0;
-    padding-bottom: 20px;
-
     &-button {
       color: $brand-primary;
       font-size: 16px;
@@ -36,7 +34,7 @@
     background: $off-white;
     border: 1px solid $grey;
     box-sizing: border-box;
-    border-radius: 15px;
+    border-radius: 16px;
     align-content: center;
     border-radius: 20px;
   }
@@ -45,7 +43,6 @@
     font-size: 18px;
     line-height: 23px;
     color: $pure-black;
-    text-align: center;
     padding: 10px;
   }
 
@@ -67,47 +64,5 @@
 
   &--footer-toolbar {
     padding: 14px 16px;
-  }
-
-  &--primary-cta,
-  &--secondary-cta {
-    height: 48px;
-    font-size: 14px;
-    text-transform: inherit;
-    font-weight: 600;
-    border-radius: 8px;
-    width: 100%;
-    margin: 12px 0;
-    --border-radius: 4px !important;
-
-    &:first-child {
-      margin-right: 4px;
-    }
-
-    &:last-child {
-      margin-left: 4px;
-    }
-  }
-
-  &--secondary-cta {
-    margin: 0;
-    border-radius: 0;
-    &__border {
-      border-right: 1px solid $grey;
-    }
-  }
-
-  &--secondary-cta-text {
-    min-width: 80px;
-  }
-
-  &--secondary-cta-icon {
-    &__left {
-      margin-right: 18px;
-    }
-
-    &__right {
-      margin-left: 18px;
-    }
   }
 }

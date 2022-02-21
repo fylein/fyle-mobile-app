@@ -21,7 +21,7 @@
     <div class="potential-duplicates--container">
       <ng-container *ngIf="duplicatesSet$| async as duplicatesSets">
         <ng-container *ngFor="let duplicatesSet of duplicatesSets; let setIndex=index">
-          <div *ngIf="setIndex === selectedSet" class="potential-duplicates--header">
+          <div *ngIf="setIndex === selectedSet" class="potential-duplicates--header text-center">
             {{duplicatesSet.length}} expenses for {{ 0 | currency: duplicatesSet[0].tx_currency:'symbol-narrow' | slice:
             0:1 }} {{ duplicatesSet[0].tx_amount | number : '1.2-2'}}
           </div>
