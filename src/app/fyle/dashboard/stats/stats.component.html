@@ -89,6 +89,8 @@
     </ion-grid>
   </div>
 
+  <ng-container *ngIf="isConnected$ | async; else offlineMessage"></ng-container>
+
   <div *ngIf="(isConnected$ | async) && cardTransactionsAndDetails" class="stats--ccc-cards-section">
     <div>
       <ion-grid>
@@ -266,15 +268,17 @@
   </div>
 
   <ng-template #offlineMessage>
-    <div class="stats--zero-state">
-      <app-fy-zero-state
-        class="stats--zero-state"
-        image="../../../../assets/images/no-internet.svg"
-        header="You're Offline!"
-        message="Fear not, you can still add expenses offline."
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-      ></app-fy-zero-state>
+    <div>
+      <div class="stats--zero-state">
+        <app-fy-zero-state
+          class="stats--zero-state"
+          image="../../../../assets/images/no-internet.svg"
+          header="You're Offline!"
+          message="Fear not, you can still add expenses offline."
+          [unscaledImage]="true"
+          [useNewStyling]="true"
+        ></app-fy-zero-state>
+      </div>
     </div>
   </ng-template>
 </div>
