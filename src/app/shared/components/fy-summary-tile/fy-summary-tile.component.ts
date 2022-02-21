@@ -24,6 +24,8 @@ export class FySummaryTileComponent implements OnInit {
 
   @Input() approvals: any;
 
+  @Input() foreignCurrencySymbol: any;
+
   constructor() {}
 
   ngOnInit() {}

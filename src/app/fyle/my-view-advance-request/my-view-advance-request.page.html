@@ -54,7 +54,7 @@
           <div *ngIf="attachedFiles.length === 0" class="view-advance-request--element">
             <app-fy-statistic
               [icon]="'../../../../assets/svg/no-attachment.svg'"
-              [type]="string"
+              [type]="'string'"
               [label]="'Receipt'"
               [value]="'Not Attached'"
             ></app-fy-statistic>
@@ -71,7 +71,7 @@
         <div class="view-advance-request--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/advances.svg'"
-            [type]="string"
+            [type]="'string'"
             [label]="'Request ID'"
             [value]="advanceRequest.areq_advance_request_number|| '-'"
           ></app-fy-statistic>
@@ -85,7 +85,7 @@
               <div class="view-advance-request--element">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar-grey.svg'"
-                  [type]="date"
+                  [type]="'date'"
                   [label]="'Created On'"
                   [value]="advanceRequest.areq_created_at | date: 'MMM dd, yyyy'"
                 ></app-fy-statistic>
@@ -95,7 +95,7 @@
               <div class="view-advance-request--element" *ngIf="advanceRequest.areq_approved_at">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar-grey.svg'"
-                  [type]="date"
+                  [type]="'date'"
                   [label]="'Approved On'"
                   [value]="advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'"
                 ></app-fy-statistic>
@@ -107,7 +107,7 @@
         <div class="view-advance-request--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
-            [type]="string"
+            [type]="'string'"
             [label]="'Purpose'"
             [value]="advanceRequest.areq_purpose|| '-'"
           ></app-fy-statistic>
@@ -115,7 +115,7 @@
         <div class="view-advance-request--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
-            [type]="string"
+            [type]="'string'"
             [label]="'Project'"
             [value]="advanceRequest.project_name | ellipsis: 15"
           ></app-fy-statistic>
@@ -126,7 +126,7 @@
         <div class="view-advance-request--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
-            [type]="string"
+            [type]="'string'"
             [label]="'Additional Notes'"
             [value]="advanceRequest.areq_notes || '-'"
           ></app-fy-statistic>
@@ -142,7 +142,7 @@
             <div *ngIf="advanceRequestCustomField.type === 'DATE' && advanceRequestCustomField.value">
               <app-fy-statistic
                 [icon]="'../../../../assets/svg/calendar-grey.svg'"
-                [type]="date"
+                [type]="'date'"
                 [label]="advanceRequestCustomField.name"
                 [value]="advanceRequestCustomField.value | date: 'MMM dd, yyyy'"
               ></app-fy-statistic>
@@ -150,7 +150,7 @@
             <div *ngIf="advanceRequestCustomField.type === 'DATE' && !advanceRequestCustomField.value">
               <app-fy-statistic
                 [icon]="'../../../../assets/svg/calendar-grey.svg'"
-                [type]="date"
+                [type]="'date'"
                 [label]="advanceRequestCustomField.name"
                 [value]="'-'"
               ></app-fy-statistic>
@@ -158,7 +158,7 @@
             <div *ngIf="advanceRequestCustomField.type === 'BOOLEAN'">
               <app-fy-statistic
                 [icon]="'../../../../assets/svg/list.svg'"
-                [type]="boolean"
+                [type]="'boolean'"
                 [label]="advanceRequestCustomField.name"
                 [value]="advanceRequestCustomField.value ? 'Yes' : 'No'"
               ></app-fy-statistic>
@@ -166,7 +166,7 @@
             <div *ngIf="advanceRequestCustomField.type !== 'BOOLEAN' && advanceRequestCustomField.type !== 'DATE'">
               <app-fy-statistic
                 [icon]="'../../../../assets/svg/list.svg'"
-                [type]="boolean"
+                [type]="'boolean'"
                 [label]="advanceRequestCustomField.name"
                 [value]="advanceRequestCustomField.value || '-'"
               ></app-fy-statistic>
