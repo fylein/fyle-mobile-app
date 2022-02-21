@@ -109,6 +109,8 @@ export class ExpensesCardComponent implements OnInit {
 
   isPerDiem: boolean;
 
+  isIos = false;
+
   constructor(
     private transactionService: TransactionService,
     private offlineService: OfflineService,
@@ -117,8 +119,12 @@ export class ExpensesCardComponent implements OnInit {
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService,
     private modalController: ModalController,
-    public platform: Platform
+    private platform: Platform
   ) {}
+
+  ionViewWillEnter() {
+    this.isIos = this.platform.is('ios');
+  }
 
   onGoToTransaction() {
     if (!this.isSelectionModeEnabled) {

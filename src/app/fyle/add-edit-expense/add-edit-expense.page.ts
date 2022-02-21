@@ -318,6 +318,8 @@ export class AddEditExpensePage implements OnInit {
 
   isCameraShown = false;
 
+  isIos = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -359,7 +361,7 @@ export class AddEditExpensePage implements OnInit {
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    public platform: Platform
+    private platform: Platform
   ) {}
 
   goBack() {
@@ -2711,6 +2713,8 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.getPolicyDetails();
+
+    this.isIos = this.platform.is('ios');
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
