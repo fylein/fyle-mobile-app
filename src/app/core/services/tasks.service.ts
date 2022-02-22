@@ -93,7 +93,15 @@ export class TasksService {
     }
 
     if (filters.unreportedExpenses) {
-      this.getSelectedFilter(selectedFilters, 'Expenses', 'UNREPORTED');
+      const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
+      if (existingFilter) {
+        existingFilter.value.push('UNREPORTED');
+      } else {
+        selectedFilters.push({
+          name: 'Expenses',
+          value: ['UNREPORTED'],
+        });
+      }
     }
 
     if (filters.draftReports) {
@@ -104,43 +112,37 @@ export class TasksService {
     }
 
     if (filters.sentBackReports) {
-      this.getSelectedFilter(selectedFilters, 'Reports', 'SENT_BACK');
+      const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
+      if (existingFilter) {
+        existingFilter.value.push('SENT_BACK');
+      } else {
+        selectedFilters.push({
+          name: 'Reports',
+          value: ['SENT_BACK'],
+        });
+      }
     }
 
     if (filters.teamReports) {
-      this.getSelectedFilter(selectedFilters, 'Reports', 'TEAM');
+      const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
+      if (existingFilter) {
+        existingFilter.value.push('TEAM');
+      } else {
+        selectedFilters.push({
+          name: 'Reports',
+          value: ['TEAM'],
+        });
+      }
     }
 
     if (filters.sentBackAdvances) {
-      this.getSelectedFilter(selectedFilters, 'Advances', 'SENT_BACK');
+      selectedFilters.push({
+        name: 'Advances',
+        value: ['SENT_BACK'],
+      });
     }
+
     return selectedFilters;
-  }
-
-  getSelectedFilter(selectedFilters, filterName, value) {
-    const existingFilters = selectedFilters.find((filter) => filter.name === filterName);
-    if (existingFilters) {
-      return existingFilters.value.push(value);
-    } else {
-      return selectedFilters.push({
-        name: filterName,
-        value: [value],
-      });
-    }
-  }
-
-  getExistingFilter(selectedFilters, filterName, value) {
-    const existingFilters = selectedFilters.find((filter) => filter.name === filterName);
-    console.log('tpp', existingFilters);
-
-    if (existingFilters) {
-      return existingFilters.value.push(value);
-    } else {
-      return selectedFilters.push({
-        name: filterName,
-        value: [value],
-      });
-    }
   }
 
   convertFilters(selectedFilters: SelectedFilters<any>[]): TaskFilters {
