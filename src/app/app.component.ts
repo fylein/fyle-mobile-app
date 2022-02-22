@@ -214,6 +214,7 @@ export class AppComponent implements OnInit {
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut();
       this.freshChatService.destory();
+      this.isSwitchedToDelegator = false;
       this.router.navigate(['/', 'auth', 'sign_in']);
     });
 

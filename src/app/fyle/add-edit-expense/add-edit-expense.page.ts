@@ -3895,36 +3895,8 @@ export class AddEditExpensePage implements OnInit {
 
       await popup.present();
 
-      let { data: receiptDetails } = await popup.onWillDismiss();
-
-      if (receiptDetails && receiptDetails.option === 'camera') {
-        const captureReceiptModal = await this.modalController.create({
-          component: CaptureReceiptComponent,
-          componentProps: {
-            isModal: true,
-            allowGalleryUploads: false,
-            allowBulkFyle: false,
-          },
-          cssClass: 'hide-modal',
-        });
-
-        await captureReceiptModal.present();
-        this.isCameraShown = true;
-
-        const { data } = await captureReceiptModal.onWillDismiss();
-        this.isCameraShown = false;
-
-        if (data && data.dataUrl) {
-          receiptDetails = {
-            type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
-            dataUrl: data.dataUrl,
-            actionSource: 'camera',
-          };
-        }
-      }
-      if (receiptDetails && receiptDetails.dataUrl) {
-        this.attachReceipts(receiptDetails);
-      }
+      const { data } = await popup.onWillDismiss();
+      this.attachReceipts(data);
     }
   }
 
