@@ -96,8 +96,6 @@ import { TaxGroup } from 'src/app/core/models/tax_group.model';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { Expense } from 'src/app/core/models/expense.model';
-import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
