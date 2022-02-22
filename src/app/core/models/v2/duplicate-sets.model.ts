@@ -1,4 +1,4 @@
 export interface DuplicateSets {
-  fields: any[];
-  transaction_ids: any[];
+  fields: string[];
+  transaction_ids: string[];
 }
