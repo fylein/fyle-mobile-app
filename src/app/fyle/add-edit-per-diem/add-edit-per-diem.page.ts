@@ -58,6 +58,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -226,7 +227,8 @@ export class AddEditPerDiemPage implements OnInit {
     private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
@@ -872,12 +874,23 @@ export class AddEditPerDiemPage implements OnInit {
     this.isExpandedView = this.mode !== 'add';
 
     if (this.mode === 'add') {
-      this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
-        if (isConnected) {
-          this.fg.controls.report.setValidators(Validators.required);
-          this.isReportMandatory = true;
-        }
-      });
+      forkJoin({
+        isConnected: this.isConnected$.pipe(take(1)),
+        userProperties: this.userService.getProperties(),
+      })
+        .pipe(
+          filter(
+            (res) =>
+              res.isConnected &&
+              res.userProperties.expense_form_beta?.enabled &&
+              res.userProperties.expense_form_beta?.allowed
+          ),
+          map(() => {
+            this.fg.controls.report.setValidators(Validators.required);
+            this.isReportMandatory = true;
+          })
+        )
+        .subscribe(noop);
     }
 
     const orgSettings$ = this.offlineService.getOrgSettings();

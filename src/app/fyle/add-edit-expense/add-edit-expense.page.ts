@@ -98,6 +98,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -365,7 +366,8 @@ export class AddEditExpensePage implements OnInit {
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    public platform: Platform
+    public platform: Platform,
+    private userService: UserService
   ) {}
 
   goBack() {
@@ -2518,12 +2520,23 @@ export class AddEditExpensePage implements OnInit {
     this.isExpandedView = this.mode !== 'add';
 
     if (this.mode === 'add') {
-      this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
-        if (isConnected) {
-          this.fg.controls.report.setValidators(Validators.required);
-          this.isReportMandatory = true;
-        }
-      });
+      forkJoin({
+        isConnected: this.isConnected$.pipe(take(1)),
+        userProperties: this.userService.getProperties(),
+      })
+        .pipe(
+          filter(
+            (res) =>
+              res.isConnected &&
+              res.userProperties.expense_form_beta?.enabled &&
+              res.userProperties.expense_form_beta?.allowed
+          ),
+          map(() => {
+            this.fg.controls.report.setValidators(Validators.required);
+            this.isReportMandatory = true;
+          })
+        )
+        .subscribe(noop);
     }
 
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
