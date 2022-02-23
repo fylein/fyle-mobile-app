@@ -10,7 +10,7 @@ export interface AdvanceApprover {
   approver_name: string;
   approver_org_id: string;
   comment: string;
-  created_at: Date;
+  created_at: null;
   disabled_by: string;
   id: number;
   state: string;
