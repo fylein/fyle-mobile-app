@@ -353,19 +353,19 @@ export class MyAdvancesPage implements AfterViewChecked {
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Creation Date - New to Old',
+            label: 'Created At - New to Old',
             value: SortingValue.creationDateAsc,
           },
           {
-            label: 'Creation Date - Old to New',
+            label: 'Created At - Old to New',
             value: SortingValue.creationDateDesc,
           },
           {
-            label: 'Approval Date - New to Old',
+            label: 'Approved At - New to Old',
             value: SortingValue.approvalDateAsc,
           },
           {
-            label: 'Approval Date - Old to New',
+            label: 'Approved At - Old to New',
             value: SortingValue.approvalDateDesc,
           },
           {

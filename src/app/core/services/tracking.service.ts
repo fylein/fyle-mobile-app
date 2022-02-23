@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
+import { DeviceService } from '../../core/services/device.service';
 
 @Injectable({
   providedIn: 'root',
@@ -7,7 +8,7 @@ import { AuthService } from './auth.service';
 export class TrackingService {
   identityEmail = null;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
   get tracking() {
     return (window as any).analytics;
@@ -58,13 +59,16 @@ export class TrackingService {
   onStateChange(toState, toParams, fromState, fromParams) {}
 
   eventTrack(action, properties = {}) {
-    properties = {
-      ...properties,
-      Asset: 'Mobile',
-    };
-    if (this.tracking) {
-      this.tracking.track(action, properties);
-    }
+    this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
+      properties = {
+        ...properties,
+        Asset: 'Mobile',
+        DeviceType: deviceInfo.platform,
+      };
+      if (this.tracking) {
+        this.tracking.track(action, properties);
+      }
+    });
   }
 
   // external APIs
@@ -750,6 +754,10 @@ export class TrackingService {
 
   dashboardOnUnreportedExpensesClick(properties = {}) {
     this.eventTrack('dashboard unreported expenses clicked', properties);
+  }
+
+  dashboardOnIncompleteExpensesClick(properties = {}) {
+    this.eventTrack('dashboard incomplete expenses clicked', properties);
   }
 
   dashboardOnReportPillClick(properties) {
