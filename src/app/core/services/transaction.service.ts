@@ -501,7 +501,7 @@ export class TransactionService {
         if (etxn.tx_created_at) {
           // Just stripping off timezone since created_at is
           // malformed(time zone offset and time stamp pair is incorrect).
-          etxn.tx_created_at = moment(etxn.tx_created_at).format('YYYY-MM-DDTHH:mm:ss.SSSS');
+          etxn.tx_created_at = moment(etxn.tx_created_at).format('YYYY-MM-DDTHH:mm:ss.SSS') + 'Z'; // Z token is reserved for offset
         }
 
         // setting txn_dt time to T10:00:00:000 in local time zone
