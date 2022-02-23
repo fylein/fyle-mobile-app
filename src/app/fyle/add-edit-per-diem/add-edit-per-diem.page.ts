@@ -884,13 +884,12 @@ export class AddEditPerDiemPage implements OnInit {
               res.isConnected &&
               res.userProperties.expense_form_beta?.enabled &&
               res.userProperties.expense_form_beta?.allowed
-          ),
-          map(() => {
-            this.fg.controls.report.setValidators(Validators.required);
-            this.isReportMandatory = true;
-          })
+          )
         )
-        .subscribe(noop);
+        .subscribe(() => {
+          this.fg.controls.report.setValidators(Validators.required);
+          this.isReportMandatory = true;
+        });
     }
 
     const orgSettings$ = this.offlineService.getOrgSettings();

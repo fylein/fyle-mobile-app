@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { combineLatest, concat, forkJoin, from, iif, Observable, of, throwError, noop } from 'rxjs';
+import { combineLatest, concat, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -1019,13 +1019,12 @@ export class AddEditMileagePage implements OnInit {
               res.isConnected &&
               res.userProperties.expense_form_beta?.enabled &&
               res.userProperties.expense_form_beta?.allowed
-          ),
-          map(() => {
-            this.fg.controls.report.setValidators(Validators.required);
-            this.isReportMandatory = true;
-          })
+          )
         )
-        .subscribe(noop);
+        .subscribe(() => {
+          this.fg.controls.report.setValidators(Validators.required);
+          this.isReportMandatory = true;
+        });
     }
 
     const orgSettings$ = this.offlineService.getOrgSettings();
