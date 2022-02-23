@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, from, noop, Observable, Subject } from 'rxjs';
 import { map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
+import { Expense } from 'src/app/core/models/expense.model';
 import { DuplicateSets } from 'src/app/core/models/v2/duplicate-sets.model';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -18,7 +19,7 @@ export class PotentialDuplicatesPage implements OnInit {
 
   duplicatesSetCount: number;
 
-  duplicatesSetData: DuplicateSets;
+  duplicatesSetData: DuplicateSets[];
 
   constructor(private handleDuplicates: HandleDuplicatesService, private transaction: TransactionService) {}
 
@@ -46,8 +47,9 @@ export class PotentialDuplicatesPage implements OnInit {
               [],
               duplicatesSets.map((value) => value.transaction_ids)
             );
-            const params: any = {};
-            params.tx_id = `in.(${duplicateIds.toString()})`;
+            const params = {
+              tx_id: `in.(${duplicateIds.toString()})`,
+            };
             return this.transaction.getETxnc({ offset: 0, limit: 10, params }).pipe(
               map((expenses) => {
                 const expensesArray = expenses as [];
@@ -73,7 +75,7 @@ export class PotentialDuplicatesPage implements OnInit {
     this.selectedSet--;
   }
 
-  dismiss(expense) {
+  dismiss(expense: Expense) {
     const transactionIds = [expense.tx_id];
     const duplicateTxnIds = this.duplicatesSetData[this.selectedSet].transaction_ids;
     this.handleDuplicates.dismissAll(duplicateTxnIds, transactionIds).subscribe(() => {

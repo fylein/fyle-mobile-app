@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { DuplicateSets } from '../models/v2/duplicate-sets.model';
 import { ApiService } from './api.service';
 @Injectable({
   providedIn: 'root',
@@ -7,7 +8,7 @@ import { ApiService } from './api.service';
 export class HandleDuplicatesService {
   constructor(private apiService: ApiService) {}
 
-  getDuplicatesSet() {
+  getDuplicatesSet(): Observable<DuplicateSets[]> {
     return this.apiService.get('/transactions/duplicates/sets');
   }
 
