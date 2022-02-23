@@ -242,6 +242,11 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
+  canShowPaymentModeIcon() {
+    this.showPaymentModeIcon =
+      this.expense.source_account_type === 'PERSONAL_ACCOUNT' && !this.expense.tx_skip_reimbursement;
+  }
+
   ngOnInit() {
     this.setupNetworkWatcher();
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
@@ -283,8 +288,6 @@ export class ExpensesCardComponent implements OnInit {
           orgSettings.unify_ccce_expenses_settings.allowed &&
           orgSettings.unify_ccce_expenses_settings.enabled)
     );
-    this.showPaymentModeIcon =
-      this.expense.source_account_type === 'PERSONAL_ACCOUNT' && !this.expense.tx_skip_reimbursement;
 
     if (!this.expense.tx_id) {
       this.showDt = !!this.isFirstOfflineExpense;
@@ -293,6 +296,8 @@ export class ExpensesCardComponent implements OnInit {
       const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
       this.showDt = currentDate !== previousDate;
     }
+
+    this.canShowPaymentModeIcon();
 
     this.getReceipt();
 
