@@ -75,8 +75,13 @@
     }
   }
 
+  &--grid {
+    padding: 0px;
+    margin-top: -15px;
+  }
+
   &--divider {
-    margin-top: 16px;
+    margin: 24px 0px;
     border-bottom: 1px solid #dfdfe2;
   }
 

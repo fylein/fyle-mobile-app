@@ -28,10 +28,14 @@
           {{ etxnCurrencySymbol }}{{ etxn.tx_amount / etxn.tx_orig_amount | number: '1.0-2' }}
         </div> -->
       <div
-        class="summary-tile--card-container__state-pill ion-text-right"
+        class="ion-text-right"
         [ngClass]="{ 'summary-tile--card-container__no-exchange': !foreignCurrencySymbol && projectName }"
       >
-        <div class="summary-tile--card-container__state-pill__state">
+        <div
+          class="summary-tile--card-container__state-pill summary-tile--card-container__state-pill__{{
+            status | lowercase
+          }}"
+        >
           {{ status | snakeCaseToSpaceCase | titlecase }}
         </div>
       </div>

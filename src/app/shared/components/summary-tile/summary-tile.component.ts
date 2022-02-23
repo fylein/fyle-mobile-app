@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { AdvanceApprover } from 'src/app/core/models/approver.model';
 
 @Component({
-  selector: 'app-fy-summary-tile',
-  templateUrl: './fy-summary-tile.component.html',
-  styleUrls: ['./fy-summary-tile.component.scss'],
+  selector: 'app-summary-tile',
+  templateUrl: './summary-tile.component.html',
+  styleUrls: ['./summary-tile.component.scss'],
 })
 export class FySummaryTileComponent implements OnInit {
   @Input() categoryDisplayName: string;
@@ -12,9 +13,9 @@ export class FySummaryTileComponent implements OnInit {
 
   @Input() projectName: string;
 
-  @Input() currency: any;
+  @Input() currency: string;
 
-  @Input() amount: any;
+  @Input() amount: number;
 
   @Input() paymentModeIcon: string;
 
@@ -22,9 +23,9 @@ export class FySummaryTileComponent implements OnInit {
 
   @Input() status: string;
 
-  @Input() approvals: any;
+  @Input() approvals: AdvanceApprover[];
 
-  @Input() foreignCurrencySymbol: any;
+  @Input() foreignCurrencySymbol: string;
 
   constructor() {}
 

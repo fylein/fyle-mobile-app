@@ -19,7 +19,7 @@
     >
       <ng-container *ngIf="actions$|async as actions">
         <ion-button *ngIf="actions?.can_edit" class="view-advance-request--header-btn-container__btn" (click)="edit()">
-          <ion-icon [src]="'../../../assets/svg/fy-edit.svg'" slot="icon-only"></ion-icon>
+          <ion-icon [src]="'../../../assets/svg/fy-edit-2.svg'" slot="icon-only"></ion-icon>
         </ion-button>
       </ng-container>
       <ion-button class="view-advance-request--header-btn-container__btn" (click)="openCommentsModal()">
@@ -41,17 +41,25 @@
 <ion-content>
   <div *ngIf="advanceRequest$|async as advanceRequest">
     <div class="view-advance-request--container">
-      <app-fy-summary-tile
+      <app-summary-tile
         [purpose]="advanceRequest.areq_purpose || '-'"
         [currency]="advanceRequest.areq_currency"
         [amount]="advanceRequest.areq_amount || 0"
         [status]="advanceRequest.areq_state"
         [approvals]="activeApprovals$ | async"
-      ></app-fy-summary-tile>
+      ></app-summary-tile>
 
-      <div class="view-advance-request--content-container">
-        <div *ngIf="attachedFiles$|async as attachedFiles">
-          <div *ngIf="attachedFiles.length === 0" class="view-advance-request--element">
+      <div *ngIf="attachedFiles$|async as attachedFiles">
+        <div *ngIf="attachedFiles?.length > 0">
+          <app-receipt-preview-thumbnail
+            [attachments]="attachedFiles"
+            (viewAttachments)="viewAttachments(attachedFiles)"
+            [canEdit]="false"
+          >
+          </app-receipt-preview-thumbnail>
+        </div>
+        <div *ngIf="attachedFiles?.length === 0" class="view-advance-request--content-container">
+          <div class="view-advance-request--element">
             <app-fy-statistic
               [icon]="'../../../../assets/svg/no-attachment.svg'"
               [type]="'string'"
@@ -59,15 +67,10 @@
               [value]="'Not Attached'"
             ></app-fy-statistic>
           </div>
-          <div *ngIf="attachedFiles.length > 0">
-            <app-receipt-preview-thumbnail
-              [attachments]="attachedFiles"
-              (viewAttachments)="viewAttachments(attachedFiles)"
-              [canEdit]="false"
-            >
-            </app-receipt-preview-thumbnail>
-          </div>
         </div>
+      </div>
+
+      <div>
         <div class="view-advance-request--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/advances.svg'"
@@ -79,9 +82,9 @@
 
         <div class="view-advance-request--divider"></div>
 
-        <ion-grid class="view-advance-request--padding-0">
+        <ion-grid class="view-advance-request--grid">
           <ion-row>
-            <ion-col class="view-advance-request--padding-0" size="6">
+            <ion-col class="p-0" size="6">
               <div class="view-advance-request--element">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar-grey.svg'"
@@ -91,7 +94,7 @@
                 ></app-fy-statistic>
               </div>
             </ion-col>
-            <ion-col class="view-advance-request--padding-0" size="6">
+            <ion-col class="p-0" size="6">
               <div class="view-advance-request--element" *ngIf="advanceRequest.areq_approved_at">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar-grey.svg'"
@@ -117,7 +120,7 @@
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="'string'"
             [label]="'Project'"
-            [value]="advanceRequest.project_name | ellipsis: 15"
+            [value]="advanceRequest.project_name || '-' | ellipsis: 15"
           ></app-fy-statistic>
         </div>
 

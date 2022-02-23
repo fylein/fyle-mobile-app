@@ -12,12 +12,12 @@
 <ion-content>
   <div *ngIf="advance$|async as advance">
     <div class="view-advance--container">
-      <app-fy-summary-tile
+      <app-summary-tile
         [purpose]="advance.adv_purpose || '-'"
         [currency]="advance.adv_currency"
         [amount]="advance.adv_orig_amount || advance.adv_amount || 0"
         [status]="'Paid'"
-      ></app-fy-summary-tile>
+      ></app-summary-tile>
 
       <div class="view-advance--content-container">
         <div class="view-advance--element">
@@ -40,9 +40,9 @@
 
         <div class="view-advance--divider"></div>
 
-        <ion-grid class="view-advance--padding-0">
+        <ion-grid class="view-advance--grid">
           <ion-row>
-            <ion-col class="view-advance--padding-0" size="6">
+            <ion-col class="p-0" size="6">
               <div class="view-advance--element" *ngIf="advance.areq_approved_at">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar-grey.svg'"
@@ -52,7 +52,7 @@
                 ></app-fy-statistic>
               </div>
             </ion-col>
-            <ion-col class="view-advance--padding-0" size="6">
+            <ion-col class="p-0" size="6">
               <app-fy-statistic
                 [icon]="'../../../../assets/svg/calendar-grey.svg'"
                 [type]="'date'"
@@ -65,7 +65,7 @@
 
         <div class="view-advance--element">
           <app-fy-statistic
-            [icon]="'../../../../assets/svg/card-grey.svg'"
+            [icon]="'../../../../assets/svg/card.svg'"
             [type]="'string'"
             [label]="'Payment Mode'"
             [value]="advance.adv_mode || '-'"

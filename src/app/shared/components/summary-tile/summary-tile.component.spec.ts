@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { FySummaryTileComponent } from './fy-summary-tile.component';
+import { FySummaryTileComponent } from './summary-tile.component';
 
 describe('FySummaryTileComponent', () => {
   let component: FySummaryTileComponent;
