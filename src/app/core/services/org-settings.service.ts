@@ -366,6 +366,10 @@ export class OrgSettingsService {
         allowed: incoming.org_personal_cards_settings && incoming.org_personal_cards_settings.allowed,
         enabled: incoming.org_personal_cards_settings && incoming.org_personal_cards_settings.enabled,
       },
+      unify_ccce_expenses_settings: {
+        allowed: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.allowed,
+        enabled: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.enabled,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
@@ -519,6 +523,7 @@ export class OrgSettingsService {
       expense_limit_settings: outgoing.expense_limit_settings,
       recurrences_settings: outgoing.recurrences_settings,
       workflow_settings: outgoing.workflow_settings,
+      unify_ccce_expenses_settings: outgoing.unify_ccce_expenses_settings,
     };
   }
 }
