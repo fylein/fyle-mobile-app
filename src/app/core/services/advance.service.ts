@@ -91,18 +91,4 @@ export class AdvanceService {
     }
     return data;
   }
-
-  getAdvancesStats(params) {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get('/advance_requests/stats', {
-          params: {
-            areq_org_user_id: 'eq.' + eou.ou.id,
-            ...params,
-          },
-        })
-      ),
-      map((res) => res.data)
-    );
-  }
 }

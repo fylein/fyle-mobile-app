@@ -18,8 +18,17 @@ import { FileService } from './file.service';
 import { File } from '../models/file.model';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
+
+type advanceRequestStat = {
+  aggregates: string;
+  areq_trip_request_id: string;
+  areq_state: string;
+  areq_is_sent_back: string;
+  scalar: boolean;
+};
 
 @Injectable({
   providedIn: 'root',
@@ -36,8 +45,7 @@ export class AdvanceRequestService {
     private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
-    private fileService: FileService,
-    private transactionsOutboxService: TransactionsOutboxService
+    private fileService: FileService
   ) {}
 
   @Cacheable({
@@ -425,5 +433,21 @@ export class AdvanceRequestService {
         }
       })
     );
+  }
+
+  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<any> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) => this.getAdvanceRequestStats(eou, params)),
+      map((res) => res.data)
+    );
+  }
+
+  getAdvanceRequestStats(eou: ExtendedOrgUser, params: advanceRequestStat): Observable<any> {
+    return this.apiv2Service.get('/advance_requests/stats', {
+      params: {
+        areq_org_user_id: 'eq.' + eou.ou.id,
+        ...params,
+      },
+    });
   }
 }

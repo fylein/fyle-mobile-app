@@ -414,7 +414,7 @@ export class TasksComponent implements OnInit {
         areq_is_sent_back: 'is.true',
       };
 
-      from(this.loaderService.showLoader('Opening your advance...'))
+      from(this.loaderService.showLoader('Opening your advance request...'))
         .pipe(
           switchMap(() => this.advanceRequestService.getMyadvanceRequests({ queryParams, offset: 0, limit: 1 })),
           finalize(() => this.loaderService.hideLoader())

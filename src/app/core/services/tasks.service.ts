@@ -10,7 +10,7 @@ import { TaskFilters } from '../models/task-filters.model';
 import { TaskIcon } from '../models/task-icon.enum';
 import { DashboardTask } from '../models/task.model';
 import { StatsResponse } from '../models/v2/stats-response.model';
-import { AdvanceService } from './advance.service';
+import { AdvanceRequestService } from './advance-request.service';
 import { AuthService } from './auth.service';
 import { OfflineService } from './offline.service';
 import { ReportService } from './report.service';
@@ -47,7 +47,7 @@ export class TasksService {
     private offlineService: OfflineService,
     private userEventService: UserEventService,
     private authService: AuthService,
-    private advancesService: AdvanceService
+    private advancesRequestService: AdvanceRequestService
   ) {
     this.userEventService.onTaskCacheClear(() => {
       this.getTasks().subscribe(noop);
@@ -359,7 +359,7 @@ export class TasksService {
   }
 
   private getSentBackAdvancesStats() {
-    return this.advancesService.getAdvancesStats({
+    return this.advancesRequestService.getMyAdvanceRequestStats({
       aggregates: 'count(areq_id),sum(areq_amount)',
       areq_trip_request_id: 'is.null',
       areq_state: 'in.(DRAFT)',
@@ -519,15 +519,18 @@ export class TasksService {
     homeCurrency: string
   ): DashboardTask[] {
     if (aggregate.totalCount > 0) {
+      const headerMessage = `Advance${aggregate.totalCount === 1 ? '' : 's'} sent back!`;
+      const subheaderMessage = `${aggregate.totalCount} advance${
+        aggregate.totalCount === 1 ? '' : 's'
+      }${this.getAmountString(aggregate.totalAmount, homeCurrency)} ${
+        aggregate.totalCount === 1 ? 'was' : 'were'
+      } sent back by your approver`;
       return [
         {
           amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
           count: aggregate.totalCount,
-          header: `Advance${aggregate.totalCount === 1 ? '' : 's'} sent back!`,
-          subheader: `${aggregate.totalCount} advance${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
-            aggregate.totalAmount,
-            homeCurrency
-          )} ${aggregate.totalCount === 1 ? 'was' : 'were'} sent back by your approver`,
+          header: headerMessage,
+          subheader: subheaderMessage,
           icon: TaskIcon.ADVANCE,
           ctas: [
             {
