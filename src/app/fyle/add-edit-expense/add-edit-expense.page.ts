@@ -311,6 +311,12 @@ export class AddEditExpensePage implements OnInit {
 
   canDeleteExpense = true;
 
+  isUnifyCcceExpensesSettingsEnabled: boolean;
+
+  isCccExpense: boolean;
+
+  cardNumber: string;
+
   policyDetails;
 
   source = 'MOBILE';
@@ -2445,6 +2451,11 @@ export class AddEditExpensePage implements OnInit {
     );
 
     orgSettings$.subscribe((orgSettings) => {
+      this.isUnifyCcceExpensesSettingsEnabled =
+        orgSettings.unify_ccce_expenses_settings &&
+        orgSettings.unify_ccce_expenses_settings.allowed &&
+        orgSettings.unify_ccce_expenses_settings.enabled;
+
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&
         orgSettings.ccc_draft_expense_settings.allowed &&
@@ -2641,6 +2652,7 @@ export class AddEditExpensePage implements OnInit {
             this.selectedCCCTransaction.amount;
 
           if (this.selectedCCCTransaction) {
+            this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
             this.selectedCCCTransactionInSuggestions = this.matchingCCCTransactions.some(
               (cccExpense) => cccExpense.id === this.matchedCCCTransaction.id
             );
@@ -2705,6 +2717,10 @@ export class AddEditExpensePage implements OnInit {
 
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
+    );
+
+    this.etxn$.subscribe(
+      (etxn) => (this.isCccExpense = etxn && etxn.tx && etxn.tx.corporate_credit_card_expense_group_id)
     );
 
     this.getPolicyDetails();
