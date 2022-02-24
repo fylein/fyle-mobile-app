@@ -7,13 +7,13 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
   styleUrls: ['./fy-statistic.component.scss'],
 })
 export class FyStatisticComponent implements OnInit {
-  @Input() icon: any;
+  @Input() icon: string;
 
   @Input() label: string;
 
   @Input() value: any;
 
-  @Input() type: any;
+  @Input() type: string;
 
   constructor() {}
 

@@ -45,7 +45,7 @@
             <ion-col class="p-0" size="6">
               <div class="view-advance--element" *ngIf="advance.areq_approved_at">
                 <app-fy-statistic
-                  [icon]="'../../../../assets/svg/calendar-grey.svg'"
+                  [icon]="'../../../../assets/svg/calendar.svg'"
                   [type]="'date'"
                   [label]="'Approved On'"
                   [value]="advance.areq_approved_at | date: 'MMM dd, yyyy'"
@@ -54,7 +54,7 @@
             </ion-col>
             <ion-col class="p-0" size="6">
               <app-fy-statistic
-                [icon]="'../../../../assets/svg/calendar-grey.svg'"
+                [icon]="'../../../../assets/svg/calendar.svg'"
                 [type]="'date'"
                 [label]="'Issued On'"
                 [value]="advance.adv_issued_at | date: 'MMM dd, yyyy'"
@@ -108,12 +108,6 @@
           >
         </div>
       </div>
-
-      <!-- <div *ngIf="advance.areq_id" class="view-advance--advance-request-block">
-        <a [routerLink]="['/', 'enterprise', 'my_view_advance_request', {id: advance.areq_id}]">
-          View Advance Request</a
-        >
-      </div> -->
     </div>
   </div>
 </ion-content>

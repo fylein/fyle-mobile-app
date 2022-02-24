@@ -14,8 +14,6 @@ $advance_rejected_color: #d50000;
     margin-top: 16px;
     background: $purple-gradient;
     border-radius: 16px;
-    font-size: 14px;
-    font-weight: 400;
     width: 100%;
     color: $black-light;
 
@@ -118,7 +116,7 @@ $advance_rejected_color: #d50000;
   }
 
   &--approval-state-block {
-    padding: 35px 6px 17px 6px;
+    padding: 36px 6px 16px 6px;
   }
 
   &--approver-name {

@@ -1,6 +1,5 @@
 <div class="summary-tile--card-container">
   <div class="d-flex">
-    <!-- <div> -->
     <div class="summary-tile--card-container__block">
       <div *ngIf="categoryDisplayName" class="summary-tile--card-container__category">{{ categoryDisplayName }}</div>
       <div *ngIf="purpose" class="summary-tile--card-container__purpose">{{ purpose }}</div>
@@ -16,17 +15,8 @@
         <span class="summary-tile--card-container__amount">
           {{ amount | humanizeCurrency: currency:2:true }}
         </span>
-        <!-- <ion-icon
-            *ngIf="paymentModeIcon"
-            class="summary-tile--card-container__icon"
-            [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
-          ></ion-icon> -->
       </div>
 
-      <!-- <div class="summary-tile--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
-          {{ foreignCurrencySymbol }}{{ etxn.tx_orig_amount | humanizeCurrency: etxn.tx_orig_currency:2:true }} at
-          {{ etxnCurrencySymbol }}{{ etxn.tx_amount / etxn.tx_orig_amount | number: '1.0-2' }}
-        </div> -->
       <div
         class="ion-text-right"
         [ngClass]="{ 'summary-tile--card-container__no-exchange': !foreignCurrencySymbol && projectName }"
@@ -40,7 +30,6 @@
         </div>
       </div>
     </div>
-    <!-- </div> -->
   </div>
 </div>
 

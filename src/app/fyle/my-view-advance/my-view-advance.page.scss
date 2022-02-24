@@ -1,3 +1,5 @@
+@import '../../../theme/colors.scss';
+
 .view-advance {
   &--container {
     padding: 0px 16px 16px;
@@ -7,7 +9,7 @@
     width: 100%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1) !important;
     border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid $grey-6;
     padding: 20px 0;
     height: 88px;
     display: flex;
@@ -16,14 +18,14 @@
   &--currency {
     font-size: 16px;
     font-weight: 500;
-    color: #4a4a4a;
+    color: $grey-light-2;
     width: 80px;
     padding: 12px 16px;
     line-height: 1.5;
     height: auto;
     text-align: center;
     letter-spacing: 1px;
-    border-right: 1px solid #e0e0e0;
+    border-right: 1px solid $grey-6;
   }
 
   &--amount {
@@ -39,7 +41,7 @@
 
   &--card {
     padding: 12px;
-    border: 1px solid #e5e5e5;
+    border: 1px solid $grey-5;
     border-radius: 4px;
     margin-top: 12px;
   }
@@ -49,7 +51,7 @@
   }
 
   &--content-section {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid $grey-6;
     margin-bottom: 6px;
     padding: 8px 0px;
   }
@@ -82,7 +84,7 @@
 
   &--divider {
     margin: 24px 0px;
-    border-bottom: 1px solid #dfdfe2;
+    border-bottom: 1px solid $grey-lighter;
   }
 
   &--element-label {
@@ -90,7 +92,7 @@
     max-width: 30%;
     margin: 0 8px 0 0;
     font-size: 16px;
-    color: #ababab;
+    color: $gray-3;
     font-weight: 500;
     line-height: 1.5;
   }
@@ -105,16 +107,16 @@
   }
 
   &--advance-request-block {
-    margin-top: 21px;
+    margin-top: 20px;
     display: flex;
     align-items: center;
   }
 
   &--icon-container {
-    background: #f5f5f5;
+    background: $off-white;
     border-radius: 22px;
-    height: 35px;
-    width: 35px;
+    height: 34px;
+    width: 34px;
     display: inline-flex;
     margin-right: 12px;
   }

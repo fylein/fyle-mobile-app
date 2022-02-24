@@ -87,17 +87,17 @@
             <ion-col class="p-0" size="6">
               <div class="view-advance-request--element">
                 <app-fy-statistic
-                  [icon]="'../../../../assets/svg/calendar-grey.svg'"
+                  [icon]="'../../../../assets/svg/calendar.svg'"
                   [type]="'date'"
                   [label]="'Created On'"
                   [value]="advanceRequest.areq_created_at | date: 'MMM dd, yyyy'"
                 ></app-fy-statistic>
               </div>
             </ion-col>
-            <ion-col class="p-0" size="6">
-              <div class="view-advance-request--element" *ngIf="advanceRequest.areq_approved_at">
+            <ion-col class="p-0" size="6" *ngIf="advanceRequest.areq_approved_at">
+              <div class="view-advance-request--element">
                 <app-fy-statistic
-                  [icon]="'../../../../assets/svg/calendar-grey.svg'"
+                  [icon]="'../../../../assets/svg/calendar.svg'"
                   [type]="'date'"
                   [label]="'Approved On'"
                   [value]="advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'"
@@ -144,7 +144,7 @@
           >
             <div *ngIf="advanceRequestCustomField.type === 'DATE' && advanceRequestCustomField.value">
               <app-fy-statistic
-                [icon]="'../../../../assets/svg/calendar-grey.svg'"
+                [icon]="'../../../../assets/svg/calendar.svg'"
                 [type]="'date'"
                 [label]="advanceRequestCustomField.name"
                 [value]="advanceRequestCustomField.value | date: 'MMM dd, yyyy'"
@@ -152,7 +152,7 @@
             </div>
             <div *ngIf="advanceRequestCustomField.type === 'DATE' && !advanceRequestCustomField.value">
               <app-fy-statistic
-                [icon]="'../../../../assets/svg/calendar-grey.svg'"
+                [icon]="'../../../../assets/svg/calendar.svg'"
                 [type]="'date'"
                 [label]="advanceRequestCustomField.name"
                 [value]="'-'"
@@ -180,21 +180,7 @@
         <div class="view-advance-request--divider"></div>
       </div>
 
-      <!-- <div class="view-advance-request--card">
-        <div class="view-advance-request--element">
-          <div class="view-advance-request--element-label">Approvers</div>
-          <div class="view-advance-request--element-value">
-            <div *ngFor="let activeApproval of activeApprovals$ | async as list">
-              <div>{{activeApproval.approver_name}}</div>
-              <div class="text-capitalize view-advance-request--advance-state">
-                {{activeApproval.state | advanceState}}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
-
-      <div *ngIf="advanceRequest.areq_advance_id" class="view-advance-request--view-advance">
+      <div *ngIf="advanceRequest?.areq_advance_id" class="view-advance-request--view-advance">
         <div class="view-advance-request--icon-container">
           <img class="view-advance-request--icon" [src]="'../../../../assets/svg/open-in-new-tab.svg'" />
         </div>
