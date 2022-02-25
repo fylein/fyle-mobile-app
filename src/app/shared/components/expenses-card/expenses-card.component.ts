@@ -91,8 +91,6 @@ export class ExpensesCardComponent implements OnInit {
 
   attachmentUploadInProgress = false;
 
-  attachedReceiptsCount = 0;
-
   receiptThumbnail: string = null;
 
   isConnected$: Observable<boolean>;
@@ -416,6 +414,22 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
+  setThumbnail(fileObjId: string, attachmentType: string) {
+    this.fileService.downloadUrl(fileObjId).subscribe((downloadUrl) => {
+      if (attachmentType === 'pdf') {
+        this.receiptIcon = 'assets/svg/pdf.svg';
+      } else {
+        this.receiptThumbnail = downloadUrl;
+      }
+    });
+  }
+
+  matchReceiptWithEtxn(fileObj: FileObject) {
+    this.expense.tx_file_ids = [];
+    this.expense.tx_file_ids.push(fileObj.id);
+    fileObj.transaction_id = this.expense.tx_id;
+  }
+
   attachReceipt(receiptDetails: ReceiptDetail) {
     this.attachmentUploadInProgress = true;
     const attachmentType = this.fileService.getAttachmentType(receiptDetails.type);
@@ -423,34 +437,16 @@ export class ExpensesCardComponent implements OnInit {
     this.inlineReceiptDataUrl = attachmentType !== 'pdf' && receiptDetails.dataUrl;
     from(this.transactionOutboxService.fileUpload(receiptDetails.dataUrl, attachmentType))
       .pipe(
-        tap((fileObj: FileObject) => {
-          this.expense.tx_file_ids = [];
-          this.expense.tx_file_ids.push(fileObj.id);
-          if (this.expense.tx_file_ids) {
-            this.fileService
-              .downloadUrl(this.expense.tx_file_ids[0])
-              .pipe(
-                map((downloadUrl) => {
-                  if (attachmentType === 'pdf') {
-                    this.receiptIcon = 'assets/svg/pdf.svg';
-                  } else {
-                    this.receiptThumbnail = downloadUrl;
-                  }
-                })
-              )
-              .subscribe(noop);
-          }
-        }),
         switchMap((fileObj: FileObject) => {
-          fileObj.transaction_id = this.expense.tx_id;
+          this.matchReceiptWithEtxn(fileObj);
           return this.fileService.post(fileObj);
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;
         })
       )
-      .subscribe((attachmentsCount) => {
-        this.attachedReceiptsCount = attachmentsCount;
+      .subscribe((fileObj) => {
+        this.setThumbnail(fileObj.id, attachmentType);
       });
   }
 
