@@ -42,13 +42,12 @@
   </ion-infinite-scroll>
 </ion-content>
 
-<ion-footer>
+<ion-footer *ngIf="showTripActionCta">
   <ion-toolbar class="fy-footer-cta-container" mode="md">
     <ion-button
       class="fy-footer-cta fy-footer-cta--primary"
       [routerLink]="['/', 'enterprise', 'my_add_edit_trip']"
       routerLinkActive="router-link-active"
-      [disabled]="isCreateTripRequestDisabled"
     >
       Request new trip
     </ion-button>
