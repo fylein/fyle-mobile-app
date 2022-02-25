@@ -478,7 +478,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getAdvanceRequestStats(eou: ExtendedOrgUser, params: advanceRequestStat): Observable<any> {
+  private getAdvanceRequestStats(eou: ExtendedOrgUser, params: advanceRequestStat): Observable<any> {
     return this.apiv2Service.get('/advance_requests/stats', {
       params: {
         areq_org_user_id: 'eq.' + eou.ou.id,
