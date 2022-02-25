@@ -450,6 +450,13 @@ export class AdvanceRequestService {
     );
   }
 
+  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<any> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) => this.getAdvanceRequestStats(eou, params)),
+      map((res) => res.data)
+    );
+  }
+
   private getSortOrder(sortParam: SortingParam, sortDir: SortingDirection) {
     let order: string;
     if (sortParam === SortingParam.creationDate) {
@@ -469,13 +476,6 @@ export class AdvanceRequestService {
     }
 
     return order;
-  }
-
-  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<any> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) => this.getAdvanceRequestStats(eou, params)),
-      map((res) => res.data)
-    );
   }
 
   private getAdvanceRequestStats(eou: ExtendedOrgUser, params: advanceRequestStat): Observable<any> {
