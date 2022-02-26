@@ -174,7 +174,7 @@
           <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
           <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
             <div class="view-reports--divider"></div>
-            <div class="view-reports-expense-card-block">
+            <div class="view-reports--expenses-card-block">
               <div *ngFor="let etxn of etxns$|async as list; let i = index;">
                 <app-expense-card
                   [expense]="etxn"

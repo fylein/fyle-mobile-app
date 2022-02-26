@@ -54,6 +54,7 @@
     }
 
     &__approved,
+    &__complete,
     &__payment_pending {
       background-color: $highlight-green;
     }

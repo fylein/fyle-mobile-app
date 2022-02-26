@@ -271,9 +271,9 @@
 
   &--approver-state-pill {
     border-radius: 50%;
-    height: 12px;
-    width: 12px;
-    margin-right: 4px;
+    height: 8px;
+    width: 8px;
+    margin: 0 4px;
 
     &__approval_pending {
       background-color: $fyled-color;
@@ -286,6 +286,13 @@
     &__approval_disabled {
       background-color: $gray-3;
     }
+  }
+
+  &--expenses-card-block {
+    background: $pure-white;
+    padding: 6px;
+    border-radius: 16px;
+    box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
   }
 
   &--expenses-zero-state {
