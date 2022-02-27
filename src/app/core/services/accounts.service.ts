@@ -15,12 +15,15 @@ export class AccountsService {
     private currencyPipe: CurrencyPipe
   ) {}
 
-  getEMyAccounts(filters?) {
+  getAccounts(filters?) {
     const data = {
       params: filters,
     };
+    return this.apiService.get('/eaccounts/', data);
+  }
 
-    return this.apiService.get('/eaccounts/', data).pipe(
+  getEMyAccounts(filters?) {
+    return this.getAccounts(filters).pipe(
       map((accountsRaw: any[]) => {
         const accounts = [];
 

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { timeout } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -22,7 +23,9 @@ export class AdvanceRequestPolicyService {
       .map((desiredState) => desiredState.description);
   }
 
-  servicePost(url, data, config) {
-    return this.httpClient.post(this.ROOT_ENDPOINT + '/policy/advance_requests' + url, data);
+  servicePost(url, data, config: { timeout: number }) {
+    return this.httpClient
+      .post(this.ROOT_ENDPOINT + '/policy/advance_requests' + url, data)
+      .pipe(timeout(config?.timeout || 10000));
   }
 }

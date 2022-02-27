@@ -69,29 +69,13 @@ export class AdvanceRequestService {
   ) {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiv2Service.get('/advance_requests', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            areq_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
+        this.getAdvanceRequestsV2({
+          offset: config.offset,
+          limit: config.limit,
+          areq_org_user_id: 'eq.' + eou.ou.id,
+          ...config.queryParams,
         })
-      ),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: ExtendedAdvanceRequest[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
-      map((res) => ({
-        ...res,
-        data: res.data.map(this.fixDates),
-      }))
+      )
     );
   }
 
@@ -99,13 +83,9 @@ export class AdvanceRequestService {
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
   getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
-    return this.apiv2Service
-      .get('/advance_requests', {
-        params: {
-          areq_id: `eq.${id}`,
-        },
-      })
-      .pipe(map((res) => this.fixDates(res.data[0]) as ExtendedAdvanceRequest));
+    return this.getAdvanceRequestsV2({
+      areq_id: `eq.${id}`,
+    }).pipe(map((res) => res.data[0]));
   }
 
   @CacheBuster({
@@ -207,32 +187,45 @@ export class AdvanceRequestService {
         }
 
         const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
-        return this.apiv2Service.get('/advance_requests', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order,
-            areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
-            ...defaultParams,
-            ...config.queryParams,
-          },
+        return this.getAdvanceRequestsV2({
+          offset: config.offset,
+          limit: config.limit,
+          order,
+          areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
+          ...defaultParams,
+          ...config.queryParams,
         });
-      }),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: ExtendedAdvanceRequest[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
-      map((res) => ({
-        ...res,
-        data: res.data.map(this.fixDates),
-      }))
+      })
     );
+  }
+
+  getAdvanceRequestsV2(params): Observable<{
+    data: ExtendedAdvanceRequest[];
+    count: number;
+    limit: number;
+    offset: number;
+    url: string;
+  }> {
+    return this.apiv2Service
+      .get('/advance_requests', {
+        params,
+      })
+      .pipe(
+        map(
+          (res) =>
+            res as {
+              count: number;
+              data: ExtendedAdvanceRequest[];
+              limit: number;
+              offset: number;
+              url: string;
+            }
+        ),
+        map((res) => ({
+          ...res,
+          data: res.data.map(this.fixDates),
+        }))
+      );
   }
 
   getEReq(advanceRequestId) {
