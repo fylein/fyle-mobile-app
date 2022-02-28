@@ -2708,6 +2708,13 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.getPolicyDetails();
+
+    document.addEventListener('keydown', () => {
+      const el = document.activeElement;
+      if (el instanceof HTMLInputElement) {
+        el.scrollIntoView();
+      }
+    });
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
