@@ -84,6 +84,8 @@ export class ViewTeamTripPage implements OnInit {
 
   deprecationMsg$: Observable<string>;
 
+  showTripActionCta = false;
+
   constructor(
     private tripRequestsService: TripRequestsService,
     private tripRequestCustomFieldsService: TripRequestCustomFieldsService,
@@ -298,6 +300,11 @@ export class ViewTeamTripPage implements OnInit {
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
     this.eou$ = from(this.authService.getEou());
+
+    this.tripRequestsService
+      .doesOrgHaveExtension()
+      .subscribe((doesOrgHaveExtension) => (this.showTripActionCta = doesOrgHaveExtension));
+
     this.tripRequest$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.tripRequestsService.getTrip(id)),
       finalize(() => from(this.loaderService.hideLoader()))
