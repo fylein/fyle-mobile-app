@@ -13,7 +13,6 @@ import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
-import { TransactionsOutboxService } from './transactions-outbox.service';
 
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 import { Approval } from '../models/approval.model';
@@ -23,6 +22,7 @@ import { AdvancesStates } from '../models/advances-states.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -38,6 +38,14 @@ type Config = Partial<{
   queryParams: any;
   filter: Filters;
 }>;
+
+type advanceRequestStat = {
+  aggregates: string;
+  areq_trip_request_id: string;
+  areq_state: string;
+  areq_is_sent_back: string;
+  scalar: boolean;
+};
 
 @Injectable({
   providedIn: 'root',
@@ -442,6 +450,13 @@ export class AdvanceRequestService {
     );
   }
 
+  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<any> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) => this.getAdvanceRequestStats(eou, params)),
+      map((res) => res.data)
+    );
+  }
+
   private getSortOrder(sortParam: SortingParam, sortDir: SortingDirection) {
     let order: string;
     if (sortParam === SortingParam.creationDate) {
@@ -461,5 +476,14 @@ export class AdvanceRequestService {
     }
 
     return order;
+  }
+
+  private getAdvanceRequestStats(eou: ExtendedOrgUser, params: advanceRequestStat): Observable<any> {
+    return this.apiv2Service.get('/advance_requests/stats', {
+      params: {
+        areq_org_user_id: 'eq.' + eou.ou.id,
+        ...params,
+      },
+    });
   }
 }
