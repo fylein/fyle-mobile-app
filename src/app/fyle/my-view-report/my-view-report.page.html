@@ -93,25 +93,28 @@
         </ion-grid>
       </div>
 
-      <div
-        class="view-reports--approvers-section"
-        *ngIf="(erpt.rp_state !== 'DRAFT') && (reportApprovals$|async) as reportApprovals"
-      >
-        <div *ngIf="reportApprovals.length > 0" class="view-reports--approval-state-block">
-          <div class="view-reports--approvers">Approvers</div>
-          <div *ngFor="let ap of reportApprovals">
-            <div class="view-reports--approvers-list">
-              <div>{{ ap.approver_name }}</div>
-              <div class="view-reports--approver-state-section">
-                <div class="view-reports--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
-                  <span>{{ap.updated_at | date: 'MMM dd, yyyy'}}</span>
+      <div class="view-reports--approvers-wrapper">
+        <div
+          class="view-reports--approvers-section"
+          *ngIf="(erpt.rp_state !== 'DRAFT') && (reportApprovals$|async) as reportApprovals"
+        >
+          <div *ngIf="reportApprovals.length > 0" class="view-reports--approval-state-block">
+            <div class="view-reports--approvers">Approvers</div>
+            <div *ngFor="let ap of reportApprovals">
+              <div class="view-reports--approvers-list">
+                <div>{{ ap.approver_name }}</div>
+                <div class="view-reports--approver-state-section">
+                  <div class="view-reports--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
+                    <span>{{ap.updated_at | date: 'MMM dd, yyyy'}}</span>
+                  </div>
+                  <div
+                    class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
+                  ></div>
+                  <span
+                    >{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase |
+                    snakeCaseToSpaceCase)}}</span
+                  >
                 </div>
-                <div
-                  class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
-                ></div>
-                <span
-                  >{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase | snakeCaseToSpaceCase)}}</span
-                >
               </div>
             </div>
           </div>
