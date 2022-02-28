@@ -132,7 +132,7 @@ const routes: Routes = [
   },
   {
     path: 'camera_overlay',
-    loadChildren: () => import('./camera-overlay/camera-overlay.module').then((m) => m.CameraOverlayPageModule),
+    loadChildren: () => import('./capture-receipt/capture-receipt.module').then((m) => m.CaptureReceiptPageModule),
   },
   {
     path: 'personal_cards_matched_expenses',
