@@ -1557,12 +1557,16 @@ export class AddEditMileagePage implements OnInit {
         }
       );
 
-    document.addEventListener('keydown', () => {
+    document.addEventListener('click', () => {
       const el = document.activeElement;
-      if (el instanceof HTMLInputElement) {
-        el.scrollIntoView({
-          block: 'center',
-        });
+      if (el && el instanceof HTMLInputElement) {
+        setTimeout(
+          () =>
+            el.scrollIntoView({
+              block: 'center',
+            }),
+          600
+        );
       }
     });
   }
