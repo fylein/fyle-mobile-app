@@ -2709,7 +2709,8 @@ export class AddEditExpensePage implements OnInit {
 
     this.getPolicyDetails();
 
-    document.addEventListener('keydown', () => {
+    document.addEventListener('focus', () => {
+      console.log('Focused');
       const el = document.activeElement;
       if (el instanceof HTMLInputElement) {
         el.scrollIntoView({
