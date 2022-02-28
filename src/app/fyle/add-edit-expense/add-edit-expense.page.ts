@@ -2713,9 +2713,13 @@ export class AddEditExpensePage implements OnInit {
       console.log('Focused');
       const el = document.activeElement;
       if (el instanceof HTMLInputElement) {
-        el.scrollIntoView({
-          block: 'center',
-        });
+        setTimeout(
+          () =>
+            el.scrollIntoView({
+              block: 'center',
+            }),
+          1000
+        );
       }
     });
   }
