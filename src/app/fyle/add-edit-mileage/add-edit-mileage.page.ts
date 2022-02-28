@@ -1556,6 +1556,15 @@ export class AddEditMileagePage implements OnInit {
           }, 1000);
         }
       );
+
+    document.addEventListener('keydown', () => {
+      const el = document.activeElement;
+      if (el instanceof HTMLInputElement) {
+        el.scrollIntoView({
+          block: 'center',
+        });
+      }
+    });
   }
 
   async showClosePopup() {

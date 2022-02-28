@@ -2712,7 +2712,9 @@ export class AddEditExpensePage implements OnInit {
     document.addEventListener('keydown', () => {
       const el = document.activeElement;
       if (el instanceof HTMLInputElement) {
-        el.scrollIntoView();
+        el.scrollIntoView({
+          block: 'center',
+        });
       }
     });
   }

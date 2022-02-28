@@ -1537,6 +1537,15 @@ export class AddEditPerDiemPage implements OnInit {
         }
       })
     );
+
+    document.addEventListener('keydown', () => {
+      const el = document.activeElement;
+      if (el instanceof HTMLInputElement) {
+        el.scrollIntoView({
+          block: 'center',
+        });
+      }
+    });
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
