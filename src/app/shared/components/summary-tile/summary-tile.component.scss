@@ -2,9 +2,7 @@
 
 $advance_draft_color: #464d57;
 $advance_pulled_back_color: #979797;
-$advance_inquiry_color: #da1e28;
 $advance_pending_approval_color: #1ab6bb;
-$advance_approved_color: #66bb6a;
 $advance_paid_color: darken(#5cb85c, 15%);
 $advance_rejected_color: #d50000;
 
@@ -71,12 +69,11 @@ $advance_rejected_color: #d50000;
       font-size: 12px;
       line-height: 1.25;
       color: $pure-white;
-      // background-color: $highlight-black;
       border-radius: 16px;
       padding: 5px 15px;
 
       &__draft {
-        background: $advance_draft_color;
+        background: $draft-color;
       }
 
       &__pulledBack {
@@ -84,11 +81,11 @@ $advance_rejected_color: #d50000;
       }
 
       &__inquiry {
-        background: $advance_inquiry_color;
+        background: $sent-back-color;
       }
 
       &__sent_back {
-        background: $advance_inquiry_color;
+        background: $sent-back-color;
       }
 
       &__approval_pending {
@@ -96,7 +93,7 @@ $advance_rejected_color: #d50000;
       }
 
       &__approved {
-        background: $advance_approved_color;
+        background: $payment-pending-color;
       }
 
       &__paid {
