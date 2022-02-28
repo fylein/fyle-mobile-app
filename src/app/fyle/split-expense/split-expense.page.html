@@ -67,39 +67,20 @@
               >Amount</span
             >
             <span class="split-expense--mandatory">*</span>
-            <!-- <input
-              inputmode="decimal"
-              [min]="(isCorporateCardsEnabled$|async) ? null : 0.01"
-              type="number"
-              class="split-expense--input"
-              formControlName="amount"
-              (ngModelChange)="onChangeAmount(splitExpenseForm, i)"
-            /> -->
             <app-fy-number formControlName="amount" (ngModelChange)="onChangeAmount(splitExpenseForm, i)">
             </app-fy-number>
-            <!-- <div
-              *ngIf="splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid"
-              class="split-expense--error"
-            >
-              Please select a category.
-            </div> -->
             <!-- <p>Value Change :  {{splitExpenseForm.controls['amount'].value}}</p> -->
             <!-- <p>Value Change :  {{splitExpenseForm.controls['amount'].touched}}</p> -->
           </div>
 
           <div class="split-expense--item split-expense--percentage">
             <span class="split-expense--label">Percentage</span>
-            <!-- <input
-              inputmode="decimal"
-              type="number"
-              class="split-expense--input"
+            <app-fy-number
               formControlName="percentage"
-              [min]="0.01"
               (ngModelChange)="onChangePercentage(splitExpenseForm, i)"
-            /> -->
-            <app-fy-number formControlName="percentage" (ngModelChange)="onChangePercentage(splitExpenseForm, i)">
+              [min]="0.01"
+            >
             </app-fy-number>
-            <!-- <app-fy-number formControlName="percentage" (ngModelChange)="onChangePercentage(splitExpenseForm, i)"   [min]="0.01"></app-fy-number> -->
           </div>
         </div>
 

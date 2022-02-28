@@ -48,7 +48,6 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   writeValue(value: any): void {
-    console.log('write', value);
     if (value !== this.innerValue) {
       this.innerValue = value && parseFloat(value);
       this.fc.setValue(value && parseFloat(value));
@@ -57,11 +56,9 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   registerOnChange(fn: any) {
     this.onChangeCallback = fn;
-    console.log('fn-2', fn);
   }
 
   registerOnTouched(fn: any) {
-    console.log('touch', fn);
     this.onTouchedCallback = fn;
   }
 
