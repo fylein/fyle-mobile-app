@@ -27,21 +27,7 @@ export class CameraOptionsPopupComponent implements OnInit {
   }
 
   async getImageFromPicture() {
-    const image = await Camera.getPhoto({
-      quality: 70,
-      source: CameraSource.Camera,
-      direction: CameraDirection.Rear,
-      resultType: CameraResultType.DataUrl,
-    });
-
-    if (image) {
-      this.popoverController.dismiss({
-        type: image.format,
-        dataUrl: image.dataUrl,
-      });
-    } else {
-      this.closeClicked();
-    }
+    this.popoverController.dismiss({ option: 'camera' });
   }
 
   async getImageFromImagePicker() {

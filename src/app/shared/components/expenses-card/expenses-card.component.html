@@ -28,6 +28,7 @@
           *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
           (click)="addAttachments($event)"
         >
+          <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
           <ion-icon
             class="expenses-card--receipt-icon"
             [src]="receiptIcon"
