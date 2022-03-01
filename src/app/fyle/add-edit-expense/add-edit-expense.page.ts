@@ -2709,10 +2709,10 @@ export class AddEditExpensePage implements OnInit {
 
     this.getPolicyDetails();
 
-    document.addEventListener('click', () => {
-      console.log('Focused...');
+    document.addEventListener('focus', () => {
+      console.log('Focused');
       const el = document.activeElement;
-      if (el && el instanceof HTMLInputElement) {
+      if (el instanceof HTMLInputElement) {
         setTimeout(
           () =>
             el.scrollIntoView({
