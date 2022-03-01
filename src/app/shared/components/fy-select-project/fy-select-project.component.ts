@@ -21,7 +21,9 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 export class FySelectProjectComponent implements OnInit, ControlValueAccessor, OnDestroy {
   @Input() mandatory = false;
 
-  @Input() label = 'Project';
+  @Input() label: string;
+
+  @Input() placeholder: string;
 
   @Input() cacheName;
 
