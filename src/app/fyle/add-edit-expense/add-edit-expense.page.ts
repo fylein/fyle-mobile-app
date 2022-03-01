@@ -2710,6 +2710,7 @@ export class AddEditExpensePage implements OnInit {
     this.getPolicyDetails();
 
     document.addEventListener('click', () => {
+      console.log('Focused...');
       const el = document.activeElement;
       if (el && el instanceof HTMLInputElement) {
         setTimeout(
@@ -2717,7 +2718,7 @@ export class AddEditExpensePage implements OnInit {
             el.scrollIntoView({
               block: 'center',
             }),
-          600
+          1000
         );
       }
     });

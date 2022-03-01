@@ -1538,16 +1538,12 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    document.addEventListener('click', () => {
+    document.addEventListener('keydown', () => {
       const el = document.activeElement;
-      if (el && el instanceof HTMLInputElement) {
-        setTimeout(
-          () =>
-            el.scrollIntoView({
-              block: 'center',
-            }),
-          600
-        );
+      if (el instanceof HTMLInputElement) {
+        el.scrollIntoView({
+          block: 'center',
+        });
       }
     });
   }
