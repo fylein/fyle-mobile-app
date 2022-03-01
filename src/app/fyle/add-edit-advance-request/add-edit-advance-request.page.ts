@@ -628,15 +628,21 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     this.setupNetworkWatcher();
 
-    document.addEventListener('keydown', () => {
-      const el = document.activeElement;
-      if (el instanceof HTMLInputElement) {
-        el.scrollIntoView({
-          block: 'center',
-        });
-      }
-    });
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();

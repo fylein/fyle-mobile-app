@@ -223,18 +223,18 @@ export class AddEditPerDiemPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  ngOnInit() {
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
-  }
-
   get minPerDiemDate() {
     return this.fg.controls.from_dt.value && moment(this.fg.controls.from_dt.value).subtract(1, 'day').format('y-MM-D');
   }
 
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
+  }
+
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
   }
 
   async showClosePopup() {
@@ -1538,15 +1538,21 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    document.addEventListener('keydown', () => {
-      const el = document.activeElement;
-      if (el instanceof HTMLInputElement) {
-        el.scrollIntoView({
-          block: 'center',
-        });
-      }
-    });
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
     return forkJoin({

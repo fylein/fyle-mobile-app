@@ -239,18 +239,18 @@ export class AddEditMileagePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  ngOnInit() {
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
-  }
-
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
   }
 
   get route() {
     return this.fg.controls.route;
+  }
+
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
   }
 
   goToPrev() {
@@ -1557,15 +1557,21 @@ export class AddEditMileagePage implements OnInit {
         }
       );
 
-    document.addEventListener('keydown', () => {
-      const el = document.activeElement;
-      if (el instanceof HTMLInputElement) {
-        el.scrollIntoView({
-          block: 'center',
-        });
-      }
-    });
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   async showClosePopup() {
     const isAutofilled =
