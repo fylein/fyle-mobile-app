@@ -97,6 +97,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -321,6 +322,10 @@ export class AddEditExpensePage implements OnInit {
 
   source = 'MOBILE';
 
+  isCameraShown = false;
+
+  isIos = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -362,7 +367,7 @@ export class AddEditExpensePage implements OnInit {
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    public platform: Platform
+    private platform: Platform
   ) {}
 
   goBack() {
@@ -2724,7 +2729,22 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.getPolicyDetails();
+    this.isIos = this.platform.is('ios');
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
     const editExpenseAttachments = etxn$.pipe(
@@ -3861,8 +3881,36 @@ export class AddEditExpensePage implements OnInit {
 
       await popup.present();
 
-      const { data } = await popup.onWillDismiss();
-      this.attachReceipts(data);
+      let { data: receiptDetails } = await popup.onWillDismiss();
+
+      if (receiptDetails && receiptDetails.option === 'camera') {
+        const captureReceiptModal = await this.modalController.create({
+          component: CaptureReceiptComponent,
+          componentProps: {
+            isModal: true,
+            allowGalleryUploads: false,
+            allowBulkFyle: false,
+          },
+          cssClass: 'hide-modal',
+        });
+
+        await captureReceiptModal.present();
+        this.isCameraShown = true;
+
+        const { data } = await captureReceiptModal.onWillDismiss();
+        this.isCameraShown = false;
+
+        if (data && data.dataUrl) {
+          receiptDetails = {
+            type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
+            dataUrl: data.dataUrl,
+            actionSource: 'camera',
+          };
+        }
+      }
+      if (receiptDetails && receiptDetails.dataUrl) {
+        this.attachReceipts(receiptDetails);
+      }
     }
   }
 

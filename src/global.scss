@@ -326,6 +326,10 @@ textarea:focus {
   display: flex !important;
 }
 
+.d-none {
+  display: none !important;
+}
+
 .small {
   font-size: 12px;
 }
@@ -1198,6 +1202,14 @@ ion-toggle.toggle-checked::before {
 
 .mat-snack-bar-handset .mat-snack-bar-container {
   margin-bottom: 133px !important;
+}
+
+.hide-modal {
+  --backdrop-opacity: 0 !important;
+
+  & > div {
+    background: transparent !important;
+  }
 }
 
 .ion-slides {

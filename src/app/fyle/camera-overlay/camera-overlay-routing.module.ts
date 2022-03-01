@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { CaptureReceiptPage } from './capture-receipt.page';
+import { CameraOverlayPage } from './camera-overlay.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: CaptureReceiptPage,
+    component: CameraOverlayPage,
   },
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class CaptureReceiptPageRoutingModule {}
+export class CameraOverlayPageRoutingModule {}
