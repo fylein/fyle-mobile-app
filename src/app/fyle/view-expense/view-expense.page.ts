@@ -263,7 +263,7 @@ export class ViewExpensePage implements OnInit {
     forkJoin([this.offlineService.getExpenseFieldsMap(), this.etxn$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, etxn]) => {
-          this.projectFieldName = expenseFieldsMap?.project_id[0].field_name;
+          this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown = this.orgSettings?.projects?.enabled && (etxn.tx_project_name || isProjectMandatory);
         })
