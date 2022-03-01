@@ -2713,7 +2713,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.getPolicyDetails();
-
+    this.isIos = this.platform.is('ios');
     document.addEventListener('keydown', () => this.scrollInputIntoView());
   }
 
