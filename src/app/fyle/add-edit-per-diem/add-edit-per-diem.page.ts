@@ -1538,21 +1538,21 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    document.addEventListener('keydown', this.scrollInputIntoView);
+    document.addEventListener('keydown', () => this.scrollInputIntoView());
   }
 
   ionViewWillLeave() {
-    document.removeEventListener('keydown', this.scrollInputIntoView);
+    document.removeEventListener('keydown', () => this.scrollInputIntoView());
   }
 
-  scrollInputIntoView = () => {
+  scrollInputIntoView() {
     const el = document.activeElement;
     if (el && el instanceof HTMLInputElement) {
       el.scrollIntoView({
         block: 'center',
       });
     }
-  };
+  }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
     return forkJoin({
