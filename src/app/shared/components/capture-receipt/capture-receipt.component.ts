@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit } from '@angular/core';
 import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor, Plugins } from '@capacitor/core';
 import '@capacitor-community/camera-preview';
@@ -24,16 +24,18 @@ type Image = Partial<{
   base64Image: string;
 }>;
 
-type receiptTransaction = {
-  transaction: { id: string };
-  dataUrls: { url: string }[];
-};
 @Component({
   selector: 'app-capture-receipt',
-  templateUrl: './capture-receipt.page.html',
-  styleUrls: ['./capture-receipt.page.scss'],
+  templateUrl: './capture-receipt.component.html',
+  styleUrls: ['./capture-receipt.component.scss'],
 })
-export class CaptureReceiptPage implements OnInit, OnDestroy {
+export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
+  @Input() isModal = false;
+
+  @Input() allowGalleryUploads = true;
+
+  @Input() allowBulkFyle = true;
+
   isCameraShown: boolean;
 
   isBulkMode: boolean;
@@ -79,6 +81,19 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.setupNetworkWatcher();
+    this.isCameraShown = false;
+    this.isBulkMode = false;
+    this.base64ImagesWithSource = [];
+    this.flashMode = null;
+    this.offlineService.getHomeCurrency().subscribe((res) => {
+      this.homeCurrency = res;
+    });
+    this.captureCount = 0;
+
+    this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
+      this.isInstafyleEnabled =
+        orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
+    });
   }
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
@@ -169,7 +184,11 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
 
   close() {
     this.stopCamera();
-    this.navController.back();
+    if (this.isModal) {
+      this.modalController.dismiss();
+    } else {
+      this.navController.back();
+    }
   }
 
   toggleFlashMode() {
@@ -253,15 +272,26 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          this.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_expense',
-            {
-              dataUrl: this.base64ImagesWithSource[0].base64Image,
-              canExtractData: this.isInstafyleEnabled,
-            },
-          ]);
+          this.loaderService.showLoader();
+          if (this.isModal) {
+            await modal.onDidDismiss();
+            setTimeout(() => {
+              this.modalController.dismiss({
+                dataUrl: this.base64ImagesWithSource[0].base64Image,
+              });
+            }, 0);
+          } else {
+            this.router.navigate([
+              '/',
+              'enterprise',
+              'add_edit_expense',
+              {
+                dataUrl: this.base64ImagesWithSource[0].base64Image,
+                canExtractData: this.isInstafyleEnabled,
+              },
+            ]);
+          }
+          this.loaderService.hideLoader();
         }
       }
     }
@@ -293,9 +323,12 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
           this.isBulkMode = true;
           this.setUpAndStartCamera();
         } else {
-          this.addMultipleExpensesToQueue(this.base64ImagesWithSource).subscribe(() => {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          });
+          this.loaderService.showLoader('Please wait...', 10000);
+          this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+            .pipe(finalize(() => this.loaderService.hideLoader()))
+            .subscribe(() => {
+              this.router.navigate(['/', 'enterprise', 'my_expenses']);
+            });
         }
       }
     }
@@ -404,24 +437,8 @@ export class CaptureReceiptPage implements OnInit, OnDestroy {
     });
   }
 
-  ionViewDidEnter() {
+  ngAfterViewInit() {
     this.setUpAndStartCamera();
-  }
-
-  ionViewWillEnter() {
-    this.isCameraShown = false;
-    this.isBulkMode = false;
-    this.base64ImagesWithSource = [];
-    this.flashMode = null;
-    this.offlineService.getHomeCurrency().subscribe((res) => {
-      this.homeCurrency = res;
-    });
-    this.captureCount = 0;
-
-    this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
-      this.isInstafyleEnabled =
-        orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
-    });
   }
 
   ngOnDestroy() {

@@ -159,6 +159,8 @@ export class MyExpensesPage implements OnInit {
 
   expensesTaskCount = 0;
 
+  isCameraShown = false;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -1976,5 +1978,9 @@ export class MyExpensesPage implements OnInit {
     setTimeout(() => {
       searchInput.focus();
     }, 300);
+  }
+
+  showCamera(isCameraShown: boolean) {
+    this.isCameraShown = isCameraShown;
   }
 }

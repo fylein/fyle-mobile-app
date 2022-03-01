@@ -1,10 +1,10 @@
 <ion-content
   class="capture-receipt--camera-preview"
-  [ngClass]="{'capture-receipt--camera-preview__is-active': isCameraShown}"
+  [ngClass]="{ 'capture-receipt--camera-preview__is-active': isCameraShown }"
 >
   <div id="cameraPreview"></div>
   <div *ngIf="hasModeChanged" class="capture-receipt--switch-mode-info text-center">
-    <div class="capture-receipt--switch-mode-text">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}</div>
+    <div class="capture-receipt--switch-mode-text">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode' }}</div>
   </div>
 
   <div class="capture-receipt--close-flash-container">
@@ -14,7 +14,7 @@
     <div class="capture-receipt--flash-icon-block" *ngIf="flashMode" (click)="toggleFlashMode()">
       <mat-icon
         class="capture-receipt--flash-icon"
-        svgIcon="{{(flashMode === 'on') ? 'flash-on' : 'flash-off'}}"
+        svgIcon="{{ flashMode === 'on' ? 'flash-on' : 'flash-off' }}"
       ></mat-icon>
     </div>
   </div>
@@ -39,9 +39,9 @@
 
   <div
     class="capture-receipt--single-bulk-gallery-container"
-    [ngClass]="{'capture-receipt--single-bulk-gallery-container__offline': isOffline$|async}"
+    [ngClass]="{ 'capture-receipt--single-bulk-gallery-container__offline': isOffline$ | async }"
   >
-    <div class="capture-receipt--gallery-icon-block text-center">
+    <div *ngIf="allowGalleryUploads" class="capture-receipt--gallery-icon-block text-center">
       <img
         class="capture-receipt--gallery-icon"
         src="../../../../assets/images/gallery.png"
@@ -58,10 +58,10 @@
         (click)="onCapture()"
       />
       <div class="text-center capture-receipt--footer-text capture-receipt--capture-icon-text">
-        {{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}
+        {{ isBulkMode ? 'Bulk Mode' : 'Single Mode' }}
       </div>
     </div>
-    <div class="capture-receipt--bulk-mode-icon-block text-center">
+    <div *ngIf="allowBulkFyle" class="capture-receipt--bulk-mode-icon-block text-center">
       <ng-container *ngIf="captureCount === 0">
         <div (click)="switchMode()">
           <img
@@ -70,13 +70,13 @@
             alt="Mode"
           />
           <div class="text-center capture-receipt--footer-text capture-receipt--bulk-icon-text">
-            {{ !isBulkMode ? 'Bulk Mode' : 'Single Mode'}}
+            {{ !isBulkMode ? 'Bulk Mode' : 'Single Mode' }}
           </div>
         </div>
       </ng-container>
       <ng-container *ngIf="captureCount > 0">
         <div class="capture-receipt--thumbnail-container" (click)="review()">
-          <div class="capture-receipt--image-count text-center">{{base64ImagesWithSource.length}}</div>
+          <div class="capture-receipt--image-count text-center">{{ base64ImagesWithSource.length }}</div>
           <div class="capture-receipt--image-thumbnail">
             <ion-img [src]="lastImage"></ion-img>
           </div>
