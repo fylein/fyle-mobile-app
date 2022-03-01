@@ -219,7 +219,7 @@ export class ViewTeamAdvancePage implements OnInit {
   async openActionSheet() {
     const that = this;
     const actionSheet = await this.actionSheetController.create({
-      header: 'ADD EXPENSE',
+      header: 'ADVANCE ACTIONS',
       mode: 'md',
       cssClass: 'fy-action-sheet advances-action-sheet',
       buttons: that.actionSheetButtons,
