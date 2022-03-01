@@ -639,4 +639,31 @@
     margin-top: 8px;
     display: block;
   }
+
+  &--card-container {
+    background: $pink-gradient-2;
+    padding: 16px;
+    margin: 12px 0;
+    border-radius: 8px;
+
+    &__label {
+      color: $black-light;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    &__value {
+      color: $blue-black;
+      font-weight: 500;
+    }
+
+    &__txn-type {
+      margin-left: 4px;
+    }
+
+    &__credit {
+      color: $green;
+      font-weight: 500;
+    }
+  }
 }
