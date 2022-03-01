@@ -125,7 +125,8 @@
               *ngIf="splitExpenseForm.controls.project.touched && !splitExpenseForm.controls.project.valid"
               class="split-expense--error"
             >
-              Please select {{ selectProjectMessage }}.
+              Please select {{ this.txnFields?.project_id?.field_name === 'Project' ? 'a project' :
+              this.txnFields?.project_id?.field_name }}.
             </div>
           </div>
 
