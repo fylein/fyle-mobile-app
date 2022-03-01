@@ -104,8 +104,8 @@
           <div class="add-edit-advance-request--internal-block">
             <app-fy-select-project
               formControlName="project"
-              [label]="expenseFields?.project_id[0].field_name"
-              [placeholder]="expenseFields?.project_id[0].placeholder"
+              [label]="expenseFields?.project_id[0]?.field_name"
+              [placeholder]="expenseFields?.project_id[0]?.placeholder"
               [cacheName]="'advanceProjectCache'"
             ></app-fy-select-project>
           </div>

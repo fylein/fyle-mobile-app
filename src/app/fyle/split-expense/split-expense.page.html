@@ -9,7 +9,7 @@
 
       <div class="split-expense--header-block">
         <div class="split-expense--header-title" mode="md">
-          Split by {{ splitType === 'projects' ? txnFields.project_id.field_name : splitType}}
+          Split by {{ splitType === 'projects' ? txnFields?.project_id?.field_name : splitType }}
         </div>
         <ion-buttons>
           <ion-button
@@ -125,7 +125,8 @@
               *ngIf="splitExpenseForm.controls.project.touched && !splitExpenseForm.controls.project.valid"
               class="split-expense--error"
             >
-              Please select {{ selectProjectMessage }}.
+              Please select {{ this.txnFields?.project_id?.field_name === 'Project' ? 'a project' :
+              this.txnFields?.project_id?.field_name }}.
             </div>
           </div>
 
