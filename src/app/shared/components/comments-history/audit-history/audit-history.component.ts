@@ -15,6 +15,7 @@ export class AuditHistoryComponent implements OnInit {
 
   constructor(private offlineService: OfflineService) {}
 
+  // TODO - replace forEach with find
   getAndUpdateProjectName() {
     this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
       expenseFields.forEach((expenseField) => {

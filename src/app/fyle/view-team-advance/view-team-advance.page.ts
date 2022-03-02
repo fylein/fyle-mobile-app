@@ -77,9 +77,7 @@ export class ViewTeamAdvancePage implements OnInit {
 
   async getAndUpdateProjectName() {
     const expenseFields = await this.offlineService.getAllEnabledExpenseFields().toPromise();
-    return expenseFields.filter((expenseField) => {
-      return expenseField.column_name === 'project_id';
-    })[0];
+    return expenseFields.filter((expenseField) => expenseField.column_name === 'project_id')[0];
   }
 
   async ionViewWillEnter() {

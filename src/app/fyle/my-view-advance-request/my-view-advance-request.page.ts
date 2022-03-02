@@ -90,6 +90,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
     return res;
   }
 
+  // TODO - replace forEach with find
   getAndUpdateProjectName() {
     this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
       expenseFields.forEach((expenseField) => {
