@@ -80,7 +80,7 @@ export class ViewTeamAdvancePage implements OnInit {
     return expenseFields.filter((expenseField) => expenseField.column_name === 'project_id')[0];
   }
 
-  async ionViewWillEnter() {
+  ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),

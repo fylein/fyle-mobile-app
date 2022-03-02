@@ -11,6 +11,8 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { TitleCasePipe } from '@angular/common';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -44,11 +46,15 @@ export class TeamAdvancePage implements AfterViewChecked {
 
   isLoading = false;
 
+  projectFieldName: string;
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private cdRef: ChangeDetectorRef,
     private router: Router,
-    private filtersHelperService: FiltersHelperService
+    private filtersHelperService: FiltersHelperService,
+    private offlineService: OfflineService,
+    private titleCasePipe: TitleCasePipe
   ) {}
 
   ionViewWillEnter() {
@@ -118,6 +124,8 @@ export class TeamAdvancePage implements AfterViewChecked {
       sortParam: this.filters.sortParam,
       sortDir: this.filters.sortDir,
     });
+
+    this.getAndUpdateProjectName();
   }
 
   ngAfterViewChecked() {
@@ -141,6 +149,13 @@ export class TeamAdvancePage implements AfterViewChecked {
     if (event) {
       event.target.complete();
     }
+  }
+
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
+      this.projectFieldName = projectField?.field_name;
+    });
   }
 
   async openFilters(activeFilterInitialName?: string) {
@@ -172,11 +187,11 @@ export class TeamAdvancePage implements AfterViewChecked {
             value: SortingValue.creationDateDesc,
           },
           {
-            label: 'Project - A to Z',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - A to Z`,
             value: SortingValue.projectAsc,
           },
           {
-            label: 'Project - Z to A',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - Z to A`,
             value: SortingValue.projectDesc,
           },
         ],
