@@ -91,7 +91,7 @@
 
   <ng-container *ngIf="isConnected$ | async; else offlineMessage"></ng-container>
 
-  <div *ngIf="(isConnected$ | async) && cardTransactionsAndDetails" class="stats--ccc-cards-section">
+  <div *ngIf="(isConnected$ | async) && cardTransactionsAndDetails?.length > 0" class="stats--ccc-cards-section">
     <div>
       <ion-grid>
         <ion-row>
@@ -101,7 +101,12 @@
         </ion-row>
       </ion-grid>
       <ng-container>
-        <div class="stats--ccc-card-details">
+        <app-spent-cards
+          [spentCards]="cardTransactionsAndDetails"
+          [homeCurrency]="homeCurrency$"
+          [currencySymbol]="currencySymbol$"
+        ></app-spent-cards>
+        <!-- <div class="stats--ccc-card-details">
           <div class="stats--ccc-bank-name1">
             <ion-grid class="stats--ccc-container">
               <ion-row class="stats--ccc-block">
@@ -167,7 +172,7 @@
               <div class="stats--ccc-stats-title">Unclassified Transactions</div>
             </div>
           </div>
-        </div>
+        </div> -->
       </ng-container>
       <ng-template #cccStatsLoading>
         <div class="stats--ccc-card-details">

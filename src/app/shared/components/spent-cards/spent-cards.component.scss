@@ -1,0 +1,31 @@
+@import '../../../../theme/colors.scss';
+
+.spent-cards {
+  padding: 12px 0;
+  height: 140px;
+  background-color: $pure-white;
+
+  &--swiper {
+    height: 380px;
+  }
+
+  &--minimal {
+    height: 74px;
+  }
+
+  &--single-card {
+    height: 125px;
+  }
+}
+
+// swiper.swiper-pagination {
+//     position: relative !important;
+//     text-align: center;
+//     transition: 300ms opacity;
+//     transform: translate3d(0, 0, 0);
+//     z-index: 10;
+//     margin-bottom: 10px;
+//     max-width: 150px;
+//     /* margin-left: 75%; */
+//     margin: 0 0 0.6% 78%;
+// }

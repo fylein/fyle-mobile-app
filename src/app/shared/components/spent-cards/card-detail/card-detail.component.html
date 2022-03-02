@@ -1,0 +1,64 @@
+<div class="stats--ccc-card-details">
+  <div class="stats--ccc-bank-name1">
+    <ion-grid class="stats--ccc-container">
+      <ion-row class="stats--ccc-block">
+        <ion-col class="stats--ccc-bank-name" size="8">
+          <div>
+            {{ cardDetail.cardName }}
+          </div>
+        </ion-col>
+        <ion-col size="4">
+          <div class="stats--ccc-card-info">Corporate Card</div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="stats--ccc-account-info">
+          <span class="stats--ccc-account-info__type"> CREDIT </span>
+          <span class="stats--ccc-account-info__mask">{{ ' xxxx ' + cardDetail.cardNumber | maskNumber }}</span>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+  <!-- <div class="stats--ccc-sync-detail" *ngIf="cardDetail.ba_last_synced_at">
+      Last synced: {{ cardDetail.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
+    </div> -->
+</div>
+<div class="stats--ccc-stats">
+  <!-- <div class="stats--ccc-created_dt">
+      Showing all transactions from {{ cardDetail.ba_created_at | date: 'MMM d, y' }}
+    </div> -->
+  <div>
+    <div (click)="goToCCCPage('classified')">
+      <div class="stats--ccc-classified-stats">
+        <div class="stats--ccc-classified-count">
+          {{ cardDetail.totalDraftTxns }}
+        </div>
+        <div class="stats--ccc-classified-amount">
+          <span class="stats--expenses-amount-currency">
+            {{ currencySymbol | async }}
+          </span>
+          {{ cardDetail.totalDraftValue | humanizeCurrency: (homeCurrency | async):2:true }}
+        </div>
+      </div>
+      <div class="stats--ccc-stats-title">
+        Incomplete {{ cardDetail.totalDraftTxns === 1 ? 'Expense' : 'Expenses' }}
+      </div>
+    </div>
+
+    <hr class="stats--ccc-stats-divider" />
+    <div (click)="goToCCCPage('unclassified')">
+      <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
+        <div class="stats--ccc-classified-count">
+          {{ cardDetail.totalTxnsCount }}
+        </div>
+        <div class="stats--ccc-classified-amount">
+          <span class="stats--expenses-amount-currency">
+            {{ currencySymbol | async }}
+          </span>
+          {{ cardDetail.totalAmountValue | humanizeCurrency: (homeCurrency | async):2:true }}
+        </div>
+      </div>
+      <div class="stats--ccc-stats-title">{{ cardDetail.totalTxnsCount === 1 ? 'Expense' : 'Expenses' }}</div>
+    </div>
+  </div>
+</div>

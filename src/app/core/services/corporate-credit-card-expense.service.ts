@@ -122,16 +122,55 @@ export class CorporateCreditCardExpenseService {
       .pipe(map((res) => (res && res.length && res.map((elem) => this.dataTransformService.unflatten(elem))) || []));
   }
 
+  constructInQueryParamStringForV2(params) {
+    // in.(IN_PROGRESS,SETTLED)
+    var queryString = 'in.(';
+    params.forEach(function (param) {
+      queryString += param + ',';
+    });
+    queryString = queryString.slice(0, -1);
+    queryString += ')';
+    return queryString;
+  }
+
   getAssignedCards() {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiV2Service.get('/bank_accounts_assigned', {
-          params: {
-            assigned_to_ou_id: 'eq.' + eou.ou.id,
-          },
-        })
+        this.apiV2Service.get(
+          '/expenses_and_ccce/stats?aggregates=count(tx_id),sum(tx_amount)&scalar=true&dimension_1_1=corporate_credit_card_bank_name,corporate_credit_card_account_number,tx_state&tx_state=' +
+            this.constructInQueryParamStringForV2(['COMPLETE', 'DRAFT']) +
+            '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
+            eou.ou.id,
+          {}
+        )
       ),
-      map((res) => res.data as BankAccountsAssigned[])
+      map((statsResponse) => {
+        var stats = {
+          totalTxns: '',
+          totalAmount: '',
+          cardDetails: statsResponse.data && statsResponse.data[1].value,
+        };
+        statsResponse.data[0].aggregates.forEach(function (aggregate) {
+          if (aggregate.function_name === 'count(tx_id)') {
+            stats.totalTxns = aggregate.function_value;
+          }
+          if (aggregate.function_name === 'sum(tx_amount)') {
+            stats.totalAmount = aggregate.function_value;
+          }
+        });
+        return stats;
+      })
     );
+
+    // return from(this.authService.getEou()).pipe(
+    //   switchMap((eou) =>
+    //     this.apiV2Service.get('/bank_accounts_assigned', {
+    //       params: {
+    //         assigned_to_ou_id: 'eq.' + eou.ou.id,
+    //       },
+    //     })
+    //   ),
+    //   map((res) => res.data as BankAccountsAssigned[])
+    // );
   }
 }

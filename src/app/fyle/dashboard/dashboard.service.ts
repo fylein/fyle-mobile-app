@@ -111,7 +111,29 @@ export class DashboardService {
     };
   }
 
-  getCCCDetails(): Observable<BankAccountsAssigned[]> {
+  getExpenseDetailsInCards = function (uniqueCards, statsResponse) {
+    var uniqueCardsCopy = JSON.parse(JSON.stringify(uniqueCards));
+    uniqueCardsCopy.forEach(function (card) {
+      card.totalDraftTxns = 0;
+      card.totalDraftValue = 0;
+      card.totalCompleteTxns = 0;
+      card.totalCompleteExpensesValue = 0;
+      statsResponse.forEach(function (stats) {
+        if (stats.key[1].column_value === card.cardNumber && stats.key[2].column_value === 'DRAFT') {
+          card.totalDraftTxns = stats.aggregates[0].function_value;
+          card.totalDraftValue = stats.aggregates[1].function_value;
+        } else if (stats.key[1].column_value === card.cardNumber && stats.key[2].column_value === 'COMPLETE') {
+          card.totalCompleteTxns = stats.aggregates[0].function_value;
+          card.totalCompleteExpensesValue = stats.aggregates[1].function_value;
+        }
+        card.totalTxnsCount = card.totalDraftTxns + card.totalCompleteTxns;
+        card.totalAmountValue = card.totalDraftValue + card.totalCompleteExpensesValue;
+      });
+    });
+    return uniqueCardsCopy;
+  };
+
+  getCCCDetails(): Observable<{ totalTxns: string; totalAmount: string; cardDetails: any }> {
     return this.corporateCreditCardExpenseService.getAssignedCards();
   }
 }

@@ -45,11 +45,11 @@ export class StatsComponent implements OnInit {
 
   loadData$ = new Subject();
 
-  cardTransactionsAndDetails$: Observable<BankAccountsAssigned>;
+  cardTransactionsAndDetails$: Observable<{ totalTxns: string; totalAmount: string; cardDetails: any }>;
 
   isCCCStatsLoading: boolean;
 
-  cardTransactionsAndDetails: BankAccountsAssigned;
+  cardTransactionsAndDetails: { totalTxns: string; totalAmount: string; cardDetails: any };
 
   get ReportStates() {
     return ReportStates;
@@ -106,13 +106,27 @@ export class StatsComponent implements OnInit {
     );
   }
 
+  getCardDetail(statsResponse) {
+    const cardNames = [];
+    statsResponse.forEach(function (stats) {
+      const cardDetail = {
+        cardNumber: stats.key[1].column_value,
+        cardName: stats.key[0].column_value,
+      };
+      cardNames.push(cardDetail);
+    });
+    const uniqueCards = JSON.parse(JSON.stringify(cardNames));
+    return this.dashboardService.getExpenseDetailsInCards(uniqueCards, statsResponse);
+  }
+
   initializeCCCStats() {
     this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
-      map((res) => res[0]),
+      map((res) => res),
       shareReplay(1)
     );
     this.cardTransactionsAndDetails$.subscribe((details) => {
-      this.cardTransactionsAndDetails = details;
+      this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
+      console.log('cardTransactionsAndDetails: ', this.cardTransactionsAndDetails);
       this.isCCCStatsLoading = false;
     });
   }
