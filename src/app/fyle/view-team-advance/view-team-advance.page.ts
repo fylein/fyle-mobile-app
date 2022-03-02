@@ -55,7 +55,7 @@ export class ViewTeamAdvancePage implements OnInit {
 
   rejectLoading = false;
 
-  projectFieldName = 'Project';
+  projectFieldName: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -75,17 +75,14 @@ export class ViewTeamAdvancePage implements OnInit {
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
-  getAndUpdateProjectName() {
-    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
-      expenseFields.forEach((expenseField) => {
-        if (expenseField.column_name === 'project_id') {
-          this.projectFieldName = expenseField.field_name;
-        }
-      });
-    });
+  async getAndUpdateProjectName() {
+    const expenseFields = await this.offlineService.getAllEnabledExpenseFields().toPromise();
+    return expenseFields.filter((expenseField) => {
+      return expenseField.column_name === 'project_id';
+    })[0];
   }
 
-  ionViewWillEnter() {
+  async ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
     this.advanceRequest$ = this.refreshApprovers$.pipe(
       startWith(true),
@@ -159,7 +156,7 @@ export class ViewTeamAdvancePage implements OnInit {
     );
 
     this.setupActionScheet();
-    this.getAndUpdateProjectName();
+    this.getAndUpdateProjectName().then((projectField) => (this.projectFieldName = projectField.field_name));
   }
 
   edit() {
