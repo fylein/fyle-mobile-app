@@ -89,7 +89,7 @@
           </ng-container>
         </ng-container>
 
-        <ng-container *ngIf="true">
+        <ng-container *ngIf="isUnifyCcceExpensesSettingsEnabled && isCccExpense">
           <ion-grid class="add-edit-expense--card-container">
             <ion-row>
               <ion-col>
@@ -252,7 +252,7 @@
                   </div>
                 </ng-container>
               </ion-col>
-              <ion-col size="6">
+              <ion-col size="6" *ngIf="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense)">
                 <ng-container *ngIf="paymentModes$|async as paymentModes">
                   <div
                     *ngIf="paymentModes.length > 1"
@@ -310,7 +310,7 @@
         </div>
 
         <ng-container *ngIf="isCCCPaymentModeSelected$|async">
-          <div *ngIf="false">
+          <div *ngIf="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense)">
             <div class="add-edit-expense--card-header">Card Transaction</div>
             <div
               *ngIf="((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) || !selectedCCCTransaction) && !isLoadingSuggestions && !isCreatedFromCCC && !((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) && selectedCCCTransaction)"
