@@ -40,7 +40,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
-  projectFieldName = 'Project';
+  projectFieldName: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,

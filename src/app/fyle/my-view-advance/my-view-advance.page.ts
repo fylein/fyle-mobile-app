@@ -4,6 +4,7 @@ import { from, Observable } from 'rxjs';
 import { finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-my-view-advance',
@@ -13,11 +14,24 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 export class MyViewAdvancePage implements OnInit {
   advance$: Observable<any>;
 
+  projectFieldName: string;
+
   constructor(
     private advanceService: AdvanceService,
     private activatedRoute: ActivatedRoute,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private offlineService: OfflineService
   ) {}
+
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      expenseFields.forEach((expenseField) => {
+        if (expenseField.column_name === 'project_id') {
+          this.projectFieldName = expenseField.field_name;
+        }
+      });
+    });
+  }
 
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
@@ -27,6 +41,8 @@ export class MyViewAdvancePage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
+
+    this.getAndUpdateProjectName();
   }
 
   ngOnInit() {}
