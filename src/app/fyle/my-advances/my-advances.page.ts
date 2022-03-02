@@ -71,6 +71,8 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   advancesTaskCount = 0;
 
+  projectFieldName: string;
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private activatedRoute: ActivatedRoute,
@@ -105,9 +107,11 @@ export class MyAdvancesPage implements AfterViewChecked {
     });
   }
 
-  async getAndUpdateProjectName() {
-    const expenseFields = await this.offlineService.getAllEnabledExpenseFields().toPromise();
-    return expenseFields.filter((expenseField) => expenseField.column_name === 'project_id')[0];
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
+      this.projectFieldName = projectField?.field_name;
+    });
   }
 
   ionViewWillEnter() {
@@ -221,6 +225,8 @@ export class MyAdvancesPage implements AfterViewChecked {
         }
       })
     );
+
+    this.getAndUpdateProjectName();
   }
 
   ngAfterViewChecked() {
@@ -339,8 +345,6 @@ export class MyAdvancesPage implements AfterViewChecked {
   }
 
   async openFilters(activeFilterInitialName?: string) {
-    const projectField = await this.getAndUpdateProjectName();
-
     const filterOptions = [
       {
         name: 'State',
@@ -378,11 +382,11 @@ export class MyAdvancesPage implements AfterViewChecked {
             value: SortingValue.approvalDateDesc,
           },
           {
-            label: `${this.titleCasePipe.transform(projectField?.field_name)} - A to Z`,
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - A to Z`,
             value: SortingValue.projectAsc,
           },
           {
-            label: `${this.titleCasePipe.transform(projectField?.field_name)} - Z to A`,
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - Z to A`,
             value: SortingValue.projectDesc,
           },
         ],
@@ -395,7 +399,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     );
     if (filters) {
       this.filterParams$.next(filters);
-      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
+      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value, this.projectFieldName);
     }
   }
 }

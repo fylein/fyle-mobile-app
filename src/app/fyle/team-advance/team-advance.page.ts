@@ -206,7 +206,7 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     if (filters) {
       this.filters = filters;
-      this.filterPills = this.filtersHelperService.generateFilterPills(this.filters);
+      this.filterPills = this.filtersHelperService.generateFilterPills(this.filters, this.projectFieldName);
       this.changeState();
     }
   }
