@@ -71,7 +71,7 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   advancesTaskCount = 0;
 
-  projectFieldName: string;
+  projectFieldName = 'Project';
 
   constructor(
     private advanceRequestService: AdvanceRequestService,

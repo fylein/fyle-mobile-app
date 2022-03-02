@@ -46,7 +46,7 @@ export class TeamAdvancePage implements AfterViewChecked {
 
   isLoading = false;
 
-  projectFieldName: string;
+  projectFieldName = 'Project';
 
   constructor(
     private advanceRequestService: AdvanceRequestService,
