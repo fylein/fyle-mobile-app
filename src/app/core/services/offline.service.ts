@@ -367,6 +367,23 @@ export class OfflineService {
   }
 
   @Cacheable()
+  getAllEnabledExpenseFields(): Observable<ExpenseField[]> {
+    return this.networkService.isOnline().pipe(
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.expenseFieldsService.getAllEnabled().pipe(
+            tap((allExpenseFields) => {
+              this.storageService.set('cachedAllExpenseFields', allExpenseFields);
+            })
+          );
+        } else {
+          return from(this.storageService.get('cachedAllExpenseFields'));
+        }
+      })
+    );
+  }
+
+  @Cacheable()
   getExpenseFieldsMap(): Observable<Partial<ExpenseFieldsMap>> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {

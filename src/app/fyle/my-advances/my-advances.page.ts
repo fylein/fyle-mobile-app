@@ -1,5 +1,6 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
+import { TitleCasePipe } from '@angular/common';
 
 import {
   concat,
@@ -79,6 +80,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     private offlineService: OfflineService,
     private filtersHelperService: FiltersHelperService,
     private utilityService: UtilityService,
+    private titleCasePipe: TitleCasePipe,
     private trackingService: TrackingService,
     private tasksService: TasksService,
     private cdr: ChangeDetectorRef
@@ -101,6 +103,11 @@ export class MyAdvancesPage implements AfterViewChecked {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     });
+  }
+
+  async getAndUpdateProjectName() {
+    const expenseFields = await this.offlineService.getAllEnabledExpenseFields().toPromise();
+    return expenseFields.filter((expenseField) => expenseField.column_name === 'project_id')[0];
   }
 
   ionViewWillEnter() {
@@ -332,6 +339,8 @@ export class MyAdvancesPage implements AfterViewChecked {
   }
 
   async openFilters(activeFilterInitialName?: string) {
+    const projectField = await this.getAndUpdateProjectName();
+
     const filterOptions = [
       {
         name: 'State',
@@ -369,11 +378,11 @@ export class MyAdvancesPage implements AfterViewChecked {
             value: SortingValue.approvalDateDesc,
           },
           {
-            label: 'Project - A to Z',
+            label: `${this.titleCasePipe.transform(projectField?.field_name)} - A to Z`,
             value: SortingValue.projectAsc,
           },
           {
-            label: 'Project - Z to A',
+            label: `${this.titleCasePipe.transform(projectField?.field_name)} - Z to A`,
             value: SortingValue.projectDesc,
           },
         ],
