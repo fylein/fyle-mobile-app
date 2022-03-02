@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
 import { ModalController } from '@ionic/angular';
@@ -16,11 +16,10 @@ import {
   Observable,
   Subject,
 } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil } from 'rxjs/operators';
+import { concatMap, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { NetworkService } from '../../core/services/network.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -34,6 +33,8 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -46,12 +47,14 @@ type Filters = Partial<{
   templateUrl: './my-advances.page.html',
   styleUrls: ['./my-advances.page.scss'],
 })
-export class MyAdvancesPage {
+export class MyAdvancesPage implements AfterViewChecked {
   myAdvancerequests$: Observable<any[]>;
 
   myAdvances$: Observable<any>;
 
   loadData$: Subject<number> = new Subject();
+
+  isLoading = false;
 
   navigateBack = false;
 
@@ -67,18 +70,21 @@ export class MyAdvancesPage {
 
   filterParams$ = new BehaviorSubject<Filters>({});
 
+  advancesTaskCount = 0;
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private advanceService: AdvanceService,
     private networkService: NetworkService,
     private offlineService: OfflineService,
-    private modalController: ModalController,
     private filtersHelperService: FiltersHelperService,
     private utilityService: UtilityService,
-    private titleCasePipe: TitleCasePipe
+    private titleCasePipe: TitleCasePipe,
+    private trackingService: TrackingService,
+    private tasksService: TasksService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ionViewWillLeave() {
@@ -109,6 +115,11 @@ export class MyAdvancesPage {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+
+    this.tasksService.getAdvancesTaskCount().subscribe((advancesTaskCount) => {
+      this.advancesTaskCount = advancesTaskCount;
+    });
+
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     const oldFilters = this.activatedRoute.snapshot.queryParams.filters;
@@ -116,6 +127,8 @@ export class MyAdvancesPage {
       this.filterParams$.next(JSON.parse(oldFilters));
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
     }
+
+    this.isLoading = true;
 
     this.myAdvancerequests$ = this.advanceRequestService
       .getMyAdvanceRequestsCount({
@@ -139,8 +152,7 @@ export class MyAdvancesPage {
           })
         ),
         map((res) => res.data),
-        reduce((acc, curr) => acc.concat(curr)),
-        startWith([])
+        reduce((acc, curr) => acc.concat(curr))
       );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
@@ -156,64 +168,66 @@ export class MyAdvancesPage {
         })
       ),
       map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr)),
-      startWith([])
+      reduce((acc, curr) => acc.concat(curr))
     );
 
     const sortResults = map((res: any[]) => res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)));
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
-      switchMap(() =>
-        from(this.loaderService.showLoader('Retrieving advance...')).pipe(
-          concatMap(() => this.offlineService.getOrgSettings()),
-          switchMap((orgSettings) =>
-            combineLatest([
-              iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),
-              iif(() => orgSettings.advances.enabled, this.myAdvances$, of(null)),
-            ]).pipe(
-              map((res) => {
-                const [myAdvancerequestsRes, myAdvancesRes] = res;
-                let myAdvancerequests = myAdvancerequestsRes || [];
-                let myAdvances = myAdvancesRes || [];
-                myAdvancerequests = this.updateMyAdvanceRequests(myAdvancerequests);
-                myAdvances = this.updateMyAdvances(myAdvances);
-                return myAdvances.concat(myAdvancerequests);
-              }),
-              sortResults
-            )
-          ),
-          switchMap((advArray) =>
-            //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
-            this.filterParams$.pipe(
-              map((filters) => {
-                let newArr = cloneDeep(advArray);
-
-                if (filters && filters.state && filters.state.length > 0) {
-                  newArr = advArray.filter((adv) => {
-                    const sentBackAdvance =
-                      filters.state.includes(AdvancesStates.sentBack) &&
-                      adv.areq_state === 'DRAFT' &&
-                      adv.areq_is_sent_back;
-
-                    const plainDraft =
-                      filters.state.includes(AdvancesStates.draft) &&
-                      adv.areq_state === 'DRAFT' &&
-                      !adv.areq_is_sent_back &&
-                      !adv.areq_is_pulled_back;
-
-                    return sentBackAdvance || plainDraft;
-                  });
-                }
-
-                newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
-                return newArr;
-              })
-            )
-          ),
-          finalize(() => from(this.loaderService.hideLoader()))
+      concatMap(() => this.offlineService.getOrgSettings()),
+      switchMap((orgSettings) =>
+        combineLatest([
+          iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),
+          iif(() => orgSettings.advances.enabled, this.myAdvances$, of(null)),
+        ]).pipe(
+          map((res) => {
+            const [myAdvancerequestsRes, myAdvancesRes] = res;
+            let myAdvancerequests = myAdvancerequestsRes || [];
+            let myAdvances = myAdvancesRes || [];
+            myAdvancerequests = this.updateMyAdvanceRequests(myAdvancerequests);
+            myAdvances = this.updateMyAdvances(myAdvances);
+            return myAdvances.concat(myAdvancerequests);
+          }),
+          sortResults
         )
-      )
+      ),
+      switchMap((advArray) =>
+        //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
+        this.filterParams$.pipe(
+          map((filters) => {
+            let newArr = cloneDeep(advArray);
+
+            if (filters && filters.state && filters.state.length > 0) {
+              newArr = advArray.filter((adv) => {
+                const sentBackAdvance =
+                  filters.state.includes(AdvancesStates.sentBack) &&
+                  adv.areq_state === 'DRAFT' &&
+                  adv.areq_is_sent_back;
+
+                const plainDraft =
+                  filters.state.includes(AdvancesStates.draft) &&
+                  adv.areq_state === 'DRAFT' &&
+                  !adv.areq_is_sent_back &&
+                  !adv.areq_is_pulled_back;
+
+                return sentBackAdvance || plainDraft;
+              });
+            }
+            newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
+            return newArr;
+          })
+        )
+      ),
+      tap((res) => {
+        if (res && res.length >= 0) {
+          this.isLoading = false;
+        }
+      })
     );
+  }
+
+  ngAfterViewChecked() {
+    this.cdr.detectChanges();
   }
 
   updateMyAdvances(myAdvances: any) {
@@ -251,7 +265,9 @@ export class MyAdvancesPage {
       .pipe(
         map(() => {
           this.refreshAdvances$.next();
-          event.target.complete();
+          if (event) {
+            event.target.complete();
+          }
         })
       )
       .subscribe(noop);
@@ -282,9 +298,12 @@ export class MyAdvancesPage {
   }
 
   onTaskClicked() {
-    const queryParams: Params = { state: 'tasks' };
+    const queryParams: Params = { state: 'tasks', tasksFilters: 'advances' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      from: 'My Advances',
     });
   }
 
@@ -346,19 +365,19 @@ export class MyAdvancesPage {
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Creation Date - New to Old',
+            label: 'Created At - New to Old',
             value: SortingValue.creationDateAsc,
           },
           {
-            label: 'Creation Date - Old to New',
+            label: 'Created At - Old to New',
             value: SortingValue.creationDateDesc,
           },
           {
-            label: 'Approval Date - New to Old',
+            label: 'Approved At - New to Old',
             value: SortingValue.approvalDateAsc,
           },
           {
-            label: 'Approval Date - Old to New',
+            label: 'Approved At - Old to New',
             value: SortingValue.approvalDateDesc,
           },
           {

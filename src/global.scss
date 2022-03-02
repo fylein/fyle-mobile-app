@@ -326,6 +326,10 @@ textarea:focus {
   display: flex !important;
 }
 
+.d-none {
+  display: none !important;
+}
+
 .small {
   font-size: 12px;
 }
@@ -1200,6 +1204,14 @@ ion-toggle.toggle-checked::before {
   margin-bottom: 133px !important;
 }
 
+.hide-modal {
+  --backdrop-opacity: 0 !important;
+
+  & > div {
+    background: transparent !important;
+  }
+}
+
 .ion-slides {
   div {
     align-items: center !important;
@@ -1215,6 +1227,18 @@ ion-toggle.toggle-checked::before {
         background: url('assets/images/loading.gif') no-repeat center;
         background-size: 50px;
       }
+    }
+  }
+}
+
+.deprecate-msg {
+  & > div {
+    margin: 16px;
+  }
+
+  &--mb-0 {
+    & > div {
+      margin-bottom: 0;
     }
   }
 }

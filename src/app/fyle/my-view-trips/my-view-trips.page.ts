@@ -45,6 +45,8 @@ export class MyViewTripsPage implements OnInit {
 
   activeApprovals$: Observable<Approval[]>;
 
+  showTripActionCta = false;
+
   tripExtraInfo$: Observable<{
     submittedBy: {
       fullName: string;
@@ -74,6 +76,8 @@ export class MyViewTripsPage implements OnInit {
   deleteLoading = false;
 
   closeLoading = false;
+
+  deprecationMsg$: Observable<string>;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -321,6 +325,11 @@ export class MyViewTripsPage implements OnInit {
 
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
+
+    this.tripRequestsService
+      .doesOrgHaveExtension()
+      .subscribe((doesOrgHaveExtension) => (this.showTripActionCta = doesOrgHaveExtension));
+
     const eou$ = from(this.authService.getEou());
     this.tripRequest$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.tripRequestsService.getTrip(id)),
@@ -424,6 +433,8 @@ export class MyViewTripsPage implements OnInit {
         });
       })
     );
+
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('individual');
   }
 
   ngOnInit() {}

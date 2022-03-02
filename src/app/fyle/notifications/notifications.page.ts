@@ -54,7 +54,7 @@ export class NotificationsPage implements OnInit {
     private navController: NavController
   ) {}
 
-  updateDelegateeSubscription() {
+  getDelegateeSubscription() {
     return this.orgUserSettings$.pipe(
       map((ouSetting) => {
         if (
@@ -150,6 +150,7 @@ export class NotificationsPage implements OnInit {
 
     this.orgUserSettingsService
       .post(this.orgUserSettings)
+      .pipe(() => this.offlineService.clearOrgUserSettings())
       .pipe(finalize(() => (this.saveNotifLoading = false)))
       .subscribe(() => {
         this.navController.back();
@@ -219,15 +220,17 @@ export class NotificationsPage implements OnInit {
   }
 
   updateDelegateeNotifyPreference(event) {
-    if (event.value === 'Notify my delegate') {
-      this.orgUserSettings.notification_settings.notify_delegatee = true;
-      this.orgUserSettings.notification_settings.notify_user = false;
-    } else if (event.value === 'Notify me and my delegate') {
-      this.orgUserSettings.notification_settings.notify_delegatee = true;
-      this.orgUserSettings.notification_settings.notify_user = true;
-    } else if (event.value === 'Notify me only') {
-      this.orgUserSettings.notification_settings.notify_delegatee = false;
-      this.orgUserSettings.notification_settings.notify_user = true;
+    if (event) {
+      if (event.value === 'Notify my delegate') {
+        this.orgUserSettings.notification_settings.notify_delegatee = true;
+        this.orgUserSettings.notification_settings.notify_user = false;
+      } else if (event.value === 'Notify me and my delegate') {
+        this.orgUserSettings.notification_settings.notify_delegatee = true;
+        this.orgUserSettings.notification_settings.notify_user = true;
+      } else if (event.value === 'Notify me only') {
+        this.orgUserSettings.notification_settings.notify_delegatee = false;
+        this.orgUserSettings.notification_settings.notify_user = true;
+      }
     }
   }
 
@@ -286,23 +289,19 @@ export class NotificationsPage implements OnInit {
       emailEvents: false,
       pushEvents: false,
     };
-
     this.orgUserSettings$ = this.orgUserSettingsService.get();
-
-    let notifyOption;
-    this.updateDelegateeSubscription().subscribe((option) => {
-      notifyOption = option;
-      if (this.notificationForm) {
-        // Introduced this if block to populate the form control value initially, if we make any changes and visiting this page again
-        this.notificationForm.controls.notifyOption.setValue(notifyOption);
-      }
-    });
 
     // creating form
     this.notificationForm = this.formBuilder.group({
-      notifyOption: [notifyOption],
+      notifyOption: [],
       pushEvents: new FormArray([]), // push notification event form control array
       emailEvents: new FormArray([]), // email  notification event form control array
+    });
+
+    let notifyOption;
+    this.getDelegateeSubscription().subscribe((option) => {
+      notifyOption = option;
+      this.notificationForm.controls.notifyOption.setValue(notifyOption);
     });
 
     this.isDelegateePresent$ = from(this.authService.getEou()).pipe(map((eou) => eou.ou.delegatee_id !== null));
