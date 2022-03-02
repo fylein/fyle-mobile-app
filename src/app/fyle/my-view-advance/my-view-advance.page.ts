@@ -13,6 +13,13 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 export class MyViewAdvancePage implements OnInit {
   advance$: Observable<any>;
 
+  statisticType = {
+    string: 'string',
+    number: 'number',
+    date: 'date',
+    boolean: 'boolean',
+  };
+
   constructor(
     private advanceService: AdvanceService,
     private activatedRoute: ActivatedRoute,

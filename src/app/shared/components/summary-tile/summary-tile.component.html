@@ -1,13 +1,13 @@
 <div class="summary-tile--card-container">
   <div class="d-flex">
     <div class="summary-tile--card-container__block">
-      <div *ngIf="categoryDisplayName" class="summary-tile--card-container__category">{{ categoryDisplayName }}</div>
+      <div *ngIf="category" class="summary-tile--card-container__category">{{ category }}</div>
       <div *ngIf="purpose" class="summary-tile--card-container__purpose">{{ purpose }}</div>
 
-      <div *ngIf="merchantName" class="summary-tile--card-container__merchant">
-        {{ merchantName }}
+      <div *ngIf="merchant" class="summary-tile--card-container__merchant">
+        {{ merchant }}
       </div>
-      <div *ngIf="projectName" class="summary-tile--card-container__project">Project: {{ projectName }}</div>
+      <div *ngIf="project" class="summary-tile--card-container__project">Project: {{ project }}</div>
     </div>
     <div class="ion-text-right summary-tile--card-container__block">
       <div>
@@ -19,7 +19,7 @@
 
       <div
         class="ion-text-right"
-        [ngClass]="{ 'summary-tile--card-container__no-exchange': !foreignCurrencySymbol && projectName }"
+        [ngClass]="{ 'summary-tile--card-container__no-exchange': !tx_orig_currency && project }"
       >
         <div
           class="summary-tile--card-container__state-pill summary-tile--card-container__state-pill__{{

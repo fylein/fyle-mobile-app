@@ -1,17 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AdvanceApprover } from 'src/app/core/models/approver.model';
-
 @Component({
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
   styleUrls: ['./summary-tile.component.scss'],
 })
 export class FySummaryTileComponent implements OnInit {
-  @Input() categoryDisplayName: string;
+  @Input() category: string;
 
-  @Input() merchantName: string;
+  @Input() merchant: string;
 
-  @Input() projectName: string;
+  @Input() project: string;
 
   @Input() currency: string;
 
@@ -23,9 +21,9 @@ export class FySummaryTileComponent implements OnInit {
 
   @Input() status: string;
 
-  @Input() approvals: AdvanceApprover[];
+  @Input() approvals: [];
 
-  @Input() foreignCurrencySymbol: string;
+  @Input() tx_orig_currency: string;
 
   constructor() {}
 

@@ -23,7 +23,7 @@
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/advances.svg'"
-            [type]="'string'"
+            [type]="statisticType.string"
             [label]="'Advance Number'"
             [value]="advance.adv_advance_number || '-'"
           ></app-fy-statistic>
@@ -32,7 +32,7 @@
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/profile.svg'"
-            [type]="'string'"
+            [type]="statisticType.string"
             [label]="'Issued By'"
             [value]="advance.creator_us_full_name || '-'"
           ></app-fy-statistic>
@@ -42,11 +42,11 @@
 
         <ion-grid class="view-advance--grid">
           <ion-row>
-            <ion-col class="p-0" size="6">
-              <div class="view-advance--element" *ngIf="advance.areq_approved_at">
+            <ion-col *ngIf="advance.areq_approved_at" class="p-0" size="6">
+              <div class="view-advance--element">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
-                  [type]="'date'"
+                  [type]="statisticType.date"
                   [label]="'Approved On'"
                   [value]="advance.areq_approved_at | date: 'MMM dd, yyyy'"
                 ></app-fy-statistic>
@@ -55,7 +55,7 @@
             <ion-col class="p-0" size="6">
               <app-fy-statistic
                 [icon]="'../../../../assets/svg/calendar.svg'"
-                [type]="'date'"
+                [type]="statisticType.date"
                 [label]="'Issued On'"
                 [value]="advance.adv_issued_at | date: 'MMM dd, yyyy'"
               ></app-fy-statistic>
@@ -66,7 +66,7 @@
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/card.svg'"
-            [type]="'string'"
+            [type]="statisticType.string"
             [label]="'Payment Mode'"
             [value]="advance.adv_mode || '-'"
           ></app-fy-statistic>
@@ -75,7 +75,7 @@
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
-            [type]="'string'"
+            [type]="statisticType.string"
             [label]="'Project'"
             [value]="advance.project_name || '-'"
           ></app-fy-statistic>
@@ -86,7 +86,7 @@
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
-            [type]="'string'"
+            [type]="statisticType.string"
             [label]="'Additional Notes'"
             [value]="advance.areq_notes || '-'"
           ></app-fy-statistic>

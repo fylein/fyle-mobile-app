@@ -39,6 +39,13 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
+  statisticType = {
+    string: 'string',
+    number: 'number',
+    date: 'date',
+    boolean: 'boolean',
+  };
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
