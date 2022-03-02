@@ -1,7 +1,6 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
-import { ModalController } from '@ionic/angular';
 
 import {
   concat,
