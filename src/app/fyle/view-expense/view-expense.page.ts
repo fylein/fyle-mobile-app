@@ -94,7 +94,7 @@ export class ViewExpensePage implements OnInit {
 
   merchantFieldName: string;
 
-  projectFieldName = 'Project';
+  projectFieldName: string;
 
   get ExpenseView() {
     return ExpenseView;
