@@ -1,5 +1,6 @@
 import { Component, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
+import { TitleCasePipe } from '@angular/common';
 import { ModalController } from '@ionic/angular';
 
 import {
@@ -76,7 +77,8 @@ export class MyAdvancesPage {
     private offlineService: OfflineService,
     private modalController: ModalController,
     private filtersHelperService: FiltersHelperService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private titleCasePipe: TitleCasePipe
   ) {}
 
   ionViewWillLeave() {
@@ -96,6 +98,13 @@ export class MyAdvancesPage {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
     });
+  }
+
+  async getAndUpdateProjectName() {
+    const expenseFields = await this.offlineService.getAllEnabledExpenseFields().toPromise();
+    return expenseFields.filter((expenseField) => {
+      return expenseField.column_name === 'project_id';
+    })[0];
   }
 
   ionViewWillEnter() {
@@ -314,6 +323,8 @@ export class MyAdvancesPage {
   }
 
   async openFilters(activeFilterInitialName?: string) {
+    const projectField = await this.getAndUpdateProjectName();
+
     const filterOptions = [
       {
         name: 'State',
@@ -351,11 +362,11 @@ export class MyAdvancesPage {
             value: SortingValue.approvalDateDesc,
           },
           {
-            label: 'Project - A to Z',
+            label: `${this.titleCasePipe.transform(projectField?.field_name)} - A to Z`,
             value: SortingValue.projectAsc,
           },
           {
-            label: 'Project - Z to A',
+            label: `${this.titleCasePipe.transform(projectField?.field_name)} - Z to A`,
             value: SortingValue.projectDesc,
           },
         ],
