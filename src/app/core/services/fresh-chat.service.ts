@@ -72,6 +72,10 @@ export class FreshChatService {
       device = 'ANDROID';
     }
 
+    if (!(window as any).fcWidget) {
+      return;
+    }
+
     (window as any).fcWidget.init({
       token: environment.FRESHCHAT_TOKEN,
       host: 'https://wchat.in.freshchat.com',
