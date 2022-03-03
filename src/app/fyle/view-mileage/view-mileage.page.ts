@@ -78,6 +78,8 @@ export class ViewMileagePage implements OnInit {
 
   isProjectShown: boolean;
 
+  projectFieldName: string;
+
   get ExpenseView() {
     return ExpenseView;
   }
@@ -271,6 +273,7 @@ export class ViewMileagePage implements OnInit {
     forkJoin([this.offlineService.getExpenseFieldsMap(), this.extendedMileage$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, extendedMileage]) => {
+          this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown =
             this.orgSettings?.projects?.enabled && (extendedMileage.tx_project_name || isProjectMandatory);

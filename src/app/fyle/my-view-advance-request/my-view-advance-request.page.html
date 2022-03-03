@@ -119,7 +119,7 @@
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="'string'"
-            [label]="'Project'"
+            [label]="projectFieldName | titlecase"
             [value]="advanceRequest.project_name || '-' | ellipsis: 15"
           ></app-fy-statistic>
         </div>
