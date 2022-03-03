@@ -23,7 +23,7 @@
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/advances.svg'"
-            [type]="StatisticTypes.string"
+            [type]="StatisticTypes.STRING"
             [label]="'Advance Number'"
             [value]="advance.adv_advance_number || '-'"
           ></app-fy-statistic>
@@ -32,7 +32,7 @@
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/profile.svg'"
-            [type]="StatisticTypes.string"
+            [type]="StatisticTypes.STRING"
             [label]="'Issued By'"
             [value]="advance.creator_us_full_name || '-'"
           ></app-fy-statistic>
@@ -46,7 +46,7 @@
               <div class="view-advance--element">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
-                  [type]="StatisticTypes.date"
+                  [type]="StatisticTypes.DATE"
                   [label]="'Approved On'"
                   [value]="advance.areq_approved_at | date: 'MMM dd, yyyy'"
                 ></app-fy-statistic>
@@ -55,7 +55,7 @@
             <ion-col class="p-0" size="6">
               <app-fy-statistic
                 [icon]="'../../../../assets/svg/calendar.svg'"
-                [type]="StatisticTypes.date"
+                [type]="StatisticTypes.DATE"
                 [label]="'Issued On'"
                 [value]="advance.adv_issued_at | date: 'MMM dd, yyyy'"
               ></app-fy-statistic>
@@ -66,7 +66,7 @@
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/card.svg'"
-            [type]="StatisticTypes.string"
+            [type]="StatisticTypes.STRING"
             [label]="'Payment Mode'"
             [value]="advance.adv_mode || '-'"
           ></app-fy-statistic>
@@ -75,7 +75,7 @@
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
-            [type]="StatisticTypes.string"
+            [type]="StatisticTypes.STRING"
             [label]="projectFieldName | titlecase"
             [value]="advance.project_name || '-'"
           ></app-fy-statistic>
@@ -86,7 +86,7 @@
         <div class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
-            [type]="StatisticTypes.string"
+            [type]="StatisticTypes.STRING"
             [label]="'Additional Notes'"
             [value]="advance.areq_notes || '-'"
           ></app-fy-statistic>

@@ -62,7 +62,7 @@
           <div class="view-advance-request--element">
             <app-fy-statistic
               [icon]="'../../../../assets/svg/no-attachment.svg'"
-              [type]="StatisticTypes.string"
+              [type]="StatisticTypes.STRING"
               [label]="'Receipt'"
               [value]="'Not Attached'"
             ></app-fy-statistic>
@@ -74,7 +74,7 @@
         <div class="view-advance-request--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/advances.svg'"
-            [type]="StatisticTypes.string"
+            [type]="StatisticTypes.STRING"
             [label]="'Request ID'"
             [value]="advanceRequest.areq_advance_request_number|| '-'"
           ></app-fy-statistic>
@@ -88,7 +88,7 @@
               <div class="view-advance-request--element">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
-                  [type]="StatisticTypes.date"
+                  [type]="StatisticTypes.DATE"
                   [label]="'Created On'"
                   [value]="advanceRequest.areq_created_at | date: 'MMM dd, yyyy'"
                 ></app-fy-statistic>
@@ -98,7 +98,7 @@
               <div class="view-advance-request--element">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
-                  [type]="StatisticTypes.date"
+                  [type]="StatisticTypes.DATE"
                   [label]="'Approved On'"
                   [value]="advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'"
                 ></app-fy-statistic>
@@ -110,7 +110,7 @@
         <div class="view-advance-request--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
-            [type]="StatisticTypes.string"
+            [type]="StatisticTypes.STRING"
             [label]="'Purpose'"
             [value]="advanceRequest.areq_purpose|| '-'"
           ></app-fy-statistic>
@@ -118,7 +118,7 @@
         <div class="view-advance-request--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
-            [type]="StatisticTypes.string"
+            [type]="StatisticTypes.STRING"
             [label]="projectFieldName | titlecase"
             [value]="(advanceRequest.project_name || '-') | ellipsis: 15"
           ></app-fy-statistic>
@@ -129,7 +129,7 @@
         <div class="view-advance-request--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
-            [type]="StatisticTypes.string"
+            [type]="StatisticTypes.STRING"
             [label]="'Additional Notes'"
             [value]="advanceRequest.areq_notes || '-'"
           ></app-fy-statistic>
@@ -144,39 +144,39 @@
               *ngFor="let advanceRequestCustomField of advanceRequestCustomFields; index as i"
             >
               <div
-                *ngIf="advanceRequestCustomField.type === StatisticTypes.date.toUpperCase() && advanceRequestCustomField.value"
+                *ngIf="advanceRequestCustomField.type === StatisticTypes.DATE.toUpperCase() && advanceRequestCustomField.value"
               >
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
-                  [type]="StatisticTypes.date"
+                  [type]="StatisticTypes.DATE"
                   [label]="advanceRequestCustomField.name"
                   [value]="advanceRequestCustomField.value | date: 'MMM dd, yyyy'"
                 ></app-fy-statistic>
               </div>
               <div
-                *ngIf="advanceRequestCustomField.type === StatisticTypes.date.toUpperCase() && !advanceRequestCustomField.value"
+                *ngIf="advanceRequestCustomField.type === StatisticTypes.DATE.toUpperCase() && !advanceRequestCustomField.value"
               >
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/calendar.svg'"
-                  [type]="StatisticTypes.date"
+                  [type]="StatisticTypes.DATE"
                   [label]="advanceRequestCustomField.name"
                   [value]="'-'"
                 ></app-fy-statistic>
               </div>
-              <div *ngIf="advanceRequestCustomField.type === StatisticTypes.boolean.toUpperCase()">
+              <div *ngIf="advanceRequestCustomField.type === StatisticTypes.BOOLEAN.toUpperCase()">
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/list.svg'"
-                  [type]="StatisticTypes.boolean"
+                  [type]="StatisticTypes.BOOLEAN"
                   [label]="advanceRequestCustomField.name"
                   [value]="advanceRequestCustomField.value ? 'Yes' : 'No'"
                 ></app-fy-statistic>
               </div>
               <div
-                *ngIf="advanceRequestCustomField.type !== StatisticTypes.boolean.toUpperCase() && advanceRequestCustomField.type !== 'DATE'"
+                *ngIf="advanceRequestCustomField.type !== StatisticTypes.BOOLEAN.toUpperCase() && advanceRequestCustomField.type !== 'DATE'"
               >
                 <app-fy-statistic
                   [icon]="'../../../../assets/svg/list.svg'"
-                  [type]="StatisticTypes.boolean"
+                  [type]="StatisticTypes.BOOLEAN"
                   [label]="advanceRequestCustomField.name"
                   [value]="advanceRequestCustomField.value || '-'"
                 ></app-fy-statistic>

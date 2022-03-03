@@ -1,6 +1,6 @@
 export enum StatisticTypes {
-  string = 'string',
-  number = 'number',
-  date = 'date',
-  boolean = 'boolean',
+  STRING = 'string',
+  NUMBER = 'number',
+  DATE = 'date',
+  BOOLEAN = 'boolean',
 }
