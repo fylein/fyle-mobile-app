@@ -40,14 +40,14 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
     return this.innerValue;
   }
 
-  set value(v: any) {
-    if (isNaN(v)) {
-      v = 0;
+  set value(value: any) {
+    if (isNaN(value)) {
+      value = 0;
     }
 
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      this.onChangeCallback(v);
+    if (value !== this.innerValue) {
+      this.innerValue = value;
+      this.onChangeCallback(value);
     }
   }
 
