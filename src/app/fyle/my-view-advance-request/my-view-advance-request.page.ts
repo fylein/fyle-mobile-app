@@ -18,6 +18,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { TrackingService } from '../../core/services/tracking.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { StatisticTypes } from 'src/app/shared/components/fy-statistic/datatypes-statistic.enum';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -39,13 +40,6 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
-  statisticType = {
-    string: 'string',
-    number: 'number',
-    date: 'date',
-    boolean: 'boolean',
-  };
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -59,6 +53,10 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private trackingService: TrackingService,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
+
+  get StatisticTypes() {
+    return StatisticTypes;
+  }
 
   getReceiptExtension(name) {
     let res = null;
