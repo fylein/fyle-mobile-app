@@ -1,5 +1,6 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
+import { TitleCasePipe } from '@angular/common';
 
 import {
   concat,
@@ -70,6 +71,8 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   advancesTaskCount = 0;
 
+  projectFieldName = 'Project';
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private activatedRoute: ActivatedRoute,
@@ -79,6 +82,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     private offlineService: OfflineService,
     private filtersHelperService: FiltersHelperService,
     private utilityService: UtilityService,
+    private titleCasePipe: TitleCasePipe,
     private trackingService: TrackingService,
     private tasksService: TasksService,
     private cdr: ChangeDetectorRef
@@ -100,6 +104,13 @@ export class MyAdvancesPage implements AfterViewChecked {
       if (!isOnline) {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
+    });
+  }
+
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
+      this.projectFieldName = projectField?.field_name;
     });
   }
 
@@ -214,6 +225,8 @@ export class MyAdvancesPage implements AfterViewChecked {
         }
       })
     );
+
+    this.getAndUpdateProjectName();
   }
 
   ngAfterViewChecked() {
@@ -369,11 +382,11 @@ export class MyAdvancesPage implements AfterViewChecked {
             value: SortingValue.approvalDateDesc,
           },
           {
-            label: 'Project - A to Z',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - A to Z`,
             value: SortingValue.projectAsc,
           },
           {
-            label: 'Project - Z to A',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - Z to A`,
             value: SortingValue.projectDesc,
           },
         ],
@@ -386,7 +399,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     );
     if (filters) {
       this.filterParams$.next(filters);
-      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
+      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value, this.projectFieldName);
     }
   }
 }

@@ -76,7 +76,7 @@
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="StatisticTypes.string"
-            [label]="'Project'"
+            [label]="projectFieldName | titlecase"
             [value]="advance.project_name || '-'"
           ></app-fy-statistic>
         </div>
