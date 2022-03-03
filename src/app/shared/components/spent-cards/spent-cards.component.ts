@@ -20,6 +20,7 @@ export class SpentCardsComponent implements OnInit {
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
   pagination = {
+    dynamicBullets: true,
     renderBullet(index, className) {
       return '<span class="fyle ' + className + '"> </span>';
     },
