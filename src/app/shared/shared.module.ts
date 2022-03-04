@@ -115,6 +115,8 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
+import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.component';
+import { FySummaryTileComponent } from './components/summary-tile/summary-tile.component';
 
 @NgModule({
   declarations: [
@@ -209,6 +211,8 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
     AddMorePopupComponent,
     CropReceiptComponent,
     FyNumberComponent,
+    FyStatisticComponent,
+    FySummaryTileComponent,
   ],
   imports: [
     CommonModule,
@@ -308,6 +312,8 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
     AddMorePopupComponent,
     CropReceiptComponent,
     FyNumberComponent,
+    FyStatisticComponent,
+    FySummaryTileComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })
