@@ -18,7 +18,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { TrackingService } from '../../core/services/tracking.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { StatisticTypes } from 'src/app/shared/components/fy-statistic/datatypes-statistic.enum';
+import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
