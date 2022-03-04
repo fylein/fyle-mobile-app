@@ -112,7 +112,7 @@ export class DashboardService {
   }
 
   getExpenseDetailsInCards = function (uniqueCards, statsResponse) {
-    var uniqueCardsCopy = JSON.parse(JSON.stringify(uniqueCards));
+    const uniqueCardsCopy = JSON.parse(JSON.stringify(uniqueCards));
     uniqueCardsCopy.forEach(function (card) {
       card.totalDraftTxns = 0;
       card.totalDraftValue = 0;

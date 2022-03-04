@@ -124,7 +124,7 @@ export class CorporateCreditCardExpenseService {
 
   constructInQueryParamStringForV2(params) {
     // in.(IN_PROGRESS,SETTLED)
-    var queryString = 'in.(';
+    let queryString = 'in.(';
     params.forEach(function (param) {
       queryString += param + ',';
     });
@@ -145,7 +145,7 @@ export class CorporateCreditCardExpenseService {
         )
       ),
       map((statsResponse) => {
-        var stats = {
+        const stats = {
           totalTxns: '',
           totalAmount: '',
           cardDetails: statsResponse.data && statsResponse.data[1].value,
