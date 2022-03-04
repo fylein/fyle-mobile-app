@@ -3,25 +3,4 @@
 .spent-cards {
   padding: 12px 0;
   height: 140px;
-
-  &--swiper {
-    height: 380px;
-  }
-
-  &--minimal {
-    height: 74px;
-  }
-
-  &--single-card {
-    height: 125px;
-  }
 }
-
-// #swiper.spent-cards.swiper-pagination {
-//   text-align: center;
-//   transition: 300ms opacity;
-//   transform: translate3d(0, 0, 0);
-//   z-index: 10;
-//   float: right;
-//   margin-top: -4px;
-// }

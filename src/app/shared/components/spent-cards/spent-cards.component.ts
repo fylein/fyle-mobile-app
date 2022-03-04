@@ -22,7 +22,7 @@ export class SpentCardsComponent implements OnInit {
   pagination = {
     dynamicBullets: true,
     renderBullet(index, className) {
-      return '<span class="fyle ' + className + '"> </span>';
+      return '<span class="spent-cards ' + className + '"> </span>';
     },
   };
 

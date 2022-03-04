@@ -126,7 +126,6 @@ export class StatsComponent implements OnInit {
     );
     this.cardTransactionsAndDetails$.subscribe((details) => {
       this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-      console.log('cardTransactionsAndDetails: ', this.cardTransactionsAndDetails);
       this.isCCCStatsLoading = false;
     });
   }

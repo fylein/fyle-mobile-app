@@ -1093,6 +1093,32 @@ ion-modal.auto-height {
   opacity: 0.3;
 }
 
+.spent-cards.swiper-pagination-bullet {
+  width: 6px !important;
+  height: 6px !important;
+  background: $pure-white !important;
+  border: 1px solid $black !important;
+  box-sizing: border-box !important;
+  opacity: 0.3;
+}
+
+.spent-cards.swiper-pagination-bullet-active {
+  width: 16px !important;
+  height: 6px !important;
+  background: $black !important;
+  border-radius: 4px !important;
+  opacity: 0.3;
+}
+
+.spent-cards--swiper .swiper-pagination {
+  position: initial;
+  text-align: center;
+  transition: 300ms opacity;
+  z-index: 10;
+  float: right;
+  margin-top: -4px;
+}
+
 .ios .fy-footer--icon-pill {
   margin-left: 7px !important;
 }
