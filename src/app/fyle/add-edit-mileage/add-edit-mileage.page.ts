@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { combineLatest, concat, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
+import { combineLatest, concat, EMPTY, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -2122,7 +2122,7 @@ export class AddEditMileagePage implements OnInit {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );
@@ -2134,7 +2134,7 @@ export class AddEditMileagePage implements OnInit {
                   switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
                 );
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );
@@ -2349,7 +2349,7 @@ export class AddEditMileagePage implements OnInit {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );
@@ -2361,7 +2361,7 @@ export class AddEditMileagePage implements OnInit {
                   switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
                 );
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );

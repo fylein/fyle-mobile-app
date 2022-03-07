@@ -3,7 +3,7 @@
 
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
+import { combineLatest, concat, EMPTY, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import {
   catchError,
@@ -1769,7 +1769,7 @@ export class AddEditPerDiemPage implements OnInit {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );
@@ -1782,7 +1782,7 @@ export class AddEditPerDiemPage implements OnInit {
                   switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
                 );
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );
@@ -1932,7 +1932,7 @@ export class AddEditPerDiemPage implements OnInit {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(switchMap(() => of({ etxn: err.etxn })));
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );
@@ -1944,7 +1944,7 @@ export class AddEditPerDiemPage implements OnInit {
                   switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
                 );
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );

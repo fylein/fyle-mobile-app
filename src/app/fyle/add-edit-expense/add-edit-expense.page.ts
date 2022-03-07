@@ -3257,7 +3257,7 @@ export class AddEditExpensePage implements OnInit {
                   )
                 );
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );
@@ -3274,7 +3274,7 @@ export class AddEditExpensePage implements OnInit {
                   )
                 );
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );
@@ -3518,7 +3518,7 @@ export class AddEditExpensePage implements OnInit {
                   )
                 );
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );
@@ -3535,7 +3535,7 @@ export class AddEditExpensePage implements OnInit {
                   )
                 );
               } else {
-                return throwError('unhandledError');
+                return EMPTY;
               }
             })
           );
@@ -4187,7 +4187,7 @@ export class AddEditExpensePage implements OnInit {
                     )
                   );
                 } else {
-                  return throwError('unhandledError');
+                  return EMPTY;
                 }
               })
             );
@@ -4204,7 +4204,7 @@ export class AddEditExpensePage implements OnInit {
                     )
                   );
                 } else {
-                  return throwError('unhandledError');
+                  return EMPTY;
                 }
               })
             );
