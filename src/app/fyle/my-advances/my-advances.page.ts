@@ -1,5 +1,6 @@
-import { Component, EventEmitter } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
+import { TitleCasePipe } from '@angular/common';
 
 import {
   concat,
@@ -31,6 +32,8 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -43,7 +46,7 @@ type Filters = Partial<{
   templateUrl: './my-advances.page.html',
   styleUrls: ['./my-advances.page.scss'],
 })
-export class MyAdvancesPage {
+export class MyAdvancesPage implements AfterViewChecked {
   myAdvancerequests$: Observable<any[]>;
 
   myAdvances$: Observable<any>;
@@ -66,6 +69,10 @@ export class MyAdvancesPage {
 
   filterParams$ = new BehaviorSubject<Filters>({});
 
+  advancesTaskCount = 0;
+
+  projectFieldName = 'Project';
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private activatedRoute: ActivatedRoute,
@@ -74,7 +81,11 @@ export class MyAdvancesPage {
     private networkService: NetworkService,
     private offlineService: OfflineService,
     private filtersHelperService: FiltersHelperService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private titleCasePipe: TitleCasePipe,
+    private trackingService: TrackingService,
+    private tasksService: TasksService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ionViewWillLeave() {
@@ -96,8 +107,20 @@ export class MyAdvancesPage {
     });
   }
 
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
+      this.projectFieldName = projectField?.field_name;
+    });
+  }
+
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+
+    this.tasksService.getAdvancesTaskCount().subscribe((advancesTaskCount) => {
+      this.advancesTaskCount = advancesTaskCount;
+    });
+
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     const oldFilters = this.activatedRoute.snapshot.queryParams.filters;
@@ -202,6 +225,12 @@ export class MyAdvancesPage {
         }
       })
     );
+
+    this.getAndUpdateProjectName();
+  }
+
+  ngAfterViewChecked() {
+    this.cdr.detectChanges();
   }
 
   updateMyAdvances(myAdvances: any) {
@@ -272,9 +301,12 @@ export class MyAdvancesPage {
   }
 
   onTaskClicked() {
-    const queryParams: Params = { state: 'tasks' };
+    const queryParams: Params = { state: 'tasks', tasksFilters: 'advances' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      from: 'My Advances',
     });
   }
 
@@ -334,27 +366,27 @@ export class MyAdvancesPage {
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Creation Date - New to Old',
+            label: 'Created At - New to Old',
             value: SortingValue.creationDateAsc,
           },
           {
-            label: 'Creation Date - Old to New',
+            label: 'Created At - Old to New',
             value: SortingValue.creationDateDesc,
           },
           {
-            label: 'Approval Date - New to Old',
+            label: 'Approved At - New to Old',
             value: SortingValue.approvalDateAsc,
           },
           {
-            label: 'Approval Date - Old to New',
+            label: 'Approved At - Old to New',
             value: SortingValue.approvalDateDesc,
           },
           {
-            label: 'Project - A to Z',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - A to Z`,
             value: SortingValue.projectAsc,
           },
           {
-            label: 'Project - Z to A',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - Z to A`,
             value: SortingValue.projectDesc,
           },
         ],
@@ -367,7 +399,7 @@ export class MyAdvancesPage {
     );
     if (filters) {
       this.filterParams$.next(filters);
-      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
+      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value, this.projectFieldName);
     }
   }
 }

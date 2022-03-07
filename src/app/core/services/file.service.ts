@@ -170,4 +170,8 @@ export class FileService {
 
     return res;
   }
+
+  getImageTypeFromDataUrl(dataUrl: string) {
+    return dataUrl.split(';')[0].split(':')[1];
+  }
 }

@@ -107,7 +107,16 @@ import { SidemenuContentItemComponent } from './components/sidemenu/sidemenu-con
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
 import { SendEmailComponent } from './components/send-email/send-email.component';
+import { CaptureReceiptComponent } from './components/capture-receipt/capture-receipt.component';
+import { ReceiptPreviewComponent } from './components/capture-receipt/receipt-preview/receipt-preview.component';
+import { AddMorePopupComponent } from './components/capture-receipt/add-more-popup/add-more-popup.component';
+import { CropReceiptComponent } from './components/capture-receipt/crop-receipt/crop-receipt.component';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
+import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.component';
+import { FySummaryTileComponent } from './components/summary-tile/summary-tile.component';
 
 @NgModule({
   declarations: [
@@ -197,7 +206,13 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
     SidemenuContentItemComponent,
     FyNavFooterComponent,
     SendEmailComponent,
+    CaptureReceiptComponent,
+    ReceiptPreviewComponent,
+    AddMorePopupComponent,
+    CropReceiptComponent,
     FyNumberComponent,
+    FyStatisticComponent,
+    FySummaryTileComponent,
   ],
   imports: [
     CommonModule,
@@ -222,6 +237,8 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
     SwiperModule,
     MatSnackBarModule,
     RouterModule,
+    MatBottomSheetModule,
+    ImageCropperModule,
   ],
   exports: [
     EllipsisPipe,
@@ -290,8 +307,14 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
     SidemenuComponent,
     FyNavFooterComponent,
     SendEmailComponent,
+    CaptureReceiptComponent,
+    ReceiptPreviewComponent,
+    AddMorePopupComponent,
+    CropReceiptComponent,
     FyNumberComponent,
+    FyStatisticComponent,
+    FySummaryTileComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })
 export class SharedModule {}

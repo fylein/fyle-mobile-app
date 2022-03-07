@@ -29,7 +29,7 @@ export class MyTripsPage implements OnInit {
 
   deprecationMsg$: Observable<string>;
 
-  isCreateTripRequestDisabled = true;
+  showTripActionCta = false;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -46,7 +46,7 @@ export class MyTripsPage implements OnInit {
 
     this.tripRequestsService
       .doesOrgHaveExtension()
-      .subscribe((doesOrgHaveExtension) => (this.isCreateTripRequestDisabled = !doesOrgHaveExtension));
+      .subscribe((doesOrgHaveExtension) => (this.showTripActionCta = doesOrgHaveExtension));
 
     this.currentPageNumber = 1;
 
