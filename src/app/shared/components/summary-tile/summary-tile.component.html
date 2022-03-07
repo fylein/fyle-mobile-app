@@ -1,0 +1,54 @@
+<div class="summary-tile--card-container">
+  <div class="d-flex">
+    <div class="summary-tile--card-container__block">
+      <div *ngIf="category" class="summary-tile--card-container__category">{{ category }}</div>
+      <div *ngIf="purpose" class="summary-tile--card-container__purpose">{{ purpose }}</div>
+
+      <div *ngIf="merchant" class="summary-tile--card-container__merchant">
+        {{ merchant }}
+      </div>
+      <div *ngIf="project" class="summary-tile--card-container__project">Project: {{ project }}</div>
+    </div>
+    <div class="ion-text-right summary-tile--card-container__block">
+      <div>
+        <span *ngIf="currency">{{ currency }}</span>
+        <span class="summary-tile--card-container__amount">
+          {{ amount | humanizeCurrency: currency:2:true }}
+        </span>
+      </div>
+
+      <div
+        class="ion-text-right"
+        [ngClass]="{ 'summary-tile--card-container__no-exchange': !tx_orig_currency && project }"
+      >
+        <div
+          class="summary-tile--card-container__state-pill summary-tile--card-container__state-pill__{{
+            status | lowercase
+          }}"
+        >
+          {{ status | snakeCaseToSpaceCase | titlecase }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="approvals?.length > 0" class="summary-tile--approval-container">
+  <div class="summary-tile--approval-state-block">
+    <div class="summary-tile--approvers">Approvers</div>
+    <div *ngFor="let ap of approvals">
+      <div class="summary-tile--approvers-list">
+        <div class="summary-tile--approver-name">{{ ap.approver_name }}</div>
+        <div class="summary-tile--approver-state-section">
+          <div class="summary-tile--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
+            <span>{{ ap.updated_at | date: 'MMM dd, yyyy' }}</span>
+          </div>
+          <div
+            class="summary-tile--approver-state-pill summary-tile--approver-state-pill__{{ ap.state | lowercase }}"
+          ></div>
+          <span>{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase | snakeCaseToSpaceCase) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

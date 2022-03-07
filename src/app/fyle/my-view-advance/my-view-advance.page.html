@@ -1,8 +1,8 @@
 <ion-header mode="md">
   <ion-toolbar class="view-advance--toolbar">
-    <ion-buttons mode="md" slot="end">
+    <ion-buttons mode="md" slot="start">
       <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
-        <mat-icon>close</mat-icon>
+        <img [src]="'../../../../assets/svg/left-arrow-nav.svg'" />
       </ion-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title">View Advance</ion-title>
@@ -12,57 +12,103 @@
 <ion-content>
   <div *ngIf="advance$|async as advance">
     <div class="view-advance--container">
-      <div class="view-advance--currency-card">
-        <div class="view-advance--currency">{{advance.adv_currency}}</div>
-        <div class="view-advance--amount">{{advance.adv_amount }}</div>
+      <app-summary-tile
+        [purpose]="advance.adv_purpose || '-'"
+        [currency]="advance.adv_currency"
+        [amount]="advance.adv_orig_amount || advance.adv_amount || 0"
+        [status]="'Paid'"
+      ></app-summary-tile>
+
+      <div class="view-advance--content-container">
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/advances.svg'"
+            [type]="StatisticTypes.STRING"
+            [label]="'Advance Number'"
+            [value]="advance.adv_advance_number || '-'"
+          ></app-fy-statistic>
+        </div>
+
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/profile.svg'"
+            [type]="StatisticTypes.STRING"
+            [label]="'Issued By'"
+            [value]="advance.creator_us_full_name || '-'"
+          ></app-fy-statistic>
+        </div>
+
+        <div class="view-advance--divider"></div>
+
+        <ion-grid class="view-advance--grid">
+          <ion-row>
+            <ng-container>
+              <ion-col *ngIf="advance.areq_approved_at" class="p-0" size="6">
+                <div class="view-advance--element">
+                  <app-fy-statistic
+                    [icon]="'../../../../assets/svg/calendar.svg'"
+                    [type]="StatisticTypes.DATE"
+                    [label]="'Approved On'"
+                    [value]="advance.areq_approved_at | date: 'MMM dd, yyyy'"
+                  ></app-fy-statistic>
+                </div>
+              </ion-col>
+              <ion-col class="p-0" size="6">
+                <app-fy-statistic
+                  [icon]="'../../../../assets/svg/calendar.svg'"
+                  [type]="StatisticTypes.DATE"
+                  [label]="'Issued On'"
+                  [value]="advance.adv_issued_at | date: 'MMM dd, yyyy'"
+                ></app-fy-statistic>
+              </ion-col>
+            </ng-container>
+          </ion-row>
+        </ion-grid>
+
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/card.svg'"
+            [type]="StatisticTypes.STRING"
+            [label]="'Payment Mode'"
+            [value]="advance.adv_mode || '-'"
+          ></app-fy-statistic>
+        </div>
+
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/list.svg'"
+            [type]="StatisticTypes.STRING"
+            [label]="projectFieldName | titlecase"
+            [value]="advance.project_name || '-'"
+          ></app-fy-statistic>
+        </div>
+
+        <div class="view-advance--divider"></div>
+
+        <div class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/list.svg'"
+            [type]="StatisticTypes.STRING"
+            [label]="'Additional Notes'"
+            [value]="advance.areq_notes || '-'"
+          ></app-fy-statistic>
+        </div>
       </div>
 
-      <div class="view-advance--card">
-        <div class="view-advance--element" *ngIf="advance.areq_approved_at">
-          <div class="view-advance--element-label">Approved On</div>
-          <div class="view-advance--element-value">{{advance.areq_approved_at | date: 'MMM dd, yyyy'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Issued On</div>
-          <div class="view-advance--element-value">{{advance.adv_issued_at | date: 'MMM dd, yyyy'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Issued By</div>
-          <div class="view-advance--element-value">{{advance.creator_us_full_name || '-'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Advance Number</div>
-          <div class="view-advance--element-value">{{advance.adv_advance_number || '-'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Payment Mode</div>
-          <div class="view-advance--element-value">{{advance.adv_mode || '-'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Purpose</div>
-          <div class="view-advance--element-value">{{advance.adv_purpose || '-'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">{{projectFieldName | titlecase}}</div>
-          <div class="view-advance--element-value">{{advance.project_name || '-'}}</div>
-        </div>
-
-        <div class="view-advance--element">
-          <div class="view-advance--element-label">Additional Notes</div>
-          <div class="view-advance--element-value">{{advance.areq_notes || '-'}}</div>
-        </div>
-      </div>
+      <div class="view-advance--divider"></div>
 
       <div *ngIf="advance.areq_id" class="view-advance--advance-request-block">
-        <a [routerLink]="['/', 'enterprise', 'my_view_advance_request', {id: advance.areq_id}]">
-          View Advance Request</a
-        >
+        <div class="view-advance--icon-container">
+          <img class="view-advance--icon" [src]="'../../../../assets/svg/open-in-new-tab.svg'" />
+        </div>
+        <div>
+          <a
+            class="view-advance--anchor"
+            [routerLink]="['/', 'enterprise', 'my_view_advance_request', {id: advance.areq_id}]"
+          >
+            View Advance Request</a
+          >
+        </div>
       </div>
     </div>
   </div>
