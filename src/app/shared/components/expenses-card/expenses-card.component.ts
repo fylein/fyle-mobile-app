@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { from, noop, Observable } from 'rxjs';
 import { concat } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -9,7 +9,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { concatMap, finalize, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { isNumber, reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
-import { PopoverController, ModalController, Platform } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { File } from 'src/app/core/models/file.model';
@@ -18,21 +18,13 @@ import { isEqual } from 'lodash';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import * as moment from 'moment';
-import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
-type ReceiptDetail = {
-  dataUrl: string;
-  type: string;
-  actionSource: string;
-};
 @Component({
   selector: 'app-expense-card',
   templateUrl: './expenses-card.component.html',
   styleUrls: ['./expenses-card.component.scss'],
 })
 export class ExpensesCardComponent implements OnInit {
-  @ViewChild('fileUpload') fileUpload: ElementRef;
-
   @Input() expense: Expense;
 
   @Input() previousExpenseTxnDate;
@@ -60,8 +52,6 @@ export class ExpensesCardComponent implements OnInit {
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
 
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
-
-  @Output() showCamera = new EventEmitter<boolean>();
 
   inlineReceiptDataUrl: string;
 
@@ -91,6 +81,8 @@ export class ExpensesCardComponent implements OnInit {
 
   attachmentUploadInProgress = false;
 
+  attachedReceiptsCount = 0;
+
   receiptThumbnail: string = null;
 
   isConnected$: Observable<boolean>;
@@ -107,17 +99,13 @@ export class ExpensesCardComponent implements OnInit {
 
   isPerDiem: boolean;
 
-  isIos = false;
-
   constructor(
     private transactionService: TransactionService,
     private offlineService: OfflineService,
     private fileService: FileService,
     private popoverController: PopoverController,
     private networkService: NetworkService,
-    private transactionOutboxService: TransactionsOutboxService,
-    private modalController: ModalController,
-    private platform: Platform
+    private transactionOutboxService: TransactionsOutboxService
   ) {}
 
   onGoToTransaction() {
@@ -295,8 +283,6 @@ export class ExpensesCardComponent implements OnInit {
     this.handleScanStatus();
 
     this.setOtherData();
-
-    this.isIos = this.platform.is('ios');
   }
 
   setOtherData() {
@@ -343,111 +329,61 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
-  canAddAttachment() {
-    return (
+  async addAttachments(event) {
+    if (
       !this.isFromViewReports &&
       !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) &&
       !this.isSelectionModeEnabled
-    );
-  }
-
-  async addAttachments(event) {
-    if (this.canAddAttachment()) {
+    ) {
       event.stopPropagation();
+      event.preventDefault();
 
-      let receiptDetails;
+      const popup = await this.popoverController.create({
+        component: CameraOptionsPopupComponent,
+        cssClass: 'camera-options-popover',
+      });
 
-      if (this.isIos) {
-        const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
-        nativeElement.onchange = async () => {
-          const file = nativeElement.files[0];
-          if (file) {
-            const dataUrl = await this.fileService.readFile(file);
-            receiptDetails = {
-              type: file.type,
-              dataUrl,
-              actionSource: 'gallery_upload',
-            };
-            this.attachReceipt(receiptDetails);
-          }
-        };
-        nativeElement.click();
-      } else {
-        const popup = await this.popoverController.create({
-          component: CameraOptionsPopupComponent,
-          cssClass: 'camera-options-popover',
-        });
+      await popup.present();
 
-        await popup.present();
+      const { data } = await popup.onWillDismiss();
+      if (data) {
+        this.attachmentUploadInProgress = true;
+        const attachmentType = this.fileService.getAttachmentType(data.type);
 
-        let { data: receiptDetails } = await popup.onWillDismiss();
-
-        if (receiptDetails && receiptDetails.option === 'camera') {
-          const captureReceiptModal = await this.modalController.create({
-            component: CaptureReceiptComponent,
-            componentProps: {
-              isModal: true,
-              allowGalleryUploads: false,
-              allowBulkFyle: false,
-            },
-            cssClass: 'hide-modal',
+        this.inlineReceiptDataUrl = attachmentType !== 'pdf' && data.dataUrl;
+        from(this.transactionOutboxService.fileUpload(data.dataUrl, attachmentType))
+          .pipe(
+            tap((fileObj: FileObject) => {
+              this.expense.tx_file_ids = [];
+              this.expense.tx_file_ids.push(fileObj.id);
+              if (this.expense.tx_file_ids) {
+                this.fileService
+                  .downloadUrl(this.expense.tx_file_ids[0])
+                  .pipe(
+                    map((downloadUrl) => {
+                      if (attachmentType === 'pdf') {
+                        this.receiptIcon = 'assets/svg/pdf.svg';
+                      } else {
+                        this.receiptThumbnail = downloadUrl;
+                      }
+                    })
+                  )
+                  .subscribe(noop);
+              }
+            }),
+            switchMap((fileObj: FileObject) => {
+              fileObj.transaction_id = this.expense.tx_id;
+              return this.fileService.post(fileObj);
+            }),
+            finalize(() => {
+              this.attachmentUploadInProgress = false;
+            })
+          )
+          .subscribe((attachmentsCount) => {
+            this.attachedReceiptsCount = attachmentsCount;
           });
-
-          await captureReceiptModal.present();
-          this.showCamera.emit(true);
-
-          const { data } = await captureReceiptModal.onWillDismiss();
-          this.showCamera.emit(false);
-
-          if (data && data.dataUrl) {
-            receiptDetails = {
-              type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
-              dataUrl: data.dataUrl,
-              actionSource: 'camera',
-            };
-          }
-        }
-        if (receiptDetails && receiptDetails.dataUrl) {
-          this.attachReceipt(receiptDetails);
-        }
       }
     }
-  }
-
-  setThumbnail(fileObjId: string, attachmentType: string) {
-    this.fileService.downloadUrl(fileObjId).subscribe((downloadUrl) => {
-      if (attachmentType === 'pdf') {
-        this.receiptIcon = 'assets/svg/pdf.svg';
-      } else {
-        this.receiptThumbnail = downloadUrl;
-      }
-    });
-  }
-
-  matchReceiptWithEtxn(fileObj: FileObject) {
-    this.expense.tx_file_ids = [];
-    this.expense.tx_file_ids.push(fileObj.id);
-    fileObj.transaction_id = this.expense.tx_id;
-  }
-
-  attachReceipt(receiptDetails: ReceiptDetail) {
-    this.attachmentUploadInProgress = true;
-    const attachmentType = this.fileService.getAttachmentType(receiptDetails.type);
-
-    this.inlineReceiptDataUrl = attachmentType !== 'pdf' && receiptDetails.dataUrl;
-    from(this.transactionOutboxService.fileUpload(receiptDetails.dataUrl, attachmentType))
-      .pipe(
-        switchMap((fileObj: FileObject) => {
-          this.matchReceiptWithEtxn(fileObj);
-          return this.fileService.post(fileObj);
-        }),
-        finalize(() => {
-          this.attachmentUploadInProgress = false;
-        })
-      )
-      .subscribe((fileObj) => {
-        this.setThumbnail(fileObj.id, attachmentType);
-      });
   }
 
   setupNetworkWatcher() {

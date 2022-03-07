@@ -1,4 +1,4 @@
-<ion-header [ngClass]="{'d-none': isCameraShown}" mode="md">
+<ion-header mode="md">
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
@@ -48,7 +48,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [ngClass]="{'d-none': isCameraShown}">
+<ion-content>
   <ng-container *ngIf="fg">
     <div class="add-edit-expense--duplicate-pointer-container">
       <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-expense--duplicate-pointer">
@@ -102,7 +102,13 @@
                 *ngIf="(attachedReceiptsCount === 0 && !attachmentUploadInProgress)"
                 class="add-edit-expense--receipt-image"
               >
-                <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+                <input
+                  *ngIf="platform.is('ios')"
+                  type="file"
+                  #fileUpload
+                  accept="application/pdf,image/*"
+                  style="display: none"
+                />
                 <img class="add-edit-expense--receipt-image-icon" src="../../../assets/images/add-to-list.png" />
               </div>
 
@@ -121,7 +127,13 @@
                 >
                   add_circle
                 </mat-icon>
-                <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+                <input
+                  *ngIf="platform.is('ios')"
+                  type="file"
+                  #fileUpload
+                  accept="application/pdf,image/*"
+                  style="display: none"
+                />
               </div>
             </div>
           </ng-container>
@@ -156,7 +168,13 @@
           (viewAttachments)="viewAttachments()"
           [canEdit]="true"
         >
-          <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+          <input
+            *ngIf="platform.is('ios')"
+            type="file"
+            #fileUpload
+            accept="application/pdf,image/*"
+            style="display: none"
+          />
         </app-receipt-preview-thumbnail>
 
         <ng-container *ngIf="attachments$|async as attachments">
@@ -168,7 +186,13 @@
             [isUploading]="attachmentUploadInProgress"
             [canEdit]="true"
           >
-            <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+            <input
+              *ngIf="platform.is('ios')"
+              type="file"
+              #fileUpload
+              accept="application/pdf,image/*"
+              style="display: none"
+            />
           </app-receipt-preview-thumbnail>
         </ng-container>
 
@@ -1087,11 +1111,7 @@
     (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
-  <ion-footer
-    [ngClass]="{'d-none': isCameraShown}"
-    class="add-edit-expense--footer-container"
-    *ngIf="!reviewList?.length"
-  >
+  <ion-footer class="add-edit-expense--footer-container" *ngIf="!reviewList?.length">
     <ion-toolbar mode="md" [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}">
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">

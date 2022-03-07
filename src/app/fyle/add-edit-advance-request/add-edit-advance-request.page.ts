@@ -27,7 +27,6 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
-import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -187,6 +186,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
       const { data } = await policyViolationModal.onWillDismiss();
       if (data) {
+        // this.loaderService.showLoader('Creating Advance Request...');
         return this.saveAndSubmit(event, advanceRequest)
           .pipe(
             switchMap((res) =>
@@ -198,6 +198,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
             ),
             finalize(() => {
               this.fg.reset();
+              // this.loaderService.hideLoader();
               if (event === 'draft') {
                 this.saveDraftAdvanceLoading = false;
               } else {
@@ -373,33 +374,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     await cameraOptionsPopup.present();
 
-    let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss();
+    const { data } = await cameraOptionsPopup.onWillDismiss();
 
-    if (receiptDetails && receiptDetails.option === 'camera') {
-      const captureReceiptModal = await this.modalController.create({
-        component: CaptureReceiptComponent,
-        componentProps: {
-          isModal: true,
-          allowGalleryUploads: false,
-          allowBulkFyle: false,
-        },
-        cssClass: 'hide-modal',
-      });
-      await captureReceiptModal.present();
-      this.isCameraShown = true;
-
-      const { data } = await captureReceiptModal.onWillDismiss();
-      this.isCameraShown = false;
-
-      if (data && data.dataUrl) {
-        receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };
-      }
-    }
-    if (receiptDetails && receiptDetails.dataUrl) {
+    if (data) {
       this.dataUrls.push({
-        type: receiptDetails.type,
-        url: receiptDetails.dataUrl,
-        thumbnail: receiptDetails.dataUrl,
+        type: data.type,
+        url: data.dataUrl,
+        thumbnail: data.dataUrl,
       });
     }
   }

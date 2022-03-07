@@ -1,4 +1,4 @@
-<ion-header mode="md" [ngClass]="{'d-none': isCameraShown}">
+<ion-header mode="md">
   <ion-toolbar mode="md" class="add-edit-advance-request--toolbar">
     <ion-buttons
       mode="md"
@@ -42,7 +42,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [ngClass]="{'d-none': isCameraShown}">
+<ion-content>
   <form [formGroup]="fg" class="add-edit-advance-request--form" #formContainer>
     <div class="add-edit-advance-request--receipt-currency-container">
       <div *ngIf="dataUrls && dataUrls.length === 0" class="add-edit-advance-request--receipt text-center">
@@ -222,7 +222,7 @@
   </form>
 </ion-content>
 
-<ion-footer class="cta-footer" [ngClass]="{'d-none': isCameraShown}">
+<ion-footer class="cta-footer">
   <ion-toolbar mode="md">
     <div class="add-edit-advance-request--cta-container">
       <ion-buttons>
