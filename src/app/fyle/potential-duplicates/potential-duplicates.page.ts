@@ -5,6 +5,8 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { DuplicateSets } from 'src/app/core/models/v2/duplicate-sets.model';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-potential-duplicates',
   templateUrl: './potential-duplicates.page.html',
@@ -21,7 +23,11 @@ export class PotentialDuplicatesPage implements OnInit {
 
   duplicatesSetData: DuplicateSets[];
 
-  constructor(private handleDuplicates: HandleDuplicatesService, private transaction: TransactionService) {}
+  constructor(
+    private handleDuplicates: HandleDuplicatesService,
+    private transaction: TransactionService,
+    private router: Router
+  ) {}
 
   ngOnInit() {}
 
@@ -92,6 +98,16 @@ export class PotentialDuplicatesPage implements OnInit {
         this.selectedSet--;
       }
       this.loadData$.next({});
+    });
+  }
+
+  mergeExpense() {
+    const selectedTxnIds = this.duplicatesSetData[this.selectedSet].transaction_ids;
+    const params = {
+      tx_id: `in.(${selectedTxnIds.toString()})`,
+    };
+    this.transaction.getETxnc({ offset: 0, limit: 10, params }).subscribe((selectedExpenses) => {
+      this.router.navigate(['/', 'enterprise', 'merge_expense'], { state: { selectedExpenses } });
     });
   }
 }
