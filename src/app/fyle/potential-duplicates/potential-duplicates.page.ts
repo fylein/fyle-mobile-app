@@ -107,7 +107,7 @@ export class PotentialDuplicatesPage implements OnInit {
       tx_id: `in.(${selectedTxnIds.toString()})`,
     };
     this.transaction.getETxnc({ offset: 0, limit: 10, params }).subscribe((selectedExpenses) => {
-      this.router.navigate(['/', 'enterprise', 'merge_expense'], { state: { selectedExpenses } });
+      this.router.navigate(['/', 'enterprise', 'merge_expense'], { state: { selectedElements: selectedExpenses } });
     });
   }
 }
