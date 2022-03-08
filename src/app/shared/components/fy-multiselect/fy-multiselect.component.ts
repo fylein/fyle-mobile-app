@@ -34,14 +34,6 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
 
   displayValue;
 
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
-
   private innerValue;
 
   private ngControl: NgControl;
@@ -56,8 +48,12 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
     private injector: Injector
   ) {}
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
 
   get value(): any {
@@ -78,6 +74,10 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
 
       this.onChangeCallback(v);
     }
+  }
+
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
   }
 
   async openModal() {

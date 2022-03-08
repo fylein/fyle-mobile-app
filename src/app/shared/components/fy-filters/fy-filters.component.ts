@@ -31,11 +31,11 @@ export class FyFiltersComponent implements OnInit {
 
   endDate: Date;
 
+  constructor(private modalController: ModalController) {}
+
   get FilterOptionType() {
     return FilterOptionType;
   }
-
-  constructor(private modalController: ModalController) {}
 
   ngOnInit() {
     const activeFilterInitialIndex =

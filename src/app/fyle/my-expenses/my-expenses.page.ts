@@ -161,10 +161,6 @@ export class MyExpensesPage implements OnInit {
 
   isCameraShown = false;
 
-  get HeaderState() {
-    return HeaderState;
-  }
-
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -190,6 +186,10 @@ export class MyExpensesPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private tasksService: TasksService
   ) {}
+
+  get HeaderState() {
+    return HeaderState;
+  }
 
   clearText(isFromCancel) {
     this.simpleSearchText = '';
