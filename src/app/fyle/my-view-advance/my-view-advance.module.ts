@@ -8,10 +8,9 @@ import { MyViewAdvancePageRoutingModule } from './my-view-advance-routing.module
 
 import { MyViewAdvancePage } from './my-view-advance.page';
 import { MatIconModule } from '@angular/material/icon';
-import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, MyViewAdvancePageRoutingModule, MatIconModule, SharedModule],
+  imports: [CommonModule, FormsModule, IonicModule, MyViewAdvancePageRoutingModule, MatIconModule],
   declarations: [MyViewAdvancePage],
 })
 export class MyViewAdvancePageModule {}
