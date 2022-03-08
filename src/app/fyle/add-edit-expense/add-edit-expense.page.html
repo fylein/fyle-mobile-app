@@ -105,7 +105,6 @@
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend Amount</div>
                 <div *ngIf="fg?.controls?.currencyObj?.value?.amount > 0">
-                  {{ fg?.controls?.currencyObj?.value }}
                   <span class="add-edit-expense--card-container__value"
                     >{{ fg?.controls?.currencyObj?.value?.amount | humanizeCurrency:
                     fg?.controls?.currencyObj?.value?.currency:2:true }}</span
@@ -176,6 +175,7 @@
                   [recentlyUsed]="recentCurrencies"
                   [txnDt]="fg?.controls?.dateOfSpend?.value"
                   [expanded]="attachedReceiptsCount === 0"
+                  [disabled]="isUnifyCcceExpensesSettingsEnabled && isCccExpense"
                 >
                 </app-fy-currency>
                 <div
@@ -216,11 +216,11 @@
         <div class="add-edit-expense--primary-block">
           <ion-grid class="ion-grid-no-padding">
             <ion-row>
-              <ion-col size="6">
+              <ion-col [size]="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) ? 6 : 12">
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
                     *ngIf="txnFields?.txn_dt"
-                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid, 'add-edit-expense--date-block-disabled': isUnifyCcceExpensesSettingsEnabled && isCccExpense}"
                     class="
                       add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin
                     "
@@ -242,6 +242,7 @@
                       formControlName="dateOfSpend"
                       type="date"
                       [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
+                      [ngClass]="{'add-edit-expense--date-disabled': isUnifyCcceExpensesSettingsEnabled && isCccExpense}"
                     />
                   </div>
                   <div
@@ -1010,14 +1011,18 @@
       </app-fy-alert-info>
 
       <ng-container *ngIf="etxn$|async as etxn">
-        <ng-container *ngIf="etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction">
+        <ng-container
+          *ngIf="(etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction) && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense)"
+        >
           <app-fy-alert [message]="'Automatically created from your company\'s card feed'" [type]="'card'">
           </app-fy-alert>
         </ng-container>
       </ng-container>
 
       <ng-container *ngIf="etxn$|async as etxn">
-        <ng-container *ngIf="etxn.tx && etxn.tx.amount < 0 && !!etxn.tx.corporate_credit_card_expense_group_id">
+        <ng-container
+          *ngIf="etxn.tx && etxn.tx.amount < 0 && !!etxn.tx.corporate_credit_card_expense_group_id && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense)"
+        >
           <app-fy-alert [message]="'Expense created due to reversal of card transaction.'" [type]="'card'">
           </app-fy-alert>
         </ng-container>
