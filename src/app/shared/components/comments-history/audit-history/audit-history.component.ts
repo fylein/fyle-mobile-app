@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { switchMap } from 'rxjs/operators';
+
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-audit-history',
@@ -9,7 +11,39 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 export class AuditHistoryComponent implements OnInit {
   @Input() estatuses;
 
-  constructor() {}
+  projectFieldName = 'project';
+
+  constructor(private offlineService: OfflineService) {}
+
+  // TODO - replace forEach with find
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      expenseFields.forEach((expenseField) => {
+        if (expenseField.column_name === 'project_id') {
+          this.projectFieldName = expenseField.field_name;
+        }
+      });
+
+      this.updateProjectNameKey();
+    });
+  }
+
+  updateProjectNameKey() {
+    this.estatuses = this.estatuses.map((estatus) => {
+      if (estatus && estatus.st_diff && estatus.st_diff['project name']) {
+        const project = estatus.st_diff['project name'];
+        delete estatus.st_diff['project name'];
+
+        // Failsafe - if a property similar to projectFieldName already exists
+        if (estatus.st_diff.hasOwnProperty(this.projectFieldName)) {
+          this.projectFieldName = `project name (${this.projectFieldName})`;
+        }
+
+        estatus.st_diff = { ...estatus.st_diff, [this.projectFieldName]: project };
+      }
+      return estatus;
+    });
+  }
 
   hasDetails() {
     this.estatuses = this.estatuses.map(function (estatus) {
@@ -33,5 +67,6 @@ export class AuditHistoryComponent implements OnInit {
   ngOnInit() {
     this.hasDetails();
     this.setReimbursable();
+    this.getAndUpdateProjectName();
   }
 }

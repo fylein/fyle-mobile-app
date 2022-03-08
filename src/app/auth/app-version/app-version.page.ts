@@ -3,6 +3,7 @@ import { DeviceService } from 'src/app/core/services/device.service';
 import { ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Plugins } from '@capacitor/core';
+import { Platform } from '@ionic/angular';
 
 const { Browser } = Plugins;
 
@@ -14,10 +15,15 @@ const { Browser } = Plugins;
 export class AppVersionPage implements OnInit {
   message: string;
 
-  constructor(private deviceService: DeviceService, private activatedRoute: ActivatedRoute) {}
+  constructor(
+    private deviceService: DeviceService,
+    private activatedRoute: ActivatedRoute,
+    private platform: Platform
+  ) {}
 
   ngOnInit() {
     this.message = this.activatedRoute.snapshot.params.message;
+    this.platform.backButton.subscribeWithPriority(9999, () => {});
   }
 
   updateApp() {
