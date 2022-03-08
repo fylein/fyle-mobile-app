@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { ApproveAdvanceComponent } from '../approve-advance/approve-advance.component';
 
 @Component({
   selector: 'app-advance-actions',
