@@ -53,7 +53,7 @@ export class ViewTeamAdvancePage implements OnInit {
 
   actionSheetButtons = [];
 
-  approveAdvanceLoading = false;
+  isLoading = false;
 
   sendBackLoading = false;
 
@@ -268,10 +268,10 @@ export class ViewTeamAdvancePage implements OnInit {
     const { data } = await showApprover.onWillDismiss();
 
     if (data && data.action === 'approve') {
-      this.approveAdvanceLoading = true;
+      this.isLoading = true;
       this.advanceRequestService
         .approve(areq.areq_id)
-        .pipe(finalize(() => (this.approveAdvanceLoading = false)))
+        .pipe(finalize(() => (this.isLoading = false)))
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);
         });
