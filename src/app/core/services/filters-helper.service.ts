@@ -9,6 +9,7 @@ import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingValue } from '../models/sorting-value.model';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import { OfflineService } from './offline.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -20,9 +21,13 @@ type Filters = Partial<{
   providedIn: 'root',
 })
 export class FiltersHelperService {
-  constructor(private titleCasePipe: TitleCasePipe, private modalController: ModalController) {}
+  constructor(
+    private titleCasePipe: TitleCasePipe,
+    private modalController: ModalController,
+    private offlineService: OfflineService
+  ) {}
 
-  generateFilterPills(filters: Filters) {
+  generateFilterPills(filters: Filters, projectFieldName?: string) {
     const filterPills: FilterPill[] = [];
 
     const filterPillsMap = {
@@ -33,6 +38,11 @@ export class FiltersHelperService {
       [SortingValue.projectAsc]: 'project - A to Z',
       [SortingValue.projectDesc]: 'project - Z to A',
     };
+
+    if (projectFieldName) {
+      filterPillsMap[SortingValue.projectAsc] = `${this.titleCasePipe.transform(projectFieldName)} - A to Z`;
+      filterPillsMap[SortingValue.projectDesc] = `${this.titleCasePipe.transform(projectFieldName)} - Z to A`;
+    }
 
     const sortString = this.getSortString(filters.sortParam, filters.sortDir);
 

@@ -100,13 +100,16 @@
       </div>
 
       <ng-container *ngIf="isProjectsVisible$|async">
-        <div class="add-edit-advance-request--internal-block">
-          <app-fy-select-project
-            formControlName="project"
-            [label]="'Project'"
-            [cacheName]="'advanceProjectCache'"
-          ></app-fy-select-project>
-        </div>
+        <ng-container *ngIf="expenseFields$ | async as expenseFields">
+          <div class="add-edit-advance-request--internal-block">
+            <app-fy-select-project
+              formControlName="project"
+              [label]="expenseFields?.project_id[0]?.field_name"
+              [placeholder]="expenseFields?.project_id[0]?.placeholder"
+              [cacheName]="'advanceProjectCache'"
+            ></app-fy-select-project>
+          </div>
+        </ng-container>
       </ng-container>
 
       <div class="add-edit-advance-request--text add-edit-advance-request--internal-block">
