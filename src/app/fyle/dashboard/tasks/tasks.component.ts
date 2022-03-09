@@ -10,6 +10,7 @@ import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
 import { DashboardTask } from 'src/app/core/models/task.model';
+import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -39,6 +40,7 @@ export class TasksComponent implements OnInit {
     draftExpenses: false,
     unreportedExpenses: false,
     teamReports: false,
+    sentBackAdvances: false,
   });
 
   isConnected$: Observable<boolean>;
@@ -51,6 +53,7 @@ export class TasksComponent implements OnInit {
     private taskService: TasksService,
     private transactionService: TransactionService,
     private reportService: ReportService,
+    private advanceRequestService: AdvanceRequestService,
     private modalController: ModalController,
     private trackingService: TrackingService,
     private loaderService: LoaderService,
@@ -93,6 +96,7 @@ export class TasksComponent implements OnInit {
         draftReports: false,
         sentBackReports: false,
         teamReports: false,
+        sentBackAdvances: false,
       });
     }
 
@@ -103,6 +107,7 @@ export class TasksComponent implements OnInit {
         draftReports: true,
         sentBackReports: true,
         teamReports: false,
+        sentBackAdvances: false,
       });
     }
 
@@ -113,6 +118,18 @@ export class TasksComponent implements OnInit {
         draftReports: false,
         sentBackReports: false,
         teamReports: true,
+        sentBackAdvances: false,
+      });
+    }
+
+    if (paramFilters === 'advances') {
+      this.loadData$.next({
+        draftExpenses: false,
+        unreportedExpenses: false,
+        draftReports: false,
+        sentBackReports: false,
+        teamReports: false,
+        sentBackAdvances: true,
       });
     }
 
@@ -180,6 +197,16 @@ export class TasksComponent implements OnInit {
               },
             ],
           } as FilterOptions<string>,
+          {
+            name: 'Advances',
+            optionType: FilterOptionType.multiselect,
+            options: [
+              {
+                label: 'Sent Back',
+                value: 'SENT_BACK',
+              },
+            ],
+          } as FilterOptions<string>,
         ],
         selectedFilterValues: this.taskService.generateSelectedFilters(this.loadData$.getValue()),
         activeFilterInitialName,
@@ -214,6 +241,13 @@ export class TasksComponent implements OnInit {
         ...this.loadData$.getValue(),
         draftReports: false,
         sentBackReports: false,
+      });
+    }
+
+    if (filterPillType === 'Advances') {
+      this.applyFilters({
+        ...this.loadData$.getValue(),
+        sentBackAdvances: false,
       });
     }
 
@@ -274,6 +308,8 @@ export class TasksComponent implements OnInit {
         break;
       case TASKEVENT.openPotentialDuplicates:
         this.onPotentialDuplicatesTaskClick(taskCta, task);
+      case TASKEVENT.openSentBackAdvance:
+        this.onSentBackAdvanceTaskClick(taskCta, task);
         break;
       default:
         break;
@@ -368,6 +404,30 @@ export class TasksComponent implements OnInit {
       this.router.navigate(['/', 'enterprise', 'my_reports'], {
         queryParams: {
           filters: JSON.stringify({ state: ['APPROVER_INQUIRY'] }),
+        },
+      });
+    }
+  }
+
+  onSentBackAdvanceTaskClick(taskCta: TaskCta, task: DashboardTask) {
+    if (task.count === 1) {
+      const queryParams = {
+        areq_state: 'in.(DRAFT)',
+        areq_is_sent_back: 'is.true',
+      };
+
+      from(this.loaderService.showLoader('Opening your advance request...'))
+        .pipe(
+          switchMap(() => this.advanceRequestService.getMyadvanceRequests({ queryParams, offset: 0, limit: 1 })),
+          finalize(() => this.loaderService.hideLoader())
+        )
+        .subscribe((res) => {
+          this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: res.data[0].areq_id }]);
+        });
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_advances'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['SENT_BACK'] }),
         },
       });
     }

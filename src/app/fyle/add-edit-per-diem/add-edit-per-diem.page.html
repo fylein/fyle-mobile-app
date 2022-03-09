@@ -239,15 +239,12 @@
                           {{ txnFields?.num_days.field_name }}
                           <div class="add-edit-per-diem--mandatory">*</div>
                         </div>
-                        <input
-                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
-                          [min]="0"
-                          class="add-edit-per-diem--text-input"
+                        <app-fy-number
                           formControlName="num_days"
-                          inputmode="decimal"
+                          [min]="0"
+                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
                           [placeholder]="'Enter ' + txnFields?.num_days.field_name"
-                          type="number"
-                        />
+                        ></app-fy-number>
                       </div>
                       <div
                         *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid"
@@ -330,7 +327,8 @@
                                   [categoryIds]="projectCategoryIds"
                                   [cacheName]="'perDiemProjectCache'"
                                   [defaultValue]="true"
-                                  [label]="'Project'"
+                                  [label]="txnFields?.project_id?.field_name"
+                                  [placeholder]="txnFields?.project_id?.placeholder"
                                   [mandatory]="txnFields?.project_id?.is_mandatory"
                                   [recentlyUsed]="recentProjects"
                                   formControlName="project"
@@ -491,14 +489,11 @@
                               type="text"
                             />
 
-                            <input
+                            <app-fy-number
                               *ngIf="customInput.type === 'NUMBER'"
-                              class="add-edit-per-diem--text-input"
                               formControlName="value"
                               [placeholder]="'Enter ' + customInput.name"
-                              inputmode="decimal"
-                              type="number"
-                            />
+                            ></app-fy-number>
 
                             <input
                               appFormatDate

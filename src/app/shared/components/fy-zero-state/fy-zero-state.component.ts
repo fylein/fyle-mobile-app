@@ -33,7 +33,7 @@ export class FyZeroStateComponent implements OnInit, AfterViewInit {
   ngOnInit() {}
 
   ngAfterViewInit() {
-    if (this.message.indexOf('ion-icon') > -1) {
+    if (this.message?.indexOf('ion-icon') > -1) {
       this.messageRef.nativeElement.innerHTML = this.message;
       this.messageRef.nativeElement.getElementsByTagName('ion-icon')[0]?.classList.add('zero-state--icon');
     }

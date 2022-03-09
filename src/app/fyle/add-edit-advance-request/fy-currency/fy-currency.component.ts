@@ -2,7 +2,7 @@ import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
 
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController, Platform } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
@@ -25,8 +25,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
   fg: FormGroup;
 
-  isIos: boolean;
-
   private ngControl: NgControl;
 
   private innerValue: {
@@ -38,6 +36,13 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
   private onChangeCallback: (_: any) => void = noop;
 
+  constructor(
+    private fb: FormBuilder,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private injector: Injector
+  ) {}
+
   get valid() {
     if (this.ngControl.touched) {
       return this.ngControl.valid;
@@ -46,16 +51,19 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  constructor(
-    private fb: FormBuilder,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private platform: Platform,
-    private injector: Injector
-  ) {}
+  get value(): any {
+    return this.innerValue;
+  }
+
+  set value(v: any) {
+    if (v !== this.innerValue) {
+      this.innerValue = v;
+      this.fg.setValue(this.convertInnerValueToFormValue(this.innerValue));
+      this.onChangeCallback(v);
+    }
+  }
 
   ngOnInit() {
-    this.isIos = this.platform.is('ios');
     this.ngControl = this.injector.get(NgControl);
 
     this.fg = this.fb.group({
@@ -95,18 +103,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
         amount: null,
         currency: this.homeCurrency,
       };
-    }
-  }
-
-  get value(): any {
-    return this.innerValue;
-  }
-
-  set value(v: any) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      this.fg.setValue(this.convertInnerValueToFormValue(this.innerValue));
-      this.onChangeCallback(v);
     }
   }
 

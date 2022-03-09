@@ -105,6 +105,8 @@ export class MyAddEditTripPage implements OnInit {
 
   fg: FormGroup;
 
+  deprecationMsg$: Observable<string>;
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -122,6 +124,30 @@ export class MyAddEditTripPage implements OnInit {
     private tripRequestPolicyService: TripRequestPolicyService,
     private statusService: StatusService
   ) {}
+
+  get travellerDetails() {
+    return this.fg.get('travellerDetails') as FormArray;
+  }
+
+  get startDate() {
+    return this.fg.get('startDate') as FormControl;
+  }
+
+  get endDate() {
+    return this.fg.get('endDate') as FormControl;
+  }
+
+  get cities() {
+    return this.fg.get('cities') as FormArray;
+  }
+
+  get tripType() {
+    return this.fg.get('tripType').value;
+  }
+
+  ionViewWillEnter() {
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('individual');
+  }
 
   async goBack() {
     const addExpensePopover = await this.popoverController.create({
@@ -161,10 +187,6 @@ export class MyAddEditTripPage implements OnInit {
       phone_number: [null],
     });
     this.travellerDetails.push(intialTraveler);
-  }
-
-  get travellerDetails() {
-    return this.fg.get('travellerDetails') as FormArray;
   }
 
   // eslint-disable-next-line complexity
@@ -531,25 +553,9 @@ export class MyAddEditTripPage implements OnInit {
       });
   }
 
-  get startDate() {
-    return this.fg.get('startDate') as FormControl;
-  }
-
-  get endDate() {
-    return this.fg.get('endDate') as FormControl;
-  }
-
   setDefaultStarrtDate() {
     this.today = new Date();
     this.startDate.setValue(moment(this.today).format('y-MM-DD'));
-  }
-
-  get cities() {
-    return this.fg.get('cities') as FormArray;
-  }
-
-  get tripType() {
-    return this.fg.get('tripType').value;
   }
 
   addDefaultCity() {

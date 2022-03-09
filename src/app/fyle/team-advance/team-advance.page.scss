@@ -26,6 +26,7 @@ $toolbar-border: #ababab6b;
     height: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
   }
 
   &--option {
@@ -43,5 +44,10 @@ $toolbar-border: #ababab6b;
 
   &--select-state-checkbox {
     margin-right: 8px;
+  }
+
+  &--header-btn {
+    --padding-start: 8px !important;
+    --padding-end: 8px !important;
   }
 }

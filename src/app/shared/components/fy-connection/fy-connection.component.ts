@@ -15,11 +15,11 @@ export class FyConnectionComponent implements OnInit {
 
   state$: Observable<ConnectionMessageStatus>;
 
+  constructor(private networkService: NetworkService) {}
+
   get ConnectionMessageStatus() {
     return ConnectionMessageStatus;
   }
-
-  constructor(private networkService: NetworkService) {}
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();

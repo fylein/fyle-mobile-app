@@ -326,6 +326,10 @@ textarea:focus {
   display: flex !important;
 }
 
+.d-none {
+  display: none !important;
+}
+
 .small {
   font-size: 12px;
 }
@@ -342,6 +346,12 @@ textarea:focus {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.content-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mb-0 {
@@ -747,6 +757,10 @@ ref - https://stackoverflow.com/a/31162426
 
 .ios .fy-action-sheet {
   margin-bottom: 16px;
+}
+
+.ios .action-sheet-wrapper {
+  margin-bottom: 0;
 }
 
 .ios .advances-action-sheet {
@@ -1194,6 +1208,14 @@ ion-toggle.toggle-checked::before {
   margin-bottom: 133px !important;
 }
 
+.hide-modal {
+  --backdrop-opacity: 0 !important;
+
+  & > div {
+    background: transparent !important;
+  }
+}
+
 .ion-slides {
   div {
     align-items: center !important;
@@ -1209,6 +1231,18 @@ ion-toggle.toggle-checked::before {
         background: url('assets/images/loading.gif') no-repeat center;
         background-size: 50px;
       }
+    }
+  }
+}
+
+.deprecate-msg {
+  & > div {
+    margin: 16px;
+  }
+
+  &--mb-0 {
+    & > div {
+      margin-bottom: 0;
     }
   }
 }

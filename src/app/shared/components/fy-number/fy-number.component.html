@@ -1,0 +1,25 @@
+<input
+  *ngIf="isIos"
+  class="fy-number--input"
+  [min]="min"
+  [disabled]="disabled"
+  [formControl]="fc"
+  [placeholder]="placeholder || ''"
+  (blur)="(onBlur)"
+  type="text"
+  pattern="[0-9]*"
+  decimal="true"
+  decimal-char="."
+/>
+<input
+  *ngIf="!isIos"
+  class="fy-number--input"
+  [min]="min"
+  [disabled]="disabled"
+  [formControl]="fc"
+  [placeholder]="placeholder || ''"
+  (blur)="registerOnTouched($event.target.value)"
+  (ngModelChange)="registerOnChange($event.target.value)"
+  type="number"
+  inputmode="decimal"
+/>

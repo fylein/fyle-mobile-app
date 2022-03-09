@@ -18,6 +18,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { TrackingService } from '../../core/services/tracking.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { OfflineService } from 'src/app/core/services/offline.service';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -39,6 +40,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
+  projectFieldName: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -50,6 +53,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
+    private offlineService: OfflineService,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
@@ -84,6 +88,17 @@ export class MyViewAdvanceRequestPage implements OnInit {
     }
 
     return res;
+  }
+
+  // TODO - replace forEach with find
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      expenseFields.forEach((expenseField) => {
+        if (expenseField.column_name === 'project_id') {
+          this.projectFieldName = expenseField.field_name;
+        }
+      });
+    });
   }
 
   ionViewWillEnter() {
@@ -140,6 +155,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
         return res.customFields;
       })
     );
+
+    this.getAndUpdateProjectName();
   }
 
   async pullBack() {

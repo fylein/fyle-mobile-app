@@ -4,13 +4,13 @@ import { map, switchMap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { ExtendedReport } from '../models/report.model';
 import { TASKEVENT } from '../models/task-event.enum';
 import { TaskFilters } from '../models/task-filters.model';
 import { TaskIcon } from '../models/task-icon.enum';
 import { DashboardTask } from '../models/task.model';
 import { StatsResponse } from '../models/v2/stats-response.model';
+import { AdvanceRequestService } from './advance-request.service';
 import { AuthService } from './auth.service';
 import { OfflineService } from './offline.service';
 import { ReportService } from './report.service';
@@ -24,6 +24,7 @@ type TaskDict = {
   unsubmittedReports: DashboardTask[];
   unreportedExpenses: DashboardTask[];
   teamReports: DashboardTask[];
+  sentBackAdvances: DashboardTask[];
 };
 
 @Injectable({
@@ -38,6 +39,8 @@ export class TasksService {
 
   teamReportsTaskCount$: BehaviorSubject<number> = new BehaviorSubject(0);
 
+  advancesTaskCount$: BehaviorSubject<number> = new BehaviorSubject(0);
+
   constructor(
     private reportService: ReportService,
     private transactionService: TransactionService,
@@ -45,7 +48,8 @@ export class TasksService {
     private offlineService: OfflineService,
     private userEventService: UserEventService,
     private authService: AuthService,
-    private handleDuplicatesService: HandleDuplicatesService
+    private handleDuplicatesService: HandleDuplicatesService,
+    private advancesRequestService: AdvanceRequestService
   ) {
     this.userEventService.onTaskCacheClear(() => {
       this.getTasks().subscribe(noop);
@@ -74,6 +78,10 @@ export class TasksService {
 
   getTeamReportsTaskCount() {
     return this.teamReportsTaskCount$.asObservable();
+  }
+
+  getAdvancesTaskCount() {
+    return this.advancesTaskCount$.asObservable();
   }
 
   generateSelectedFilters(filters: TaskFilters): SelectedFilters<any>[] {
@@ -129,6 +137,13 @@ export class TasksService {
       }
     }
 
+    if (filters.sentBackAdvances) {
+      selectedFilters.push({
+        name: 'Advances',
+        value: ['SENT_BACK'],
+      });
+    }
+
     return selectedFilters;
   }
 
@@ -139,6 +154,7 @@ export class TasksService {
       sentBackReports: false,
       unreportedExpenses: false,
       teamReports: false,
+      sentBackAdvances: false,
     };
 
     if (selectedFilters.some((filter) => filter.name === 'Expenses' && filter.value.includes('UNREPORTED'))) {
@@ -159,6 +175,10 @@ export class TasksService {
 
     if (selectedFilters.some((filter) => filter.name === 'Reports' && filter.value.includes('TEAM'))) {
       generatedFilters.teamReports = true;
+    }
+
+    if (selectedFilters.some((filter) => filter.name === 'Advances' && filter.value.includes('SENT_BACK'))) {
+      generatedFilters.sentBackAdvances = true;
     }
 
     return generatedFilters;
@@ -197,6 +217,20 @@ export class TasksService {
     };
   }
 
+  getAdvancesPill(filters: TaskFilters): FilterPill {
+    const advancePill = [];
+    const sentBackAdvancesContent = filters.sentBackAdvances && 'Sent Back';
+    if (sentBackAdvancesContent) {
+      advancePill.push(sentBackAdvancesContent);
+    }
+
+    return {
+      label: 'Advances',
+      type: 'Advances',
+      value: advancePill.join(', '),
+    };
+  }
+
   generateFilterPills(filters: TaskFilters): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
@@ -206,6 +240,10 @@ export class TasksService {
 
     if (filters.draftReports || filters.sentBackReports || filters.teamReports) {
       filterPills.push(this.getReportsPill(filters));
+    }
+
+    if (filters.sentBackAdvances) {
+      filterPills.push(this.getAdvancesPill(filters));
     }
 
     return filterPills;
@@ -219,6 +257,7 @@ export class TasksService {
       draftExpenses: this.getDraftExpensesTasks(),
       teamReports: this.getTeamReportsTasks(),
       potentialDuplicates: this.getPotentialDuplicates(),
+      sentBackAdvances: this.getSentBackAdvanceTasks(),
     }).pipe(
       map(
         ({
@@ -228,6 +267,7 @@ export class TasksService {
           draftExpenses,
           teamReports,
           potentialDuplicates,
+          sentBackAdvances,
         }) => {
           this.totalTaskCount$.next(
             sentBackReports.length +
@@ -235,25 +275,29 @@ export class TasksService {
               unsubmittedReports.length +
               unreportedExpenses.length +
               teamReports.length +
-              potentialDuplicates.length
+              potentialDuplicates.length +
+              sentBackAdvances.length
           );
           this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length);
           this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
           this.teamReportsTaskCount$.next(teamReports.length);
 
+          this.advancesTaskCount$.next(sentBackAdvances.length);
           if (
             !filters?.draftExpenses &&
             !filters?.draftReports &&
             !filters?.sentBackReports &&
             !filters?.unreportedExpenses &&
-            !filters?.teamReports
+            !filters?.teamReports &&
+            !filters?.sentBackAdvances
           ) {
             return sentBackReports
               .concat(draftExpenses)
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
               .concat(teamReports)
-              .concat(potentialDuplicates);
+              .concat(potentialDuplicates)
+              .concat(sentBackAdvances);
           } else {
             return this.getFilteredTaskList(filters, {
               sentBackReports,
@@ -261,6 +305,7 @@ export class TasksService {
               unsubmittedReports,
               unreportedExpenses,
               teamReports,
+              sentBackAdvances,
             });
           }
         }
@@ -269,7 +314,8 @@ export class TasksService {
   }
 
   private getFilteredTaskList(filters: TaskFilters, tasksDict: TaskDict) {
-    const { draftExpenses, sentBackReports, teamReports, unreportedExpenses, unsubmittedReports } = tasksDict;
+    const { draftExpenses, sentBackReports, teamReports, unreportedExpenses, unsubmittedReports, sentBackAdvances } =
+      tasksDict;
     let tasks = [];
 
     if (filters?.sentBackReports) {
@@ -290,6 +336,10 @@ export class TasksService {
 
     if (filters?.teamReports) {
       tasks = tasks.concat(teamReports);
+    }
+
+    if (filters?.sentBackAdvances) {
+      tasks = tasks.concat(sentBackAdvances);
     }
 
     return tasks;
@@ -320,6 +370,27 @@ export class TasksService {
       aggregates: 'count(rp_id),sum(rp_amount)',
       rp_state: 'in.(DRAFT)',
     });
+  }
+
+  private getSentBackAdvancesStats() {
+    return this.advancesRequestService.getMyAdvanceRequestStats({
+      aggregates: 'count(areq_id),sum(areq_amount)',
+      areq_trip_request_id: 'is.null',
+      areq_state: 'in.(DRAFT)',
+      areq_is_sent_back: 'is.true',
+      scalar: true,
+    });
+  }
+
+  private getSentBackAdvanceTasks(): Observable<DashboardTask[]> {
+    return forkJoin({
+      advancesStats: this.getSentBackAdvancesStats(),
+      homeCurrency: this.offlineService.getHomeCurrency(),
+    }).pipe(
+      map(({ advancesStats, homeCurrency }) =>
+        this.mapSentBackAdvancesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
+      )
+    );
   }
 
   private getTeamReportsStats() {
@@ -489,6 +560,37 @@ export class TasksService {
     }
   }
 
+  private mapSentBackAdvancesToTasks(
+    aggregate: { totalCount: number; totalAmount: number },
+    homeCurrency: string
+  ): DashboardTask[] {
+    if (aggregate.totalCount > 0) {
+      const headerMessage = `Advance${aggregate.totalCount === 1 ? '' : 's'} sent back!`;
+      const subheaderMessage = `${aggregate.totalCount} advance${
+        aggregate.totalCount === 1 ? '' : 's'
+      }${this.getAmountString(aggregate.totalAmount, homeCurrency)} ${
+        aggregate.totalCount === 1 ? 'was' : 'were'
+      } sent back by your approver`;
+      return [
+        {
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
+          count: aggregate.totalCount,
+          header: headerMessage,
+          subheader: subheaderMessage,
+          icon: TaskIcon.ADVANCE,
+          ctas: [
+            {
+              content: `View Advance${aggregate.totalCount === 1 ? '' : 's'}`,
+              event: TASKEVENT.openSentBackAdvance,
+            },
+          ],
+        },
+      ];
+    } else {
+      return [];
+    }
+  }
+
   private mapAggregateToUnsubmittedReportTask(
     aggregate: { totalCount: number; totalAmount: number },
     homeCurrency: string
@@ -620,6 +722,10 @@ export class TasksService {
 
   private mapScalarReportStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(rp_id)', 'sum(rp_amount)');
+  }
+
+  private mapScalarAdvanceStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
+    return this.getStatsFromResponse(statsResponse, 'count(areq_id)', 'sum(areq_amount)');
   }
 
   private mapScalarStatsResponse(statsResponse: StatsResponse): { totalCount: number; totalAmount: number } {
