@@ -159,9 +159,7 @@ export class MyExpensesPage implements OnInit {
 
   expensesTaskCount = 0;
 
-  get HeaderState() {
-    return HeaderState;
-  }
+  isCameraShown = false;
 
   constructor(
     private networkService: NetworkService,
@@ -188,6 +186,10 @@ export class MyExpensesPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private tasksService: TasksService
   ) {}
+
+  get HeaderState() {
+    return HeaderState;
+  }
 
   clearText(isFromCancel) {
     this.simpleSearchText = '';
@@ -1976,5 +1978,9 @@ export class MyExpensesPage implements OnInit {
     setTimeout(() => {
       searchInput.focus();
     }, 300);
+  }
+
+  showCamera(isCameraShown: boolean) {
+    this.isCameraShown = isCameraShown;
   }
 }

@@ -507,7 +507,7 @@ export class SplitExpensePage implements OnInit {
     const fg = this.formBuilder.group({
       amount: [amount, Validators.required],
       currency: [currency],
-      percentage: [percentage],
+      percentage: [percentage, [Validators.required, Validators.min(0.00001)]],
       txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])],
     });
 

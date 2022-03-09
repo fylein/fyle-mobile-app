@@ -8,7 +8,9 @@
       </ion-buttons>
 
       <div class="split-expense--header-block">
-        <div class="split-expense--header-title" mode="md">Split by {{ splitType }}</div>
+        <div class="split-expense--header-title" mode="md">
+          Split by {{ splitType === 'projects' ? txnFields?.project_id?.field_name : splitType }}
+        </div>
         <ion-buttons>
           <ion-button
             (click)="save()"
@@ -60,33 +62,34 @@
 
       <ng-container [formGroup]="splitExpenseForm">
         <div class="split-expense--amount-percentage">
-          <div class="split-expense--item">
-            <span
-              class="split-expense--label"
-              [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid || (splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async))}"
-              >Amount</span
+          <div class="split-expense--input-wrapper">
+            <div class="split-expense--item">
+              <span
+                class="split-expense--label"
+                [ngClass]="{'split-expense--label-invalid': splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid || (splitExpenseForm.controls.amount.value < 0 && !(isCorporateCardsEnabled$|async))}"
+                >Amount</span
+              >
+              <span class="split-expense--mandatory">*</span>
+              <app-fy-number formControlName="amount" (ngModelChange)="onChangeAmount(splitExpenseForm, i)">
+              </app-fy-number>
+            </div>
+            <div
+              *ngIf="splitExpenseForm.controls.amount.touched && !splitExpenseForm.controls.amount.valid"
+              class="split-expense--error"
             >
-            <span class="split-expense--mandatory">*</span>
-            <input
-              inputmode="decimal"
-              [min]="(isCorporateCardsEnabled$|async) ? null : 0.01"
-              type="number"
-              class="split-expense--input"
-              formControlName="amount"
-              (ngModelChange)="onChangeAmount(splitExpenseForm, i)"
-            />
+              Please enter a amount
+            </div>
           </div>
 
-          <div class="split-expense--item split-expense--percentage">
-            <span class="split-expense--label">Percentage</span>
-            <input
-              inputmode="decimal"
-              type="number"
-              class="split-expense--input"
-              formControlName="percentage"
-              [min]="0.01"
-              (ngModelChange)="onChangePercentage(splitExpenseForm, i)"
-            />
+          <div class="split-expense--input-wrapper split-expense--percentage">
+            <div class="split-expense--item">
+              <span class="split-expense--label">Percentage</span>
+              <app-fy-number formControlName="percentage" (ngModelChange)="onChangePercentage(splitExpenseForm, i)">
+              </app-fy-number>
+            </div>
+            <div *ngIf="splitExpenseForm.controls.percentage.errors?.min" class="split-expense--error">
+              Enter a valid value
+            </div>
           </div>
         </div>
 
@@ -112,7 +115,8 @@
 
           <div class="split-expense--internal-block" *ngIf="splitType === 'projects'">
             <app-fy-select-project
-              [label]="'Project'"
+              [label]="txnFields?.project_id?.field_name"
+              [placeholder]="txnFields?.project_id?.placeholder"
               formControlName="project"
               [mandatory]="true"
               [cacheName]="'splitExpenseProjectCache'"
@@ -122,7 +126,8 @@
               *ngIf="splitExpenseForm.controls.project.touched && !splitExpenseForm.controls.project.valid"
               class="split-expense--error"
             >
-              Please select a project.
+              Please select {{ this.txnFields?.project_id?.field_name === 'Project' ? 'a project' :
+              this.txnFields?.project_id?.field_name }}.
             </div>
           </div>
 

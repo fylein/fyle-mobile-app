@@ -28,6 +28,7 @@
           *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
           (click)="addAttachments($event)"
         >
+          <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
           <ion-icon
             class="expenses-card--receipt-icon"
             [src]="receiptIcon"
@@ -193,17 +194,13 @@
               class="expenses-card--project"
               [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
             >
-              <span> Project: </span>
+              <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
               {{ expense.tx_project_name ? expense.tx_project_name : 'Unspecified' }}
             </div>
           </div>
           <div
             *ngIf="expense.isDraft"
-            class="
-              expenses-card--category-vendor-project-container
-              expenses-card--category-vendor-project-container__align-vertical-center
-              expenses-card--category-vendor-project-container__error
-            "
+            class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
           >
             <div>Expense information</div>
             <div>missing</div>

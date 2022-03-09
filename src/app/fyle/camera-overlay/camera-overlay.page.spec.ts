@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { CaptureReceiptPage } from './capture-receipt.page';
+import { CameraOverlayPage } from './camera-overlay.page';
 
-describe('CaptureReceiptPage', () => {
-  let component: CaptureReceiptPage;
-  let fixture: ComponentFixture<CaptureReceiptPage>;
+describe('CameraOverlayPage', () => {
+  let component: CameraOverlayPage;
+  let fixture: ComponentFixture<CameraOverlayPage>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [CaptureReceiptPage],
+        declarations: [CameraOverlayPage],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(CaptureReceiptPage);
+      fixture = TestBed.createComponent(CameraOverlayPage);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })

@@ -111,10 +111,6 @@ export class OtherRequestsComponent implements OnInit {
     private dateService: DateService
   ) {}
 
-  goBack() {
-    this.modalController.dismiss();
-  }
-
   get hotelDetails() {
     return this.otherDetailsForm.get('hotelDetails') as FormArray;
   }
@@ -125,6 +121,10 @@ export class OtherRequestsComponent implements OnInit {
 
   get advanceDetails() {
     return this.otherDetailsForm.get('advanceDetails') as FormArray;
+  }
+
+  goBack() {
+    this.modalController.dismiss();
   }
 
   addAdvance() {
