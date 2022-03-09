@@ -221,9 +221,7 @@
                   <div
                     *ngIf="txnFields?.txn_dt"
                     [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid, 'add-edit-expense--date-block-disabled': isUnifyCcceExpensesSettingsEnabled && isCccExpense}"
-                    class="
-                      add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin
-                    "
+                    class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin"
                   >
                     <div
                       [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
@@ -391,7 +389,8 @@
                       <app-fy-select-project
                         [cacheName]="'expenseProjectCache'"
                         [defaultValue]="true"
-                        [label]="'Project'"
+                        [label]="txnFields?.project_id?.field_name"
+                        [placeholder]="txnFields?.project_id?.placeholder"
                         [mandatory]="txnFields?.project_id?.is_mandatory"
                         [recentlyUsed]="recentProjects"
                         formControlName="project"
@@ -1076,7 +1075,7 @@
               <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
                 <app-fy-alert-info
                   *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
-                  [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                  [message]="'There are no ' + txnFields?.project_id?.field_name + 's assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
                   [type]="'warning'"
                 >
                 </app-fy-alert-info>

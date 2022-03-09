@@ -16,6 +16,7 @@ import {
   throwError,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TitleCasePipe } from '@angular/common';
 import {
   catchError,
   concatMap,
@@ -367,7 +368,8 @@ export class AddEditExpensePage implements OnInit {
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private platform: Platform
+    public platform: Platform,
+    private titleCasePipe: TitleCasePipe
   ) {}
 
   goBack() {
@@ -789,10 +791,12 @@ export class AddEditExpensePage implements OnInit {
         orgSettings$: this.offlineService.getOrgSettings(),
         costCenters: this.costCenters$,
         projects: this.offlineService.getProjects(),
+        txnFields: this.txnFields$.pipe(take(1)),
       }).subscribe(async (res) => {
         const orgSettings = res.orgSettings$;
         const areCostCentersAvailable = res.costCenters.length > 0;
         const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
+        const projectField = res.txnFields.project_id;
 
         this.actionSheetButtons = [
           {
@@ -805,7 +809,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (areProjectsAvailable) {
           this.actionSheetButtons.push({
-            text: 'Project',
+            text: this.titleCasePipe.transform(projectField?.field_name),
             handler: () => {
               this.openSplitExpenseModal('projects');
             },

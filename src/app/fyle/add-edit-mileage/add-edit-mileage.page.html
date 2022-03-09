@@ -170,9 +170,7 @@
                   <ng-container *ngIf="txnFields$|async as txnFields">
                     <div
                       *ngIf="txnFields?.txn_dt"
-                      class="
-                        add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin
-                      "
+                      class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
                       [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                     >
                       <div class="add-edit-mileage--date-label">
@@ -271,7 +269,8 @@
                         <app-fy-select-project
                           [cacheName]="'mileageProjectCache'"
                           [categoryIds]="projectCategoryIds"
-                          [label]="'Project'"
+                          [label]="txnFields.project_id?.field_name"
+                          [placeholder]="txnFields.project_id?.placeholder"
                           [mandatory]="txnFields.project_id?.is_mandatory"
                           [defaultValue]="true"
                           [recentlyUsed]="recentProjects"

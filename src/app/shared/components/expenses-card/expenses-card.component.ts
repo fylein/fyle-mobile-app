@@ -107,11 +107,11 @@ export class ExpensesCardComponent implements OnInit {
 
   isPerDiem: boolean;
 
-  isIos = false;
-
   isUnifyCcceExpensesSettings: boolean;
 
   showPaymentModeIcon: boolean;
+
+  isIos = false;
 
   constructor(
     private transactionService: TransactionService,
@@ -124,12 +124,6 @@ export class ExpensesCardComponent implements OnInit {
     private platform: Platform
   ) {}
 
-  onGoToTransaction() {
-    if (!this.isSelectionModeEnabled) {
-      this.goToTransaction.emit({ etxn: this.expense, etxnIndex: this.etxnIndex });
-    }
-  }
-
   get isSelected() {
     if (this.selectedElements) {
       if (this.expense.tx_id) {
@@ -137,6 +131,12 @@ export class ExpensesCardComponent implements OnInit {
       } else {
         return this.selectedElements.some((txn) => isEqual(this.expense, txn));
       }
+    }
+  }
+
+  onGoToTransaction() {
+    if (!this.isSelectionModeEnabled) {
+      this.goToTransaction.emit({ etxn: this.expense, etxnIndex: this.etxnIndex });
     }
   }
 
