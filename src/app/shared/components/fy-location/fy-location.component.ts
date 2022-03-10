@@ -38,6 +38,14 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   private innerValue;
 
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
+  }
+
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
@@ -48,12 +56,8 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     private injector: Injector
   ) {}
 
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
   }
 
   get value(): any {
@@ -72,10 +76,6 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
       this.onChangeCallback(v);
     }
-  }
-
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
   }
 
   async openModal() {

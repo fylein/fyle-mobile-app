@@ -19,6 +19,10 @@ enum VerifyPageState {
 export class VerifyPage implements OnInit {
   currentPageState: VerifyPageState = VerifyPageState.verifying;
 
+  get PageStates() {
+    return VerifyPageState;
+  }
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private routerAuthService: RouterAuthService,
@@ -26,10 +30,6 @@ export class VerifyPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService
   ) {}
-
-  get PageStates() {
-    return VerifyPageState;
-  }
 
   ngOnInit() {
     const verificationCode = this.activatedRoute.snapshot.params.verification_code;
