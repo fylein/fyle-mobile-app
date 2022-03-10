@@ -113,7 +113,6 @@ export class PotentialDuplicatesPage implements OnInit {
         this.duplicatesSetData[this.selectedSet].transaction_ids.splice(index, 1);
       }
       const index1 = this.duplicateExpenses[this.selectedSet].findIndex((x) => x.tx_id === expense.tx_id);
-      // const index1 = this.duplicateExpenses[this.selectedSet].indexOf(expense.tx_id);
       if (index1 > -1) {
         this.duplicateExpenses[this.selectedSet].splice(index1, 1);
       }
