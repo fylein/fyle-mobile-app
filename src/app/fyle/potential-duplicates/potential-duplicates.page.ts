@@ -5,7 +5,10 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { DuplicateSets } from 'src/app/core/models/v2/duplicate-sets.model';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { Router } from '@angular/router';
+import { Params, Router } from '@angular/router';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-potential-duplicates',
@@ -23,20 +26,28 @@ export class PotentialDuplicatesPage implements OnInit {
 
   duplicatesSetData: DuplicateSets[];
 
+  duplicateExpenses;
+
   constructor(
     private handleDuplicates: HandleDuplicatesService,
     private transaction: TransactionService,
-    private router: Router
+    private router: Router,
+    private snackbarProperties: SnackbarPropertiesService,
+    private matSnackBar: MatSnackBar
   ) {}
 
   ngOnInit() {}
 
   ionViewWillEnter() {
+    this.selectedSet = 0;
     this.handleDuplicates
       .getDuplicatesSet()
       .pipe(map((sets: any) => sets.length))
       .subscribe((duplicatesSetCount) => {
         this.duplicatesSetCount = duplicatesSetCount;
+        if (this.duplicatesSetCount === 0) {
+          this.goToTasks();
+        }
       });
 
     this.loadData$ = new BehaviorSubject({});
@@ -47,6 +58,9 @@ export class PotentialDuplicatesPage implements OnInit {
           tap((duplicatesSets) => {
             this.duplicatesSetData = duplicatesSets;
             this.duplicatesSetCount = duplicatesSets.length;
+            if (this.duplicatesSetCount === 0) {
+              this.goToTasks();
+            }
           }),
           switchMap((duplicatesSets) => {
             const duplicateIds = [].concat.apply(
@@ -69,8 +83,15 @@ export class PotentialDuplicatesPage implements OnInit {
             );
           })
         )
-      )
+      ),
+      tap((duplicateExpenses) => {
+        this.duplicateExpenses = duplicateExpenses;
+        console.log(this.duplicateExpenses);
+        console.log('old');
+        console.log(this.duplicatesSetData);
+      })
     );
+    this.duplicatesSet$.subscribe(noop);
   }
 
   next() {
@@ -85,7 +106,17 @@ export class PotentialDuplicatesPage implements OnInit {
     const transactionIds = [expense.tx_id];
     const duplicateTxnIds = this.duplicatesSetData[this.selectedSet].transaction_ids;
     this.handleDuplicates.dismissAll(duplicateTxnIds, transactionIds).subscribe(() => {
-      this.loadData$.next({});
+      this.showDismissedSuccessToast();
+      console.log(this.duplicatesSetData[this.selectedSet].transaction_ids);
+      const index = this.duplicatesSetData[this.selectedSet].transaction_ids.indexOf(expense.tx_id);
+      if (index > -1) {
+        this.duplicatesSetData[this.selectedSet].transaction_ids.splice(index, 1);
+      }
+      const index1 = this.duplicateExpenses[this.selectedSet].findIndex((x) => x.tx_id === expense.tx_id);
+      // const index1 = this.duplicateExpenses[this.selectedSet].indexOf(expense.tx_id);
+      if (index1 > -1) {
+        this.duplicateExpenses[this.selectedSet].splice(index1, 1);
+      }
     });
   }
 
@@ -97,6 +128,7 @@ export class PotentialDuplicatesPage implements OnInit {
       } else {
         this.selectedSet--;
       }
+      this.showDismissedSuccessToast();
       this.loadData$.next({});
     });
   }
@@ -108,6 +140,27 @@ export class PotentialDuplicatesPage implements OnInit {
     };
     this.transaction.getETxnc({ offset: 0, limit: 10, params }).subscribe((selectedExpenses) => {
       this.router.navigate(['/', 'enterprise', 'merge_expense'], { state: { selectedElements: selectedExpenses } });
+    });
+  }
+
+  showDismissedSuccessToast() {
+    const toastMessageData = {
+      message: 'Duplicates was successfully dismissed',
+    };
+    this.matSnackBar
+      .openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+        panelClass: ['msb-success-with-camera-icon'],
+      })
+      .onAction()
+      .subscribe(noop);
+  }
+
+  goToTasks() {
+    const queryParams: Params = { state: 'tasks' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+      skipLocationChange: true,
     });
   }
 }

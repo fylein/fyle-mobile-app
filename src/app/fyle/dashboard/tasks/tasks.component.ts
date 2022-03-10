@@ -308,6 +308,7 @@ export class TasksComponent implements OnInit {
         break;
       case TASKEVENT.openPotentialDuplicates:
         this.onPotentialDuplicatesTaskClick(taskCta, task);
+        break;
       case TASKEVENT.openSentBackAdvance:
         this.onSentBackAdvanceTaskClick(taskCta, task);
         break;

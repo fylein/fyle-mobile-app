@@ -19,26 +19,26 @@
     </div>
 
     <div class="potential-duplicates--container">
-      <ng-container *ngIf="duplicatesSet$| async as duplicatesSets">
-        <ng-container *ngFor="let duplicatesSet of duplicatesSets; let setIndex=index">
-          <div *ngIf="setIndex === selectedSet" class="potential-duplicates--header text-center">
-            {{duplicatesSet.length}} expenses for {{ 0 | currency: duplicatesSet[0].tx_currency:'symbol-narrow' | slice:
-            0:1 }} {{ duplicatesSet[0].tx_amount | number : '1.2-2'}}
-          </div>
-          <ng-container *ngFor="let expense of duplicatesSet as list; let i = index;">
-            <ng-container *ngIf="setIndex === selectedSet">
-              <app-expense-card
-                [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
-                [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
-                [expense]="expense"
-                [isDismissable]="duplicatesSet.length > 2"
-                (dismissed)="dismiss($event)"
-              >
-              </app-expense-card>
-            </ng-container>
+      <!-- <ng-container *ngIf="duplicatesSet$| async as duplicatesSets"> -->
+      <ng-container *ngFor="let duplicatesSet of duplicateExpenses; let setIndex=index">
+        <div *ngIf="setIndex === selectedSet" class="potential-duplicates--header text-center">
+          {{duplicatesSet.length}} expenses for {{ 0 | currency: duplicatesSet[0].tx_currency:'symbol-narrow' | slice:
+          0:1 }} {{ duplicatesSet[0].tx_amount | number : '1.2-2'}}
+        </div>
+        <ng-container *ngFor="let expense of duplicatesSet as list; let i = index;">
+          <ng-container *ngIf="setIndex === selectedSet">
+            <app-expense-card
+              [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
+              [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+              [expense]="expense"
+              [isDismissable]="duplicatesSet.length > 2"
+              (dismissed)="dismiss($event)"
+            >
+            </app-expense-card>
           </ng-container>
         </ng-container>
       </ng-container>
+      <!-- </ng-container> -->
     </div>
   </div>
 </ion-content>
