@@ -27,18 +27,22 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
 
   private innerValue;
 
-  private onTouchedCallback: () => void = noop;
-
-  private onChangeCallback: (_: any) => void = noop;
-
-  constructor(private injector: Injector) {}
-
   get valid() {
     if (this.ngControl.touched) {
       return this.ngControl.valid;
     } else {
       return true;
     }
+  }
+
+  private onTouchedCallback: () => void = noop;
+
+  private onChangeCallback: (_: any) => void = noop;
+
+  constructor(private injector: Injector) {}
+
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
   }
 
   get value(): any {
@@ -51,10 +55,6 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
 
       this.onChangeCallback(v);
     }
-  }
-
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
   }
 
   onBlur() {
