@@ -11,7 +11,6 @@ import { from, Subject, forkJoin } from 'rxjs';
 import { switchMap, finalize, shareReplay, concatMap, map, reduce, startWith, take, tap } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { PopoverController, ModalController, ActionSheetController } from '@ionic/angular';
-import { ApproveAdvanceComponent } from './approve-advance/approve-advance.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -22,6 +21,8 @@ import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -51,6 +52,8 @@ export class ViewTeamAdvancePage implements OnInit {
 
   actionSheetButtons = [];
 
+  isLoading = false;
+
   sendBackLoading = false;
 
   rejectLoading = false;
@@ -72,6 +75,7 @@ export class ViewTeamAdvancePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private offlineService: OfflineService,
+    private humanizeCurrency: HumanizeCurrencyPipe,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
@@ -240,11 +244,21 @@ export class ViewTeamAdvancePage implements OnInit {
 
   async showApproveAdvanceSummaryPopover() {
     const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
+    const advanceAmount = this.humanizeCurrency.transform(areq.areq_amount, areq.areq_currency, 2, false);
     const showApprover = await this.popoverController.create({
-      component: ApproveAdvanceComponent,
-      cssClass: 'dialog-popover',
+      component: PopupAlertComponentComponent,
+      cssClass: 'pop-up-in-center',
       componentProps: {
-        areq,
+        title: 'Review Advance',
+        message: 'Advance request by ' + areq.us_full_name + ' of amount ' + advanceAmount + ' will be approved',
+        primaryCta: {
+          text: 'Approve',
+          action: 'approve',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'cancel',
+        },
       },
     });
 
@@ -252,8 +266,14 @@ export class ViewTeamAdvancePage implements OnInit {
 
     const { data } = await showApprover.onWillDismiss();
 
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'team_advance']);
+    if (data && data.action === 'approve') {
+      this.isLoading = true;
+      this.advanceRequestService
+        .approve(areq.areq_id)
+        .pipe(finalize(() => (this.isLoading = false)))
+        .subscribe(() => {
+          this.router.navigate(['/', 'enterprise', 'team_advance']);
+        });
     }
   }
 
