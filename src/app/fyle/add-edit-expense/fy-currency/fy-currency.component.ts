@@ -48,14 +48,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   private onChangeCallback: (_: any) => void = noop;
 
-  constructor(
-    private fb: FormBuilder,
-    private modalController: ModalController,
-    private currencyService: CurrencyService,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector
-  ) {}
-
   get valid() {
     if (this.ngControl.touched) {
       return this.ngControl.valid;
@@ -64,19 +56,13 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     }
   }
 
-  get value(): any {
-    return this.innerValue;
-  }
-
-  set value(v: any) {
-    if (this.fg) {
-      if (v !== this.innerValue) {
-        this.innerValue = v;
-        this.fg.patchValue(this.convertInnerValueToFormValue(this.innerValue));
-        this.onChangeCallback(v);
-      }
-    }
-  }
+  constructor(
+    private fb: FormBuilder,
+    private modalController: ModalController,
+    private currencyService: CurrencyService,
+    private modalProperties: ModalPropertiesService,
+    private injector: Injector
+  ) {}
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
@@ -185,6 +171,20 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
         currency: this.homeCurrency,
         homeCurrencyAmount: null,
       };
+    }
+  }
+
+  get value(): any {
+    return this.innerValue;
+  }
+
+  set value(v: any) {
+    if (this.fg) {
+      if (v !== this.innerValue) {
+        this.innerValue = v;
+        this.fg.patchValue(this.convertInnerValueToFormValue(this.innerValue));
+        this.onChangeCallback(v);
+      }
     }
   }
 
