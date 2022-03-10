@@ -43,6 +43,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   projectFieldName = 'Project';
 
+  internalState: { name: string; state: string };
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -113,6 +115,10 @@ export class MyViewAdvanceRequestPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
+
+    this.advanceRequest$.subscribe((advanceRequest) => {
+      this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(advanceRequest);
+    });
 
     this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);

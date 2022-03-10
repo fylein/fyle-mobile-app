@@ -75,7 +75,7 @@ $advance_rejected_color: #d50000;
         background: $draft-color;
       }
 
-      &__pulledBack {
+      &__pulled {
         background: $advance_pulled_back_color;
       }
 
@@ -83,11 +83,7 @@ $advance_rejected_color: #d50000;
         background: $sent-back-color;
       }
 
-      &__sent_back {
-        background: $sent-back-color;
-      }
-
-      &__approval_pending {
+      &__pending {
         background: $advance_pending_approval_color;
       }
 

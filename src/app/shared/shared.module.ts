@@ -117,7 +117,6 @@ import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
 import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.component';
 import { FySummaryTileComponent } from './components/summary-tile/summary-tile.component';
-
 @NgModule({
   declarations: [
     AdvanceState,
