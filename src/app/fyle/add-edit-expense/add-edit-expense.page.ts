@@ -99,6 +99,8 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
+import { DuplicateSets } from 'src/app/core/models/v2/duplicate-sets.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -321,6 +323,12 @@ export class AddEditExpensePage implements OnInit {
 
   isIos = false;
 
+  duplicatesSet$: Observable<any>;
+
+  duplicatesSetData: DuplicateSets[];
+
+  duplicateExpenses;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -363,7 +371,8 @@ export class AddEditExpensePage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
-    private titleCasePipe: TitleCasePipe
+    private titleCasePipe: TitleCasePipe,
+    private handleDuplicates: HandleDuplicatesService
   ) {}
 
   goBack() {
@@ -2717,6 +2726,7 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.getPolicyDetails();
+    this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
     document.addEventListener('keydown', this.scrollInputIntoView);
   }
@@ -4272,5 +4282,41 @@ export class AddEditExpensePage implements OnInit {
     return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
       switchMap((fileObj: any) => this.postToFileService(fileObj, txnId))
     );
+  }
+
+  getDuplicateExpenses() {
+    if (!this.activatedRoute.snapshot.params.id) {
+      return;
+    }
+    this.handleDuplicates
+      .getDuplicatesByExpense(this.activatedRoute.snapshot.params.id)
+      .pipe(
+        tap((duplicatesSets) => {
+          this.duplicatesSetData = duplicatesSets;
+        }),
+        switchMap((duplicatesSets) => {
+          const duplicateIds = [].concat.apply(
+            [],
+            duplicatesSets.map((value) => value.transaction_ids)
+          );
+          const params = {
+            tx_id: `in.(${duplicateIds.toString()})`,
+          };
+          return this.transactionService.getETxnc({ offset: 0, limit: 10, params }).pipe(
+            map((expenses) => {
+              const expensesArray = expenses as [];
+              return duplicatesSets.map((set) =>
+                set.transaction_ids.map(
+                  (expenseId) =>
+                    expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
+                )
+              );
+            })
+          );
+        })
+      )
+      .subscribe((duplicateExpenses) => {
+        this.duplicateExpenses = duplicateExpenses;
+      });
   }
 }

@@ -86,9 +86,6 @@ export class PotentialDuplicatesPage implements OnInit {
       ),
       tap((duplicateExpenses) => {
         this.duplicateExpenses = duplicateExpenses;
-        console.log(this.duplicateExpenses);
-        console.log('old');
-        console.log(this.duplicatesSetData);
       })
     );
     this.duplicatesSet$.subscribe(noop);

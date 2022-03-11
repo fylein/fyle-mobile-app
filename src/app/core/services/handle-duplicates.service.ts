@@ -12,6 +12,14 @@ export class HandleDuplicatesService {
     return this.apiService.get('/transactions/duplicates/sets');
   }
 
+  getDuplicatesByExpense(txnId: string): Observable<DuplicateSets[]> {
+    return this.apiService.get('/transactions/duplicates/sets', {
+      params: {
+        txn_id: txnId,
+      },
+    });
+  }
+
   dismissAll(duplicateSetTransactionIds: string[], transactionIds: string[]) {
     return this.apiService.post('/transactions/duplicates/dismiss', {
       duplicate_set_transaction_ids: duplicateSetTransactionIds,
