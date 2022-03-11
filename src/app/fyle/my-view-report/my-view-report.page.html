@@ -8,56 +8,121 @@
     </ion-buttons>
     <ion-title mode="md" class="page-title"> View Report </ion-title>
     <ion-buttons mode="md" slot="end">
-      <button mat-button class="view-reports--edit" (click)="goToEditReport()" *ngIf="canEdit$|async">Edit</button>
+      <ng-container *ngIf="erpt$|async as erpt">
+        <ng-container *ngIf="erpt.rp_num_transactions">
+          <ion-button class="view-reports--btn-container__btn" (click)="shareReport()">
+            <mat-icon svgIcon="share"></mat-icon>
+          </ion-button>
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="canDelete$ | async">
+        <ion-button class="view-reports--btn-container__btn" (click)="deleteReport()">
+          <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div class="view-reports--body" *ngIf="erpt$|async as erpt">
-    <div>
+<ion-content class="view-reports--container">
+  <div class="view-reports--body full-height" *ngIf="erpt$|async as erpt">
+    <div class="view-reports--wrapper">
       <div class="view-reports--card">
-        <div class="view-reports--card-header">
-          {{reportName}}
-          <ion-icon
-            *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY')"
-            [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
-            slot="icon-only"
-            (click)="editReportName()"
-            class="view-reports--card-header__icon"
-          ></ion-icon>
-        </div>
-        <div class="view-reports--card-body">Reported on {{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</div>
-        <div class="view-reports--card-body" *ngIf="(reportApprovals$|async) as reportApprovals">
-          <span *ngIf="reportApprovals.length > 0">
-            <span>
-              Approver<span *ngIf="reportApprovals.length === 1"> is </span
-              ><span *ngIf="reportApprovals.length > 1">s are </span>
-            </span>
-            <span *ngFor="let ap of reportApprovals;let last = last;"
-              >{{ap.approver_email}} (
-              <span class="view-reports--approval-state view-reports--approval-state__{{ap.state | reportState}}">
-                {{ap.state | reportState | titlecase}}
-                <span class="view-reports--card-body__highlight" *ngIf="ap.approved_at"
-                  >, {{ ap.approved_at | date: 'MMM dd, yyyy' }}</span
-                >
-              </span>
-              ){{last ? '' : ', '}}
-            </span>
-          </span>
-        </div>
-        <div class="view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}">
-          {{erpt.rp_state | reportState | uppercase | snakeCaseToSpaceCase}}
-        </div>
-        <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
-          <ion-icon class="view-reports--view-info__icon" src="../../../assets/svg/fy-info-gradient.svg"></ion-icon>
-          <span class="view-reports--view-info__content">View Info</span>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <div class="view-reports--purpose-amount-block">
+                <div class="view-reports--purpose-amount-block__purpose">
+                  {{reportName | ellipsis: 35}}
+                  <ion-icon
+                    *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY')"
+                    [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
+                    slot="icon-only"
+                    (click)="editReportName()"
+                    class="view-reports--card-header__icon"
+                  ></ion-icon>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="4">
+              <div class="view-reports--amount">
+                <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
+                <span class="view-reports--purpose-amount-block__amount">
+                  {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:2:true }}
+                </span>
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="5"> </ion-col>
+            <ion-col size="7">
+              <div
+                class="text-capitalize view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}"
+              >
+                {{erpt.rp_state | reportState | snakeCaseToSpaceCase}}
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="view-reports--date-info-block">
+            <ion-col size="8">
+              <div>
+                <div class="view-reports--submitted-date">
+                  <div>
+                    <span class="view-reports--submitted-date__text"
+                      >{{erpt.rp_state === "DRAFT" ? "Created on : " : "Submitted on : " }}
+                    </span>
+                    <span class="view-reports--submitted-date__date"
+                      >{{erpt.rp_created_at | date: 'MMM dd, yyyy'}}</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="4">
+              <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
+                <ion-icon
+                  class="view-reports--view-info__icon"
+                  src="../../../assets/svg/fy-info-gradient.svg"
+                ></ion-icon>
+                <span class="view-reports--view-info__content">View Info</span>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+
+      <div class="view-reports--approvers-wrapper">
+        <div
+          class="view-reports--approvers-section"
+          *ngIf="(erpt.rp_state !== 'DRAFT') && (reportApprovals$|async) as reportApprovals"
+        >
+          <div *ngIf="reportApprovals.length > 0" class="view-reports--approval-state-block">
+            <div class="view-reports--approvers">Approvers</div>
+            <div *ngFor="let ap of reportApprovals">
+              <div class="view-reports--approvers-list">
+                <div>{{ ap.approver_name }}</div>
+                <div class="view-reports--approver-state-section">
+                  <div class="view-reports--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
+                    <span>{{ap.updated_at | date: 'MMM dd, yyyy'}}</span>
+                  </div>
+                  <div
+                    class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
+                  ></div>
+                  <span
+                    >{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase |
+                    snakeCaseToSpaceCase)}}</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Display Associated trip request info, if there is one. Otherwise don't display this block at all -->
-      <div class="view-reports--card" *ngIf="erpt.rp_trip_request_id">
-        <div class="view-reports--card-header">Associated Trip Request</div>
+      <ng-container *ngIf="erpt.rp_trip_request_id">
         <!-- Display this block if trip requests are handled with T&A module of Fyle -->
         <div class="view-reports--card-body" *ngIf="tripRequest$|async as tripRequest; else showOnlyId">
           <div>Request number is {{tripRequest.trp_request_number}}</div>
@@ -66,101 +131,245 @@
         </div>
         <!-- If trip requests are handled externally by the clients, display only the associated trip request ID -->
         <ng-template #showOnlyId>
-          <div class="view-reports--card-body">Trip Request ID is {{erpt.rp_trip_request_id}}</div>
+          <app-fy-alert-info
+            [type]="'information'"
+            [message]="'Associated Trip Request ID is ' + erpt.rp_trip_request_id"
+          ></app-fy-alert-info>
         </ng-template>
-      </div>
+      </ng-container>
 
-      <div class="view-reports--card" *ngIf="erpt.rp_num_transactions !== 0">
-        <div>
-          <div>
-            <span class="view-reports--currency"> {{erpt.rp_currency}} </span>
-            <span class="view-reports--amount"> {{erpt.rp_amount | number:'1.2-2'}} </span>
-          </div>
-          <div class="view-reports--count">Contains {{erpt.rp_num_transactions}} expenses</div>
-          <div class="view-reports--view-hide-btn" (click)="hideAllExpenses = !hideAllExpenses">
-            <span *ngIf="hideAllExpenses">View All</span>
-            <span *ngIf="!hideAllExpenses">Hide All</span>
-          </div>
+      <div class="view-reports--segment-block-container">
+        <div class="view-reports--segment-block-container__btn-wrapper">
+          <ion-segment
+            class="segment-block view-reports--segment-block-container__segment"
+            (ionChange)="segmentChanged($event)"
+            value="expenses"
+          >
+            <ion-segment-button value="expenses" class="view-reports--segment-block-container__btn text-capitalize">
+              Expenses
+            </ion-segment-button>
+            <ion-segment-button value="comments" class="view-reports--segment-block-container__btn text-capitalize">
+              Comments
+            </ion-segment-button>
+            <ion-segment-button
+              *ngIf="systemEstatuses && systemEstatuses.length > 0"
+              value="history"
+              class="view-reports--segment-block-container__btn text-capitalize"
+            >
+              History
+            </ion-segment-button>
+          </ion-segment>
+        </div>
 
-          <div *ngIf="!hideAllExpenses">
+        <!-- Expenses section -->
+        <ng-container *ngIf="isExpensesView">
+          <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
+          <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
             <div class="view-reports--divider"></div>
-            <div *ngIf="etxns$|async;else ExpensesLoader" class="view-reports--expense-container">
-              <app-my-view-report-etxn-card
-                *ngFor="let etxn of etxns$|async as etxns; let i = index;"
-                [etxn]="etxn"
-                [etxnIndex]="i"
-                [prevDate]="etxns[i-1]?.tx_txn_dt"
-                (goToTransaciton)="goToTransaction($event)"
-              >
-              </app-my-view-report-etxn-card>
+            <div class="view-reports--expenses-card-block">
+              <div *ngFor="let etxn of etxns$|async as list; let i = index;">
+                <app-expense-card
+                  [expense]="etxn"
+                  [etxnIndex]="i"
+                  [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
+                  [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+                  (goToTransaction)="goToTransaction($event)"
+                  [isFromReports]="true"
+                  [isFromViewReports]="true"
+                >
+                </app-expense-card>
+              </div>
             </div>
             <ng-template #ExpensesLoader>
               <ion-spinner name="crescent"></ion-spinner>
             </ng-template>
           </div>
-        </div>
-      </div>
+          <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && erpt.rp_num_transactions === 0">
+            <div class="text-center">
+              <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
+              <div class="view-reports--zero-state-header">Looks like this report is empty.</div>
+              <button
+                *ngIf="unReportedEtxns && unReportedEtxns.length > 0"
+                class="view-reports--unreported-cta"
+                (click)="showAddExpensesToReportModal()"
+              >
+                Add unreported expenses
+              </button>
+              <div class="view-reports--add-more-container" (click)="addExpense()">
+                <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
+                <div class="view-reports--add-more-text">Add Expenses</div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
 
-      <div *ngIf="!(erpt.rp_num_transactions === 0)">
-        <div class="view-reports--card" *ngIf="sharedWith$ | async as sharedWith">
-          <div class="view-reports--share" (click)="shareReport($event)">Share this report</div>
-          <div class="view-reports--card-body">Send this report via email</div>
-          <div class="view-reports--card-body" *ngIf="sharedWith.length > 0">
-            Earlier sent to:
-            <span *ngFor="let email of  sharedWith | slice: 0:sharedWithLimit"> {{email}} </span>
+        <!-- Comments section -->
+        <div *ngIf="isCommentsView && userComments && userComments.length > 0" class="view-comment--container">
+          <div *ngFor="let estatus of userComments">
+            <div *ngIf="estatus.show_dt">
+              <div class="view-comment--date text-center">{{ estatus.st_created_at | date: 'MMM d, yyyy' }}</div>
+            </div>
             <div
-              class="view-reports--clickable"
-              *ngIf="sharedWithLimit < sharedWith.length"
-              (click)="sharedWithLimit = sharedWithLimit + 3"
+              class="view-comment--block"
+              *ngIf="estatus.isSelfComment"
+              [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
             >
-              View more
+              <ion-grid class="view-comment--card view-comment--self-comment text-right">
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <div
+                      *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                      class="view-comment--comment-detail"
+                    >
+                      {{ estatus.st_comment }}
+                    </div>
+                    <div
+                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                      class="view-comment--comment-detail"
+                    >
+                      {{ estatus.st_comment }}
+                    </div>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+              <div class="view-comment--profile view-comment--self-profile">
+                <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+              </div>
+            </div>
+            <div
+              class="view-comment--block"
+              *ngIf="!estatus.isSelfComment"
+              [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
+            >
+              <div class="view-comment--profile view-comment--others-profile">
+                <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+              </div>
+              <ion-grid class="view-comment--card view-comment--others-comment text-left">
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <div
+                      *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                      class="view-comment--comment-detail"
+                    >
+                      {{ estatus.st_comment }}
+                    </div>
+                    <div
+                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                      class="view-comment--comment-detail"
+                    >
+                      {{ estatus.st_comment }}
+                    </div>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col size="12">
+                    <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
             </div>
           </div>
         </div>
+
+        <div class="view-comment--zero-state" *ngIf="isCommentsView && userComments && userComments.length === 0">
+          <app-fy-zero-state
+            [image]="'../../../assets/images/zero-states/comments.svg'"
+            [header]="'Need to clarify something?'"
+            [message]="'Post a comment.'"
+            [useNewStyling]="true"
+            [unscaledImage]="true"
+          ></app-fy-zero-state>
+        </div>
+
+        <div *ngIf="isCommentsView && !userComments">
+          <div class="view-comment--spinner">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+        </div>
+
+        <!-- History section -->
+        <div
+          *ngIf="isHistoryView && systemEstatuses && systemEstatuses.length > 0"
+          class="view-reports--history-container"
+        >
+          <app-audit-history [estatuses]="systemEstatuses"></app-audit-history>
+        </div>
       </div>
-    </div>
-
-    <div class="view-reports--card view-reports--card__zero-state" *ngIf="erpt.rp_num_transactions === 0">
-      <div>
-        <img src="../../../assets/images/zero-states/expenses.svg" alt="No expense in this report" />
-        <div class="view-reports--zero-state-header">No expense in this report yet</div>
-        <div class="view-reports--zero-state-sub-header">Edit to add expenses to this report</div>
-      </div>
-    </div>
-
-    <div *ngIf="erpt.rp_num_transactions > 0" class="view-reports--card view-reports--card__block-action" matRipple>
-      <app-comments-history objectType="reports" [objectId]="erpt.rp_id" text="Comments"></app-comments-history>
-    </div>
-
-    <div
-      class="view-reports--card view-reports--card__block-action"
-      *ngIf="canDelete$ | async"
-      (click)="deleteReport()"
-      matRipple
-    >
-      <mat-icon class="view-reports--block-action-icon">delete</mat-icon>
-      <div class="view-reports--block-action view-reports--block-action__delete">Delete Report</div>
     </div>
   </div>
 </ion-content>
 
 <ion-footer
-  *ngIf="((erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0)||(canResubmitReport$ | async)"
+  *ngIf="!isCommentsView && (((erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0) || (canResubmitReport$ | async))"
 >
-  <ion-toolbar class="fy-footer-cta-container" mode="md">
-    <ion-button
-      class="fy-footer-cta fy-footer-cta--primary"
-      *ngIf="canResubmitReport$ | async"
-      (click)="showResubmitReportSummaryPopover()"
-    >
-      Resubmit Report
-    </ion-button>
-    <ion-button
-      class="fy-footer-cta fy-footer-cta--primary"
-      *ngIf="(erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
-      (click)="showSubmitReportSummaryPopover()"
-    >
-      Submit Report
-    </ion-button>
+  <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
+    <div class="view-reports--cta-container">
+      <div *ngIf="unReportedEtxns && unReportedEtxns.length > 0" class="view-reports--add-expenses-container">
+        <mat-icon
+          *ngIf="(canResubmitReport$ | async) || (erpt$|async)?.rp_state === 'DRAFT'"
+          (click)="showAddExpensesToReportModal()"
+          class="view-reports--add-expenses-container__icon"
+          svgIcon="plus"
+        >
+        </mat-icon>
+      </div>
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        *ngIf="canResubmitReport$ | async"
+        (click)="showResubmitReportSummaryPopover()"
+      >
+        Resubmit Report
+      </ion-button>
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        *ngIf="(erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
+        (click)="showSubmitReportSummaryPopover()"
+      >
+        Submit Report
+      </ion-button>
+    </div>
   </ion-toolbar>
+</ion-footer>
+
+<ion-footer
+  class="view-reports--add-expense-footer"
+  *ngIf="!isCommentsView && ((erpt$|async)?.rp_state === 'APPROVER_PENDING') && unReportedEtxns && unReportedEtxns.length > 0"
+>
+  <div class="view-reports--add-expense-footer__block">
+    <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">
+      <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
+      <div class="view-reports--add-more-text">Add expenses to report</div>
+    </div>
+  </div>
+</ion-footer>
+
+<ion-footer *ngIf="isCommentsView" class="view-comment--add-comment-container">
+  <div>
+    <div class="view-comment--type-comment-block">
+      <textarea
+        #commentInput
+        class="view-comment--text-area"
+        rows="1"
+        matInput
+        placeholder="Type your comment here..."
+        [(ngModel)]="newComment"
+      ></textarea>
+      <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send"></mat-icon>
+    </div>
+  </div>
 </ion-footer>

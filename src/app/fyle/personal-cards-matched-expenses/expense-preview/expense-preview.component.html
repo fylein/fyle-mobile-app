@@ -1,5 +1,5 @@
 <ion-header mode="md">
-  <mat-icon *ngIf="!isIos" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <mat-icon *ngIf="isIos" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar expense-preview--toolbar">
     <ion-buttons slot="start">
       <ion-button (click)="closeModal()">
@@ -7,7 +7,10 @@
       </ion-button>
     </ion-buttons>
     <ion-title>
-      <div class="expense-preview--toolbar__title">Confirm Matching Expense</div>
+      <div class="expense-preview--toolbar__title">
+        <ng-container *ngIf="type === 'match'"> Confirm Matching Expense </ng-container>
+        <ng-container *ngIf="type === 'unmatch'"> View matching Expense </ng-container>
+      </div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -19,7 +22,7 @@
         <ion-col size="5">
           <div class="expense-preview--body-container__title">Expense Id</div>
         </ion-col>
-        <ion-col size="7" (click)="viewExpense()">
+        <ion-col size="7" (click)="editExpense()">
           <div class="expense-preview--body-container__value expense-preview--link">
             {{ expenseDetails.tx_expense_number }}
           </div>
@@ -62,6 +65,7 @@
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
             {{ expenseDetails.tx_vendor }}
+            <ng-container *ngIf="!expenseDetails.tx_vendor">-</ng-container>
           </div>
         </ion-col>
       </ion-row>
@@ -117,7 +121,7 @@
 <ion-footer class="expense-preview--footer-container">
   <ion-toolbar mode="md">
     <div class="expense-preview--footer-toolbar">
-      <ion-buttons>
+      <ion-buttons *ngIf="type === 'match'">
         <ion-button (click)="closeModal()" [disabled]="loading" class="btn-secondary"> Cancel </ion-button>
         <ion-button
           (click)="matchExpense()"
@@ -128,6 +132,21 @@
           class="btn-primary"
         >
           Confirm Match
+        </ion-button>
+      </ion-buttons>
+      <ion-buttons *ngIf="type === 'unmatch'">
+        <ion-button
+          (click)="unmatchExpense()"
+          [disabled]="unMatching"
+          [loadingText]="'Unmatching'"
+          [loading]="unMatching"
+          appFormButtonValidation
+          class="btn-secondary"
+        >
+          Unmatch
+        </ion-button>
+        <ion-button (click)="editExpense()" [disabled]="unMatching" appFormButtonValidation class="btn-primary">
+          Edit
         </ion-button>
       </ion-buttons>
     </div>

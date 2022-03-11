@@ -71,8 +71,9 @@
               </ng-container>
 
               <ng-container *ngIf="isAmountCapped$|async">
-                <div class="add-edit-per-diem--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
-                  <div>
+                <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
+                  <mat-icon class="capped-icon" svgIcon="fy-info"></mat-icon>
+                  <div class="capped-message">
                     Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
                     '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
                   </div>
@@ -238,15 +239,12 @@
                           {{ txnFields?.num_days.field_name }}
                           <div class="add-edit-per-diem--mandatory">*</div>
                         </div>
-                        <input
-                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
-                          [min]="0"
-                          class="add-edit-per-diem--text-input"
+                        <app-fy-number
                           formControlName="num_days"
-                          inputmode="decimal"
+                          [min]="0"
+                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
                           [placeholder]="'Enter ' + txnFields?.num_days.field_name"
-                          type="number"
-                        />
+                        ></app-fy-number>
                       </div>
                       <div
                         *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid"
@@ -329,7 +327,8 @@
                                   [categoryIds]="projectCategoryIds"
                                   [cacheName]="'perDiemProjectCache'"
                                   [defaultValue]="true"
-                                  [label]="'Project'"
+                                  [label]="txnFields?.project_id?.field_name"
+                                  [placeholder]="txnFields?.project_id?.placeholder"
                                   [mandatory]="txnFields?.project_id?.is_mandatory"
                                   [recentlyUsed]="recentProjects"
                                   formControlName="project"
@@ -349,10 +348,14 @@
                     </div>
 
                     <div
-                      *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
-                      class="add-edit-per-diem--error"
+                      *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
                     >
-                      Please select a project.
+                      <div
+                        *ngIf="fg.controls.project.touched && !fg.controls.project.valid"
+                        class="add-edit-per-diem--error"
+                      >
+                        Please select a project.
+                      </div>
                     </div>
                   </ng-container>
 
@@ -486,14 +489,11 @@
                               type="text"
                             />
 
-                            <input
+                            <app-fy-number
                               *ngIf="customInput.type === 'NUMBER'"
-                              class="add-edit-per-diem--text-input"
                               formControlName="value"
                               [placeholder]="'Enter ' + customInput.name"
-                              inputmode="decimal"
-                              type="number"
-                            />
+                            ></app-fy-number>
 
                             <input
                               appFormatDate
@@ -585,6 +585,22 @@
                             >
                             </app-fy-alert-info>
                           </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-container *ngIf="isConnected$">
+                    <ng-container *ngIf="txnFields$|async as txnFields">
+                      <ng-container *ngIf="isCostCentersEnabled$|async as isCostCentersEnabled">
+                        <ng-container *ngIf="costCenters$|async as allowedCostCenters">
+                          <app-fy-alert-info
+                            class="add-edit-per-diem--cost-center-alert"
+                            *ngIf="txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0"
+                            [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                            [type]="'warning'"
+                          >
+                          </app-fy-alert-info>
                         </ng-container>
                       </ng-container>
                     </ng-container>

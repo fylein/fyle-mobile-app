@@ -6,12 +6,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil } from 'rxjs/operators';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { ApproveReportComponent } from './approve-report/approve-report.component';
 import { NetworkService } from '../../core/services/network.service';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -19,12 +18,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { getCurrencySymbol } from '@angular/common';
 import * as moment from 'moment';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 
 @Component({
   selector: 'app-view-team-report',
@@ -33,6 +35,8 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 })
 export class ViewTeamReportPage implements OnInit {
   @ViewChild('commentInput') commentInput: ElementRef;
+
+  @ViewChild(IonContent, { static: false }) content: IonContent;
 
   erpt$: Observable<ExtendedReport>;
 
@@ -102,6 +106,8 @@ export class ViewTeamReportPage implements OnInit {
 
   reportEtxnIds: string[];
 
+  isExpensesLoading: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -116,7 +122,9 @@ export class ViewTeamReportPage implements OnInit {
     private trackingService: TrackingService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private statusService: StatusService
+    private refinerService: RefinerService,
+    private statusService: StatusService,
+    private humanizeCurrency: HumanizeCurrencyPipe
   ) {}
 
   ngOnInit() {
@@ -223,6 +231,7 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.isExpensesLoading = true;
     this.setupNetworkWatcher();
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
@@ -280,7 +289,8 @@ export class ViewTeamReportPage implements OnInit {
           return etxn;
         })
       ),
-      shareReplay(1)
+      shareReplay(1),
+      finalize(() => (this.isExpensesLoading = false))
     );
 
     this.etxnAmountSum$ = this.etxns$.pipe(map((etxns) => etxns.reduce((acc, curr) => acc + curr.tx_amount, 0)));
@@ -327,21 +337,34 @@ export class ViewTeamReportPage implements OnInit {
     const erpt = await this.erpt$.pipe(take(1)).toPromise();
     const etxns = await this.etxns$.toPromise();
 
+    const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, 2, false);
     const popover = await this.popoverController.create({
       componentProps: {
-        erpt,
         etxns,
+        title: 'Approve Report',
+        message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be approved',
+        primaryCta: {
+          text: 'Approve',
+          action: 'approve',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'cancel',
+        },
       },
-      component: ApproveReportComponent,
-      cssClass: 'dialog-popover',
+      component: PopupAlertComponentComponent,
+      cssClass: 'pop-up-in-center',
     });
 
     await popover.present();
 
     const { data } = await popover.onWillDismiss();
 
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'team_reports']);
+    if (data && data.action === 'approve') {
+      this.reportService.approve(erpt.rp_id).subscribe(() => {
+        this.refinerService.startSurvey({ actionName: 'Approve Report' });
+        this.router.navigate(['/', 'enterprise', 'team_reports']);
+      });
     }
   }
 
@@ -429,6 +452,7 @@ export class ViewTeamReportPage implements OnInit {
           panelClass: ['msb-success-with-camera-icon'],
         });
         this.trackingService.showToastMessage({ ToastContent: message });
+        this.refinerService.startSurvey({ actionName: 'Send Back Report' });
       });
       this.router.navigate(['/', 'enterprise', 'team_reports']);
     }
@@ -462,6 +486,9 @@ export class ViewTeamReportPage implements OnInit {
         this.isCommentsView = true;
         this.isExpensesView = false;
         this.isHistoryView = false;
+        setTimeout(() => {
+          this.content.scrollToBottom(500);
+        }, 500);
       } else if (event.detail.value === 'history') {
         this.isHistoryView = true;
         this.isCommentsView = false;
@@ -482,6 +509,9 @@ export class ViewTeamReportPage implements OnInit {
 
       this.statusService.post(this.objectType, this.objectId, data).subscribe((res) => {
         this.refreshEstatuses$.next();
+        setTimeout(() => {
+          this.content.scrollToBottom(500);
+        }, 500);
       });
     }
   }

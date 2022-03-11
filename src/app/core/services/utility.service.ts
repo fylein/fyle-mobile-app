@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
-import { isArray } from 'lodash';
+import { cloneDeep, isArray } from 'lodash';
+import { SortingParam } from '../models/sorting-param.model';
+import { SortingDirection } from '../models/sorting-direction.model';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UtilityService {
+  readonly EPOCH = 19700101;
+
   constructor() {}
 
   discardNullChar(str) {
@@ -94,5 +98,71 @@ export class UtilityService {
       }
     }
     return obj;
+  }
+
+  sortAllAdvances(sortDir: SortingDirection, sortParam: SortingParam, advancesArray: any[]) {
+    //used for sorting an array that has both advances and advance requests mixed together
+    const sortedAdvancesArray = cloneDeep(advancesArray);
+
+    return sortedAdvancesArray.sort((advance1, advance2) => {
+      const sortingValue1 = this.getSortingValue(advance1, sortParam);
+      const sortingValue2 = this.getSortingValue(advance2, sortParam);
+      return this.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortParam);
+    });
+  }
+
+  private getSortingValue(advance: any, sortParam: SortingParam) {
+    if (sortParam === SortingParam.creationDate) {
+      return advance.areq_created_at ? moment(advance.areq_created_at) : moment(advance.adv_created_at);
+    } else if (sortParam === SortingParam.approvalDate) {
+      return advance.areq_approved_at ? moment(advance.areq_approved_at) : moment(this.EPOCH).toString();
+    } else if (sortParam === SortingParam.project) {
+      return advance.project_name;
+    }
+  }
+
+  private compareSortingValues(
+    sortingValue1: any,
+    sortingValue2: any,
+    sortDir: SortingDirection,
+    sortingParam: SortingParam
+  ) {
+    const returnValue = this.handleDefaultSort(sortingValue1, sortingValue2, sortingParam);
+    if (returnValue !== null) {
+      return returnValue;
+    }
+
+    if (typeof sortingValue1 === 'string') {
+      if (sortDir === SortingDirection.ascending) {
+        return sortingValue1.localeCompare(sortingValue2) ? 1 : -1;
+      } else {
+        return sortingValue1.localeCompare(sortingValue2) ? -1 : 1;
+      }
+    } else if (moment.isMoment(sortingValue1)) {
+      if (sortDir === SortingDirection.ascending) {
+        return sortingValue1.isAfter(sortingValue2) ? 1 : -1;
+      } else {
+        return sortingValue1.isBefore(sortingValue2) ? 1 : -1;
+      }
+    }
+  }
+
+  private handleDefaultSort(sortingValue1: any, sortingValue2: any, sortingParam: SortingParam) {
+    //handles cases where either sortingValue1 or sortingValue2 is null/undefined
+    let nullComparator: any;
+    if (sortingParam === SortingParam.project) {
+      nullComparator = null;
+    } else {
+      nullComparator = moment(this.EPOCH).toString(); //needed to allow comparison using === without using comparison methods from moment library
+    }
+    if (sortingValue1 === nullComparator && sortingValue2 === nullComparator) {
+      return 0;
+    } else if (sortingValue1 === nullComparator) {
+      return 1;
+    } else if (sortingValue2 === nullComparator) {
+      return -1;
+    } else {
+      return null;
+    }
   }
 }

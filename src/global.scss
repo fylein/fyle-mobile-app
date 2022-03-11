@@ -58,6 +58,11 @@ body {
   --ion-color-tint: var(--ion-color-fyle-primary-tint);
 }
 
+.ion-grid-no-padding {
+  --ion-grid-padding: 0;
+  --ion-grid-column-padding: 0;
+}
+
 input:focus,
 textarea:focus {
   outline: none !important;
@@ -105,6 +110,14 @@ textarea:focus {
   padding: 12px 8px !important;
 }
 
+.msb-info {
+  color: $pure-white;
+  background-color: $dark-blue;
+  border-radius: 8px !important;
+  margin: 0 16px 30px !important;
+  padding: 12px 8px !important;
+}
+
 .msb-success-with-camera-icon {
   color: $pure-white;
   background-color: $green;
@@ -118,6 +131,14 @@ textarea:focus {
   background-color: $red;
   border-radius: 8px !important;
   margin: 0 16px 133px !important;
+  padding: 12px 8px !important;
+}
+
+.msb-success-with-report-btn {
+  color: $pure-white;
+  background-color: $green;
+  border-radius: 8px !important;
+  margin: 0 16px 84px !important;
   padding: 12px 8px !important;
 }
 
@@ -305,6 +326,10 @@ textarea:focus {
   display: flex !important;
 }
 
+.d-none {
+  display: none !important;
+}
+
 .small {
   font-size: 12px;
 }
@@ -323,8 +348,18 @@ textarea:focus {
   white-space: nowrap;
 }
 
+.content-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .mb-0 {
   margin-bottom: 0 !important;
+}
+
+.pb-0 {
+  padding-bottom: 0 !important;
 }
 
 .m-0 {
@@ -349,6 +384,10 @@ textarea:focus {
 
 .full-width {
   width: 100% !important;
+}
+
+.full-height {
+  height: 100% !important;
 }
 
 .mat-form-field-no-padding {
@@ -762,6 +801,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .btn-secondary {
+  background: $pure-white;
   color: $black-2;
   font-size: 16px !important;
   line-height: 20px;
@@ -777,7 +817,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .fy-footer-cta-container {
-  padding: 16px !important;
+  padding: 14px 16px;
   display: flex;
   column-gap: 18px;
 }
@@ -790,6 +830,7 @@ ref - https://stackoverflow.com/a/31162426
   font-weight: 500;
   margin: 0;
   width: 100%;
+  letter-spacing: 0;
 
   &--primary {
     --background: #{$pink-gradient};
@@ -824,6 +865,19 @@ ref - https://stackoverflow.com/a/31162426
     max-height: 90%;
     position: absolute;
     top: 10%;
+  }
+
+  .modal-shadow {
+    display: none;
+  }
+}
+
+.share-report-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    height: 182px;
+    position: absolute;
+    bottom: 0 !important;
   }
 
   .modal-shadow {
@@ -914,7 +968,7 @@ ref - https://stackoverflow.com/a/31162426
   background: $pure-white;
   border: 2px solid $pure-white;
   box-sizing: border-box;
-  box-shadow: 0px -2px 40px $transparent-pearl-grey;
+  box-shadow: 0px -2px 13px 4px $transparent-pearl-grey;
   border-radius: 8px;
 }
 
@@ -993,13 +1047,12 @@ ion-modal.auto-height {
 .no-pointer-events {
   pointer-events: none;
 }
-
 .expense-preview-modal {
   .modal-wrapper {
     --border-radius: 16px 16px 0 0 !important;
-    max-height: 80%;
+    max-height: 90%;
     position: absolute;
-    top: 20%;
+    top: 10%;
   }
 
   .modal-shadow {
@@ -1015,6 +1068,7 @@ ion-modal.auto-height {
     right: 30px;
     width: fit-content;
     padding: 7px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
 
   .popover-arrow {
@@ -1041,6 +1095,35 @@ ion-modal.auto-height {
 
 .ios .fy-footer--icon-pill {
   margin-left: 7px !important;
+}
+
+.filter-pills-container {
+  display: block;
+  min-height: 52px;
+}
+
+.filter-pills {
+  position: fixed;
+  width: 100%;
+  background-color: $white;
+  z-index: 99;
+}
+
+.personal-cards-range-modal {
+  .modal-wrapper {
+    --border-radius: 16px 16px 0 0 !important;
+    position: absolute;
+    bottom: 0;
+    max-height: 90%;
+  }
+
+  --height: auto;
+
+  .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
+  }
 }
 
 .md .view-reports--segment-block-container {
@@ -1095,4 +1178,67 @@ ion-toggle.toggle-checked::before {
   color: #{$pure-white};
   position: relative;
   top: -16px;
+}
+
+.capped-info {
+  margin: 8px 0;
+  display: flex;
+  border: 1px solid $grey-lighter;
+  border-radius: 8px;
+  padding: 12px 8px;
+  align-items: center;
+  .capped-icon {
+    color: $highlight-blue;
+    height: 20px;
+    width: 20px;
+    margin: 6px;
+  }
+  .capped-message {
+    width: 100%;
+    color: $blue-black;
+    font-size: 12px;
+  }
+}
+
+.mat-snack-bar-handset .mat-snack-bar-container {
+  margin-bottom: 133px !important;
+}
+
+.hide-modal {
+  --backdrop-opacity: 0 !important;
+
+  & > div {
+    background: transparent !important;
+  }
+}
+
+.ion-slides {
+  div {
+    align-items: center !important;
+    height: 100% !important;
+    width: 100% !important;
+  }
+}
+
+.receipt-loader {
+  .swiper-wrapper {
+    .swiper-slide:not(:first-child) {
+      img {
+        background: url('assets/images/loading.gif') no-repeat center;
+        background-size: 50px;
+      }
+    }
+  }
+}
+
+.deprecate-msg {
+  & > div {
+    margin: 16px;
+  }
+
+  &--mb-0 {
+    & > div {
+      margin-bottom: 0;
+    }
+  }
 }

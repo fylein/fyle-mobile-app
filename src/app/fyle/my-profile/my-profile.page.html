@@ -7,11 +7,11 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="my-profile__content-container">
   <ng-container *ngIf="eou$ | async as eou">
     <app-employee-details-card [eou]="eou"></app-employee-details-card>
   </ng-container>
-  <div class="my-profile__content-container">
+  <div class="my-profile__content-container__content">
     <div class="my-profile__section-header">Notifications</div>
     <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
       <div class="my-profile__card__title">Manage Notifications</div>
@@ -47,7 +47,7 @@
           src="../../../assets/svg/power.svg"
           slot="icon-only"
         ></ion-icon>
-        <span>Sign Out</span>
+        <div>Sign Out</div>
       </div>
     </div>
   </div>

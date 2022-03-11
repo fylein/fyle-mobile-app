@@ -1,6 +1,6 @@
 <ion-header class="fy-header" mode="md">
   <ng-container *ngIf="currentState === HeaderState.base">
-    <ion-toolbar mode="md" class="fy-header--toolbar">
+    <ion-toolbar mode="md" class="fy-header--toolbar" [ngClass]="{ 'fy-header--toolbar__hide': isHiddenBorder }">
       <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
         <app-fy-menu-icon></app-fy-menu-icon>
       </ion-buttons>
@@ -16,7 +16,7 @@
   </ng-container>
 
   <ng-container *ngIf="currentState === HeaderState.simpleSearch">
-    <ion-toolbar class="fy-header--toolbar" mode="md">
+    <ion-toolbar class="fy-header--toolbar" [ngClass]="{ 'fy-header--toolbar__hide': isHiddenBorder }" mode="md">
       <ion-buttons mode="md" slot="start">
         <app-fy-menu-icon></app-fy-menu-icon>
       </ion-buttons>
@@ -28,7 +28,7 @@
   </ng-container>
 
   <ng-container *ngIf="currentState === HeaderState.multiselect">
-    <ion-toolbar mode="md" class="fy-header--toolbar">
+    <ion-toolbar mode="md" class="fy-header--toolbar" [ngClass]="{ 'fy-header--toolbar__hide': isHiddenBorder }">
       <ion-buttons mode="md" slot="start">
         <ion-button (click)="onMultiselectBack()">
           <ion-icon [src]="'../../../../assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>

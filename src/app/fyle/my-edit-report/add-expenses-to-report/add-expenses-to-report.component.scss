@@ -1,77 +1,33 @@
+@import '.././../../../theme/colors.scss';
+
 .add-expenses-to-report {
-  &--container {
-    padding: 0 16px;
+  &--toolbar {
+    background-color: $pure-white;
+    border-bottom: 1px solid $grey-lighter;
   }
 
-  &--expense-date {
-    color: #ababab;
-    font-size: 16px;
+  &--title-container {
+    color: $black;
+    font-weight: 500;
+    margin-left: -10%;
   }
 
-  &--item-card {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1) !important;
-    border-radius: 4px;
-    margin-bottom: 24px;
-    border: 1px solid #fff;
-    min-height: 100px;
-    padding: 10px;
+  &--title {
+    font-size: 20px;
+    line-height: 26px;
   }
 
-  &--item-card-selected {
-    border: 1px solid #0077ee;
+  &--close {
+    margin-left: 16px;
   }
 
-  &--item-card-checkbox {
-    margin: 18px;
-  }
-  &--non-reimbursable {
-    color: #ababab;
-    text-decoration: line-through;
-  }
-
-  &--item-card-currency {
-    color: #ababab;
-  }
-
-  &--item-card-amount {
-    font-size: 18px;
-    margin-left: 8px;
-    font-weight: 700;
-    color: #666;
-    &__non-reimbursable {
-      color: #ababab;
-    }
-  }
-
-  &--item-card-vendor {
-    font-size: 16px;
-    color: #666;
-  }
-
-  &--item-card-category {
-    color: #ababab;
-    font-size: 16px;
+  &--select-all-checkbox {
+    font-size: 14px;
+    padding: 16px 16px;
+    background-color: $pure-white;
   }
 
   &--footer {
-    padding: 10px 16px 0 16px;
-  }
-
-  &--footer-currency {
-    font-size: 16px;
-    color: #000;
-    font-weight: 500;
-  }
-
-  &--footer-amount {
-    font-size: 24px;
-    color: #000;
-    font-weight: 500;
-  }
-
-  &--footer-summary {
-    font-size: 16px;
-    font-weight: 500;
-    color: #ababab;
+    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
   }
 }

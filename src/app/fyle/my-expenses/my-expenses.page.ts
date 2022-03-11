@@ -159,6 +159,8 @@ export class MyExpensesPage implements OnInit {
 
   expensesTaskCount = 0;
 
+  isCameraShown = false;
+
   get HeaderState() {
     return HeaderState;
   }
@@ -862,7 +864,6 @@ export class MyExpensesPage implements OnInit {
     const newQueryParams: any = {
       or: [],
     };
-
     this.generateDateParams(newQueryParams);
 
     this.generateReceiptAttachedParams(newQueryParams);
@@ -1977,5 +1978,9 @@ export class MyExpensesPage implements OnInit {
     setTimeout(() => {
       searchInput.focus();
     }, 300);
+  }
+
+  showCamera(isCameraShown: boolean) {
+    this.isCameraShown = isCameraShown;
   }
 }

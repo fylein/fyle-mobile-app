@@ -1,6 +1,8 @@
 import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck } from '@angular/core';
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file_obj.model';
+import { Swiper } from 'swiper';
+import { SwiperComponent } from 'swiper/angular';
 
 @Component({
   selector: 'app-receipt-preview-thumbnail',
@@ -8,7 +10,7 @@ import { FileObject } from 'src/app/core/models/file_obj.model';
   styleUrls: ['./receipt-preview-thumbnail.component.scss'],
 })
 export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
-  @ViewChild('slides') imageSlides;
+  @ViewChild('slides', { static: false }) imageSlides?: SwiperComponent;
 
   @Input() attachments: FileObject[];
 
@@ -26,6 +28,8 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   previousCount: number;
 
+  numLoadedImage = 0;
+
   constructor() {}
 
   ngOnInit() {
@@ -37,11 +41,11 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   }
 
   goToNextSlide() {
-    this.imageSlides.slideNext();
+    this.imageSlides.swiperRef.slideNext(100);
   }
 
   goToPrevSlide() {
-    this.imageSlides.slidePrev();
+    this.imageSlides.swiperRef.slidePrev(100);
   }
 
   addAttachments(event) {
@@ -53,14 +57,18 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   }
 
   getActiveIndex() {
-    this.imageSlides.getActiveIndex().then((index) => (this.activeIndex = index));
+    this.activeIndex = this.imageSlides.swiperRef.activeIndex;
   }
 
   ngDoCheck() {
     if (this.attachments.length !== this.previousCount) {
       this.previousCount = this.attachments.length;
-      timer(100).subscribe(() => this.imageSlides.slideTo(this.attachments.length));
+      timer(100).subscribe(() => this.imageSlides.swiperRef.slideTo(this.attachments.length));
       this.getActiveIndex();
     }
+  }
+
+  onLoad() {
+    this.numLoadedImage++;
   }
 }

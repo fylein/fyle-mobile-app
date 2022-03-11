@@ -1,0 +1,40 @@
+@import '../../../../../theme/colors.scss';
+
+.add-more {
+  &--heading {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: $grey-light;
+    margin-bottom: 2px;
+  }
+
+  &--container {
+    display: flex;
+    padding: 24px 0;
+  }
+
+  &--icon {
+    height: 26px;
+    width: 26px;
+    &__camera {
+      stroke: $grey-light;
+    }
+
+    &__gallery {
+      color: $grey-light;
+    }
+  }
+
+  &--divider {
+    border-bottom: 1px solid $grey-lighter;
+  }
+
+  &--title {
+    font-size: 18px;
+    color: $black;
+    padding-left: 16px;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+}

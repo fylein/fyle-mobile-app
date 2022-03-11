@@ -1,63 +1,130 @@
 <ion-header mode="md">
-  <ion-toolbar mode="md" class="switch-org--toolbar">
-    <mat-form-field class="switch-org--form-field" appearance="outline">
-      <span class="material-icons switch-org--search-icon" matPrefix> search </span>
-      <input
-        #searchOrgsInput
-        [(ngModel)]="searchInput"
-        id="switch-org--search-input"
-        class="switch-org--search-input"
-        matInput
-        placeholder="Search Orgs"
-      />
-    </mat-form-field>
+  <ion-toolbar mode="md">
+    <ion-buttons *ngIf="navigateBack" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
+    <div class="switch-org__toolbar__header-container">
+      <ion-icon
+        class="switch-org__toolbar__header-container__header"
+        src="../../../assets/svg/fyle-logo.svg"
+      ></ion-icon>
+    </div>
+    <!-- TODO: Will added along with confirmation popover -->
+    <!-- <ion-buttons slot="end">
+      <ion-button (click)="signOut()" class="switch-org__toolbar__icon-container">
+        <ion-icon class="switch-org__toolbar__icon-container__icon" src="../../../assets/svg/power.svg"></ion-icon>
+        <span>Sign Out</span>
+      </ion-button>
+    </ion-buttons> -->
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div>
-    <div class="switch-org--header">Select an organization to switch to</div>
-    <div id="switch-org-list" *ngIf="!isLoading">
-      <div
-        matRipple
-        (click)="switchToOrg(org)"
-        class="switch-org--org-element"
-        [attr.id]="'org-' + org.id"
-        *ngFor="let org of filteredOrgs$ | async as list"
-      >
-        <ion-grid>
-          <ion-row>
-            <ion-col size="2">
-              <div class="switch-org--org-thumb">{{org.name | initials | uppercase}}</div>
-            </ion-col>
-            <ion-col size="10">
-              <div class="switch-org--org-element-name">{{org.name}}</div>
-              <div class="switch-org--org-element-domain">{{org.domain}}</div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
+  <ng-container *ngIf="navigateBack">
+    <ng-container *ngIf="!isLoading; else skeletonActiveOrg">
+      <ng-container *ngIf="activeOrg$ | async as activeOrg">
+        <ng-container *ngIf="primaryOrg$ | async as primaryOrg">
+          <app-active-org-card
+            [org]="activeOrg"
+            [isPrimaryOrg]="activeOrg.id === primaryOrg.id"
+            (orgSelected)="switchOrg(activeOrg)"
+          ></app-active-org-card>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+    <ng-template #skeletonActiveOrg>
+      <app-active-org-card [isLoading]="true"></app-active-org-card>
+    </ng-template>
+  </ng-container>
+
+  <div class="switch-org__content-container" [ngClass]="{'switch-org__content-container--sticky': !isIos}">
+    <div #content class="switch-org__content-container__block switch-org__content-container__content-block">
+      <div class="switch-org__content-container__content d-flex">
+        <div class="switch-org__content-container__content__sub-block">
+          <div class="switch-org__content-container__content__title">
+            {{ navigateBack ? 'Switch' : 'Select' }} Organization
+          </div>
+          <div class="switch-org__content-container__content__sub-title">
+            Select the organization you want to {{ navigateBack ? 'switch to' : 'view' }}.
+          </div>
+        </div>
+        <ion-icon
+          class="switch-org__content-container__content__icon"
+          src="../../../assets/svg/fy-search.svg"
+          (click)="openSearchBar()"
+        ></ion-icon>
       </div>
     </div>
-    <div *ngIf="isLoading">
-      <div class="switch-org--org-element" *ngFor="let dummy of [1,2,3,4,5,6]">
-        <ion-grid>
-          <ion-row>
-            <ion-col size="2">
-              <div class="switch-org--org-thumb switch-org--org-thumb__no-border">
-                <ion-skeleton-text animated></ion-skeleton-text>
-              </div>
-            </ion-col>
-            <ion-col size="10">
-              <div class="switch-org--org-element-name">
-                <ion-skeleton-text animated></ion-skeleton-text>
-              </div>
-              <div class="switch-org--org-element-domain">
-                <ion-skeleton-text animated></ion-skeleton-text>
-              </div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
+    <div #search class="switch-org__content-container__block switch-org__content-container__search-block">
+      <div class="expense-report-search switch-org__searchbar-container">
+        <mat-form-field
+          appearance="outline"
+          class="mat-form-field-no-padding switch-org__searchbar-container__searchbar"
+        >
+          <div class="d-flex">
+            <mat-icon
+              class="switch-org__searchbar-container__searchbar__search-icon"
+              matPrefix
+              svgIcon="fy-search"
+            ></mat-icon>
+            <input
+              #searchOrgsInput
+              [(ngModel)]="searchInput"
+              matInput
+              placeholder="Search for an org"
+              autocomplete="off"
+            />
+            <button
+              (click)="resetSearch()"
+              *ngIf="searchInput.length"
+              aria-label="Clear"
+              class="switch-org__searchbar-container__searchbar__clear-icon"
+              mat-button
+              mat-icon-button
+              matSuffix
+            >
+              <mat-icon svgIcon="fy-clear"></mat-icon>
+            </button>
+          </div>
+        </mat-form-field>
+        <div class="switch-org__searchbar-container__cancel" (click)="cancelSearch()">Cancel</div>
       </div>
     </div>
+  </div>
+
+  <div class="switch-org__orgs-container">
+    <ng-container *ngIf="!isLoading; else skeletonOrgCards">
+      <ng-container *ngIf="filteredOrgs$ | async as filteredOrgs">
+        <ng-container *ngIf="filteredOrgs.length; else zeroState">
+          <ng-container *ngIf="primaryOrg$ | async as primaryOrg">
+            <app-org-card
+              *ngFor="let org of filteredOrgs"
+              [org]="org"
+              [isPrimaryOrg]="org.id === primaryOrg.id"
+              (selectOrg)="switchOrg(org)"
+            >
+            </app-org-card>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #zeroState>
+      <ng-container *ngIf="orgs$ | async as orgs">
+        <ng-container *ngIf="orgs.length > 1">
+          <app-fy-zero-state
+            header="Sorry, no results found!"
+            [message]="'We could not find what you were looking for.\nKindly check the keywords again.'"
+            image="../../../assets/images/zero-states/search-not-found.svg"
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
+        </ng-container>
+      </ng-container>
+    </ng-template>
+
+    <ng-template #skeletonOrgCards>
+      <app-org-card *ngFor="let dummy of [1,2,3,4,5,6]" [isLoading]="true"></app-org-card>
+    </ng-template>
   </div>
 </ion-content>

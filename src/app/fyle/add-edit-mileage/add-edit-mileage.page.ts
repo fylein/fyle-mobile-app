@@ -107,6 +107,8 @@ export class AddEditMileagePage implements OnInit {
 
   isProjectsEnabled$: Observable<boolean>;
 
+  isCostCentersEnabled$: Observable<boolean>;
+
   customInputs$: Observable<any>;
 
   costCenters$: Observable<any>;
@@ -237,18 +239,18 @@ export class AddEditMileagePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  ngOnInit() {
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
-  }
-
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
   }
 
   get route() {
     return this.fg.controls.route;
+  }
+
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
   }
 
   goToPrev() {
@@ -1070,6 +1072,8 @@ export class AddEditMileagePage implements OnInit {
 
     this.customInputs$ = this.getCustomInputs();
 
+    this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
+
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$,
@@ -1106,50 +1110,66 @@ export class AddEditMileagePage implements OnInit {
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
         switchMap((txnFields) =>
-          this.isConnected$.pipe(
-            take(1),
-            withLatestFrom(this.costCenters$),
-            map(([isConnected, costCenters]) => ({
+          forkJoin({
+            isConnected: this.isConnected$.pipe(take(1)),
+            orgSettings: this.offlineService.getOrgSettings(),
+            costCenters: this.costCenters$,
+            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+            individualProjectIds: this.individualProjectIds$,
+          }).pipe(
+            map(({ isConnected, orgSettings, costCenters, isIndividualProjectsEnabled, individualProjectIds }) => ({
               isConnected,
               txnFields,
+              orgSettings,
               costCenters,
+              isIndividualProjectsEnabled,
+              individualProjectIds,
             }))
           )
         )
       )
-      .subscribe(({ isConnected, txnFields, costCenters }) => {
-        const keyToControlMap: { [id: string]: AbstractControl } = {
-          purpose: this.fg.controls.purpose,
-          cost_center_id: this.fg.controls.costCenter,
-          txn_dt: this.fg.controls.dateOfSpend,
-          project_id: this.fg.controls.project,
-          billable: this.fg.controls.billable,
-        };
+      .subscribe(
+        ({ isConnected, txnFields, costCenters, orgSettings, individualProjectIds, isIndividualProjectsEnabled }) => {
+          const keyToControlMap: { [id: string]: AbstractControl } = {
+            purpose: this.fg.controls.purpose,
+            cost_center_id: this.fg.controls.costCenter,
+            txn_dt: this.fg.controls.dateOfSpend,
+            project_id: this.fg.controls.project,
+            billable: this.fg.controls.billable,
+          };
 
-        for (const control of Object.values(keyToControlMap)) {
-          control.clearValidators();
-          control.updateValueAndValidity();
-        }
-
-        for (const txnFieldKey of intersection(Object.keys(keyToControlMap), Object.keys(txnFields))) {
-          const control = keyToControlMap[txnFieldKey];
-
-          if (txnFields[txnFieldKey].is_mandatory) {
-            if (txnFieldKey === 'txn_dt') {
-              control.setValidators(
-                isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
-              );
-            } else if (txnFieldKey === 'cost_center_id') {
-              control.setValidators(isConnected && costCenters && costCenters.length > 0 ? Validators.required : null);
-            } else {
-              control.setValidators(isConnected ? Validators.required : null);
-            }
+          for (const control of Object.values(keyToControlMap)) {
+            control.clearValidators();
+            control.updateValueAndValidity();
           }
-          control.updateValueAndValidity();
-        }
 
-        this.fg.updateValueAndValidity();
-      });
+          for (const txnFieldKey of intersection(Object.keys(keyToControlMap), Object.keys(txnFields))) {
+            const control = keyToControlMap[txnFieldKey];
+            if (txnFields[txnFieldKey].is_mandatory) {
+              if (txnFieldKey === 'txn_dt') {
+                control.setValidators(
+                  isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
+                );
+              } else if (txnFieldKey === 'cost_center_id') {
+                control.setValidators(
+                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null
+                );
+              } else if (txnFieldKey === 'project_id') {
+                control.setValidators(
+                  orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
+                    ? null
+                    : Validators.required
+                );
+              } else {
+                control.setValidators(isConnected ? Validators.required : null);
+              }
+            }
+            control.updateValueAndValidity();
+          }
+
+          this.fg.updateValueAndValidity();
+        }
+      );
 
     this.isAmountCapped$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
@@ -1371,7 +1391,7 @@ export class AddEditMileagePage implements OnInit {
           )
       )
     );
-    from(this.loaderService.showLoader())
+    from(this.loaderService.showLoader('Please wait...', 10000))
       .pipe(
         switchMap(() =>
           combineLatest([
@@ -1536,7 +1556,22 @@ export class AddEditMileagePage implements OnInit {
           }, 1000);
         }
       );
+
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   async showClosePopup() {
     const isAutofilled =

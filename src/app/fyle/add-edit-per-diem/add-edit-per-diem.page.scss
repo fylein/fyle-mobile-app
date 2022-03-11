@@ -20,6 +20,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
+      color: $black-light;
     }
   }
 
@@ -204,9 +205,7 @@
   }
 
   &--checkbox {
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
+    color: $blue-black;
   }
 
   &--project-container {
@@ -288,13 +287,6 @@
     line-height: 16px;
     margin-top: -16px;
     font-size: 12px;
-  }
-
-  &--critical-policy {
-    border-radius: 6px;
-    background: #f2f2f2;
-    padding: 8px 16px;
-    margin-bottom: 16px;
   }
 
   &--review-nav {
@@ -508,5 +500,10 @@
     font-size: 12px;
     color: $grey-light;
     margin-top: 5px;
+  }
+
+  &--cost-center-alert {
+    margin-top: 8px;
+    display: block;
   }
 }

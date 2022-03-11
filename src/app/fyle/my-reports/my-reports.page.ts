@@ -1,14 +1,12 @@
-import { Component, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
-import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, iif, of } from 'rxjs';
+import { Component, OnInit, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import {
-  concatMap,
   switchMap,
   finalize,
   map,
-  scan,
   shareReplay,
   distinctUntilChanged,
   tap,
@@ -18,10 +16,8 @@ import {
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { MyReportsSortFilterComponent } from './my-reports-sort-filter/my-reports-sort-filter.component';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -117,7 +113,6 @@ export class MyReportsPage implements OnInit {
     private router: Router,
     private currencyService: CurrencyService,
     private activatedRoute: ActivatedRoute,
-    private popupService: PopupService,
     private transactionService: TransactionService,
     private popoverController: PopoverController,
     private trackingService: TrackingService,

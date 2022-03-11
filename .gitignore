@@ -39,3 +39,5 @@ ios/App/App/Info.plist
 package-lock.json
 setup.sh
 .env
+.angular
+

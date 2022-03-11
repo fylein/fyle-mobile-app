@@ -1,6 +1,5 @@
 @import '../../../theme/colors.scss';
 
-$menu-botton-color: #000;
 $background-color: #fff;
 
 .split-expense {
@@ -30,11 +29,14 @@ $background-color: #fff;
     }
 
     &-save {
+      --color: $brand-primary;
       color: $brand-primary;
+      width: 66px;
       font-size: 16px;
       line-height: 20px;
       font-weight: 500;
-      padding-right: 12px;
+      text-transform: none;
+      margin: 0;
     }
   }
 

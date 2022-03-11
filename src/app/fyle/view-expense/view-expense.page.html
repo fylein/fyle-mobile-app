@@ -63,7 +63,7 @@
           {{ etxn.tx_vendor || merchantFieldName + ' Unspecified'}}
         </div>
         <div *ngIf="isProjectShown" class="view-expense--card-container__project">
-          Project: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
+          {{ projectFieldName | titlecase }}: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
         </div>
       </div>
       <div class="ion-text-right view-expense--card-container__block">

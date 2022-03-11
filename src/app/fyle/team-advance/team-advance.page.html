@@ -5,51 +5,50 @@
     </ion-buttons>
     <ion-title mode="md" class="page-title"> Advance Requests </ion-title>
     <ion-buttons mode="md" slot="end">
-      <button mat-button class="advance-request--option" [matMenuTriggerFor]="menu">Filter</button>
+      <ion-button class="advance-request--header-btn" (click)="openFilters()">
+        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+        </ng-container>
+        <ng-template #noFilterAppliedIcon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+        </ng-template>
+      </ion-button>
     </ion-buttons>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="changeState('PENDING')">
-        <div class="advance-request--select-state">
-          <ion-checkbox
-            class="advance-request--select-state-checkbox"
-            mode="ios"
-            color="primary"
-            [checked]="state === 'PENDING'"
-            slot="start"
-          ></ion-checkbox>
-          <ion-label>Pending</ion-label>
-        </div>
-      </button>
-      <button mat-menu-item (click)="changeState('APPROVED')">
-        <div class="advance-request--select-state">
-          <ion-checkbox
-            class="advance-request--select-state-checkbox"
-            mode="ios"
-            color="primary"
-            [checked]="state === 'APPROVED'"
-            slot="start"
-          ></ion-checkbox>
-          <ion-label>Approved</ion-label>
-        </div>
-      </button>
-    </mat-menu>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ng-container *ngIf="filterPills?.length">
+    <div class="filter-pills-container">
+      <app-fy-filter-pills
+        class="filter-pills"
+        (filterClose)="onFilterClose($event)"
+        (filterClicked)="onFilterClick($event)"
+        (clearAll)="onFilterPillsClearAll()"
+        [filterPills]="filterPills"
+      ></app-fy-filter-pills>
+    </div>
+  </ng-container>
+  <app-fy-loading-screen *ngIf="isLoading"></app-fy-loading-screen>
   <div *ngIf="count$|async; else zeroState">
-    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher slot="fixed" (ionRefresh)="changeState($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async">
-      <app-team-adv-card [advanceRequest]="teamAdvancerequest" (gotoAdvance)="onAdvanceClick($event)">
-      </app-team-adv-card>
-    </div>
+    <ng-container *ngIf="!isLoading">
+      <div *ngFor="let teamAdvancerequest of teamAdvancerequests$ | async as list; let i=index">
+        <app-team-adv-card
+          [advanceRequest]="teamAdvancerequest"
+          [prevDate]="list[i-1]?.areq_created_at"
+          (gotoAdvance)="onAdvanceClick($event)"
+        >
+        </app-team-adv-card>
+      </div>
+    </ng-container>
   </div>
 
   <ng-template #zeroState>
-    <div class="advance-request--zero-state">
+    <div class="advance-request--zero-state" *ngIf="(teamAdvancerequests$ | async)?.length === 0 && !isLoading">
       <app-fy-zero-state
         [unscaledImage]="true"
         [useNewStyling]="true"
@@ -60,7 +59,11 @@
     </div>
   </ng-template>
 
-  <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+  <ion-infinite-scroll
+    *ngIf="isInfiniteScrollRequired$ | async"
+    threshold="100px"
+    (ionInfinite)="changeState($event, true)"
+  >
     <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>

@@ -60,9 +60,9 @@
     </ion-refresher>
 
     <ng-container *ngIf="filterPills?.length">
-      <div class="my-reports--filter-pills-container">
+      <div class="filter-pills-container">
         <app-fy-filter-pills
-          class="my-reports--filter-pills"
+          class="filter-pills"
           (filterClose)="onFilterClose($event)"
           (filterClicked)="onFilterClick($event)"
           (clearAll)="onFilterPillsClearAll()"
@@ -74,7 +74,7 @@
     <app-fy-loading-screen *ngIf="isLoading" class="my-reports--shimmers"></app-fy-loading-screen>
     <div *ngIf="(count$ | async) === 0" class="my-reports--zero-state">
       <app-fy-zero-state
-        *ngIf="!(filters?.state || filters?.date || searchText)"
+        *ngIf="!(filters?.state || filters?.date || simpleSearchText)"
         [unscaledImage]="true"
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/expenses.png"
@@ -82,7 +82,7 @@
         message='Create one by clicking <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon> on top'
       ></app-fy-zero-state>
       <app-fy-zero-state
-        *ngIf="(filters?.state || filters?.date || searchText)"
+        *ngIf="(filters?.state || filters?.date || simpleSearchText)"
         [unscaledImage]="true"
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/search-not-found.svg"

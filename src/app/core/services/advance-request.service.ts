@@ -1,25 +1,51 @@
 import { Injectable } from '@angular/core';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { forkJoin, from, Observable, of, Subject } from 'rxjs';
+
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { map, switchMap, tap } from 'rxjs/operators';
-import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
-import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
-import { Approval } from '../models/approval.model';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
-import { CustomField } from '../models/custom_field.model';
 import { FileService } from './file.service';
+
+import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
+import { Approval } from '../models/approval.model';
+import { CustomField } from '../models/custom_field.model';
 import { File } from '../models/file.model';
-import { TransactionsOutboxService } from './transactions-outbox.service';
+import { AdvancesStates } from '../models/advances-states.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { SortingDirection } from '../models/sorting-direction.model';
+import { SortingParam } from '../models/sorting-param.model';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
+
+type Filters = Partial<{
+  state: AdvancesStates[];
+  sortParam: SortingParam;
+  sortDir: SortingDirection;
+}>;
+
+type Config = Partial<{
+  offset: number;
+  limit: number;
+  queryParams: any;
+  filter: Filters;
+}>;
+
+type advanceRequestStat = {
+  aggregates: string;
+  areq_trip_request_id: string;
+  areq_state: string;
+  areq_is_sent_back: string;
+  scalar: boolean;
+};
 
 @Injectable({
   providedIn: 'root',
@@ -36,15 +62,14 @@ export class AdvanceRequestService {
     private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
-    private fileService: FileService,
-    private transactionsOutboxService: TransactionsOutboxService
+    private fileService: FileService
   ) {}
 
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
   getMyadvanceRequests(
-    config: Partial<{ offset: number; limit: number; queryParams: any }> = {
+    config: Config = {
       offset: 0,
       limit: 10,
       queryParams: {},
@@ -116,8 +141,6 @@ export class AdvanceRequestService {
     };
 
     return this.apiService.post('/advance_requests/add_approver', data);
-    // self.deleteCache();
-    // return fixDates(advance_request);
   }
 
   @CacheBuster({
@@ -165,28 +188,38 @@ export class AdvanceRequestService {
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
-  getTeamadvanceRequests(
-    config: Partial<{ offset: number; limit: number; queryParams: any; filter: any }> = {
+  getTeamAdvanceRequests(
+    config: Config = {
       offset: 0,
       limit: 10,
       queryParams: {},
-      filter: 'PENDING',
     }
   ) {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) => {
         const defaultParams = {};
-        if (config.filter === 'APPROVED') {
-          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_DONE'];
-        } else {
-          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = ['eq.APPROVAL_PENDING'];
+        const isPending = config.filter.state.includes(AdvancesStates.pending);
+        const isApproved = config.filter.state.includes(AdvancesStates.approved);
+        let approvalState;
+
+        if (isPending && isApproved) {
+          approvalState = 'in.(APPROVAL_PENDING,APPROVAL_DONE)';
+        } else if (isApproved) {
+          approvalState = 'eq.APPROVAL_DONE';
+        } else if (isPending) {
+          approvalState = 'eq.APPROVAL_PENDING';
         }
 
+        if (approvalState) {
+          defaultParams[`advance_request_approvals->${eou.ou.id}->>state`] = [approvalState];
+        }
+
+        const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
         return this.apiv2Service.get('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
-            order: 'areq_created_at.desc',
+            order,
             areq_approvers_ids: 'cs.{' + eou.ou.id + '}',
             ...defaultParams,
             ...config.queryParams,
@@ -215,7 +248,6 @@ export class AdvanceRequestService {
       map((res) => {
         const eAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
-        // self.setInternalStateAndDisplayName(eAdvanceRequest.areq);
         return eAdvanceRequest;
       })
     );
@@ -286,8 +318,8 @@ export class AdvanceRequestService {
     }).pipe(map((advanceRequest) => advanceRequest.count));
   }
 
-  getTeamAdvanceRequestsCount(queryParams: {}, filter: any) {
-    return this.getTeamadvanceRequests({
+  getTeamAdvanceRequestsCount(queryParams: {}, filter: Filters) {
+    return this.getTeamAdvanceRequests({
       offset: 0,
       limit: 1,
       queryParams,
@@ -322,67 +354,58 @@ export class AdvanceRequestService {
   }
 
   getInternalStateAndDisplayName(advanceRequest: ExtendedAdvanceRequest): { state: string; name: string } {
-    let state: { state: string; name: string };
-    state = this.getStateIfDraft(advanceRequest, state);
-
-    if (advanceRequest.areq_state === 'INQUIRY') {
-      state = {
+    let internalRepresentation: { state: string; name: string } = {
+      state: null,
+      name: null,
+    };
+    if (advanceRequest.areq_state === 'DRAFT') {
+      internalRepresentation = this.getStateIfDraft(advanceRequest);
+    } else if (advanceRequest.areq_state === 'INQUIRY') {
+      internalRepresentation = {
         state: 'inquiry',
         name: 'Sent Back',
       };
-    }
-
-    if (advanceRequest.areq_state === 'SUBMITTED' || advanceRequest.areq_state === 'APPROVAL_PENDING') {
-      state = {
+    } else if (advanceRequest.areq_state === 'SUBMITTED' || advanceRequest.areq_state === 'APPROVAL_PENDING') {
+      internalRepresentation = {
         state: 'pendingApproval',
-        name: 'Pending Approval',
+        name: 'Pending',
       };
-    }
-
-    if (advanceRequest.areq_state === 'APPROVED') {
-      state = {
+    } else if (advanceRequest.areq_state === 'APPROVED') {
+      internalRepresentation = {
         state: 'approved',
         name: 'Approved',
       };
-    }
-
-    if (advanceRequest.areq_state === 'PAID') {
-      state = {
+    } else if (advanceRequest.areq_state === 'PAID') {
+      internalRepresentation = {
         state: 'paid',
         name: 'Paid',
       };
-    }
-
-    if (advanceRequest.areq_state === 'REJECTED') {
-      state = {
+    } else if (advanceRequest.areq_state === 'REJECTED') {
+      internalRepresentation = {
         state: 'rejected',
         name: 'Rejected',
       };
     }
 
-    return state;
+    return internalRepresentation;
   }
 
-  getStateIfDraft(advanceRequest: ExtendedAdvanceRequest, state: { state: string; name: string }) {
-    if (advanceRequest.areq_state === 'DRAFT') {
-      if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
-        state = {
-          state: 'draft',
-          name: 'Draft',
-        };
-      } else if (advanceRequest.areq_is_pulled_back) {
-        state = {
-          state: 'pulledBack',
-          name: 'Pulled Back',
-        };
-      } else if (advanceRequest.areq_is_sent_back) {
-        state = {
-          state: 'inquiry',
-          name: 'Sent Back',
-        };
-      }
+  getStateIfDraft(advanceRequest: ExtendedAdvanceRequest) {
+    const internalRepresentation: { state: string; name: string } = {
+      state: null,
+      name: null,
+    };
+    if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
+      internalRepresentation.state = 'draft';
+      internalRepresentation.name = 'Draft';
+    } else if (advanceRequest.areq_is_pulled_back) {
+      internalRepresentation.state = 'pulledBack';
+      internalRepresentation.name = 'Pulled Back';
+    } else if (advanceRequest.areq_is_sent_back) {
+      internalRepresentation.state = 'inquiry';
+      internalRepresentation.name = 'Sent Back';
     }
-    return state;
+    return internalRepresentation;
   }
 
   createAdvReqWithFilesAndSubmit(advanceRequest, fileObservables?: Observable<any[]>) {
@@ -425,5 +448,42 @@ export class AdvanceRequestService {
         }
       })
     );
+  }
+
+  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<any> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) => this.getAdvanceRequestStats(eou, params)),
+      map((res) => res.data)
+    );
+  }
+
+  private getSortOrder(sortParam: SortingParam, sortDir: SortingDirection) {
+    let order: string;
+    if (sortParam === SortingParam.creationDate) {
+      order = 'areq_created_at';
+    } else if (sortParam === SortingParam.approvalDate) {
+      order = 'areq_approved_at';
+    } else if (sortParam === SortingParam.project) {
+      order = 'project_name';
+    } else {
+      order = 'areq_created_at'; //default
+    }
+
+    if (sortDir === SortingDirection.ascending) {
+      order += '.asc,areq_id.desc';
+    } else {
+      order += '.desc,areq_id.desc'; //default
+    }
+
+    return order;
+  }
+
+  private getAdvanceRequestStats(eou: ExtendedOrgUser, params: advanceRequestStat): Observable<any> {
+    return this.apiv2Service.get('/advance_requests/stats', {
+      params: {
+        areq_org_user_id: 'eq.' + eou.ou.id,
+        ...params,
+      },
+    });
   }
 }

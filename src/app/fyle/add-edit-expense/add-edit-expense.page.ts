@@ -12,10 +12,11 @@ import {
   noop,
   Observable,
   of,
-  Subject,
+  BehaviorSubject,
   throwError,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TitleCasePipe } from '@angular/common';
 import {
   catchError,
   concatMap,
@@ -61,7 +62,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
-import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -97,6 +98,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { Expense } from 'src/app/core/models/expense.model';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -109,6 +111,8 @@ export class AddEditExpensePage implements OnInit {
   @ViewChild('formContainer') formContainer: ElementRef;
 
   @ViewChild('comments') commentsContainer: ElementRef;
+
+  @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
   etxn$: Observable<any>;
 
@@ -149,6 +153,8 @@ export class AddEditExpensePage implements OnInit {
   reports$: Observable<any>;
 
   isProjectsEnabled$: Observable<boolean>;
+
+  isCostCentersEnabled$: Observable<boolean>;
 
   flightJourneyTravelClassOptions$: Observable<any>;
 
@@ -198,7 +204,7 @@ export class AddEditExpensePage implements OnInit {
 
   newExpenseDataUrls = [];
 
-  loadAttachments$ = new Subject();
+  loadAttachments$ = new BehaviorSubject<void>(null);
 
   attachments$: Observable<FileObject[]>;
 
@@ -311,6 +317,10 @@ export class AddEditExpensePage implements OnInit {
 
   source = 'MOBILE';
 
+  isCameraShown = false;
+
+  isIos = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -351,7 +361,9 @@ export class AddEditExpensePage implements OnInit {
     private sanitizer: DomSanitizer,
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    public platform: Platform,
+    private titleCasePipe: TitleCasePipe
   ) {}
 
   goBack() {
@@ -761,6 +773,7 @@ export class AddEditExpensePage implements OnInit {
           currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
           fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
           selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
+          selectedReportId: this.fg.value.report ? JSON.stringify(this.fg.value.report.rp.id) : null,
         },
       ]);
     });
@@ -772,10 +785,12 @@ export class AddEditExpensePage implements OnInit {
         orgSettings$: this.offlineService.getOrgSettings(),
         costCenters: this.costCenters$,
         projects: this.offlineService.getProjects(),
+        txnFields: this.txnFields$.pipe(take(1)),
       }).subscribe(async (res) => {
         const orgSettings = res.orgSettings$;
         const areCostCentersAvailable = res.costCenters.length > 0;
         const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
+        const projectField = res.txnFields.project_id;
 
         this.actionSheetButtons = [
           {
@@ -788,7 +803,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (areProjectsAvailable) {
           this.actionSheetButtons.push({
-            text: 'Project',
+            text: this.titleCasePipe.transform(projectField?.field_name),
             handler: () => {
               this.openSplitExpenseModal('projects');
             },
@@ -843,6 +858,8 @@ export class AddEditExpensePage implements OnInit {
 
   setupCostCenters() {
     const orgSettings$ = this.offlineService.getOrgSettings();
+
+    this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
@@ -1034,17 +1051,6 @@ export class AddEditExpensePage implements OnInit {
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
 
-    const instaFyleSettings$ = this.orgUserSettings$.pipe(
-      map((orgUserSettings) => orgUserSettings.insta_fyle_settings),
-      map((instaFyleSettings) => ({
-        shouldExtractAmount: instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1,
-        shouldExtractCurrency: instaFyleSettings.extract_fields.indexOf('CURRENCY') > -1,
-        shouldExtractDate: instaFyleSettings.extract_fields.indexOf('TXN_DT') > -1,
-        shouldExtractCategory: instaFyleSettings.extract_fields.indexOf('CATEGORY') > -1,
-        shouldExtractMerchant: instaFyleSettings.extract_fields.indexOf('MERCHANT') > -1,
-      }))
-    );
-
     return forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$,
@@ -1052,7 +1058,6 @@ export class AddEditExpensePage implements OnInit {
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
       eou: eou$,
-      instaFyleSettings: instaFyleSettings$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
       recentValue: this.recentlyUsedValues$,
@@ -1065,7 +1070,6 @@ export class AddEditExpensePage implements OnInit {
           homeCurrency,
           accounts,
           eou,
-          instaFyleSettings,
           imageData,
           recentCurrency,
           recentValue,
@@ -1187,19 +1191,14 @@ export class AddEditExpensePage implements OnInit {
 
           etxn.tx.extracted_data = extractedData;
 
-          if (instaFyleSettings.shouldExtractAmount && extractedData.amount) {
+          if (extractedData.amount) {
             etxn.tx.amount = extractedData.amount;
           }
 
-          if (instaFyleSettings.shouldExtractCurrency && extractedData.currency) {
+          if (extractedData.currency) {
             etxn.tx.currency = extractedData.currency;
 
-            if (
-              homeCurrency !== extractedData.currency &&
-              instaFyleSettings.shouldExtractAmount &&
-              extractedData.amount &&
-              imageData.exchangeRate
-            ) {
+            if (homeCurrency !== extractedData.currency && extractedData.amount && imageData.exchangeRate) {
               etxn.tx.orig_amount = extractedData.amount;
               etxn.tx.orig_currency = extractedData.currency;
               etxn.tx.amount = imageData.exchangeRate * extractedData.amount;
@@ -1207,19 +1206,19 @@ export class AddEditExpensePage implements OnInit {
             }
           }
 
-          if (instaFyleSettings.shouldExtractDate && extractedData.date) {
-            etxn.tx.txn_dt = new Date(extractedData.date);
+          if (extractedData.date) {
+            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.date));
           }
 
-          if (instaFyleSettings.shouldExtractDate && extractedData.invoice_dt) {
-            etxn.tx.txn_dt = new Date(extractedData.invoice_dt);
+          if (extractedData.invoice_dt) {
+            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.invoice_dt));
           }
 
-          if (instaFyleSettings.shouldExtractMerchant && extractedData.vendor) {
+          if (extractedData.vendor) {
             etxn.tx.vendor = extractedData.vendor;
           }
 
-          if (instaFyleSettings.shouldExtractCategory && extractedData.category) {
+          if (extractedData.category) {
             const categoryName = extractedData.category || 'unspecified';
             const category = categories.find((orgCategory) => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
@@ -1297,17 +1296,25 @@ export class AddEditExpensePage implements OnInit {
       )
     );
     const selectedReport$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.report_id,
-          this.reports$.pipe(
+      switchMap((etxn) => {
+        if (etxn.tx.report_id) {
+          return this.reports$.pipe(
             map((reportOptions) =>
               reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
             )
-          ),
-          of(null)
-        )
-      )
+          );
+        } else if (!etxn.tx.report_id && this.activatedRoute.snapshot.params.rp_id) {
+          return this.reports$.pipe(
+            map((reportOptions) =>
+              reportOptions
+                .map((res) => res.value)
+                .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
+            )
+          );
+        } else {
+          return of(null);
+        }
+      })
     );
 
     const selectedPaymentMode$ = this.etxn$.pipe(
@@ -1681,7 +1688,6 @@ export class AddEditExpensePage implements OnInit {
             });
 
             this.fg.controls.custom_inputs.patchValue(customInputValues);
-            this.loadAttachments$.next();
           }, 600);
 
           this.attachedReceiptsCount = txnReceiptsCount;
@@ -1987,98 +1993,129 @@ export class AddEditExpensePage implements OnInit {
             orgSettings: this.offlineService.getOrgSettings(),
             costCenters: this.costCenters$,
             taxGroups: this.taxGroups$,
+            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+            individualProjectIds: this.individualProjectIds$,
           }).pipe(
-            map(({ isConnected, orgSettings, costCenters, taxGroups }) => ({
-              isConnected,
-              txnFields,
-              orgSettings,
-              costCenters,
-              taxGroups,
-            }))
+            map(
+              ({
+                isConnected,
+                orgSettings,
+                costCenters,
+                taxGroups,
+                isIndividualProjectsEnabled,
+                individualProjectIds,
+              }) => ({
+                isConnected,
+                txnFields,
+                orgSettings,
+                costCenters,
+                taxGroups,
+                isIndividualProjectsEnabled,
+                individualProjectIds,
+              })
+            )
           )
         )
       )
-      .subscribe(({ isConnected, txnFields, orgSettings, costCenters, taxGroups }) => {
-        const keyToControlMap: {
-          [id: string]: AbstractControl;
-        } = {
-          purpose: this.fg.controls.purpose,
-          txn_dt: this.fg.controls.dateOfSpend,
-          vendor_id: this.fg.controls.vendor_id,
-          cost_center_id: this.fg.controls.costCenter,
-          from_dt: this.fg.controls.from_dt,
-          to_dt: this.fg.controls.to_dt,
-          location1: this.fg.controls.location_1,
-          location2: this.fg.controls.location_2,
-          distance: this.fg.controls.distance,
-          distance_unit: this.fg.controls.distance_unit,
-          flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
-          flight_return_travel_class: this.fg.controls.flight_return_travel_class,
-          train_travel_class: this.fg.controls.train_travel_class,
-          bus_travel_class: this.fg.controls.bus_travel_class,
-          project_id: this.fg.controls.project,
-          billable: this.fg.controls.billable,
-          tax_group_id: this.fg.controls.tax_group,
-        };
-        for (const control of Object.values(keyToControlMap)) {
-          control.clearValidators();
-          control.updateValueAndValidity();
-        }
-        // setup validations
-        for (const txnFieldKey of Object.keys(txnFields)) {
-          const control = keyToControlMap[txnFieldKey];
-          if (txnFields[txnFieldKey].is_mandatory) {
-            if (txnFieldKey === 'vendor_id') {
-              if (isConnected) {
-                control.setValidators(Validators.compose([Validators.required, this.merchantValidator]));
-              } else {
-                control.setValidators(Validators.compose([this.merchantValidator]));
-              }
-            } else if (
-              [
-                'location1',
-                'location2',
-                'from_dt',
-                'to_dt',
-                'flight_journey_travel_class',
-                'flight_return_travel_class',
-                'train_travel_class',
-                'bus_travel_class',
-              ].includes(txnFieldKey)
-            ) {
-              if (
-                this.fg.value.category &&
-                this.fg.value.category.fyle_category &&
-                ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
-                isConnected
-              ) {
-                control.setValidators(Validators.required);
-              }
-            } else if (['distance', 'distance_unit'].includes(txnFieldKey)) {
-              if (
-                this.fg.value.category &&
-                this.fg.value.category.fyle_category &&
-                ['Taxi'].includes(this.fg.value.category.fyle_category) &&
-                isConnected
-              ) {
-                control.setValidators(Validators.required);
-              }
-            } else if (txnFieldKey === 'txn_dt') {
-              control.setValidators(
-                isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
-              );
-            } else if (txnFieldKey === 'cost_center_id') {
-              control.setValidators(isConnected && costCenters && costCenters.length > 0 ? Validators.required : null);
-            } else if (txnFieldKey === 'tax_group_id') {
-              control.setValidators(isConnected && taxGroups && taxGroups.length > 0 ? Validators.required : null);
-            } else {
-              control.setValidators(isConnected ? Validators.required : null);
-            }
+      .subscribe(
+        ({
+          isConnected,
+          txnFields,
+          orgSettings,
+          costCenters,
+          taxGroups,
+          individualProjectIds,
+          isIndividualProjectsEnabled,
+        }) => {
+          const keyToControlMap: {
+            [id: string]: AbstractControl;
+          } = {
+            purpose: this.fg.controls.purpose,
+            txn_dt: this.fg.controls.dateOfSpend,
+            vendor_id: this.fg.controls.vendor_id,
+            cost_center_id: this.fg.controls.costCenter,
+            from_dt: this.fg.controls.from_dt,
+            to_dt: this.fg.controls.to_dt,
+            location1: this.fg.controls.location_1,
+            location2: this.fg.controls.location_2,
+            distance: this.fg.controls.distance,
+            distance_unit: this.fg.controls.distance_unit,
+            flight_journey_travel_class: this.fg.controls.flight_journey_travel_class,
+            flight_return_travel_class: this.fg.controls.flight_return_travel_class,
+            train_travel_class: this.fg.controls.train_travel_class,
+            bus_travel_class: this.fg.controls.bus_travel_class,
+            project_id: this.fg.controls.project,
+            billable: this.fg.controls.billable,
+            tax_group_id: this.fg.controls.tax_group,
+          };
+          for (const control of Object.values(keyToControlMap)) {
+            control.clearValidators();
+            control.updateValueAndValidity();
           }
-          control.updateValueAndValidity();
+          // setup validations
+          for (const txnFieldKey of Object.keys(txnFields)) {
+            const control = keyToControlMap[txnFieldKey];
+            if (txnFields[txnFieldKey].is_mandatory) {
+              if (txnFieldKey === 'vendor_id') {
+                if (isConnected) {
+                  control.setValidators(Validators.compose([Validators.required, this.merchantValidator]));
+                } else {
+                  control.setValidators(Validators.compose([this.merchantValidator]));
+                }
+              } else if (
+                [
+                  'location1',
+                  'location2',
+                  'from_dt',
+                  'to_dt',
+                  'flight_journey_travel_class',
+                  'flight_return_travel_class',
+                  'train_travel_class',
+                  'bus_travel_class',
+                ].includes(txnFieldKey)
+              ) {
+                if (
+                  this.fg.value.category &&
+                  this.fg.value.category.fyle_category &&
+                  ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
+                  isConnected
+                ) {
+                  control.setValidators(Validators.required);
+                }
+              } else if (['distance', 'distance_unit'].includes(txnFieldKey)) {
+                if (
+                  this.fg.value.category &&
+                  this.fg.value.category.fyle_category &&
+                  ['Taxi'].includes(this.fg.value.category.fyle_category) &&
+                  isConnected
+                ) {
+                  control.setValidators(Validators.required);
+                }
+              } else if (txnFieldKey === 'txn_dt') {
+                control.setValidators(
+                  isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
+                );
+              } else if (txnFieldKey === 'cost_center_id') {
+                control.setValidators(
+                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null
+                );
+              } else if (txnFieldKey === 'tax_group_id') {
+                control.setValidators(isConnected && taxGroups && taxGroups.length > 0 ? Validators.required : null);
+              } else if (txnFieldKey === 'project_id') {
+                control.setValidators(
+                  orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
+                    ? null
+                    : Validators.required
+                );
+              } else {
+                control.setValidators(isConnected ? Validators.required : null);
+              }
+            }
+            control.updateValueAndValidity();
+          }
+          this.fg.updateValueAndValidity();
         }
-        this.fg.updateValueAndValidity();
-      });
+      );
 
     this.etxn$
       .pipe(
@@ -2189,43 +2226,32 @@ export class AddEditExpensePage implements OnInit {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
-        const instaFyleSettings$ = this.orgUserSettings$.pipe(
-          map((orgUserSettings) => orgUserSettings.insta_fyle_settings)
-        );
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           return forkJoin({
-            instaFyleSettings: instaFyleSettings$,
             allCategories: this.offlineService.getAllEnabledCategories(),
           }).pipe(
-            switchMap(({ instaFyleSettings, allCategories }) => {
-              const shouldExtractAmount = instaFyleSettings.extract_fields.indexOf('AMOUNT') > -1;
-              const shouldExtractCurrency = instaFyleSettings.extract_fields.indexOf('CURRENCY') > -1;
-              const shouldExtractDate = instaFyleSettings.extract_fields.indexOf('TXN_DT') > -1;
-              const shouldExtractCategory = instaFyleSettings.extract_fields.indexOf('CATEGORY') > -1;
-              const shouldExtractMerchant = instaFyleSettings.extract_fields.indexOf('MERCHANT') > -1;
-
-              if (shouldExtractAmount && etxn.tx.extracted_data.amount && !etxn.tx.amount) {
+            switchMap(({ allCategories }) => {
+              if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
                 etxn.tx.amount = etxn.tx.extracted_data.amount;
               }
 
-              if (shouldExtractCurrency && etxn.tx.extracted_data.currency && !etxn.tx.currency) {
+              if (etxn.tx.extracted_data.currency && !etxn.tx.currency) {
                 etxn.tx.currency = etxn.tx.extracted_data.currency;
               }
 
-              if (shouldExtractDate && etxn.tx.extracted_data.date) {
-                etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.date);
+              if (etxn.tx.extracted_data.date) {
+                etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.date));
               }
 
-              if (shouldExtractDate && etxn.tx.extracted_data.invoice_dt) {
-                etxn.tx.txn_dt = new Date(etxn.tx.extracted_data.invoice_dt);
+              if (etxn.tx.extracted_data.invoice_dt) {
+                etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
               }
 
-              if (shouldExtractMerchant && etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
+              if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
                 etxn.tx.vendor = etxn.tx.extracted_data.vendor;
               }
 
               if (
-                shouldExtractCategory &&
                 etxn.tx.extracted_data.category &&
                 etxn.tx.fyle_category &&
                 etxn.tx.fyle_category.toLowerCase() === 'unspecified'
@@ -2691,7 +2717,22 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.getPolicyDetails();
+    this.isIos = this.platform.is('ios');
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
     const editExpenseAttachments = etxn$.pipe(
@@ -3725,19 +3766,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  async addAttachments(event) {
-    event.stopPropagation();
-    event.preventDefault();
-
-    const popup = await this.popoverController.create({
-      component: CameraOptionsPopupComponent,
-      cssClass: 'camera-options-popover',
-    });
-
-    await popup.present();
-
-    const { data } = await popup.onWillDismiss();
-
+  attachReceipts(data) {
     if (data) {
       const fileInfo = {
         type: data.type,
@@ -3809,6 +3838,66 @@ export class AddEditExpensePage implements OnInit {
               this.parseFile(fileInfo);
             }
           });
+      }
+    }
+  }
+
+  async addAttachments(event) {
+    event.stopPropagation();
+    let fileData;
+
+    if (this.platform.is('ios')) {
+      const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
+      nativeElement.onchange = async () => {
+        const file = nativeElement.files[0];
+        if (file) {
+          const dataUrl = await this.fileService.readFile(file);
+          fileData = {
+            type: file.type,
+            dataUrl,
+            actionSource: 'gallery_upload',
+          };
+          this.attachReceipts(fileData);
+        }
+      };
+      nativeElement.click();
+    } else {
+      const popup = await this.popoverController.create({
+        component: CameraOptionsPopupComponent,
+        cssClass: 'camera-options-popover',
+      });
+
+      await popup.present();
+
+      let { data: receiptDetails } = await popup.onWillDismiss();
+
+      if (receiptDetails && receiptDetails.option === 'camera') {
+        const captureReceiptModal = await this.modalController.create({
+          component: CaptureReceiptComponent,
+          componentProps: {
+            isModal: true,
+            allowGalleryUploads: false,
+            allowBulkFyle: false,
+          },
+          cssClass: 'hide-modal',
+        });
+
+        await captureReceiptModal.present();
+        this.isCameraShown = true;
+
+        const { data } = await captureReceiptModal.onWillDismiss();
+        this.isCameraShown = false;
+
+        if (data && data.dataUrl) {
+          receiptDetails = {
+            type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
+            dataUrl: data.dataUrl,
+            actionSource: 'camera',
+          };
+        }
+      }
+      if (receiptDetails && receiptDetails.dataUrl) {
+        this.attachReceipts(receiptDetails);
       }
     }
   }
@@ -4028,6 +4117,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   saveAndMatchWithPersonalCardTxn() {
+    this.saveExpenseLoader = true;
     const customFields$ = this.getCustomFields();
     return this.generateEtxnFromFg(this.etxn$, customFields$, true)
       .pipe(
@@ -4131,7 +4221,7 @@ export class AddEditExpensePage implements OnInit {
             switchMap((txn) =>
               this.personalCardsService
                 .matchExpense(txn.split_group_id, externalExpenseId)
-                .pipe(switchMap(() => this.uploadAttachments(txn)))
+                .pipe(switchMap(() => this.uploadAttachments(txn.split_group_id)))
             ),
             finalize(() => {
               this.saveExpenseLoader = false;
@@ -4141,33 +4231,46 @@ export class AddEditExpensePage implements OnInit {
       )
       .subscribe(() => {
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Successfully matched the expense.' }),
+          ...this.snackbarProperties.setSnackbarProperties('success', { message: 'Expense created successfully.' }),
           panelClass: ['msb-success'],
         });
         this.router.navigate(['/', 'enterprise', 'personal_cards']);
+        this.trackingService.newExpenseCreatedFromPersonalCard();
       });
   }
 
-  uploadAttachments(txn) {
-    const addExpenseAttachments$ = of(
-      this.newExpenseDataUrls.map((fileObj) => {
-        fileObj.type = fileObj.type === 'application/pdf' || fileObj.type === 'pdf' ? 'pdf' : 'image';
-        return fileObj;
-      })
-    );
-    return addExpenseAttachments$.pipe(
-      switchMap((fileObj: any) =>
-        fileObj.map((file) =>
-          from(this.transactionOutboxService.fileUpload(file.url, file.type))
-            .pipe(
-              switchMap((fileObj: any) => {
-                fileObj.transaction_id = txn.split_group_id;
-                return this.fileService.post(fileObj);
-              })
-            )
-            .subscribe(noop)
-        )
-      )
+  uploadAttachments(txnId: string) {
+    if (this.newExpenseDataUrls.length > 0) {
+      this.newExpenseDataUrls = this.addFileType(this.newExpenseDataUrls);
+      const addExpenseAttachments$ = of(this.newExpenseDataUrls);
+      return addExpenseAttachments$.pipe(switchMap((fileObjs) => this.uploadMultipleFiles(fileObjs, txnId)));
+    } else {
+      return of([]);
+    }
+  }
+
+  addFileType(dataUrls: FileObject[]) {
+    const dataUrlsCopy = cloneDeep(dataUrls);
+    dataUrlsCopy.map((dataUrl) => {
+      dataUrl.type = this.transactionOutboxService.isPDF(dataUrl.type) ? 'pdf' : 'image';
+    });
+
+    return dataUrlsCopy;
+  }
+
+  uploadMultipleFiles(fileObjs: FileObject[], txnId: string) {
+    return forkJoin(fileObjs.map((file) => this.uploadFileAndPostToFileService(file, txnId)));
+  }
+
+  postToFileService(fileObj: FileObject, txnId: string) {
+    const fileObjCopy = cloneDeep(fileObj);
+    fileObjCopy.transaction_id = txnId;
+    return this.fileService.post(fileObjCopy);
+  }
+
+  uploadFileAndPostToFileService(file: FileObject, txnId: string) {
+    return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
+      switchMap((fileObj: any) => this.postToFileService(fileObj, txnId))
     );
   }
 }

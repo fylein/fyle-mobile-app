@@ -1,7 +1,9 @@
 <ion-header mode="md">
   <ion-toolbar class="view-trip--toolbar">
     <ion-buttons mode="md" slot="end">
-      <ion-button class="view-trip--edit" fill="clear" *ngIf="canEdit$|async" (click)="editTrip()"> EDIT </ion-button>
+      <ng-container *ngIf="showTripActionCta">
+        <ion-button class="view-trip--edit" fill="clear" *ngIf="canEdit$|async" (click)="editTrip()"> EDIT </ion-button>
+      </ng-container>
       <ion-button [routerLink]="['/','enterprise','my_trips']" routerLinkActive="router-link-active">
         <mat-icon>close</mat-icon>
       </ion-button>
@@ -11,6 +13,9 @@
 </ion-header>
 
 <ion-content>
+  <ng-container *ngIf="deprecationMsg$|async as deprecationMsg">
+    <app-fy-alert-info [message]="deprecationMsg" type="warning" class="deprecate-msg"></app-fy-alert-info>
+  </ng-container>
   <div *ngIf="tripRequest$|async as tripRequest">
     <div *ngIf="tripExtraInfo$| async as tripExtraInfo">
       <div class="view-trip--header">Trip Information</div>
@@ -128,37 +133,42 @@
           ></app-comments-history>
         </div>
       </div>
-      <div class="view-trip--card" *ngIf="canDelete$|async" (click)="deleteTrip()">
-        <div class="view-trip--card-action" appFormButtonValidation [loading]="deleteLoading">
-          <mat-icon class="view-trip--card-action-icon">delete</mat-icon>
-          <div class="view-trip--card-action-text view-trip--card-action-text__delete">Delete Trip</div>
+
+      <ng-container *ngIf="showTripActionCta">
+        <div class="view-trip--card" *ngIf="canDelete$|async" (click)="deleteTrip()">
+          <div class="view-trip--card-action" appFormButtonValidation [loading]="deleteLoading">
+            <mat-icon class="view-trip--card-action-icon">delete</mat-icon>
+            <div class="view-trip--card-action-text view-trip--card-action-text__delete">Delete Trip</div>
+          </div>
         </div>
-      </div>
+      </ng-container>
     </div>
   </div>
 </ion-content>
 
-<ion-footer *ngIf="(canCloseTrip$|async)||(canPullBack$|async)">
-  <ion-toolbar class="fy-footer-cta-container" mode="md">
-    <ion-button
-      class="fy-footer-cta fy-footer-cta--primary"
-      [disabled]="pullbackLoading || closeLoading || deleteLoading"
-      appFormButtonValidation
-      [loading]="pullbackLoading"
-      *ngIf="canPullBack$|async"
-      (click)="pullBack()"
-    >
-      Pull Back
-    </ion-button>
-    <ion-button
-      class="fy-footer-cta fy-footer-cta--primary"
-      [disabled]="pullbackLoading || closeLoading || deleteLoading"
-      appFormButtonValidation
-      [loading]="closeLoading"
-      *ngIf="canCloseTrip$|async"
-      (click)="closeTrip()"
-    >
-      Close Trip
-    </ion-button>
-  </ion-toolbar>
-</ion-footer>
+<ng-container *ngIf="showTripActionCta">
+  <ion-footer *ngIf="(canCloseTrip$|async)||(canPullBack$|async)">
+    <ion-toolbar class="fy-footer-cta-container" mode="md">
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        [disabled]="pullbackLoading || closeLoading || deleteLoading"
+        appFormButtonValidation
+        [loading]="pullbackLoading"
+        *ngIf="canPullBack$|async"
+        (click)="pullBack()"
+      >
+        Pull Back
+      </ion-button>
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        [disabled]="pullbackLoading || closeLoading || deleteLoading"
+        appFormButtonValidation
+        [loading]="closeLoading"
+        *ngIf="canCloseTrip$|async"
+        (click)="closeTrip()"
+      >
+        Close Trip
+      </ion-button>
+    </ion-toolbar>
+  </ion-footer>
+</ng-container>

@@ -18,7 +18,7 @@ import { Org } from 'src/app/core/models/org.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 
 type EventData = {
-  key: 'instaFyle' | 'bulkFyle' | 'defaultCurrency' | 'formAutofill';
+  key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
   isEnabled: boolean;
   selectedCurrency?: Currency;
 };
@@ -26,7 +26,7 @@ type EventData = {
 type PreferenceSetting = {
   title: string;
   content: string;
-  key: 'instaFyle' | 'bulkFyle' | 'defaultCurrency' | 'formAutofill';
+  key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
   defaultCurrency?: string;
   isEnabled: boolean;
   isAllowed: boolean;
@@ -52,7 +52,6 @@ export class MyProfilePage implements OnInit {
 
   settingsMap = {
     instaFyle: 'insta_fyle_settings',
-    bulkFyle: 'bulk_fyle_settings',
     defaultCurrency: 'currency_settings',
     formAutofill: 'expense_form_autofills',
   };
@@ -154,13 +153,6 @@ export class MyProfilePage implements OnInit {
         key: 'instaFyle',
         isEnabled: this.orgUserSettings.insta_fyle_settings.enabled,
         isAllowed: this.orgUserSettings.insta_fyle_settings.allowed,
-      },
-      {
-        title: 'Bulkfyle',
-        content: 'Scan and submit multiple paper receipts at once.',
-        key: 'bulkFyle',
-        isEnabled: this.orgUserSettings.bulk_fyle_settings.enabled,
-        isAllowed: this.orgUserSettings.bulk_fyle_settings.allowed,
       },
       {
         title: 'Expense auto-fill',

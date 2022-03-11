@@ -71,8 +71,9 @@
             </ng-container>
 
             <ng-container *ngIf="isAmountCapped$|async">
-              <div class="add-edit-mileage--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
-                <div>
+              <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
+                <mat-icon class="capped-icon" svgIcon="fy-info"></mat-icon>
+                <div class="capped-message">
                   Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: 'symbol-narrow'}} was capped to
                   {{etxn.tx.amount | currency: etxn.tx.currency: 'symbol-narrow'}} due to policy
                   <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
@@ -163,7 +164,7 @@
               </div>
             </ng-container>
 
-            <ion-grid class="add-edit-mileage--grid">
+            <ion-grid class="ion-grid-no-padding">
               <ion-row>
                 <ion-col size="6">
                   <ng-container *ngIf="txnFields$|async as txnFields">
@@ -255,22 +256,23 @@
             </ng-container>
           </div>
 
-          <div class="add-edit-mileage--project-container">
-            <ng-container *ngIf="isConnected$|async">
-              <ng-container *ngIf="txnFields$|async as txnFields">
+          <ng-container *ngIf="txnFields$|async as txnFields">
+            <div class="add-edit-mileage--project-container" *ngIf="txnFields?.project_id">
+              <ng-container *ngIf="isConnected$|async">
                 <ng-container
-                  *ngIf="txnFields?.project_id && (isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+                  *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
                 >
                   <ng-container *ngIf="projectCategoryIds$|async as projectCategoryIds">
                     <ng-container *ngIf="isProjectVisible$|async">
                       <div
                         class="add-edit-mileage--internal-block add-edit-mileage--project-block"
-                        [ngClass]="{'add-edit-mileage--no-project': fg.controls.project.touched && !fg.controls.project.valid}"
+                        [ngClass]="{'add-edit-mileage--no-project': !fg.controls.project.value}"
                       >
                         <app-fy-select-project
                           [cacheName]="'mileageProjectCache'"
                           [categoryIds]="projectCategoryIds"
-                          [label]="'Project'"
+                          [label]="txnFields.project_id?.field_name"
+                          [placeholder]="txnFields.project_id?.placeholder"
                           [mandatory]="txnFields.project_id?.is_mandatory"
                           [defaultValue]="true"
                           [recentlyUsed]="recentProjects"
@@ -281,18 +283,22 @@
                   </ng-container>
                 </ng-container>
               </ng-container>
-            </ng-container>
 
-            <div *ngIf="fg.controls.project.value">
-              <mat-checkbox formControlName="billable">
-                <span class="add-edit-mileage--checkbox"> Billable </span>
-              </mat-checkbox>
+              <div *ngIf="fg.controls.project.value">
+                <mat-checkbox formControlName="billable">
+                  <span class="add-edit-mileage--checkbox"> Billable </span>
+                </mat-checkbox>
+              </div>
             </div>
-          </div>
 
-          <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-mileage--error">
-            Please select a project.
-          </div>
+            <div
+              *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+            >
+              <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-mileage--error">
+                Please select a project.
+              </div>
+            </div>
+          </ng-container>
 
           <ng-container *ngIf="filteredCategories$|async as subCategories">
             <ng-container *ngIf="subCategories.length > 0">
@@ -412,14 +418,11 @@
                         [placeholder]="'Enter ' + customInput.name"
                       />
 
-                      <input
-                        *ngIf="customInput.type === 'NUMBER'"
-                        class="add-edit-mileage--text-input"
+                      <app-fy-number
                         formControlName="value"
-                        inputmode="decimal"
-                        type="number"
+                        *ngIf="customInput.type === 'NUMBER'"
                         [placeholder]="'Enter ' + customInput.name"
-                      />
+                      ></app-fy-number>
 
                       <input
                         appFormatDate
@@ -560,6 +563,22 @@
                     >
                     </app-fy-alert-info>
                   </ng-container>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+
+          <ng-container *ngIf="isConnected$">
+            <ng-container *ngIf="txnFields$|async as txnFields">
+              <ng-container *ngIf="isCostCentersEnabled$|async as isCostCentersEnabled">
+                <ng-container *ngIf="costCenters$|async as allowedCostCenters">
+                  <app-fy-alert-info
+                    class="add-edit-mileage--cost-center-alert"
+                    *ngIf="txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0"
+                    [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                    [type]="'warning'"
+                  >
+                  </app-fy-alert-info>
                 </ng-container>
               </ng-container>
             </ng-container>

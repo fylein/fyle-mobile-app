@@ -10,12 +10,14 @@
   }
 
   &__content-container {
-    background-color: $grey-8;
-    padding: 24px 16px;
+    --background: #{$off-white};
+
+    &__content {
+      padding: 24px 16px;
+    }
   }
 
   &__section-header {
-    font-size: 16px;
     color: $black-light;
     padding-bottom: 12px;
     font-weight: 500;
@@ -31,7 +33,7 @@
     border-radius: 8px;
 
     &__title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 500;
       color: $black;
     }

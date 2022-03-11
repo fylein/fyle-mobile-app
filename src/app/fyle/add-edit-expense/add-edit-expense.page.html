@@ -1,4 +1,4 @@
-<ion-header mode="md">
+<ion-header [ngClass]="{'d-none': isCameraShown}" mode="md">
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
@@ -48,7 +48,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [ngClass]="{'d-none': isCameraShown}">
   <ng-container *ngIf="fg">
     <div class="add-edit-expense--duplicate-pointer-container">
       <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-expense--duplicate-pointer">
@@ -79,9 +79,12 @@
           </ng-container>
 
           <ng-container *ngIf="isAmountCapped$|async">
-            <div class="add-edit-expense--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
-              Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
-              '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+            <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
+              <mat-icon class="capped-icon" svgIcon="fy-info"></mat-icon>
+              <div class="capped-message">
+                Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
+                '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+              </div>
             </div>
           </ng-container>
         </ng-container>
@@ -99,7 +102,8 @@
                 *ngIf="(attachedReceiptsCount === 0 && !attachmentUploadInProgress)"
                 class="add-edit-expense--receipt-image"
               >
-                <mat-icon class="add-edit-expense--receipt-image-icon" svgIcon="add-to-list"></mat-icon>
+                <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+                <img class="add-edit-expense--receipt-image-icon" src="../../../assets/images/add-to-list.png" />
               </div>
 
               <div
@@ -117,6 +121,7 @@
                 >
                   add_circle
                 </mat-icon>
+                <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
               </div>
             </div>
           </ng-container>
@@ -151,6 +156,7 @@
           (viewAttachments)="viewAttachments()"
           [canEdit]="true"
         >
+          <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
         </app-receipt-preview-thumbnail>
 
         <ng-container *ngIf="attachments$|async as attachments">
@@ -162,11 +168,12 @@
             [isUploading]="attachmentUploadInProgress"
             [canEdit]="true"
           >
+            <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
           </app-receipt-preview-thumbnail>
         </ng-container>
 
         <div class="add-edit-expense--primary-block">
-          <ion-grid class="add-edit-expense--grid">
+          <ion-grid class="ion-grid-no-padding">
             <ion-row>
               <ion-col size="6">
                 <ng-container *ngIf="txnFields$|async as txnFields">
@@ -340,7 +347,8 @@
                       <app-fy-select-project
                         [cacheName]="'expenseProjectCache'"
                         [defaultValue]="true"
-                        [label]="'Project'"
+                        [label]="txnFields?.project_id?.field_name"
+                        [placeholder]="txnFields?.project_id?.placeholder"
                         [mandatory]="txnFields?.project_id?.is_mandatory"
                         [recentlyUsed]="recentProjects"
                         formControlName="project"
@@ -357,9 +365,10 @@
                 </mat-checkbox>
               </div>
             </div>
-
-            <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
-              Please select a project.
+            <div *ngIf="isProjectsVisible$|async">
+              <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
+                Please select a project.
+              </div>
             </div>
           </ng-container>
 
@@ -418,15 +427,7 @@
                     <div class="add-edit-expense--text-label">
                       {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
                     </div>
-                    <input
-                      (blur)="focusState = false"
-                      (focus)="focusState = true"
-                      class="add-edit-expense--text-input"
-                      formControlName="tax_amount"
-                      inputmode="decimal"
-                      type="number"
-                      [placeholder]="'Enter Tax Amount'"
-                    />
+                    <app-fy-number formControlName="tax_amount" [placeholder]="'Enter Tax Amount'"></app-fy-number>
                   </div>
                   <div
                     *ngIf="fg.controls.tax_amount.touched && !fg.controls.tax_amount.valid"
@@ -442,7 +443,7 @@
           <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="isConnected$|async as isConnected">
               <div>
-                <ion-grid class="add-edit-expense--grid">
+                <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
                       *ngIf="txnFields.location1?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -477,7 +478,7 @@
                   </ion-row>
                 </ion-grid>
 
-                <ion-grid class="add-edit-expense--grid">
+                <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
                       *ngIf="txnFields.from_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -532,7 +533,7 @@
                   </ion-row>
                 </ion-grid>
 
-                <ion-grid class="add-edit-expense--grid">
+                <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
                       *ngIf="txnFields.flight_journey_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
@@ -668,16 +669,10 @@
                       {{txnFields.distance?.field_name}}
                       <span class="add-edit-expense--mandatory">*</span>
                     </div>
-                    <input
-                      (blur)="focusState = false"
-                      (focus)="focusState = true"
-                      [disabled]="!txnFields.distance?.canEdit"
-                      class="add-edit-expense--text-input"
+                    <app-fy-number
                       formControlName="distance"
-                      inputmode="decimal"
                       [placeholder]="'Enter ' + txnFields.distance?.field_name"
-                      type="number"
-                    />
+                    ></app-fy-number>
                   </div>
 
                   <div class="add-edit-expense--internal-block">
@@ -835,16 +830,12 @@
                       type="text"
                     />
 
-                    <input
-                      (blur)="focusState = false"
-                      (focus)="focusState = true"
-                      *ngIf="customInput.type === 'NUMBER'"
-                      class="add-edit-expense--text-input"
+                    <app-fy-number
                       formControlName="value"
-                      inputmode="decimal"
-                      type="number"
+                      *ngIf="customInput.type === 'NUMBER'"
                       [placeholder]="'Enter ' + customInput.name"
-                    />
+                    >
+                    </app-fy-number>
 
                     <input
                       appFormatDate
@@ -1038,11 +1029,27 @@
               <ng-container *ngIf="individualProjectIds$|async as individualProjectIds">
                 <app-fy-alert-info
                   *ngIf="txnFields?.project_id?.is_mandatory && individualProjectIds.length === 0"
-                  [message]="'There are no projects assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                  [message]="'There are no ' + txnFields?.project_id?.field_name + 's assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
                   [type]="'warning'"
                 >
                 </app-fy-alert-info>
               </ng-container>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="isConnected$">
+        <ng-container *ngIf="txnFields$|async as txnFields">
+          <ng-container *ngIf="isCostCentersEnabled$|async as isCostCentersEnabled">
+            <ng-container *ngIf="costCenters$|async as allowedCostCenters">
+              <app-fy-alert-info
+                class="add-edit-expense--cost-center-alert"
+                *ngIf="txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0"
+                [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                [type]="'warning'"
+              >
+              </app-fy-alert-info>
             </ng-container>
           </ng-container>
         </ng-container>
@@ -1080,7 +1087,11 @@
     (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
-  <ion-footer class="add-edit-expense--footer-container" *ngIf="!reviewList?.length">
+  <ion-footer
+    [ngClass]="{'d-none': isCameraShown}"
+    class="add-edit-expense--footer-container"
+    *ngIf="!reviewList?.length"
+  >
     <ion-toolbar mode="md" [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}">
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">

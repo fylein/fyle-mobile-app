@@ -1,0 +1,13 @@
+<ion-menu side="start" class="sidemenu" content-id="main-content" [swipeGesture]="false">
+  <app-sidemenu-header [eou]="eou" [activeOrg]="activeOrg"></app-sidemenu-header>
+
+  <ion-content>
+    <div class="sidemenu__content-container">
+      <app-sidemenu-content
+        [sideMenuList]="filteredSidemenuList"
+        [primaryOptionsCount]="primaryOptionsCount"
+      ></app-sidemenu-content>
+      <app-sidemenu-footer [appVersion]="appVersion"></app-sidemenu-footer>
+    </div>
+  </ion-content>
+</ion-menu>

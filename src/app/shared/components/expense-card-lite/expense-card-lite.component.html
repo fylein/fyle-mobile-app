@@ -12,16 +12,15 @@
     <div
       class="expenses-card--receipt-thumbnail-container expenses-card--with-image"
       [ngStyle]="{
-        'background-image': receiptThumbnail
+        'background-image': 'url(' + receiptThumbnail + ')'
       }"
       *ngIf="receiptThumbnail"
     ></div>
-
     <div class="d-flex expenses-card--deatils-block">
       <div class="expenses-card--category-vendor-project-container">
         <div class="d-flex expenses-card--category-icon-container">
           <div class="expenses-card--category">
-            {{ expense.purpose }}
+            {{ expense.purpose }} <ng-container *ngIf="!expense.purpose"> Unspecified </ng-container>
           </div>
         </div>
 

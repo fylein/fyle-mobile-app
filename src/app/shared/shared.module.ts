@@ -4,6 +4,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { SwiperModule } from 'swiper/angular';
+import { RouterModule } from '@angular/router';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -11,7 +12,6 @@ import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 import { HighlightPipe } from './pipes/highlight.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake-case-to-space-case.pipe';
-import { ToLowerCase } from './pipes/to-lowercase.pipe';
 import { TripState } from './pipes/trip-state.pipe';
 import { FySelectComponent } from './components/fy-select/fy-select.component';
 import { FySelectModalComponent } from './components/fy-select/fy-select-modal/fy-select-modal.component';
@@ -99,8 +99,22 @@ import { AddApproversPopoverComponent } from './components/fy-approver/add-appro
 import { ExpenseCardLiteComponent } from './components/expense-card-lite/expense-card-lite.component';
 import { FyInputPopoverComponent } from './components/fy-input-popover/fy-input-popover.component';
 import { FyPopoverComponent } from './components/fy-popover/fy-popover.component';
+import { SidemenuComponent } from './components/sidemenu/sidemenu.component';
+import { SidemenuHeaderComponent } from './components/sidemenu/sidemenu-header/sidemenu-header.component';
+import { SidemenuFooterComponent } from './components/sidemenu/sidemenu-footer/sidemenu-footer.component';
+import { SidemenuContentComponent } from './components/sidemenu/sidemenu-content/sidemenu-content.component';
+import { SidemenuContentItemComponent } from './components/sidemenu/sidemenu-content/sidemenu-content-item/sidemenu-content-item.component';
 import { FyNavFooterComponent } from './components/navigation-footer/fy-nav-footer/fy-nav-footer.component';
 import { PersonalCardTransactionComponent } from './components/personal-card-transaction/personal-card-transaction.component';
+import { SendEmailComponent } from './components/send-email/send-email.component';
+import { CaptureReceiptComponent } from './components/capture-receipt/capture-receipt.component';
+import { ReceiptPreviewComponent } from './components/capture-receipt/receipt-preview/receipt-preview.component';
+import { AddMorePopupComponent } from './components/capture-receipt/add-more-popup/add-more-popup.component';
+import { CropReceiptComponent } from './components/capture-receipt/crop-receipt/crop-receipt.component';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { ImageCropperModule } from 'ngx-image-cropper';
+import { FyNumberComponent } from './components/fy-number/fy-number.component';
 
 @NgModule({
   declarations: [
@@ -111,7 +125,6 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
-    ToLowerCase,
     TripState,
     DateFormatPipe,
     FySelectComponent,
@@ -184,12 +197,24 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     PersonalCardTransactionComponent,
     FyInputPopoverComponent,
     FyPopoverComponent,
+    SidemenuComponent,
+    SidemenuHeaderComponent,
+    SidemenuFooterComponent,
+    SidemenuContentComponent,
+    SidemenuContentItemComponent,
     FyNavFooterComponent,
+    SendEmailComponent,
+    CaptureReceiptComponent,
+    ReceiptPreviewComponent,
+    AddMorePopupComponent,
+    CropReceiptComponent,
+    FyNumberComponent,
   ],
   imports: [
     CommonModule,
     IonicModule,
     FormsModule,
+    RouterModule,
     ReactiveFormsModule,
     MatInputModule,
     MatFormFieldModule,
@@ -207,6 +232,9 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     MatChipsModule,
     SwiperModule,
     MatSnackBarModule,
+    RouterModule,
+    MatBottomSheetModule,
+    ImageCropperModule,
   ],
   exports: [
     EllipsisPipe,
@@ -222,7 +250,6 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     FyDuplicateDetectionComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
-    ToLowerCase,
     TripState,
     InitialsPipe,
     DelegatedAccMessageComponent,
@@ -273,8 +300,15 @@ import { PersonalCardTransactionComponent } from './components/personal-card-tra
     BankAccountCardsComponent,
     PersonalCardTransactionComponent,
     FyPopoverComponent,
+    SidemenuComponent,
     FyNavFooterComponent,
+    SendEmailComponent,
+    CaptureReceiptComponent,
+    ReceiptPreviewComponent,
+    AddMorePopupComponent,
+    CropReceiptComponent,
+    FyNumberComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })
 export class SharedModule {}

@@ -27,6 +27,8 @@ export class PersonalCardTransactionComponent implements OnInit {
 
   @Input() selectedElements: string[];
 
+  @Input() isMatchedCountLoading: boolean;
+
   @Output() setMultiselectMode: EventEmitter<string> = new EventEmitter();
 
   @Output() cardClickedForSelection: EventEmitter<string> = new EventEmitter();

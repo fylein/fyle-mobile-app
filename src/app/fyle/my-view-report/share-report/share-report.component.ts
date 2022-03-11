@@ -1,18 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-share-report',
   templateUrl: './share-report.component.html',
   styleUrls: ['./share-report.component.scss'],
 })
-export class ShareReportComponent implements OnInit {
+export class ShareReportComponent implements OnInit, AfterViewInit {
+  @ViewChild('simpleEmailInput') simpleEmailInput: ElementRef;
+
   email = '';
 
-  constructor(private popoverController: PopoverController) {}
+  constructor(private modalController: ModalController) {}
 
   async cancel() {
-    await this.popoverController.dismiss();
+    await this.modalController.dismiss();
   }
 
   shareReport(emailInput) {
@@ -21,7 +23,7 @@ export class ShareReportComponent implements OnInit {
     }
 
     if (emailInput.valid) {
-      this.popoverController.dismiss({
+      this.modalController.dismiss({
         email: this.email,
       });
     } else {
@@ -30,4 +32,11 @@ export class ShareReportComponent implements OnInit {
   }
 
   ngOnInit() {}
+
+  ngAfterViewInit() {
+    const emailInputField = this.simpleEmailInput.nativeElement as HTMLInputElement;
+    setTimeout(() => {
+      emailInputField.focus();
+    }, 600);
+  }
 }

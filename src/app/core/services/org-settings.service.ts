@@ -362,6 +362,10 @@ export class OrgSettingsService {
         allowed: incoming.workflow_settings && incoming.workflow_settings.allowed,
         enabled: incoming.workflow_settings && incoming.workflow_settings.enabled,
       },
+      org_personal_cards_settings: {
+        allowed: incoming.org_personal_cards_settings && incoming.org_personal_cards_settings.allowed,
+        enabled: incoming.org_personal_cards_settings && incoming.org_personal_cards_settings.enabled,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
