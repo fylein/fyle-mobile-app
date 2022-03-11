@@ -43,8 +43,6 @@ type option = Partial<{ label: string; value: any }>;
   styleUrls: ['./merge-expense.page.scss'],
 })
 export class MergeExpensePage implements OnInit {
-  @ViewChild('duplicateInputContainer') duplicateInputContainer: ElementRef;
-
   @ViewChild('formContainer') formContainer: ElementRef;
 
   expenses: Expense[];
