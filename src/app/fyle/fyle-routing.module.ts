@@ -157,6 +157,10 @@ const routes: Routes = [
     path: 'view_per_diem',
     loadChildren: () => import('./view-per-diem/view-per-diem.module').then((m) => m.ViewPerDiemPageModule),
   },
+  {
+    path: 'merge_expense',
+    loadChildren: () => import('./merge-expense/merge-expense.module').then((m) => m.MergeExpensePageModule),
+  },
 ];
 
 @NgModule({

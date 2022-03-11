@@ -1,0 +1,620 @@
+<ion-header class="fy-header" mode="md">
+  <ion-toolbar mode="md" class="fy-header--toolbar">
+    <ion-buttons mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
+    <ion-title mode="md" class="fy-header--title"> Merge Duplicates </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="fg">
+    <form #formContainer [formGroup]="fg" class="merge-expenses--form" *ngIf="isLoaded">
+      <div class="merge-expenses--internal-block">
+        <ng-container *ngIf="expenseOptions$|async as expenseOptions">
+          <app-fy-select
+            [disabled]="disableFormElements || disableExpenseToKeep"
+            [label]="'Expense to Keep'"
+            [selectModalHeader]="'Expense to Keep'"
+            [mandatory]="true"
+            [nullOption]="false"
+            [options]="expenseOptions"
+            [enableSearch]="false"
+            formControlName="target_txn_id"
+          >
+          </app-fy-select>
+        </ng-container>
+      </div>
+
+      <app-fy-alert-info *ngIf="expenseToKeepInfoText" [message]="expenseToKeepInfoText" [type]="'information'">
+      </app-fy-alert-info>
+
+      <div *ngIf="fg.controls.target_txn_id.touched && !fg.controls.target_txn_id.valid" class="merge-expenses--error">
+        Please select a valid expense
+      </div>
+
+      <div class="merge-expenses--primary-block">
+        <ion-grid class="merge-expenses--grid">
+          <ion-row>
+            <ion-col size="6">
+              <ng-container>
+                <div
+                  class="merge-expenses--payment-modes merge-expenses--internal-block merge-expenses--internal-block__margin"
+                >
+                  <app-fy-select
+                    [enableSearch]="false"
+                    [label]="'Currency'"
+                    [mandatory]="false"
+                    [nullOption]="false"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_currency.isSame || ( mergedExpenseOptions.tx_currency.options && mergedExpenseOptions.tx_currency.options.length ===0 )"
+                    [options]="mergedExpenseOptions.tx_currency.options"
+                    [selectModalHeader]="'Select spend date'"
+                    formControlName="currencyObj"
+                  >
+                  </app-fy-select>
+                </div>
+                <div
+                  *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
+                  class="merge-expenses--error"
+                >
+                  Please select an amount
+                </div>
+              </ng-container>
+            </ion-col>
+            <ion-col size="6">
+              <ng-container>
+                <div
+                  [ngClass]="{'merge-expenses--internal-block_special': fg.controls.amount.value}"
+                  class="merge-expenses--payment-modes merge-expenses--internal-block"
+                >
+                  <app-fy-select
+                    [enableSearch]="false"
+                    [label]="'Amount'"
+                    [mandatory]="false"
+                    [nullOption]="false"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_amount.isSame || ( mergedExpenseOptions.tx_amount.options && mergedExpenseOptions.tx_amount.options.length === 0)"
+                    [options]="mergedExpenseOptions.tx_amount.options"
+                    [selectModalHeader]="'Select Amount'"
+                    formControlName="amount"
+                  >
+                  </app-fy-select>
+                </div>
+                <div *ngIf="fg.controls.amount.touched && !fg.controls.amount.valid" class="merge-expenses--error">
+                  Please select a valid payment mode.
+                </div>
+              </ng-container>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+      <ng-container>
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.vendor.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+        >
+          <ng-container *ngIf="receiptOptions$|async as expenseOptions">
+            <app-fy-select
+              [enableSearch]="false"
+              [label]="'Select receipt'"
+              [disabled]="disableFormElements || formatReceiptOptions(expenseOptions).length === 0"
+              [mandatory]="false"
+              [nullOption]="true"
+              [options]="formatReceiptOptions(expenseOptions)"
+              [selectModalHeader]="'Select receipt'"
+              formControlName="receipt_ids"
+            >
+            </app-fy-select>
+          </ng-container>
+        </div>
+        <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid" class="merge-expenses--error">
+          Please select a valid payment mode.
+        </div>
+      </ng-container>
+      <ng-container *ngIf="attachments$|async as attachments">
+        <app-receipt-preview-thumbnail
+          *ngIf="attachments.length > 0"
+          [attachments]="attachments"
+          [canEdit]="false"
+          [hideLabel]="true"
+        >
+        </app-receipt-preview-thumbnail>
+      </ng-container>
+
+      <div class="merge-expenses--primary-block">
+        <ion-grid class="merge-expenses--grid">
+          <ion-row>
+            <ion-col size="6">
+              <ng-container>
+                <div
+                  [ngClass]="{'merge-expenses--internal-block_special': fg.controls.dateOfSpend.value}"
+                  class="merge-expenses--payment-modes merge-expenses--internal-block merge-expenses--internal-block__margin"
+                >
+                  <app-fy-select
+                    [enableSearch]="false"
+                    [label]="'Date of Spend'"
+                    [mandatory]="false"
+                    [nullOption]="false"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_txn_dt.isSame || ( mergedExpenseOptions.tx_txn_dt.options && mergedExpenseOptions.tx_txn_dt.options.length === 0)"
+                    [options]="formatDateOptions(mergedExpenseOptions.tx_txn_dt.options)"
+                    [selectModalHeader]="'Select spend date'"
+                    formControlName="dateOfSpend"
+                  >
+                  </app-fy-select>
+                </div>
+                <div
+                  *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
+                  class="merge-expenses--error"
+                >
+                  Please select a valid payment mode.
+                </div>
+              </ng-container>
+            </ion-col>
+            <ion-col size="6">
+              <ng-container>
+                <div
+                  [ngClass]="{'merge-expenses--internal-block_special': fg.controls.paymentMode.value}"
+                  class="merge-expenses--payment-modes merge-expenses--internal-block"
+                >
+                  <app-fy-select
+                    [enableSearch]="false"
+                    [label]="'Payment Mode'"
+                    [mandatory]="true"
+                    [nullOption]="false"
+                    [disabled]="disableFormElements || mergedExpenseOptions.source_account_type.isSame || ( mergedExpenseOptions.source_account_type.options && mergedExpenseOptions.source_account_type.options.length === 0)"
+                    [options]="formatPaymentModeOptions(mergedExpenseOptions.source_account_type.options)"
+                    [selectModalHeader]="'Select Payment Mode'"
+                    formControlName="paymentMode"
+                  >
+                  </app-fy-select>
+                </div>
+                <div
+                  *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
+                  class="merge-expenses--error"
+                >
+                  Please select a valid payment mode.
+                </div>
+              </ng-container>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+
+      <ng-container *ngFor="let selectedCCCTransaction of CCCTxn$ | async as cccTxns">
+        <ng-container *ngIf="fg.controls.paymentMode.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'">
+          <div class="merge-expenses--card-header">Card Transaction</div>
+          <div class="merge-expenses--matching-card">
+            <mat-icon svgIcon="fy-corporate-card" class="merge-expenses--icon-corporate-card"></mat-icon>
+            <div class="merge-expenses--matching-content" [ngClass]="{'merge-expenses--ccc-expense': true}">
+              <span class="text-capitalize"
+                >{{ (selectedCCCTransaction.vendor || selectedCCCTransaction.description) | ellipsis:20}},
+              </span>
+              <span>{{ selectedCCCTransaction.txn_dt | date: 'MMM dd, yyyy'}} - </span>
+              <span
+                >{{ selectedCCCTransaction.amount | currency: selectedCCCTransaction.currency: 'symbol-narrow'}}</span
+              >
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <div class="merge-expenses--primary-block">
+        <ion-grid class="merge-expenses--grid">
+          <ion-row>
+            <ion-col size="6">
+              <ng-container>
+                <div
+                  [ngClass]="{'merge-expenses--internal-block_special': fg.controls.project.value}"
+                  class="merge-expenses--payment-modes merge-expenses--internal-block merge-expenses--internal-block__margin"
+                >
+                  <app-fy-select
+                    [enableSearch]="false"
+                    [label]="'Project'"
+                    [mandatory]="false"
+                    [nullOption]="false"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_project_id.isSame || (mergedExpenseOptions.tx_project_id.options && mergedExpenseOptions.tx_project_id.options.length === 0)"
+                    [options]="mergedExpenseOptions.tx_project_id.options"
+                    [selectModalHeader]="'Select project'"
+                    formControlName="project"
+                  >
+                  </app-fy-select>
+                </div>
+                <div
+                  *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
+                  class="merge-expenses--error"
+                >
+                  Please select an amount
+                </div>
+              </ng-container>
+            </ion-col>
+            <ion-col size="6">
+              <ng-container>
+                <div
+                  [ngClass]="{'merge-expenses--internal-block_special': fg.controls.billable.value}"
+                  class="merge-expenses--payment-modes merge-expenses--internal-block"
+                >
+                  <app-fy-select
+                    [enableSearch]="false"
+                    [label]="'Billable'"
+                    [mandatory]="false"
+                    [nullOption]="false"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_billable.isSame || ( mergedExpenseOptions.tx_billable.options && mergedExpenseOptions.tx_billable.options.length === 0)"
+                    [options]="formatBillableOptions(mergedExpenseOptions.tx_billable.options)"
+                    [selectModalHeader]="'Select billable'"
+                    formControlName="billable"
+                  >
+                  </app-fy-select>
+                </div>
+                <div *ngIf="fg.controls.billable.touched && !fg.controls.billable.valid" class="merge-expenses--error">
+                  Please select a valid payment mode.
+                </div>
+              </ng-container>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+
+      <ng-container>
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.vendor.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_vendor"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Merchant'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_vendor?.options && mergedExpenseOptions.tx_vendor.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_vendor?.isSame || mergedExpenseOptions.tx_vendor?.options.length === 0"
+            [options]="mergedExpenseOptions.tx_vendor?.options"
+            [selectModalHeader]="'Select merchant'"
+            formControlName="vendor"
+          >
+          </app-fy-select>
+        </div>
+        <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid" class="merge-expenses--error">
+          Please select a valid payment mode.
+        </div>
+      </ng-container>
+
+      <ng-container>
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Category'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_org_category_id.options && mergedExpenseOptions.tx_org_category_id.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_org_category_id.isSame || ( mergedExpenseOptions.tx_org_category_id.options && mergedExpenseOptions.tx_org_category_id.options.length === 0)"
+            [options]="mergedExpenseOptions.tx_org_category_id.options"
+            [selectModalHeader]="'Select category'"
+            formControlName="category"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="location_1Options && location_1Options.length > 0"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'From'"
+            [mandatory]="false"
+            [nullOption]="location_1Options && location_1Options.length === 1"
+            [disabled]="disableFormElements || ( location_1Options && location_1Options.length === 0)"
+            [options]="location_1Options"
+            [selectModalHeader]="'Select From'"
+            formControlName="location_1"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
+        <div
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="location_2Options && location_2Options.length > 0"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'To'"
+            [mandatory]="false"
+            [nullOption]="location_2Options && location_2Options.length === 1"
+            [disabled]="disableFormElements || ( location_2Options && location_2Options.length === 0)"
+            [options]="location_2Options"
+            [selectModalHeader]="'Select To'"
+            formControlName="location_2"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options.length > 0"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Onward Date'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_from_dt.isSame || ( mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options.length === 0)"
+            [options]="formatDateOptions(mergedExpenseOptions.tx_from_dt.options)"
+            [selectModalHeader]="'Select Onward Date'"
+            formControlName="from_dt"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options.length > 0"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Return date'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_to_dt.isSame || ( mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options.length === 0)"
+            [options]="formatDateOptions(mergedExpenseOptions.tx_to_dt.options)"
+            [selectModalHeader]="'Select return Date'"
+            formControlName="to_dt"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options.length > 0"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Travel Class'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_flight_journey_travel_class.isSame || ( mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options.length === 0)"
+            [options]="mergedExpenseOptions.tx_flight_journey_travel_class.options"
+            [selectModalHeader]="'Select Travel Class'"
+            formControlName="flight_journey_travel_class"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options.length > 0"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Return Travel Class'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_flight_return_travel_class.isSame || ( mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options.length === 0)"
+            [options]="mergedExpenseOptions.tx_flight_return_travel_class.options"
+            [selectModalHeader]="'Select Return Travel Class'"
+            formControlName="flight_return_travel_class"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options.length > 0"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Travel Class'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_train_travel_class.isSame || ( mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options.length === 0)"
+            [options]="mergedExpenseOptions.tx_train_travel_class.options"
+            [selectModalHeader]="'Select Travel Class'"
+            formControlName="train_travel_class"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options.length > 0"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Travel Class'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_bus_travel_class.isSame || ( mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options.length === 0)"
+            [options]="mergedExpenseOptions.tx_bus_travel_class.options"
+            [selectModalHeader]="'Select Travel Class'"
+            formControlName="train_travel_class"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options.length > 0"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Distance'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_distance.isSame || ( mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options.length === 0)"
+            [options]="formatDateOptions(mergedExpenseOptions.tx_distance.options)"
+            [selectModalHeader]="'Select Distance'"
+            formControlName="distance"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options.length > 0"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Distance Unit'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_distance_unit.isSame || ( mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options.length === 0)"
+            [options]="formatDateOptions(mergedExpenseOptions.tx_distance_unit.options)"
+            [selectModalHeader]="'Select Distance Unit'"
+            formControlName="distance_unit"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container>
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.tax_amount.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Tax Group'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_tax_group_id.options && mergedExpenseOptions.tx_tax_group_id.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_tax_group_id.isSame || ( mergedExpenseOptions.tx_tax_group_id.options && mergedExpenseOptions.tx_tax_group_id.options.length === 0)"
+            [options]="mergedExpenseOptions.tx_tax_group_id.options"
+            [selectModalHeader]="'Select Tax Group'"
+            formControlName="tax_group"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container>
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.tax_amount.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Tax'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_tax_amount.options && mergedExpenseOptions.tx_tax_amount.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_tax_amount.isSame || ( mergedExpenseOptions.tx_tax_amount.options && mergedExpenseOptions.tx_tax_amount.options.length === 0)"
+            [options]="mergedExpenseOptions.tx_tax_amount.options"
+            [selectModalHeader]="'Select Tax'"
+            formControlName="tax_amount"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container>
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.tax_amount.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Cost center'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_cost_center_name.options && mergedExpenseOptions.tx_cost_center_name.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_cost_center_name.isSame || ( mergedExpenseOptions.tx_cost_center_name.options && mergedExpenseOptions.tx_cost_center_name.options.length === 0)"
+            [options]="mergedExpenseOptions.tx_cost_center_name.options"
+            [selectModalHeader]="'Select Cost center'"
+            formControlName="costCenter"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container>
+        <div
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.purpose.value}"
+          class="merge-expenses--payment-modes merge-expenses--internal-block"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Purpose'"
+            [mandatory]="false"
+            [nullOption]="mergedExpenseOptions.tx_purpose.options && mergedExpenseOptions.tx_purpose.options.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_purpose.isSame || ( mergedExpenseOptions.tx_purpose.options && mergedExpenseOptions.tx_purpose.options.length === 0)"
+            [options]="mergedExpenseOptions.tx_purpose.options"
+            [selectModalHeader]="'Select Purpose'"
+            formControlName="purpose"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="customInputs$ | async">
+        <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
+          <ng-container *ngIf="mergedCustomProperties">
+            <form [formGroup]="customInput.control">
+              <div
+                [ngClass]="{'merge-expenses--internal-block_special': fg.controls.tax_amount.value}"
+                class="merge-expenses--payment-modes merge-expenses--internal-block"
+                *ngIf="mergedCustomProperties[customInput.name] && mergedCustomProperties[customInput.name].options"
+              >
+                <app-fy-select
+                  [enableSearch]="false"
+                  [label]="customInput.name"
+                  [nullOption]="false"
+                  [nullOption]="mergedCustomProperties[customInput.name].options && mergedCustomProperties[customInput.name].options.length === 1"
+                  [disabled]="disableFormElements || (mergedCustomProperties[customInput.name] && mergedCustomProperties[customInput.name].isSame) || ( mergedCustomProperties[customInput.name].options && mergedCustomProperties[customInput.name].options.length === 0)"
+                  [options]="mergedCustomProperties[customInput.name].options"
+                  [selectModalHeader]="'Select'"
+                  formControlName="value"
+                >
+                </app-fy-select>
+              </div>
+            </form>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </form>
+  </ng-container>
+</ion-content>
+<ng-container *ngIf="fg">
+  <ion-footer class="merge-expenses--footer-container">
+    <ion-toolbar mode="md" [ngClass]="{'merge-expenses--footer-toolbar__offline': !(isConnected$|async)}">
+      <div class="merge-expenses--footer-toolbar">
+        <ion-buttons>
+          <ion-button
+            [disabled]="isMerging"
+            [loadingText]="'Merging'"
+            [loading]="isMerging"
+            appFormButtonValidation
+            class="btn-primary"
+            (click)="mergeExpense()"
+          >
+            Save
+          </ion-button>
+        </ion-buttons>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+</ng-container>

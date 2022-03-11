@@ -180,9 +180,7 @@
                   <div
                     *ngIf="txnFields?.txn_dt"
                     [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
-                    class="
-                      add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin
-                    "
+                    class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin"
                   >
                     <div
                       [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
@@ -578,7 +576,7 @@
                 </ion-grid>
 
                 <div
-                  *ngIf="txnFields.train_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                  *ngIf="txnFields.train_travel_class && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
                   class="add-edit-expense--internal-block add-edit-expense--text"
                 >
