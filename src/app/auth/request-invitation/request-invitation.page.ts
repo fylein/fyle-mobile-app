@@ -23,16 +23,16 @@ export class RequestInvitationPage implements OnInit {
 
   currentPageState: RequestInvitationPageState = RequestInvitationPageState.notSent;
 
+  get RequestInvitationStates() {
+    return RequestInvitationPageState;
+  }
+
   constructor(
     private fb: FormBuilder,
     private activateRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private invitationRequestsService: InvitationRequestsService
   ) {}
-
-  get RequestInvitationStates() {
-    return RequestInvitationPageState;
-  }
 
   ngOnInit() {
     const emailParam = this.activateRoute.snapshot.params.email;

@@ -101,6 +101,7 @@
               "browserTarget": "app:build:staging"
             },
             "ci": {
+              "progress": false
             }
           }
         },
