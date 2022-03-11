@@ -38,14 +38,13 @@ export class CustomInputsService {
   }
 
   filterByCategory(customInputs, orgCategoryId) {
-    const a = customInputs
+    return customInputs
       .filter((customInput) =>
         customInput.org_category_ids
           ? customInput.org_category_ids && customInput.org_category_ids.some((id) => id === orgCategoryId)
           : true
       )
       .sort();
-    return a;
   }
 
   // TODO: eventually this should be replaced by rank (old app TODO)
