@@ -83,7 +83,7 @@ jobs:
           file: ios.ipa
 
 
-  build-app:
+  send-to-slack:
     needs: [build-android, build-ios]
     runs-on: ubuntu-latest
     steps:
