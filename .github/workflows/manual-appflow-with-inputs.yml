@@ -22,7 +22,7 @@ jobs:
       apkUrl: ${{ steps.diwaiAndroid.outputs.url }}
     steps:
       - name: echo message
-        run: echo ${{ github.event.inputs.message }}
+        run: echo ${{ github.event.inputs.name }}
 
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
@@ -33,7 +33,7 @@ jobs:
           app-id: 32316914
           platform: Android
           build-type: debug
-          environment: github.event.inputs.name
+          environment: ${{ github.event.inputs.name }}
           native-config: prod
           upload-artifact: Android
 
@@ -66,7 +66,7 @@ jobs:
           platform: iOS
           build-type: development
           certificate: Fyle signing
-          environment: github.event.inputs.name
+          environment: ${{ github.event.inputs.name }}
           native-config: prod
           upload-artifact: ios
 
