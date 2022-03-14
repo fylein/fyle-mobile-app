@@ -1719,17 +1719,7 @@ export class MyExpensesPage implements OnInit {
     return expenses.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
-  getDeleteDialogBody(expensesTobeDeleted, cccExpenses) {
-    const expenseDeletionMessage = `Are you sure you want to delete ${
-      expensesTobeDeleted.length === 1 ? '1 expense?' : expensesTobeDeleted.length + ' expenses?'
-    }`;
-
-    const cccExpensesMessage = `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
-      cccExpenses > 1 ? 'expenses' : 'expense'
-    } from the selection which can\'t be deleted. ${
-      expensesTobeDeleted.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
-    }`;
-
+  getDeleteDialogBody(expensesTobeDeleted, cccExpenses, expenseDeletionMessage, cccExpensesMessage) {
     let dialogBody: string;
 
     if (expensesTobeDeleted.length > 0 && cccExpenses > 0) {
@@ -1761,13 +1751,23 @@ export class MyExpensesPage implements OnInit {
     }
     const cccExpenses = this.selectedElements.length - expensesTobeDeleted.length;
 
+    const expenseDeletionMessage = `Are you sure you want to delete ${
+      expensesTobeDeleted.length === 1 ? '1 expense?' : expensesTobeDeleted.length + ' expenses?'
+    }`;
+
+    const cccExpensesMessage = `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
+      cccExpenses > 1 ? 'expenses' : 'expense'
+    } from the selection which can\'t be deleted. ${
+      expensesTobeDeleted.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
+    }`;
+
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: this.getDeleteDialogBody(expensesTobeDeleted, cccExpenses),
+        body: this.getDeleteDialogBody(expensesTobeDeleted, cccExpenses, expenseDeletionMessage, cccExpensesMessage),
         disableDeleteButton: expensesTobeDeleted.length > 0 ? false : true,
         deleteMethod: () => {
           offlineExpenses = expensesTobeDeleted.filter((exp) => !exp.tx_id);
