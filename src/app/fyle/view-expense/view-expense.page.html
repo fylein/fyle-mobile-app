@@ -70,7 +70,7 @@
         <div>
           <span>{{ etxnCurrencySymbol }}</span>
           <span class="view-expense--card-container__amount">
-            {{ etxn.tx_amount || etxn.tx_orig_amount || 0 | humanizeCurrency: etxn.tx_currency:2:true }}
+            {{ etxn.tx_amount | humanizeCurrency: etxn.tx_currency:2:true }}
           </span>
           <ion-icon
             class="view-expense--card-container__icon"
