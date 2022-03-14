@@ -648,6 +648,10 @@
   &--text-block {
     margin-bottom: 12px;
   }
+
+  &--disabled {
+    background: $grey-7;
+  }
 }
 
 .fy-header {

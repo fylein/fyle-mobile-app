@@ -87,29 +87,38 @@
           </ion-row>
         </ion-grid>
       </div>
-      <ng-container>
+      <ng-container *ngIf="receiptOptions$|async as expenseOptions">
         <div
+          *ngIf="formatReceiptOptions(expenseOptions).length !== 0"
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.vendor.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
         >
-          <ng-container *ngIf="receiptOptions$|async as expenseOptions">
-            <app-fy-select
-              [enableSearch]="false"
-              [label]="'Select receipt'"
-              [disabled]="disableFormElements || formatReceiptOptions(expenseOptions).length === 0"
-              [mandatory]="false"
-              [nullOption]="true"
-              [options]="formatReceiptOptions(expenseOptions)"
-              [selectModalHeader]="'Select receipt'"
-              formControlName="receipt_ids"
-            >
-            </app-fy-select>
-          </ng-container>
-        </div>
-        <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid" class="merge-expenses--error">
-          Please select a valid payment mode.
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Select receipt'"
+            [disabled]="disableFormElements || formatReceiptOptions(expenseOptions).length === 0"
+            [mandatory]="false"
+            [nullOption]="true"
+            [options]="formatReceiptOptions(expenseOptions)"
+            [selectModalHeader]="'Select receipt'"
+            formControlName="receipt_ids"
+          >
+          </app-fy-select>
         </div>
       </ng-container>
+
+      <ng-container *ngIf="receiptOptions$|async as expenseOptions">
+        <div
+          class="merge-expenses--internal-block merge-expenses--text"
+          *ngIf="formatReceiptOptions(expenseOptions).length === 0"
+        >
+          <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
+          <div class="merge-expenses--disabled">
+            <input [disabled]="true" [placeholder]="'No Receipt'" class="merge-expenses--text-input" type="text" />
+          </div>
+        </div>
+      </ng-container>
+
       <ng-container *ngIf="attachments$|async as attachments">
         <app-receipt-preview-thumbnail
           *ngIf="attachments.length > 0"

@@ -179,9 +179,9 @@ export class MergeExpensePage implements OnInit {
 
       let values = this.mergedExpenseOptions[field].options.map((field) => field.value);
       if (field === 'tx_txn_dt') {
-        values = this.mergedExpenseOptions[field].options.map((field) =>
-          new Date(field.value.toDateString()).getTime()
-        );
+        values = this.mergedExpenseOptions[field].options.map((field) => {
+          return new Date(new Date(field.value).toDateString()).getTime();
+        });
       }
 
       const isDuplicate = values.some((field, idx) => values.indexOf(field) !== idx);
@@ -251,11 +251,11 @@ export class MergeExpensePage implements OnInit {
     this.expenseOptions$ = from(this.expenses).pipe(
       map((expense) => {
         let vendorOrCategory = '';
-        if (expense.tx_vendor) {
-          vendorOrCategory = expense.tx_vendor;
-        }
         if (expense.tx_org_category) {
           vendorOrCategory = expense.tx_org_category;
+        }
+        if (expense.tx_vendor) {
+          vendorOrCategory = expense.tx_vendor;
         }
         let projectName = '';
         if (expense.tx_project_name) {
@@ -327,7 +327,7 @@ export class MergeExpensePage implements OnInit {
             }
             return option;
           })
-          .filter((option) => option.label !== 'Unspecified');
+          .filter((v, i, a) => a.findIndex((t) => t.label === v.label) === i);
 
         if (this.mergedExpenseOptions.tx_org_category_id.options[0]) {
           setTimeout(() => {
