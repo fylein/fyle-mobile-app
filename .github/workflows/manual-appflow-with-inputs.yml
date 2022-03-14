@@ -1,23 +1,36 @@
-name: Appflow Master
+# This is a basic workflow that is manually triggered
 
+name: Manual workflow with inputs
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
 on:
-  push:
-    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      name:
+        type: choice
+        required: true
+        description: Environment
+        options: 
+        - staging
+        - production
 
 jobs:
-  build-app:
+  build-android:
     runs-on: ubuntu-latest
+    outputs:
+      apkUrl: ${{ steps.diwaiAndroid.outputs.url }}
     steps:
-    
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
+
         with:
           token: ${{ secrets.APPFLOW_TOKEN }}
           app-id: 32316914
           platform: Android
           build-type: debug
-          environment: staging
-          native-config: staging
+          environment: github.event.inputs.name
+          native-config: prod
           upload-artifact: Android
 
       - uses: actions/download-artifact@v2
@@ -29,13 +42,18 @@ jobs:
       - name: Rename file
         run: mv *.apk android.apk
 
-      - name: Upload apk to Diawi
+      - name: Upload apk to diawi 
         uses: rnkdsh/action-upload-diawi@v1.2.0
         id: diwaiAndroid
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
           file: android.apk
-      
+
+  build-ios:
+    runs-on: ubuntu-latest
+    outputs:
+      iosURL: ${{ steps.diwaiIos.outputs.url }}
+    steps:
       - name: Build iOS on Appflow
         uses: ionic-team/appflow-build@v1
         with:
@@ -44,7 +62,7 @@ jobs:
           platform: iOS
           build-type: development
           certificate: Fyle signing
-          environment: staging
+          environment: github.event.inputs.name
           native-config: prod
           upload-artifact: ios
 
@@ -57,13 +75,18 @@ jobs:
       - name: Rename file
         run: mv *.ipa ios.ipa
      
-      - name: Upload ipa to diawi
+      - name: Upload ipa to diawi Slack
         uses: rnkdsh/action-upload-diawi@v1.2.0
         id: diwaiIos
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
           file: ios.ipa
 
+
+  send-to-slack:
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    steps:
       - name: Get branch name
         id: get-branch
         uses: xom9ikk/split@v1
@@ -77,4 +100,4 @@ jobs:
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C029QPGHSQL
-          slack-text: ${{github.event.sender.login}} merged to master. \r\n \r\n APK Link ${{steps.diwaiAndroid.outputs.url}} \r\n IPA link ${{steps.diwaiIos.outputs.url}}
+          slack-text: ${{github.event.sender.login}} ran manual workflow  on "${{ steps.get-branch.outputs._1 }}" branch \r\n PR link ${{github.event.pull_request.html_url}} \r\n \r\n *Description* \r\n ```${{github.event.pull_request.body}}```  \r\n \r\n APK Link ${{needs.build-android.outputs.apkURL}} \r\n IPA link ${{needs.build-ios.outputs.iosURL}}
