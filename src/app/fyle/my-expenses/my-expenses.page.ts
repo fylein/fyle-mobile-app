@@ -161,6 +161,8 @@ export class MyExpensesPage implements OnInit {
 
   isCameraShown = false;
 
+  isUnifyCCCExpensesSettings: boolean;
+
   get HeaderState() {
     return HeaderState;
   }
@@ -405,6 +407,10 @@ export class MyExpensesPage implements OnInit {
       .pipe(map((orgSettings) => orgSettings.per_diem.enabled));
 
     this.offlineService.getOrgSettings().subscribe((orgSettings) => {
+      this.isUnifyCCCExpensesSettings =
+        orgSettings.unify_ccce_expenses_settings &&
+        orgSettings.unify_ccce_expenses_settings.allowed &&
+        orgSettings.unify_ccce_expenses_settings.enabled;
       this.setupActionSheet(orgSettings);
     });
 
@@ -1706,23 +1712,19 @@ export class MyExpensesPage implements OnInit {
   }
 
   excludeCCCExpenses(expenses) {
-    return expenses.filter((expense) => {
-      return expense && !expense.tx_corporate_credit_card_expense_group_id;
-    });
+    return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
   }
 
   getDeletableTxns(expenses) {
-    return expenses.filter((expense) => {
-      return expense && expense.tx_user_can_delete;
-    });
+    return expenses.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
   async deleteSelectedExpenses() {
     let offlineExpenses: Expense[];
     let expensesTobeDeleted = this.getDeletableTxns(this.selectedElements);
-    // if (isUnifyCCCSettingsEnabled) {
-    expensesTobeDeleted = this.excludeCCCExpenses(this.selectedElements);
-    // };
+    if (this.isUnifyCCCExpensesSettings) {
+      expensesTobeDeleted = this.excludeCCCExpenses(this.selectedElements);
+    }
     const cccExpenses = this.selectedElements.length - expensesTobeDeleted.length;
 
     const expenseDeletionMessage = `Are you sure you want to delete ${
