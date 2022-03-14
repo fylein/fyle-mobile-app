@@ -302,7 +302,10 @@ export class MergeExpensePage implements OnInit {
           return option;
         }
       );
-      if (this.mergedExpenseOptions.tx_project_id.options[0].value) {
+      if (
+        this.mergedExpenseOptions.tx_project_id.options[0] &&
+        this.mergedExpenseOptions.tx_project_id.options[0].value
+      ) {
         this.fg.patchValue({
           project: this.mergedExpenseOptions.tx_project_id.options[0].value,
         });
