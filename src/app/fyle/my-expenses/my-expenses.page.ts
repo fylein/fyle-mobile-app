@@ -1719,14 +1719,7 @@ export class MyExpensesPage implements OnInit {
     return expenses.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
-  async deleteSelectedExpenses() {
-    let offlineExpenses: Expense[];
-    let expensesTobeDeleted = this.getDeletableTxns(this.selectedElements);
-    if (this.isUnifyCCCExpensesSettings) {
-      expensesTobeDeleted = this.excludeCCCExpenses(this.selectedElements);
-    }
-    const cccExpenses = this.selectedElements.length - expensesTobeDeleted.length;
-
+  getDeleteDialogBody(expensesTobeDeleted, cccExpenses) {
     const expenseDeletionMessage = `Are you sure you want to delete ${
       expensesTobeDeleted.length === 1 ? '1 expense?' : expensesTobeDeleted.length + ' expenses?'
     }`;
@@ -1757,13 +1750,24 @@ export class MyExpensesPage implements OnInit {
       </ul>`;
     }
 
+    return dialogBody;
+  }
+
+  async deleteSelectedExpenses() {
+    let offlineExpenses: Expense[];
+    let expensesTobeDeleted = this.getDeletableTxns(this.selectedElements);
+    if (this.isUnifyCCCExpensesSettings) {
+      expensesTobeDeleted = this.excludeCCCExpenses(this.selectedElements);
+    }
+    const cccExpenses = this.selectedElements.length - expensesTobeDeleted.length;
+
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: dialogBody,
+        body: this.getDeleteDialogBody(expensesTobeDeleted, cccExpenses),
         disableDeleteButton: expensesTobeDeleted.length > 0 ? false : true,
         deleteMethod: () => {
           offlineExpenses = expensesTobeDeleted.filter((exp) => !exp.tx_id);
