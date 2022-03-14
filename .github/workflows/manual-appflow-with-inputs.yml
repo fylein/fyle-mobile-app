@@ -21,13 +21,9 @@ jobs:
     outputs:
       apkUrl: ${{ steps.diwaiAndroid.outputs.url }}
     steps:
-      - name: echo message
-        run: echo ${{ github.event.inputs.name }}
-
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
         
-
         with:
           token: ${{ secrets.APPFLOW_TOKEN }}
           app-id: 32316914
