@@ -1743,6 +1743,20 @@ export class MyExpensesPage implements OnInit {
     return dialogBody;
   }
 
+  getExpenseDeletionMessage(expensesTobeDeleted) {
+    return `Are you sure you want to delete ${
+      expensesTobeDeleted.length === 1 ? '1 expense?' : expensesTobeDeleted.length + ' expenses?'
+    }`;
+  }
+
+  getCCCExpenseMessage(expensesTobeDeleted, cccExpenses) {
+    return `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
+      cccExpenses > 1 ? 'expenses' : 'expense'
+    } from the selection which can\'t be deleted. ${
+      expensesTobeDeleted.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
+    }`;
+  }
+
   async deleteSelectedExpenses() {
     let offlineExpenses: Expense[];
     let expensesTobeDeleted = this.getDeletableTxns(this.selectedElements);
@@ -1751,15 +1765,9 @@ export class MyExpensesPage implements OnInit {
     }
     const cccExpenses = this.selectedElements.length - expensesTobeDeleted.length;
 
-    const expenseDeletionMessage = `Are you sure you want to delete ${
-      expensesTobeDeleted.length === 1 ? '1 expense?' : expensesTobeDeleted.length + ' expenses?'
-    }`;
+    const expenseDeletionMessage = this.getExpenseDeletionMessage(expensesTobeDeleted);
 
-    const cccExpensesMessage = `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
-      cccExpenses > 1 ? 'expenses' : 'expense'
-    } from the selection which can\'t be deleted. ${
-      expensesTobeDeleted.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
-    }`;
+    const cccExpensesMessage = this.getCCCExpenseMessage(expensesTobeDeleted, cccExpenses);
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
