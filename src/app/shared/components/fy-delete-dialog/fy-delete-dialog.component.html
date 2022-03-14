@@ -9,9 +9,7 @@
     </ion-row>
     <ion-row>
       <ion-col>
-        <div class="fy-delete-dialog--body">
-          {{ body }}
-        </div>
+        <div class="fy-delete-dialog--body" [innerHTML]="body"></div>
       </ion-col>
     </ion-row>
     <ion-row *ngIf="infoMessage" class="fy-delete-dialog--info-container">
@@ -43,7 +41,7 @@
           [loading]="deleteCallInProgress"
           [loadingText]="ctaLoadingText ? ctaLoadingText : 'Deleting'"
         >
-          {{ctaText ? ctaText : 'Delete'}}
+          {{ ctaText ? ctaText : 'Delete' }}
         </div>
       </ion-col>
     </ion-row>

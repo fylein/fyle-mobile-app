@@ -495,7 +495,6 @@ export class MyExpensesPage implements OnInit {
         return this.acc;
       }),
       tap(() => {
-        console.log('After data is loaded from paginated pipe');
         this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
@@ -1706,23 +1705,70 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
+  excludeCCCExpenses(expenses) {
+    return expenses.filter((expense) => {
+      return expense && !expense.tx_corporate_credit_card_expense_group_id;
+    });
+  }
+
+  getDeletableTxns(expenses) {
+    return expenses.filter((expense) => {
+      return expense && expense.tx_user_can_delete;
+    });
+  }
+
   async deleteSelectedExpenses() {
     let offlineExpenses: Expense[];
+    let expensesTobeDeleted = this.getDeletableTxns(this.selectedElements);
+    // if (isUnifyCCCSettingsEnabled) {
+    expensesTobeDeleted = this.excludeCCCExpenses(this.selectedElements);
+    // };
+    const cccExpenses = this.selectedElements.length - expensesTobeDeleted.length;
+
+    const expenseDeletionMessage = `Are you sure you want to delete ${
+      expensesTobeDeleted.length === 1 ? '1 expense?' : expensesTobeDeleted.length + ' expenses?'
+    }`;
+
+    const cccExpensesMessage = `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
+      cccExpenses > 1 ? 'expenses' : 'expense'
+    } from the selection which can\'t be deleted. ${
+      expensesTobeDeleted.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
+    }`;
+
+    let dialogBody: string;
+
+    if (expensesTobeDeleted.length > 0 && cccExpenses > 0) {
+      dialogBody = `<ul>
+        <li>${cccExpensesMessage}</li>
+        <li>This cannot be undone</li>
+        </ul>
+        <p class="confirmation-message">Do you wish to continue?</p>`;
+    } else if (expensesTobeDeleted.length > 0 && cccExpenses === 0) {
+      dialogBody = `<ul>
+      <li>${expenseDeletionMessage}</li>
+      <li>This cannot be undone</li>
+      </ul>
+      <p class="confirmation-message">Do you wish to continue?</p>`;
+    } else if (expensesTobeDeleted.length === 0 && cccExpenses > 0) {
+      dialogBody = `<ul>
+      <li>${cccExpensesMessage}</li>
+      </ul>`;
+    }
+
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: `Are you sure you want to delete ${
-          this.selectedElements.length === 1 ? '1 expense?' : this.selectedElements.length + ' expenses?'
-        }`,
+        body: dialogBody,
+        disableDeleteButton: expensesTobeDeleted.length > 0 ? false : true,
         deleteMethod: () => {
-          offlineExpenses = this.selectedElements.filter((exp) => !exp.tx_id);
+          offlineExpenses = expensesTobeDeleted.filter((exp) => !exp.tx_id);
 
           this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
 
-          this.selectedElements = this.selectedElements.filter((exp) => exp.tx_id);
+          this.selectedElements = expensesTobeDeleted.filter((exp) => exp.tx_id);
           if (this.selectedElements.length > 0) {
             return this.transactionService.deleteBulk(
               this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)

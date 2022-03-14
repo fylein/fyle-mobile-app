@@ -927,10 +927,21 @@ ref - https://stackoverflow.com/a/31162426
 
 .delete-dialog {
   --width: 296px;
-  --max-height: 266px;
+  --max-height: 286px;
   .popover-content {
     border-radius: 16px;
   }
+}
+
+.fy-delete-dialog--body ul {
+  padding: 0px 0px 0px 14px;
+  margin: 0;
+  text-align: left;
+}
+
+.fy-delete-dialog--body p.confirmation-message {
+  margin-top: 8px;
+  text-align: left;
 }
 
 .route-visualizer--map {
