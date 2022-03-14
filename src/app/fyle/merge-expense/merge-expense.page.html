@@ -96,7 +96,7 @@
           <app-fy-select
             [enableSearch]="false"
             [label]="'Select receipt'"
-            [disabled]="disableFormElements || formatReceiptOptions(expenseOptions).length === 0"
+            [disabled]="formatReceiptOptions(expenseOptions).length === 0"
             [mandatory]="false"
             [nullOption]="true"
             [options]="formatReceiptOptions(expenseOptions)"
@@ -206,7 +206,10 @@
         </ng-container>
       </ng-container>
 
-      <div class="merge-expenses--primary-block">
+      <div
+        class="merge-expenses--primary-block"
+        *ngIf="mergedExpenseOptions.tx_project_id.options && mergedExpenseOptions.tx_project_id.options.length !== 0"
+      >
         <ion-grid class="merge-expenses--grid">
           <ion-row>
             <ion-col size="6">
@@ -252,9 +255,6 @@
                     formControlName="billable"
                   >
                   </app-fy-select>
-                </div>
-                <div *ngIf="fg.controls.billable.touched && !fg.controls.billable.valid" class="merge-expenses--error">
-                  Please select a valid payment mode.
                 </div>
               </ng-container>
             </ion-col>
