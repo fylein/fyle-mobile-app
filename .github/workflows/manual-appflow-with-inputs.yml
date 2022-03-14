@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
-        
+
         with:
           token: ${{ secrets.APPFLOW_TOKEN }}
           app-id: 32316914
