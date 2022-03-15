@@ -295,8 +295,8 @@ export class MergeExpensePage implements OnInit {
       shareReplay(1)
     );
 
-    this.projectService.getAllActive().subscribe((reso) => {
-      this.projects = reso;
+    this.projectService.getAllActive().subscribe((projects) => {
+      this.projects = projects;
       this.mergedExpenseOptions.tx_project_id.options = this.mergedExpenseOptions.tx_project_id.options.map(
         (option) => {
           option.label = this.projects[this.projects.map((project) => project.id).indexOf(option.value)].name;
@@ -328,7 +328,10 @@ export class MergeExpensePage implements OnInit {
             }
             return option;
           })
-          .filter((v, i, a) => a.findIndex((t) => t.label === v.label) === i);
+          .filter(
+            (option, index, options) =>
+              options.findIndex((currentOption) => currentOption.label === option.label) === index
+          );
 
         if (this.mergedExpenseOptions.tx_org_category_id.options[0]) {
           setTimeout(() => {
@@ -607,32 +610,6 @@ export class MergeExpensePage implements OnInit {
       return;
     }
     return options.filter((option, index) => this.expenses[index].tx_file_ids !== null);
-  }
-
-  formatProjectOptions(options: option[]) {
-    if (!options || !this.projects) {
-      return;
-    }
-    const aa = options.map((option) => {
-      option.label = this.projects[this.projects.map((project) => project.id).indexOf(option.value)].name;
-      return option;
-    });
-
-    return options;
-  }
-
-  formatCategoryOptions(options: option[]) {
-    if (!options || !this.categories) {
-      return;
-    }
-    const aa = options.map((option) => {
-      option.label = this.categories[this.categories.map((category) => category.id).indexOf(option.value)]?.displayName;
-      if (!option.label) {
-        option.label = 'Unspecified';
-      }
-      return option;
-    });
-    return aa;
   }
 
   getCategoryName(options: option[]) {

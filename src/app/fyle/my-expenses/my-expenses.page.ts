@@ -1985,7 +1985,7 @@ export class MyExpensesPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'merge_expense'], { state: { selectedElements: this.selectedElements } });
   }
 
-  isMergeAllowed(expenses) {
+  isMergeAllowed(expenses: Expense[]) {
     if (expenses && expenses.length === 2) {
       const isMileagePerdiem = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
