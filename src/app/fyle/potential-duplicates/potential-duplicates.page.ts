@@ -28,6 +28,8 @@ export class PotentialDuplicatesPage implements OnInit {
 
   duplicateExpenses;
 
+  isLoading = true;
+
   constructor(
     private handleDuplicates: HandleDuplicatesService,
     private transaction: TransactionService,
@@ -86,6 +88,7 @@ export class PotentialDuplicatesPage implements OnInit {
       ),
       tap((duplicateExpenses) => {
         this.duplicateExpenses = duplicateExpenses;
+        this.isLoading = false;
       })
     );
     this.duplicatesSet$.subscribe(noop);

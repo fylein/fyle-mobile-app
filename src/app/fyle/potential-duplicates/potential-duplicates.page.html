@@ -18,8 +18,7 @@
       </div>
     </div>
 
-    <div class="potential-duplicates--container">
-      <!-- <ng-container *ngIf="duplicatesSet$| async as duplicatesSets"> -->
+    <div class="potential-duplicates--container" *ngIf="!isLoading">
       <ng-container *ngFor="let duplicatesSet of duplicateExpenses; let setIndex=index">
         <div *ngIf="setIndex === selectedSet" class="potential-duplicates--header text-center">
           {{duplicatesSet.length}} expenses for {{ 0 | currency: duplicatesSet[0].tx_currency:'symbol-narrow' | slice:
@@ -38,7 +37,15 @@
           </ng-container>
         </ng-container>
       </ng-container>
-      <!-- </ng-container> -->
+    </div>
+
+    <div class="potential-duplicates--container" *ngIf="isLoading">
+      <div class="potential-duplicates--shimmers-title text-center">
+        <ion-skeleton-text animated></ion-skeleton-text>
+      </div>
+      <div class="potential-duplicates--shimmers">
+        <app-fy-loading-screen></app-fy-loading-screen>
+      </div>
     </div>
   </div>
 </ion-content>

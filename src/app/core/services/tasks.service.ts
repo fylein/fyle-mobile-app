@@ -438,31 +438,27 @@ export class TasksService {
   }
 
   private mapPotentialDuplicatesTasks(duplicatesSets) {
-    if (duplicatesSets && duplicatesSets.length > 0) {
-      const duplicateIds = [].concat.apply(
-        [],
-        duplicatesSets.map((value) => value.transaction_ids)
-      );
+    const duplicateIds = [].concat.apply(
+      [],
+      duplicatesSets.map((value) => value.transaction_ids)
+    );
 
-      const task = [
-        {
-          isAmountHidden: true,
-          count: duplicatesSets.length,
-          header: `${duplicateIds.length} Potential duplicates`,
-          subheader: `we detected ${duplicateIds.length} expenses which may be duplicates`,
-          icon: TaskIcon.REPORT,
-          ctas: [
-            {
-              content: `Review`,
-              event: TASKEVENT.openPotentialDuplicates,
-            },
-          ],
-        } as DashboardTask,
-      ];
-      return [task];
-    } else {
-      return [];
-    }
+    const task = [
+      {
+        isAmountHidden: true,
+        count: duplicatesSets.length,
+        header: `${duplicateIds.length} Potential duplicates`,
+        subheader: `we detected ${duplicateIds.length} expenses which may be duplicates`,
+        icon: TaskIcon.REPORT,
+        ctas: [
+          {
+            content: `Review`,
+            event: TASKEVENT.openPotentialDuplicates,
+          },
+        ],
+      } as DashboardTask,
+    ];
+    return [task];
   }
 
   private getUnsubmittedReportsTasks() {

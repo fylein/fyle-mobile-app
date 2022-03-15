@@ -37,6 +37,7 @@
     border-radius: 16px;
     align-content: center;
     border-radius: 20px;
+    overflow-y: scroll;
   }
 
   &--header {
@@ -64,5 +65,14 @@
 
   &--footer-toolbar {
     padding: 14px 16px;
+  }
+
+  &--shimmers {
+    height: 300px;
+  }
+
+  &--shimmers-title {
+    width: 80px;
+    margin: auto;
   }
 }
