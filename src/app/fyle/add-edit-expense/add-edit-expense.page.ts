@@ -960,13 +960,28 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       accounts: accounts$,
       orgSettings: orgSettings$,
+      etxn: this.etxn$,
     }).pipe(
-      map(({ accounts, orgSettings }) => {
+      map(({ accounts, orgSettings, etxn }) => {
         const isAdvanceEnabled =
           (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
         const isMultipleAdvanceEnabled =
           orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
+        const isCCCEnabled =
+          orgSettings &&
+          orgSettings.corporate_credit_card_settings.allowed &&
+          orgSettings.corporate_credit_card_settings.enabled;
+        if (
+          !isCCCEnabled &&
+          !etxn.tx.corporate_credit_card_expense_group_id &&
+          etxn.source?.account_type !== 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+        ) {
+          accounts = accounts.filter((account) => account.acc.type !== 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+        }
+        if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
+          this.isCCCPaymentModeSelected$ = new BehaviorSubject<boolean>(false);
+        }
         const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
@@ -2542,8 +2557,6 @@ export class AddEditExpensePage implements OnInit {
 
     const activeCategories$ = this.getActiveCategories();
 
-    this.paymentModes$ = this.getPaymentModes();
-
     this.paymentAccount$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
@@ -2593,12 +2606,19 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     );
 
+    this.paymentModes$ = this.getPaymentModes();
+
     orgSettings$
       .pipe(
-        filter((orgSettings) => orgSettings.corporate_credit_card_settings.enabled),
-        switchMap(() => this.etxn$),
-        filter((etxn) => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
-        switchMap((etxn) =>
+        switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
+        filter(
+          ({ orgSettings, etxn }) =>
+            (orgSettings.corporate_credit_card_settings.allowed &&
+              orgSettings.corporate_credit_card_settings.enabled) ||
+            etxn.tx.corporate_credit_card_expense_group_id
+        ),
+        filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
+        switchMap(({ etxn }) =>
           this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(
             map((splitExpenses) => ({
               etxn,
