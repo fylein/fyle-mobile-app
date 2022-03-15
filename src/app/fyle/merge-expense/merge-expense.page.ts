@@ -416,7 +416,7 @@ export class MergeExpensePage implements OnInit {
 
     const index = source_txn_ids.findIndex((id) => id === selectedExpense);
     source_txn_ids.splice(index, 1);
-    this.generate()
+    this.generateFromFg()
       .pipe(
         take(1),
         switchMap((formValues) =>
@@ -445,7 +445,7 @@ export class MergeExpensePage implements OnInit {
       .subscribe(noop);
   }
 
-  generate() {
+  generateFromFg() {
     const customInputs$ = this.getCustomFields();
     const result = this.expenses.find((obj) => obj.source_account_type === this.fg.value.paymentMode);
     const CCCGroupIds = this.expenses.map(
