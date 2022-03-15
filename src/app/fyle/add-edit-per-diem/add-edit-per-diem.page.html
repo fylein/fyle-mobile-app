@@ -156,9 +156,7 @@
                         <div class="add-edit-per-diem--date-block">
                           <div
                             [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
-                            class="
-                              add-edit-per-diem--date add-edit-per-diem--internal-block add-edit-per-diem--from-date
-                            "
+                            class="add-edit-per-diem--date add-edit-per-diem--internal-block add-edit-per-diem--from-date"
                           >
                             <div
                               [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
@@ -215,9 +213,7 @@
                           </div>
                           <div
                             *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid"
-                            class="
-                              add-edit-per-diem--error add-edit-per-diem--date-error add-edit-per-diem--to-date-error
-                            "
+                            class="add-edit-per-diem--error add-edit-per-diem--date-error add-edit-per-diem--to-date-error"
                           >
                             Please select {{ txnFields?.to_dt.field_name ? txnFields?.to_dt.field_name : 'To Date' }}
                           </div>
