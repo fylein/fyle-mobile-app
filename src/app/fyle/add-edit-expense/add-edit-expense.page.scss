@@ -62,6 +62,7 @@
 
   &--footer-toolbar {
     padding: 14px 16px;
+    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
     &__shadow {
       box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
     }
@@ -638,5 +639,45 @@
   &--cost-center-alert {
     margin-top: 8px;
     display: block;
+  }
+
+  &--card-container {
+    background: $pink-gradient-2;
+    padding: 16px;
+    margin: 12px 0;
+    border-radius: 8px;
+
+    &__label {
+      color: $black-light;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    &__value {
+      color: $blue-black;
+      font-weight: 500;
+    }
+
+    &__txn-type {
+      margin-left: 4px;
+    }
+
+    &__credit {
+      color: $green;
+      font-weight: 500;
+    }
+  }
+
+  &--date-block-disabled {
+    padding-bottom: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  &--date-disabled {
+    background-color: $off-white;
+    margin-bottom: 0;
+    height: 28px;
+    border-radius: 4px;
+    pointer-events: none;
   }
 }
