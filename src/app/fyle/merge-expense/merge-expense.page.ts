@@ -157,7 +157,6 @@ export class MergeExpensePage implements OnInit {
     this.setupCustomFields();
     this.generateLocationOptions();
 
-    // eslint-disable-next-line complexity
     from(Object.keys(this.expenses[0])).subscribe((field) => {
       this.mergedExpenseOptions[field] = {};
       this.mergedExpenseOptions[field].options = [];
@@ -310,6 +309,7 @@ export class MergeExpensePage implements OnInit {
     this.isLoaded = true;
   }
 
+  // eslint-disable-next-line complexity
   patchValuesOnLoad(field: string, isDuplicate: boolean) {
     if (field === 'source_account_type' && isDuplicate) {
       this.fg.patchValue({
