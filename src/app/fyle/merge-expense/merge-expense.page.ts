@@ -80,7 +80,7 @@ export class MergeExpensePage implements OnInit {
 
   receiptOptions$: Observable<option[]>;
 
-  disableFormElements: false;
+  disableFormElements = false;
 
   isReportedExpensePresent: boolean;
 
@@ -187,66 +187,7 @@ export class MergeExpensePage implements OnInit {
 
       const isDuplicate = values.some((field, idx) => values.indexOf(field) !== idx);
       this.mergedExpenseOptions[field].isSame = isDuplicate;
-
-      if (field === 'source_account_type' && isDuplicate) {
-        this.fg.patchValue({
-          paymentMode: this.mergedExpenseOptions[field].options[0].value,
-        });
-      }
-
-      if (field === 'tx_currency' && isDuplicate) {
-        this.fg.patchValue({
-          currencyObj: this.mergedExpenseOptions[field].options[0].value,
-        });
-      }
-
-      if (field === 'tx_txn_dt' && isDuplicate) {
-        this.fg.patchValue({
-          dateOfSpend: this.mergedExpenseOptions[field].options[0].value,
-        });
-      }
-
-      if (field === 'tx_amount' && isDuplicate) {
-        this.fg.patchValue({
-          amount: this.mergedExpenseOptions[field].options[0].value,
-        });
-      }
-
-      if (field === 'tx_billable' && isDuplicate) {
-        this.fg.patchValue({
-          billable: this.mergedExpenseOptions[field].options[0].value,
-        });
-      }
-
-      if (field === 'tx_vendor' && isDuplicate) {
-        this.fg.patchValue({
-          vendor: this.mergedExpenseOptions[field].options[0].value,
-        });
-      }
-
-      if (field === 'tx_cost_center_name' && isDuplicate) {
-        this.fg.patchValue({
-          costCenter: this.mergedExpenseOptions[field].options[0].value,
-        });
-      }
-
-      if (field === 'tx_purpose' && isDuplicate) {
-        this.fg.patchValue({
-          purpose: this.mergedExpenseOptions[field].options[0].value,
-        });
-      }
-
-      if (field === 'tx_tax_group_id' && isDuplicate) {
-        this.fg.patchValue({
-          tax_group: this.mergedExpenseOptions[field].options[0].value,
-        });
-      }
-
-      if (field === 'tx_tax_amount' && isDuplicate) {
-        this.fg.patchValue({
-          tax_amount: this.mergedExpenseOptions[field].options[0].value,
-        });
-      }
+      this.patchValuesOnLoad(field, isDuplicate);
     });
 
     this.expenseOptions$ = from(this.expenses).pipe(
@@ -367,6 +308,68 @@ export class MergeExpensePage implements OnInit {
     this.setInitialExpenseToKeepDetails(expensesInfo, isAllAdvanceExpenses);
     this.onPaymentModeChange();
     this.isLoaded = true;
+  }
+
+  patchValuesOnLoad(field: string, isDuplicate: boolean) {
+    if (field === 'source_account_type' && isDuplicate) {
+      this.fg.patchValue({
+        paymentMode: this.mergedExpenseOptions[field].options[0].value,
+      });
+    }
+
+    if (field === 'tx_currency' && isDuplicate) {
+      this.fg.patchValue({
+        currencyObj: this.mergedExpenseOptions[field].options[0].value,
+      });
+    }
+
+    if (field === 'tx_txn_dt' && isDuplicate) {
+      this.fg.patchValue({
+        dateOfSpend: this.mergedExpenseOptions[field].options[0].value,
+      });
+    }
+
+    if (field === 'tx_amount' && isDuplicate) {
+      this.fg.patchValue({
+        amount: this.mergedExpenseOptions[field].options[0].value,
+      });
+    }
+
+    if (field === 'tx_billable' && isDuplicate) {
+      this.fg.patchValue({
+        billable: this.mergedExpenseOptions[field].options[0].value,
+      });
+    }
+
+    if (field === 'tx_vendor' && isDuplicate) {
+      this.fg.patchValue({
+        vendor: this.mergedExpenseOptions[field].options[0].value,
+      });
+    }
+
+    if (field === 'tx_cost_center_name' && isDuplicate) {
+      this.fg.patchValue({
+        costCenter: this.mergedExpenseOptions[field].options[0].value,
+      });
+    }
+
+    if (field === 'tx_purpose' && isDuplicate) {
+      this.fg.patchValue({
+        purpose: this.mergedExpenseOptions[field].options[0].value,
+      });
+    }
+
+    if (field === 'tx_tax_group_id' && isDuplicate) {
+      this.fg.patchValue({
+        tax_group: this.mergedExpenseOptions[field].options[0].value,
+      });
+    }
+
+    if (field === 'tx_tax_amount' && isDuplicate) {
+      this.fg.patchValue({
+        tax_amount: this.mergedExpenseOptions[field].options[0].value,
+      });
+    }
   }
 
   loadAttchments() {
