@@ -46,7 +46,7 @@
                     [label]="'Currency'"
                     [mandatory]="false"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.tx_currency.isSame || ( mergedExpenseOptions.tx_currency.options && mergedExpenseOptions.tx_currency.options.length ===0 )"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_currency.isSame || ( mergedExpenseOptions.tx_currency.options && mergedExpenseOptions.tx_currency.options?.length ===0 )"
                     [options]="mergedExpenseOptions.tx_currency.options"
                     [selectModalHeader]="'Select spend date'"
                     formControlName="currencyObj"
@@ -72,7 +72,7 @@
                     [label]="'Amount'"
                     [mandatory]="false"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.tx_amount.isSame || ( mergedExpenseOptions.tx_amount.options && mergedExpenseOptions.tx_amount.options.length === 0)"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_amount.isSame || ( mergedExpenseOptions.tx_amount.options && mergedExpenseOptions.tx_amount.options?.length === 0)"
                     [options]="mergedExpenseOptions.tx_amount.options"
                     [selectModalHeader]="'Select Amount'"
                     formControlName="amount"
@@ -89,14 +89,14 @@
       </div>
       <ng-container *ngIf="receiptOptions$|async as expenseOptions">
         <div
-          *ngIf="formatReceiptOptions(expenseOptions).length !== 0"
+          *ngIf="formatReceiptOptions(expenseOptions)?.length !== 0"
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.vendor.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Select receipt'"
-            [disabled]="formatReceiptOptions(expenseOptions).length === 0"
+            [disabled]="formatReceiptOptions(expenseOptions)?.length === 0"
             [mandatory]="false"
             [nullOption]="true"
             [options]="formatReceiptOptions(expenseOptions)"
@@ -110,7 +110,7 @@
       <ng-container *ngIf="receiptOptions$|async as expenseOptions">
         <div
           class="merge-expenses--internal-block merge-expenses--text"
-          *ngIf="formatReceiptOptions(expenseOptions).length === 0"
+          *ngIf="formatReceiptOptions(expenseOptions)?.length === 0"
         >
           <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
           <div class="merge-expenses--disabled">
@@ -121,7 +121,7 @@
 
       <ng-container *ngIf="attachments$|async as attachments">
         <app-receipt-preview-thumbnail
-          *ngIf="attachments.length > 0"
+          *ngIf="attachments?.length > 0"
           [attachments]="attachments"
           [canEdit]="false"
           [hideLabel]="true"
@@ -143,7 +143,7 @@
                     [label]="'Date of Spend'"
                     [mandatory]="false"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.tx_txn_dt.isSame || ( mergedExpenseOptions.tx_txn_dt.options && mergedExpenseOptions.tx_txn_dt.options.length === 0)"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_txn_dt.isSame || ( mergedExpenseOptions.tx_txn_dt.options && mergedExpenseOptions.tx_txn_dt.options?.length === 0)"
                     [options]="formatDateOptions(mergedExpenseOptions.tx_txn_dt.options)"
                     [selectModalHeader]="'Select spend date'"
                     formControlName="dateOfSpend"
@@ -169,7 +169,7 @@
                     [label]="'Payment Mode'"
                     [mandatory]="true"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.source_account_type.isSame || ( mergedExpenseOptions.source_account_type.options && mergedExpenseOptions.source_account_type.options.length === 0)"
+                    [disabled]="disableFormElements || mergedExpenseOptions.source_account_type.isSame || ( mergedExpenseOptions.source_account_type.options && mergedExpenseOptions.source_account_type.options?.length === 0)"
                     [options]="formatPaymentModeOptions(mergedExpenseOptions.source_account_type.options)"
                     [selectModalHeader]="'Select Payment Mode'"
                     formControlName="paymentMode"
@@ -208,7 +208,7 @@
 
       <div
         class="merge-expenses--primary-block"
-        *ngIf="mergedExpenseOptions.tx_project_id.options && mergedExpenseOptions.tx_project_id.options.length !== 0"
+        *ngIf="mergedExpenseOptions.tx_project_id.options && mergedExpenseOptions.tx_project_id.options?.length !== 0"
       >
         <ion-grid class="merge-expenses--grid">
           <ion-row>
@@ -223,7 +223,7 @@
                     [label]="'Project'"
                     [mandatory]="false"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.tx_project_id.isSame || (mergedExpenseOptions.tx_project_id.options && mergedExpenseOptions.tx_project_id.options.length === 0)"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_project_id.isSame || (mergedExpenseOptions.tx_project_id.options && mergedExpenseOptions.tx_project_id.options?.length === 0)"
                     [options]="mergedExpenseOptions.tx_project_id.options"
                     [selectModalHeader]="'Select project'"
                     formControlName="project"
@@ -249,7 +249,7 @@
                     [label]="'Billable'"
                     [mandatory]="false"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.tx_billable.isSame || ( mergedExpenseOptions.tx_billable.options && mergedExpenseOptions.tx_billable.options.length === 0)"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_billable.isSame || ( mergedExpenseOptions.tx_billable.options && mergedExpenseOptions.tx_billable.options?.length === 0)"
                     [options]="formatBillableOptions(mergedExpenseOptions.tx_billable.options)"
                     [selectModalHeader]="'Select billable'"
                     formControlName="billable"
@@ -273,7 +273,7 @@
             [label]="'Merchant'"
             [mandatory]="false"
             [nullOption]="mergedExpenseOptions.tx_vendor?.options && mergedExpenseOptions.tx_vendor.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_vendor?.isSame || mergedExpenseOptions.tx_vendor?.options.length === 0"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_vendor?.isSame || mergedExpenseOptions.tx_vendor?.options?.length === 0"
             [options]="mergedExpenseOptions.tx_vendor?.options"
             [selectModalHeader]="'Select merchant'"
             formControlName="vendor"
@@ -294,8 +294,8 @@
             [enableSearch]="false"
             [label]="'Category'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_org_category_id.options && mergedExpenseOptions.tx_org_category_id.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_org_category_id.isSame || ( mergedExpenseOptions.tx_org_category_id.options && mergedExpenseOptions.tx_org_category_id.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_org_category_id.options && mergedExpenseOptions.tx_org_category_id.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_org_category_id.isSame || ( mergedExpenseOptions.tx_org_category_id.options && mergedExpenseOptions.tx_org_category_id.options?.length === 0)"
             [options]="mergedExpenseOptions.tx_org_category_id.options"
             [selectModalHeader]="'Select category'"
             formControlName="category"
@@ -308,14 +308,14 @@
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="location_1Options && location_1Options.length > 0"
+          *ngIf="location_1Options && location_1Options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'From'"
             [mandatory]="false"
-            [nullOption]="location_1Options && location_1Options.length === 1"
-            [disabled]="disableFormElements || ( location_1Options && location_1Options.length === 0)"
+            [nullOption]="location_1Options && location_1Options?.length === 1"
+            [disabled]="disableFormElements || ( location_1Options && location_1Options?.length === 0)"
             [options]="location_1Options"
             [selectModalHeader]="'Select From'"
             formControlName="location_1"
@@ -327,14 +327,14 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="location_2Options && location_2Options.length > 0"
+          *ngIf="location_2Options && location_2Options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'To'"
             [mandatory]="false"
-            [nullOption]="location_2Options && location_2Options.length === 1"
-            [disabled]="disableFormElements || ( location_2Options && location_2Options.length === 0)"
+            [nullOption]="location_2Options && location_2Options?.length === 1"
+            [disabled]="disableFormElements || ( location_2Options && location_2Options?.length === 0)"
             [options]="location_2Options"
             [selectModalHeader]="'Select To'"
             formControlName="location_2"
@@ -347,14 +347,14 @@
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options.length > 0"
+          *ngIf="mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Onward Date'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_from_dt.isSame || ( mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_from_dt.isSame || ( mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options?.length === 0)"
             [options]="formatDateOptions(mergedExpenseOptions.tx_from_dt.options)"
             [selectModalHeader]="'Select Onward Date'"
             formControlName="from_dt"
@@ -367,14 +367,14 @@
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options.length > 0"
+          *ngIf="mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Return date'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_to_dt.isSame || ( mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_to_dt.isSame || ( mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options?.length === 0)"
             [options]="formatDateOptions(mergedExpenseOptions.tx_to_dt.options)"
             [selectModalHeader]="'Select return Date'"
             formControlName="to_dt"
@@ -387,14 +387,14 @@
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options.length > 0"
+          *ngIf="mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Travel Class'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_flight_journey_travel_class.isSame || ( mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_flight_journey_travel_class.isSame || ( mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options?.length === 0)"
             [options]="mergedExpenseOptions.tx_flight_journey_travel_class.options"
             [selectModalHeader]="'Select Travel Class'"
             formControlName="flight_journey_travel_class"
@@ -407,14 +407,14 @@
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options.length > 0"
+          *ngIf="mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Return Travel Class'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_flight_return_travel_class.isSame || ( mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_flight_return_travel_class.isSame || ( mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options?.length === 0)"
             [options]="mergedExpenseOptions.tx_flight_return_travel_class.options"
             [selectModalHeader]="'Select Return Travel Class'"
             formControlName="flight_return_travel_class"
@@ -427,14 +427,14 @@
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options.length > 0"
+          *ngIf="mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Travel Class'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_train_travel_class.isSame || ( mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_train_travel_class.isSame || ( mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options?.length === 0)"
             [options]="mergedExpenseOptions.tx_train_travel_class.options"
             [selectModalHeader]="'Select Travel Class'"
             formControlName="train_travel_class"
@@ -447,14 +447,14 @@
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options.length > 0"
+          *ngIf="mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Travel Class'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_bus_travel_class.isSame || ( mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_bus_travel_class.isSame || ( mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options?.length === 0)"
             [options]="mergedExpenseOptions.tx_bus_travel_class.options"
             [selectModalHeader]="'Select Travel Class'"
             formControlName="train_travel_class"
@@ -467,14 +467,14 @@
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options.length > 0"
+          *ngIf="mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Distance'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_distance.isSame || ( mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_distance.isSame || ( mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options?.length === 0)"
             [options]="formatDateOptions(mergedExpenseOptions.tx_distance.options)"
             [selectModalHeader]="'Select Distance'"
             formControlName="distance"
@@ -487,14 +487,14 @@
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options.length > 0"
+          *ngIf="mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Distance Unit'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_distance_unit.isSame || ( mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_distance_unit.isSame || ( mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options?.length === 0)"
             [options]="formatDateOptions(mergedExpenseOptions.tx_distance_unit.options)"
             [selectModalHeader]="'Select Distance Unit'"
             formControlName="distance_unit"
@@ -512,8 +512,8 @@
             [enableSearch]="false"
             [label]="'Tax Group'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_tax_group_id.options && mergedExpenseOptions.tx_tax_group_id.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_tax_group_id.isSame || ( mergedExpenseOptions.tx_tax_group_id.options && mergedExpenseOptions.tx_tax_group_id.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_tax_group_id.options && mergedExpenseOptions.tx_tax_group_id.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_tax_group_id.isSame || ( mergedExpenseOptions.tx_tax_group_id.options && mergedExpenseOptions.tx_tax_group_id.options?.length === 0)"
             [options]="mergedExpenseOptions.tx_tax_group_id.options"
             [selectModalHeader]="'Select Tax Group'"
             formControlName="tax_group"
@@ -531,8 +531,8 @@
             [enableSearch]="false"
             [label]="'Tax'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_tax_amount.options && mergedExpenseOptions.tx_tax_amount.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_tax_amount.isSame || ( mergedExpenseOptions.tx_tax_amount.options && mergedExpenseOptions.tx_tax_amount.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_tax_amount.options && mergedExpenseOptions.tx_tax_amount.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_tax_amount.isSame || ( mergedExpenseOptions.tx_tax_amount.options && mergedExpenseOptions.tx_tax_amount.options?.length === 0)"
             [options]="mergedExpenseOptions.tx_tax_amount.options"
             [selectModalHeader]="'Select Tax'"
             formControlName="tax_amount"
@@ -550,8 +550,8 @@
             [enableSearch]="false"
             [label]="'Cost center'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_cost_center_name.options && mergedExpenseOptions.tx_cost_center_name.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_cost_center_name.isSame || ( mergedExpenseOptions.tx_cost_center_name.options && mergedExpenseOptions.tx_cost_center_name.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_cost_center_name.options && mergedExpenseOptions.tx_cost_center_name.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_cost_center_name.isSame || ( mergedExpenseOptions.tx_cost_center_name.options && mergedExpenseOptions.tx_cost_center_name.options?.length === 0)"
             [options]="mergedExpenseOptions.tx_cost_center_name.options"
             [selectModalHeader]="'Select Cost center'"
             formControlName="costCenter"
@@ -569,8 +569,8 @@
             [enableSearch]="false"
             [label]="'Purpose'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_purpose.options && mergedExpenseOptions.tx_purpose.options.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_purpose.isSame || ( mergedExpenseOptions.tx_purpose.options && mergedExpenseOptions.tx_purpose.options.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_purpose.options && mergedExpenseOptions.tx_purpose.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_purpose.isSame || ( mergedExpenseOptions.tx_purpose.options && mergedExpenseOptions.tx_purpose.options?.length === 0)"
             [options]="mergedExpenseOptions.tx_purpose.options"
             [selectModalHeader]="'Select Purpose'"
             formControlName="purpose"
@@ -592,8 +592,8 @@
                   [enableSearch]="false"
                   [label]="customInput.name"
                   [nullOption]="false"
-                  [nullOption]="mergedCustomProperties[customInput.name].options && mergedCustomProperties[customInput.name].options.length === 1"
-                  [disabled]="disableFormElements || (mergedCustomProperties[customInput.name] && mergedCustomProperties[customInput.name].isSame) || ( mergedCustomProperties[customInput.name].options && mergedCustomProperties[customInput.name].options.length === 0)"
+                  [nullOption]="mergedCustomProperties[customInput.name].options && mergedCustomProperties[customInput.name].options?.length === 1"
+                  [disabled]="disableFormElements || (mergedCustomProperties[customInput.name] && mergedCustomProperties[customInput.name].isSame) || ( mergedCustomProperties[customInput.name].options && mergedCustomProperties[customInput.name].options?.length === 0)"
                   [options]="mergedCustomProperties[customInput.name].options"
                   [selectModalHeader]="'Select'"
                   formControlName="value"

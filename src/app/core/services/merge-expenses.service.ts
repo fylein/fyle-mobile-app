@@ -5,6 +5,7 @@ import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { ISODateString } from '@capacitor/core';
 import { Expense } from '../models/expense.model';
+import { ExpensesInfo } from './expenses-info.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,27 +21,28 @@ export class MergeExpensesService {
     });
   }
 
-  isAllAdvanceExpenses(expenses) {
+  isAllAdvanceExpenses(expenses: Expense[]) {
     return expenses.every(
       (expense) => expense.source_account_type && expense.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT'
     );
   }
 
-  checkIfAdvanceExpensePresent(expenses) {
+  checkIfAdvanceExpensePresent(expenses: Expense[]) {
     return expenses.filter(
       (expense) => expense.source_account_type && expense.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT'
     );
   }
 
-  setDefaultExpenseToKeep(expenses) {
+  setDefaultExpenseToKeep(expenses: Expense[]) {
     const advanceExpenses = this.checkIfAdvanceExpensePresent(expenses);
     const reportedAndAboveExpenses = expenses.filter(
       (expense) =>
         ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(expense.tx_state) > -1
     );
-    const expensesInfo: any = {
+    const expensesInfo: ExpensesInfo = {
       isReportedAndAbove: reportedAndAboveExpenses && reportedAndAboveExpenses.length > 0,
       isAdvancePresent: advanceExpenses && advanceExpenses.length > 0,
+      defaultExpenses: [],
     };
     if (reportedAndAboveExpenses && reportedAndAboveExpenses.length > 0) {
       expensesInfo.defaultExpenses = reportedAndAboveExpenses;
@@ -53,55 +55,55 @@ export class MergeExpensesService {
   }
 
   getReceiptDetails(file) {
-    const ext = this.getReceiptExtension(file.name);
-    const res = {
+    const extension = this.getReceiptExtension(file.name);
+    const fileResponse = {
       type: 'unknown',
       thumbnail: 'img/fy-receipt.svg',
     };
 
-    if (ext && ['pdf'].indexOf(ext) > -1) {
-      res.type = 'pdf';
-      res.thumbnail = 'img/fy-pdf.svg';
-    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
-      res.type = 'image';
-      res.thumbnail = file.url;
+    if (extension && ['pdf'].indexOf(extension) > -1) {
+      fileResponse.type = 'pdf';
+      fileResponse.thumbnail = 'img/fy-pdf.svg';
+    } else if (extension && ['png', 'jpg', 'jpeg', 'gif'].indexOf(extension) > -1) {
+      fileResponse.type = 'image';
+      fileResponse.thumbnail = file.url;
     }
 
-    return res;
+    return fileResponse;
   }
 
-  getReceiptExtension(name) {
-    let res = null;
+  getReceiptExtension(name: string) {
+    let extension = null;
 
     if (name) {
       const filename = name.toLowerCase();
-      const idx = filename.lastIndexOf('.');
+      const index = filename.lastIndexOf('.');
 
-      if (idx > -1) {
-        res = filename.substring(idx + 1, filename.length);
+      if (index > -1) {
+        extension = filename.substring(index + 1, filename.length);
       }
     }
 
-    return res;
+    return extension;
   }
 
-  isApprovedAndAbove(expenses) {
+  isApprovedAndAbove(expenses: Expense[]) {
     const approvedAndAboveExpenses = expenses.filter(function (expense) {
       return ['APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(expense.tx_state) > -1;
     });
     return approvedAndAboveExpenses;
   }
 
-  isAdvancePresent(expensesInfo) {
+  isAdvancePresent(expensesInfo: ExpensesInfo) {
     return expensesInfo.defaultExpenses && expensesInfo.defaultExpenses.length === 1 && expensesInfo.isAdvancePresent;
   }
 
-  isReportedPresent(expenses) {
+  isReportedPresent(expenses: Expense[]) {
     const reportedExpense = expenses.filter((expense) => expense.tx_state === 'APPROVER_PENDING');
     return reportedExpense;
   }
 
-  isMoreThanOneAdvancePresent(expensesInfo, isAllAdvanceExpenses) {
+  isMoreThanOneAdvancePresent(expensesInfo: ExpensesInfo, isAllAdvanceExpenses: boolean) {
     return (
       expensesInfo.defaultExpenses &&
       expensesInfo.defaultExpenses.length > 1 &&
@@ -110,7 +112,7 @@ export class MergeExpensesService {
     );
   }
 
-  isReportedOrAbove(expensesInfo) {
+  isReportedOrAbove(expensesInfo: ExpensesInfo) {
     return expensesInfo.defaultExpenses && expensesInfo.defaultExpenses.length === 1 && expensesInfo.isReportedAndAbove;
   }
 }

@@ -34,6 +34,7 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
+import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
 
 type option = Partial<{ label: string; value: any }>;
 
@@ -179,9 +180,9 @@ export class MergeExpensePage implements OnInit {
 
       let values = this.mergedExpenseOptions[field].options.map((field) => field.value);
       if (field === 'tx_txn_dt') {
-        values = this.mergedExpenseOptions[field].options.map((field) => {
-          return new Date(new Date(field.value).toDateString()).getTime();
-        });
+        values = this.mergedExpenseOptions[field].options.map((field) =>
+          new Date(new Date(field.value).toDateString()).getTime()
+        );
       }
 
       const isDuplicate = values.some((field, idx) => values.indexOf(field) !== idx);
@@ -570,14 +571,14 @@ export class MergeExpensePage implements OnInit {
     );
   }
 
-  formatDateOptions(options) {
+  formatDateOptions(options: option[]) {
     return options.map((option) => {
       option.label = moment(option.label).format('MMM DD, YYYY');
       return option;
     });
   }
 
-  formatPaymentModeOptions(options) {
+  formatPaymentModeOptions(options: option[]) {
     return options.map((option) => {
       if (option.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
         option.label = 'Paid via Corporate Card';
@@ -590,7 +591,7 @@ export class MergeExpensePage implements OnInit {
     });
   }
 
-  formatBillableOptions(options) {
+  formatBillableOptions(options: option[]) {
     return options.map((option) => {
       if (option.value === true) {
         option.label = 'Yes';
@@ -601,14 +602,14 @@ export class MergeExpensePage implements OnInit {
     });
   }
 
-  formatReceiptOptions(options) {
+  formatReceiptOptions(options: option[]) {
     if (!options) {
       return;
     }
     return options.filter((option, index) => this.expenses[index].tx_file_ids !== null);
   }
 
-  formatProjectOptions(options) {
+  formatProjectOptions(options: option[]) {
     if (!options || !this.projects) {
       return;
     }
@@ -620,7 +621,7 @@ export class MergeExpensePage implements OnInit {
     return options;
   }
 
-  formatCategoryOptions(options) {
+  formatCategoryOptions(options: option[]) {
     if (!options || !this.categories) {
       return;
     }
@@ -634,7 +635,7 @@ export class MergeExpensePage implements OnInit {
     return aa;
   }
 
-  getCategoryName(options) {
+  getCategoryName(options: option[]) {
     if (!options || !this.categories) {
       return;
     }
@@ -727,7 +728,7 @@ export class MergeExpensePage implements OnInit {
     this.customPropertiesLoaded = true;
   }
 
-  onExpenseChanged(selectedIndex) {
+  onExpenseChanged(selectedIndex: number) {
     // eslint-disable-next-line complexity
     from(Object.keys(this.expenses[selectedIndex])).subscribe((field) => {
       const values = this.mergedExpenseOptions[field].options.map((field) => field.value);
@@ -817,12 +818,12 @@ export class MergeExpensePage implements OnInit {
     });
   }
 
-  setAdvanceOrApprovedAndAbove(expensesInfo) {
+  setAdvanceOrApprovedAndAbove(expensesInfo: ExpensesInfo) {
     const isApprovedAndAbove = this.mergeExpensesService.isApprovedAndAbove(this.expenses);
     this.disableFormElements = (isApprovedAndAbove && isApprovedAndAbove.length > 0) || expensesInfo.isAdvancePresent;
   }
 
-  setIsReported(expensesInfo) {
+  setIsReported(expensesInfo: ExpensesInfo) {
     const isReported = this.mergeExpensesService.isReportedPresent(this.expenses);
     this.isReportedExpensePresent = isReported && isReported.length > 0;
     if (this.isReportedExpensePresent && expensesInfo.isAdvancePresent) {
@@ -831,7 +832,7 @@ export class MergeExpensePage implements OnInit {
     }
   }
 
-  setInitialExpenseToKeepDetails(expensesInfo, isAllAdvanceExpenses) {
+  setInitialExpenseToKeepDetails(expensesInfo: ExpensesInfo, isAllAdvanceExpenses: boolean) {
     if (expensesInfo.defaultExpenses) {
       if (this.mergeExpensesService.isReportedOrAbove(expensesInfo)) {
         this.setIsReported(expensesInfo);
