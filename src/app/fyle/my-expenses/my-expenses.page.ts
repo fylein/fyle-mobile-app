@@ -163,6 +163,10 @@ export class MyExpensesPage implements OnInit {
 
   isUnifyCCCExpensesSettings: boolean;
 
+  expensesToBeDeleted: Expense[];
+
+  cccExpenses: number;
+
   get HeaderState() {
     return HeaderState;
   }
@@ -1335,6 +1339,16 @@ export class MyExpensesPage implements OnInit {
       this.selectedElements.push(expense);
     }
     this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+
+    if (this.selectedElements?.length > 0) {
+      this.expensesToBeDeleted = this.getDeletableTxns(this.selectedElements);
+
+      if (this.isUnifyCCCExpensesSettings) {
+        this.expensesToBeDeleted = this.excludeCCCExpenses(this.selectedElements);
+      }
+      this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+    }
+
     // setting Expenses count and amount stats on select
     if (this.allExpensesCount === this.selectedElements.length) {
       this.selectAll = true;
@@ -1720,26 +1734,26 @@ export class MyExpensesPage implements OnInit {
   }
 
   getDeleteDialogBody(
-    expensesTobeDeleted: Expense[],
+    expensesToBeDeleted: Expense[],
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string
   ) {
     let dialogBody: string;
 
-    if (expensesTobeDeleted?.length > 0 && cccExpenses > 0) {
+    if (expensesToBeDeleted?.length > 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
-        <li>This cannot be undone.</li>
+        <li>Once deleted, the action can't be reversed.</li>
         </ul>
-        <p class="confirmation-message text-left">Do you wish to continue?</p>`;
-    } else if (expensesTobeDeleted?.length > 0 && cccExpenses === 0) {
+        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+    } else if (expensesToBeDeleted?.length > 0 && cccExpenses === 0) {
       dialogBody = `<ul class="text-left">
       <li>${expenseDeletionMessage}</li>
-      <li>This cannot be undone.</li>
+      <li>Once deleted, the action can't be reversed.</li>
       </ul>
-      <p class="confirmation-message text-left">Do you wish to continue?</p>`;
-    } else if (expensesTobeDeleted?.length === 0 && cccExpenses > 0) {
+      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+    } else if (expensesToBeDeleted?.length === 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
       </ul>`;
@@ -1748,31 +1762,26 @@ export class MyExpensesPage implements OnInit {
     return dialogBody;
   }
 
-  getExpenseDeletionMessage(expensesTobeDeleted: Expense[]) {
-    return `Are you sure you want to delete ${
-      expensesTobeDeleted?.length === 1 ? '1 expense?' : expensesTobeDeleted?.length + ' expenses?'
+  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]) {
+    return `You are about to permanently delete ${
+      expensesToBeDeleted?.length === 1 ? '1 selected expense.' : expensesToBeDeleted?.length + ' selected expenses.'
     }`;
   }
 
-  getCCCExpenseMessage(expensesTobeDeleted: Expense[], cccExpenses: number) {
+  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number) {
     return `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
       cccExpenses > 1 ? 'expenses' : 'expense'
     } from the selection which can\'t be deleted. ${
-      expensesTobeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
+      expensesToBeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
     }`;
   }
 
   async deleteSelectedExpenses() {
     let offlineExpenses: Expense[];
-    let expensesTobeDeleted = this.getDeletableTxns(this.selectedElements);
-    if (this.isUnifyCCCExpensesSettings) {
-      expensesTobeDeleted = this.excludeCCCExpenses(this.selectedElements);
-    }
-    const cccExpenses = this.selectedElements?.length - expensesTobeDeleted?.length;
 
-    const expenseDeletionMessage = this.getExpenseDeletionMessage(expensesTobeDeleted);
+    const expenseDeletionMessage = this.getExpenseDeletionMessage(this.expensesToBeDeleted);
 
-    const cccExpensesMessage = this.getCCCExpenseMessage(expensesTobeDeleted, cccExpenses);
+    const cccExpensesMessage = this.getCCCExpenseMessage(this.expensesToBeDeleted, this.cccExpenses);
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -1780,15 +1789,20 @@ export class MyExpensesPage implements OnInit {
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: this.getDeleteDialogBody(expensesTobeDeleted, cccExpenses, expenseDeletionMessage, cccExpensesMessage),
-        ctaText: expensesTobeDeleted?.length > 0 && cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
-        disableDelete: expensesTobeDeleted?.length > 0 ? false : true,
+        body: this.getDeleteDialogBody(
+          this.expensesToBeDeleted,
+          this.cccExpenses,
+          expenseDeletionMessage,
+          cccExpensesMessage
+        ),
+        ctaText: this.expensesToBeDeleted?.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
+        disableDelete: this.expensesToBeDeleted?.length > 0 ? false : true,
         deleteMethod: () => {
-          offlineExpenses = expensesTobeDeleted.filter((expense) => !expense.tx_id);
+          offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
 
           this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
 
-          this.selectedElements = expensesTobeDeleted.filter((expense) => expense.tx_id);
+          this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
           if (this.selectedElements?.length > 0) {
             return this.transactionService.deleteBulk(
               this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
