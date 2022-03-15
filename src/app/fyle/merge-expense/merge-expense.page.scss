@@ -7,11 +7,6 @@
     &__review {
       min-height: 80px;
     }
-
-    &__title {
-      padding-right: 60px;
-      text-align: center;
-    }
   }
 
   &--header-btn-container {
@@ -31,12 +26,10 @@
 
   &--title {
     &__review {
-      text-align: center;
       padding-inline-end: 0;
       position: relative;
       line-height: 26px;
       color: $black;
-      font-weight: 400;
       top: 12px;
       height: 64px;
     }
@@ -66,7 +59,6 @@
   &--primary-cta,
   &--secondary-cta {
     height: 48px;
-    font-size: 14px;
     text-transform: inherit;
     font-weight: 600;
     border-radius: 8px;
@@ -129,13 +121,10 @@
     color: $black-light;
     line-height: 16px;
     white-space: nowrap;
-    font-weight: 400;
   }
 
   &--date-input {
     border: 0;
-    font-size: 14px;
-    font-weight: 400;
     line-height: 18px;
     border: none;
     width: 100%;
@@ -158,13 +147,10 @@
     color: $black-light;
     line-height: 16px;
     white-space: nowrap;
-    font-weight: 400;
   }
 
   &--text-input {
     border: 0;
-    font-size: 14px;
-    font-weight: 400;
     height: 24px;
     line-height: 18px;
     color: $blue-black;
@@ -179,9 +165,7 @@
   }
 
   &--checkbox {
-    font-size: 14px;
     color: $blue-black;
-    font-weight: 400;
   }
 
   &--project-container {
@@ -228,7 +212,6 @@
   }
 
   &--payment-mode-header {
-    font-size: 14px;
     color: $blue-black;
   }
 
@@ -247,27 +230,6 @@
     color: $red;
   }
 
-  &--card-header {
-    color: $black-light;
-    margin-bottom: 8px;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 15.36px;
-  }
-
-  &--card-txn-container {
-    border: 1px solid $grey-lighter;
-    border-radius: 8px;
-    padding: 8px;
-    display: flex;
-    color: $grey-light;
-    align-items: center;
-    margin-top: 8px;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 15.36px;
-  }
-
   &--icon-corporate-card {
     height: 24px;
     width: 28px;
@@ -284,7 +246,6 @@
     display: flex;
     padding: 4px 0;
     justify-content: space-between;
-    font-size: 14px;
     color: $blue-black;
   }
 
@@ -333,8 +294,6 @@
   &--mandatory {
     color: $brand-primary;
     display: inline-block;
-    font-size: 14px;
-    font-weight: 400;
   }
 
   &--ccc-expense {
