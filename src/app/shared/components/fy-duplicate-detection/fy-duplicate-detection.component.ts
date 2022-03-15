@@ -44,6 +44,12 @@ export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccess
     private duplicateDetectionService: DuplicateDetectionService
   ) {}
 
+  ngOnInit() {
+    this.options = this.duplicateDetectionService
+      .getDuplicateReasons()
+      .map((reason) => ({ label: reason, value: reason }));
+  }
+
   get value(): any {
     return this.innerValue;
   }
@@ -60,12 +66,6 @@ export class FyDuplicateDetectionComponent implements OnInit, ControlValueAccess
 
       this.onChangeCallback(v);
     }
-  }
-
-  ngOnInit() {
-    this.options = this.duplicateDetectionService
-      .getDuplicateReasons()
-      .map((reason) => ({ label: reason, value: reason }));
   }
 
   async openModal() {

@@ -54,14 +54,6 @@ export class NotificationsPage implements OnInit {
     private navController: NavController
   ) {}
 
-  get pushEvents(): FormArray {
-    return this.notificationForm.controls.pushEvents as FormArray;
-  }
-
-  get emailEvents(): FormArray {
-    return this.notificationForm.controls.emailEvents as FormArray;
-  }
-
   getDelegateeSubscription() {
     return this.orgUserSettings$.pipe(
       map((ouSetting) => {
@@ -91,6 +83,14 @@ export class NotificationsPage implements OnInit {
 
   trackByEventType(index, item) {
     return item.eventType;
+  }
+
+  get pushEvents(): FormArray {
+    return this.notificationForm.controls.pushEvents as FormArray;
+  }
+
+  get emailEvents(): FormArray {
+    return this.notificationForm.controls.emailEvents as FormArray;
   }
 
   setEvents(notificationEvents, orgUserSettings) {

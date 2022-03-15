@@ -50,6 +50,14 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
 
   private innerValue;
 
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
+  }
+
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
@@ -63,13 +71,11 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
     private trackingService: TrackingService
   ) {}
 
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
   }
+
+  ngOnDestroy(): void {}
 
   get value(): any {
     return this.innerValue;
@@ -92,12 +98,6 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
       this.onChangeCallback(v);
     }
   }
-
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-  }
-
-  ngOnDestroy(): void {}
 
   async openModal() {
     const selectionModal = await this.modalController.create({

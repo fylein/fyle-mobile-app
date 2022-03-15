@@ -101,6 +101,10 @@ export class MyReportsPage implements OnInit {
 
   filterPills = [];
 
+  get HeaderState() {
+    return HeaderState;
+  }
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -116,10 +120,6 @@ export class MyReportsPage implements OnInit {
     private tasksService: TasksService,
     private modalController: ModalController
   ) {}
-
-  get HeaderState() {
-    return HeaderState;
-  }
 
   ngOnInit() {}
 
