@@ -610,6 +610,7 @@ export class MyExpensesPage implements OnInit {
         )
       )
     );
+    this.doRefresh();
   }
 
   setupNetworkWatcher() {

@@ -224,8 +224,6 @@
   }
 
   &--text {
-    border-bottom: 1px solid $grey-lighter;
-
     &__invalid {
       border-bottom: 1px solid $red;
     }
@@ -246,7 +244,7 @@
     border: 0;
     font-size: 14px;
     font-weight: 400;
-    height: 18px;
+    height: 24px;
     line-height: 18px;
     color: $blue-black;
     width: 100%;
