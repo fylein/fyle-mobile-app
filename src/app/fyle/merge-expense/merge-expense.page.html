@@ -308,15 +308,15 @@
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="location_1Options && location_1Options?.length > 0"
+          *ngIf="location1Options && location1Options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'From'"
             [mandatory]="false"
-            [nullOption]="location_1Options && location_1Options?.length === 1"
-            [disabled]="disableFormElements || ( location_1Options && location_1Options?.length === 0)"
-            [options]="location_1Options"
+            [nullOption]="location1Options && location1Options?.length === 1"
+            [disabled]="disableFormElements || ( location1Options && location1Options?.length === 0)"
+            [options]="location1Options"
             [selectModalHeader]="'Select From'"
             formControlName="location_1"
           >
@@ -327,15 +327,15 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="location_2Options && location_2Options?.length > 0"
+          *ngIf="location2Options && location2Options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'To'"
             [mandatory]="false"
-            [nullOption]="location_2Options && location_2Options?.length === 1"
-            [disabled]="disableFormElements || ( location_2Options && location_2Options?.length === 0)"
-            [options]="location_2Options"
+            [nullOption]="location2Options && location2Options?.length === 1"
+            [disabled]="disableFormElements || ( location2Options && location2Options?.length === 0)"
+            [options]="location2Options"
             [selectModalHeader]="'Select To'"
             formControlName="location_2"
           >

@@ -80,7 +80,7 @@ export class MergeExpensePage implements OnInit {
 
   receiptOptions$: Observable<option[]>;
 
-  disableFormElements: any;
+  disableFormElements: false;
 
   isReportedExpensePresent: boolean;
 
@@ -94,9 +94,9 @@ export class MergeExpensePage implements OnInit {
 
   CCCTxn$: Observable<CorporateCardExpense[]>;
 
-  location_1Options: option[];
+  location1Options: option[];
 
-  location_2Options: option[];
+  location2Options: option[];
 
   constructor(
     private router: Router,
@@ -849,14 +849,14 @@ export class MergeExpensePage implements OnInit {
   }
 
   generateLocationOptions() {
-    this.location_1Options = this.expenses
+    this.location1Options = this.expenses
       .map((expense) => ({
         label: expense.tx_locations[0]?.formatted_address,
         value: expense.tx_locations[0],
       }))
       .filter((res) => res.value);
 
-    this.location_2Options = this.expenses
+    this.location2Options = this.expenses
       .map((expense) => ({
         label: expense.tx_locations[1]?.formatted_address,
         value: expense.tx_locations[1],
