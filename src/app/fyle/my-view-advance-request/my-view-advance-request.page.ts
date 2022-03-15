@@ -20,6 +20,7 @@ import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -44,6 +45,8 @@ export class MyViewAdvanceRequestPage implements OnInit {
   projectFieldName = 'Project';
 
   internalState: { name: string; state: string };
+
+  currencySymbol: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -118,6 +121,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
     this.advanceRequest$.subscribe((advanceRequest) => {
       this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(advanceRequest);
+      this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
     });
 
     this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
@@ -217,7 +221,6 @@ export class MyViewAdvanceRequestPage implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
-      backdropDismiss: false,
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',

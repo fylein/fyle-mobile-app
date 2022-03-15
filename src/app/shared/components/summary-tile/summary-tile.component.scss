@@ -116,6 +116,7 @@ $advance_rejected_color: #d50000;
     white-space: nowrap;
     overflow: hidden;
     width: 35%;
+    font-weight: 500;
   }
 
   &--approval-state {
@@ -139,6 +140,7 @@ $advance_rejected_color: #d50000;
   &--approvers {
     color: $black-light;
     padding: 18px 10px 0;
+    font-weight: 500;
   }
 
   &--approvers-list {
@@ -150,6 +152,7 @@ $advance_rejected_color: #d50000;
   &--approver-state-section {
     display: flex;
     align-items: center;
+    font-weight: 500;
 
     &__date {
       margin: 0 4px;
