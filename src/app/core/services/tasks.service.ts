@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, forkJoin, from, noop, Observable } from 'rxjs';
+import { BehaviorSubject, forkJoin, from, noop, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
@@ -256,7 +256,7 @@ export class TasksService {
       unsubmittedReports: this.getUnsubmittedReportsTasks(),
       draftExpenses: this.getDraftExpensesTasks(),
       teamReports: this.getTeamReportsTasks(),
-      potentialDuplicates: this.getPotentialDuplicates(),
+      potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
     }).pipe(
       map(
@@ -427,36 +427,42 @@ export class TasksService {
     );
   }
 
-  private getPotentialDuplicates() {
-    return this.handleDuplicatesService.getDuplicatesSet().pipe(
-      switchMap((duplicatesSets) => {
-        if (duplicatesSets && duplicatesSets.length > 0) {
-          const duplicateIds = [].concat.apply(
-            [],
-            duplicatesSets.map((value) => value.transaction_ids)
-          );
+  private getPotentialDuplicatesTasks() {
+    return this.handleDuplicatesService
+      .getDuplicatesSet()
+      .pipe(
+        switchMap((duplicatesSets) =>
+          duplicatesSets && duplicatesSets.length > 0 ? this.mapPotentialDuplicatesTasks(duplicatesSets) : of([])
+        )
+      );
+  }
 
-          const task = [
+  private mapPotentialDuplicatesTasks(duplicatesSets) {
+    if (duplicatesSets && duplicatesSets.length > 0) {
+      const duplicateIds = [].concat.apply(
+        [],
+        duplicatesSets.map((value) => value.transaction_ids)
+      );
+
+      const task = [
+        {
+          isAmountHidden: true,
+          count: duplicatesSets.length,
+          header: `${duplicateIds.length} Potential duplicates`,
+          subheader: `we detected ${duplicateIds.length} expenses which may be duplicates`,
+          icon: TaskIcon.REPORT,
+          ctas: [
             {
-              isAmountHidden: true,
-              count: duplicatesSets.length,
-              header: `${duplicateIds.length} Potential duplicates`,
-              subheader: `we detected ${duplicateIds.length} expenses which may be duplicates`,
-              icon: TaskIcon.REPORT,
-              ctas: [
-                {
-                  content: `Review`,
-                  event: TASKEVENT.openPotentialDuplicates,
-                },
-              ],
-            } as DashboardTask,
-          ];
-          return [task];
-        } else {
-          return [];
-        }
-      })
-    );
+              content: `Review`,
+              event: TASKEVENT.openPotentialDuplicates,
+            },
+          ],
+        } as DashboardTask,
+      ];
+      return [task];
+    } else {
+      return [];
+    }
   }
 
   private getUnsubmittedReportsTasks() {
