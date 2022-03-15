@@ -23,7 +23,7 @@ export class FyDeleteDialogComponent implements OnInit {
 
   @Input() ctaLoadingText: string;
 
-  @Input() disableDeleteButton = false;
+  @Input() disableDelete = false;
 
   deleteCallInProgress = false;
 
@@ -42,7 +42,7 @@ export class FyDeleteDialogComponent implements OnInit {
   }
 
   delete() {
-    if (!this.disableDeleteButton) {
+    if (!this.disableDelete) {
       this.deleteCallInProgress = true;
       this.deleteMethod()
         .pipe(
@@ -57,8 +57,6 @@ export class FyDeleteDialogComponent implements OnInit {
         .subscribe((res) => {
           this.popoverController.dismiss(res);
         });
-    } else {
-      this.cancel();
     }
   }
 }

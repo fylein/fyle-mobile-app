@@ -49,14 +49,18 @@
   }
 
   &--delete {
-    min-width: 124px;
-    min-height: 35px;
+    min-width: 132px;
+    min-height: 36px;
     background: $red;
     border-radius: 4px;
     color: $pure-white;
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  &--delete-disabled {
+    opacity: 0.6;
   }
 
   &--cancel {

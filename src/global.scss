@@ -334,6 +334,10 @@ textarea:focus {
   font-size: 12px;
 }
 
+.text-left {
+  text-align: left !important;
+}
+
 .text-right {
   text-align: right !important;
 }
@@ -934,14 +938,12 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .fy-delete-dialog--body ul {
-  padding: 0px 0px 0px 14px;
+  padding: 0 0 0 14px;
   margin: 0;
-  text-align: left;
 }
 
 .fy-delete-dialog--body p.confirmation-message {
   margin-top: 8px;
-  text-align: left;
 }
 
 .route-visualizer--map {

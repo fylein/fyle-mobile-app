@@ -35,6 +35,7 @@
       <ion-col size="6">
         <div
           class="fy-delete-dialog--delete"
+          [ngClass]="{ 'fy-delete-dialog--delete-disabled': disableDelete }"
           (click)="delete()"
           appFormButtonValidation
           [loaderPosition]="LoaderPosition.prefix"

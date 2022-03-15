@@ -1427,7 +1427,7 @@ export class MyExpensesPage implements OnInit {
     this.trackingService.addToReport({ count: this.selectedElements.length });
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
-    selectedElements = selectedElements.filter((exp) => exp.tx_id);
+    selectedElements = selectedElements.filter((expense) => expense.tx_id);
     if (!selectedElements.length) {
       this.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
       return;
@@ -1711,31 +1711,36 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
-  excludeCCCExpenses(expenses) {
+  excludeCCCExpenses(expenses: Expense[]) {
     return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
   }
 
-  getDeletableTxns(expenses) {
+  getDeletableTxns(expenses: Expense[]) {
     return expenses.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
-  getDeleteDialogBody(expensesTobeDeleted, cccExpenses, expenseDeletionMessage, cccExpensesMessage) {
+  getDeleteDialogBody(
+    expensesTobeDeleted: Expense[],
+    cccExpenses: number,
+    expenseDeletionMessage: string,
+    cccExpensesMessage: string
+  ) {
     let dialogBody: string;
 
-    if (expensesTobeDeleted.length > 0 && cccExpenses > 0) {
-      dialogBody = `<ul>
+    if (expensesTobeDeleted?.length > 0 && cccExpenses > 0) {
+      dialogBody = `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
-        <li>This cannot be undone</li>
+        <li>This cannot be undone.</li>
         </ul>
-        <p class="confirmation-message">Do you wish to continue?</p>`;
-    } else if (expensesTobeDeleted.length > 0 && cccExpenses === 0) {
-      dialogBody = `<ul>
+        <p class="confirmation-message text-left">Do you wish to continue?</p>`;
+    } else if (expensesTobeDeleted?.length > 0 && cccExpenses === 0) {
+      dialogBody = `<ul class="text-left">
       <li>${expenseDeletionMessage}</li>
-      <li>This cannot be undone</li>
+      <li>This cannot be undone.</li>
       </ul>
-      <p class="confirmation-message">Do you wish to continue?</p>`;
-    } else if (expensesTobeDeleted.length === 0 && cccExpenses > 0) {
-      dialogBody = `<ul>
+      <p class="confirmation-message text-left">Do you wish to continue?</p>`;
+    } else if (expensesTobeDeleted?.length === 0 && cccExpenses > 0) {
+      dialogBody = `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
       </ul>`;
     }
@@ -1743,17 +1748,17 @@ export class MyExpensesPage implements OnInit {
     return dialogBody;
   }
 
-  getExpenseDeletionMessage(expensesTobeDeleted) {
+  getExpenseDeletionMessage(expensesTobeDeleted: Expense[]) {
     return `Are you sure you want to delete ${
-      expensesTobeDeleted.length === 1 ? '1 expense?' : expensesTobeDeleted.length + ' expenses?'
+      expensesTobeDeleted?.length === 1 ? '1 expense?' : expensesTobeDeleted?.length + ' expenses?'
     }`;
   }
 
-  getCCCExpenseMessage(expensesTobeDeleted, cccExpenses) {
+  getCCCExpenseMessage(expensesTobeDeleted: Expense[], cccExpenses: number) {
     return `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
       cccExpenses > 1 ? 'expenses' : 'expense'
     } from the selection which can\'t be deleted. ${
-      expensesTobeDeleted.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
+      expensesTobeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
     }`;
   }
 
@@ -1763,7 +1768,7 @@ export class MyExpensesPage implements OnInit {
     if (this.isUnifyCCCExpensesSettings) {
       expensesTobeDeleted = this.excludeCCCExpenses(this.selectedElements);
     }
-    const cccExpenses = this.selectedElements.length - expensesTobeDeleted.length;
+    const cccExpenses = this.selectedElements?.length - expensesTobeDeleted?.length;
 
     const expenseDeletionMessage = this.getExpenseDeletionMessage(expensesTobeDeleted);
 
@@ -1776,14 +1781,15 @@ export class MyExpensesPage implements OnInit {
       componentProps: {
         header: 'Delete Expense',
         body: this.getDeleteDialogBody(expensesTobeDeleted, cccExpenses, expenseDeletionMessage, cccExpensesMessage),
-        disableDeleteButton: expensesTobeDeleted.length > 0 ? false : true,
+        ctaText: expensesTobeDeleted?.length > 0 && cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
+        disableDelete: expensesTobeDeleted?.length > 0 ? false : true,
         deleteMethod: () => {
-          offlineExpenses = expensesTobeDeleted.filter((exp) => !exp.tx_id);
+          offlineExpenses = expensesTobeDeleted.filter((expense) => !expense.tx_id);
 
           this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
 
-          this.selectedElements = expensesTobeDeleted.filter((exp) => exp.tx_id);
-          if (this.selectedElements.length > 0) {
+          this.selectedElements = expensesTobeDeleted.filter((expense) => expense.tx_id);
+          if (this.selectedElements?.length > 0) {
             return this.transactionService.deleteBulk(
               this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
             );
@@ -1800,10 +1806,10 @@ export class MyExpensesPage implements OnInit {
 
     if (data) {
       this.trackingService.myExpensesBulkDeleteExpenses({
-        count: this.selectedElements.length,
+        count: this.selectedElements?.length,
       });
       if (data.status === 'success') {
-        const totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
+        const totalNoOfSelectedExpenses = offlineExpenses?.length + this.selectedElements?.length;
         const message =
           totalNoOfSelectedExpenses === 1
             ? '1 expense has been deleted'
