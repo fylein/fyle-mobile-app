@@ -106,22 +106,22 @@ export class StatsComponent implements OnInit {
     );
   }
 
-  getCardDetail(statsResponse) {
+  getCardDetail(statsResponses) {
     const cardNames = [];
-    statsResponse.forEach(function (stats) {
+    statsResponses.forEach((response) => {
       const cardDetail = {
-        cardNumber: stats.key[1].column_value,
-        cardName: stats.key[0].column_value,
+        cardNumber: response.key[1].column_value,
+        cardName: response.key[0].column_value,
       };
       cardNames.push(cardDetail);
     });
     const uniqueCards = JSON.parse(JSON.stringify(cardNames));
-    return this.dashboardService.getExpenseDetailsInCards(uniqueCards, statsResponse);
+    return this.dashboardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
   }
 
   initializeCCCStats() {
     this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
-      map((res) => res),
+      map((cccDetail) => cccDetail),
       shareReplay(1)
     );
     this.cardTransactionsAndDetails$.subscribe((details) => {

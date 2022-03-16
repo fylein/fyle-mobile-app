@@ -122,7 +122,7 @@ export class CorporateCreditCardExpenseService {
       .pipe(map((res) => (res && res.length && res.map((elem) => this.dataTransformService.unflatten(elem))) || []));
   }
 
-  constructInQueryParamStringForV2(params) {
+  constructInQueryParamStringForV2(params: string[]) {
     // in.(IN_PROGRESS,SETTLED)
     let queryString = 'in.(';
     params.forEach(function (param) {

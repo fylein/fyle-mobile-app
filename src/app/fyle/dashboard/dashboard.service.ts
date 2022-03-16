@@ -111,7 +111,7 @@ export class DashboardService {
     };
   }
 
-  getExpenseDetailsInCards = function (uniqueCards, statsResponse) {
+  getExpenseDetailsInCards(uniqueCards, statsResponse) {
     const uniqueCardsCopy = JSON.parse(JSON.stringify(uniqueCards));
     uniqueCardsCopy.forEach(function (card) {
       card.totalDraftTxns = 0;
@@ -131,7 +131,7 @@ export class DashboardService {
       });
     });
     return uniqueCardsCopy;
-  };
+  }
 
   getCCCDetails(): Observable<{ totalTxns: string; totalAmount: string; cardDetails: any }> {
     return this.corporateCreditCardExpenseService.getAssignedCards();

@@ -1,7 +1,5 @@
 @import '../../../../../theme/colors';
 
-$ccc-bank-name: #c4cae8;
-
 .stats {
   &--menu-button {
     padding: 8px;
@@ -74,10 +72,6 @@ $ccc-bank-name: #c4cae8;
     color: $black-light;
   }
 
-  &--expenses-amount {
-    text-align: right;
-  }
-
   &--expenses-title {
     font-size: 16px;
     line-height: 20px;
@@ -101,44 +95,6 @@ $ccc-bank-name: #c4cae8;
     &__align-right {
       margin-left: auto;
     }
-  }
-
-  &--zero-state {
-    position: relative;
-    top: -96px;
-  }
-
-  &--report-badge-col {
-    padding-top: 0;
-    &__left {
-      padding-left: 0;
-      padding-right: 4px;
-    }
-
-    &__right {
-      padding-left: 4px;
-      padding-right: 0;
-    }
-
-    &__top {
-      padding-bottom: 4px;
-    }
-
-    &__bottom {
-      padding-top: 4px;
-    }
-  }
-
-  &--report-stats-row {
-    padding-bottom: 18px;
-    padding-top: 8px;
-    --ion-grid-column-padding: 0;
-  }
-
-  &--expenses-stats-row {
-    padding-bottom: 18px;
-    padding-top: 19px;
-    --ion-grid-column-padding: 0;
   }
 
   &--ccc-cards-section {
