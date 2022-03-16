@@ -100,7 +100,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { Expense } from 'src/app/core/models/expense.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
-import { DuplicateSets } from 'src/app/core/models/v2/duplicate-sets.model';
+import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -324,8 +324,6 @@ export class AddEditExpensePage implements OnInit {
   isIos = false;
 
   duplicatesSet$: Observable<any>;
-
-  duplicatesSetData: DuplicateSets[];
 
   duplicateExpenses;
 
@@ -4291,9 +4289,6 @@ export class AddEditExpensePage implements OnInit {
     this.handleDuplicates
       .getDuplicatesByExpense(this.activatedRoute.snapshot.params.id)
       .pipe(
-        tap((duplicatesSets) => {
-          this.duplicatesSetData = duplicatesSets;
-        }),
         switchMap((duplicatesSets) => {
           const duplicateIds = [].concat.apply(
             [],
@@ -4316,7 +4311,27 @@ export class AddEditExpensePage implements OnInit {
         })
       )
       .subscribe((duplicateExpenses) => {
-        this.duplicateExpenses = duplicateExpenses;
+        this.duplicateExpenses = duplicateExpenses[0];
       });
+  }
+
+  async showSuggestedDuplicates(duplicateExpenses: Expense[]) {
+    const currencyModal = await this.modalController.create({
+      component: SuggestedDuplicatesComponent,
+      componentProps: {
+        duplicateExpenses,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await currencyModal.present();
+
+    const { data } = await currencyModal.onWillDismiss();
+
+    if (data && data.action === 'dismissed') {
+      this.getDuplicateExpenses();
+    }
   }
 }
