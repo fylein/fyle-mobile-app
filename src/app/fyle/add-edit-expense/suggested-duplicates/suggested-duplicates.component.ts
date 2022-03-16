@@ -27,16 +27,6 @@ export class SuggestedDuplicatesComponent implements OnInit {
 
   ngOnInit() {}
 
-  cancel() {
-    this.modalController.dismiss();
-  }
-
-  continue() {
-    this.modalController.dismiss({
-      comment: 's',
-    });
-  }
-
   dismissAll() {
     const txnIds = this.duplicateExpenses.map((expense) => expense.tx_id);
     this.handleDuplicates.dismissAll(txnIds, txnIds).subscribe(() => {

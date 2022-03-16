@@ -325,7 +325,7 @@ export class AddEditExpensePage implements OnInit {
 
   duplicatesSet$: Observable<any>;
 
-  duplicateExpenses;
+  duplicateExpenses: Expense[];
 
   constructor(
     private activatedRoute: ActivatedRoute,

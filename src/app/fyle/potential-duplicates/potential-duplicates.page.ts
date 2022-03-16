@@ -108,13 +108,15 @@ export class PotentialDuplicatesPage implements OnInit {
     this.handleDuplicates.dismissAll(duplicateTxnIds, transactionIds).subscribe(() => {
       this.showDismissedSuccessToast();
       console.log(this.duplicatesSetData[this.selectedSet].transaction_ids);
-      const index = this.duplicatesSetData[this.selectedSet].transaction_ids.indexOf(expense.tx_id);
-      if (index > -1) {
-        this.duplicatesSetData[this.selectedSet].transaction_ids.splice(index, 1);
+      const indexInExpensesSet = this.duplicatesSetData[this.selectedSet].transaction_ids.indexOf(expense.tx_id);
+      if (indexInExpensesSet > -1) {
+        this.duplicatesSetData[this.selectedSet].transaction_ids.splice(indexInExpensesSet, 1);
       }
-      const index1 = this.duplicateExpenses[this.selectedSet].findIndex((x) => x.tx_id === expense.tx_id);
-      if (index1 > -1) {
-        this.duplicateExpenses[this.selectedSet].splice(index1, 1);
+      const indexInExpenses = this.duplicateExpenses[this.selectedSet].findIndex(
+        (expense) => expense.tx_id === expense.tx_id
+      );
+      if (indexInExpenses > -1) {
+        this.duplicateExpenses[this.selectedSet].splice(indexInExpenses, 1);
       }
     });
   }
