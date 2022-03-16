@@ -935,6 +935,7 @@ ref - https://stackoverflow.com/a/31162426
   .popover-content {
     border-radius: 16px;
   }
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .fy-delete-dialog--body ul {
@@ -965,12 +966,11 @@ ref - https://stackoverflow.com/a/31162426
 
 .ios .segment-block {
   height: 40px;
-  padding: 2px !important;
-  margin: 12px 0 12px 12%;
-  background: $pure-white;
-  border: 2px solid $pure-white;
+  background: #fff;
+  margin-top: 12px;
+  margin-bottom: 12px;
   box-sizing: border-box;
-  box-shadow: 0px -2px 40px $transparent-pearl-grey;
+  box-shadow: 0px -2px 40px rgb(215 215 215 / 50%);
   border-radius: 8px;
 }
 

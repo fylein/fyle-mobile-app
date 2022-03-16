@@ -39,6 +39,7 @@ import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-vi
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
 import { FyLoadingScreenComponent } from './components/fy-loading-screen/fy-loading-screen.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MaskNumber } from './pipes/mask-number.pipe';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -115,7 +116,8 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
-
+import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.component';
+import { FySummaryTileComponent } from './components/summary-tile/summary-tile.component';
 @NgModule({
   declarations: [
     AdvanceState,
@@ -209,6 +211,9 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
     AddMorePopupComponent,
     CropReceiptComponent,
     FyNumberComponent,
+    FyStatisticComponent,
+    FySummaryTileComponent,
+    MaskNumber,
   ],
   imports: [
     CommonModule,
@@ -308,6 +313,9 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
     AddMorePopupComponent,
     CropReceiptComponent,
     FyNumberComponent,
+    FyStatisticComponent,
+    FySummaryTileComponent,
+    MaskNumber,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })

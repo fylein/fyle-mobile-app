@@ -10,6 +10,7 @@
   pattern="[0-9]*"
   decimal="true"
   decimal-char="."
+  [ngClass]="{ 'fy-number--input__disabled': disabled }"
 />
 <input
   *ngIf="!isIos"
@@ -21,4 +22,5 @@
   (blur)="(onBlur)"
   type="number"
   inputmode="decimal"
+  [ngClass]="{ 'fy-number--input__disabled': disabled }"
 />

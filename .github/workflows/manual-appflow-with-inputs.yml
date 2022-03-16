@@ -29,7 +29,7 @@ jobs:
           app-id: 32316914
           platform: Android
           build-type: debug
-          environment: github.event.inputs.name
+          environment: ${{ github.event.inputs.name }}
           native-config: prod
           upload-artifact: Android
 
@@ -62,7 +62,7 @@ jobs:
           platform: iOS
           build-type: development
           certificate: Fyle signing
-          environment: github.event.inputs.name
+          environment: ${{ github.event.inputs.name }}
           native-config: prod
           upload-artifact: ios
 

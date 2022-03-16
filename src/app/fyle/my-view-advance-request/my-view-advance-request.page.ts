@@ -18,7 +18,9 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { TrackingService } from '../../core/services/tracking.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -40,7 +42,11 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
-  projectFieldName: string;
+  projectFieldName = 'Project';
+
+  internalState: { name: string; state: string };
+
+  currencySymbol: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -56,6 +62,10 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private offlineService: OfflineService,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
+
+  get StatisticTypes() {
+    return StatisticTypes;
+  }
 
   getReceiptExtension(name) {
     let res = null;
@@ -108,6 +118,11 @@ export class MyViewAdvanceRequestPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
+
+    this.advanceRequest$.subscribe((advanceRequest) => {
+      this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(advanceRequest);
+      this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
+    });
 
     this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
@@ -206,7 +221,6 @@ export class MyViewAdvanceRequestPage implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
-      backdropDismiss: false,
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',
