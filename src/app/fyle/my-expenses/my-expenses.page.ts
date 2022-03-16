@@ -1341,10 +1341,12 @@ export class MyExpensesPage implements OnInit {
     this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
 
     if (this.selectedElements?.length > 0) {
-      this.expensesToBeDeleted = this.getDeletableTxns(this.selectedElements);
+      this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
+
+      this.isUnifyCCCExpensesSettings = true;
 
       if (this.isUnifyCCCExpensesSettings) {
-        this.expensesToBeDeleted = this.excludeCCCExpenses(this.selectedElements);
+        this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
       }
       this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
     }
@@ -1725,63 +1727,12 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
-  excludeCCCExpenses(expenses: Expense[]) {
-    return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
-  }
-
-  getDeletableTxns(expenses: Expense[]) {
-    return expenses.filter((expense) => expense && expense.tx_user_can_delete);
-  }
-
-  getDeleteDialogBody(
-    expensesToBeDeleted: Expense[],
-    cccExpenses: number,
-    expenseDeletionMessage: string,
-    cccExpensesMessage: string
-  ) {
-    let dialogBody: string;
-
-    if (expensesToBeDeleted?.length > 0 && cccExpenses > 0) {
-      dialogBody = `<ul class="text-left">
-        <li>${cccExpensesMessage}</li>
-        <li>Once deleted, the action can't be reversed.</li>
-        </ul>
-        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted?.length > 0 && cccExpenses === 0) {
-      dialogBody = `<ul class="text-left">
-      <li>${expenseDeletionMessage}</li>
-      <li>Once deleted, the action can't be reversed.</li>
-      </ul>
-      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted?.length === 0 && cccExpenses > 0) {
-      dialogBody = `<ul class="text-left">
-      <li>${cccExpensesMessage}</li>
-      </ul>`;
-    }
-
-    return dialogBody;
-  }
-
-  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]) {
-    return `You are about to permanently delete ${
-      expensesToBeDeleted?.length === 1 ? '1 selected expense.' : expensesToBeDeleted?.length + ' selected expenses.'
-    }`;
-  }
-
-  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number) {
-    return `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
-      cccExpenses > 1 ? 'expenses' : 'expense'
-    } from the selection which can\'t be deleted. ${
-      expensesToBeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
-    }`;
-  }
-
   async deleteSelectedExpenses() {
     let offlineExpenses: Expense[];
 
-    const expenseDeletionMessage = this.getExpenseDeletionMessage(this.expensesToBeDeleted);
+    const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
 
-    const cccExpensesMessage = this.getCCCExpenseMessage(this.expensesToBeDeleted, this.cccExpenses);
+    const cccExpensesMessage = this.transactionService.getCCCExpenseMessage(this.expensesToBeDeleted, this.cccExpenses);
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -1789,7 +1740,7 @@ export class MyExpensesPage implements OnInit {
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: this.getDeleteDialogBody(
+        body: this.transactionService.getDeleteDialogBody(
           this.expensesToBeDeleted,
           this.cccExpenses,
           expenseDeletionMessage,
