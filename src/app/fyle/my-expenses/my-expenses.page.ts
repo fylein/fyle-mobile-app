@@ -1982,7 +1982,9 @@ export class MyExpensesPage implements OnInit {
   }
 
   mergeExpenses() {
-    this.router.navigate(['/', 'enterprise', 'merge_expense'], { state: { selectedElements: this.selectedElements } });
+    this.router.navigate(['/', 'enterprise', 'merge_expense'], {
+      state: { selectedElements: this.selectedElements, from: 'MY_EXPENSES' },
+    });
   }
 
   isMergeAllowed(expenses: Expense[]) {

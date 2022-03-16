@@ -98,6 +98,8 @@ export class MergeExpensePage implements OnInit {
 
   location2Options: option[];
 
+  from: string;
+
   constructor(
     private router: Router,
     private offlineService: OfflineService,
@@ -118,6 +120,7 @@ export class MergeExpensePage implements OnInit {
 
   ngOnInit() {
     this.expenses = this.router.getCurrentNavigation().extras.state.selectedElements;
+    this.from = this.router.getCurrentNavigation().extras.state.from;
   }
 
   ionViewWillEnter() {
@@ -424,12 +427,20 @@ export class MergeExpensePage implements OnInit {
             finalize(() => {
               this.isMerging = false;
               this.showMergedSuccessToast();
-              this.navController.back();
+              this.goBack();
             })
           )
         )
       )
       .subscribe(noop);
+  }
+
+  goBack() {
+    if (this.from === 'EDIT_EXPENSE') {
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    } else {
+      this.navController.back();
+    }
   }
 
   showMergedSuccessToast() {
