@@ -37,7 +37,7 @@ export class SuggestedDuplicatesComponent implements OnInit {
     });
   }
 
-  mergeExpense() {
+  mergeExpenses() {
     const txnIds = this.duplicateExpenses.map((expense) => expense.tx_id);
     const params = {
       tx_id: `in.(${txnIds.toString()})`,

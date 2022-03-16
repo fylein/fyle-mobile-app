@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, from, noop, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, mergeAll, switchMap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -17,6 +17,7 @@ import { ReportService } from './report.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { HandleDuplicatesService } from './handle-duplicates.service';
+import { DuplicateSets } from '../models/v2/duplicate-sets.model';
 
 type TaskDict = {
   sentBackReports: DashboardTask[];
@@ -429,24 +430,22 @@ export class TasksService {
 
   private getPotentialDuplicatesTasks() {
     return this.handleDuplicatesService
-      .getDuplicatesSet()
+      .getDuplicateSets()
       .pipe(
-        switchMap((duplicatesSets) =>
-          duplicatesSets && duplicatesSets.length > 0 ? this.mapPotentialDuplicatesTasks(duplicatesSets) : of([])
+        switchMap((duplicateSets) =>
+          duplicateSets && duplicateSets.length > 0 ? this.mapPotentialDuplicatesTasks(duplicateSets) : of([])
         )
       );
   }
 
-  private mapPotentialDuplicatesTasks(duplicatesSets) {
-    const duplicateIds = [].concat.apply(
-      [],
-      duplicatesSets.map((value) => value.transaction_ids)
-    );
-
+  private mapPotentialDuplicatesTasks(duplicateSets: DuplicateSets[]) {
+    const duplicateIds = duplicateSets
+      .map((value) => value.transaction_ids)
+      .reduce((acc, curVal) => acc.concat(curVal), []);
     const task = [
       {
         isAmountHidden: true,
-        count: duplicatesSets.length,
+        count: duplicateSets.length,
         header: `${duplicateIds.length} Potential duplicates`,
         subheader: `we detected ${duplicateIds.length} expenses which may be duplicates`,
         icon: TaskIcon.REPORT,

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, from, noop, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, EMPTY, from, noop, Observable, Subject } from 'rxjs';
 import { map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { DuplicateSets } from 'src/app/core/models/v2/duplicate-sets.model';
@@ -16,17 +16,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./potential-duplicates.page.scss'],
 })
 export class PotentialDuplicatesPage implements OnInit {
-  duplicatesSet$: Observable<any>;
+  duplicateSets$: Observable<Expense[][]>;
 
-  loadData$: BehaviorSubject<any>;
+  loadData$ = new BehaviorSubject<void>(null);
 
   selectedSet = 0;
 
-  duplicatesSetCount: number;
+  duplicateSetData: DuplicateSets[];
 
-  duplicatesSetData: DuplicateSets[];
-
-  duplicateExpenses;
+  duplicateExpenses: Expense[][];
 
   isLoading = true;
 
@@ -42,41 +40,29 @@ export class PotentialDuplicatesPage implements OnInit {
 
   ionViewWillEnter() {
     this.selectedSet = 0;
-    this.handleDuplicates
-      .getDuplicatesSet()
-      .pipe(map((sets: any) => sets.length))
-      .subscribe((duplicatesSetCount) => {
-        this.duplicatesSetCount = duplicatesSetCount;
-        if (this.duplicatesSetCount === 0) {
-          this.goToTasks();
-        }
-      });
 
-    this.loadData$ = new BehaviorSubject({});
-
-    this.duplicatesSet$ = this.loadData$.pipe(
+    this.duplicateSets$ = this.loadData$.pipe(
       switchMap(() =>
-        this.handleDuplicates.getDuplicatesSet().pipe(
-          tap((duplicatesSets) => {
-            this.duplicatesSetData = duplicatesSets;
-            this.duplicatesSetCount = duplicatesSets.length;
-            if (this.duplicatesSetCount === 0) {
+        this.handleDuplicates.getDuplicateSets().pipe(
+          tap((duplicateSets) => {
+            this.duplicateSetData = duplicateSets;
+            if (this.duplicateSetData?.length === 0) {
               this.goToTasks();
+              return EMPTY;
             }
           }),
-          switchMap((duplicatesSets) => {
-            const duplicateIds = [].concat.apply(
-              [],
-              duplicatesSets.map((value) => value.transaction_ids)
-            );
+          switchMap((duplicateSets) => {
+            const duplicateIds = duplicateSets
+              .map((value) => value.transaction_ids)
+              .reduce((acc, curVal) => acc.concat(curVal), []);
             const params = {
               tx_id: `in.(${duplicateIds.toString()})`,
             };
             return this.transaction.getETxnc({ offset: 0, limit: 10, params }).pipe(
               map((expenses) => {
                 const expensesArray = expenses as [];
-                return duplicatesSets.map((set) =>
-                  set.transaction_ids.map(
+                return duplicateSets.map((duplicateSet) =>
+                  duplicateSet.transaction_ids.map(
                     (expenseId) =>
                       expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
                   )
@@ -91,7 +77,7 @@ export class PotentialDuplicatesPage implements OnInit {
         this.isLoading = false;
       })
     );
-    this.duplicatesSet$.subscribe(noop);
+    this.duplicateSets$.subscribe(noop);
   }
 
   next() {
@@ -104,25 +90,20 @@ export class PotentialDuplicatesPage implements OnInit {
 
   dismiss(expense: Expense) {
     const transactionIds = [expense.tx_id];
-    const duplicateTxnIds = this.duplicatesSetData[this.selectedSet].transaction_ids;
+    const duplicateTxnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
     this.handleDuplicates.dismissAll(duplicateTxnIds, transactionIds).subscribe(() => {
       this.showDismissedSuccessToast();
-      console.log(this.duplicatesSetData[this.selectedSet].transaction_ids);
-      const indexInExpensesSet = this.duplicatesSetData[this.selectedSet].transaction_ids.indexOf(expense.tx_id);
-      if (indexInExpensesSet > -1) {
-        this.duplicatesSetData[this.selectedSet].transaction_ids.splice(indexInExpensesSet, 1);
-      }
-      const indexInExpenses = this.duplicateExpenses[this.selectedSet].findIndex(
-        (expense) => expense.tx_id === expense.tx_id
+      this.duplicateSetData[this.selectedSet].transaction_ids = this.duplicateSetData[
+        this.selectedSet
+      ]?.transaction_ids.filter((expId) => expId !== expense.tx_id);
+      this.duplicateExpenses[this.selectedSet] = this.duplicateExpenses[this.selectedSet]?.filter(
+        (exp) => exp.tx_id !== expense.tx_id
       );
-      if (indexInExpenses > -1) {
-        this.duplicateExpenses[this.selectedSet].splice(indexInExpenses, 1);
-      }
     });
   }
 
   dismissAll() {
-    const txnIds = this.duplicatesSetData[this.selectedSet].transaction_ids;
+    const txnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
     this.handleDuplicates.dismissAll(txnIds, txnIds).subscribe(() => {
       if (this.selectedSet === 0) {
         this.selectedSet = 1;
@@ -130,12 +111,12 @@ export class PotentialDuplicatesPage implements OnInit {
         this.selectedSet--;
       }
       this.showDismissedSuccessToast();
-      this.loadData$.next({});
+      this.loadData$.next();
     });
   }
 
   mergeExpense() {
-    const selectedTxnIds = this.duplicatesSetData[this.selectedSet].transaction_ids;
+    const selectedTxnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
     const params = {
       tx_id: `in.(${selectedTxnIds.toString()})`,
     };
@@ -148,7 +129,7 @@ export class PotentialDuplicatesPage implements OnInit {
 
   showDismissedSuccessToast() {
     const toastMessageData = {
-      message: 'Duplicates was successfully dismissed',
+      message: 'Expense dismissed',
     };
     this.matSnackBar
       .openFromComponent(ToastMessageComponent, {
@@ -165,5 +146,9 @@ export class PotentialDuplicatesPage implements OnInit {
       queryParams,
       skipLocationChange: true,
     });
+  }
+
+  goToTransaction({ etxn: expense, etxnIndex }) {
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id, persist_filters: true }]);
   }
 }

@@ -323,7 +323,7 @@ export class AddEditExpensePage implements OnInit {
 
   isIos = false;
 
-  duplicatesSet$: Observable<any>;
+  duplicatesSet$: Observable<Expense[][]>;
 
   duplicateExpenses: Expense[];
 
@@ -4289,18 +4289,17 @@ export class AddEditExpensePage implements OnInit {
     this.handleDuplicates
       .getDuplicatesByExpense(this.activatedRoute.snapshot.params.id)
       .pipe(
-        switchMap((duplicatesSets) => {
-          const duplicateIds = [].concat.apply(
-            [],
-            duplicatesSets.map((value) => value.transaction_ids)
-          );
+        switchMap((duplicateSets) => {
+          const duplicateIds = duplicateSets
+            .map((value) => value.transaction_ids)
+            .reduce((acc, curVal) => acc.concat(curVal), []);
           const params = {
             tx_id: `in.(${duplicateIds.toString()})`,
           };
           return this.transactionService.getETxnc({ offset: 0, limit: 10, params }).pipe(
             map((expenses) => {
               const expensesArray = expenses as [];
-              return duplicatesSets.map((set) =>
+              return duplicateSets.map((set) =>
                 set.transaction_ids.map(
                   (expenseId) =>
                     expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]

@@ -12,16 +12,16 @@
       <div class="potential-duplicates--navigation-button text-center">
         <span *ngIf="selectedSet !== 0" (click)="prev()"> Prev </span>
       </div>
-      <div class="potential-duplicates--navigation-count">{{selectedSet + 1}} of {{duplicatesSetCount}}</div>
+      <div class="potential-duplicates--navigation-count">{{selectedSet + 1}} of {{duplicateSetData?.length}}</div>
       <div class="potential-duplicates--navigation-button text-center">
-        <span *ngIf="selectedSet+1 !== duplicatesSetCount" (click)="next()"> Next </span>
+        <span *ngIf="selectedSet+1 !== duplicateSetData?.length" (click)="next()"> Next </span>
       </div>
     </div>
 
     <div class="potential-duplicates--container" *ngIf="!isLoading">
       <ng-container *ngFor="let duplicatesSet of duplicateExpenses; let setIndex=index">
         <div *ngIf="setIndex === selectedSet" class="potential-duplicates--header text-center">
-          {{duplicatesSet.length}} expenses for {{ 0 | currency: duplicatesSet[0].tx_currency:'symbol-narrow' | slice:
+          {{duplicatesSet?.length}} expenses for {{ 0 | currency: duplicatesSet[0].tx_currency:'symbol-narrow' | slice:
           0:1 }} {{ duplicatesSet[0].tx_amount | number : '1.2-2'}}
         </div>
         <ng-container *ngFor="let expense of duplicatesSet as list; let i = index;">
@@ -30,8 +30,9 @@
               [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
               [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
               [expense]="expense"
-              [isDismissable]="duplicatesSet.length > 2"
+              [isDismissable]="duplicatesSet?.length > 2"
               (dismissed)="dismiss($event)"
+              (goToTransaction)="goToTransaction($event)"
             >
             </app-expense-card>
           </ng-container>

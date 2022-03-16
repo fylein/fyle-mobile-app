@@ -8,7 +8,7 @@ import { ApiService } from './api.service';
 export class HandleDuplicatesService {
   constructor(private apiService: ApiService) {}
 
-  getDuplicatesSet(): Observable<DuplicateSets[]> {
+  getDuplicateSets(): Observable<DuplicateSets[]> {
     return this.apiService.get('/transactions/duplicates/sets');
   }
 
