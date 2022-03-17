@@ -57,6 +57,8 @@ export class MergeExpensePage implements OnInit {
 
   expenseOptions$: Observable<option[]>;
 
+  amountOptions$: Observable<option[]>;
+
   isMerging = false;
 
   selectedReceiptsId: string[] = [];
@@ -214,6 +216,8 @@ export class MergeExpensePage implements OnInit {
 
     this.receiptOptions$ = this.mergeExpensesService.generateReceiptOptions(this.expenses);
 
+    this.amountOptions$ = this.mergeExpensesService.generateAmountOptions(this.expenses);
+
     this.projectService.getAllActive().subscribe((projects) => {
       this.projects = projects;
       this.mergedExpenseOptions.tx_project_id.options = this.mergedExpenseOptions.tx_project_id.options.map(
@@ -278,6 +282,9 @@ export class MergeExpensePage implements OnInit {
     this.fg.controls.target_txn_id.valueChanges.subscribe((expenseId) => {
       const selectedIndex = this.expenses.map((e) => e.tx_id).indexOf(expenseId);
       this.onExpenseChanged(selectedIndex);
+      this.fg.patchValue({
+        amount: expenseId,
+      });
     });
 
     const expensesInfo = this.mergeExpensesService.setDefaultExpenseToKeep(this.expenses);
@@ -297,11 +304,11 @@ export class MergeExpensePage implements OnInit {
       });
     }
 
-    if (field === 'tx_currency' && isDuplicate) {
-      this.fg.patchValue({
-        currencyObj: this.mergedExpenseOptions[field].options[0].value,
-      });
-    }
+    // if (field === 'tx_currency' && isDuplicate) {
+    //   this.fg.patchValue({
+    //     currencyObj: this.mergedExpenseOptions[field].options[0].value,
+    //   });
+    // }
 
     if (field === 'tx_txn_dt' && isDuplicate) {
       this.fg.patchValue({
@@ -309,11 +316,11 @@ export class MergeExpensePage implements OnInit {
       });
     }
 
-    if (field === 'tx_amount' && isDuplicate) {
-      this.fg.patchValue({
-        amount: this.mergedExpenseOptions[field].options[0].value,
-      });
-    }
+    // if (field === 'tx_amount' && isDuplicate) {
+    //   this.fg.patchValue({
+    //     amount: this.mergedExpenseOptions[field].options[0].value,
+    //   });
+    // }
 
     if (field === 'tx_billable' && isDuplicate) {
       this.fg.patchValue({
@@ -370,16 +377,11 @@ export class MergeExpensePage implements OnInit {
     }
     this.isMerging = true;
     let sourceTxnIds = [];
-    from(this.expenses)
-      .pipe(
-        map((expense) => {
-          sourceTxnIds.push(expense.tx_id);
-        })
-      )
-      .subscribe(noop);
+    this.expenses.map((expense) => {
+      sourceTxnIds.push(expense.tx_id);
+    });
+    sourceTxnIds = sourceTxnIds.filter((id) => id !== selectedExpense);
 
-    const index = sourceTxnIds.findIndex((id) => id === selectedExpense);
-    sourceTxnIds = sourceTxnIds.slice(index, 1);
     this.generateFromFg()
       .pipe(
         take(1),
@@ -419,7 +421,8 @@ export class MergeExpensePage implements OnInit {
 
   generateFromFg() {
     const customFields$ = this.getCustomFields();
-    const result = this.expenses.find((obj) => obj.source_account_type === this.fg.value.paymentMode);
+    const sourceExpense = this.expenses.find((expense) => expense.source_account_type === this.fg.value.paymentMode);
+    const amountExpense = this.expenses.find((expense) => expense.tx_id === this.fg.value.amount);
     const CCCGroupIds = this.expenses.map(
       (expense) =>
         expense.tx_corporate_credit_card_expense_group_id && expense.tx_corporate_credit_card_expense_group_id
@@ -433,10 +436,10 @@ export class MergeExpensePage implements OnInit {
     return customFields$.pipe(
       take(1),
       map((customProperties) => ({
-        source_account_id: result && result.tx_source_account_id,
+        source_account_id: sourceExpense?.tx_source_account_id,
         billable: this.fg.value.billable,
-        currency: this.fg.value.currencyObj,
-        amount: this.fg.value.amount,
+        currency: amountExpense?.tx_currency,
+        amount: amountExpense?.tx_amount,
         project_id: this.fg.value.project,
         tax_amount: this.fg.value.tax_amount,
         tax_group_id: this.fg.value.tax_group && this.fg.value.tax_group.id,
@@ -577,26 +580,28 @@ export class MergeExpensePage implements OnInit {
 
     combinedCustomProperties.forEach((field) => {
       const existing = customProperty.filter((option) => option.name === field.name);
-      let formatedlabel;
-      if (moment(field.value, moment.ISO_8601, true).isValid()) {
-        formatedlabel = moment(field.value).format('MMM DD, YYYY');
-      } else {
-        formatedlabel = field.value.toString();
-      }
-      if (existing.length) {
-        const existingIndex = customProperty.indexOf(existing[0]);
-        if (
-          typeof customProperty[existingIndex].value === 'string' ||
-          typeof customProperty[existingIndex].value === 'number'
-        ) {
-          customProperty[existingIndex].options.push({ label: formatedlabel, value: field.value });
+      if (field.value) {
+        let formatedlabel;
+        if (moment(field.value, moment.ISO_8601, true).isValid()) {
+          formatedlabel = moment(field.value).format('MMM DD, YYYY');
         } else {
-          customProperty[existingIndex].options = customProperty[existingIndex].options.concat(field.options);
+          formatedlabel = field.value.toString();
         }
-      } else {
-        field.options = [];
-        field.options.push({ label: formatedlabel, value: field.value });
-        customProperty.push(field);
+        if (existing.length) {
+          const existingIndex = customProperty.indexOf(existing[0]);
+          if (
+            typeof customProperty[existingIndex].value === 'string' ||
+            typeof customProperty[existingIndex].value === 'number'
+          ) {
+            customProperty[existingIndex].options.push({ label: formatedlabel, value: field.value });
+          } else {
+            customProperty[existingIndex].options = customProperty[existingIndex].options.concat(field.options);
+          }
+        } else {
+          field.options = [];
+          field.options.push({ label: formatedlabel, value: field.value });
+          customProperty.push(field);
+        }
       }
     });
 
@@ -647,11 +652,11 @@ export class MergeExpensePage implements OnInit {
           });
         }
 
-        if (field === 'tx_currency' && !this.fg.controls.currencyObj.touched) {
-          this.fg.patchValue({
-            currencyObj: this.mergedExpenseOptions[field].options[selectedIndex].value,
-          });
-        }
+        // if (field === 'tx_currency' && !this.fg.controls.currencyObj.touched) {
+        //   this.fg.patchValue({
+        //     currencyObj: this.mergedExpenseOptions[field].options[selectedIndex].value,
+        //   });
+        // }
 
         if (field === 'tx_txn_dt' && !this.fg.controls.dateOfSpend.touched) {
           this.fg.patchValue({
@@ -659,11 +664,11 @@ export class MergeExpensePage implements OnInit {
           });
         }
 
-        if (field === 'tx_amount' && !this.fg.controls.amount.touched) {
-          this.fg.patchValue({
-            amount: this.mergedExpenseOptions[field].options[selectedIndex].value,
-          });
-        }
+        // if (field === 'tx_amount' && !this.fg.controls.amount.touched) {
+        //   this.fg.patchValue({
+        //     amount: this.mergedExpenseOptions[field].options[selectedIndex].value,
+        //   });
+        // }
 
         if (field === 'tx_billable' && !this.fg.controls.billable.touched) {
           this.fg.patchValue({

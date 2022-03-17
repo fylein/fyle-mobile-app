@@ -32,7 +32,7 @@
       <div *ngIf="fg.controls.target_txn_id.touched && !fg.controls.target_txn_id.valid" class="merge-expenses--error">
         Please select a valid expense
       </div>
-
+      <!-- 
       <div class="merge-expenses--primary-block">
         <ion-grid class="merge-expenses--grid">
           <ion-row>
@@ -81,29 +81,48 @@
             </ion-col>
           </ion-row>
         </ion-grid>
-      </div>
-      <ng-container *ngIf="receiptOptions$|async as expenseOptions">
+      </div> -->
+
+      <ng-container *ngIf="amountOptions$|async as amountOptions">
         <div
-          *ngIf="expenseOptions?.length !== 0"
+          *ngIf="amountOptions?.length !== 0"
+          [ngClass]="{'merge-expenses--internal-block_special': fg.controls.vendor.value}"
+          class="merge-expenses--internal-block"
+        >
+          <app-fy-select
+            [enableSearch]="false"
+            [label]="'Amount'"
+            [disabled]="amountOptions?.length === 0"
+            [mandatory]="false"
+            [nullOption]="false"
+            [options]="amountOptions"
+            [selectModalHeader]="'Select amount'"
+            formControlName="amount"
+          >
+          </app-fy-select>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="receiptOptions$|async as receiptOptions">
+        <div
+          *ngIf="receiptOptions?.length !== 0"
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.vendor.value}"
           class="merge-expenses--internal-block"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Select receipt'"
-            [disabled]="expenseOptions?.length === 0"
+            [disabled]="receiptOptions?.length === 0"
             [mandatory]="false"
             [nullOption]="true"
-            [options]="expenseOptions"
+            [options]="receiptOptions"
             [selectModalHeader]="'Select receipt'"
             formControlName="receipt_ids"
           >
           </app-fy-select>
         </div>
-      </ng-container>
 
-      <ng-container *ngIf="receiptOptions$|async as expenseOptions">
-        <div class="merge-expenses--internal-block merge-expenses--text" *ngIf="expenseOptions?.length === 0">
+        <div class="merge-expenses--internal-block merge-expenses--text" *ngIf="receiptOptions?.length === 0">
           <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
           <div class="merge-expenses--disabled">
             <input [disabled]="true" [placeholder]="'No Receipt'" class="merge-expenses--text-input" type="text" />
@@ -194,12 +213,6 @@
                     formControlName="project"
                   >
                   </app-fy-select>
-                </div>
-                <div
-                  *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
-                  class="merge-expenses--error"
-                >
-                  Please select an amount
                 </div>
               </ng-container>
             </ion-col>

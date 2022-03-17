@@ -28,7 +28,6 @@ export class MergeExpensesService {
   ) {}
 
   mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields): Observable<string> {
-    console.log(targetTxnFields);
     return this.apiService.post('/transactions/merge', {
       source_txn_ids: sourceTxnIds,
       target_txn_id: targetTxnId,
@@ -207,6 +206,40 @@ export class MergeExpensesService {
         label: `Receipt From Expense ${index + 1} `,
         value: expense.tx_id,
       })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, [])
+    );
+  }
+
+  generateAmountOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      // filter((expense) => expense.tx_file_ids !== null),
+      map((expense) => {
+        const isForeignAmountPresent = expense.tx_orig_currency && expense.tx_orig_amount;
+        let formatedlabel;
+        if (isForeignAmountPresent) {
+          formatedlabel =
+            expense.tx_orig_currency +
+            ' ' +
+            expense.tx_orig_amount +
+            '  (' +
+            expense.tx_currency +
+            ' ' +
+            expense.tx_amount +
+            ')';
+        } else {
+          formatedlabel = expense.tx_currency + ' ' + expense.tx_amount;
+        }
+        if (!expense.tx_amount) {
+          formatedlabel = '0';
+        }
+        return {
+          label: formatedlabel,
+          value: expense.tx_id,
+        };
+      }),
       reduce((acc, curr) => {
         acc.push(curr);
         return acc;
