@@ -1982,9 +1982,15 @@ export class MyExpensesPage implements OnInit {
   }
 
   mergeExpenses() {
-    this.router.navigate(['/', 'enterprise', 'merge_expense'], {
-      state: { selectedElements: this.selectedElements, from: 'MY_EXPENSES' },
-    });
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'merge_expense',
+      {
+        selectedElements: JSON.stringify(this.selectedElements),
+        from: 'MY_EXPENSES',
+      },
+    ]);
   }
 
   isMergeAllowed(expenses: Expense[]) {
@@ -1992,13 +1998,11 @@ export class MyExpensesPage implements OnInit {
       const isMileagePerdiem = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
       );
-      const isAllExpensesSubmitted = expenses.every(
-        (expense) =>
-          ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(expense.tx_state) >
-          -1
+      const areAllExpensesSubmitted = expenses.every((expense) =>
+        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
       );
-      const isAllCCCMatchedExpenses = expenses.every((expense) => expense.tx_corporate_credit_card_expense_group_id);
-      return !isMileagePerdiem && !isAllExpensesSubmitted && !isAllCCCMatchedExpenses;
+      const areAllCCCMatchedExpenses = expenses.every((expense) => expense.tx_corporate_credit_card_expense_group_id);
+      return !isMileagePerdiem && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
     } else {
       return false;
     }

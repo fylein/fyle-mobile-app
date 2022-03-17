@@ -19,6 +19,7 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { CardTransactionPreviewComponent } from './card-transaction-preview/card-transaction-preview.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -41,6 +42,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatButtonModule,
     MatSnackBarModule,
   ],
-  declarations: [MergeExpensePage],
+  declarations: [MergeExpensePage, CardTransactionPreviewComponent],
 })
 export class MergeExpensePageModule {}

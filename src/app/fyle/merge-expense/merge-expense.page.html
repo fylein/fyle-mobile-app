@@ -38,17 +38,15 @@
           <ion-row>
             <ion-col size="6">
               <ng-container>
-                <div
-                  class="merge-expenses--payment-modes merge-expenses--internal-block merge-expenses--internal-block__margin"
-                >
+                <div class="merge-expenses--internal-block merge-expenses--internal-block__margin">
                   <app-fy-select
                     [enableSearch]="false"
                     [label]="'Currency'"
                     [mandatory]="false"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.tx_currency.isSame || ( mergedExpenseOptions.tx_currency.options && mergedExpenseOptions.tx_currency.options?.length ===0 )"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_currency.isSame || mergedExpenseOptions.tx_currency.options?.length ===0"
                     [options]="mergedExpenseOptions.tx_currency.options"
-                    [selectModalHeader]="'Select spend date'"
+                    [selectModalHeader]="'Select currency'"
                     formControlName="currencyObj"
                   >
                   </app-fy-select>
@@ -65,22 +63,19 @@
               <ng-container>
                 <div
                   [ngClass]="{'merge-expenses--internal-block_special': fg.controls.amount.value}"
-                  class="merge-expenses--payment-modes merge-expenses--internal-block"
+                  class="merge-expenses--internal-block"
                 >
                   <app-fy-select
                     [enableSearch]="false"
                     [label]="'Amount'"
                     [mandatory]="false"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.tx_amount.isSame || ( mergedExpenseOptions.tx_amount.options && mergedExpenseOptions.tx_amount.options?.length === 0)"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_amount.isSame || mergedExpenseOptions.tx_amount.options?.length === 0"
                     [options]="mergedExpenseOptions.tx_amount.options"
                     [selectModalHeader]="'Select Amount'"
                     formControlName="amount"
                   >
                   </app-fy-select>
-                </div>
-                <div *ngIf="fg.controls.amount.touched && !fg.controls.amount.valid" class="merge-expenses--error">
-                  Please select a valid payment mode.
                 </div>
               </ng-container>
             </ion-col>
@@ -89,17 +84,17 @@
       </div>
       <ng-container *ngIf="receiptOptions$|async as expenseOptions">
         <div
-          *ngIf="formatReceiptOptions(expenseOptions)?.length !== 0"
+          *ngIf="expenseOptions?.length !== 0"
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.vendor.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          class="merge-expenses--internal-block"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Select receipt'"
-            [disabled]="formatReceiptOptions(expenseOptions)?.length === 0"
+            [disabled]="expenseOptions?.length === 0"
             [mandatory]="false"
             [nullOption]="true"
-            [options]="formatReceiptOptions(expenseOptions)"
+            [options]="expenseOptions"
             [selectModalHeader]="'Select receipt'"
             formControlName="receipt_ids"
           >
@@ -108,10 +103,7 @@
       </ng-container>
 
       <ng-container *ngIf="receiptOptions$|async as expenseOptions">
-        <div
-          class="merge-expenses--internal-block merge-expenses--text"
-          *ngIf="formatReceiptOptions(expenseOptions)?.length === 0"
-        >
+        <div class="merge-expenses--internal-block merge-expenses--text" *ngIf="expenseOptions?.length === 0">
           <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
           <div class="merge-expenses--disabled">
             <input [disabled]="true" [placeholder]="'No Receipt'" class="merge-expenses--text-input" type="text" />
@@ -136,25 +128,19 @@
               <ng-container>
                 <div
                   [ngClass]="{'merge-expenses--internal-block_special': fg.controls.dateOfSpend.value}"
-                  class="merge-expenses--payment-modes merge-expenses--internal-block merge-expenses--internal-block__margin"
+                  class="merge-expenses--internal-block merge-expenses--internal-block__margin"
                 >
                   <app-fy-select
                     [enableSearch]="false"
                     [label]="'Date of Spend'"
                     [mandatory]="false"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.tx_txn_dt.isSame || ( mergedExpenseOptions.tx_txn_dt.options && mergedExpenseOptions.tx_txn_dt.options?.length === 0)"
-                    [options]="formatDateOptions(mergedExpenseOptions.tx_txn_dt.options)"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_txn_dt.isSame || mergedExpenseOptions.tx_txn_dt.options?.length === 0"
+                    [options]="mergedExpenseOptions.tx_txn_dt.options"
                     [selectModalHeader]="'Select spend date'"
                     formControlName="dateOfSpend"
                   >
                   </app-fy-select>
-                </div>
-                <div
-                  *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid"
-                  class="merge-expenses--error"
-                >
-                  Please select a valid payment mode.
                 </div>
               </ng-container>
             </ion-col>
@@ -162,25 +148,19 @@
               <ng-container>
                 <div
                   [ngClass]="{'merge-expenses--internal-block_special': fg.controls.paymentMode.value}"
-                  class="merge-expenses--payment-modes merge-expenses--internal-block"
+                  class="merge-expenses--internal-block"
                 >
                   <app-fy-select
                     [enableSearch]="false"
                     [label]="'Payment Mode'"
                     [mandatory]="true"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.source_account_type.isSame || ( mergedExpenseOptions.source_account_type.options && mergedExpenseOptions.source_account_type.options?.length === 0)"
-                    [options]="formatPaymentModeOptions(mergedExpenseOptions.source_account_type.options)"
+                    [disabled]="disableFormElements || mergedExpenseOptions.source_account_type.isSame || mergedExpenseOptions.source_account_type.options?.length === 0"
+                    [options]="mergedExpenseOptions.source_account_type.options"
                     [selectModalHeader]="'Select Payment Mode'"
                     formControlName="paymentMode"
                   >
                   </app-fy-select>
-                </div>
-                <div
-                  *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
-                  class="merge-expenses--error"
-                >
-                  Please select a valid payment mode.
                 </div>
               </ng-container>
             </ion-col>
@@ -190,40 +170,25 @@
 
       <ng-container *ngFor="let selectedCCCTransaction of CCCTxn$ | async as cccTxns">
         <ng-container *ngIf="fg.controls.paymentMode.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'">
-          <div class="merge-expenses--card-header">Card Transaction</div>
-          <div class="merge-expenses--matching-card">
-            <mat-icon svgIcon="fy-corporate-card" class="merge-expenses--icon-corporate-card"></mat-icon>
-            <div class="merge-expenses--matching-content" [ngClass]="{'merge-expenses--ccc-expense': true}">
-              <span class="text-capitalize"
-                >{{ (selectedCCCTransaction.vendor || selectedCCCTransaction.description) | ellipsis:20}},
-              </span>
-              <span>{{ selectedCCCTransaction.txn_dt | date: 'MMM dd, yyyy'}} - </span>
-              <span
-                >{{ selectedCCCTransaction.amount | currency: selectedCCCTransaction.currency: 'symbol-narrow'}}</span
-              >
-            </div>
-          </div>
+          <app-card-transaction-preview [transactionDetails]="selectedCCCTransaction"> </app-card-transaction-preview>
         </ng-container>
       </ng-container>
 
-      <div
-        class="merge-expenses--primary-block"
-        *ngIf="mergedExpenseOptions.tx_project_id.options && mergedExpenseOptions.tx_project_id.options?.length !== 0"
-      >
+      <div class="merge-expenses--primary-block" *ngIf="mergedExpenseOptions.tx_project_id.options?.length !== 0">
         <ion-grid class="merge-expenses--grid">
           <ion-row>
             <ion-col size="6">
               <ng-container>
                 <div
                   [ngClass]="{'merge-expenses--internal-block_special': fg.controls.project.value}"
-                  class="merge-expenses--payment-modes merge-expenses--internal-block merge-expenses--internal-block__margin"
+                  class="merge-expenses--internal-block merge-expenses--internal-block__margin"
                 >
                   <app-fy-select
                     [enableSearch]="false"
                     [label]="'Project'"
                     [mandatory]="false"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.tx_project_id.isSame || (mergedExpenseOptions.tx_project_id.options && mergedExpenseOptions.tx_project_id.options?.length === 0)"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_project_id.isSame || mergedExpenseOptions.tx_project_id.options?.length === 0"
                     [options]="mergedExpenseOptions.tx_project_id.options"
                     [selectModalHeader]="'Select project'"
                     formControlName="project"
@@ -242,15 +207,15 @@
               <ng-container>
                 <div
                   [ngClass]="{'merge-expenses--internal-block_special': fg.controls.billable.value}"
-                  class="merge-expenses--payment-modes merge-expenses--internal-block"
+                  class="merge-expenses--internal-block"
                 >
                   <app-fy-select
                     [enableSearch]="false"
                     [label]="'Billable'"
                     [mandatory]="false"
                     [nullOption]="false"
-                    [disabled]="disableFormElements || mergedExpenseOptions.tx_billable.isSame || ( mergedExpenseOptions.tx_billable.options && mergedExpenseOptions.tx_billable.options?.length === 0)"
-                    [options]="formatBillableOptions(mergedExpenseOptions.tx_billable.options)"
+                    [disabled]="disableFormElements || mergedExpenseOptions.tx_billable.isSame || mergedExpenseOptions.tx_billable.options?.length === 0"
+                    [options]="mergedExpenseOptions.tx_billable.options"
                     [selectModalHeader]="'Select billable'"
                     formControlName="billable"
                   >
@@ -265,14 +230,14 @@
       <ng-container>
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.vendor.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          class="merge-expenses--internal-block"
           *ngIf="mergedExpenseOptions.tx_vendor"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Merchant'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_vendor?.options && mergedExpenseOptions.tx_vendor.options?.length === 1"
+            [nullOption]="mergedExpenseOptions.tx_vendor?.options?.length === 1"
             [disabled]="disableFormElements || mergedExpenseOptions.tx_vendor?.isSame || mergedExpenseOptions.tx_vendor?.options?.length === 0"
             [options]="mergedExpenseOptions.tx_vendor?.options"
             [selectModalHeader]="'Select merchant'"
@@ -280,22 +245,19 @@
           >
           </app-fy-select>
         </div>
-        <div *ngIf="fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid" class="merge-expenses--error">
-          Please select a valid payment mode.
-        </div>
       </ng-container>
 
       <ng-container>
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          class="merge-expenses--internal-block"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Category'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_org_category_id.options && mergedExpenseOptions.tx_org_category_id.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_org_category_id.isSame || ( mergedExpenseOptions.tx_org_category_id.options && mergedExpenseOptions.tx_org_category_id.options?.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_org_category_id?.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_org_category_id?.isSame || mergedExpenseOptions.tx_org_category_id?.options?.length === 0"
             [options]="mergedExpenseOptions.tx_org_category_id.options"
             [selectModalHeader]="'Select category'"
             formControlName="category"
@@ -307,7 +269,7 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          class="merge-expenses--internal-block"
           *ngIf="location1Options && location1Options?.length > 0"
         >
           <app-fy-select
@@ -315,7 +277,7 @@
             [label]="'From'"
             [mandatory]="false"
             [nullOption]="location1Options && location1Options?.length === 1"
-            [disabled]="disableFormElements || ( location1Options && location1Options?.length === 0)"
+            [disabled]="disableFormElements || location1Options?.length === 0"
             [options]="location1Options"
             [selectModalHeader]="'Select From'"
             formControlName="location_1"
@@ -325,16 +287,13 @@
       </ng-container>
 
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
-        <div
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="location2Options && location2Options?.length > 0"
-        >
+        <div class="merge-expenses--internal-block" *ngIf="location2Options?.length > 0">
           <app-fy-select
             [enableSearch]="false"
             [label]="'To'"
             [mandatory]="false"
-            [nullOption]="location2Options && location2Options?.length === 1"
-            [disabled]="disableFormElements || ( location2Options && location2Options?.length === 0)"
+            [nullOption]="location2Options?.length === 1"
+            [disabled]="disableFormElements ||  location2Options?.length === 0"
             [options]="location2Options"
             [selectModalHeader]="'Select To'"
             formControlName="location_2"
@@ -346,16 +305,16 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options?.length > 0"
+          class="merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_from_dt?.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Onward Date'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_from_dt.isSame || ( mergedExpenseOptions.tx_from_dt.options && mergedExpenseOptions.tx_from_dt.options?.length === 0)"
-            [options]="formatDateOptions(mergedExpenseOptions.tx_from_dt.options)"
+            [nullOption]="mergedExpenseOptions.tx_from_dt?.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_from_dt?.isSame || mergedExpenseOptions.tx_from_dt?.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_from_dt?.options"
             [selectModalHeader]="'Select Onward Date'"
             formControlName="from_dt"
           >
@@ -366,16 +325,16 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options?.length > 0"
+          class="merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_to_dt?.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Return date'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_to_dt.isSame || ( mergedExpenseOptions.tx_to_dt.options && mergedExpenseOptions.tx_to_dt.options?.length === 0)"
-            [options]="formatDateOptions(mergedExpenseOptions.tx_to_dt.options)"
+            [nullOption]="mergedExpenseOptions.tx_to_dt?.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_to_dt?.isSame || mergedExpenseOptions.tx_to_dt?.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_to_dt.options"
             [selectModalHeader]="'Select return Date'"
             formControlName="to_dt"
           >
@@ -386,16 +345,16 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options?.length > 0"
+          class="merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_flight_journey_travel_class?.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Travel Class'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_flight_journey_travel_class.isSame || ( mergedExpenseOptions.tx_flight_journey_travel_class.options && mergedExpenseOptions.tx_flight_journey_travel_class.options?.length === 0)"
-            [options]="mergedExpenseOptions.tx_flight_journey_travel_class.options"
+            [nullOption]="mergedExpenseOptions.tx_flight_journey_travel_class?.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_flight_journey_travel_class?.isSame || mergedExpenseOptions.tx_flight_journey_travel_class?.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_flight_journey_travel_class?.options"
             [selectModalHeader]="'Select Travel Class'"
             formControlName="flight_journey_travel_class"
           >
@@ -406,16 +365,16 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options?.length > 0"
+          class="merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_flight_return_travel_class?.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Return Travel Class'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_flight_return_travel_class.isSame || ( mergedExpenseOptions.tx_flight_return_travel_class.options && mergedExpenseOptions.tx_flight_return_travel_class.options?.length === 0)"
-            [options]="mergedExpenseOptions.tx_flight_return_travel_class.options"
+            [nullOption]="mergedExpenseOptions.tx_flight_return_travel_class?.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_flight_return_travel_class?.isSame || mergedExpenseOptions.tx_flight_return_travel_class?.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_flight_return_travel_class?.options"
             [selectModalHeader]="'Select Return Travel Class'"
             formControlName="flight_return_travel_class"
           >
@@ -426,15 +385,15 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options?.length > 0"
+          class="merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_train_travel_class?.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Travel Class'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_train_travel_class.isSame || ( mergedExpenseOptions.tx_train_travel_class.options && mergedExpenseOptions.tx_train_travel_class.options?.length === 0)"
+            [nullOption]="mergedExpenseOptions.tx_train_travel_class?.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_train_travel_class?.isSame || mergedExpenseOptions.tx_train_travel_class?.options?.length === 0"
             [options]="mergedExpenseOptions.tx_train_travel_class.options"
             [selectModalHeader]="'Select Travel Class'"
             formControlName="train_travel_class"
@@ -446,16 +405,16 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options?.length > 0"
+          class="merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_bus_travel_class?.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Travel Class'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_bus_travel_class.isSame || ( mergedExpenseOptions.tx_bus_travel_class.options && mergedExpenseOptions.tx_bus_travel_class.options?.length === 0)"
-            [options]="mergedExpenseOptions.tx_bus_travel_class.options"
+            [nullOption]="mergedExpenseOptions.tx_bus_travel_class?.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_bus_travel_class?.isSame || mergedExpenseOptions.tx_bus_travel_class?.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_bus_travel_class?.options"
             [selectModalHeader]="'Select Travel Class'"
             formControlName="train_travel_class"
           >
@@ -466,16 +425,16 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options?.length > 0"
+          class="merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_distance?.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Distance'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_distance.isSame || ( mergedExpenseOptions.tx_distance.options && mergedExpenseOptions.tx_distance.options?.length === 0)"
-            [options]="formatDateOptions(mergedExpenseOptions.tx_distance.options)"
+            [nullOption]="mergedExpenseOptions.tx_distance.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_distance?.isSame || mergedExpenseOptions.tx_distance.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_distance?.options"
             [selectModalHeader]="'Select Distance'"
             formControlName="distance"
           >
@@ -486,16 +445,16 @@
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
-          *ngIf="mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options?.length > 0"
+          class="merge-expenses--internal-block"
+          *ngIf="mergedExpenseOptions.tx_distance_unit.options?.length > 0"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Distance Unit'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_distance_unit.isSame || ( mergedExpenseOptions.tx_distance_unit.options && mergedExpenseOptions.tx_distance_unit.options?.length === 0)"
-            [options]="formatDateOptions(mergedExpenseOptions.tx_distance_unit.options)"
+            [nullOption]="mergedExpenseOptions.tx_distance_unit?.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_distance_unit?.isSame || mergedExpenseOptions.tx_distance_unit?.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_distance_unit?.options"
             [selectModalHeader]="'Select Distance Unit'"
             formControlName="distance_unit"
           >
@@ -506,15 +465,15 @@
       <ng-container>
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.tax_amount.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          class="merge-expenses--internal-block"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Tax Group'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_tax_group_id.options && mergedExpenseOptions.tx_tax_group_id.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_tax_group_id.isSame || ( mergedExpenseOptions.tx_tax_group_id.options && mergedExpenseOptions.tx_tax_group_id.options?.length === 0)"
-            [options]="mergedExpenseOptions.tx_tax_group_id.options"
+            [nullOption]="mergedExpenseOptions.tx_tax_group_id?.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_tax_group_id?.isSame || mergedExpenseOptions.tx_tax_group_id?.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_tax_group_id?.options"
             [selectModalHeader]="'Select Tax Group'"
             formControlName="tax_group"
           >
@@ -525,15 +484,15 @@
       <ng-container>
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.tax_amount.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          class="merge-expenses--internal-block"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Tax'"
             [mandatory]="false"
             [nullOption]="mergedExpenseOptions.tx_tax_amount.options && mergedExpenseOptions.tx_tax_amount.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_tax_amount.isSame || ( mergedExpenseOptions.tx_tax_amount.options && mergedExpenseOptions.tx_tax_amount.options?.length === 0)"
-            [options]="mergedExpenseOptions.tx_tax_amount.options"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_tax_amount?.isSame || mergedExpenseOptions.tx_tax_amount?.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_tax_amount?.options"
             [selectModalHeader]="'Select Tax'"
             formControlName="tax_amount"
           >
@@ -544,15 +503,15 @@
       <ng-container>
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.tax_amount.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          class="merge-expenses--internal-block"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Cost center'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_cost_center_name.options && mergedExpenseOptions.tx_cost_center_name.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_cost_center_name.isSame || ( mergedExpenseOptions.tx_cost_center_name.options && mergedExpenseOptions.tx_cost_center_name.options?.length === 0)"
-            [options]="mergedExpenseOptions.tx_cost_center_name.options"
+            [nullOption]="mergedExpenseOptions.tx_cost_center_name?.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_cost_center_name?.isSame || mergedExpenseOptions.tx_cost_center_name?.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_cost_center_name?.options"
             [selectModalHeader]="'Select Cost center'"
             formControlName="costCenter"
           >
@@ -563,15 +522,15 @@
       <ng-container>
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.purpose.value}"
-          class="merge-expenses--payment-modes merge-expenses--internal-block"
+          class="merge-expenses--internal-block"
         >
           <app-fy-select
             [enableSearch]="false"
             [label]="'Purpose'"
             [mandatory]="false"
-            [nullOption]="mergedExpenseOptions.tx_purpose.options && mergedExpenseOptions.tx_purpose.options?.length === 1"
-            [disabled]="disableFormElements || mergedExpenseOptions.tx_purpose.isSame || ( mergedExpenseOptions.tx_purpose.options && mergedExpenseOptions.tx_purpose.options?.length === 0)"
-            [options]="mergedExpenseOptions.tx_purpose.options"
+            [nullOption]="mergedExpenseOptions.tx_purpose.options?.length === 1"
+            [disabled]="disableFormElements || mergedExpenseOptions.tx_purpose?.isSame || mergedExpenseOptions.tx_purpose?.options?.length === 0"
+            [options]="mergedExpenseOptions.tx_purpose?.options"
             [selectModalHeader]="'Select Purpose'"
             formControlName="purpose"
           >
@@ -583,18 +542,14 @@
         <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
           <ng-container *ngIf="mergedCustomProperties">
             <form [formGroup]="customInput.control">
-              <div
-                [ngClass]="{'merge-expenses--internal-block_special': fg.controls.tax_amount.value}"
-                class="merge-expenses--payment-modes merge-expenses--internal-block"
-                *ngIf="mergedCustomProperties[customInput.name] && mergedCustomProperties[customInput.name].options"
-              >
+              <div class="merge-expenses--internal-block" *ngIf="mergedCustomProperties[customInput.name]?.options">
                 <app-fy-select
                   [enableSearch]="false"
                   [label]="customInput.name"
                   [nullOption]="false"
-                  [nullOption]="mergedCustomProperties[customInput.name].options && mergedCustomProperties[customInput.name].options?.length === 1"
-                  [disabled]="disableFormElements || (mergedCustomProperties[customInput.name] && mergedCustomProperties[customInput.name].isSame) || ( mergedCustomProperties[customInput.name].options && mergedCustomProperties[customInput.name].options?.length === 0)"
-                  [options]="mergedCustomProperties[customInput.name].options"
+                  [nullOption]="mergedCustomProperties[customInput.name]?.options?.length === 1"
+                  [disabled]="disableFormElements || mergedCustomProperties[customInput.name]?.isSame || mergedCustomProperties[customInput.name]?.options?.length === 0"
+                  [options]="mergedCustomProperties[customInput.name]?.options"
                   [selectModalHeader]="'Select'"
                   formControlName="value"
                 >
@@ -609,7 +564,7 @@
 </ion-content>
 <ng-container *ngIf="fg">
   <ion-footer class="merge-expenses--footer-container">
-    <ion-toolbar mode="md" [ngClass]="{'merge-expenses--footer-toolbar__offline': !(isConnected$|async)}">
+    <ion-toolbar mode="md">
       <div class="merge-expenses--footer-toolbar">
         <ion-buttons>
           <ion-button
