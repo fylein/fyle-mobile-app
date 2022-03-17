@@ -577,11 +577,11 @@ export class MergeExpensePage implements OnInit {
 
     combinedCustomProperties.forEach((field) => {
       const existing = customProperty.filter((option) => option.name === field.name);
-      let formatedLabel;
+      let formatedlabel;
       if (moment(field.value, moment.ISO_8601, true).isValid()) {
-        formatedLabel = moment(field.value).format('MMM DD, YYYY');
+        formatedlabel = moment(field.value).format('MMM DD, YYYY');
       } else {
-        formatedLabel = field.value.toString();
+        formatedlabel = field.value.toString();
       }
       if (existing.length) {
         const existingIndex = customProperty.indexOf(existing[0]);
@@ -589,13 +589,13 @@ export class MergeExpensePage implements OnInit {
           typeof customProperty[existingIndex].value === 'string' ||
           typeof customProperty[existingIndex].value === 'number'
         ) {
-          customProperty[existingIndex].options.push({ formatedLabel, value: field.value });
+          customProperty[existingIndex].options.push({ label: formatedlabel, value: field.value });
         } else {
           customProperty[existingIndex].options = customProperty[existingIndex].options.concat(field.options);
         }
       } else {
         field.options = [];
-        field.options.push({ formatedLabel, value: field.value });
+        field.options.push({ label: formatedlabel, value: field.value });
         customProperty.push(field);
       }
     });
