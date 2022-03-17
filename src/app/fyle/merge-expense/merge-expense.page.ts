@@ -75,7 +75,7 @@ export class MergeExpensePage implements OnInit {
 
   categories;
 
-  mergedCustomProperties: any = {};
+  combinedCustomProperties: any = {};
 
   customPropertiesLoaded: boolean;
 
@@ -501,14 +501,14 @@ export class MergeExpensePage implements OnInit {
   patchValues(customInputs) {
     const customInputValues = customInputs.map((customInput) => {
       if (
-        this.mergedCustomProperties[customInput.name] &&
-        this.mergedCustomProperties[customInput.name] &&
-        this.mergedCustomProperties[customInput.name].isSame &&
-        this.mergedCustomProperties[customInput.name].options.length > 0
+        this.combinedCustomProperties[customInput.name] &&
+        this.combinedCustomProperties[customInput.name] &&
+        this.combinedCustomProperties[customInput.name].isSame &&
+        this.combinedCustomProperties[customInput.name].options.length > 0
       ) {
         return {
           name: customInput.name,
-          value: this.mergedCustomProperties[customInput.name].options[0].value || null,
+          value: this.combinedCustomProperties[customInput.name].options[0].value || null,
         };
       } else {
         return {
@@ -545,9 +545,9 @@ export class MergeExpensePage implements OnInit {
 
     customProperties = customProperties.filter((element) => element !== undefined);
 
-    let mergedCustomProperties = [].concat.apply([], customProperties);
+    let combinedCustomProperties = [].concat.apply([], customProperties);
 
-    mergedCustomProperties = mergedCustomProperties.map((field) => {
+    combinedCustomProperties = combinedCustomProperties.map((field) => {
       if (field.value && field.value instanceof Array) {
         field.options = [
           {
@@ -575,23 +575,28 @@ export class MergeExpensePage implements OnInit {
 
     const customProperty = [];
 
-    mergedCustomProperties.forEach((field) => {
+    combinedCustomProperties.forEach((field) => {
       const existing = customProperty.filter((option) => option.name === field.name);
+      let formatedLabel;
+      if (moment(field.value, moment.ISO_8601, true).isValid()) {
+        formatedLabel = moment(field.value).format('MMM DD, YYYY');
+      } else {
+        formatedLabel = field.value.toString();
+      }
       if (existing.length) {
         const existingIndex = customProperty.indexOf(existing[0]);
-
         if (
           typeof customProperty[existingIndex].value === 'string' ||
           typeof customProperty[existingIndex].value === 'number'
         ) {
-          customProperty[existingIndex].options.push({ label: field.value.toString(), value: field.value });
+          customProperty[existingIndex].options.push({ formatedLabel, value: field.value });
         } else {
           customProperty[existingIndex].options = customProperty[existingIndex].options.concat(field.options);
         }
       } else {
-        if ((field.value && typeof field.value === 'string') || typeof field.value === 'number') {
-          field.options.push({ label: field.value.toString(), value: field.value });
-        }
+        field.options = [];
+        field.options.push({ formatedLabel, value: field.value });
+        customProperty.push(field);
       }
     });
 
@@ -614,7 +619,7 @@ export class MergeExpensePage implements OnInit {
     });
 
     customPropertiesOptions.map((field) => {
-      this.mergedCustomProperties[field.name] = field;
+      this.combinedCustomProperties[field.name] = field;
     });
 
     this.customPropertiesLoaded = true;
