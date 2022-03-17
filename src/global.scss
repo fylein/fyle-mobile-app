@@ -334,6 +334,10 @@ textarea:focus {
   font-size: 12px;
 }
 
+.text-left {
+  text-align: left !important;
+}
+
 .text-right {
   text-align: right !important;
 }
@@ -927,11 +931,20 @@ ref - https://stackoverflow.com/a/31162426
 
 .delete-dialog {
   --width: 296px;
-  --max-height: 266px;
+  --max-height: 326px;
   .popover-content {
     border-radius: 16px;
   }
   background: rgba(0, 0, 0, 0.6);
+}
+
+.fy-delete-dialog--body ul {
+  padding: 0 0 0 14px;
+  margin: 0;
+}
+
+.fy-delete-dialog--body p.confirmation-message {
+  margin-top: 8px;
 }
 
 .route-visualizer--map {
