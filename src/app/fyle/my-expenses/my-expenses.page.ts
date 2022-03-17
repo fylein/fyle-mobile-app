@@ -495,7 +495,6 @@ export class MyExpensesPage implements OnInit {
         return this.acc;
       }),
       tap(() => {
-        console.log('After data is loaded from paginated pipe');
         this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
