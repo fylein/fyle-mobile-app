@@ -119,7 +119,7 @@ import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.com
 import { FySummaryTileComponent } from './components/summary-tile/summary-tile.component';
 import { SpentCardsComponent } from './components/spent-cards/spent-cards.component';
 import { CardDetailComponent } from './components/spent-cards/card-detail/card-detail.component';
-import { MaskNumberPipe } from './pipes/mask-number.pipe';
+import { MaskNumber } from './pipes/mask-number.pipe';
 @NgModule({
   declarations: [
     AdvanceState,
@@ -217,7 +217,7 @@ import { MaskNumberPipe } from './pipes/mask-number.pipe';
     FySummaryTileComponent,
     SpentCardsComponent,
     CardDetailComponent,
-    MaskNumberPipe,
+    MaskNumber,
   ],
   imports: [
     CommonModule,
