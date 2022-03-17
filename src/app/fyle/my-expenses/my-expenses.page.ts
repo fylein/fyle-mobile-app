@@ -1343,8 +1343,6 @@ export class MyExpensesPage implements OnInit {
     if (this.selectedElements?.length > 0) {
       this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
 
-      this.isUnifyCCCExpensesSettings = true;
-
       if (this.isUnifyCCCExpensesSettings) {
         this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
       }
