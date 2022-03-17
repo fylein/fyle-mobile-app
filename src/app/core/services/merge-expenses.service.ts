@@ -13,6 +13,7 @@ import * as moment from 'moment';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 
 type option = Partial<{ label: string; value: any }>;
+type custom_property = Partial<{ name: string; value: any }>;
 
 @Injectable({
   providedIn: 'root',
@@ -251,5 +252,54 @@ export class MergeExpensesService {
         label: expense.tx_locations[locationIndex]?.formatted_address,
         value: expense.tx_locations[locationIndex],
       }));
+  }
+
+  generateCombinedCustomProperties(customProperties: custom_property[]) {
+    const combinedCustomProperties = [].concat.apply([], customProperties);
+    return combinedCustomProperties.map((field) => {
+      if (field.value && field.value instanceof Array) {
+        field.options = [
+          {
+            label: field.value.toString(),
+            value: field.value,
+          },
+        ];
+        if (field.value.length === 0) {
+          field.options = [];
+        }
+      } else {
+        if (!field.value || field.value !== '') {
+          field.options = [];
+        } else {
+          field.options = [
+            {
+              label: field.value,
+              value: field.value,
+            },
+          ];
+        }
+      }
+      return field;
+    });
+  }
+
+  generateCustomPropertieOptions(customProperty) {
+    const customPropertiesOptions = customProperty.map((field) => {
+      let options;
+      if (field.options) {
+        options = field.options.filter((option) => option != null);
+        options = field.options.filter((option) => option !== '');
+
+        const values = options.map((item) => item.label);
+
+        const isDuplicate = values.some((item, index) => values.indexOf(item) !== index);
+
+        field.isSame = isDuplicate;
+        field.options = options;
+      } else {
+        field.options = [];
+      }
+      return field;
+    });
   }
 }

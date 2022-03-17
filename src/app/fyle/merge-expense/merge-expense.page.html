@@ -540,16 +540,18 @@
 
       <ng-container *ngIf="customInputs$ | async">
         <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
-          <ng-container *ngIf="mergedCustomProperties">
+          1
+          <ng-container *ngIf="combinedCustomProperties">
+            0 {{customInput.name}}
             <form [formGroup]="customInput.control">
-              <div class="merge-expenses--internal-block" *ngIf="mergedCustomProperties[customInput.name]?.options">
+              <div class="merge-expenses--internal-block" *ngIf="combinedCustomProperties[customInput.name]?.options">
                 <app-fy-select
                   [enableSearch]="false"
                   [label]="customInput.name"
                   [nullOption]="false"
-                  [nullOption]="mergedCustomProperties[customInput.name]?.options?.length === 1"
-                  [disabled]="disableFormElements || mergedCustomProperties[customInput.name]?.isSame || mergedCustomProperties[customInput.name]?.options?.length === 0"
-                  [options]="mergedCustomProperties[customInput.name]?.options"
+                  [nullOption]="combinedCustomProperties[customInput.name]?.options?.length === 1"
+                  [disabled]="disableFormElements || combinedCustomProperties[customInput.name]?.isSame || combinedCustomProperties[customInput.name]?.options?.length === 0"
+                  [options]="combinedCustomProperties[customInput.name]?.options"
                   [selectModalHeader]="'Select'"
                   formControlName="value"
                 >
