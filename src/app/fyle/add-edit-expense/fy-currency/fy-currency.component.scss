@@ -19,6 +19,14 @@
     width: 100%;
     margin: 6px 0;
     padding-left: 0;
+
+    &__disabled {
+      background-color: $off-white;
+      margin-bottom: 0;
+      height: 28px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
   }
 
   &--input-invalid {
@@ -51,6 +59,10 @@
 
   &--currency-block {
     margin-right: 8px;
+
+    &__disabled {
+      padding-bottom: 0 !important;
+    }
   }
 
   &--amount-block {
@@ -69,6 +81,10 @@
     border-radius: 8px;
     padding: 8px;
     margin-top: 16px;
+
+    &__disabled {
+      background-color: $off-white;
+    }
   }
 
   &--exchange-rate-container.expanded {

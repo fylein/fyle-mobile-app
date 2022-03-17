@@ -9,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { SharedModule } from '../../shared/shared.module';
 import { AdvanceActionsComponent } from './advance-actions/advance-actions.component';
-import { ApproveAdvanceComponent } from './approve-advance/approve-advance.component';
 
 @NgModule({
   imports: [
@@ -22,6 +21,6 @@ import { ApproveAdvanceComponent } from './approve-advance/approve-advance.compo
     MatRippleModule,
     SharedModule,
   ],
-  declarations: [ViewTeamAdvancePage, AdvanceActionsComponent, ApproveAdvanceComponent],
+  declarations: [ViewTeamAdvancePage, AdvanceActionsComponent],
 })
 export class ViewTeamAdvancePageModule {}

@@ -14,7 +14,7 @@
     <div class="view-advance--container">
       <app-summary-tile
         [purpose]="advance.adv_purpose || '-'"
-        [currency]="advance.adv_currency"
+        [currency]="currencySymbol"
         [amount]="advance.adv_orig_amount || advance.adv_amount || 0"
         [status]="'Paid'"
       ></app-summary-tile>
@@ -95,7 +95,7 @@
         </div>
       </div>
 
-      <div class="view-advance--divider"></div>
+      <div *ngIf="advance.areq_id" class="view-advance--divider"></div>
 
       <div *ngIf="advance.areq_id" class="view-advance--advance-request-block">
         <div class="view-advance--icon-container">
