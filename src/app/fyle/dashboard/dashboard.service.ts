@@ -6,6 +6,7 @@ import { TransactionService } from '../../core/services/transaction.service';
 import { Observable } from 'rxjs';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
+import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 
 @Injectable()
 export class DashboardService {
@@ -111,7 +112,7 @@ export class DashboardService {
     };
   }
 
-  getExpenseDetailsInCards(uniqueCards, statsResponse) {
+  getExpenseDetailsInCards(uniqueCards: { cardNumber: string; cardName: string }, statsResponse: CardAggregateStat[]) {
     const uniqueCardsCopy = JSON.parse(JSON.stringify(uniqueCards));
     uniqueCardsCopy.forEach(function (card) {
       card.totalDraftTxns = 0;
@@ -133,7 +134,7 @@ export class DashboardService {
     return uniqueCardsCopy;
   }
 
-  getCCCDetails(): Observable<{ totalTxns: string; totalAmount: string; cardDetails: any }> {
+  getCCCDetails(): Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }> {
     return this.corporateCreditCardExpenseService.getAssignedCards();
   }
 }

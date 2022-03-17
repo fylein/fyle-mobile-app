@@ -146,8 +146,8 @@ export class CorporateCreditCardExpenseService {
       ),
       map((statsResponse) => {
         const stats = {
-          totalTxns: '',
-          totalAmount: '',
+          totalTxns: 0,
+          totalAmount: 0,
           cardDetails: statsResponse.data && statsResponse.data[1].value,
         };
         statsResponse.data[0].aggregates.forEach(function (aggregate) {

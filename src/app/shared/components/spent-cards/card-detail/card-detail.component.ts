@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { CardDetail } from 'src/app/core/models/card-detail.model';
 
 @Component({
   selector: 'app-card-detail',
@@ -6,11 +8,11 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./card-detail.component.scss'],
 })
 export class CardDetailComponent implements OnInit {
-  @Input() cardDetail: any;
+  @Input() cardDetail: CardDetail[];
 
-  @Input() homeCurrency: any;
+  @Input() homeCurrency: Observable<string>;
 
-  @Input() currencySymbol: any;
+  @Input() currencySymbol: Observable<string>;
 
   constructor() {}
 

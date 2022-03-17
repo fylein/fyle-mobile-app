@@ -12,6 +12,8 @@ import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { CardDetail } from 'src/app/core/models/card-detail.model';
+import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 
 @Component({
   selector: 'app-stats',
@@ -45,11 +47,11 @@ export class StatsComponent implements OnInit {
 
   loadData$ = new Subject();
 
-  cardTransactionsAndDetails$: Observable<{ totalTxns: string; totalAmount: string; cardDetails: any }>;
+  cardTransactionsAndDetails$: Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }>;
 
   isCCCStatsLoading: boolean;
 
-  cardTransactionsAndDetails: { totalTxns: string; totalAmount: string; cardDetails: any };
+  cardTransactionsAndDetails: CardDetail[];
 
   get ReportStates() {
     return ReportStates;
@@ -116,6 +118,7 @@ export class StatsComponent implements OnInit {
       cardNames.push(cardDetail);
     });
     const uniqueCards = JSON.parse(JSON.stringify(cardNames));
+
     return this.dashboardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
   }
 
