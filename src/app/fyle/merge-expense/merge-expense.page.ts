@@ -160,6 +160,8 @@ export class MergeExpensePage implements OnInit {
       costCenter: [],
       hotel_is_breakfast_provided: [],
       receipt_ids: [],
+      genericFields: [],
+      customInputFields: [],
     });
 
     this.generateCustomInputOptions();
@@ -360,9 +362,19 @@ export class MergeExpensePage implements OnInit {
   }
 
   loadAttchments() {
-    this.attachments$ = this.fg.controls.receipt_ids.valueChanges.pipe(
+    this.fg
+      .get('genericFields')
+      ?.get('receipt_ids')
+      ?.valueChanges.subscribe((data) => {
+        console.log('Form changes', data);
+      });
+    this.fg.get('genericFields')?.valueChanges.subscribe((data) => {
+      console.log('Form changes2', data);
+    });
+
+    this.attachments$ = this.fg.controls.genericFields.valueChanges.pipe(
       startWith({}),
-      switchMap((txnId) => this.mergeExpensesService.getAttachements(txnId)),
+      switchMap((fields) => this.mergeExpensesService.getAttachements(fields.receipt_ids)),
       tap((receipts) => {
         this.selectedReceiptsId = receipts.map((receipt) => receipt.id);
       })
@@ -370,6 +382,8 @@ export class MergeExpensePage implements OnInit {
   }
 
   mergeExpense() {
+    console.log(this.fg.value);
+    return;
     const selectedExpense = this.fg.value.target_txn_id;
     this.fg.markAllAsTouched();
     if (!this.fg.valid) {

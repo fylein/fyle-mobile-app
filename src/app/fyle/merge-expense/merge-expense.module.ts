@@ -20,6 +20,9 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CardTransactionPreviewComponent } from './card-transaction-preview/card-transaction-preview.component';
+import { GenericFieldsFormComponent } from './generic-fields-form/generic-fields-form.component';
+import { CategoryDependentFieldsFormComponent } from './category-dependent-fields-form/category-dependent-fields-form.component';
+import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form/custom-inputs-fields-form.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -28,8 +31,6 @@ import { CardTransactionPreviewComponent } from './card-transaction-preview/card
     MergeExpensePageRoutingModule,
     ReactiveFormsModule,
     MatIconModule,
-    FormsModule,
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatRippleModule,
@@ -42,6 +43,12 @@ import { CardTransactionPreviewComponent } from './card-transaction-preview/card
     MatButtonModule,
     MatSnackBarModule,
   ],
-  declarations: [MergeExpensePage, CardTransactionPreviewComponent],
+  declarations: [
+    MergeExpensePage,
+    CardTransactionPreviewComponent,
+    GenericFieldsFormComponent,
+    CategoryDependentFieldsFormComponent,
+    CustomInputsFieldsFormComponent,
+  ],
 })
 export class MergeExpensePageModule {}

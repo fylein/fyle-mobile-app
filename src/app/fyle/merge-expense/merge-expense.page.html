@@ -82,7 +82,7 @@
           </ion-row>
         </ion-grid>
       </div> -->
-
+      <!-- 
       <ng-container *ngIf="amountOptions$|async as amountOptions">
         <div
           *ngIf="amountOptions?.length !== 0"
@@ -101,9 +101,14 @@
           >
           </app-fy-select>
         </div>
-      </ng-container>
+      </ng-container> -->
+      <app-generic-fields-form
+        formControlName="genericFields"
+        [amountOptions$]="amountOptions$"
+        [receiptOptions$]="receiptOptions$"
+      ></app-generic-fields-form>
 
-      <ng-container *ngIf="receiptOptions$|async as receiptOptions">
+      <!-- <ng-container *ngIf="receiptOptions$|async as receiptOptions">
         <div
           *ngIf="receiptOptions?.length !== 0"
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.vendor.value}"
@@ -128,7 +133,7 @@
             <input [disabled]="true" [placeholder]="'No Receipt'" class="merge-expenses--text-input" type="text" />
           </div>
         </div>
-      </ng-container>
+      </ng-container> -->
 
       <ng-container *ngIf="attachments$|async as attachments">
         <app-receipt-preview-thumbnail
@@ -550,7 +555,7 @@
           </app-fy-select>
         </div>
       </ng-container>
-
+      <!-- 
       <ng-container *ngIf="customInputs$ | async">
         <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
           <ng-container *ngIf="combinedCustomProperties">
@@ -571,7 +576,13 @@
             </form>
           </ng-container>
         </ng-container>
-      </ng-container>
+      </ng-container> -->
+
+      <app-custom-inputs-fields-form
+        formControlName="customInputFields"
+        [customInputs$]="customInputs$"
+        [combinedCustomProperties]="combinedCustomProperties"
+      ></app-custom-inputs-fields-form>
     </form>
   </ng-container>
 </ion-content>

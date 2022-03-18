@@ -1,0 +1,40 @@
+<div [formGroup]="form">
+  <ng-container *ngIf="amountOptions$ | async as amountOptions">
+    <div class="internal-block">
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'Amount'"
+        [disabled]="amountOptions?.length === 0"
+        [mandatory]="false"
+        [nullOption]="false"
+        [options]="amountOptions"
+        [selectModalHeader]="'Select amount'"
+        formControlName="amount"
+      >
+      </app-fy-select>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="receiptOptions$ | async as receiptOptions">
+    <div *ngIf="receiptOptions?.length !== 0" class="merge-expenses--internal-block">
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'Select receipt'"
+        [disabled]="receiptOptions?.length === 0"
+        [mandatory]="false"
+        [nullOption]="true"
+        [options]="receiptOptions"
+        [selectModalHeader]="'Select receipt'"
+        formControlName="receipt_ids"
+      >
+      </app-fy-select>
+    </div>
+
+    <div class="merge-expenses--internal-block merge-expenses--text" *ngIf="receiptOptions?.length === 0">
+      <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
+      <div class="merge-expenses--disabled">
+        <input [disabled]="true" [placeholder]="'No Receipt'" class="merge-expenses--text-input" type="text" />
+      </div>
+    </div>
+  </ng-container>
+</div>

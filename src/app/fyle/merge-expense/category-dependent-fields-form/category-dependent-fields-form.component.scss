@@ -1,0 +1,11 @@
+@import '../../../../theme/colors.scss';
+
+.internal-block {
+  padding: 6px 0;
+  background: $pure-white;
+  line-height: 1;
+  margin-bottom: 12px;
+  &__margin {
+    margin-right: 12px;
+  }
+}
