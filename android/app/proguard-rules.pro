@@ -20,7 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-// Basic proguard rules
+# Basic proguard rules
+
 -optimizations !code/simplification/arithmetic
 -keepattributes <em>Annotation</em>
 -keepattributes InnerClasses
@@ -30,15 +31,19 @@
 -forceprocessing
 -optimizationpasses 5
 -overloadaggressively
-// Removing logging code
+
+# Removing logging code
+
 -assumenosideeffects class android.util.Log {
-public static *** d();
-public static *** v();
-public static *** i();
-public static *** w();
-public static *** e();
+  public static *** d();
+  public static *** v();
+  public static *** i();
+  public static *** w();
+  public static *** e();
 }
-// Crashlytics code as given below which one can exclude
+
+# Crashlytics code as given below which one can exclude
+
 -keep class com.crashlytics.** { *; }
 -keep class com.crashlytics.android.**
 -keepattributes SourceFile,LineNumberTable
