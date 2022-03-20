@@ -279,7 +279,7 @@ export class TasksService {
               potentialDuplicates.length +
               sentBackAdvances.length
           );
-          this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length);
+          this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length + potentialDuplicates.length);
           this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
           this.teamReportsTaskCount$.next(teamReports.length);
 
@@ -433,7 +433,7 @@ export class TasksService {
       .getDuplicateSets()
       .pipe(
         switchMap((duplicateSets) =>
-          duplicateSets && duplicateSets.length > 0 ? this.mapPotentialDuplicatesTasks(duplicateSets) : of([])
+          duplicateSets?.length > 0 ? this.mapPotentialDuplicatesTasks(duplicateSets) : of([])
         )
       );
   }
@@ -444,7 +444,7 @@ export class TasksService {
       .reduce((acc, curVal) => acc.concat(curVal), []);
     const task = [
       {
-        isAmountHidden: true,
+        hideAmount: true,
         count: duplicateSets.length,
         header: `${duplicateIds.length} Potential duplicates`,
         subheader: `we detected ${duplicateIds.length} expenses which may be duplicates`,

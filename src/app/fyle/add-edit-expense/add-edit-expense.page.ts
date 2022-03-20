@@ -323,8 +323,6 @@ export class AddEditExpensePage implements OnInit {
 
   isIos = false;
 
-  duplicatesSet$: Observable<Expense[][]>;
-
   duplicateExpenses: Expense[];
 
   constructor(
@@ -4283,35 +4281,34 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getDuplicateExpenses() {
-    if (!this.activatedRoute.snapshot.params.id) {
-      return;
+    if (this.activatedRoute.snapshot.params.id) {
+      this.handleDuplicates
+        .getDuplicatesByExpense(this.activatedRoute.snapshot.params.id)
+        .pipe(
+          switchMap((duplicateSets) => {
+            const duplicateIds = duplicateSets
+              .map((value) => value.transaction_ids)
+              .reduce((acc, curVal) => acc.concat(curVal), []);
+            const params = {
+              tx_id: `in.(${duplicateIds.join(',')})`,
+            };
+            return this.transactionService.getETxnc({ offset: 0, limit: 10, params }).pipe(
+              map((expenses) => {
+                const expensesArray = expenses as [];
+                return duplicateSets.map((set) =>
+                  set.transaction_ids.map((expenseId) => {
+                    const index = expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id);
+                    return expensesArray[index];
+                  })
+                );
+              })
+            );
+          })
+        )
+        .subscribe((duplicateExpenses) => {
+          this.duplicateExpenses = duplicateExpenses[0];
+        });
     }
-    this.handleDuplicates
-      .getDuplicatesByExpense(this.activatedRoute.snapshot.params.id)
-      .pipe(
-        switchMap((duplicateSets) => {
-          const duplicateIds = duplicateSets
-            .map((value) => value.transaction_ids)
-            .reduce((acc, curVal) => acc.concat(curVal), []);
-          const params = {
-            tx_id: `in.(${duplicateIds.toString()})`,
-          };
-          return this.transactionService.getETxnc({ offset: 0, limit: 10, params }).pipe(
-            map((expenses) => {
-              const expensesArray = expenses as [];
-              return duplicateSets.map((set) =>
-                set.transaction_ids.map(
-                  (expenseId) =>
-                    expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
-                )
-              );
-            })
-          );
-        })
-      )
-      .subscribe((duplicateExpenses) => {
-        this.duplicateExpenses = duplicateExpenses[0];
-      });
   }
 
   async showSuggestedDuplicates(duplicateExpenses: Expense[]) {

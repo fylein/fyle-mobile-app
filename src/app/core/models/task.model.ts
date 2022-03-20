@@ -10,5 +10,5 @@ export interface DashboardTask {
   count: number;
   ctas: TaskCta[];
   data?: any;
-  isAmountHidden?: boolean;
+  hideAmount?: boolean;
 }

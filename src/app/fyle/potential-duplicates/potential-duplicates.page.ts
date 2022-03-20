@@ -56,7 +56,7 @@ export class PotentialDuplicatesPage implements OnInit {
               .map((value) => value.transaction_ids)
               .reduce((acc, curVal) => acc.concat(curVal), []);
             const params = {
-              tx_id: `in.(${duplicateIds.toString()})`,
+              tx_id: `in.(${duplicateIds.join(',')})`,
             };
             return this.transaction.getETxnc({ offset: 0, limit: 10, params }).pipe(
               map((expenses) => {
@@ -118,7 +118,7 @@ export class PotentialDuplicatesPage implements OnInit {
   mergeExpense() {
     const selectedTxnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
     const params = {
-      tx_id: `in.(${selectedTxnIds.toString()})`,
+      tx_id: `in.(${selectedTxnIds.join(',')})`,
     };
     this.transaction.getETxnc({ offset: 0, limit: 10, params }).subscribe((selectedExpenses) => {
       this.router.navigate(['/', 'enterprise', 'merge_expense'], {
