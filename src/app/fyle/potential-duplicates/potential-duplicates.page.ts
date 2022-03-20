@@ -129,7 +129,7 @@ export class PotentialDuplicatesPage implements OnInit {
         'enterprise',
         'merge_expense',
         {
-          selectedElements: JSON.stringify(selectedElements),
+          selectedElements: JSON.stringify(selectedExpenses),
           from: 'TASK',
         },
       ]);
