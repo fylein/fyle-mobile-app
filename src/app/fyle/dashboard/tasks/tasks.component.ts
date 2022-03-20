@@ -41,6 +41,7 @@ export class TasksComponent implements OnInit {
     unreportedExpenses: false,
     teamReports: false,
     sentBackAdvances: false,
+    potentialDuplicates: false,
   });
 
   isConnected$: Observable<boolean>;
@@ -97,6 +98,7 @@ export class TasksComponent implements OnInit {
         sentBackReports: false,
         teamReports: false,
         sentBackAdvances: false,
+        potentialDuplicates: true,
       });
     }
 
@@ -108,6 +110,7 @@ export class TasksComponent implements OnInit {
         sentBackReports: true,
         teamReports: false,
         sentBackAdvances: false,
+        potentialDuplicates: false,
       });
     }
 
@@ -119,6 +122,7 @@ export class TasksComponent implements OnInit {
         sentBackReports: false,
         teamReports: true,
         sentBackAdvances: false,
+        potentialDuplicates: false,
       });
     }
 
@@ -130,6 +134,7 @@ export class TasksComponent implements OnInit {
         sentBackReports: false,
         teamReports: false,
         sentBackAdvances: true,
+        potentialDuplicates: false,
       });
     }
 
@@ -176,6 +181,10 @@ export class TasksComponent implements OnInit {
               {
                 label: 'Draft',
                 value: 'DRAFT',
+              },
+              {
+                label: 'Duplicate',
+                value: 'DUPLICATE',
               },
             ],
           } as FilterOptions<string>,
@@ -233,6 +242,7 @@ export class TasksComponent implements OnInit {
         ...this.loadData$.getValue(),
         draftExpenses: false,
         unreportedExpenses: false,
+        potentialDuplicates: false,
       });
     }
 

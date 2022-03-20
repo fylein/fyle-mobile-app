@@ -53,6 +53,8 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isFromViewReports: boolean;
 
+  @Input() isFromPotentialDuplicates: boolean;
+
   @Input() etxnIndex: number;
 
   @Input() isDismissable: boolean;
@@ -148,6 +150,9 @@ export class ExpensesCardComponent implements OnInit {
     } else {
       if (!this.expense.tx_file_ids) {
         this.receiptIcon = 'assets/svg/add-receipt.svg';
+        if (this.isFromPotentialDuplicates || this.isFromViewReports) {
+          this.receiptIcon = 'assets/svg/fy-expense.svg';
+        }
       } else {
         this.fileService
           .getFilesWithThumbnail(this.expense.tx_id)
@@ -350,7 +355,7 @@ export class ExpensesCardComponent implements OnInit {
   canAddAttachment() {
     return (
       !this.isFromViewReports &&
-      !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) &&
+      !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids || this.isFromPotentialDuplicates) &&
       !this.isSelectionModeEnabled
     );
   }

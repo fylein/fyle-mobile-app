@@ -29,6 +29,7 @@
             <app-expense-card
               [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
               [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+              [isFromPotentialDuplicates]="true"
               [expense]="expense"
               [isDismissable]="duplicatesSet?.length > 2"
               (dismissed)="dismiss($event)"

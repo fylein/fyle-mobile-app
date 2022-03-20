@@ -26,6 +26,7 @@ type TaskDict = {
   unreportedExpenses: DashboardTask[];
   teamReports: DashboardTask[];
   sentBackAdvances: DashboardTask[];
+  potentialDuplicates: DashboardTask[];
 };
 
 @Injectable({
@@ -85,6 +86,7 @@ export class TasksService {
     return this.advancesTaskCount$.asObservable();
   }
 
+  // eslint-disable-next-line complexity
   generateSelectedFilters(filters: TaskFilters): SelectedFilters<any>[] {
     const selectedFilters = [];
 
@@ -103,6 +105,18 @@ export class TasksService {
         selectedFilters.push({
           name: 'Expenses',
           value: ['UNREPORTED'],
+        });
+      }
+    }
+
+    if (filters.potentialDuplicates) {
+      const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
+      if (existingFilter) {
+        existingFilter.value.push('DUPLICATE');
+      } else {
+        selectedFilters.push({
+          name: 'Expenses',
+          value: ['DUPLICATE'],
         });
       }
     }
@@ -154,6 +168,7 @@ export class TasksService {
       draftReports: false,
       sentBackReports: false,
       unreportedExpenses: false,
+      potentialDuplicates: false,
       teamReports: false,
       sentBackAdvances: false,
     };
@@ -164,6 +179,10 @@ export class TasksService {
 
     if (selectedFilters.some((filter) => filter.name === 'Expenses' && filter.value.includes('DRAFT'))) {
       generatedFilters.draftExpenses = true;
+    }
+
+    if (selectedFilters.some((filter) => filter.name === 'Expenses' && filter.value.includes('DUPLICATE'))) {
+      generatedFilters.potentialDuplicates = true;
     }
 
     if (selectedFilters.some((filter) => filter.name === 'Reports' && filter.value.includes('SENT_BACK'))) {
@@ -186,13 +205,23 @@ export class TasksService {
   }
 
   getExpensePill(filters: TaskFilters): FilterPill {
+    const expensePills = [];
     const draftExpensesContent = filters.draftExpenses ? 'Draft' : '';
+    if (draftExpensesContent) {
+      expensePills.push(draftExpensesContent);
+    }
     const unreportedExpensesContent = filters.unreportedExpenses ? 'Unreported' : '';
-    const comma = draftExpensesContent && unreportedExpensesContent ? ', ' : '';
+    if (unreportedExpensesContent) {
+      expensePills.push(unreportedExpensesContent);
+    }
+    const potentialDuplicatesContent = filters.potentialDuplicates ? 'Duplicate' : '';
+    if (potentialDuplicatesContent) {
+      expensePills.push(potentialDuplicatesContent);
+    }
     return {
       label: 'Expenses',
       type: 'Expenses',
-      value: `${draftExpensesContent}${comma}${unreportedExpensesContent}`,
+      value: expensePills.join(', '),
     };
   }
 
@@ -235,7 +264,7 @@ export class TasksService {
   generateFilterPills(filters: TaskFilters): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
-    if (filters.draftExpenses || filters.unreportedExpenses) {
+    if (filters.draftExpenses || filters.unreportedExpenses || filters.potentialDuplicates) {
       filterPills.push(this.getExpensePill(filters));
     }
 
@@ -262,12 +291,12 @@ export class TasksService {
     }).pipe(
       map(
         ({
+          potentialDuplicates,
           sentBackReports,
           unreportedExpenses,
           unsubmittedReports,
           draftExpenses,
           teamReports,
-          potentialDuplicates,
           sentBackAdvances,
         }) => {
           this.totalTaskCount$.next(
@@ -289,18 +318,20 @@ export class TasksService {
             !filters?.draftReports &&
             !filters?.sentBackReports &&
             !filters?.unreportedExpenses &&
+            !filters?.potentialDuplicates &&
             !filters?.teamReports &&
             !filters?.sentBackAdvances
           ) {
             return sentBackReports
+              .concat(potentialDuplicates)
               .concat(draftExpenses)
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
               .concat(teamReports)
-              .concat(potentialDuplicates)
               .concat(sentBackAdvances);
           } else {
             return this.getFilteredTaskList(filters, {
+              potentialDuplicates,
               sentBackReports,
               draftExpenses,
               unsubmittedReports,
@@ -315,9 +346,20 @@ export class TasksService {
   }
 
   private getFilteredTaskList(filters: TaskFilters, tasksDict: TaskDict) {
-    const { draftExpenses, sentBackReports, teamReports, unreportedExpenses, unsubmittedReports, sentBackAdvances } =
-      tasksDict;
+    const {
+      draftExpenses,
+      sentBackReports,
+      teamReports,
+      unreportedExpenses,
+      potentialDuplicates,
+      unsubmittedReports,
+      sentBackAdvances,
+    } = tasksDict;
     let tasks = [];
+
+    if (filters?.potentialDuplicates) {
+      tasks = tasks.concat(potentialDuplicates);
+    }
 
     if (filters?.sentBackReports) {
       tasks = tasks.concat(sentBackReports);
@@ -448,7 +490,7 @@ export class TasksService {
         count: duplicateSets.length,
         header: `${duplicateIds.length} Potential duplicates`,
         subheader: `we detected ${duplicateIds.length} expenses which may be duplicates`,
-        icon: TaskIcon.REPORT,
+        icon: TaskIcon.WARNING,
         ctas: [
           {
             content: `Review`,
