@@ -4297,7 +4297,7 @@ export class AddEditExpensePage implements OnInit {
                 const expensesArray = expenses as [];
                 return duplicateSets.map((set) =>
                   set.transaction_ids.map((expenseId) => {
-                    const index = expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id);
+                    const index = expensesArray.findIndex((duplicateTxn: Expense) => expenseId === duplicateTxn.tx_id);
                     return expensesArray[index];
                   })
                 );
@@ -4326,7 +4326,7 @@ export class AddEditExpensePage implements OnInit {
 
     const { data } = await currencyModal.onWillDismiss();
 
-    if (data && data.action === 'dismissed') {
+    if (data?.action === 'dismissed') {
       this.getDuplicateExpenses();
     }
   }

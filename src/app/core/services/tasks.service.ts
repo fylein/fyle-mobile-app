@@ -181,9 +181,9 @@ export class TasksService {
       generatedFilters.draftExpenses = true;
     }
 
-    if (selectedFilters.some((filter) => filter.name === 'Expenses' && filter.value.includes('DUPLICATE'))) {
-      generatedFilters.potentialDuplicates = true;
-    }
+    generatedFilters.potentialDuplicates = selectedFilters.some(
+      (filter) => filter.name === 'Expenses' && filter.value.includes('DUPLICATE')
+    );
 
     if (selectedFilters.some((filter) => filter.name === 'Reports' && filter.value.includes('SENT_BACK'))) {
       generatedFilters.sentBackReports = true;
@@ -489,7 +489,7 @@ export class TasksService {
         hideAmount: true,
         count: duplicateSets.length,
         header: `${duplicateIds.length} Potential duplicates`,
-        subheader: `we detected ${duplicateIds.length} expenses which may be duplicates`,
+        subheader: `We detected ${duplicateIds.length} expenses which may be duplicates`,
         icon: TaskIcon.WARNING,
         ctas: [
           {

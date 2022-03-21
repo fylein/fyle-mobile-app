@@ -59,6 +59,8 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isDismissable: boolean;
 
+  @Input() showDt = true;
+
   @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter();
 
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
@@ -76,8 +78,6 @@ export class ExpensesCardComponent implements OnInit {
   receiptIcon: string;
 
   receipt: string;
-
-  showDt = true;
 
   isPolicyViolated: boolean;
 
