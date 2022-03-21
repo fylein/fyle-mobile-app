@@ -1,5 +1,5 @@
 <ion-header class="fy-header" mode="md">
-  <ion-toolbar mode="md" class="fy-header--toolbar">
+  <ion-toolbar mode="md" class="fy-header--toolbar" (click)="clickTo()">
     <ion-buttons mode="md" slot="start">
       <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
@@ -103,9 +103,15 @@
         </div>
       </ng-container> -->
       <app-generic-fields-form
-        formControlName="genericFields"
-        [amountOptions$]="amountOptions$"
+        [genericFieldsFormGroup]="fg.get('genericFields')"
+        [amountOptionsData$]="amountOptionsData$"
         [receiptOptions$]="receiptOptions$"
+        [attachments$]="attachments$"
+        [dateOfSpendOptionsData$]="dateOfSpendOptionsData$"
+        [paymentModeOptionsData$]="paymentModeOptionsData$"
+        [CCCTxn$]="CCCTxn$"
+        [projectOptionsData$]="projectOptionsData$"
+        [billableOptionsData$]="billableOptionsData$"
       ></app-generic-fields-form>
 
       <!-- <ng-container *ngIf="receiptOptions$|async as receiptOptions">
@@ -135,7 +141,7 @@
         </div>
       </ng-container> -->
 
-      <ng-container *ngIf="attachments$|async as attachments">
+      <!-- <ng-container *ngIf="attachments$|async as attachments">
         <app-receipt-preview-thumbnail
           *ngIf="attachments?.length > 0"
           [attachments]="attachments"
@@ -143,8 +149,8 @@
           [hideLabel]="true"
         >
         </app-receipt-preview-thumbnail>
-      </ng-container>
-
+      </ng-container> -->
+      <!-- 
       <div class="merge-expenses--primary-block">
         <ion-grid class="merge-expenses--grid">
           <ion-row>
@@ -190,14 +196,14 @@
             </ion-col>
           </ion-row>
         </ion-grid>
-      </div>
+      </div> -->
 
-      <ng-container *ngFor="let selectedCCCTransaction of CCCTxn$ | async as cccTxns">
+      <!-- <ng-container *ngFor="let selectedCCCTransaction of CCCTxn$ | async as cccTxns">
         <ng-container *ngIf="fg.controls.paymentMode.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'">
           <app-card-transaction-preview [transactionDetails]="selectedCCCTransaction"> </app-card-transaction-preview>
         </ng-container>
-      </ng-container>
-
+      </ng-container> -->
+      <!-- 
       <div class="merge-expenses--primary-block" *ngIf="mergedExpenseOptions.tx_project_id.options?.length !== 0">
         <ion-grid class="merge-expenses--grid">
           <ion-row>
@@ -243,7 +249,7 @@
             </ion-col>
           </ion-row>
         </ion-grid>
-      </div>
+      </div> -->
 
       <ng-container>
         <div

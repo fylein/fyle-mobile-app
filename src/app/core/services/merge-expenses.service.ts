@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, of, Subject } from 'rxjs';
-import { concatMap, filter, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { concatMap, filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { ISODateString } from '@capacitor/core';
@@ -11,6 +11,7 @@ import { CorporateCreditCardExpenseService } from './corporate-credit-card-expen
 import { OfflineService } from './offline.service';
 import * as moment from 'moment';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ProjectsService } from './projects.service';
 
 type option = Partial<{ label: string; value: any }>;
 type custom_property = Partial<{ name: string; value: any }>;
@@ -24,7 +25,8 @@ export class MergeExpensesService {
     private fileService: FileService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private offlineService: OfflineService,
-    private humanizeCurrency: HumanizeCurrencyPipe
+    private humanizeCurrency: HumanizeCurrencyPipe,
+    private projectService: ProjectsService
   ) {}
 
   mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields): Observable<string> {
@@ -213,9 +215,17 @@ export class MergeExpensesService {
     );
   }
 
+  checkOptionsAreSame(options): boolean {
+    console.log(options);
+    console.log(options.some((field, index) => options.indexOf(field) !== index));
+    // if(options?.length !== 0){
+    //   return true;
+    // }
+    return options.some((field, index) => options.indexOf(field) !== index);
+  }
+
   generateAmountOptions(expenses: Expense[]) {
     return from(expenses).pipe(
-      // filter((expense) => expense.tx_file_ids !== null),
       map((expense) => {
         const isForeignAmountPresent = expense.tx_orig_currency && expense.tx_orig_amount;
         let formatedlabel;
@@ -243,7 +253,108 @@ export class MergeExpensesService {
       reduce((acc, curr) => {
         acc.push(curr);
         return acc;
-      }, [])
+      }, []),
+      map((options: option[]) => {
+        const optionLabels = options.map((option) => option.label);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionLabels),
+        };
+      })
+    );
+  }
+
+  generateDateOfSpendOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      map((expense) => ({
+        label: moment(expense.tx_txn_dt).format('MMM DD, YYYY'),
+        value: expense.tx_txn_dt,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => new Date(new Date(option.value).toDateString()).getTime());
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generatePaymentModeOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      map((expense) => ({
+        label: expense.source_account_type,
+        value: expense.source_account_type,
+      })),
+      map((option) => this.formatPaymentModeOptions(option)),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateProjectOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      map((expense) => ({
+        label: expense.tx_project_id,
+        value: expense.tx_project_id,
+      })),
+      mergeMap((option) => this.formatProjectOptions(option)),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  formatProjectOptions(option: option) {
+    const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
+    return projects$.pipe(
+      map((projects) => {
+        const index = projects.map((project) => project.id).indexOf(option.value);
+        option.label = projects[index].name;
+        return option;
+      })
+    );
+  }
+
+  generateBillableOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      map((expense) => ({
+        label: expense.tx_billable.toString(),
+        value: expense.tx_billable,
+      })),
+      map((option) => this.formatBillableOptions(option)),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
     );
   }
 
@@ -254,28 +365,24 @@ export class MergeExpensesService {
     });
   }
 
-  formatBillableOptions(options: option[]) {
-    return options.map((option) => {
-      if (option.value === true) {
-        option.label = 'Yes';
-      } else {
-        option.label = 'No';
-      }
-      return option;
-    });
+  formatBillableOptions(option: option) {
+    if (option.value === true) {
+      option.label = 'Yes';
+    } else {
+      option.label = 'No';
+    }
+    return option;
   }
 
-  formatPaymentModeOptions(options: option[]) {
-    return options.map((option) => {
-      if (option.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-        option.label = 'Paid via Corporate Card';
-      } else if (option.value === 'PERSONAL_ACCOUNT') {
-        option.label = 'Paid by Me';
-      } else if (option.value === 'PERSONAL_ADVANCE_ACCOUNT') {
-        option.label = 'Paid from Advance';
-      }
-      return option;
-    });
+  formatPaymentModeOptions(option: option) {
+    if (option.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+      option.label = 'Paid via Corporate Card';
+    } else if (option.value === 'PERSONAL_ACCOUNT') {
+      option.label = 'Paid by Me';
+    } else if (option.value === 'PERSONAL_ADVANCE_ACCOUNT') {
+      option.label = 'Paid from Advance';
+    }
+    return option;
   }
 
   generateLocationOptions(expenses: Expense[], locationIndex: number) {

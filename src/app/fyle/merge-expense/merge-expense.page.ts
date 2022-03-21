@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { from, noop, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, forkJoin, from, noop, Observable, of, Subject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   concatMap,
@@ -16,7 +16,7 @@ import {
   filter,
 } from 'rxjs/operators';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -38,7 +38,7 @@ import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expe
 import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
 
 type option = Partial<{ label: string; value: any }>;
-
+type optionsData = Partial<{ options: option[]; areSameValues: boolean }>;
 @Component({
   selector: 'app-merge-expense',
   templateUrl: './merge-expense.page.html',
@@ -57,7 +57,15 @@ export class MergeExpensePage implements OnInit {
 
   expenseOptions$: Observable<option[]>;
 
-  amountOptions$: Observable<option[]>;
+  amountOptionsData$: Observable<optionsData>;
+
+  dateOfSpendOptionsData$: Observable<optionsData>;
+
+  paymentModeOptionsData$: Observable<optionsData>;
+
+  projectOptionsData$: Observable<optionsData>;
+
+  billableOptionsData$: Observable<optionsData>;
 
   isMerging = false;
 
@@ -160,7 +168,14 @@ export class MergeExpensePage implements OnInit {
       costCenter: [],
       hotel_is_breakfast_provided: [],
       receipt_ids: [],
-      genericFields: [],
+      genericFields: this.formBuilder.group({
+        amount: [],
+        receipt_ids: [],
+        dateOfSpend: [],
+        paymentMode: [],
+        project: [],
+        billable: [],
+      }),
       customInputFields: [],
     });
 
@@ -216,10 +231,23 @@ export class MergeExpensePage implements OnInit {
 
     this.expenseOptions$ = this.mergeExpensesService.generateExpenseToKeepOptions(this.expenses);
 
-    this.receiptOptions$ = this.mergeExpensesService.generateReceiptOptions(this.expenses);
+    this.receiptOptions$ = this.mergeExpensesService.generateReceiptOptions(this.expenses).pipe(shareReplay(1));
 
-    this.amountOptions$ = this.mergeExpensesService.generateAmountOptions(this.expenses);
+    this.amountOptionsData$ = this.mergeExpensesService.generateAmountOptions(this.expenses).pipe(shareReplay(1));
 
+    this.dateOfSpendOptionsData$ = this.mergeExpensesService
+      .generateDateOfSpendOptions(this.expenses)
+      .pipe(shareReplay(1));
+
+    this.paymentModeOptionsData$ = this.mergeExpensesService
+      .generatePaymentModeOptions(this.expenses)
+      .pipe(shareReplay(1));
+
+    this.projectOptionsData$ = this.mergeExpensesService.generateProjectOptions(this.expenses).pipe(shareReplay(1));
+
+    this.billableOptionsData$ = this.mergeExpensesService.generateBillableOptions(this.expenses).pipe(shareReplay(1));
+
+    this.patchValueOnLoad1();
     this.projectService.getAllActive().subscribe((projects) => {
       this.projects = projects;
       this.mergedExpenseOptions.tx_project_id.options = this.mergedExpenseOptions.tx_project_id.options.map(
@@ -294,8 +322,45 @@ export class MergeExpensePage implements OnInit {
     this.setInitialExpenseToKeepDetails(expensesInfo, isAllAdvanceExpenses);
     this.onPaymentModeChange();
     this.loadAttchments();
-
+    // this.fg.controls.genericFields.get('amount').disable();
     this.isLoaded = true;
+  }
+
+  patchValueOnLoad1() {
+    return forkJoin({
+      amountOptionsData: this.amountOptionsData$,
+      dateOfSpendOptionsData: this.dateOfSpendOptionsData$,
+      paymentModeOptionsData: this.paymentModeOptionsData$,
+      projectOptionsData: this.projectOptionsData$,
+      billableOptionsData: this.billableOptionsData$,
+    }).subscribe(
+      ({
+        amountOptionsData,
+        dateOfSpendOptionsData,
+        paymentModeOptionsData,
+        projectOptionsData,
+        billableOptionsData,
+      }) => {
+        console.log(billableOptionsData);
+        this.fg.patchValue({
+          genericFields: {
+            amount: amountOptionsData?.areSameValues && amountOptionsData?.options[0].value,
+            dateOfSpend: dateOfSpendOptionsData?.areSameValues && dateOfSpendOptionsData?.options[0].value,
+            paymentMode: paymentModeOptionsData?.areSameValues && paymentModeOptionsData?.options[0].value,
+            project: projectOptionsData?.areSameValues && projectOptionsData?.options[0].value,
+            billable: billableOptionsData?.areSameValues && billableOptionsData?.options[0].value,
+          },
+        });
+      }
+    );
+  }
+
+  clickTo() {
+    this.patchValueOnLoad1();
+    // console.log(this.fg.controls.genericFields);
+    console.log(this.fg.controls.genericFields);
+    // console.log(this.fg.controls.genericFields);
+    // this.fg.controls.genericFields.get('amount').disable();
   }
 
   // eslint-disable-next-line complexity
@@ -362,19 +427,9 @@ export class MergeExpensePage implements OnInit {
   }
 
   loadAttchments() {
-    this.fg
-      .get('genericFields')
-      ?.get('receipt_ids')
-      ?.valueChanges.subscribe((data) => {
-        console.log('Form changes', data);
-      });
-    this.fg.get('genericFields')?.valueChanges.subscribe((data) => {
-      console.log('Form changes2', data);
-    });
-
-    this.attachments$ = this.fg.controls.genericFields.valueChanges.pipe(
+    this.attachments$ = this.fg.controls.genericFields.get('receipt_ids').valueChanges.pipe(
       startWith({}),
-      switchMap((fields) => this.mergeExpensesService.getAttachements(fields.receipt_ids)),
+      switchMap((receipt_ids) => this.mergeExpensesService.getAttachements(receipt_ids)),
       tap((receipts) => {
         this.selectedReceiptsId = receipts.map((receipt) => receipt.id);
       })

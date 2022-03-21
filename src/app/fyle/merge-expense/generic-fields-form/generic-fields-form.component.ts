@@ -33,11 +33,21 @@ import { Subscription } from 'rxjs';
 export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
   @Input() formInitialized;
 
-  @Input() amountOptions$: any;
+  @Input() amountOptionsData$: any;
 
   @Input() receiptOptions$: any;
 
-  genericFormGroup: FormGroup;
+  @Input() dateOfSpendOptionsData$: any;
+
+  @Input() paymentModeOptionsData$: any;
+
+  @Input() attachments$: any;
+
+  @Input() projectOptionsData$: any;
+
+  @Input() billableOptionsData$: any;
+
+  @Input() genericFieldsFormGroup: FormGroup;
 
   form: FormGroup;
 
@@ -56,20 +66,24 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
   }
 
   constructor(private formBuilder: FormBuilder) {
-    this.form = this.formBuilder.group({
-      amount: [],
-      receipt_ids: [],
-    });
-
-    this.subscriptions.push(
-      this.form.valueChanges.subscribe((value) => {
-        this.onChange(value);
-        this.onTouched();
-      })
-    );
+    // this.subscriptions.push(
+    //   this.form.valueChanges.subscribe((value) => {
+    //     this.onChange(value);
+    //     this.onTouched();
+    //   })
+    // );
   }
 
   ngOnInit() {}
+
+  // createGroup() {
+  //   this.genericFieldsFormGroup = this.formBuilder.group({
+  //     amount: [],
+  //     receipt_ids: [],
+  //     dateOfSpend: [],
+  //   });
+  //   return this.genericFieldsFormGroup;
+  // }
 
   ngOnDestroy() {
     this.subscriptions.forEach((s) => s.unsubscribe());

@@ -1,13 +1,13 @@
-<div [formGroup]="form">
-  <ng-container *ngIf="amountOptions$ | async as amountOptions">
-    <div class="internal-block">
+<form [formGroup]="genericFieldsFormGroup">
+  <ng-container *ngIf="amountOptionsData$ | async as amountOptionsData">
+    <div class="merge-expenses--internal-block">
       <app-fy-select
         [enableSearch]="false"
         [label]="'Amount'"
-        [disabled]="amountOptions?.length === 0"
         [mandatory]="false"
         [nullOption]="false"
-        [options]="amountOptions"
+        [disabled]="amountOptionsData?.options?.length === 0 || amountOptionsData?.areSameValues"
+        [options]="amountOptionsData?.options"
         [selectModalHeader]="'Select amount'"
         formControlName="amount"
       >
@@ -37,4 +37,122 @@
       </div>
     </div>
   </ng-container>
-</div>
+
+  <ng-container *ngIf="attachments$ | async as attachments">
+    <app-receipt-preview-thumbnail
+      *ngIf="attachments?.length > 0"
+      [attachments]="attachments"
+      [canEdit]="false"
+      [hideLabel]="true"
+    >
+    </app-receipt-preview-thumbnail>
+  </ng-container>
+
+  <div class="merge-expenses--primary-block">
+    <ion-grid class="merge-expenses--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ng-container *ngIf="dateOfSpendOptionsData$ | async as dateOfSpendOptionsData">
+            <div
+              [ngClass]="{
+                'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.dateOfSpend.value
+              }"
+              class="merge-expenses--internal-block merge-expenses--internal-block__margin"
+            >
+              <app-fy-select
+                [enableSearch]="false"
+                [label]="'Date of Spend'"
+                [mandatory]="false"
+                [nullOption]="false"
+                [disabled]="dateOfSpendOptionsData?.options?.length === 0 || dateOfSpendOptionsData?.areSameValues"
+                [options]="dateOfSpendOptionsData?.options"
+                [selectModalHeader]="'Select spend date'"
+                formControlName="dateOfSpend"
+              >
+              </app-fy-select>
+            </div>
+          </ng-container>
+        </ion-col>
+        <ion-col size="6">
+          <ng-container *ngIf="paymentModeOptionsData$ | async as paymentModeOptionsData">
+            <div
+              [ngClass]="{
+                'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.paymentMode.value
+              }"
+              class="merge-expenses--internal-block"
+            >
+              <app-fy-select
+                [enableSearch]="false"
+                [label]="'Payment Mode'"
+                [mandatory]="true"
+                [nullOption]="false"
+                [disabled]="paymentModeOptionsData?.options?.length === 0 || paymentModeOptionsData?.areSameValues"
+                [options]="paymentModeOptionsData?.options"
+                [selectModalHeader]="'Select Payment Mode'"
+                formControlName="paymentMode"
+              >
+              </app-fy-select>
+            </div>
+          </ng-container>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <ng-container *ngFor="let selectedCCCTransaction of CCCTxn$ | async as cccTxns">
+    <ng-container
+      *ngIf="genericFieldsFormGroup.controls.paymentMode.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'"
+    >
+      <app-card-transaction-preview [transactionDetails]="selectedCCCTransaction"> </app-card-transaction-preview>
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngIf="projectOptionsData$ | async as projectOptionsData">
+    <div class="merge-expenses--primary-block" *ngIf="projectOptionsData?.options?.length !== 0">
+      <ion-grid class="merge-expenses--grid">
+        <ion-row>
+          <ion-col size="6">
+            <ng-container>
+              <div
+                [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.project.value }"
+                class="merge-expenses--internal-block merge-expenses--internal-block__margin"
+              >
+                <app-fy-select
+                  [enableSearch]="false"
+                  [label]="'Project'"
+                  [mandatory]="false"
+                  [nullOption]="false"
+                  [disabled]="projectOptionsData?.options?.length === 0 || projectOptionsData?.areSameValues"
+                  [options]="projectOptionsData?.options"
+                  [selectModalHeader]="'Select project'"
+                  formControlName="project"
+                >
+                </app-fy-select>
+              </div>
+            </ng-container>
+          </ion-col>
+          <ion-col size="6">
+            <ng-container *ngIf="billableOptionsData$ | async as billableOptionsData">
+              <div
+                [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.billable.value }"
+                class="merge-expenses--internal-block"
+              >
+                <app-fy-select
+                  [enableSearch]="false"
+                  [label]="'Billable'"
+                  [mandatory]="false"
+                  [nullOption]="false"
+                  [disabled]="billableOptionsData?.options?.length === 0 || billableOptionsData?.areSameValues"
+                  [options]="billableOptionsData?.options"
+                  [selectModalHeader]="'Select billable'"
+                  formControlName="billable"
+                >
+                </app-fy-select>
+              </div>
+            </ng-container>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </ng-container>
+</form>
