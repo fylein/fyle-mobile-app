@@ -15,39 +15,6 @@
     </div>
   </ng-container>
 
-  <ng-container *ngIf="receiptOptions$ | async as receiptOptions">
-    <div *ngIf="receiptOptions?.length !== 0" class="merge-expenses--internal-block">
-      <app-fy-select
-        [enableSearch]="false"
-        [label]="'Select receipt'"
-        [disabled]="receiptOptions?.length === 0"
-        [mandatory]="false"
-        [nullOption]="true"
-        [options]="receiptOptions"
-        [selectModalHeader]="'Select receipt'"
-        formControlName="receipt_ids"
-      >
-      </app-fy-select>
-    </div>
-
-    <div class="merge-expenses--internal-block merge-expenses--text" *ngIf="receiptOptions?.length === 0">
-      <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
-      <div class="merge-expenses--disabled">
-        <input [disabled]="true" [placeholder]="'No Receipt'" class="merge-expenses--text-input" type="text" />
-      </div>
-    </div>
-  </ng-container>
-
-  <ng-container *ngIf="attachments$ | async as attachments">
-    <app-receipt-preview-thumbnail
-      *ngIf="attachments?.length > 0"
-      [attachments]="attachments"
-      [canEdit]="false"
-      [hideLabel]="true"
-    >
-    </app-receipt-preview-thumbnail>
-  </ng-container>
-
   <div class="merge-expenses--primary-block">
     <ion-grid class="merge-expenses--grid">
       <ion-row>
@@ -98,6 +65,39 @@
       </ion-row>
     </ion-grid>
   </div>
+
+  <ng-container *ngIf="receiptOptions$ | async as receiptOptions">
+    <div *ngIf="receiptOptions?.length !== 0" class="merge-expenses--internal-block">
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'Select receipt'"
+        [disabled]="receiptOptions?.length === 0"
+        [mandatory]="false"
+        [nullOption]="true"
+        [options]="receiptOptions"
+        [selectModalHeader]="'Select receipt'"
+        formControlName="receipt_ids"
+      >
+      </app-fy-select>
+    </div>
+
+    <div class="merge-expenses--internal-block merge-expenses--text" *ngIf="receiptOptions?.length === 0">
+      <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
+      <div class="merge-expenses--disabled">
+        <input [disabled]="true" [placeholder]="'No Receipt'" class="merge-expenses--text-input" type="text" />
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="attachments$ | async as attachments">
+    <app-receipt-preview-thumbnail
+      *ngIf="attachments?.length > 0"
+      [attachments]="attachments"
+      [canEdit]="false"
+      [hideLabel]="true"
+    >
+    </app-receipt-preview-thumbnail>
+  </ng-container>
 
   <ng-container *ngFor="let selectedCCCTransaction of CCCTxn$ | async as cccTxns">
     <ng-container
@@ -153,6 +153,45 @@
           </ion-col>
         </ion-row>
       </ion-grid>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="vendorOptionsData$ | async as vendorOptionsData">
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': fg.controls.vendor.value }"
+      class="merge-expenses--internal-block"
+      *ngIf="vendorOptionsData?.length > 0"
+    >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'Merchant'"
+        [mandatory]="false"
+        [nullOption]="true"
+        [disabled]="vendorOptionsData?.options?.length === 0 || vendorOptionsData?.areSameValues"
+        [options]="vendorOptionsData?.options"
+        [selectModalHeader]="'Select merchant'"
+        formControlName="vendor"
+      >
+      </app-fy-select>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="categoryOptionsData$ | async as categoryOptionsData">
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.category.value }"
+      class="merge-expenses--internal-block"
+    >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'Category'"
+        [mandatory]="false"
+        [nullOption]="true"
+        [disabled]="categoryOptionsData?.options?.length === 0 || categoryOptionsData?.areSameValues"
+        [options]="categoryOptionsData?.options"
+        [selectModalHeader]="'Select category'"
+        formControlName="category"
+      >
+      </app-fy-select>
     </div>
   </ng-container>
 </form>

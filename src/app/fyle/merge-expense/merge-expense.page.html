@@ -112,6 +112,8 @@
         [CCCTxn$]="CCCTxn$"
         [projectOptionsData$]="projectOptionsData$"
         [billableOptionsData$]="billableOptionsData$"
+        [vendorOptionsData$]="vendorOptionsData$"
+        [categoryOptionsData$]="categoryOptionsData$"
       ></app-generic-fields-form>
 
       <!-- <ng-container *ngIf="receiptOptions$|async as receiptOptions">
@@ -251,7 +253,7 @@
         </ion-grid>
       </div> -->
 
-      <ng-container>
+      <!-- <ng-container>
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.vendor.value}"
           class="merge-expenses--internal-block"
@@ -269,9 +271,9 @@
           >
           </app-fy-select>
         </div>
-      </ng-container>
+      </ng-container> -->
 
-      <ng-container>
+      <!-- <ng-container>
         <div
           [ngClass]="{'merge-expenses--internal-block_special': fg.controls.category.value}"
           class="merge-expenses--internal-block"
@@ -288,7 +290,7 @@
           >
           </app-fy-select>
         </div>
-      </ng-container>
+      </ng-container> -->
 
       <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(getCategoryName(fg.value.category))">
         <div

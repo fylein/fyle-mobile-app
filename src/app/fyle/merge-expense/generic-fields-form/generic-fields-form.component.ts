@@ -13,6 +13,9 @@ import {
 } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
+type option = Partial<{ label: string; value: any }>;
+type optionsData = Partial<{ options: option[]; areSameValues: boolean }>;
+
 @Component({
   selector: 'app-generic-fields-form',
   templateUrl: './generic-fields-form.component.html',
@@ -30,22 +33,25 @@ import { Subscription } from 'rxjs';
     },
   ],
 })
-export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
-  @Input() formInitialized;
+export class GenericFieldsFormComponent implements OnInit {
+  // export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
+  @Input() amountOptionsData$: optionsData;
 
-  @Input() amountOptionsData$: any;
+  @Input() receiptOptions$: option[];
 
-  @Input() receiptOptions$: any;
+  @Input() dateOfSpendOptionsData$: optionsData;
 
-  @Input() dateOfSpendOptionsData$: any;
+  @Input() paymentModeOptionsData$: optionsData;
 
-  @Input() paymentModeOptionsData$: any;
+  @Input() attachments$: optionsData;
 
-  @Input() attachments$: any;
+  @Input() projectOptionsData$: optionsData;
 
-  @Input() projectOptionsData$: any;
+  @Input() billableOptionsData$: optionsData;
 
-  @Input() billableOptionsData$: any;
+  @Input() categoryOptionsData$: optionsData;
+
+  @Input() vendorOptionsData$: optionsData;
 
   @Input() genericFieldsFormGroup: FormGroup;
 
@@ -59,11 +65,11 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
     return this.form.value;
   }
 
-  set value(value) {
-    this.form.setValue(value);
-    this.onChange(value);
-    this.onTouched();
-  }
+  // set value(value) {
+  //   this.form.setValue(value);
+  //   this.onChange(value);
+  //   this.onTouched();
+  // }
 
   constructor(private formBuilder: FormBuilder) {
     // this.subscriptions.push(
@@ -85,33 +91,33 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
   //   return this.genericFieldsFormGroup;
   // }
 
-  ngOnDestroy() {
-    this.subscriptions.forEach((s) => s.unsubscribe());
-  }
+  // ngOnDestroy() {
+  //   this.subscriptions.forEach((s) => s.unsubscribe());
+  // }
 
-  onChange: any = () => {};
+  // onChange: any = () => {};
 
-  onTouched: any = () => {};
+  // onTouched: any = () => {};
 
-  registerOnChange(fn) {
-    this.onChange = fn;
-  }
+  // registerOnChange(fn) {
+  //   this.onChange = fn;
+  // }
 
-  writeValue(value) {
-    if (value) {
-      this.value = value;
-    }
+  // writeValue(value) {
+  //   if (value) {
+  //     this.value = value;
+  //   }
 
-    if (value === null) {
-      this.form.reset();
-    }
-  }
+  //   if (value === null) {
+  //     this.form.reset();
+  //   }
+  // }
 
-  registerOnTouched(fn) {
-    this.onTouched = fn;
-  }
+  // registerOnTouched(fn) {
+  //   this.onTouched = fn;
+  // }
 
-  validate(_: FormControl) {
-    return this.form.valid ? null : { amount: { valid: false } };
-  }
+  // validate(_: FormControl) {
+  //   return this.form.valid ? null : { amount: { valid: false } };
+  // }
 }

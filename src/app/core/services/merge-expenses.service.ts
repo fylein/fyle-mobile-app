@@ -12,6 +12,7 @@ import { OfflineService } from './offline.service';
 import * as moment from 'moment';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ProjectsService } from './projects.service';
+import { CategoriesService } from './categories.service';
 
 type option = Partial<{ label: string; value: any }>;
 type custom_property = Partial<{ name: string; value: any }>;
@@ -26,7 +27,8 @@ export class MergeExpensesService {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private offlineService: OfflineService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    private projectService: ProjectsService
+    private projectService: ProjectsService,
+    private categoriesService: CategoriesService
   ) {}
 
   mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields): Observable<string> {
@@ -266,6 +268,7 @@ export class MergeExpensesService {
 
   generateDateOfSpendOptions(expenses: Expense[]) {
     return from(expenses).pipe(
+      filter((expense) => expense.tx_txn_dt !== null),
       map((expense) => ({
         label: moment(expense.tx_txn_dt).format('MMM DD, YYYY'),
         value: expense.tx_txn_dt,
@@ -305,6 +308,27 @@ export class MergeExpensesService {
     );
   }
 
+  generateVendorOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_vendor),
+      map((expense) => ({
+        label: expense.tx_vendor?.toString(),
+        value: expense.tx_vendor,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
   generateProjectOptions(expenses: Expense[]) {
     return from(expenses).pipe(
       map((expense) => ({
@@ -326,12 +350,59 @@ export class MergeExpensesService {
     );
   }
 
+  generateCategoryOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      map((expense) => ({
+        label: expense.tx_org_category_id.toString(),
+        value: expense.tx_org_category_id,
+      })),
+      mergeMap((option) => this.formatCategoryOption(option)),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options: this.removeUnspecified(options),
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  removeUnspecified(options: option[]) {
+    return options.filter(
+      (option, index, options) => options.findIndex((currentOption) => currentOption.label === option.label) === index
+    );
+  }
+
+  formatCategoryOption(option: option) {
+    const allCategories$ = this.offlineService.getAllEnabledCategories().pipe();
+
+    return allCategories$.pipe(
+      map((catogories) => this.categoriesService.filterRequired(catogories)),
+      map((categories) => {
+        // this.categories = categories;
+        option.label = categories[categories.map((category) => category.id).indexOf(option.value)]?.displayName;
+        if (!option.label) {
+          option.label = 'Unspecified';
+        }
+        return option;
+        // .filter(
+        //   (option, index, options) =>
+        //     options.findIndex((currentOption) => currentOption.label === option.label) === index
+        // );
+      })
+    );
+  }
+
   formatProjectOptions(option: option) {
     const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
     return projects$.pipe(
       map((projects) => {
-        const index = projects.map((project) => project.id).indexOf(option.value);
-        option.label = projects[index].name;
+        const index = projects.map((project) => project?.id).indexOf(option?.value);
+        option.label = projects[index]?.name;
         return option;
       })
     );

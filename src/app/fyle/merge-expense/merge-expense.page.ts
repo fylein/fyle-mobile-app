@@ -67,6 +67,10 @@ export class MergeExpensePage implements OnInit {
 
   billableOptionsData$: Observable<optionsData>;
 
+  vendorOptionsData$: Observable<optionsData>;
+
+  categoryOptionsData$: Observable<optionsData>;
+
   isMerging = false;
 
   selectedReceiptsId: string[] = [];
@@ -175,6 +179,8 @@ export class MergeExpensePage implements OnInit {
         paymentMode: [],
         project: [],
         billable: [],
+        vendor: [],
+        category: [],
       }),
       customInputFields: [],
     });
@@ -246,6 +252,10 @@ export class MergeExpensePage implements OnInit {
     this.projectOptionsData$ = this.mergeExpensesService.generateProjectOptions(this.expenses).pipe(shareReplay(1));
 
     this.billableOptionsData$ = this.mergeExpensesService.generateBillableOptions(this.expenses).pipe(shareReplay(1));
+
+    this.vendorOptionsData$ = this.mergeExpensesService.generateVendorOptions(this.expenses).pipe(shareReplay(1));
+
+    this.categoryOptionsData$ = this.mergeExpensesService.generateCategoryOptions(this.expenses).pipe(shareReplay(1));
 
     this.patchValueOnLoad1();
     this.projectService.getAllActive().subscribe((projects) => {
@@ -333,6 +343,8 @@ export class MergeExpensePage implements OnInit {
       paymentModeOptionsData: this.paymentModeOptionsData$,
       projectOptionsData: this.projectOptionsData$,
       billableOptionsData: this.billableOptionsData$,
+      categoryOptionsData: this.categoryOptionsData$,
+      vendorOptionsData: this.vendorOptionsData$,
     }).subscribe(
       ({
         amountOptionsData,
@@ -340,15 +352,20 @@ export class MergeExpensePage implements OnInit {
         paymentModeOptionsData,
         projectOptionsData,
         billableOptionsData,
+        categoryOptionsData,
+        vendorOptionsData,
       }) => {
-        console.log(billableOptionsData);
+        console.log(projectOptionsData);
+        console.log(categoryOptionsData);
+        console.log(vendorOptionsData);
         this.fg.patchValue({
           genericFields: {
-            amount: amountOptionsData?.areSameValues && amountOptionsData?.options[0].value,
-            dateOfSpend: dateOfSpendOptionsData?.areSameValues && dateOfSpendOptionsData?.options[0].value,
-            paymentMode: paymentModeOptionsData?.areSameValues && paymentModeOptionsData?.options[0].value,
-            project: projectOptionsData?.areSameValues && projectOptionsData?.options[0].value,
-            billable: billableOptionsData?.areSameValues && billableOptionsData?.options[0].value,
+            amount: amountOptionsData?.areSameValues && amountOptionsData?.options[0]?.value,
+            dateOfSpend: dateOfSpendOptionsData?.areSameValues && dateOfSpendOptionsData?.options[0]?.value,
+            paymentMode: paymentModeOptionsData?.areSameValues && paymentModeOptionsData?.options[0]?.value,
+            project: projectOptionsData?.areSameValues && projectOptionsData?.options[0]?.value,
+            billable: billableOptionsData?.areSameValues && billableOptionsData?.options[0]?.value,
+            category: categoryOptionsData?.areSameValues && categoryOptionsData?.options[0]?.value,
           },
         });
       }
