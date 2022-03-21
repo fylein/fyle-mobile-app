@@ -355,9 +355,6 @@ export class MergeExpensePage implements OnInit {
         categoryOptionsData,
         vendorOptionsData,
       }) => {
-        console.log(projectOptionsData);
-        console.log(categoryOptionsData);
-        console.log(vendorOptionsData);
         this.fg.patchValue({
           genericFields: {
             amount: amountOptionsData?.areSameValues && amountOptionsData?.options[0]?.value,
@@ -366,6 +363,7 @@ export class MergeExpensePage implements OnInit {
             project: projectOptionsData?.areSameValues && projectOptionsData?.options[0]?.value,
             billable: billableOptionsData?.areSameValues && billableOptionsData?.options[0]?.value,
             category: categoryOptionsData?.areSameValues && categoryOptionsData?.options[0]?.value,
+            vendor: vendorOptionsData?.areSameValues && vendorOptionsData?.options[0]?.value,
           },
         });
       }

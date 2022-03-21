@@ -331,6 +331,7 @@ export class MergeExpensesService {
 
   generateProjectOptions(expenses: Expense[]) {
     return from(expenses).pipe(
+      filter((expense) => expense.tx_project_id),
       map((expense) => ({
         label: expense.tx_project_id,
         value: expense.tx_project_id,
