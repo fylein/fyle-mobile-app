@@ -281,12 +281,12 @@ export class TasksService {
 
   getTasks(filters?: TaskFilters): Observable<DashboardTask[]> {
     return forkJoin({
+      potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackReports: this.getSentBackReportTasks(),
       unreportedExpenses: this.getUnreportedExpensesTasks(),
       unsubmittedReports: this.getUnsubmittedReportsTasks(),
       draftExpenses: this.getDraftExpensesTasks(),
       teamReports: this.getTeamReportsTasks(),
-      potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
     }).pipe(
       map(
@@ -322,8 +322,8 @@ export class TasksService {
             !filters?.teamReports &&
             !filters?.sentBackAdvances
           ) {
-            return sentBackReports
-              .concat(potentialDuplicates)
+            return potentialDuplicates
+              .concat(sentBackReports)
               .concat(draftExpenses)
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
