@@ -465,7 +465,6 @@ export class MergeExpensePage implements OnInit {
 
       this.generateFromFg()
         .pipe(
-          take(1),
           switchMap((formValues) =>
             this.mergeExpensesService.mergeExpenses(sourceTxnIds, selectedExpense, formValues).pipe(
               finalize(() => {
