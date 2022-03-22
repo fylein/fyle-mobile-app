@@ -14,6 +14,7 @@ import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { HttpClient } from '@angular/common/http';
 
 enum DashboardState {
   home,
@@ -46,6 +47,8 @@ export class DashboardPage implements OnInit {
 
   taskCount = 0;
 
+  dummyData$: Observable<any>;
+
   get displayedTaskCount() {
     if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
       return this.tasksComponent?.taskCount;
@@ -64,7 +67,8 @@ export class DashboardPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private http: HttpClient
   ) {}
 
   ionViewWillLeave() {
@@ -134,6 +138,10 @@ export class DashboardPage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'my_dashboard', { queryParams }]);
       }
     });
+
+    this.dummyData$ = this.http.get<{ title: string; id: number; userId: number; completed: boolean }[]>(
+      'http://jsonplaceholder.typicode.com/posts'
+    );
   }
 
   ngOnInit() {
