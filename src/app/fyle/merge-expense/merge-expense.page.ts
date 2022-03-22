@@ -17,8 +17,22 @@ import { MergeExpensesService } from 'src/app/core/services/merge-expenses.servi
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
 
-type option = Partial<{ label: string; value: any }>;
-type optionsData = Partial<{ options: option[]; areSameValues: boolean }>;
+type Option = Partial<{ label: string; value: any }>;
+type OptionsData = Partial<{ options: Option[]; areSameValues: boolean }>;
+type CustomInputs = Partial<{
+  control: FormControl;
+  id: string;
+  mandatory: boolean;
+  name: string;
+  options: Option[];
+  placeholder: string;
+  prefix: string;
+  type: string;
+  value: string;
+}>;
+interface CombinedOptions {
+  [key: string]: OptionsData;
+}
 
 @Component({
   selector: 'app-merge-expense',
@@ -30,61 +44,61 @@ export class MergeExpensePage implements OnInit {
 
   fg: FormGroup;
 
-  expenseOptions$: Observable<option[]>;
+  expenseOptions$: Observable<Option[]>;
 
-  amountOptionsData$: Observable<optionsData>;
+  amountOptionsData$: Observable<OptionsData>;
 
-  dateOfSpendOptionsData$: Observable<optionsData>;
+  dateOfSpendOptionsData$: Observable<OptionsData>;
 
-  paymentModeOptionsData$: Observable<optionsData>;
+  paymentModeOptionsData$: Observable<OptionsData>;
 
-  projectOptionsData$: Observable<optionsData>;
+  projectOptionsData$: Observable<OptionsData>;
 
-  billableOptionsData$: Observable<optionsData>;
+  billableOptionsData$: Observable<OptionsData>;
 
-  vendorOptionsData$: Observable<optionsData>;
+  vendorOptionsData$: Observable<OptionsData>;
 
-  categoryOptionsData$: Observable<optionsData>;
+  categoryOptionsData$: Observable<OptionsData>;
 
-  taxGroupOptionsData$: Observable<optionsData>;
+  taxGroupOptionsData$: Observable<OptionsData>;
 
-  taxAmountOptionsData$: Observable<optionsData>;
+  taxAmountOptionsData$: Observable<OptionsData>;
 
-  constCenterOptionsData$: Observable<optionsData>;
+  constCenterOptionsData$: Observable<OptionsData>;
 
-  purposeOptionsData$: Observable<optionsData>;
+  purposeOptionsData$: Observable<OptionsData>;
 
-  location1OptionsData$: Observable<optionsData>;
+  location1OptionsData$: Observable<OptionsData>;
 
-  location2OptionsData$: Observable<optionsData>;
+  location2OptionsData$: Observable<OptionsData>;
 
-  onwardDateOptionsData$: Observable<optionsData>;
+  onwardDateOptionsData$: Observable<OptionsData>;
 
-  returnDateOptionsData$: Observable<optionsData>;
+  returnDateOptionsData$: Observable<OptionsData>;
 
-  flightJourneyTravelClassOptionsData$: Observable<optionsData>;
+  flightJourneyTravelClassOptionsData$: Observable<OptionsData>;
 
-  flightReturnTravelClassOptionsData$: Observable<optionsData>;
+  flightReturnTravelClassOptionsData$: Observable<OptionsData>;
 
-  trainTravelClassOptionsData$: Observable<optionsData>;
+  trainTravelClassOptionsData$: Observable<OptionsData>;
 
-  busTravelClassOptionsData$: Observable<optionsData>;
+  busTravelClassOptionsData$: Observable<OptionsData>;
 
-  distanceOptionsData$: Observable<optionsData>;
+  distanceOptionsData$: Observable<OptionsData>;
 
-  distanceUnitOptionsData$: Observable<optionsData>;
+  distanceUnitOptionsData$: Observable<OptionsData>;
 
-  receiptOptions$: Observable<option[]>;
+  receiptOptions$: Observable<Option[]>;
 
   isMerging = false;
 
   selectedReceiptsId: string[] = [];
 
-  customInputs$: Observable<any>;
+  customInputs$: Observable<CustomInputs[]>;
 
   attachments$: Observable<FileObject[]>;
 
-  combinedCustomProperties: any = {};
+  combinedCustomProperties: CombinedOptions = {};
 
   disableFormElements = false;
 
@@ -234,6 +248,7 @@ export class MergeExpensePage implements OnInit {
     this.setInitialExpenseToKeepDetails(expensesInfo, isAllAdvanceExpenses);
     this.subscribePaymentModeChange();
     this.loadAttchments();
+    this.combinedCustomProperties = this.generateCustomInputOptions();
   }
 
   patchValuesOnGenericFields() {
@@ -583,7 +598,7 @@ export class MergeExpensePage implements OnInit {
   patchCustomInputsValues(customInputs) {
     const customInputValues = customInputs.map((customInput) => {
       if (
-        this.combinedCustomProperties[customInput.name]?.isSame &&
+        this.combinedCustomProperties[customInput.name]?.areSameValues &&
         this.combinedCustomProperties[customInput.name].options.length > 0
       ) {
         return {
@@ -608,13 +623,7 @@ export class MergeExpensePage implements OnInit {
   }
 
   generateCustomInputOptions() {
-    let customProperties = this.expenses.map((expense) => {
-      if (expense.tx_custom_properties !== null && expense.tx_custom_properties.length > 0) {
-        return expense.tx_custom_properties;
-      }
-    });
-
-    customProperties = customProperties.filter((element) => element !== undefined);
+    const customProperties = this.mergeExpensesService.getCustomInputValues(this.expenses);
 
     let combinedCustomProperties = [].concat.apply([], customProperties);
 
@@ -643,57 +652,7 @@ export class MergeExpensePage implements OnInit {
       }
       return field;
     });
-
-    const customProperty = [];
-
-    combinedCustomProperties.forEach((field) => {
-      const existing = customProperty.filter((option) => option.name === field.name);
-      if (field.value) {
-        let formatedlabel;
-        if (moment(field.value, moment.ISO_8601, true).isValid()) {
-          formatedlabel = moment(field.value).format('MMM DD, YYYY');
-        } else {
-          formatedlabel = field.value.toString();
-        }
-        if (existing.length) {
-          const existingIndex = customProperty.indexOf(existing[0]);
-          if (
-            typeof customProperty[existingIndex].value === 'string' ||
-            typeof customProperty[existingIndex].value === 'number'
-          ) {
-            customProperty[existingIndex].options.push({ label: formatedlabel, value: field.value });
-          } else {
-            customProperty[existingIndex].options = customProperty[existingIndex].options.concat(field.options);
-          }
-        } else {
-          field.options = [];
-          field.options.push({ label: formatedlabel, value: field.value });
-          customProperty.push(field);
-        }
-      }
-    });
-
-    const customPropertiesOptions = customProperty.map((field) => {
-      let options;
-      if (field.options) {
-        options = field.options.filter((option) => option != null);
-        options = field.options.filter((option) => option !== '');
-
-        const values = options.map((item) => item.label);
-
-        const isDuplicate = values.some((item, index) => values.indexOf(item) !== index);
-
-        field.isSame = isDuplicate;
-        field.options = options;
-      } else {
-        field.options = [];
-      }
-      return field;
-    });
-
-    customPropertiesOptions.map((field) => {
-      this.combinedCustomProperties[field.name] = field;
-    });
+    return this.mergeExpensesService.formatCustomInputOptions(combinedCustomProperties);
   }
 
   setAdvanceOrApprovedAndAbove(expensesInfo: ExpensesInfo) {

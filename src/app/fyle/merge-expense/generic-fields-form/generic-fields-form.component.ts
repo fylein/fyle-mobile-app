@@ -3,8 +3,8 @@ import { FormGroup } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 
-type option = Partial<{ label: string; value: any }>;
-type optionsData = Partial<{ options: option[]; areSameValues: boolean }>;
+type Option = Partial<{ label: string; value: any }>;
+type OptionsData = Partial<{ options: Option[]; areSameValues: boolean }>;
 
 @Component({
   selector: 'app-generic-fields-form',
@@ -12,31 +12,31 @@ type optionsData = Partial<{ options: option[]; areSameValues: boolean }>;
   styleUrls: ['./generic-fields-form.component.scss'],
 })
 export class GenericFieldsFormComponent implements OnInit {
-  @Input() amountOptionsData$: Observable<optionsData>;
+  @Input() amountOptionsData$: Observable<OptionsData>;
 
-  @Input() receiptOptions$: Observable<option[]>;
+  @Input() receiptOptions$: Observable<Option[]>;
 
-  @Input() dateOfSpendOptionsData$: Observable<optionsData>;
+  @Input() dateOfSpendOptionsData$: Observable<OptionsData>;
 
-  @Input() paymentModeOptionsData$: Observable<optionsData>;
+  @Input() paymentModeOptionsData$: Observable<OptionsData>;
 
-  @Input() attachments$: Observable<optionsData>;
+  @Input() attachments$: Observable<OptionsData>;
 
-  @Input() projectOptionsData$: Observable<optionsData>;
+  @Input() projectOptionsData$: Observable<OptionsData>;
 
-  @Input() billableOptionsData$: Observable<optionsData>;
+  @Input() billableOptionsData$: Observable<OptionsData>;
 
-  @Input() categoryOptionsData$: Observable<optionsData>;
+  @Input() categoryOptionsData$: Observable<OptionsData>;
 
-  @Input() vendorOptionsData$: Observable<optionsData>;
+  @Input() vendorOptionsData$: Observable<OptionsData>;
 
-  @Input() taxGroupOptionsData$: Observable<optionsData>;
+  @Input() taxGroupOptionsData$: Observable<OptionsData>;
 
-  @Input() taxAmountOptionsData$: Observable<optionsData>;
+  @Input() taxAmountOptionsData$: Observable<OptionsData>;
 
-  @Input() constCenterOptionsData$: Observable<optionsData>;
+  @Input() constCenterOptionsData$: Observable<OptionsData>;
 
-  @Input() purposeOptionsData$: Observable<optionsData>;
+  @Input() purposeOptionsData$: Observable<OptionsData>;
 
   @Input() genericFieldsFormGroup: FormGroup;
 

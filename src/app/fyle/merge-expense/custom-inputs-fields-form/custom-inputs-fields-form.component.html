@@ -10,7 +10,7 @@
             [nullOption]="combinedCustomProperties[customInput.name]?.options?.length === 1"
             [disabled]="
               disableFormElements ||
-              combinedCustomProperties[customInput.name]?.isSame ||
+              combinedCustomProperties[customInput.name]?.areSameValues ||
               combinedCustomProperties[customInput.name]?.options?.length === 0
             "
             [options]="combinedCustomProperties[customInput.name]?.options"

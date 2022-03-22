@@ -1994,7 +1994,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   isMergeAllowed(expenses: Expense[]) {
-    if (expenses && expenses.length === 2) {
+    if (expenses?.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
       );

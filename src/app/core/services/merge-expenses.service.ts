@@ -12,8 +12,8 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { ProjectsService } from './projects.service';
 import { CategoriesService } from './categories.service';
 
-type option = Partial<{ label: string; value: any }>;
-type custom_property = Partial<{ name: string; value: any }>;
+type Option = Partial<{ label: string; value: any }>;
+type OptionsData = Partial<{ options: Option[]; areSameValues: boolean }>;
 
 @Injectable({
   providedIn: 'root',
@@ -244,7 +244,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionLabels = options.map((option) => option.label);
         return {
           options,
@@ -265,8 +265,8 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
-        const optionValues = options.map((option) => new Date(new Date(option.value).toDateString()).getTime());
+      map((options: Option[]) => {
+        const optionValues = options.map((option) => moment(option.value).format('YYYY-MM-DD'));
         return {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
@@ -286,7 +286,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -307,7 +307,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -329,7 +329,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -350,7 +350,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options: this.removeUnspecified(options),
@@ -372,7 +372,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -393,7 +393,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -414,7 +414,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -435,7 +435,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -456,7 +456,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -477,8 +477,8 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
-        const optionValues = options.map((option) => new Date(new Date(option.value).toDateString()).getTime());
+      map((options: Option[]) => {
+        const optionValues = options.map((option) => moment(option.value).format('YYYY-MM-DD'));
         return {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
@@ -498,8 +498,8 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
-        const optionValues = options.map((option) => new Date(new Date(option.value).toDateString()).getTime());
+      map((options: Option[]) => {
+        const optionValues = options.map((option) => moment(option.value).format('YYYY-MM-DD'));
         return {
           options,
           areSameValues: this.checkOptionsAreSame(optionValues),
@@ -519,7 +519,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -540,7 +540,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -561,7 +561,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -582,7 +582,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -603,7 +603,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -624,7 +624,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -634,13 +634,13 @@ export class MergeExpensesService {
     );
   }
 
-  removeUnspecified(options: option[]) {
+  removeUnspecified(options: Option[]) {
     return options.filter(
       (option, index, options) => options.findIndex((currentOption) => currentOption.label === option.label) === index
     );
   }
 
-  formatTaxGroupOption(option: option) {
+  formatTaxGroupOption(option: Option) {
     const taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
     const taxGroupsOptions$ = taxGroups$.pipe(
       map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
@@ -654,7 +654,7 @@ export class MergeExpensesService {
     );
   }
 
-  formatCategoryOption(option: option) {
+  formatCategoryOption(option: Option) {
     const allCategories$ = this.offlineService.getAllEnabledCategories();
 
     return allCategories$.pipe(
@@ -669,7 +669,7 @@ export class MergeExpensesService {
     );
   }
 
-  formatProjectOptions(option: option) {
+  formatProjectOptions(option: Option) {
     const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
     return projects$.pipe(
       map((projects) => {
@@ -691,7 +691,7 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: option[]) => {
+      map((options: Option[]) => {
         const optionValues = options.map((option) => option.value);
         return {
           options,
@@ -701,14 +701,14 @@ export class MergeExpensesService {
     );
   }
 
-  formatDateOptions(options: option[]) {
+  formatDateOptions(options: Option[]) {
     return options.map((option) => {
       option.label = moment(option.label).format('MMM DD, YYYY');
       return option;
     });
   }
 
-  formatBillableOptions(option: option) {
+  formatBillableOptions(option: Option) {
     if (option.value === true) {
       option.label = 'Yes';
     } else {
@@ -717,7 +717,7 @@ export class MergeExpensesService {
     return option;
   }
 
-  formatPaymentModeOptions(option: option) {
+  formatPaymentModeOptions(option: Option) {
     if (option.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
       option.label = 'Paid via Corporate Card';
     } else if (option.value === 'PERSONAL_ACCOUNT') {
@@ -728,12 +728,80 @@ export class MergeExpensesService {
     return option;
   }
 
-  getCategoryName(categoryId) {
+  getCategoryName(categoryId: string) {
     return this.offlineService.getAllEnabledCategories().pipe(
       map((categories) => {
         const category = categories.find((category) => category.id === categoryId);
         return category?.name;
       })
     );
+  }
+
+  getCustomInputValues(expenses: Expense[]) {
+    return expenses
+      .map((expense) => {
+        if (expense.tx_custom_properties !== null && expense.tx_custom_properties.length > 0) {
+          return expense.tx_custom_properties;
+        }
+      })
+      .filter((element) => element !== undefined);
+  }
+
+  formatCustomInputOptions(combinedCustomProperties: OptionsData[]) {
+    const customProperty = this.formatCustomInputOptionsByType(combinedCustomProperties);
+    return customProperty
+      .map((field) => {
+        let options;
+        if (field.options) {
+          options = field.options.filter((option) => option != null);
+          options = field.options.filter((option) => option !== '');
+
+          const values = options.map((item) => item.label);
+
+          const isDuplicate = values.some((item, index) => values.indexOf(item) !== index);
+
+          field.areSameValues = isDuplicate;
+          field.options = options;
+        } else {
+          field.options = [];
+        }
+        return field;
+      })
+      .reduce((obj, field) => {
+        obj[field.name] = field;
+        return obj;
+      }, {});
+  }
+
+  formatCustomInputOptionsByType(combinedCustomProperties) {
+    const customProperty = [];
+
+    combinedCustomProperties.forEach((field) => {
+      const existing = customProperty.filter((option) => option.name === field.name);
+      if (field.value) {
+        let formatedlabel;
+        if (moment(field.value, moment.ISO_8601, true).isValid()) {
+          formatedlabel = moment(field.value).format('MMM DD, YYYY');
+        } else {
+          formatedlabel = field.value.toString();
+        }
+        if (existing.length) {
+          const existingIndex = customProperty.indexOf(existing[0]);
+          if (
+            typeof customProperty[existingIndex].value === 'string' ||
+            typeof customProperty[existingIndex].value === 'number'
+          ) {
+            customProperty[existingIndex].options.push({ label: formatedlabel, value: field.value });
+          } else {
+            customProperty[existingIndex].options = customProperty[existingIndex].options.concat(field.options);
+          }
+        } else {
+          field.options = [];
+          field.options.push({ label: formatedlabel, value: field.value });
+          customProperty.push(field);
+        }
+      }
+    });
+    return customProperty;
   }
 }

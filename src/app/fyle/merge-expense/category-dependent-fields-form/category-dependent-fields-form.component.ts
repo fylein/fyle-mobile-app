@@ -2,8 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-type option = Partial<{ label: string; value: any }>;
-type optionsData = Partial<{ options: option[]; areSameValues: boolean }>;
+type Option = Partial<{ label: string; value: any }>;
+type OptionsData = Partial<{ options: Option[]; areSameValues: boolean }>;
 
 @Component({
   selector: 'app-category-dependent-fields-form',
@@ -13,25 +13,25 @@ type optionsData = Partial<{ options: option[]; areSameValues: boolean }>;
 export class CategoryDependentFieldsFormComponent implements OnInit {
   @Input() categoryDependentFormGroup: FormGroup;
 
-  @Input() location1OptionsData$: Observable<optionsData>;
+  @Input() location1OptionsData$: Observable<OptionsData>;
 
-  @Input() location2OptionsData$: Observable<optionsData>;
+  @Input() location2OptionsData$: Observable<OptionsData>;
 
-  @Input() onwardDateOptionsData$: Observable<optionsData>;
+  @Input() onwardDateOptionsData$: Observable<OptionsData>;
 
-  @Input() returnDateOptionsData$: Observable<optionsData>;
+  @Input() returnDateOptionsData$: Observable<OptionsData>;
 
-  @Input() flightJourneyTravelClassOptionsData$: Observable<optionsData>;
+  @Input() flightJourneyTravelClassOptionsData$: Observable<OptionsData>;
 
-  @Input() flightReturnTravelClassOptionsData$: Observable<optionsData>;
+  @Input() flightReturnTravelClassOptionsData$: Observable<OptionsData>;
 
-  @Input() trainTravelClassOptionsData$: Observable<optionsData>;
+  @Input() trainTravelClassOptionsData$: Observable<OptionsData>;
 
-  @Input() busTravelClassOptionsData$: Observable<optionsData>;
+  @Input() busTravelClassOptionsData$: Observable<OptionsData>;
 
-  @Input() distanceOptionsData$: Observable<optionsData>;
+  @Input() distanceOptionsData$: Observable<OptionsData>;
 
-  @Input() distanceUnitOptionsData$: Observable<optionsData>;
+  @Input() distanceUnitOptionsData$: Observable<OptionsData>;
 
   @Input() disableFormElements: boolean;
 
