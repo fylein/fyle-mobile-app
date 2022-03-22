@@ -19,11 +19,16 @@
     margin: 16px;
   }
 
+  &--wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
   &--card {
     background: url('../../../assets/images/card.png') no-repeat bottom;
     background-size: 100% 100%;
-    margin: 12px 0;
-    padding: 8px;
+    padding: 6px 8px;
     border-radius: 16px;
     height: 140px;
     position: relative;
@@ -77,7 +82,7 @@
   }
 
   &--report-state-pill {
-    margin-top: 2px;
+    margin-top: 4px;
     color: $pure-white;
     padding: 1px 16px;
     border-radius: 16px;
@@ -117,6 +122,11 @@
     }
   }
 
+  &--approval-state-block {
+    padding: 8px 2px;
+    margin-top: -10%;
+  }
+
   &--primary-cta {
     margin: 12px;
     height: 48px;
@@ -136,7 +146,7 @@
       font-size: 16px;
       line-height: 18px;
       font-weight: 500;
-      max-width: 100%;
+      max-width: 85%;
     }
 
     &__amount {
@@ -151,9 +161,10 @@
 
   &--submitted-date {
     font-weight: 500;
-
+    font-size: 12px;
     &__text {
       color: $light-grey;
+      opacity: 0.8;
     }
 
     &__date {
@@ -161,15 +172,41 @@
     }
   }
 
+  &--employee-name-block {
+    padding: 0 6px;
+  }
+
+  &--employee-name {
+    font-weight: 500;
+    font-size: 12px;
+
+    &__text {
+      color: $light-grey;
+      opacity: 0.8;
+    }
+
+    &__name {
+      color: $pure-white;
+    }
+  }
+
   &--segment-block-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    margin: 10px 0 8px;
     --border-width: 0 !important;
+    border-radius: 16px;
+
+    &__btn-wrapper {
+      padding: 0 14px;
+    }
 
     &__segment.ios {
-      margin: 12px auto;
+      margin: 0 auto 12px;
     }
 
     &__segment.md {
-      padding: 0 16px;
       border-bottom: 1px solid $grey-lighter;
     }
 
@@ -186,7 +223,7 @@
     float: right;
     padding: 1px 4px;
     font-size: 12px;
-    font-weight: 400;
+    font-weight: 500;
     color: $light-grey;
 
     &__icon {
@@ -198,27 +235,32 @@
 
     &__content {
       padding-left: 2px;
+      opacity: 0.8;
     }
+  }
+
+  &--approvers-wrapper {
+    padding: 2px 6px;
   }
 
   &--approvers-section {
     background-color: $pure-white;
     border-radius: 16px;
     box-shadow: 0px 4px 4px rgba(22, 21, 40, 0.08);
-    margin-top: -10%;
     font-size: 12px;
     font-weight: 500;
   }
 
   &--approvers {
     color: $black-light;
-    padding: 18px 12px 0;
+    padding: 18px 10px 0;
+    margin-top: 6px;
   }
 
   &--approvers-list {
     display: flex;
     justify-content: space-between;
-    padding: 6px 12px;
+    padding: 6px 10px 0;
   }
 
   &--approver-state-section {
@@ -234,9 +276,9 @@
 
   &--approver-state-pill {
     border-radius: 50%;
-    height: 12px;
-    width: 12px;
-    margin-right: 4px;
+    height: 8px;
+    width: 8px;
+    margin: 0 4px;
 
     &__approval_pending {
       background-color: $fyled-color;
@@ -251,12 +293,21 @@
     }
   }
 
+  &--expenses-card-block {
+    background: $pure-white;
+    padding: 6px;
+    border-radius: 16px;
+    box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
+  }
+
   &--expenses-zero-state {
     background-color: $pure-white;
     display: flex;
     justify-content: center;
+    align-items: center;
+    flex-grow: 1;
     border-radius: 16px;
-    padding: 40px 12px;
+    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
   }
 
   &--cta-container {
@@ -484,7 +535,7 @@
   }
 
   &--zero-state {
-    margin: 16% 0;
+    margin: 26% 0;
     padding: 12px 0;
   }
 }

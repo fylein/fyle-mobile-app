@@ -35,7 +35,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
@@ -211,8 +211,6 @@ export class AddEditMileagePage implements OnInit {
 
   canDeleteExpense = true;
 
-  isIos: boolean;
-
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -245,16 +243,8 @@ export class AddEditMileagePage implements OnInit {
     private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private platform: Platform
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
-
-  ngOnInit() {
-    this.isIos = this.platform.is('ios');
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
-  }
 
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
@@ -262,6 +252,12 @@ export class AddEditMileagePage implements OnInit {
 
   get route() {
     return this.fg.controls.route;
+  }
+
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
   }
 
   goToPrev() {
@@ -1446,7 +1442,7 @@ export class AddEditMileagePage implements OnInit {
           )
       )
     );
-    from(this.loaderService.showLoader())
+    from(this.loaderService.showLoader('Please wait...', 10000))
       .pipe(
         switchMap(() =>
           combineLatest([
@@ -1611,7 +1607,22 @@ export class AddEditMileagePage implements OnInit {
           }, 1000);
         }
       );
+
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   async showClosePopup() {
     const isAutofilled =

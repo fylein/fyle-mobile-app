@@ -156,9 +156,7 @@
                         <div class="add-edit-per-diem--date-block">
                           <div
                             [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
-                            class="
-                              add-edit-per-diem--date add-edit-per-diem--internal-block add-edit-per-diem--from-date
-                            "
+                            class="add-edit-per-diem--date add-edit-per-diem--internal-block add-edit-per-diem--from-date"
                           >
                             <div
                               [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
@@ -215,9 +213,7 @@
                           </div>
                           <div
                             *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid"
-                            class="
-                              add-edit-per-diem--error add-edit-per-diem--date-error add-edit-per-diem--to-date-error
-                            "
+                            class="add-edit-per-diem--error add-edit-per-diem--date-error add-edit-per-diem--to-date-error"
                           >
                             Please select {{ txnFields?.to_dt.field_name ? txnFields?.to_dt.field_name : 'To Date' }}
                           </div>
@@ -239,28 +235,12 @@
                           {{ txnFields?.num_days.field_name }}
                           <div class="add-edit-per-diem--mandatory">*</div>
                         </div>
-                        <input
-                          *ngIf="!isIos"
-                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
-                          [min]="0"
-                          class="add-edit-per-diem--text-input"
+                        <app-fy-number
                           formControlName="num_days"
-                          inputmode="decimal"
-                          [placeholder]="'Enter ' + txnFields?.num_days.field_name"
-                          type="number"
-                        />
-                        <input
-                          *ngIf="isIos"
-                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
                           [min]="0"
-                          class="add-edit-per-diem--text-input"
-                          formControlName="num_days"
+                          [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
                           [placeholder]="'Enter ' + txnFields?.num_days.field_name"
-                          type="text"
-                          pattern="[0-9]*"
-                          decimal="true"
-                          decimal-char="."
-                        />
+                        ></app-fy-number>
                       </div>
                       <div
                         *ngIf="fg.controls.num_days.touched && !fg.controls.num_days.valid"
@@ -343,7 +323,8 @@
                                   [categoryIds]="projectCategoryIds"
                                   [cacheName]="'perDiemProjectCache'"
                                   [defaultValue]="true"
-                                  [label]="'Project'"
+                                  [label]="txnFields?.project_id?.field_name"
+                                  [placeholder]="txnFields?.project_id?.placeholder"
                                   [mandatory]="txnFields?.project_id?.is_mandatory"
                                   [recentlyUsed]="recentProjects"
                                   formControlName="project"
@@ -504,24 +485,11 @@
                               type="text"
                             />
 
-                            <input
-                              *ngIf="!isIos && customInput.type === 'NUMBER'"
-                              class="add-edit-per-diem--text-input"
+                            <app-fy-number
+                              *ngIf="customInput.type === 'NUMBER'"
                               formControlName="value"
                               [placeholder]="'Enter ' + customInput.name"
-                              inputmode="decimal"
-                              type="number"
-                            />
-                            <input
-                              *ngIf="isIos && customInput.type === 'NUMBER'"
-                              class="add-edit-per-diem--text-input"
-                              formControlName="value"
-                              [placeholder]="'Enter ' + customInput.name"
-                              type="text"
-                              pattern="[0-9]*"
-                              decimal="true"
-                              decimal-char="."
-                            />
+                            ></app-fy-number>
 
                             <input
                               appFormatDate

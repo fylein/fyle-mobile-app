@@ -46,9 +46,16 @@ export class StatusService {
           icon: 'fy-merge',
         };
         break;
-      case lowerCaseComment.indexOf('you merged') > -1:
+      case /(merged (\d+) expenses)/.test(lowerCaseComment):
+        const regexMatch = lowerCaseComment.match(/merged (\d+) expenses/);
         statusCategory = {
-          category: 'Expense merged by user',
+          category: regexMatch[1] + ' expenses merged to this expense',
+          icon: 'fy-merge',
+        };
+        break;
+      case lowerCaseComment.indexOf('merged') > -1:
+        statusCategory = {
+          category: 'Expense merged',
           icon: 'fy-merge',
         };
         break;
@@ -80,6 +87,12 @@ export class StatusService {
         statusCategory = {
           category: 'Receipt Removed',
           icon: 'no-attachment',
+        };
+        break;
+      case lowerCaseComment.indexOf('removed from the report') > -1:
+        statusCategory = {
+          category: 'Expense removed',
+          icon: 'fy-delete',
         };
         break;
       case lowerCaseComment.indexOf('report') > -1:

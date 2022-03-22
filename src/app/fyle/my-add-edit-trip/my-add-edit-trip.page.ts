@@ -20,7 +20,7 @@ import {
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import * as moment from 'moment';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { OtherRequestsComponent } from './other-requests/other-requests.component';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
@@ -103,9 +103,9 @@ export class MyAddEditTripPage implements OnInit {
 
   submitTripLoading = false;
 
-  isIos: boolean;
-
   fg: FormGroup;
+
+  deprecationMsg$: Observable<string>;
 
   constructor(
     private router: Router,
@@ -122,9 +122,12 @@ export class MyAddEditTripPage implements OnInit {
     private popoverController: PopoverController,
     private projectsService: ProjectsService,
     private tripRequestPolicyService: TripRequestPolicyService,
-    private statusService: StatusService,
-    private platform: Platform
+    private statusService: StatusService
   ) {}
+
+  ionViewWillEnter() {
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('individual');
+  }
 
   async goBack() {
     const addExpensePopover = await this.popoverController.create({
@@ -657,7 +660,6 @@ export class MyAddEditTripPage implements OnInit {
   }
 
   ngOnInit() {
-    this.isIos = this.platform.is('ios');
     const id = this.activatedRoute.snapshot.params.id;
     const orgSettings$ = this.offlineService.getOrgSettings();
     this.customFieldValues = [];

@@ -10,6 +10,14 @@
 </ion-header>
 
 <ion-content>
+  <ng-container *ngIf="deprecationMsg$|async as deprecationMsg">
+    <app-fy-alert-info
+      [message]="deprecationMsg"
+      type="warning"
+      class="deprecate-msg deprecate-msg--mb-0"
+    ></app-fy-alert-info>
+  </ng-container>
+
   <form #formContainer (ngSubmit)="onSubmit()" [formGroup]="fg">
     <div class="add-edit-trip--container">
       <!-- Traveller details block start -->
@@ -293,22 +301,7 @@
                     type="text"
                   />
 
-                  <input
-                    *ngIf="!isIos && customInput.input_type === 'NUMBER'"
-                    class="add-edit-trip--text-input"
-                    formControlName="value"
-                    inputmode="decimal"
-                    type="number"
-                  />
-                  <input
-                    *ngIf="isIos && customInput.input_type === 'NUMBER'"
-                    class="add-edit-trip--text-input"
-                    formControlName="value"
-                    type="text"
-                    pattern="[0-9]*"
-                    decimal="true"
-                    decimal-char="."
-                  />
+                  <app-fy-number *ngIf="customInput.input_type === 'NUMBER'" formControlName="value"> </app-fy-number>
 
                   <input
                     appFormatDate

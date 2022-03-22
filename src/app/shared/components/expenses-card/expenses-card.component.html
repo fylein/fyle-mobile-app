@@ -28,6 +28,7 @@
           *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
           (click)="addAttachments($event)"
         >
+          <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
           <ion-icon
             class="expenses-card--receipt-icon"
             [src]="receiptIcon"
@@ -193,17 +194,13 @@
               class="expenses-card--project"
               [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
             >
-              <span> Project: </span>
+              <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
               {{ expense.tx_project_name ? expense.tx_project_name : 'Unspecified' }}
             </div>
           </div>
           <div
             *ngIf="expense.isDraft"
-            class="
-              expenses-card--category-vendor-project-container
-              expenses-card--category-vendor-project-container__align-vertical-center
-              expenses-card--category-vendor-project-container__error
-            "
+            class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
           >
             <div>Expense information</div>
             <div>missing</div>
@@ -211,9 +208,9 @@
           <div class="d-flex">
             <div>
               <div class="expenses-card--currency-amount-container ion-text-right">
-                <span class="expenses-card--currency">{{ homeCurrencySymbol }}</span>
+                <span class="expenses-card--currency"> {{ expense.tx_currency || homeCurrencySymbol }} </span>
                 <span class="expenses-card--amount">{{
-                  expense.tx_amount || expense?.tx_extracted_data?.amount || 0 | humanizeCurrency: homeCurrency:2:true
+                  expense.tx_amount | humanizeCurrency: expense.tx_currency || homeCurrencySymbol:2:true
                 }}</span>
                 <mat-icon class="expenses-card--icon" svgIcon="{{ paymentModeIcon }}"></mat-icon>
               </div>
@@ -224,7 +221,7 @@
               >
                 ({{ foreignCurrencySymbol
                 }}{{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency:2:true }} at
-                {{ homeCurrencySymbol }}{{ expense.tx_amount / expense.tx_orig_amount | number: '1.0-2' }})
+                {{ expense.tx_currency }} {{ expense.tx_amount / expense.tx_orig_amount | number: '1.0-2' }})
               </div>
 
               <div *ngIf="expense.isDraft && !isFromViewReports" class="expenses-card--state-container ion-text-right">

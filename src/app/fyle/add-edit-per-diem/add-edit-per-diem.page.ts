@@ -36,7 +36,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -188,8 +188,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   canDeleteExpense = true;
 
-  isIos: boolean;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -222,16 +220,8 @@ export class AddEditPerDiemPage implements OnInit {
     private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private platform: Platform
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
-
-  ngOnInit() {
-    this.isIos = this.platform.is('ios');
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
-  }
 
   get minPerDiemDate() {
     return this.fg.controls.from_dt.value && moment(this.fg.controls.from_dt.value).subtract(1, 'day').format('y-MM-D');
@@ -239,6 +229,12 @@ export class AddEditPerDiemPage implements OnInit {
 
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
+  }
+
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
   }
 
   async showClosePopup() {
@@ -1541,7 +1537,22 @@ export class AddEditPerDiemPage implements OnInit {
         }
       })
     );
+
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
     return forkJoin({

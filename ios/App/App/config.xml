@@ -1,6 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-  <access origin="*" />
+  <!-- It doesn't matter what value is added to origin - https://capacitorjs.com/docs/v2/cordova/using-cordova-plugins#:~:text=Capacitor%20does%20not%20support%20Cordova,things%20like%20hooks%20are%20unnecessary -->
+  <access origin="http://*.google.com" />
+  
+  <feature name="DecimalKeyboard">
+    <param name="ios-package" value="CDVDecimalKeyboard" onload="true"/>
+  </feature>
 
   <feature name="GooglePlus">
     <param name="ios-package" value="GooglePlus"/>
@@ -10,14 +15,6 @@
   <feature name="InAppBrowser">
     <param name="ios-package" value="CDVWKInAppBrowser"/>
     <param name="onload" value="true"/>
-  </feature>
-
-  <feature name="DecimalKeyboard">
-    <param name="ios-package" value="CDVDecimalKeyboard" onload="true"/>
-  </feature>
-
-  <feature name="SpinnerDialog">
-    <param name="ios-package" value="CDVSpinnerDialog"/>
   </feature>
 
   <feature name="CDVOrientation">

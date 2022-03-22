@@ -1,6 +1,6 @@
-import { Component, EventEmitter } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { TitleCasePipe } from '@angular/common';
 
 import {
   concat,
@@ -15,11 +15,10 @@ import {
   Observable,
   Subject,
 } from 'rxjs';
-import { concatMap, finalize, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { concatMap, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { NetworkService } from '../../core/services/network.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -33,6 +32,8 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -45,12 +46,14 @@ type Filters = Partial<{
   templateUrl: './my-advances.page.html',
   styleUrls: ['./my-advances.page.scss'],
 })
-export class MyAdvancesPage {
+export class MyAdvancesPage implements AfterViewChecked {
   myAdvancerequests$: Observable<any[]>;
 
   myAdvances$: Observable<any>;
 
   loadData$: Subject<number> = new Subject();
+
+  isLoading = false;
 
   navigateBack = false;
 
@@ -66,19 +69,23 @@ export class MyAdvancesPage {
 
   filterParams$ = new BehaviorSubject<Filters>({});
 
-  isLoading = false;
+  advancesTaskCount = 0;
+
+  projectFieldName = 'Project';
 
   constructor(
     private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private advanceService: AdvanceService,
     private networkService: NetworkService,
     private offlineService: OfflineService,
-    private modalController: ModalController,
     private filtersHelperService: FiltersHelperService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private titleCasePipe: TitleCasePipe,
+    private trackingService: TrackingService,
+    private tasksService: TasksService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ionViewWillLeave() {
@@ -100,17 +107,29 @@ export class MyAdvancesPage {
     });
   }
 
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
+      this.projectFieldName = projectField?.field_name;
+    });
+  }
+
   ionViewWillEnter() {
     this.setupNetworkWatcher();
-    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.isLoading = true;
+    this.tasksService.getAdvancesTaskCount().subscribe((advancesTaskCount) => {
+      this.advancesTaskCount = advancesTaskCount;
+    });
+
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     const oldFilters = this.activatedRoute.snapshot.queryParams.filters;
     if (oldFilters) {
       this.filterParams$.next(JSON.parse(oldFilters));
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
     }
+
+    this.isLoading = true;
 
     this.myAdvancerequests$ = this.advanceRequestService
       .getMyAdvanceRequestsCount({
@@ -134,11 +153,7 @@ export class MyAdvancesPage {
           })
         ),
         map((res) => res.data),
-        reduce((acc, curr) => acc.concat(curr)),
-        tap(() => {
-          this.isLoading = false;
-        }),
-        startWith([])
+        reduce((acc, curr) => acc.concat(curr))
       );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
@@ -154,8 +169,7 @@ export class MyAdvancesPage {
         })
       ),
       map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr)),
-      startWith([])
+      reduce((acc, curr) => acc.concat(curr))
     );
 
     const sortResults = map((res: any[]) => res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)));
@@ -179,7 +193,7 @@ export class MyAdvancesPage {
         )
       ),
       switchMap((advArray) =>
-        // piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
+        //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
         this.filterParams$.pipe(
           map((filters) => {
             let newArr = cloneDeep(advArray);
@@ -200,13 +214,23 @@ export class MyAdvancesPage {
                 return sentBackAdvance || plainDraft;
               });
             }
-
             newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
             return newArr;
           })
         )
-      )
+      ),
+      tap((res) => {
+        if (res && res.length >= 0) {
+          this.isLoading = false;
+        }
+      })
     );
+
+    this.getAndUpdateProjectName();
+  }
+
+  ngAfterViewChecked() {
+    this.cdr.detectChanges();
   }
 
   updateMyAdvances(myAdvances: any) {
@@ -244,7 +268,9 @@ export class MyAdvancesPage {
       .pipe(
         map(() => {
           this.refreshAdvances$.next();
-          event.target.complete();
+          if (event) {
+            event.target.complete();
+          }
         })
       )
       .subscribe(noop);
@@ -275,9 +301,12 @@ export class MyAdvancesPage {
   }
 
   onTaskClicked() {
-    const queryParams: Params = { state: 'tasks' };
+    const queryParams: Params = { state: 'tasks', tasksFilters: 'advances' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      from: 'My Advances',
     });
   }
 
@@ -337,27 +366,27 @@ export class MyAdvancesPage {
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Creation Date - New to Old',
+            label: 'Created At - New to Old',
             value: SortingValue.creationDateAsc,
           },
           {
-            label: 'Creation Date - Old to New',
+            label: 'Created At - Old to New',
             value: SortingValue.creationDateDesc,
           },
           {
-            label: 'Approval Date - New to Old',
+            label: 'Approved At - New to Old',
             value: SortingValue.approvalDateAsc,
           },
           {
-            label: 'Approval Date - Old to New',
+            label: 'Approved At - Old to New',
             value: SortingValue.approvalDateDesc,
           },
           {
-            label: 'Project - A to Z',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - A to Z`,
             value: SortingValue.projectAsc,
           },
           {
-            label: 'Project - Z to A',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - Z to A`,
             value: SortingValue.projectDesc,
           },
         ],
@@ -370,7 +399,7 @@ export class MyAdvancesPage {
     );
     if (filters) {
       this.filterParams$.next(filters);
-      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
+      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value, this.projectFieldName);
     }
   }
 }

@@ -16,74 +16,17 @@
         <div class="exchange-rate-modal--label">
           {{ newCurrency }}
         </div>
-        <input
-          *ngIf="!isIos"
-          formControlName="newCurrencyAmount"
-          class="exchange-rate-modal--input"
-          inputmode="decimal"
-          type="number"
-          matInput
-          placeholder="e.g. 9.99"
-        />
-        <input
-          *ngIf="isIos"
-          formControlName="newCurrencyAmount"
-          class="exchange-rate-modal--input"
-          type="text"
-          pattern="[0-9]*"
-          decimal="true"
-          decimal-char="."
-          matInput
-          placeholder="e.g. 9.99"
-        />
+        <app-fy-number placeholder="e.g. 9.99" formControlName="newCurrencyAmount"> </app-fy-number>
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">Rate</div>
-        <input
-          *ngIf="!isIos"
-          formControlName="exchangeRate"
-          class="exchange-rate-modal--input"
-          inputmode="decimal"
-          type="number"
-          matInput
-          placeholder="e.g. 9.99"
-        />
-        <input
-          *ngIf="isIos"
-          formControlName="exchangeRate"
-          class="exchange-rate-modal--input"
-          type="text"
-          pattern="[0-9]*"
-          decimal="true"
-          decimal-char="."
-          matInput
-          placeholder="e.g. 9.99"
-        />
+        <app-fy-number placeholder="e.g. 9.99" formControlName="exchangeRate"> </app-fy-number>
       </div>
       <div class="exchange-rate-modal--form-control">
         <div class="exchange-rate-modal--label">
           {{ currentCurrency }}
         </div>
-        <input
-          *ngIf="!isIos"
-          formControlName="homeCurrencyAmount"
-          class="exchange-rate-modal--input"
-          inputmode="decimal"
-          type="number"
-          matInput
-          placeholder="e.g. 9.99"
-        />
-        <input
-          *ngIf="isIos"
-          formControlName="homeCurrencyAmount"
-          class="exchange-rate-modal--input"
-          type="text"
-          pattern="[0-9]*"
-          decimal="true"
-          decimal-char="."
-          matInput
-          placeholder="e.g. 9.99"
-        />
+        <app-fy-number placeholder="e.g. 9.99" formControlName="homeCurrencyAmount"> </app-fy-number>
       </div>
     </form>
   </div>

@@ -326,6 +326,10 @@ textarea:focus {
   display: flex !important;
 }
 
+.d-none {
+  display: none !important;
+}
+
 .small {
   font-size: 12px;
 }
@@ -342,6 +346,12 @@ textarea:focus {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.content-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mb-0 {
@@ -749,6 +759,10 @@ ref - https://stackoverflow.com/a/31162426
   margin-bottom: 16px;
 }
 
+.ios .action-sheet-wrapper {
+  margin-bottom: 0;
+}
+
 .ios .advances-action-sheet {
   margin-bottom: 0;
 }
@@ -921,6 +935,7 @@ ref - https://stackoverflow.com/a/31162426
   .popover-content {
     border-radius: 16px;
   }
+  background: rgba(0, 0, 0, 0.6);
 }
 
 .route-visualizer--map {
@@ -942,12 +957,11 @@ ref - https://stackoverflow.com/a/31162426
 
 .ios .segment-block {
   height: 40px;
-  padding: 2px !important;
-  margin: 12px 0 12px 12%;
-  background: $pure-white;
-  border: 2px solid $pure-white;
+  background: #fff;
+  margin-top: 12px;
+  margin-bottom: 12px;
   box-sizing: border-box;
-  box-shadow: 0px -2px 40px $transparent-pearl-grey;
+  box-shadow: 0px -2px 40px rgb(215 215 215 / 50%);
   border-radius: 8px;
 }
 
@@ -1199,20 +1213,30 @@ ion-toggle.toggle-checked::before {
   border: 1px solid $grey-lighter;
   border-radius: 8px;
   padding: 12px 8px;
+  align-items: center;
   .capped-icon {
     color: $highlight-blue;
     height: 20px;
     width: 20px;
-    margin-right: 8px;
+    margin: 6px;
   }
   .capped-message {
     width: 100%;
     color: $blue-black;
+    font-size: 12px;
   }
 }
 
 .mat-snack-bar-handset .mat-snack-bar-container {
   margin-bottom: 133px !important;
+}
+
+.hide-modal {
+  --backdrop-opacity: 0 !important;
+
+  & > div {
+    background: transparent !important;
+  }
 }
 
 .ion-slides {
@@ -1230,6 +1254,18 @@ ion-toggle.toggle-checked::before {
         background: url('assets/images/loading.gif') no-repeat center;
         background-size: 50px;
       }
+    }
+  }
+}
+
+.deprecate-msg {
+  & > div {
+    margin: 16px;
+  }
+
+  &--mb-0 {
+    & > div {
+      margin-bottom: 0;
     }
   }
 }

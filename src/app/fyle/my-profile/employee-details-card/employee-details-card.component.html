@@ -22,16 +22,8 @@
             <ion-row class="employee-details-card__details-container">
               <ion-col size="6.5" class="employee-details-card__mobile-container">
                 <div class="employee-details-card__label">Mobile</div>
-                <div class="d-flex employee-details-card__value">
-                  <div
-                    #mobileNumberRef="matTooltip"
-                    (click)="showTooltip(mobileNumberRef)"
-                    [matTooltip]="eou.ou.mobile"
-                    [matTooltipDisabled]="!isMobileNumberHidden"
-                    matTooltipPosition="below"
-                    matTooltipClass="tooltip"
-                    class="employee-details-card__mobile text-ellipsis"
-                  >
+                <div (click)="updateMobileNumber()" class="d-flex employee-details-card__value">
+                  <div class="employee-details-card__mobile text-ellipsis">
                     {{ eou.ou.mobile?.length ? eou.ou.mobile : 'Add Number' }}
                   </div>
                   <ion-icon
@@ -41,7 +33,6 @@
                     slot="icon-only"
                     class="employee-details-card__mobile__icon"
                     [ngClass]="{ 'employee-details-card__mobile__icon-lg': !eou.ou.mobile?.length }"
-                    (click)="updateMobileNumber()"
                   ></ion-icon>
                 </div>
               </ion-col>

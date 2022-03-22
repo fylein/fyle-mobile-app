@@ -178,15 +178,13 @@
               </div>
             </ng-container>
 
-            <ion-grid class="add-edit-mileage--grid">
+            <ion-grid class="ion-grid-no-padding">
               <ion-row>
                 <ion-col size="6">
                   <ng-container *ngIf="txnFields$|async as txnFields">
                     <div
                       *ngIf="txnFields?.txn_dt"
-                      class="
-                        add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin
-                      "
+                      class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
                       [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                     >
                       <div class="add-edit-mileage--date-label">
@@ -285,7 +283,8 @@
                         <app-fy-select-project
                           [cacheName]="'mileageProjectCache'"
                           [categoryIds]="projectCategoryIds"
-                          [label]="'Project'"
+                          [label]="txnFields.project_id?.field_name"
+                          [placeholder]="txnFields.project_id?.placeholder"
                           [mandatory]="txnFields.project_id?.is_mandatory"
                           [defaultValue]="true"
                           [recentlyUsed]="recentProjects"
@@ -431,24 +430,11 @@
                         [placeholder]="'Enter ' + customInput.name"
                       />
 
-                      <input
-                        *ngIf="!isIos && customInput.type === 'NUMBER'"
-                        class="add-edit-mileage--text-input"
+                      <app-fy-number
                         formControlName="value"
-                        inputmode="decimal"
-                        type="number"
+                        *ngIf="customInput.type === 'NUMBER'"
                         [placeholder]="'Enter ' + customInput.name"
-                      />
-                      <input
-                        *ngIf="isIos && customInput.type === 'NUMBER'"
-                        class="add-edit-mileage--text-input"
-                        formControlName="value"
-                        type="text"
-                        pattern="[0-9]*"
-                        decimal="true"
-                        decimal-char="."
-                        [placeholder]="'Enter ' + customInput.name"
-                      />
+                      ></app-fy-number>
 
                       <input
                         appFormatDate

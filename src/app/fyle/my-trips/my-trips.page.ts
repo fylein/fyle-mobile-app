@@ -27,6 +27,10 @@ export class MyTripsPage implements OnInit {
 
   navigateBack = false;
 
+  deprecationMsg$: Observable<string>;
+
+  showTripActionCta = false;
+
   constructor(
     private tripRequestsService: TripRequestsService,
     private loaderService: LoaderService,
@@ -37,6 +41,13 @@ export class MyTripsPage implements OnInit {
 
   ionViewWillEnter() {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('individual');
+
+    this.tripRequestsService
+      .doesOrgHaveExtension()
+      .subscribe((doesOrgHaveExtension) => (this.showTripActionCta = doesOrgHaveExtension));
+
     this.currentPageNumber = 1;
 
     this.myTripRequests$ = this.loadData$.pipe(

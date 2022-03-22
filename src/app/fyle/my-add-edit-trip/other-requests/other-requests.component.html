@@ -99,22 +99,7 @@
 
                 <div class="other-details--text">
                   <div class="other-details--text-label">Rooms</div>
-                  <input
-                    *ngIf="!isIos"
-                    class="other-details--date-input"
-                    inputmode="decimal"
-                    type="number"
-                    formControlName="rooms"
-                  />
-                  <input
-                    *ngIf="isIos"
-                    class="other-details--date-input"
-                    type="text"
-                    pattern="[0-9]*"
-                    decimal="true"
-                    decimal-char="."
-                    formControlName="rooms"
-                  />
+                  <app-fy-number formControlName="rooms"> </app-fy-number>
                 </div>
 
                 <ng-container *ngIf="currencies$ | async as currencies">
@@ -147,22 +132,7 @@
                   <div class="other-details--text-label">
                     {{ control['controls'].amount.value ? 'Amount' : 'Enter Amount' }}
                   </div>
-                  <input
-                    *ngIf="!isIos"
-                    class="other-details--text-input"
-                    inputmode="decimal"
-                    type="number"
-                    formControlName="amount"
-                  />
-                  <input
-                    *ngIf="isIos"
-                    class="other-details--text-input"
-                    type="text"
-                    pattern="[0-9]*"
-                    decimal="true"
-                    decimal-char="."
-                    formControlName="amount"
-                  />
+                  <app-fy-number formControlName="amount"> </app-fy-number>
                 </div>
 
                 <div class="other-details--text">
@@ -204,21 +174,8 @@
                           *ngIf="customInput.input_type === 'TEXT'"
                         />
 
-                        <input
-                          class="other-details--text-input"
-                          type="number"
-                          formControlName="value"
-                          *ngIf="!isIos && customInput.input_type === 'NUMBER'"
-                        />
-                        <input
-                          class="other-details--text-input"
-                          formControlName="value"
-                          *ngIf="isIos && customInput.input_type === 'NUMBER'"
-                          type="text"
-                          pattern="[0-9]*"
-                          decimal="true"
-                          decimal-char="."
-                        />
+                        <app-fy-number *ngIf="customInput.input_type === 'NUMBER'" formControlName="value">
+                        </app-fy-number>
 
                         <input
                           appFormatDate
@@ -415,22 +372,7 @@
                   <div class="other-details--text-label">
                     {{ control['controls'].amount.value ? 'Amount' : 'Enter Amount' }}
                   </div>
-                  <input
-                    *ngIf="!isIos"
-                    class="other-details--text-input"
-                    inputmode="decimal"
-                    type="number"
-                    formControlName="amount"
-                  />
-                  <input
-                    *ngIf="isIos"
-                    class="other-details--text-input"
-                    type="text"
-                    pattern="[0-9]*"
-                    decimal="true"
-                    decimal-char="."
-                    formControlName="amount"
-                  />
+                  <app-fy-number formControlName="amount"> </app-fy-number>
                 </div>
 
                 <div class="other-details--text">
@@ -471,21 +413,8 @@
                           *ngIf="customInput.input_type === 'TEXT'"
                         />
 
-                        <input
-                          class="other-details--text-input"
-                          type="number"
-                          formControlName="value"
-                          *ngIf="!isIos && customInput.input_type === 'NUMBER'"
-                        />
-                        <input
-                          class="other-details--text-input"
-                          formControlName="value"
-                          *ngIf="isIos && customInput.input_type === 'NUMBER'"
-                          type="text"
-                          pattern="[0-9]*"
-                          decimal="true"
-                          decimal-char="."
-                        />
+                        <app-fy-number *ngIf="customInput.input_type === 'NUMBER'" formControlName="value">
+                        </app-fy-number>
 
                         <input
                           appFormatDate
@@ -639,22 +568,7 @@
                     {{ control['controls'].amount.value ? 'Amount' : 'Enter Amount' }}
                     <span class="other-details--mandatory"> *</span>
                   </div>
-                  <input
-                    *ngIf="!isIos"
-                    class="other-details--text-input"
-                    inputmode="decimal"
-                    type="number"
-                    formControlName="amount"
-                  />
-                  <input
-                    *ngIf="isIos"
-                    class="other-details--text-input"
-                    type="text"
-                    pattern="[0-9]*"
-                    decimal="true"
-                    decimal-char="."
-                    formControlName="amount"
-                  />
+                  <app-fy-number formControlName="amount"> </app-fy-number>
                 </div>
                 <div
                   *ngIf="control['controls'].amount.touched && !control['controls'].amount.valid"
@@ -719,21 +633,7 @@
                           *ngIf="customInput.type === 'TEXT'"
                         />
 
-                        <input
-                          class="other-details--text-input"
-                          type="number"
-                          formControlName="value"
-                          *ngIf="!isIos && customInput.type === 'NUMBER'"
-                        />
-                        <input
-                          class="other-details--text-input"
-                          formControlName="value"
-                          *ngIf="isIos && customInput.type === 'NUMBER'"
-                          type="text"
-                          pattern="[0-9]*"
-                          decimal="true"
-                          decimal-char="."
-                        />
+                        <app-fy-number *ngIf="customInput.type === 'NUMBER'" formControlName="value"> </app-fy-number>
 
                         <input
                           appFormatDate
