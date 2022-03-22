@@ -1995,14 +1995,14 @@ export class MyExpensesPage implements OnInit {
 
   isMergeAllowed(expenses: Expense[]) {
     if (expenses && expenses.length === 2) {
-      const isMileagePerdiem = expenses.some(
+      const areSomeMileageOrPerDiemExpenses = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
       );
       const areAllExpensesSubmitted = expenses.every((expense) =>
         ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
       );
       const areAllCCCMatchedExpenses = expenses.every((expense) => expense.tx_corporate_credit_card_expense_group_id);
-      return !isMileagePerdiem && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
+      return !areSomeMileageOrPerDiemExpenses && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
     } else {
       return false;
     }
