@@ -629,9 +629,9 @@ export class AddEditMileagePage implements OnInit {
           const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1'];
 
           orgUserMileageSettings.forEach((mileageLabel) => {
-            const i = allVehicleTypes.indexOf(mileageLabel);
-            if (i > -1) {
-              allVehicleTypes.splice(i, 1);
+            const index = allVehicleTypes.indexOf(mileageLabel);
+            if (index > -1) {
+              allVehicleTypes.splice(index, 1);
             }
           });
 
@@ -639,22 +639,25 @@ export class AddEditMileagePage implements OnInit {
             delete mileageConfig[vehicleType];
           });
         }
-
-        const vehicleTypeOptions = [];
-        if (mileageConfig.two_wheeler) {
-          vehicleTypeOptions.push({ label: 'Two Wheeler', value: 'two_wheeler' });
-        }
-        if (mileageConfig.four_wheeler) {
-          vehicleTypeOptions.push({ label: 'Four Wheeler', value: 'four_wheeler' });
-        }
-        if (mileageConfig.four_wheeler1) {
-          vehicleTypeOptions.push({ label: 'Four Wheeler 1', value: 'four_wheeler1' });
-        }
-
-        return vehicleTypeOptions;
+        return this.formatVehicleOptions(mileageConfig);
       }),
       shareReplay(1)
     );
+  }
+
+  formatVehicleOptions(mileageConfig) {
+    const vehicleTypeOptions = [];
+    if (mileageConfig.two_wheeler) {
+      vehicleTypeOptions.push({ label: 'Two Wheeler', value: 'two_wheeler' });
+    }
+    if (mileageConfig.four_wheeler) {
+      vehicleTypeOptions.push({ label: 'Four Wheeler', value: 'four_wheeler' });
+    }
+    if (mileageConfig.four_wheeler1) {
+      vehicleTypeOptions.push({ label: 'Four Wheeler 1', value: 'four_wheeler1' });
+    }
+
+    return vehicleTypeOptions;
   }
 
   getSubCategories() {
