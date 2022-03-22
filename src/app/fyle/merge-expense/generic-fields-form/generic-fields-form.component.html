@@ -13,6 +13,12 @@
       >
       </app-fy-select>
     </div>
+    <div
+      *ngIf="genericFieldsFormGroup.controls.amount.touched && !genericFieldsFormGroup.controls.amount.valid"
+      class="merge-expenses--error"
+    >
+      Please select a valid amount
+    </div>
   </ng-container>
 
   <div class="merge-expenses--primary-block">
@@ -59,6 +65,16 @@
                 formControlName="paymentMode"
               >
               </app-fy-select>
+            </div>
+
+            <div
+              *ngIf="
+                genericFieldsFormGroup.controls.paymentMode.touched &&
+                !genericFieldsFormGroup.controls.paymentMode.valid
+              "
+              class="merge-expenses--error"
+            >
+              Please select a valid payment mode
             </div>
           </ng-container>
         </ion-col>
@@ -158,9 +174,9 @@
 
   <ng-container *ngIf="vendorOptionsData$ | async as vendorOptionsData">
     <div
-      [ngClass]="{ 'merge-expenses--internal-block_special': fg.controls.vendor.value }"
+      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.vendor.value }"
       class="merge-expenses--internal-block"
-      *ngIf="vendorOptionsData?.length > 0"
+      *ngIf="vendorOptionsData?.options.length > 0"
     >
       <app-fy-select
         [enableSearch]="false"
@@ -190,6 +206,91 @@
         [options]="categoryOptionsData?.options"
         [selectModalHeader]="'Select category'"
         formControlName="category"
+      >
+      </app-fy-select>
+    </div>
+  </ng-container>
+
+  <ng-container *ngTemplateOutlet="categoryDependentTemplate"> </ng-container>
+  <!-- for categroy dependent -->
+  <!-- <app-category-dependent-fields-form
+  [categoryDependentFormGroup] = 
+  > -->
+
+  <!-- </app-category-dependent-fields-form> -->
+  <!-- for categroy dependent -->
+
+  <ng-container *ngIf="taxGroupOptionsData$ | async as taxGroupOptionsData">
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.tax_group.value }"
+      class="merge-expenses--internal-block"
+    >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'Tax Group'"
+        [mandatory]="false"
+        [nullOption]="true"
+        [disabled]="taxGroupOptionsData?.options?.length === 0 || taxGroupOptionsData?.areSameValues"
+        [options]="taxGroupOptionsData?.options"
+        [selectModalHeader]="'Select Tax Group'"
+        formControlName="tax_group"
+      >
+      </app-fy-select>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="taxAmountOptionsData$ | async as taxAmountOptionsData">
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.tax_amount.value }"
+      class="merge-expenses--internal-block"
+    >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'Tax'"
+        [mandatory]="false"
+        [disabled]="taxAmountOptionsData?.options?.length === 0 || taxAmountOptionsData?.areSameValues"
+        [nullOption]="taxAmountOptionsData?.options?.length === 1"
+        [options]="taxAmountOptionsData?.options"
+        [selectModalHeader]="'Select Tax'"
+        formControlName="tax_amount"
+      >
+      </app-fy-select>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="constCenterOptionsData$ | async as constCenterOptionsData">
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.tax_amount.value }"
+      class="merge-expenses--internal-block"
+    >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'Cost center'"
+        [mandatory]="false"
+        [nullOption]="constCenterOptionsData?.options?.length === 1"
+        [disabled]="constCenterOptionsData?.options?.length === 0 || constCenterOptionsData?.areSameValues"
+        [options]="constCenterOptionsData?.options"
+        [selectModalHeader]="'Select Cost center'"
+        formControlName="costCenter"
+      >
+      </app-fy-select>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="purposeOptionsData$ | async as purposeOptionsData">
+    <div
+      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.purpose.value }"
+      class="merge-expenses--internal-block"
+    >
+      <app-fy-select
+        [enableSearch]="false"
+        [label]="'Purpose'"
+        [mandatory]="false"
+        [nullOption]="purposeOptionsData?.options?.length === 1"
+        [disabled]="purposeOptionsData?.options?.length === 0 || purposeOptionsData?.areSameValues"
+        [options]="purposeOptionsData?.options"
+        [selectModalHeader]="'Select Purpose'"
+        formControlName="purpose"
       >
       </app-fy-select>
     </div>

@@ -372,10 +372,320 @@ export class MergeExpensesService {
     );
   }
 
+  generateTaxGroupOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_tax_group_id !== null),
+      map((expense) => ({
+        label: expense.tx_tax_group_id,
+        value: expense.tx_tax_group_id,
+      })),
+      mergeMap((option) => this.formatTaxGroupOption(option)),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateTaxAmountOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_amount !== null),
+      map((expense) => ({
+        label: expense.tx_amount.toString(),
+        value: expense.tx_amount,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateCostCenterOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_cost_center_name !== null),
+      map((expense) => ({
+        label: expense.tx_cost_center_name.toString(),
+        value: expense.tx_cost_center_name,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generatePurposeOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_purpose !== null),
+      map((expense) => ({
+        label: expense.tx_purpose.toString(),
+        value: expense.tx_purpose,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateLocationOptions(expenses: Expense[], locationIndex: number) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_locations[locationIndex]),
+      map((expense) => ({
+        label: expense.tx_locations[locationIndex]?.formatted_address,
+        value: expense.tx_locations[locationIndex],
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateOnwardDateOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_from_dt !== null),
+      map((expense) => ({
+        label: moment(expense.tx_from_dt).format('MMM DD, YYYY'),
+        value: expense.tx_from_dt,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => new Date(new Date(option.value).toDateString()).getTime());
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateReturnDateOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_to_dt !== null),
+      map((expense) => ({
+        label: moment(expense.tx_to_dt).format('MMM DD, YYYY'),
+        value: expense.tx_to_dt,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => new Date(new Date(option.value).toDateString()).getTime());
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateFlightJourneyTravelClassOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_flight_journey_travel_class !== null),
+      map((expense) => ({
+        label: expense.tx_flight_journey_travel_class.toString(),
+        value: expense.tx_flight_journey_travel_class,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateFlightReturnTravelClassOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_flight_return_travel_class !== null),
+      map((expense) => ({
+        label: expense.tx_flight_return_travel_class.toString(),
+        value: expense.tx_flight_return_travel_class,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateTrainTravelClassOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_train_travel_class !== null),
+      map((expense) => ({
+        label: expense.tx_train_travel_class.toString(),
+        value: expense.tx_train_travel_class,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateBusTravelClassOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_bus_travel_class !== null),
+      map((expense) => ({
+        label: expense.tx_bus_travel_class.toString(),
+        value: expense.tx_bus_travel_class,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateDistanceOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_distance !== null),
+      map((expense) => ({
+        label: expense.tx_distance.toString(),
+        value: expense.tx_distance,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
+  generateDistanceUnitOptions(expenses: Expense[]) {
+    return from(expenses).pipe(
+      filter((expense) => expense.tx_distance_unit !== null),
+      map((expense) => ({
+        label: expense.tx_distance_unit.toString(),
+        value: expense.tx_distance_unit,
+      })),
+      reduce((acc, curr) => {
+        acc.push(curr);
+        return acc;
+      }, []),
+      map((options: option[]) => {
+        const optionValues = options.map((option) => option.value);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionValues),
+        };
+      })
+    );
+  }
+
   removeUnspecified(options: option[]) {
     return options.filter(
       (option, index, options) => options.findIndex((currentOption) => currentOption.label === option.label) === index
     );
+  }
+
+  formatTaxGroupOption(option: option) {
+    const taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
+    const taxGroupsOptions$ = taxGroups$.pipe(
+      map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
+    );
+
+    return taxGroups$.pipe(
+      map((taxGroups) => {
+        option.label = taxGroups[taxGroups.map((taxGroup) => taxGroup.id).indexOf(option.value)]?.name;
+        return option;
+      })
+    );
+
+    // .subscribe((taxGroups) => {
+    //   this.mergedExpenseOptions.tx_tax_group_id.options = this.mergedExpenseOptions.tx_tax_group_id.options.map(
+    //     (option) => {
+    //       option.label = taxGroups[taxGroups.map((taxGroup) => taxGroup.id).indexOf(option.value)]?.name;
+    //       return option;
+    //     }
+    //   );
+    // });
+
+    // const allCategories$ = this.offlineService.getAllEnabledCategories().pipe();
+
+    // return allCategories$.pipe(
+    //   map((catogories) => this.categoriesService.filterRequired(catogories)),
+    //   map((categories) => {
+    //     option.label = categories[categories.map((category) => category.id).indexOf(option.value)]?.displayName;
+    //     if (!option.label) {
+    //       option.label = 'Unspecified';
+    //     }
+    //     return option;
+    //   })
+    // );
   }
 
   formatCategoryOption(option: option) {
@@ -384,16 +694,11 @@ export class MergeExpensesService {
     return allCategories$.pipe(
       map((catogories) => this.categoriesService.filterRequired(catogories)),
       map((categories) => {
-        // this.categories = categories;
         option.label = categories[categories.map((category) => category.id).indexOf(option.value)]?.displayName;
         if (!option.label) {
           option.label = 'Unspecified';
         }
         return option;
-        // .filter(
-        //   (option, index, options) =>
-        //     options.findIndex((currentOption) => currentOption.label === option.label) === index
-        // );
       })
     );
   }
@@ -455,15 +760,6 @@ export class MergeExpensesService {
       option.label = 'Paid from Advance';
     }
     return option;
-  }
-
-  generateLocationOptions(expenses: Expense[], locationIndex: number) {
-    return expenses
-      .filter((expense) => expense.tx_locations[locationIndex])
-      .map((expense) => ({
-        label: expense.tx_locations[locationIndex]?.formatted_address,
-        value: expense.tx_locations[locationIndex],
-      }));
   }
 
   generateCombinedCustomProperties(customProperties: custom_property[]) {

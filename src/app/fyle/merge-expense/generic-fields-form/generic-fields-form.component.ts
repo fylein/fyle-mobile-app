@@ -1,4 +1,14 @@
-import { Component, DoCheck, Injector, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  DoCheck,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  TemplateRef,
+} from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -11,7 +21,8 @@ import {
   NG_VALUE_ACCESSOR,
   Validators,
 } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 
 type option = Partial<{ label: string; value: any }>;
 type optionsData = Partial<{ options: option[]; areSameValues: boolean }>;
@@ -35,89 +46,43 @@ type optionsData = Partial<{ options: option[]; areSameValues: boolean }>;
 })
 export class GenericFieldsFormComponent implements OnInit {
   // export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
-  @Input() amountOptionsData$: optionsData;
+  @Input() amountOptionsData$: Observable<optionsData>;
 
-  @Input() receiptOptions$: option[];
+  @Input() receiptOptions$: Observable<option[]>;
 
-  @Input() dateOfSpendOptionsData$: optionsData;
+  @Input() dateOfSpendOptionsData$: Observable<optionsData>;
 
-  @Input() paymentModeOptionsData$: optionsData;
+  @Input() paymentModeOptionsData$: Observable<optionsData>;
 
-  @Input() attachments$: optionsData;
+  @Input() attachments$: Observable<optionsData>;
 
-  @Input() projectOptionsData$: optionsData;
+  @Input() projectOptionsData$: Observable<optionsData>;
 
-  @Input() billableOptionsData$: optionsData;
+  @Input() billableOptionsData$: Observable<optionsData>;
 
-  @Input() categoryOptionsData$: optionsData;
+  @Input() categoryOptionsData$: Observable<optionsData>;
 
-  @Input() vendorOptionsData$: optionsData;
+  @Input() vendorOptionsData$: Observable<optionsData>;
+
+  @Input() taxGroupOptionsData$: Observable<optionsData>;
+
+  @Input() taxAmountOptionsData$: Observable<optionsData>;
+
+  @Input() constCenterOptionsData$: Observable<optionsData>;
+
+  @Input() purposeOptionsData$: Observable<optionsData>;
 
   @Input() genericFieldsFormGroup: FormGroup;
 
+  @Input() categoryDependentFormGroup: FormGroup;
+
+  @Input() categoryDependentTemplate: TemplateRef<any>;
+
+  @Input() CCCTxn$: Observable<CorporateCardExpense[]>;
+
   form: FormGroup;
 
-  onChangeSub: Subscription;
-
-  subscriptions: Subscription[] = [];
-
-  get value() {
-    return this.form.value;
-  }
-
-  // set value(value) {
-  //   this.form.setValue(value);
-  //   this.onChange(value);
-  //   this.onTouched();
-  // }
-
-  constructor(private formBuilder: FormBuilder) {
-    // this.subscriptions.push(
-    //   this.form.valueChanges.subscribe((value) => {
-    //     this.onChange(value);
-    //     this.onTouched();
-    //   })
-    // );
-  }
+  constructor() {}
 
   ngOnInit() {}
-
-  // createGroup() {
-  //   this.genericFieldsFormGroup = this.formBuilder.group({
-  //     amount: [],
-  //     receipt_ids: [],
-  //     dateOfSpend: [],
-  //   });
-  //   return this.genericFieldsFormGroup;
-  // }
-
-  // ngOnDestroy() {
-  //   this.subscriptions.forEach((s) => s.unsubscribe());
-  // }
-
-  // onChange: any = () => {};
-
-  // onTouched: any = () => {};
-
-  // registerOnChange(fn) {
-  //   this.onChange = fn;
-  // }
-
-  // writeValue(value) {
-  //   if (value) {
-  //     this.value = value;
-  //   }
-
-  //   if (value === null) {
-  //     this.form.reset();
-  //   }
-  // }
-
-  // registerOnTouched(fn) {
-  //   this.onTouched = fn;
-  // }
-
-  // validate(_: FormControl) {
-  //   return this.form.valid ? null : { amount: { valid: false } };
-  // }
 }
