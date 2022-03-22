@@ -47,11 +47,17 @@ export class StatsComponent implements OnInit {
 
   loadData$ = new Subject();
 
-  cardTransactionsAndDetails$: Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }>;
-
   isCCCStatsLoading: boolean;
 
+  cardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned>;
+
+  cardTransactionsAndDetailsNonUnifyCCC: BankAccountsAssigned;
+
+  cardTransactionsAndDetails$: Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }>;
+
   cardTransactionsAndDetails: CardDetail[];
+
+  isUnifyCCCExpensesSettings: boolean;
 
   get ReportStates() {
     return ReportStates;
@@ -123,14 +129,26 @@ export class StatsComponent implements OnInit {
   }
 
   initializeCCCStats() {
-    this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
-      map((cccDetail) => cccDetail),
-      shareReplay(1)
-    );
-    this.cardTransactionsAndDetails$.subscribe((details) => {
-      this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-      this.isCCCStatsLoading = false;
-    });
+    if (this.isUnifyCCCExpensesSettings) {
+      this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
+        map((cccDetail) => cccDetail),
+        shareReplay(1)
+      );
+      this.cardTransactionsAndDetails$.subscribe((details) => {
+        this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
+        this.isCCCStatsLoading = false;
+      });
+    } else {
+      this.cardTransactionsAndDetailsNonUnifyCCC$ = this.dashboardService.getNonUnifyCCCDetails().pipe(
+        map((res) => res[0]),
+        shareReplay(1)
+      );
+      this.cardTransactionsAndDetailsNonUnifyCCC$.subscribe((details) => {
+        this.cardTransactionsAndDetailsNonUnifyCCC = details;
+        console.log(this.cardTransactionsAndDetailsNonUnifyCCC);
+        this.isCCCStatsLoading = false;
+      });
+    }
   }
 
   /*
@@ -149,10 +167,15 @@ export class StatsComponent implements OnInit {
     that.initializeExpensesStats();
     that.offlineService.getOrgSettings().subscribe((orgSettings) => {
       if (orgSettings.corporate_credit_card_settings.enabled) {
+        this.isUnifyCCCExpensesSettings =
+          orgSettings.unify_ccce_expenses_settings &&
+          orgSettings.unify_ccce_expenses_settings.allowed &&
+          orgSettings.unify_ccce_expenses_settings.enabled;
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();
       } else {
         this.cardTransactionsAndDetails$ = of(null);
+        this.cardTransactionsAndDetailsNonUnifyCCC$ = of(null);
       }
     });
   }
