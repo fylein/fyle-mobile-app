@@ -1,73 +1,85 @@
 @import '../../../../theme/colors.scss';
 
-.ion-slides {
-  max-width: 100% !important;
-  max-height: 100% !important;
-}
-
 .receipt-preview {
-  &--toolbar {
+  &__toolbar {
     border-bottom: 1px solid $grey-lighter;
     margin-top: 16px;
     padding-bottom: 16px;
-  }
-
-  &--title {
-    font-size: 20px;
     line-height: 1.3;
-    color: $black;
+
+    &--no-index {
+      --min-height: 0;
+    }
   }
 
-  &--sub-title {
+  &__title {
+    font-size: 20px;
+    color: $black;
+
+    &--with-delete {
+      padding-left: 40px;
+    }
+  }
+
+  &__sub-title {
     font-size: 12px;
     color: $black-light;
-    line-height: 1.25;
     margin-top: 8px;
   }
 
-  &--ion-buttons {
+  &__btn {
     margin-bottom: auto;
     min-width: 40px;
+
+    &--delete {
+      stroke: $black-light;
+    }
+
+    &--crop {
+      color: $black-light;
+    }
   }
 
-  &--delete-icon {
-    stroke: $black-light;
-  }
-
-  &--content {
-    height: 100%;
-    padding: 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: $white;
-  }
-
-  &--controls {
-    position: fixed;
+  &__controls {
+    position: relative;
     z-index: 99;
-    top: 50%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 16px;
-    width: 100%;
+
+    &__btn {
+      position: fixed;
+      top: calc(50% - 36px);
+      padding: 20px;
+
+      &--back {
+        left: 20px;
+        padding-left: 0;
+      }
+
+      &--forward {
+        right: 20px;
+        padding-right: 0;
+      }
+
+      &__icon {
+        background-color: rgba(0, 0, 0, 0.5);
+        text-align: center;
+        border-radius: 50%;
+        font-size: 18px;
+        padding: 12px;
+        height: 40px;
+        width: 40px;
+        color: $pure-white;
+      }
+    }
   }
 
-  &--go-back,
-  &--go-forward {
-    border-radius: 50%;
-    font-size: 18px;
-    height: 28px;
-    width: 28px;
-    color: $pure-white;
+  &__image-container {
+    height: calc(100% - 16px);
+    margin: 16px;
+    background-color: white !important;
+    z-index: 12;
   }
 
-  &--image {
-    max-width: 100% !important;
-    max-height: auto !important;
-  }
-
-  &--cta-container {
+  &__cta-container {
     display: flex;
     justify-content: space-between;
     padding: 14px 16px;
@@ -76,39 +88,5 @@
     background-color: $pure-white;
     box-shadow: 0 -2px 12px $pink-shadow;
     z-index: 999;
-  }
-
-  &--cta-button {
-    font-weight: 500;
-    width: 100%;
-  }
-
-  &--secondary-cta {
-    height: auto;
-    background-color: transparent;
-    color: $black;
-    font-size: 16px;
-    line-height: 1.25;
-
-    &__disabled {
-      opacity: 0.2;
-    }
-  }
-
-  &--primary-cta {
-    min-height: 52px;
-    background: $pink-gradient-1;
-    color: $pure-white;
-    font-size: 14px;
-    line-height: 1.28;
-    border-radius: 4px;
-    padding: 10px 12px;
-    &__disabled {
-      opacity: 0.8;
-    }
-  }
-
-  &--footer {
-    padding-bottom: 0;
   }
 }

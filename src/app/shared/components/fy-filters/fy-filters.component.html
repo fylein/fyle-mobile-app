@@ -139,18 +139,12 @@
   </ion-grid>
 </ion-content>
 <ion-footer>
-  <ion-toolbar class="footer-safe-area">
-    <div class="fy-filters--footer-toolbar">
-      <ion-button class="fy-filters--cancel text-capitalize" (click)="cancel()" fill="clear"> Cancel </ion-button>
-      <ion-button
-        class="fy-filters--save text-capitalize"
-        (click)="save()"
-        expand="block"
-        color="fyle-primary"
-        fill="solid"
-      >
-        Save
+  <ion-toolbar>
+    <div class="fy-footer-cta-container">
+      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()" fill="clear">
+        Cancel
       </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="save()"> Save </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

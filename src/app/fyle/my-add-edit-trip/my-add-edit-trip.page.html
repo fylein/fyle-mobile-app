@@ -294,11 +294,20 @@
                   />
 
                   <input
-                    *ngIf="customInput.input_type === 'NUMBER'"
+                    *ngIf="!isIos && customInput.input_type === 'NUMBER'"
                     class="add-edit-trip--text-input"
                     formControlName="value"
                     inputmode="decimal"
                     type="number"
+                  />
+                  <input
+                    *ngIf="isIos && customInput.input_type === 'NUMBER'"
+                    class="add-edit-trip--text-input"
+                    formControlName="value"
+                    type="text"
+                    pattern="[0-9]*"
+                    decimal="true"
+                    decimal-char="."
                   />
 
                   <input
@@ -422,10 +431,10 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <div class="add-edit-trip--cta-block">
+    <div>
       <div
         *ngIf="(!((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async)))"
-        class="add-edit-trip--cta-container"
+        class="fy-footer-cta-container"
       >
         <ion-button
           (click)="saveDraftModal()"
@@ -433,9 +442,7 @@
           [disabled]="saveTripAsDraftLoading || submitTripLoading"
           [loading]="saveTripAsDraftLoading"
           appFormButtonValidation
-          class="add-edit-trip--cta-container-cta"
-          color="fyle-primary"
-          fill="outline"
+          class="fy-footer-cta fy-footer-cta--tertiary-secondary"
           type="button"
           >Save Draft
         </ion-button>
@@ -445,24 +452,16 @@
           [disabled]="saveTripAsDraftLoading || submitTripLoading"
           [loading]="submitTripLoading"
           appFormButtonValidation
-          class="add-edit-trip--cta-container-cta"
-          color="fyle-primary"
-          fill="solid"
+          class="fy-footer-cta fy-footer-cta--primary"
           type="submit"
           >Submit Request
         </ion-button>
       </div>
       <div
         *ngIf="((isTransportationRequested$|async) || (isHotelRequested$|async) || (isAdvanceRequested$|async))"
-        class="add-edit-trip--cta-container"
+        class="fy-footer-cta-container"
       >
-        <ion-button
-          (click)="openModal()"
-          class="add-edit-trip--cta-container-cta"
-          color="fyle-primary"
-          expand="block"
-          fill="solid"
-          type="button"
+        <ion-button (click)="openModal()" class="fy-footer-cta fy-footer-cta--primary" type="button"
           >Continue
         </ion-button>
       </div>

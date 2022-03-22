@@ -153,6 +153,11 @@ export class TrackingService {
     this.eventTrack('View Comment', properties);
   }
 
+  //Actions inside comments and history
+  commentsHistoryActions(properties) {
+    this.eventTrack('Comments and History segment Actions', properties);
+  }
+
   // click Add To Report event
   clickAddToReport(properties = {}) {
     this.eventTrack('Click Add To Report', properties);
@@ -755,6 +760,23 @@ export class TrackingService {
     this.eventTrack('dashboard corporate card clicked', properties);
   }
 
+  //View expenses
+  viewExpenseClicked(properties) {
+    this.eventTrack('View expense clicked', properties);
+  }
+
+  expenseNavClicked(properties) {
+    this.eventTrack('Expense navigation clicked', properties);
+  }
+
+  expenseFlagUnflagClicked(properties) {
+    this.eventTrack('Expense flagged or unflagged', properties);
+  }
+
+  expenseRemovedByApprover(properties = {}) {
+    this.eventTrack('Expense removed from report by approver', properties);
+  }
+
   // Footer
   footerButtonClicked(properties) {
     this.eventTrack('footer button clicked', properties);
@@ -770,6 +792,14 @@ export class TrackingService {
 
   myExpensesFilterApplied(properties) {
     this.eventTrack('my expenses filters applied', properties);
+  }
+
+  myReportsFilterApplied(properties) {
+    this.eventTrack('my reports filters applied', properties);
+  }
+
+  TeamReportsFilterApplied(properties) {
+    this.eventTrack('team reports filters applied', properties);
   }
 
   // Duplicates
@@ -838,5 +868,86 @@ export class TrackingService {
   async tasksFilterPillRemoveClicked(properties = {}) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('tasks clicked on remove filter pill', properties);
+  }
+
+  // Add to Report inside expenses
+  openAddToReportModal(properties = {}) {
+    this.eventTrack('Open Add to Report Modal', properties);
+  }
+
+  addToReportFromExpense(properties = {}) {
+    this.eventTrack('Add to Report from expense', properties);
+  }
+
+  openCreateDraftReportPopover(properties = {}) {
+    this.eventTrack('Open Create Draft Report Popover', properties);
+  }
+
+  createDraftReportFromExpense(properties = {}) {
+    this.eventTrack('Create draft report from expense', properties);
+  }
+
+  //Reports
+  //Open view report info modal
+  clickViewReportInfo(properties) {
+    this.eventTrack('Open View Report Info', properties);
+  }
+
+  //Actions inside view report info modal
+  viewReportInfo(properties) {
+    this.eventTrack('View Report Info', properties);
+  }
+
+  // Team Advances
+  async sendBackAdvance(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Send Back Advance', properties);
+  }
+
+  async rejectAdvance(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Reject Advance', properties);
+  }
+
+  //Toggle settings
+  onSettingsToggle(properties) {
+    this.eventTrack('Toggle Setting', properties);
+  }
+
+  //Personal Cards
+  personalCardsViewed(properties = {}) {
+    this.eventTrack('Personal cards page opened', properties);
+  }
+
+  newCardLinkedOnPersonalCards(properties = {}) {
+    this.eventTrack('New card linked on personal cards', properties);
+  }
+
+  cardDeletedOnPersonalCards(properties = {}) {
+    this.eventTrack('Card deleted on personal cards', properties);
+  }
+
+  newExpenseCreatedFromPersonalCard(properties = {}) {
+    this.eventTrack('New expense created from personal card transaction', properties);
+  }
+
+  oldExpensematchedFromPersonalCard(properties = {}) {
+    this.eventTrack('Expense matched created from personal card transaction', properties);
+  }
+
+  unmatchedExpensesFromPersonalCard(properties = {}) {
+    this.eventTrack('Expense matched created from personal card transaction', properties);
+  }
+
+  transactionsHiddenOnPersonalCards(properties = {}) {
+    this.eventTrack('Transactions hidden on personal cards', properties);
+  }
+
+  transactionsFetchedOnPersonalCards(properties = {}) {
+    this.eventTrack('Transactions fetched on perosnal cards', properties);
+  }
+
+  cropReceipt(properties = {}) {
+    this.eventTrack('Receipt Cropped', properties);
   }
 }

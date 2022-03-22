@@ -20,6 +20,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
+      color: $black-light;
     }
   }
 
@@ -248,14 +249,6 @@
     font-size: 12px;
   }
 
-  &--critical-policy {
-    border-radius: 6px;
-    background: #f2f2f2;
-    padding: 8px 16px;
-    margin-bottom: 16px;
-    margin-top: 8px;
-  }
-
   &--distance {
     display: flex;
     font-weight: 500;
@@ -283,7 +276,7 @@
   }
 
   &--add-stop {
-    color: $primary;
+    color: $brand-primary;
     display: flex;
     align-items: center;
     font-size: 12px;
@@ -425,12 +418,12 @@
   }
 
   &--check {
-    color: $primary;
+    color: $brand-primary;
     font-size: 20px;
   }
 
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -453,5 +446,10 @@
   &--grid {
     --ion-grid-padding: 0;
     --ion-grid-column-padding: 0;
+  }
+
+  &--cost-center-alert {
+    margin-top: 8px;
+    display: block;
   }
 }

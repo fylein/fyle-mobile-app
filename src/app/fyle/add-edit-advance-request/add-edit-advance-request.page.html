@@ -44,54 +44,39 @@
 
 <ion-content>
   <form [formGroup]="fg" class="add-edit-advance-request--form" #formContainer>
-    <div class="add-edit-advance-request--receipt-currency">
-      <div class="add-edit-advance-request--receipt-container text-center">
-        <div *ngIf="attachmentUploadInProgress">
-          <ion-spinner class="add-edit-advance-request--receipt-spinner-icon" icon="circles"></ion-spinner>
-          <div>Uploading</div>
-        </div>
-
-        <div
-          *ngIf="(dataUrls && dataUrls.length === 0) && !attachmentUploadInProgress"
-          (click)="addAttachments($event)"
-        >
-          <p class="add-edit-advance-request--receipt-text">Add Receipt</p>
-          <mat-icon class="add-edit-advance-request--receipt-image-icon"> add_circle </mat-icon>
-        </div>
-
-        <div (click)="viewAttachments()" *ngIf="(dataUrls && dataUrls.length > 0) && !attachmentUploadInProgress">
-          <div
-            *ngIf="dataUrls[0]?.type.indexOf('image') > -1"
-            class="add-edit-advance-request--receipt-background"
-            [ngStyle]="{'background-image': 'url(' + dataUrls[0]?.thumbnail + ')'}"
-          ></div>
-          <div *ngIf="dataUrls[0]?.type.indexOf('pdf') > -1">
-            <img src="assets/images/fy-pdf.svg" alt="" />
-          </div>
-          <div *ngIf="dataUrls.length > 1" class="add-edit-advance-request--receipt-count-container">
-            <span class="add-edit-advance-request--receipt-count">{{dataUrls.length}}</span>
-          </div>
-          <mat-icon class="add-edit-advance-request--receipt-image-icon" (click)="addAttachments($event)">
-            add_circle
-          </mat-icon>
+    <div class="add-edit-advance-request--receipt-currency-container">
+      <div *ngIf="dataUrls && dataUrls.length === 0" class="add-edit-advance-request--receipt text-center">
+        <div class="add-edit-advance-request--receipt-image" (click)="addAttachments($event)">
+          <img class="add-edit-advance-request--receipt-image-icon" src="../../../assets/images/add-to-list.png" />
         </div>
       </div>
 
-      <div class="add-edit-advance-request--currency" *ngIf="extendedAdvanceRequest$|async as extendedAdvanceRequest">
-        <app-fy-currency
-          formControlName="currencyObj"
-          [txnDt]="extendedAdvanceRequest?.created_at"
-          [homeCurrency]="extendedAdvanceRequest.currency"
-        >
-        </app-fy-currency>
-        <div
-          *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
-          class="add-edit-advance-request--amount-error"
-        >
-          Please enter the amount.
-        </div>
+      <div *ngIf="extendedAdvanceRequest$|async as extendedAdvanceRequest" class="add-edit-advance-request--currency">
+        <ng-container *ngIf="homeCurrency$|async as homeCurrency">
+          <app-fy-currency
+            formControlName="currencyObj"
+            [homeCurrency]="extendedAdvanceRequest.currency"
+            [txnDt]="extendedAdvanceRequest?.created_at"
+          >
+          </app-fy-currency>
+          <div
+            *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
+            class="add-edit-advance-request--amount-error"
+          >
+            Please enter the amount.
+          </div>
+        </ng-container>
       </div>
     </div>
+
+    <app-receipt-preview-thumbnail
+      *ngIf="dataUrls && dataUrls.length > 0"
+      [attachments]="dataUrls"
+      (addMoreAttachments)="addAttachments($event)"
+      (viewAttachments)="viewAttachments()"
+      [canEdit]="true"
+    >
+    </app-receipt-preview-thumbnail>
 
     <div class="add-edit-advance-request--primary-block">
       <div class="add-edit-advance-request--internal-block">
@@ -164,7 +149,18 @@
                     inputmode="decimal"
                     type="number"
                     formControlName="value"
-                    *ngIf="customInput.type === 'NUMBER'"
+                    *ngIf="!isIos && customInput.type === 'NUMBER'"
+                    [placeholder]="'Enter ' + customInput.name"
+                  />
+
+                  <input
+                    class="add-edit-advance-request--text-input"
+                    type="text"
+                    pattern="[0-9]*"
+                    decimal="true"
+                    decimal-char="."
+                    formControlName="value"
+                    *ngIf="isIos && customInput.type === 'NUMBER'"
                     [placeholder]="'Enter ' + customInput.name"
                   />
 

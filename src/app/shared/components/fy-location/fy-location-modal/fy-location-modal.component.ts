@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef, Input } from '@angular/core';
-import { AgmGeocoder } from '@agm/core';
 import {
   map,
   startWith,
@@ -17,7 +16,8 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PermissionType, Plugins } from '@capacitor/core';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
-import { UtilityService } from 'src/app/core/services/utility.service';
+import { MapGeocoderResponse } from '@angular/google-maps';
+import { GmapsService } from 'src/app/core/services/gmaps.service';
 
 const { Permissions, Geolocation } = Plugins;
 @Component({
@@ -49,7 +49,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   currentGeolocationPermissionGranted = false;
 
   constructor(
-    private agmGeocode: AgmGeocoder,
+    private gmapsService: GmapsService,
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private locationService: LocationService,
@@ -263,8 +263,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     });
   }
 
-  formatGeocodeResponse(geocodeResponse) {
-    const currentLocation = geocodeResponse && geocodeResponse.length > 0 && geocodeResponse[0];
+  formatGeocodeResponse(geocodeResponse: MapGeocoderResponse) {
+    const currentLocation = geocodeResponse?.results && geocodeResponse?.results.length && geocodeResponse?.results[0];
     if (!currentLocation) {
       return;
     }
@@ -300,12 +300,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       .pipe(
         switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
         switchMap((coordinates) =>
-          this.agmGeocode.geocode({
-            location: {
-              lat: coordinates.coords.latitude,
-              lng: coordinates.coords.longitude,
-            },
-          })
+          this.gmapsService.getGeocode(coordinates.coords.latitude, coordinates.coords.longitude)
         ),
         map(this.formatGeocodeResponse),
         catchError((err) => {

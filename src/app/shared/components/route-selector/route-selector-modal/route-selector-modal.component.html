@@ -49,6 +49,8 @@
                 [recentLocations]="
                   isFirst
                     ? recentlyUsedMileageLocations?.recent_start_locations
+                    : isLast
+                    ? recentlyUsedMileageLocations?.recent_end_locations
                     : recentlyUsedMileageLocations?.recent_locations
                 "
               >

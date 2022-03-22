@@ -9,7 +9,7 @@
 
   <div class="capture-receipt--close-flash-container">
     <div class="capture-receipt--close-icon-block" (click)="close()">
-      <mat-icon class="capture-receipt--close-icon" svgIcon="close"></mat-icon>
+      <img class="capture-receipt--close-icon" src="../../../assets/images/close.png" />
     </div>
     <div class="capture-receipt--flash-icon-block" *ngIf="flashMode" (click)="toggleFlashMode()">
       <mat-icon
@@ -21,19 +21,19 @@
 
   <div class="capture-receipt--camera-pointer-container">
     <div class="capture-receipt--camera-pointer-container__common capture-receipt--camera-pointer-container__top">
-      <mat-icon class="capture-receipt--camera-pointer-icon__top-left" svgIcon="camera-pointer-top-left"></mat-icon>
-      <mat-icon class="capture-receipt--camera-pointer-icon__top-right" svgIcon="camera-pointer-top-right"></mat-icon>
+      <img class="capture-receipt--camera-pointer-icon__top-left" src="../../../assets/images/pointer-top-left.png" />
+      <img class="capture-receipt--camera-pointer-icon__top-right" src="../../../assets/images/pointer-top-right.png" />
     </div>
 
     <div class="capture-receipt--camera-pointer-container__common capture-receipt--camera-pointer-container__bottom">
-      <mat-icon
+      <img
         class="capture-receipt--camera-pointer-icon__bottom-left"
-        svgIcon="camera-pointer-bottom-left"
-      ></mat-icon>
-      <mat-icon
+        src="../../../assets/images/pointer-bottom-left.png"
+      />
+      <img
         class="capture-receipt--camera-pointer-icon__bottom-right"
-        svgIcon="camera-pointer-bottom-right"
-      ></mat-icon>
+        src="../../../assets/images/pointer-bottom-right.png"
+      />
     </div>
   </div>
 
@@ -42,11 +42,21 @@
     [ngClass]="{'capture-receipt--single-bulk-gallery-container__offline': isOffline$|async}"
   >
     <div class="capture-receipt--gallery-icon-block text-center">
-      <mat-icon class="capture-receipt--gallery-icon" svgIcon="gallery" (click)="galleryUpload()"></mat-icon>
+      <img
+        class="capture-receipt--gallery-icon"
+        src="../../../../assets/images/gallery.png"
+        alt="Gallery"
+        (click)="galleryUpload()"
+      />
       <div class="text-center capture-receipt--footer-text capture-receipt--gallery-icon-text">Gallery</div>
     </div>
     <div class="capture-receipt--capture-icon-block text-center">
-      <mat-icon class="capture-receipt--capture-icon" svgIcon="capture" (click)="onCapture()"></mat-icon>
+      <img
+        class="capture-receipt--capture-icon"
+        src="../../../../assets/images/capture.png"
+        alt="Capture"
+        (click)="onCapture()"
+      />
       <div class="text-center capture-receipt--footer-text capture-receipt--capture-icon-text">
         {{ isBulkMode ? 'Bulk Mode' : 'Single Mode'}}
       </div>
@@ -54,10 +64,11 @@
     <div class="capture-receipt--bulk-mode-icon-block text-center">
       <ng-container *ngIf="captureCount === 0">
         <div (click)="switchMode()">
-          <mat-icon
+          <img
             class="capture-receipt--bulk-mode-icon"
-            svgIcon="{{isBulkMode ? 'single-mode' : 'bulk-mode'}}"
-          ></mat-icon>
+            [src]="isBulkMode ? '../../../../assets/images/single-mode.png' : '../../../../assets/images/bulk-mode.png'"
+            alt="Mode"
+          />
           <div class="text-center capture-receipt--footer-text capture-receipt--bulk-icon-text">
             {{ !isBulkMode ? 'Bulk Mode' : 'Single Mode'}}
           </div>

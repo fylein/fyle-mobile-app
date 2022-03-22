@@ -13,7 +13,7 @@
   <div class="notifications--container">
     <div class="notifications--notif-setting-header">Set notifications you want to receive</div>
 
-    <form [formGroup]="notificationForm" (ngSubmit)="saveNotificationSettings()">
+    <form [formGroup]="notificationForm">
       <ng-container *ngIf="isDelegateePresent$|async">
         <h2>Delegatee Notification</h2>
         <mat-form-field>
@@ -70,20 +70,21 @@
           </div>
         </div>
       </div>
-      <div>
-        <ion-button
-          type="submit"
-          class="notifications--primary-cta flat-button"
-          expand="block"
-          fill="solid"
-          color="fyle-primary"
-          appFormButtonValidation
-          [loading]="saveNotifLoading"
-          [loadingText]="'SAVING'"
-        >
-          Save
-        </ion-button>
-      </div>
     </form>
   </div>
 </ion-content>
+<ng-container>
+  <ion-footer>
+    <ion-toolbar class="fy-footer-cta-container" mode="md">
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        appFormButtonValidation
+        [loading]="saveNotifLoading"
+        [loadingText]="'SAVING'"
+        (click)="saveNotificationSettings()"
+      >
+        Save
+      </ion-button>
+    </ion-toolbar>
+  </ion-footer>
+</ng-container>

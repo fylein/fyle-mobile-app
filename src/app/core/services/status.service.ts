@@ -40,6 +40,18 @@ export class StatusService {
           icon: 'circle',
         };
         break;
+      case lowerCaseComment.indexOf('automatically merged') > -1:
+        statusCategory = {
+          category: 'Expense automatically merged',
+          icon: 'fy-merge',
+        };
+        break;
+      case lowerCaseComment.indexOf('you merged') > -1:
+        statusCategory = {
+          category: 'Expense merged by user',
+          icon: 'fy-merge',
+        };
+        break;
       case lowerCaseComment.indexOf('created') > -1 && lowerCaseComment.indexOf('reversal') > -1:
         statusCategory = {
           category: type + ' Reversed',

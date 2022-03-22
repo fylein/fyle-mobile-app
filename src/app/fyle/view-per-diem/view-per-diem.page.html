@@ -1,0 +1,326 @@
+<ion-header mode="md">
+  <ion-toolbar class="view-per-diem--toolbar">
+    <ion-buttons *ngIf="this.reportId" mode="md" slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon class="icon--navigate" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title
+      mode="md"
+      class="page-title"
+      [ngClass]="{'view-per-diem--title': numEtxnsInReport > 1, 'pl-0': isDeviceWidthSmall}"
+    >
+      View Per Diem
+      <p class="view-per-diem--subtitle" *ngIf="numEtxnsInReport > 1">
+        Showing {{ activeEtxnIndex + 1 }} of {{ numEtxnsInReport }} expenses
+      </p>
+    </ion-title>
+    <ion-buttons class="view-per-diem--header-btn-container" slot="end">
+      <ion-button class="view-per-diem--header-btn-container__btn" (click)="openCommentsModal()">
+        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+      </ion-button>
+
+      <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
+        <ion-button
+          class="view-per-diem--header-btn-container__btn"
+          (click)="flagUnflagExpense()"
+          [ngClass]="isExpenseFlagged ? 'icon--flagged' : 'icon--unflagged'"
+        >
+          <ion-icon [src]="'../../../assets/svg/fy-flag-2.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+
+      <ng-container *ngIf="view === ExpenseView.team && canDelete$|async">
+        <ion-button class="view-per-diem--header-btn-container__btn" (click)="removeExpenseFromReport()">
+          <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="view-per-diem--container" *ngIf="extendedPerDiem$|async as extendedPerDiem">
+    <ng-container *ngIf="extendedPerDiem.tx_policy_flag">
+      <ng-container *ngIf="policyDetails">
+        <app-fy-policy-violation-info
+          [policyDetails]="policyDetails"
+          [criticalPolicyViolated]="isCriticalPolicyViolated$|async"
+        ></app-fy-policy-violation-info>
+      </ng-container>
+    </ng-container>
+
+    <div class="view-per-diem--policy-container" *ngIf="(isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)">
+      <span class="info-text m-0">
+        Claimed amount {{extendedPerDiem.tx_user_amount | currency: extendedPerDiem.tx_currency: 'symbol-narrow'}} was
+        capped to {{extendedPerDiem.tx_amount | currency: extendedPerDiem.tx_currency: 'symbol-narrow'}} due to policy.
+      </span>
+    </div>
+
+    <div class="d-flex view-per-diem--card-container">
+      <div class="view-per-diem--card-container__block">
+        <div class="view-per-diem--card-container__category">Per Diem</div>
+        <div *ngIf="extendedPerDiem.tx_num_days" class="view-per-diem--card-container__merchant">
+          {{extendedPerDiem.tx_num_days}} {{extendedPerDiem.tx_num_days === 1 ? 'Day' : 'Days'}}
+        </div>
+        <div *ngIf="isProjectShown" class="view-per-diem--card-container__project">
+          Project: {{ extendedPerDiem.tx_project_name ? extendedPerDiem.tx_project_name : 'Unspecified' }}
+        </div>
+      </div>
+      <div class="ion-text-right view-per-diem--card-container__block">
+        <div>
+          <span>{{ etxnCurrencySymbol }}</span>
+          <span class="view-per-diem--card-container__amount">
+            {{ extendedPerDiem.tx_amount || 0 | humanizeCurrency: extendedPerDiem.tx_currency:2:true }}
+          </span>
+          <ion-icon
+            class="view-per-diem--card-container__icon"
+            [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+          ></ion-icon>
+        </div>
+
+        <div
+          class="view-per-diem--card-container__state-pill ion-text-right"
+          [ngClass]="{'view-per-diem--card-container__state-pill--with-project': isProjectShown}"
+        >
+          <div class="view-per-diem--card-container__state-pill__state">
+            {{ extendedPerDiem.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ion-grid class="view-per-diem--grid">
+      <ion-row>
+        <ion-col class="view-per-diem--icon-container">
+          <div class="view-per-diem--icon-container__background">
+            <ion-icon class="view-per-diem--icon-container__icon" src="../../../assets/svg/fy-report.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-per-diem--content-container">
+          <div class="view-per-diem--label">Report Name</div>
+          <div class="view-per-diem--value">{{ extendedPerDiem.rp_purpose }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="view === ExpenseView.team" class="view-per-diem--grid">
+      <ion-row>
+        <ion-col class="view-per-diem--icon-container">
+          <div class="view-per-diem--icon-container__background">
+            <ion-icon class="view-per-diem--icon-container__icon" src="../../../assets/svg/profile.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-per-diem--content-container">
+          <div class="view-per-diem--label">Employee</div>
+          <div class="view-per-diem--value">{{ extendedPerDiem.us_full_name }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid class="view-per-diem--grid">
+      <ion-row>
+        <ion-col class="view-per-diem--icon-container">
+          <div class="view-per-diem--icon-container__background">
+            <ion-icon class="view-per-diem--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-per-diem--content-container">
+          <div class="view-per-diem--label">Expense ID</div>
+          <div class="view-per-diem--value">{{ extendedPerDiem.tx_expense_number }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <div class="view-per-diem--divider"></div>
+
+    <ion-grid class="view-per-diem--grid">
+      <ion-row>
+        <ion-col class="view-per-diem--icon-container">
+          <div class="view-per-diem--icon-container__background">
+            <ion-icon
+              class="view-per-diem--icon-container__icon-stroke-lg"
+              src="../../../assets/svg/fy-calendar.svg"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-per-diem--content-container">
+          <div class="view-per-diem--label">Created Date</div>
+          <div class="view-per-diem--value">{{ extendedPerDiem.tx_created_at | date: 'MMM dd, yyyy' }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="extendedPerDiem.tx_from_dt" class="view-per-diem--grid">
+      <ion-row>
+        <ion-col size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-per-diem--icon-container">
+                <div class="view-per-diem--icon-container__background">
+                  <ion-icon
+                    class="view-per-diem--icon-container__icon-stroke-lg"
+                    src="../../../assets/svg/fy-calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-per-diem--content-container">
+                <div class="view-per-diem--label">Onward Date</div>
+                <div class="view-per-diem--value">{{ extendedPerDiem.tx_from_dt | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        <ion-col *ngIf="extendedPerDiem.tx_to_dt">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-per-diem--icon-container">
+                <div class="view-per-diem--icon-container__background">
+                  <ion-icon
+                    class="view-per-diem--icon-container__icon-stroke-lg"
+                    src="../../../assets/svg/fy-calendar.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-per-diem--content-container">
+                <div class="view-per-diem--label">Return Date</div>
+                <div class="view-per-diem--value">{{ extendedPerDiem.tx_to_dt | date: 'MMM dd, yyyy' }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid class="view-per-diem--grid">
+      <ion-row>
+        <ion-col class="view-per-diem--icon-container">
+          <div class="view-per-diem--icon-container__background">
+            <ion-icon
+              class="view-per-diem--icon-container__icon-lg"
+              [src]="'../../../assets/svg/' + (paymentModeIcon === 'fy-matched' ? 'fy-unmatched' : paymentModeIcon) + '.svg'"
+            ></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-per-diem--content-container">
+          <div class="view-per-diem--label">Payment Mode</div>
+          <div class="view-per-diem--value">{{ paymentMode }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="extendedPerDiem.tx_purpose" class="view-per-diem--grid">
+      <ion-row>
+        <ion-col class="view-per-diem--icon-container">
+          <div class="view-per-diem--icon-container__background">
+            <ion-icon class="view-per-diem--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-per-diem--content-container">
+          <div class="view-per-diem--label">Purpose</div>
+          <div class="view-per-diem--value">{{ extendedPerDiem.tx_purpose }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid
+      *ngIf="extendedPerDiem.tx_org_category && extendedPerDiem.tx_sub_category && (extendedPerDiem.tx_org_category !== extendedPerDiem.tx_sub_category)"
+      class="view-per-diem--grid"
+    >
+      <ion-row>
+        <ion-col class="view-per-diem--icon-container">
+          <div class="view-per-diem--icon-container__background">
+            <ion-icon class="view-per-diem--icon-container__icon" src="../../../assets/svg/tag.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-per-diem--content-container">
+          <div class="view-per-diem--label">Subcategory</div>
+          <div class="view-per-diem--value">{{ extendedPerDiem.tx_sub_category }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngIf="perDiemRate$|async as perDiemRate" class="view-per-diem--grid">
+      <ion-row>
+        <ion-col class="view-per-diem--icon-container">
+          <div class="view-per-diem--icon-container__background">
+            <ion-icon class="view-per-diem--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col class="view-per-diem--content-container">
+          <div class="view-per-diem--label">Per Diem Type</div>
+          <div class="view-per-diem--value">
+            {{perDiemRate.name}} ({{ perDiemRate.rate | currency: perDiemRate.currency: 'symbol-narrow' }} per day)
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid
+      *ngIf="orgSettings?.cost_centers?.enabled && extendedPerDiem.tx_cost_center_id"
+      class="view-per-diem--grid"
+    >
+      <ion-row>
+        <ion-col *ngIf="extendedPerDiem.tx_cost_center_name" size="6">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-per-diem--icon-container">
+                <div class="view-per-diem--icon-container__background">
+                  <ion-icon
+                    class="view-per-diem--icon-container__icon"
+                    src="../../../assets/svg/building.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-per-diem--content-container">
+                <div class="view-per-diem--label">Cost Center</div>
+                <div class="view-per-diem--value">{{ extendedPerDiem.tx_cost_center_name }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-per-diem--icon-container">
+                <div class="view-per-diem--icon-container__background">
+                  <ion-icon
+                    class="view-per-diem--icon-container__icon"
+                    src="../../../assets/svg/building.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-per-diem--content-container">
+                <div class="view-per-diem--label">Cost Center Code</div>
+                <div class="view-per-diem--value">{{ extendedPerDiem.tx_cost_center_id }}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ng-container *ngIf="extendedPerDiem.tx_custom_properties">
+      <div class="view-per-diem--divider"></div>
+      <ion-grid *ngFor="let customProperty of extendedPerDiem.tx_custom_properties" class="view-per-diem--grid">
+        <ion-row>
+          <ion-col class="view-per-diem--icon-container">
+            <div class="view-per-diem--icon-container__background">
+              <ion-icon class="view-per-diem--icon-container__icon-lg" src="../../../assets/svg/list.svg"></ion-icon>
+            </div>
+          </ion-col>
+          <ion-col class="view-per-diem--content-container">
+            <div class="view-per-diem--label">{{customProperty.name}}</div>
+            <div class="view-per-diem--value">{{ getDisplayValue(customProperty) }}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ng-container>
+  </div>
+</ion-content>
+
+<app-navigation-footer
+  *ngIf="numEtxnsInReport > 1"
+  [activeEtxnIndex]="activeEtxnIndex"
+  [numEtxnsInReport]="numEtxnsInReport"
+></app-navigation-footer>

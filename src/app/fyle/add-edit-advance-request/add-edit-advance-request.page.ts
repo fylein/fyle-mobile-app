@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -51,8 +51,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   customFields$: Observable<any>;
 
-  attachmentUploadInProgress: boolean;
-
   dataUrls: any[];
 
   customFieldValues: any[];
@@ -73,6 +71,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   isDeviceWidthSmall = window.innerWidth < 375;
 
+  isIos: boolean;
+
   constructor(
     private offlineService: OfflineService,
     private activatedRoute: ActivatedRoute,
@@ -92,7 +92,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private popupService: PopupService,
     private networkService: NetworkService,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private platform: Platform
   ) {}
 
   currencyObjValidator(c: FormControl): ValidationErrors {
@@ -105,6 +106,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   ngOnInit() {
+    this.isIos = this.platform.is('ios');
     this.id = this.activatedRoute.snapshot.params.id;
     this.from = this.activatedRoute.snapshot.params.from;
     this.fg = this.formBuilder.group({
@@ -397,7 +399,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await attachmentsModal.present();

@@ -5,8 +5,11 @@
     </div>
   </ion-header>
 
-  <div class="popup-alert--body ion-text-center">
-    {{ message }}
+  <div class="popup-alert--body ion-text-center" [innerHtml]="message"></div>
+
+  <div class="popup-alert--info-container" *ngIf="numIssues">
+    <app-fy-alert-info [message]="'This report has ' + numIssues + ' violations'" [type]="'warning'">
+    </app-fy-alert-info>
   </div>
 
   <ion-footer class="popup-alert--footer">

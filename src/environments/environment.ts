@@ -13,6 +13,7 @@ export const environment = {
   GOOGLE_MAPS_API_KEY: '',
   FRESHCHAT_TOKEN: '',
   SENTRY_DSN: '',
+  REFINER_NPS_FORM_ID: '',
 };
 
 /*

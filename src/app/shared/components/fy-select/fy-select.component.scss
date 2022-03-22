@@ -32,7 +32,6 @@
     border: none;
     width: 100%;
     padding: 0;
-    caret-color: transparent;
   }
 
   &--input-invalid {
@@ -40,7 +39,7 @@
   }
 
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     font-size: 14px;
     font-weight: 400;
   }

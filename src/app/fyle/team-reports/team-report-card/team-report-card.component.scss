@@ -80,6 +80,7 @@
     color: white;
     border-radius: 16px;
     padding: 2px 16px;
+    margin-top: 2px;
 
     &__fyled {
       background-color: #f90;
@@ -118,6 +119,17 @@
     color: #686872;
     font-size: 34px;
     margin-right: 20px;
+  }
+
+  &--employee-name {
+    color: $blue-black;
+    font-size: 14px;
+  }
+
+  &--name-state-block {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
   }
 }
 

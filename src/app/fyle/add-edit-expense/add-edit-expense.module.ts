@@ -23,6 +23,7 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   imports: [
@@ -43,6 +44,7 @@ import { MatButtonModule } from '@angular/material/button';
     PinchZoomModule,
     PdfViewerModule,
     MatButtonModule,
+    MatSnackBarModule,
   ],
   declarations: [
     AddEditExpensePage,

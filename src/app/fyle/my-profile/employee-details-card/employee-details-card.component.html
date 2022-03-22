@@ -1,0 +1,68 @@
+<div class="employee-details-card">
+  <div class="employee-details-card__background">
+    <ion-grid class="employee-details-card__grid">
+      <ion-row>
+        <ion-col class="employee-details-card__icon-container">
+          <div class="employee-details-card__icon-container__text">
+            {{ eou.us.full_name | initials | uppercase }}
+          </div>
+        </ion-col>
+        <ion-col class="employee-details-card__content-container">
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <div class="employee-details-card__header">
+                  {{ eou.us.full_name }}
+                </div>
+                <div>
+                  {{ eou.us.email }}
+                </div>
+              </ion-col>
+            </ion-row>
+            <ion-row class="employee-details-card__details-container">
+              <ion-col size="6.5" class="employee-details-card__mobile-container">
+                <div class="employee-details-card__label">Mobile</div>
+                <div class="d-flex employee-details-card__value">
+                  <div
+                    #mobileNumberRef="matTooltip"
+                    (click)="showTooltip(mobileNumberRef)"
+                    [matTooltip]="eou.ou.mobile"
+                    [matTooltipDisabled]="!isMobileNumberHidden"
+                    matTooltipPosition="below"
+                    matTooltipClass="tooltip"
+                    class="employee-details-card__mobile text-ellipsis"
+                  >
+                    {{ eou.ou.mobile?.length ? eou.ou.mobile : 'Add Number' }}
+                  </div>
+                  <ion-icon
+                    [src]="
+                      '../../../../assets/svg/' + (eou.ou.mobile ? 'fy-edit-gradient' : 'fy-plus-gradient') + '.svg'
+                    "
+                    slot="icon-only"
+                    class="employee-details-card__mobile__icon"
+                    [ngClass]="{ 'employee-details-card__mobile__icon-lg': !eou.ou.mobile?.length }"
+                    (click)="updateMobileNumber()"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col size="5.5" *ngIf="eou.ou.employee_id && eou.ou.employee_id.length">
+                <div class="employee-details-card__label">Employee Id</div>
+                <div
+                  #employeeIdRef="matTooltip"
+                  (click)="showTooltip(employeeIdRef)"
+                  [matTooltip]="eou.ou.employee_id"
+                  [matTooltipDisabled]="!isEmployeeIdHidden"
+                  matTooltipPosition="below"
+                  matTooltipClass="tooltip"
+                  class="employee-details-card__value text-ellipsis"
+                >
+                  {{ eou.ou.employee_id }}
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+</div>

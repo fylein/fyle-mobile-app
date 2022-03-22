@@ -20,6 +20,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
+      color: $black-light;
     }
   }
 
@@ -165,12 +166,9 @@
   }
 
   &--receipt-image-icon {
-    color: $primary;
-    height: 36px;
-    width: 34px;
-    position: relative;
-    top: 24%;
-    left: 5px;
+    height: 32px;
+    width: 31px;
+    margin: 16px;
   }
 
   &--receipt-add-more-icon {
@@ -325,6 +323,7 @@
   }
 
   &--split-info-icon {
+    color: $highlight-blue;
     margin-right: 10px;
   }
 
@@ -401,13 +400,6 @@
 
   &--duplicate-reason-select {
     padding: 8px;
-  }
-
-  &--critical-policy {
-    border-radius: 6px;
-    background: #f2f2f2;
-    padding: 8px 16px;
-    margin: 8px 0;
   }
 
   &--receipt-currency-container {
@@ -541,7 +533,7 @@
   }
 
   &--check {
-    color: $primary;
+    color: $brand-primary;
     font-size: 20px;
   }
 
@@ -633,7 +625,7 @@
   }
 
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -646,5 +638,10 @@
 
   &--text-block {
     margin-bottom: 12px;
+  }
+
+  &--cost-center-alert {
+    margin-top: 8px;
+    display: block;
   }
 }

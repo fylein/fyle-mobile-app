@@ -37,6 +37,11 @@ const routes: Routes = [
     path: 'disabled',
     loadChildren: () => import('./disabled/disabled.module').then((m) => m.DisabledPageModule),
   },
+  {
+    path: 'pending_verification',
+    loadChildren: () =>
+      import('./pending-verification/pending-verification.module').then((m) => m.PendingVerificationPageModule),
+  },
 ];
 
 @NgModule({

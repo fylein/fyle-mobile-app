@@ -1,0 +1,29 @@
+<ion-header mode="md">
+  <ion-toolbar mode="md" class="text-center fy-modal-toolbar edit-report-name--toolbar">
+    <ion-title>
+      <div class="edit-report-name--toolbar__title">Edit Name</div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="closePopover()">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button
+        [disabled]="!reportName.trim().length"
+        class="edit-report-name--toolbar__btn-save"
+        (click)="saveReportName()"
+      >
+        Save
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="edit-report-name--input-container">
+  <div class="edit-report-name--input-container__label">
+    <span> Report Name </span>
+    <span class="edit-report-name--input-container__mandatory"> * </span>
+  </div>
+  <input matInput [(ngModel)]="reportName" class="edit-report-name--input-container__input" />
+</div>

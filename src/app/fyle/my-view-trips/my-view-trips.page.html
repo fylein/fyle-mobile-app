@@ -139,28 +139,22 @@
 </ion-content>
 
 <ion-footer *ngIf="(canCloseTrip$|async)||(canPullBack$|async)">
-  <ion-toolbar mode="md">
+  <ion-toolbar class="fy-footer-cta-container" mode="md">
     <ion-button
-      class="view-trip--primary-cta flat-button"
+      class="fy-footer-cta fy-footer-cta--primary"
       [disabled]="pullbackLoading || closeLoading || deleteLoading"
       appFormButtonValidation
       [loading]="pullbackLoading"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
       *ngIf="canPullBack$|async"
       (click)="pullBack()"
     >
       Pull Back
     </ion-button>
     <ion-button
-      class="view-trip--primary-cta flat-button"
+      class="fy-footer-cta fy-footer-cta--primary"
       [disabled]="pullbackLoading || closeLoading || deleteLoading"
       appFormButtonValidation
       [loading]="closeLoading"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
       *ngIf="canCloseTrip$|async"
       (click)="closeTrip()"
     >

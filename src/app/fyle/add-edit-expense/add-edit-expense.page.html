@@ -2,11 +2,7 @@
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
-        <ion-icon
-          class="icon--navigate-left"
-          [src]="'../../../../assets/svg/navigate-left.svg'"
-          slot="icon-only"
-        ></ion-icon>
+        <ion-icon class="icon--navigate" [src]="'../../../../assets/svg/navigate-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
@@ -67,8 +63,7 @@
       <div>
         <div *ngIf="instaFyleCancelled" class="add-edit-expense--alert-offline">
           <app-fy-alert-info
-            [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details
-            manually'"
+            [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details manually'"
             [type]="'information'"
           >
           </app-fy-alert-info>
@@ -84,9 +79,12 @@
           </ng-container>
 
           <ng-container *ngIf="isAmountCapped$|async">
-            <div class="add-edit-expense--critical-policy" *ngIf="!(isCriticalPolicyViolated$|async)">
-              Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
-              '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+            <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
+              <mat-icon class="capped-icon" svgIcon="fy-info"></mat-icon>
+              <div class="capped-message">
+                Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
+                '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+              </div>
             </div>
           </ng-container>
         </ng-container>
@@ -104,7 +102,14 @@
                 *ngIf="(attachedReceiptsCount === 0 && !attachmentUploadInProgress)"
                 class="add-edit-expense--receipt-image"
               >
-                <mat-icon class="add-edit-expense--receipt-image-icon" svgIcon="add-to-list"></mat-icon>
+                <input
+                  *ngIf="platform.is('ios')"
+                  type="file"
+                  #fileUpload
+                  accept="application/pdf,image/*"
+                  style="display: none"
+                />
+                <img class="add-edit-expense--receipt-image-icon" src="../../../assets/images/add-to-list.png" />
               </div>
 
               <div
@@ -122,6 +127,13 @@
                 >
                   add_circle
                 </mat-icon>
+                <input
+                  *ngIf="platform.is('ios')"
+                  type="file"
+                  #fileUpload
+                  accept="application/pdf,image/*"
+                  style="display: none"
+                />
               </div>
             </div>
           </ng-container>
@@ -133,7 +145,7 @@
                   [formControl]="fg?.controls?.currencyObj"
                   [homeCurrency]="homeCurrency"
                   [recentlyUsed]="recentCurrencies"
-                  [txnDt]="etxn?.tx?.txn_dt"
+                  [txnDt]="fg?.controls?.dateOfSpend?.value"
                   [expanded]="attachedReceiptsCount === 0"
                 >
                 </app-fy-currency>
@@ -150,11 +162,19 @@
         </div>
 
         <app-receipt-preview-thumbnail
-          *ngIf="newExpenseDataUrls.length > 0"
+          *ngIf="newExpenseDataUrls && newExpenseDataUrls.length > 0"
           [attachments]="newExpenseDataUrls"
           (addMoreAttachments)="addAttachments($event)"
           (viewAttachments)="viewAttachments()"
+          [canEdit]="true"
         >
+          <input
+            *ngIf="platform.is('ios')"
+            type="file"
+            #fileUpload
+            accept="application/pdf,image/*"
+            style="display: none"
+          />
         </app-receipt-preview-thumbnail>
 
         <ng-container *ngIf="attachments$|async as attachments">
@@ -164,7 +184,15 @@
             (addMoreAttachments)="addAttachments($event)"
             (viewAttachments)="viewAttachments()"
             [isUploading]="attachmentUploadInProgress"
+            [canEdit]="true"
           >
+            <input
+              *ngIf="platform.is('ios')"
+              type="file"
+              #fileUpload
+              accept="application/pdf,image/*"
+              style="display: none"
+            />
           </app-receipt-preview-thumbnail>
         </ng-container>
 
@@ -361,9 +389,10 @@
                 </mat-checkbox>
               </div>
             </div>
-
-            <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
-              Please select a project.
+            <div *ngIf="isProjectsVisible$|async">
+              <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
+                Please select a project.
+              </div>
             </div>
           </ng-container>
 
@@ -423,12 +452,25 @@
                       {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
                     </div>
                     <input
+                      *ngIf="!isIos"
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       class="add-edit-expense--text-input"
                       formControlName="tax_amount"
                       inputmode="decimal"
                       type="number"
+                      [placeholder]="'Enter Tax Amount'"
+                    />
+                    <input
+                      *ngIf="isIos"
+                      (blur)="focusState = false"
+                      (focus)="focusState = true"
+                      class="add-edit-expense--text-input"
+                      formControlName="tax_amount"
+                      type="text"
+                      pattern="[0-9]*"
+                      decimal="true"
+                      decimal-char="."
                       [placeholder]="'Enter Tax Amount'"
                     />
                   </div>
@@ -585,7 +627,7 @@
                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
                   class="add-edit-expense--internal-block add-edit-expense--text"
                 >
-                  <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'" class="add-edit-expense--text">
+                  <span *ngIf="txnFields.train_travel_class?.type === 'TEXT'">
                     <div
                       [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
                       class="add-edit-expense--text-label add-edit-expense--text-label__large"
@@ -673,6 +715,7 @@
                       <span class="add-edit-expense--mandatory">*</span>
                     </div>
                     <input
+                      *ngIf="!isIos"
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       [disabled]="!txnFields.distance?.canEdit"
@@ -681,6 +724,19 @@
                       inputmode="decimal"
                       [placeholder]="'Enter ' + txnFields.distance?.field_name"
                       type="number"
+                    />
+                    <input
+                      *ngIf="isIos"
+                      (blur)="focusState = false"
+                      (focus)="focusState = true"
+                      [disabled]="!txnFields.distance?.canEdit"
+                      class="add-edit-expense--text-input"
+                      formControlName="distance"
+                      [placeholder]="'Enter ' + txnFields.distance?.field_name"
+                      type="text"
+                      pattern="[0-9]*"
+                      decimal="true"
+                      decimal-char="."
                     />
                   </div>
 
@@ -842,11 +898,23 @@
                     <input
                       (blur)="focusState = false"
                       (focus)="focusState = true"
-                      *ngIf="customInput.type === 'NUMBER'"
+                      *ngIf="!isIos && customInput.type === 'NUMBER'"
                       class="add-edit-expense--text-input"
                       formControlName="value"
                       inputmode="decimal"
                       type="number"
+                      [placeholder]="'Enter ' + customInput.name"
+                    />
+                    <input
+                      (blur)="focusState = false"
+                      (focus)="focusState = true"
+                      *ngIf="isIos && customInput.type === 'NUMBER'"
+                      class="add-edit-expense--text-input"
+                      formControlName="value"
+                      type="text"
+                      pattern="[0-9]*"
+                      decimal="true"
+                      decimal-char="."
                       [placeholder]="'Enter ' + customInput.name"
                     />
 
@@ -930,14 +998,10 @@
               <ng-container *ngIf="reports$|async as reports">
                 <div class="add-edit-expense--internal-block">
                   <app-fy-add-to-report
-                    *ngIf="reports.length > 0"
                     [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                     [options]="reports"
                     formControlName="report"
                   ></app-fy-add-to-report>
-                  <mat-checkbox *ngIf="reports.length === 0" formControlName="add_to_new_report">
-                    <span class="add-edit-expense--text-label"> Add to New Report </span>
-                  </mat-checkbox>
                 </div>
               </ng-container>
             </ng-container>
@@ -1051,6 +1115,22 @@
                 >
                 </app-fy-alert-info>
               </ng-container>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="isConnected$">
+        <ng-container *ngIf="txnFields$|async as txnFields">
+          <ng-container *ngIf="isCostCentersEnabled$|async as isCostCentersEnabled">
+            <ng-container *ngIf="costCenters$|async as allowedCostCenters">
+              <app-fy-alert-info
+                class="add-edit-expense--cost-center-alert"
+                *ngIf="txnFields?.cost_center_id?.is_mandatory && allowedCostCenters.length === 0"
+                [message]="'There are no cost centers assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+                [type]="'warning'"
+              >
+              </app-fy-alert-info>
             </ng-container>
           </ng-container>
         </ng-container>

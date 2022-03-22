@@ -1,27 +1,35 @@
-<div class="share-report">
-  <div class="share-report--header">
-    <div class="share-report--title">Share Report</div>
-    <div class="share-report--cancel" (click)="cancel()">CLOSE</div>
-  </div>
+<ion-header mode="md">
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <ion-toolbar mode="md" class="text-center fy-modal-toolbar share-report--toolbar">
+    <ion-title>
+      <div class="share-report--toolbar__title">Share Report</div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button
+        [disabled]="!emailInput.value || emailInput.invalid"
+        class="share-report--toolbar__btn-share"
+        (click)="shareReport(emailInput)"
+      >
+        Share
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-  <div class="share-report--details">Share report with:</div>
-  <div class="share-report--form">
-    <mat-form-field appearance="outline" class="share-report--form-input mat-form-field-no-padding">
-      <input
-        matInput
-        type="email"
-        placeholder="Email ID"
-        [(ngModel)]="email"
-        pattern="\S+@\S+\.\S{2,}"
-        #emailInput="ngModel"
-      />
-    </mat-form-field>
-    <div *ngIf="emailInput.touched && !emailInput.value" class="share-report--error">Please enter an email.</div>
-    <div *ngIf="emailInput.touched && emailInput.invalid && emailInput.value" class="share-report--error">
-      Please enter a valid email.
-    </div>
-  </div>
-  <div class="share-report--primary-cta">
-    <button mat-flat-button color="primary" (click)="shareReport(emailInput)">SHARE</button>
-  </div>
+<div class="share-report--input-container">
+  <div class="share-report--input-container__label">Share report with</div>
+  <input
+    matInput
+    type="email"
+    placeholder="Email ID"
+    [(ngModel)]="email"
+    pattern="\S+@\S+\.\S{2,}"
+    #emailInput="ngModel"
+    class="share-report--input-container__input"
+  />
 </div>

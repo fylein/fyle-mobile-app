@@ -22,6 +22,7 @@
     width: 20px;
     margin: 0 16px 0 -12px;
     background-color: $pure-white;
+    color: $black;
   }
 
   &--circle {
@@ -29,6 +30,7 @@
     width: 10px;
     margin: 0 20px 0 -6px;
     background-color: transparent;
+    color: $pure-white;
   }
 
   &--timestamp {

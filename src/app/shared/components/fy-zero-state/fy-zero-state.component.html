@@ -8,7 +8,12 @@
   <div *ngIf="header" [ngClass]="{ 'zero-state--header__new': useNewStyling }" class="zero-state--header">
     {{ header }}
   </div>
-  <div *ngIf="message" [ngClass]="{ 'zero-state--description__new': useNewStyling }" class="zero-state--description">
+  <div
+    #messageRef
+    *ngIf="message"
+    [ngClass]="{ 'zero-state--description__new': useNewStyling }"
+    class="zero-state--description"
+  >
     {{ message }}
   </div>
   <div *ngIf="submessage" [ngClass]="{ 'zero-state--description__new': useNewStyling }" class="zero-state--description">

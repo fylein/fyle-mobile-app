@@ -2,7 +2,7 @@ import { Component, OnInit, forwardRef, Input, Injector, SimpleChanges, OnChange
 
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder, FormGroup, NgControl } from '@angular/forms';
 import { noop, of, from } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { isEqual } from 'lodash';
@@ -33,6 +33,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   exchangeRate = 1;
 
+  isIos: boolean;
+
   fg: FormGroup;
 
   private ngControl: NgControl;
@@ -61,10 +63,12 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     private modalController: ModalController,
     private currencyService: CurrencyService,
     private modalProperties: ModalPropertiesService,
+    private platform: Platform,
     private injector: Injector
   ) {}
 
   ngOnInit() {
+    this.isIos = this.platform.is('ios');
     this.ngControl = this.injector.get(NgControl);
 
     this.fg = this.fb.group({
@@ -132,7 +136,13 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.fg && changes.txnDt && !isEqual(changes.txnDt.previousValue, changes.txnDt.currentValue)) {
+    if (
+      this.fg &&
+      changes.txnDt &&
+      changes.txnDt.previousValue &&
+      changes.txnDt.currentValue &&
+      !isEqual(changes.txnDt.previousValue, changes.txnDt.currentValue)
+    ) {
       from(this.currencyService.getExchangeRate(this.fg.value.currency, this.homeCurrency, this.txnDt || new Date()))
         .pipe()
         .subscribe((newExchangeRate) => {

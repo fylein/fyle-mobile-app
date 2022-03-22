@@ -11,7 +11,7 @@ import {
   NG_VALUE_ACCESSOR,
   Validators,
 } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
 import { Subscription } from 'rxjs';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
@@ -50,10 +50,13 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   @Input() recentlyUsedMileageLocations: {
     recent_start_locations?: string[];
+    recent_end_locations?: string[];
     recent_locations?: string[];
   };
 
   skipRoundTripUpdate = false;
+
+  isIos: boolean;
 
   onChangeSub: Subscription;
 
@@ -65,7 +68,12 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   private ngControl: NgControl;
 
-  constructor(private fb: FormBuilder, private modalController: ModalController, private injector: Injector) {}
+  constructor(
+    private fb: FormBuilder,
+    private modalController: ModalController,
+    private platform: Platform,
+    private injector: Injector
+  ) {}
 
   get mileageLocations() {
     return this.form.controls.mileageLocations as FormArray;
@@ -179,6 +187,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   ngOnInit() {
+    this.isIos = this.platform.is('ios');
     this.ngControl = this.injector.get(NgControl);
 
     this.form.controls.roundTrip.valueChanges.subscribe((roundTrip) => {

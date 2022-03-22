@@ -16,7 +16,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 export class FyViewAttachmentComponent implements OnInit {
   @Input() attachments: any[];
 
-  @Input() canEdit = false;
+  @Input() canEdit: boolean;
 
   @ViewChild('slides') imageSlides: any;
 
@@ -49,6 +49,10 @@ export class FyViewAttachmentComponent implements OnInit {
         this.sanitizer.bypassSecurityTrustUrl(attachment.url);
       }
     });
+  }
+
+  ionViewWillEnter() {
+    this.imageSlides.update();
   }
 
   zoomIn() {

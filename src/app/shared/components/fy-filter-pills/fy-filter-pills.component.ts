@@ -15,6 +15,10 @@ export class FyFilterPillsComponent implements OnInit {
 
   @Output() filterClose = new EventEmitter();
 
+  @Output() filterClicked2 = new EventEmitter();
+
+  @Output() filterClose2 = new EventEmitter();
+
   constructor() {}
 
   ngOnInit() {}
@@ -25,10 +29,12 @@ export class FyFilterPillsComponent implements OnInit {
 
   onFilterClick(filterPill: FilterPill) {
     this.filterClicked.emit(filterPill.type);
+    this.filterClicked2.emit(filterPill.label);
   }
 
   onFilterClose(event: Event, filterPill: FilterPill) {
     event.stopPropagation();
     this.filterClose.emit(filterPill.type);
+    this.filterClose2.emit(filterPill.label);
   }
 }

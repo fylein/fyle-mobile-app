@@ -35,7 +35,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
@@ -57,6 +57,9 @@ import { RouteSelectorComponent } from 'src/app/shared/components/route-selector
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -90,7 +93,12 @@ export class AddEditMileagePage implements OnInit {
 
   paymentModes$: Observable<any>;
 
-  vehicleTypeOptions$: Observable<any>;
+  vehicleTypeOptions$: Observable<
+    {
+      label: string;
+      value: string;
+    }[]
+  >;
 
   homeCurrency$: Observable<any>;
 
@@ -105,6 +113,8 @@ export class AddEditMileagePage implements OnInit {
   individualProjectIds$: Observable<string[]>;
 
   isProjectsEnabled$: Observable<boolean>;
+
+  isCostCentersEnabled$: Observable<boolean>;
 
   customInputs$: Observable<any>;
 
@@ -162,6 +172,7 @@ export class AddEditMileagePage implements OnInit {
 
   recentlyUsedMileageLocations$: Observable<{
     recent_start_locations?: string[];
+    recent_end_locations?: string[];
     recent_locations?: string[];
   }>;
 
@@ -200,6 +211,8 @@ export class AddEditMileagePage implements OnInit {
 
   canDeleteExpense = true;
 
+  isIos: boolean;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -230,10 +243,14 @@ export class AddEditMileagePage implements OnInit {
     private locationService: LocationService,
     private expenseFieldsService: ExpenseFieldsService,
     private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
+    private platform: Platform
   ) {}
 
   ngOnInit() {
+    this.isIos = this.platform.is('ios');
     if (this.activatedRoute.snapshot.params.remove_from_report) {
       this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
     }
@@ -1062,6 +1079,7 @@ export class AddEditMileagePage implements OnInit {
     this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
       map((recentlyUsedValues) => ({
         recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
+        recent_end_locations: recentlyUsedValues?.recent_end_locations || [],
         recent_locations: recentlyUsedValues?.recent_locations || [],
       }))
     );
@@ -1109,6 +1127,8 @@ export class AddEditMileagePage implements OnInit {
 
     this.customInputs$ = this.getCustomInputs();
 
+    this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
+
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$,
@@ -1145,50 +1165,66 @@ export class AddEditMileagePage implements OnInit {
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
         switchMap((txnFields) =>
-          this.isConnected$.pipe(
-            take(1),
-            withLatestFrom(this.costCenters$),
-            map(([isConnected, costCenters]) => ({
+          forkJoin({
+            isConnected: this.isConnected$.pipe(take(1)),
+            orgSettings: this.offlineService.getOrgSettings(),
+            costCenters: this.costCenters$,
+            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+            individualProjectIds: this.individualProjectIds$,
+          }).pipe(
+            map(({ isConnected, orgSettings, costCenters, isIndividualProjectsEnabled, individualProjectIds }) => ({
               isConnected,
               txnFields,
+              orgSettings,
               costCenters,
+              isIndividualProjectsEnabled,
+              individualProjectIds,
             }))
           )
         )
       )
-      .subscribe(({ isConnected, txnFields, costCenters }) => {
-        const keyToControlMap: { [id: string]: AbstractControl } = {
-          purpose: this.fg.controls.purpose,
-          cost_center_id: this.fg.controls.costCenter,
-          txn_dt: this.fg.controls.dateOfSpend,
-          project_id: this.fg.controls.project,
-          billable: this.fg.controls.billable,
-        };
+      .subscribe(
+        ({ isConnected, txnFields, costCenters, orgSettings, individualProjectIds, isIndividualProjectsEnabled }) => {
+          const keyToControlMap: { [id: string]: AbstractControl } = {
+            purpose: this.fg.controls.purpose,
+            cost_center_id: this.fg.controls.costCenter,
+            txn_dt: this.fg.controls.dateOfSpend,
+            project_id: this.fg.controls.project,
+            billable: this.fg.controls.billable,
+          };
 
-        for (const control of Object.values(keyToControlMap)) {
-          control.clearValidators();
-          control.updateValueAndValidity();
-        }
-
-        for (const txnFieldKey of intersection(Object.keys(keyToControlMap), Object.keys(txnFields))) {
-          const control = keyToControlMap[txnFieldKey];
-
-          if (txnFields[txnFieldKey].is_mandatory) {
-            if (txnFieldKey === 'txn_dt') {
-              control.setValidators(
-                isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
-              );
-            } else if (txnFieldKey === 'cost_center_id') {
-              control.setValidators(isConnected && costCenters && costCenters.length > 0 ? Validators.required : null);
-            } else {
-              control.setValidators(isConnected ? Validators.required : null);
-            }
+          for (const control of Object.values(keyToControlMap)) {
+            control.clearValidators();
+            control.updateValueAndValidity();
           }
-          control.updateValueAndValidity();
-        }
 
-        this.fg.updateValueAndValidity();
-      });
+          for (const txnFieldKey of intersection(Object.keys(keyToControlMap), Object.keys(txnFields))) {
+            const control = keyToControlMap[txnFieldKey];
+            if (txnFields[txnFieldKey].is_mandatory) {
+              if (txnFieldKey === 'txn_dt') {
+                control.setValidators(
+                  isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
+                );
+              } else if (txnFieldKey === 'cost_center_id') {
+                control.setValidators(
+                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null
+                );
+              } else if (txnFieldKey === 'project_id') {
+                control.setValidators(
+                  orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
+                    ? null
+                    : Validators.required
+                );
+              } else {
+                control.setValidators(isConnected ? Validators.required : null);
+              }
+            }
+            control.updateValueAndValidity();
+          }
+
+          this.fg.updateValueAndValidity();
+        }
+      );
 
     this.isAmountCapped$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
@@ -1668,6 +1704,22 @@ export class AddEditMileagePage implements OnInit {
       });
   }
 
+  showAddToReportSuccessToast(reportId: string) {
+    const toastMessageData = {
+      message: 'Mileage expense added to report successfully',
+      redirectionText: 'View Report',
+    };
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
+    });
+  }
+
   saveExpense() {
     const that = this;
 
@@ -1680,6 +1732,9 @@ export class AddEditMileagePage implements OnInit {
             that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
               if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id) {
                 this.addToNewReport(etxn.tx.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.close();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.close();
               }
@@ -1689,6 +1744,9 @@ export class AddEditMileagePage implements OnInit {
             that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
               if (that.fg.controls.add_to_new_report.value && tx && tx.id) {
                 this.addToNewReport(tx.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.close();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.close();
               }
