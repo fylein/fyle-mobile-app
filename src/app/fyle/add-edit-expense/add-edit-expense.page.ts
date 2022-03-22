@@ -232,6 +232,8 @@ export class AddEditExpensePage implements OnInit {
 
   isSplitExpensesPresent: boolean;
 
+  showCardTransaction = true;
+
   canEditCCCMatchedSplitExpense: boolean;
 
   cardEndingDigits: string;
@@ -972,6 +974,10 @@ export class AddEditExpensePage implements OnInit {
           orgSettings &&
           orgSettings.corporate_credit_card_settings.allowed &&
           orgSettings.corporate_credit_card_settings.enabled;
+        /**
+         * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
+         * But if already an expense is created as CCC payment mode then on edit of that expense it should be visible
+         */
         if (
           !isCCCEnabled &&
           !etxn.tx.corporate_credit_card_expense_group_id &&
@@ -980,7 +986,7 @@ export class AddEditExpensePage implements OnInit {
           accounts = accounts.filter((account) => account.acc.type !== 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
         }
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
-          this.isCCCPaymentModeSelected$ = new BehaviorSubject<boolean>(false);
+          this.showCardTransaction = false;
         }
         const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
