@@ -6,7 +6,7 @@
         [label]="'Amount'"
         [mandatory]="false"
         [nullOption]="false"
-        [disabled]="amountOptionsData?.options?.length === 0 || amountOptionsData?.areSameValues"
+        [disabled]="disableFormElements || amountOptionsData?.options?.length === 0 || amountOptionsData?.areSameValues"
         [options]="amountOptionsData?.options"
         [selectModalHeader]="'Select amount'"
         formControlName="amount"
@@ -37,7 +37,11 @@
                 [label]="'Date of Spend'"
                 [mandatory]="false"
                 [nullOption]="false"
-                [disabled]="dateOfSpendOptionsData?.options?.length === 0 || dateOfSpendOptionsData?.areSameValues"
+                [disabled]="
+                  disableFormElements ||
+                  dateOfSpendOptionsData?.options?.length === 0 ||
+                  dateOfSpendOptionsData?.areSameValues
+                "
                 [options]="dateOfSpendOptionsData?.options"
                 [selectModalHeader]="'Select spend date'"
                 formControlName="dateOfSpend"
@@ -59,7 +63,11 @@
                 [label]="'Payment Mode'"
                 [mandatory]="true"
                 [nullOption]="false"
-                [disabled]="paymentModeOptionsData?.options?.length === 0 || paymentModeOptionsData?.areSameValues"
+                [disabled]="
+                  disableFormElements ||
+                  paymentModeOptionsData?.options?.length === 0 ||
+                  paymentModeOptionsData?.areSameValues
+                "
                 [options]="paymentModeOptionsData?.options"
                 [selectModalHeader]="'Select Payment Mode'"
                 formControlName="paymentMode"
@@ -87,7 +95,7 @@
       <app-fy-select
         [enableSearch]="false"
         [label]="'Select receipt'"
-        [disabled]="receiptOptions?.length === 0"
+        [disabled]="disableFormElements || receiptOptions?.length === 0"
         [mandatory]="false"
         [nullOption]="true"
         [options]="receiptOptions"
@@ -100,7 +108,12 @@
     <div class="merge-expenses--internal-block merge-expenses--text" *ngIf="receiptOptions?.length === 0">
       <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
       <div class="merge-expenses--disabled">
-        <input [disabled]="true" [placeholder]="'No Receipt'" class="merge-expenses--text-input" type="text" />
+        <input
+          [disabled]="disableFormElements || true"
+          [placeholder]="'No Receipt'"
+          class="merge-expenses--text-input"
+          type="text"
+        />
       </div>
     </div>
   </ng-container>
@@ -138,7 +151,11 @@
                   [label]="'Project'"
                   [mandatory]="false"
                   [nullOption]="false"
-                  [disabled]="projectOptionsData?.options?.length === 0 || projectOptionsData?.areSameValues"
+                  [disabled]="
+                    disableFormElements ||
+                    projectOptionsData?.options?.length === 0 ||
+                    projectOptionsData?.areSameValues
+                  "
                   [options]="projectOptionsData?.options"
                   [selectModalHeader]="'Select project'"
                   formControlName="project"
@@ -158,7 +175,11 @@
                   [label]="'Billable'"
                   [mandatory]="false"
                   [nullOption]="false"
-                  [disabled]="billableOptionsData?.options?.length === 0 || billableOptionsData?.areSameValues"
+                  [disabled]="
+                    disableFormElements ||
+                    billableOptionsData?.options?.length === 0 ||
+                    billableOptionsData?.areSameValues
+                  "
                   [options]="billableOptionsData?.options"
                   [selectModalHeader]="'Select billable'"
                   formControlName="billable"
@@ -183,7 +204,7 @@
         [label]="'Merchant'"
         [mandatory]="false"
         [nullOption]="true"
-        [disabled]="vendorOptionsData?.options?.length === 0 || vendorOptionsData?.areSameValues"
+        [disabled]="disableFormElements || vendorOptionsData?.options?.length === 0 || vendorOptionsData?.areSameValues"
         [options]="vendorOptionsData?.options"
         [selectModalHeader]="'Select merchant'"
         formControlName="vendor"
@@ -202,7 +223,9 @@
         [label]="'Category'"
         [mandatory]="false"
         [nullOption]="true"
-        [disabled]="categoryOptionsData?.options?.length === 0 || categoryOptionsData?.areSameValues"
+        [disabled]="
+          disableFormElements || categoryOptionsData?.options?.length === 0 || categoryOptionsData?.areSameValues
+        "
         [options]="categoryOptionsData?.options"
         [selectModalHeader]="'Select category'"
         formControlName="category"
@@ -212,13 +235,6 @@
   </ng-container>
 
   <ng-container *ngTemplateOutlet="categoryDependentTemplate"> </ng-container>
-  <!-- for categroy dependent -->
-  <!-- <app-category-dependent-fields-form
-  [categoryDependentFormGroup] = 
-  > -->
-
-  <!-- </app-category-dependent-fields-form> -->
-  <!-- for categroy dependent -->
 
   <ng-container *ngIf="taxGroupOptionsData$ | async as taxGroupOptionsData">
     <div
@@ -230,7 +246,9 @@
         [label]="'Tax Group'"
         [mandatory]="false"
         [nullOption]="true"
-        [disabled]="taxGroupOptionsData?.options?.length === 0 || taxGroupOptionsData?.areSameValues"
+        [disabled]="
+          disableFormElements || taxGroupOptionsData?.options?.length === 0 || taxGroupOptionsData?.areSameValues
+        "
         [options]="taxGroupOptionsData?.options"
         [selectModalHeader]="'Select Tax Group'"
         formControlName="tax_group"
@@ -248,7 +266,9 @@
         [enableSearch]="false"
         [label]="'Tax'"
         [mandatory]="false"
-        [disabled]="taxAmountOptionsData?.options?.length === 0 || taxAmountOptionsData?.areSameValues"
+        [disabled]="
+          disableFormElements || taxAmountOptionsData?.options?.length === 0 || taxAmountOptionsData?.areSameValues
+        "
         [nullOption]="taxAmountOptionsData?.options?.length === 1"
         [options]="taxAmountOptionsData?.options"
         [selectModalHeader]="'Select Tax'"
@@ -268,7 +288,9 @@
         [label]="'Cost center'"
         [mandatory]="false"
         [nullOption]="constCenterOptionsData?.options?.length === 1"
-        [disabled]="constCenterOptionsData?.options?.length === 0 || constCenterOptionsData?.areSameValues"
+        [disabled]="
+          disableFormElements || constCenterOptionsData?.options?.length === 0 || constCenterOptionsData?.areSameValues
+        "
         [options]="constCenterOptionsData?.options"
         [selectModalHeader]="'Select Cost center'"
         formControlName="costCenter"
@@ -287,7 +309,9 @@
         [label]="'Purpose'"
         [mandatory]="false"
         [nullOption]="purposeOptionsData?.options?.length === 1"
-        [disabled]="purposeOptionsData?.options?.length === 0 || purposeOptionsData?.areSameValues"
+        [disabled]="
+          disableFormElements || purposeOptionsData?.options?.length === 0 || purposeOptionsData?.areSameValues
+        "
         [options]="purposeOptionsData?.options"
         [selectModalHeader]="'Select Purpose'"
         formControlName="purpose"

@@ -33,6 +33,8 @@ export class CategoryDependentFieldsFormComponent implements OnInit {
 
   @Input() distanceUnitOptionsData$: Observable<optionsData>;
 
+  @Input() disableFormElements: boolean;
+
   constructor() {}
 
   ngOnInit() {}

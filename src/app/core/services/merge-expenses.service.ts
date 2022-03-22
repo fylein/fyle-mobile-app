@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, of, Subject } from 'rxjs';
 import { concatMap, filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
-import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
-import { ISODateString } from '@capacitor/core';
 import { Expense } from '../models/expense.model';
 import { ExpensesInfo } from './expenses-info.model';
 import { FileService } from './file.service';
@@ -108,7 +106,7 @@ export class MergeExpensesService {
   }
 
   isAdvancePresent(expensesInfo: ExpensesInfo) {
-    return expensesInfo.defaultExpenses && expensesInfo.defaultExpenses.length === 1 && expensesInfo.isAdvancePresent;
+    return expensesInfo.defaultExpenses?.length === 1 && expensesInfo.isAdvancePresent;
   }
 
   isReportedPresent(expenses: Expense[]) {
@@ -116,16 +114,11 @@ export class MergeExpensesService {
   }
 
   isMoreThanOneAdvancePresent(expensesInfo: ExpensesInfo, isAllAdvanceExpenses: boolean) {
-    return (
-      expensesInfo.defaultExpenses &&
-      expensesInfo.defaultExpenses.length > 1 &&
-      isAllAdvanceExpenses &&
-      expensesInfo.isAdvancePresent
-    );
+    return expensesInfo.defaultExpenses?.length > 1 && isAllAdvanceExpenses && expensesInfo.isAdvancePresent;
   }
 
   isReportedOrAbove(expensesInfo: ExpensesInfo) {
-    return expensesInfo.defaultExpenses && expensesInfo.defaultExpenses.length === 1 && expensesInfo.isReportedAndAbove;
+    return expensesInfo.defaultExpenses?.length === 1 && expensesInfo.isReportedAndAbove;
   }
 
   getAttachements(txnID: string) {
@@ -218,11 +211,6 @@ export class MergeExpensesService {
   }
 
   checkOptionsAreSame(options): boolean {
-    console.log(options);
-    console.log(options.some((field, index) => options.indexOf(field) !== index));
-    // if(options?.length !== 0){
-    //   return true;
-    // }
     return options.some((field, index) => options.indexOf(field) !== index);
   }
 
@@ -664,32 +652,10 @@ export class MergeExpensesService {
         return option;
       })
     );
-
-    // .subscribe((taxGroups) => {
-    //   this.mergedExpenseOptions.tx_tax_group_id.options = this.mergedExpenseOptions.tx_tax_group_id.options.map(
-    //     (option) => {
-    //       option.label = taxGroups[taxGroups.map((taxGroup) => taxGroup.id).indexOf(option.value)]?.name;
-    //       return option;
-    //     }
-    //   );
-    // });
-
-    // const allCategories$ = this.offlineService.getAllEnabledCategories().pipe();
-
-    // return allCategories$.pipe(
-    //   map((catogories) => this.categoriesService.filterRequired(catogories)),
-    //   map((categories) => {
-    //     option.label = categories[categories.map((category) => category.id).indexOf(option.value)]?.displayName;
-    //     if (!option.label) {
-    //       option.label = 'Unspecified';
-    //     }
-    //     return option;
-    //   })
-    // );
   }
 
   formatCategoryOption(option: option) {
-    const allCategories$ = this.offlineService.getAllEnabledCategories().pipe();
+    const allCategories$ = this.offlineService.getAllEnabledCategories();
 
     return allCategories$.pipe(
       map((catogories) => this.categoriesService.filterRequired(catogories)),
@@ -762,52 +728,12 @@ export class MergeExpensesService {
     return option;
   }
 
-  generateCombinedCustomProperties(customProperties: custom_property[]) {
-    const combinedCustomProperties = [].concat.apply([], customProperties);
-    return combinedCustomProperties.map((field) => {
-      if (field.value && field.value instanceof Array) {
-        field.options = [
-          {
-            label: field.value.toString(),
-            value: field.value,
-          },
-        ];
-        if (field.value.length === 0) {
-          field.options = [];
-        }
-      } else {
-        if (!field.value || field.value !== '') {
-          field.options = [];
-        } else {
-          field.options = [
-            {
-              label: field.value,
-              value: field.value,
-            },
-          ];
-        }
-      }
-      return field;
-    });
-  }
-
-  generateCustomPropertieOptions(customProperty) {
-    const customPropertiesOptions = customProperty.map((field) => {
-      let options;
-      if (field.options) {
-        options = field.options.filter((option) => option != null);
-        options = field.options.filter((option) => option !== '');
-
-        const values = options.map((item) => item.label);
-
-        const isDuplicate = values.some((item, index) => values.indexOf(item) !== index);
-
-        field.isSame = isDuplicate;
-        field.options = options;
-      } else {
-        field.options = [];
-      }
-      return field;
-    });
+  getCategoryName(categoryId) {
+    return this.offlineService.getAllEnabledCategories().pipe(
+      map((categories) => {
+        const category = categories.find((category) => category.id === categoryId);
+        return category?.name;
+      })
+    );
   }
 }

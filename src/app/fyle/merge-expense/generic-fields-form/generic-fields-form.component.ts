@@ -1,26 +1,5 @@
-import {
-  Component,
-  DoCheck,
-  Injector,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
-  TemplateRef,
-} from '@angular/core';
-import {
-  AbstractControl,
-  ControlValueAccessor,
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  NgControl,
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  Validators,
-} from '@angular/forms';
+import { Component, Input, OnInit, TemplateRef } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 
@@ -31,21 +10,8 @@ type optionsData = Partial<{ options: option[]; areSameValues: boolean }>;
   selector: 'app-generic-fields-form',
   templateUrl: './generic-fields-form.component.html',
   styleUrls: ['./generic-fields-form.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      multi: true,
-      useExisting: GenericFieldsFormComponent,
-    },
-    {
-      provide: NG_VALIDATORS,
-      useExisting: GenericFieldsFormComponent,
-      multi: true,
-    },
-  ],
 })
 export class GenericFieldsFormComponent implements OnInit {
-  // export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
   @Input() amountOptionsData$: Observable<optionsData>;
 
   @Input() receiptOptions$: Observable<option[]>;
@@ -80,7 +46,7 @@ export class GenericFieldsFormComponent implements OnInit {
 
   @Input() CCCTxn$: Observable<CorporateCardExpense[]>;
 
-  form: FormGroup;
+  @Input() disableFormElements: boolean;
 
   constructor() {}
 

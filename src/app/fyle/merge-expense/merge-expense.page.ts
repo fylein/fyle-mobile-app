@@ -88,6 +88,8 @@ export class MergeExpensePage implements OnInit {
 
   disableFormElements = false;
 
+  selectedCategoryName: string;
+
   isReportedExpensePresent: boolean;
 
   showReceiptSelection: boolean;
@@ -374,7 +376,7 @@ export class MergeExpensePage implements OnInit {
   }
 
   patchValuesOnCategoryDependentFields() {
-    return forkJoin({
+    forkJoin({
       location1OptionsData: this.location1OptionsData$,
       location2OptionsData: this.location2OptionsData$,
       onwardDateOptionsData: this.onwardDateOptionsData$,
@@ -438,8 +440,6 @@ export class MergeExpensePage implements OnInit {
   mergeExpense() {
     const selectedExpense = this.fg.value.target_txn_id;
     this.fg.markAllAsTouched();
-    console.log(this.fg.valid);
-    console.log(this.fg.value);
     if (this.fg.valid) {
       this.isMerging = true;
       let sourceTxnIds = [];
@@ -544,6 +544,11 @@ export class MergeExpensePage implements OnInit {
       switchMap(() =>
         this.offlineService.getCustomInputs().pipe(
           switchMap((fields) => {
+            this.mergeExpensesService
+              .getCategoryName(this.fg.controls.genericFields.get('category').value)
+              .subscribe((categoryName) => {
+                this.selectedCategoryName = categoryName;
+              });
             const formValue = this.fg.value;
             const customFields = this.customFieldsService.standardizeCustomFields(
               formValue.custom_inputs || [],
@@ -568,18 +573,17 @@ export class MergeExpensePage implements OnInit {
       ),
       tap((customInputs) => {
         if (!this.isMerging) {
-          this.patchValues(customInputs);
+          this.patchCustomInputsValues(customInputs);
+          this.patchValuesOnCategoryDependentFields();
         }
       })
     );
   }
 
-  patchValues(customInputs) {
+  patchCustomInputsValues(customInputs) {
     const customInputValues = customInputs.map((customInput) => {
       if (
-        this.combinedCustomProperties[customInput.name] &&
-        this.combinedCustomProperties[customInput.name] &&
-        this.combinedCustomProperties[customInput.name].isSame &&
+        this.combinedCustomProperties[customInput.name]?.isSame &&
         this.combinedCustomProperties[customInput.name].options.length > 0
       ) {
         return {
@@ -618,11 +622,11 @@ export class MergeExpensePage implements OnInit {
       if (field.value && field.value instanceof Array) {
         field.options = [
           {
-            label: field.value.toString(),
+            label: field.value?.toString(),
             value: field.value,
           },
         ];
-        if (field.value.length === 0) {
+        if (field.value?.length === 0) {
           field.options = [];
         }
       } else {
@@ -631,8 +635,8 @@ export class MergeExpensePage implements OnInit {
         } else {
           field.options = [
             {
-              label: field.value,
-              value: field.value,
+              label: field?.value,
+              value: field?.value,
             },
           ];
         }
