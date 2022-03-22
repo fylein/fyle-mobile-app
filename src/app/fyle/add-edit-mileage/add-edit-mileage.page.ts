@@ -656,13 +656,13 @@ export class AddEditMileagePage implements OnInit {
             delete mileageConfig[vehicleType];
           });
         }
-        return this.formatVehicleOptions(mileageConfig);
+        return this.generateVehicleOptions(mileageConfig);
       }),
       shareReplay(1)
     );
   }
 
-  formatVehicleOptions(mileageConfig) {
+  generateVehicleOptions(mileageConfig) {
     const vehicleTypeOptions = [];
     if (mileageConfig.two_wheeler) {
       vehicleTypeOptions.push({ label: 'Two Wheeler', value: 'two_wheeler' });
