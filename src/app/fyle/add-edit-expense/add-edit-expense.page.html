@@ -49,7 +49,7 @@
         <ng-container *ngIf="isConnected$|async as isConnected">
           <ng-container *ngIf="isSplitExpenseAllowed$|async as isSplitExpenseAllowed">
             <ng-container
-              *ngIf="(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)"
+              *ngIf="(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)"
             >
               <ion-button class="add-edit-expense--header-btn-container__btn" (click)="moreActions()">
                 <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
@@ -1002,7 +1002,7 @@
       <div *ngIf="etxn$|async as etxn">
         <div
           class="add-edit-expense--split-expense-block"
-          *ngIf="(isConnected$|async) && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && !(etxn?.tx?.report_id) && (isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)"
+          *ngIf="(isConnected$|async) && !(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && (isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)"
         >
           <button class="add-edit-expense--split-expense-container" (click)="moreActions()">
             <div class="add-edit-expense--split-expense-title">Split Expense</div>
