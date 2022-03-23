@@ -39,6 +39,7 @@ import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-vi
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
 import { FyLoadingScreenComponent } from './components/fy-loading-screen/fy-loading-screen.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MaskNumber } from './pipes/mask-number.pipe';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -212,6 +213,7 @@ import { FySummaryTileComponent } from './components/summary-tile/summary-tile.c
     FyNumberComponent,
     FyStatisticComponent,
     FySummaryTileComponent,
+    MaskNumber,
   ],
   imports: [
     CommonModule,
@@ -313,6 +315,7 @@ import { FySummaryTileComponent } from './components/summary-tile/summary-tile.c
     FyNumberComponent,
     FyStatisticComponent,
     FySummaryTileComponent,
+    MaskNumber,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })
