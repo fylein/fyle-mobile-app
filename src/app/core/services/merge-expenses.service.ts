@@ -675,9 +675,7 @@ export class MergeExpensesService {
       .map((field) => {
         let options;
         if (field.options) {
-          options = field.options.filter((option) => option !== null);
-          options = field.options.filter((option) => option !== '');
-
+          options = field.options.filter((option) => option !== null && option !== '');
           const values = options.map((item) => item.label);
 
           const isDuplicate = values.some((item, index) => values.indexOf(item) !== index);
