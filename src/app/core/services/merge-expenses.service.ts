@@ -34,7 +34,6 @@ export class MergeExpensesService {
   ) {}
 
   mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields): Observable<string> {
-    console.log(targetTxnFields);
     return this.apiService.post('/transactions/merge', {
       source_txn_ids: sourceTxnIds,
       target_txn_id: targetTxnId,
