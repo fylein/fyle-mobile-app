@@ -608,7 +608,7 @@ export class MergeExpensePage implements OnInit {
     );
   }
 
-  generateCustomInputOptions() {
+  generateCustomInputOptions(): CombinedOptions {
     const customProperties = this.mergeExpensesService.getCustomInputValues(this.expenses);
 
     let combinedCustomProperties = [].concat.apply([], customProperties);
@@ -680,7 +680,7 @@ export class MergeExpensePage implements OnInit {
     }
   }
 
-  getCustomFields() {
+  getCustomFields(): Observable<CustomInputs[]> {
     return this.customInputs$.pipe(
       take(1),
       map((customInputs) =>

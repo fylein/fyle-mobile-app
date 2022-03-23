@@ -16,6 +16,8 @@ import { OptionsData } from 'src/app/core/models/options-data.type';
 import { FileObject } from '../models/file_obj.model';
 import { FileResponse } from './file-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
+import { CustomInputs } from '../models/custom-input.type';
+import { CombinedOptions } from '../models/combined-options.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +34,7 @@ export class MergeExpensesService {
   ) {}
 
   mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields): Observable<string> {
+    console.log(targetTxnFields);
     return this.apiService.post('/transactions/merge', {
       source_txn_ids: sourceTxnIds,
       target_txn_id: targetTxnId,
@@ -105,19 +108,19 @@ export class MergeExpensesService {
     return approvedAndAboveExpenses;
   }
 
-  isAdvancePresent(expensesInfo: ExpensesInfo) {
+  isAdvancePresent(expensesInfo: ExpensesInfo): boolean {
     return expensesInfo.defaultExpenses?.length === 1 && expensesInfo.isAdvancePresent;
   }
 
-  isReportedPresent(expenses: Expense[]) {
+  isReportedPresent(expenses: Expense[]): Expense[] {
     return expenses.filter((expense) => expense.tx_state === 'APPROVER_PENDING');
   }
 
-  isMoreThanOneAdvancePresent(expensesInfo: ExpensesInfo, isAllAdvanceExpenses: boolean) {
+  isMoreThanOneAdvancePresent(expensesInfo: ExpensesInfo, isAllAdvanceExpenses: boolean): boolean {
     return expensesInfo.defaultExpenses?.length > 1 && isAllAdvanceExpenses && expensesInfo.isAdvancePresent;
   }
 
-  isReportedOrAbove(expensesInfo: ExpensesInfo) {
+  isReportedOrAbove(expensesInfo: ExpensesInfo): boolean {
     return expensesInfo.defaultExpenses?.length === 1 && expensesInfo.isReportedAndAbove;
   }
 
@@ -216,7 +219,7 @@ export class MergeExpensesService {
     return options.some((field, index) => options.indexOf(field) !== index);
   }
 
-  generateAmountOptions(expenses: Expense[]) {
+  generateAmountOptions(expenses: Expense[]): Observable<OptionsData> {
     return from(expenses).pipe(
       map((expense) => {
         const isForeignAmountPresent = expense.tx_orig_currency && expense.tx_orig_amount;
@@ -256,7 +259,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateDateOfSpendOptions(expenses: Expense[]) {
+  generateDateOfSpendOptions(expenses: Expense[]): Observable<OptionsData> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_txn_dt !== null),
       map((expense) => ({
@@ -277,7 +280,7 @@ export class MergeExpensesService {
     );
   }
 
-  formatOptions(options: Option[]) {
+  formatOptions(options: Option[]): OptionsData {
     const optionValues = options.map((option) => option.value);
     return {
       options,
@@ -560,7 +563,7 @@ export class MergeExpensesService {
     );
   }
 
-  removeUnspecified(options: Option[]) {
+  removeUnspecified(options: Option[]): Option[] {
     return options.filter(
       (option, index, options) => options.findIndex((currentOption) => currentOption.label === option.label) === index
     );
@@ -580,7 +583,7 @@ export class MergeExpensesService {
     );
   }
 
-  formatCategoryOption(option: Option) {
+  formatCategoryOption(option: Option): Observable<Option> {
     const allCategories$ = this.offlineService.getAllEnabledCategories();
 
     return allCategories$.pipe(
@@ -595,7 +598,7 @@ export class MergeExpensesService {
     );
   }
 
-  formatProjectOptions(option: Option) {
+  formatProjectOptions(option: Option): Observable<Option> {
     const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
     return projects$.pipe(
       map((projects) => {
@@ -621,14 +624,14 @@ export class MergeExpensesService {
     );
   }
 
-  formatDateOptions(options: Option[]) {
+  formatDateOptions(options: Option[]): Option[] {
     return options.map((option) => {
       option.label = moment(option.label).format('MMM DD, YYYY');
       return option;
     });
   }
 
-  formatBillableOptions(option: Option) {
+  formatBillableOptions(option: Option): Option {
     if (option.value === true) {
       option.label = 'Yes';
     } else {
@@ -637,7 +640,7 @@ export class MergeExpensesService {
     return option;
   }
 
-  formatPaymentModeOptions(option: Option) {
+  formatPaymentModeOptions(option: Option): Option {
     if (option.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
       option.label = 'Paid via Corporate Card';
     } else if (option.value === 'PERSONAL_ACCOUNT') {
@@ -648,7 +651,7 @@ export class MergeExpensesService {
     return option;
   }
 
-  getCategoryName(categoryId: string) {
+  getCategoryName(categoryId: string): Observable<string> {
     return this.offlineService.getAllEnabledCategories().pipe(
       map((categories) => {
         const category = categories.find((category) => category.id === categoryId);
@@ -657,7 +660,7 @@ export class MergeExpensesService {
     );
   }
 
-  getCustomInputValues(expenses: Expense[]) {
+  getCustomInputValues(expenses: Expense[]): CustomInputs[] {
     return expenses
       .map((expense) => {
         if (expense.tx_custom_properties !== null && expense.tx_custom_properties.length > 0) {
