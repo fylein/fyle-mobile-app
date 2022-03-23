@@ -838,17 +838,13 @@ export class AddEditExpensePage implements OnInit {
         ctaLoadingText,
         deleteMethod: () => {
           if (isMarkPersonal) {
-            return this.transactionService.unmatchCCCExpense(id, this.corporateCreditCardExpenseGroupId).pipe(
-              switchMap(() => {
-                return this.markCCCAsPersonal(id);
-              })
-            );
+            return this.transactionService
+              .unmatchCCCExpense(id, this.corporateCreditCardExpenseGroupId)
+              .pipe(switchMap(() => this.markCCCAsPersonal(id)));
           } else {
-            return this.transactionService.unmatchCCCExpense(id, this.matchedCCCTransaction.id).pipe(
-              switchMap(() => {
-                return this.dismissCCC(id, this.matchedCCCTransaction.id);
-              })
-            );
+            return this.transactionService
+              .unmatchCCCExpense(id, this.matchedCCCTransaction.id)
+              .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction.id)));
           }
         },
       },
@@ -2833,10 +2829,9 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.etxn$.subscribe((etxn) => {
-      this.isCccExpense = etxn && etxn.tx && etxn.tx.corporate_credit_card_expense_group_id;
-      this.isExpenseMatchedForDebitCCCE =
-        etxn && etxn.tx && !!etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
-      this.canDismissCCCE = etxn && etxn.tx && !!etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
+      this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
+      this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
+      this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
     });
 
     this.getPolicyDetails();
