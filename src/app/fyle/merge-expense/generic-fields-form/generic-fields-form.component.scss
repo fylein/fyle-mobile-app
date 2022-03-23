@@ -2,101 +2,6 @@
 @import '../../../../theme/forms.scss';
 
 .merge-expenses {
-  &--toolbar {
-    box-shadow: 0 0 8px $black-shadow;
-    &__review {
-      min-height: 80px;
-    }
-  }
-
-  &--header-btn-container {
-    margin-right: 10px;
-    &__btn {
-      --padding-start: 8px !important;
-      --padding-end: 8px !important;
-      width: auto !important;
-    }
-  }
-
-  &--header-button {
-    --padding-start: 8px !important;
-    --padding-end: 8px !important;
-    width: auto !important;
-  }
-
-  &--title {
-    &__review {
-      padding-inline-end: 0;
-      position: relative;
-      line-height: 26px;
-      color: $black;
-      top: 12px;
-      height: 64px;
-    }
-  }
-
-  &--footer {
-    display: flex;
-    justify-content: space-around;
-  }
-
-  &--footer-container {
-    &::before {
-      content: none;
-    }
-  }
-
-  &--footer-toolbar {
-    padding: 14px 16px;
-    &__shadow {
-      box-shadow: 0px -2px 40px $transparent-pearl-grey;
-    }
-    &__offline {
-      padding-bottom: 36px;
-    }
-  }
-
-  &--primary-cta,
-  &--secondary-cta {
-    height: 48px;
-    text-transform: inherit;
-    font-weight: 600;
-    border-radius: 8px;
-    width: 100%;
-    margin: 12px 0;
-    --border-radius: 4px !important;
-
-    &:first-child {
-      margin-right: 4px;
-    }
-
-    &:last-child {
-      margin-left: 4px;
-    }
-  }
-
-  &--secondary-cta {
-    margin: 0;
-    border-radius: 0;
-    &__border {
-      border-right: 1px solid $grey;
-    }
-  }
-
-  &--secondary-cta-text {
-    min-width: 80px;
-  }
-
-  &--secondary-cta-icon {
-    &__left {
-      margin-right: 18px;
-    }
-
-    &__right {
-      margin-left: 18px;
-    }
-  }
-
   &--currency {
     margin: 12px 0 0 0;
   }
@@ -275,16 +180,6 @@
     line-height: 16px;
     margin-top: -12px;
     font-size: 12px;
-  }
-
-  &--amount-error {
-    color: $red;
-    font-size: 12px;
-    margin: -8px 0 0 44%;
-  }
-
-  &--orig-amount-error {
-    margin: -68px 4px 48px 44%;
   }
 
   &--mandatory {

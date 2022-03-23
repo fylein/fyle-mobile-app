@@ -2,9 +2,8 @@ import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
-
-type Option = Partial<{ label: string; value: any }>;
-type OptionsData = Partial<{ options: Option[]; areSameValues: boolean }>;
+import { Option } from 'src/app/core/models/option.type';
+import { OptionsData } from 'src/app/core/models/options-data.type';
 
 @Component({
   selector: 'app-generic-fields-form',

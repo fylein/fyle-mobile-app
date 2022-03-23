@@ -1,22 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { CustomInputs } from 'src/app/core/models/custom-input.type';
+import { CombinedOptions } from 'src/app/core/models/combined-options.model';
 
-type Option = Partial<{ label: string; value: any }>;
-type OptionsData = Partial<{ options: Option[]; areSameValues: boolean }>;
-type CustomInputs = Partial<{
-  control: FormControl;
-  id: string;
-  mandatory: boolean;
-  name: string;
-  options: Option[];
-  placeholder: string;
-  prefix: string;
-  type: string;
-  value: string;
-}>;
-interface CombinedOptions {
-  [key: string]: OptionsData;
-}
 @Component({
   selector: 'app-custom-inputs-fields-form',
   templateUrl: './custom-inputs-fields-form.component.html',
@@ -29,7 +14,7 @@ export class CustomInputsFieldsFormComponent implements OnInit {
 
   @Input() disableFormElements: boolean;
 
-  constructor(private formBuilder: FormBuilder) {}
+  constructor() {}
 
   ngOnInit() {}
 }

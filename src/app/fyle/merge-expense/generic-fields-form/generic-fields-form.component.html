@@ -14,7 +14,7 @@
       </app-fy-select>
     </div>
     <div
-      *ngIf="genericFieldsFormGroup.controls.amount.touched && !genericFieldsFormGroup.controls.amount.valid"
+      *ngIf="genericFieldsFormGroup.controls.amount.touched && genericFieldsFormGroup.controls.amount.invalid"
       class="merge-expenses--error"
     >
       Please select a valid amount
@@ -78,7 +78,7 @@
             <div
               *ngIf="
                 genericFieldsFormGroup.controls.paymentMode.touched &&
-                !genericFieldsFormGroup.controls.paymentMode.valid
+                genericFieldsFormGroup.controls.paymentMode.invalid
               "
               class="merge-expenses--error"
             >

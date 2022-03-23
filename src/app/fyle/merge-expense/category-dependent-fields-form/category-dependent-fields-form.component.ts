@@ -1,9 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
-
-type Option = Partial<{ label: string; value: any }>;
-type OptionsData = Partial<{ options: Option[]; areSameValues: boolean }>;
+import { OptionsData } from 'src/app/core/models/options-data.type';
 
 @Component({
   selector: 'app-category-dependent-fields-form',

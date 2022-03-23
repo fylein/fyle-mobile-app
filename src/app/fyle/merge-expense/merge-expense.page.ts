@@ -16,23 +16,10 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
-
-type Option = Partial<{ label: string; value: any }>;
-type OptionsData = Partial<{ options: Option[]; areSameValues: boolean }>;
-type CustomInputs = Partial<{
-  control: FormControl;
-  id: string;
-  mandatory: boolean;
-  name: string;
-  options: Option[];
-  placeholder: string;
-  prefix: string;
-  type: string;
-  value: string;
-}>;
-interface CombinedOptions {
-  [key: string]: OptionsData;
-}
+import { Option } from 'src/app/core/models/option.type';
+import { OptionsData } from 'src/app/core/models/options-data.type';
+import { CustomInputs } from 'src/app/core/models/custom-input.type';
+import { CombinedOptions } from 'src/app/core/models/combined-options.model';
 
 @Component({
   selector: 'app-merge-expense',

@@ -277,16 +277,6 @@
     font-size: 12px;
   }
 
-  &--amount-error {
-    color: $red;
-    font-size: 12px;
-    margin: -8px 0 0 44%;
-  }
-
-  &--orig-amount-error {
-    margin: -68px 4px 48px 44%;
-  }
-
   &--mandatory {
     color: $brand-primary;
     display: inline-block;

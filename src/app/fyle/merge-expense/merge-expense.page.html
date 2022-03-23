@@ -25,7 +25,7 @@
           </app-fy-select>
         </ng-container>
       </div>
-      <div *ngIf="fg.controls.target_txn_id.touched && !fg.controls.target_txn_id.valid" class="merge-expenses--error">
+      <div *ngIf="fg.controls.target_txn_id.touched && fg.controls.target_txn_id.invalid" class="merge-expenses--error">
         Please select a valid expense
       </div>
 
