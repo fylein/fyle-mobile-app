@@ -145,7 +145,6 @@ export class StatsComponent implements OnInit {
       );
       this.cardTransactionsAndDetailsNonUnifyCCC$.subscribe((details) => {
         this.cardTransactionsAndDetailsNonUnifyCCC = details;
-        console.log(this.cardTransactionsAndDetailsNonUnifyCCC);
         this.isCCCStatsLoading = false;
       });
     }

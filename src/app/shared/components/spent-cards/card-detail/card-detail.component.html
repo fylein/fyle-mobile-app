@@ -25,7 +25,7 @@
 </div>
 <div class="stats--ccc-stats">
   <div>
-    <div (click)="goToCCCPage('classified')">
+    <div (click)="goToExpensesPage('incompleteExpenses')">
       <div class="stats--ccc-classified-stats">
         <div class="stats--ccc-classified-count">
           {{ cardDetail.totalDraftTxns }}
@@ -43,7 +43,7 @@
     </div>
 
     <hr class="stats--ccc-stats-divider" />
-    <div (click)="goToCCCPage('unclassified')">
+    <div (click)="goToExpensesPage('totalExpenses')">
       <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
         <div class="stats--ccc-classified-count">
           {{ cardDetail.totalTxnsCount }}
