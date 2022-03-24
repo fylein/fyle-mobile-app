@@ -39,7 +39,6 @@ import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-vi
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
 import { FyLoadingScreenComponent } from './components/fy-loading-screen/fy-loading-screen.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MaskNumber } from './pipes/mask-number.pipe';
 
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
@@ -118,6 +117,9 @@ import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
 import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.component';
 import { FySummaryTileComponent } from './components/summary-tile/summary-tile.component';
+import { SpentCardsComponent } from './components/spent-cards/spent-cards.component';
+import { CardDetailComponent } from './components/spent-cards/card-detail/card-detail.component';
+import { MaskNumber } from './pipes/mask-number.pipe';
 @NgModule({
   declarations: [
     AdvanceState,
@@ -213,6 +215,8 @@ import { FySummaryTileComponent } from './components/summary-tile/summary-tile.c
     FyNumberComponent,
     FyStatisticComponent,
     FySummaryTileComponent,
+    SpentCardsComponent,
+    CardDetailComponent,
     MaskNumber,
   ],
   imports: [
@@ -315,6 +319,7 @@ import { FySummaryTileComponent } from './components/summary-tile/summary-tile.c
     FyNumberComponent,
     FyStatisticComponent,
     FySummaryTileComponent,
+    SpentCardsComponent,
     MaskNumber,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],

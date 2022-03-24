@@ -51,6 +51,8 @@ import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 
 type Filters = Partial<{
   state: string[];
@@ -61,6 +63,7 @@ type Filters = Partial<{
   type: string[];
   sortParam: string;
   sortDir: string;
+  cardNumbers: string[];
 }>;
 
 @Component({
@@ -166,6 +169,13 @@ export class MyExpensesPage implements OnInit {
   expensesToBeDeleted: Expense[];
 
   cccExpenses: number;
+  isUnifyCCCEnabled$: Observable<{ enabled: boolean }>;
+
+  isUnifyCCCEnabled: boolean;
+
+  cardNumbers: { label: string; value: string }[] = [];
+
+  maskNumber = new MaskNumber();
 
   get HeaderState() {
     return HeaderState;
@@ -194,7 +204,8 @@ export class MyExpensesPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
     private snackbarProperties: SnackbarPropertiesService,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private corporateCreditCardService: CorporateCreditCardExpenseService
   ) {}
 
   clearText(isFromCancel) {
@@ -270,10 +281,16 @@ export class MyExpensesPage implements OnInit {
   setAllExpensesCountAndAmount() {
     this.allExpensesStats$ = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {};
+        const queryParams = JSON.parse(JSON.stringify(params.queryParams)) || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+
+        if (queryParams.corporate_credit_card_account_number) {
+          const cardParamsCopy = JSON.parse(JSON.stringify(queryParams.corporate_credit_card_account_number));
+          queryParams.or = '(corporate_credit_card_account_number.' + cardParamsCopy + ')';
+          delete queryParams.corporate_credit_card_account_number;
+        }
 
         return this.transactionService
           .getTransactionStats('count(tx_id),sum(tx_amount)', {
@@ -381,6 +398,20 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  getCardDetail(statsResponses) {
+    const cardNames = [];
+    statsResponses.forEach((response) => {
+      const cardDetail = {
+        cardNumber: response.key[1].column_value,
+        cardName: response.key[0].column_value,
+      };
+      cardNames.push(cardDetail);
+    });
+    const uniqueCards = JSON.parse(JSON.stringify(cardNames));
+
+    return this.corporateCreditCardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
+  }
+
   ionViewWillLeave() {
     this.onPageExit$.next();
   }
@@ -417,6 +448,38 @@ export class MyExpensesPage implements OnInit {
         orgSettings.unify_ccce_expenses_settings.enabled;
       this.setupActionSheet(orgSettings);
     });
+
+    this.isUnifyCCCEnabled$ = this.offlineService
+      .getOrgSettings()
+      .pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.unify_ccce_expenses_settings?.allowed && orgSettings.unify_ccce_expenses_settings?.enabled
+        )
+      );
+
+    forkJoin({
+      isConnected: this.isConnected$.pipe(take(1)),
+      isUnifyCCCEnabled: this.isUnifyCCCEnabled$.pipe(take(1)),
+    })
+      .pipe(
+        switchMap(({ isConnected, isUnifyCCCEnabled }) => {
+          if (isConnected && isUnifyCCCEnabled) {
+            return this.corporateCreditCardService.getAssignedCards().pipe(
+              map((cccDetail) => this.getCardDetail(cccDetail.cardDetails)),
+              shareReplay(1)
+            );
+          } else {
+            return of([]);
+          }
+        })
+      )
+      .subscribe((cards) => {
+        this.cardNumbers = [];
+        cards.forEach((card) => {
+          this.cardNumbers.push({ label: this.maskNumber.transform(card.cardNumber), value: card.cardNumber });
+        });
+      });
 
     this.headerState = HeaderState.base;
 
@@ -699,6 +762,9 @@ export class MyExpensesPage implements OnInit {
       this.generateSortFilterPills(filter, filterPills);
     }
 
+    if (filter.cardNumbers && filter.cardNumbers.length) {
+      this.generateCardFilterPills(filterPills, filter);
+    }
     return filterPills;
   }
 
@@ -851,6 +917,16 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
+  generateCardFilterPills(filterPills: FilterPill[], filter) {
+    filterPills.push({
+      label: 'Cards',
+      type: 'card',
+      value: filter.cardNumbers
+        .map((cardNumber) => this.maskNumber.transform(cardNumber))
+        .reduce((state1, state2) => `${state1}, ${state2}`),
+    });
+  }
+
   generateStateFilterPills(filterPills: FilterPill[], filter) {
     filterPills.push({
       label: 'Type',
@@ -873,6 +949,9 @@ export class MyExpensesPage implements OnInit {
     const newQueryParams: any = {
       or: [],
     };
+
+    this.generateCardNumberParams(newQueryParams);
+
     this.generateDateParams(newQueryParams);
 
     this.generateReceiptAttachedParams(newQueryParams);
@@ -955,6 +1034,13 @@ export class MyExpensesPage implements OnInit {
       });
     }
 
+    if (filter.cardNumbers) {
+      generatedFilters.push({
+        name: 'Cards',
+        value: filter.cardNumbers,
+      });
+    }
+
     if (filter.sortParam && filter.sortDir) {
       this.addSortToGeneatedFilters(filter, generatedFilters);
     }
@@ -972,6 +1058,7 @@ export class MyExpensesPage implements OnInit {
       type: string[];
       sortParam: string;
       sortDir: string;
+      cardNumbers: string[];
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
@@ -992,6 +1079,7 @@ export class MyExpensesPage implements OnInit {
       type: string[];
       sortParam: string;
       sortDir: string;
+      cardNumbers: string[];
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
@@ -1018,6 +1106,7 @@ export class MyExpensesPage implements OnInit {
       type: string[];
       sortParam: string;
       sortDir: string;
+      cardNumbers: string[];
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
@@ -1044,6 +1133,7 @@ export class MyExpensesPage implements OnInit {
       type: string[];
       sortParam: string;
       sortDir: string;
+      cardNumbers: string[];
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
@@ -1087,6 +1177,12 @@ export class MyExpensesPage implements OnInit {
       generatedFilters.type = expenseTypeFilter.value;
     }
 
+    const cardsFilter = selectedFilters.find((filter) => filter.name === 'Cards');
+
+    if (cardsFilter) {
+      generatedFilters.cardNumbers = cardsFilter.value;
+    }
+
     const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
@@ -1105,6 +1201,7 @@ export class MyExpensesPage implements OnInit {
       type: string[];
       sortParam: string;
       sortDir: string;
+      cardNumbers: string[];
     }>
   ) {
     if (sortBy) {
@@ -1131,121 +1228,132 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string) {
+    const filterMaster = [
+      {
+        name: 'Type',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Ready To Report',
+            value: 'READY_TO_REPORT',
+          },
+          {
+            label: 'Policy Violated',
+            value: 'POLICY_VIOLATED',
+          },
+          {
+            label: 'Cannot Report',
+            value: 'CANNOT_REPORT',
+          },
+          {
+            label: 'Incomplete',
+            value: 'DRAFT',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Date',
+        optionType: FilterOptionType.date,
+        options: [
+          {
+            label: 'All',
+            value: DateFilters.all,
+          },
+          {
+            label: 'This Week',
+            value: DateFilters.thisWeek,
+          },
+          {
+            label: 'This Month',
+            value: DateFilters.thisMonth,
+          },
+          {
+            label: 'Last Month',
+            value: DateFilters.lastMonth,
+          },
+          {
+            label: 'Custom',
+            value: DateFilters.custom,
+          },
+        ],
+      } as FilterOptions<DateFilters>,
+      {
+        name: 'Receipts Attached',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Yes',
+            value: 'YES',
+          },
+          {
+            label: 'No',
+            value: 'NO',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Expense Type',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Mileage',
+            value: 'Mileage',
+          },
+          {
+            label: 'Per Diem',
+            value: 'PerDiem',
+          },
+          {
+            label: 'Regular Expenses',
+            value: 'RegularExpenses',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Sort By',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Date - New to Old',
+            value: 'dateNewToOld',
+          },
+          {
+            label: 'Date - Old to New',
+            value: 'dateOldToNew',
+          },
+          {
+            label: 'Amount - High to Low',
+            value: 'amountHighToLow',
+          },
+          {
+            label: 'Amount - Low to High',
+            value: 'amountLowToHigh',
+          },
+          {
+            label: 'Category - A to Z',
+            value: 'categoryAToZ',
+          },
+          {
+            label: 'Category - Z to A',
+            value: 'categoryZToA',
+          },
+        ],
+      } as FilterOptions<string>,
+    ];
+    this.isUnifyCCCEnabled$.subscribe((isEnabled) => {
+      if (isEnabled && this.cardNumbers?.length > 0) {
+        filterMaster.push({
+          name: 'Cards',
+          optionType: FilterOptionType.multiselect,
+          options: this.cardNumbers,
+        } as FilterOptions<string>);
+      }
+    });
+
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
-        filterOptions: [
-          {
-            name: 'Type',
-            optionType: FilterOptionType.multiselect,
-            options: [
-              {
-                label: 'Ready To Report',
-                value: 'READY_TO_REPORT',
-              },
-              {
-                label: 'Policy Violated',
-                value: 'POLICY_VIOLATED',
-              },
-              {
-                label: 'Cannot Report',
-                value: 'CANNOT_REPORT',
-              },
-              {
-                label: 'Incomplete',
-                value: 'DRAFT',
-              },
-            ],
-          } as FilterOptions<string>,
-          {
-            name: 'Date',
-            optionType: FilterOptionType.date,
-            options: [
-              {
-                label: 'All',
-                value: DateFilters.all,
-              },
-              {
-                label: 'This Week',
-                value: DateFilters.thisWeek,
-              },
-              {
-                label: 'This Month',
-                value: DateFilters.thisMonth,
-              },
-              {
-                label: 'Last Month',
-                value: DateFilters.lastMonth,
-              },
-              {
-                label: 'Custom',
-                value: DateFilters.custom,
-              },
-            ],
-          } as FilterOptions<DateFilters>,
-          {
-            name: 'Receipts Attached',
-            optionType: FilterOptionType.singleselect,
-            options: [
-              {
-                label: 'Yes',
-                value: 'YES',
-              },
-              {
-                label: 'No',
-                value: 'NO',
-              },
-            ],
-          } as FilterOptions<string>,
-          {
-            name: 'Expense Type',
-            optionType: FilterOptionType.multiselect,
-            options: [
-              {
-                label: 'Mileage',
-                value: 'Mileage',
-              },
-              {
-                label: 'Per Diem',
-                value: 'PerDiem',
-              },
-              {
-                label: 'Regular Expenses',
-                value: 'RegularExpenses',
-              },
-            ],
-          } as FilterOptions<string>,
-          {
-            name: 'Sort By',
-            optionType: FilterOptionType.singleselect,
-            options: [
-              {
-                label: 'Date - New to Old',
-                value: 'dateNewToOld',
-              },
-              {
-                label: 'Date - Old to New',
-                value: 'dateOldToNew',
-              },
-              {
-                label: 'Amount - High to Low',
-                value: 'amountHighToLow',
-              },
-              {
-                label: 'Amount - Low to High',
-                value: 'amountLowToHigh',
-              },
-              {
-                label: 'Category - A to Z',
-                value: 'categoryAToZ',
-              },
-              {
-                label: 'Category - Z to A',
-                value: 'categoryZToA',
-              },
-            ],
-          } as FilterOptions<string>,
-        ],
+        filterOptions: filterMaster,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },
@@ -1949,6 +2057,17 @@ export class MyExpensesPage implements OnInit {
       let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
       combinedStateOrFilter = `(${combinedStateOrFilter})`;
       newQueryParams.or.push(combinedStateOrFilter);
+    }
+  }
+
+  generateCardNumberParams(newQueryParams) {
+    if (this.filters.cardNumbers && this.filters.cardNumbers.length > 0) {
+      let cardNumberString = '';
+      this.filters.cardNumbers?.forEach((cardNumber) => {
+        cardNumberString += cardNumber + ',';
+      });
+      cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
+      newQueryParams.corporate_credit_card_account_number = 'in.(' + cardNumberString + ')';
     }
   }
 
