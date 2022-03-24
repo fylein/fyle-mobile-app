@@ -140,7 +140,7 @@ export class DashboardPage implements OnInit {
     });
 
     this.dummyData$ = this.http.get<{ title: string; id: number; userId: number; completed: boolean }[]>(
-      'http://jsonplaceholder.typicode.com/posts'
+      'https://jsonplaceholder.typicode.com/posts'
     );
   }
 
