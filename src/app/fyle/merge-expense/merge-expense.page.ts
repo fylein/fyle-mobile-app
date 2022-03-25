@@ -251,6 +251,14 @@ export class MergeExpensePage implements OnInit {
     this.combinedCustomProperties = this.generateCustomInputOptions();
   }
 
+  get genericFieldsForm() {
+    return this.fg.controls.genericFields;
+  }
+
+  get categoryDependentForm() {
+    return this.fg.controls.categoryDependent;
+  }
+
   loadGenericFieldsOptions() {
     return forkJoin({
       amountOptionsData: this.amountOptionsData$,
@@ -715,47 +723,47 @@ export class MergeExpensePage implements OnInit {
             location_1:
               !location1OptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('location_1')
                 ? location1OptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.categoryDependent.value?.location_1,
+                : this.categoryDependentForm.value?.location_1,
             location_2:
               !location2OptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('location_2')
                 ? location2OptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.categoryDependent.value?.location_2,
+                : this.categoryDependentForm.value?.location_2,
             from_dt:
               !onwardDateOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('from_dt')
                 ? onwardDateOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.categoryDependent.value?.from_dt,
+                : this.categoryDependentForm.value?.from_dt,
             to_dt:
               !returnDateOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('to_dt')
                 ? returnDateOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.categoryDependent.value?.to_dt,
+                : this.categoryDependentForm.value?.to_dt,
             flight_journey_travel_class:
               !flightJourneyTravelClassOptionsData?.areSameValues &&
               !this.touchedCategoryDepedentFields?.includes('flight_journey_travel_class')
                 ? flightJourneyTravelClassOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.categoryDependent.value?.flight_journey_travel_class,
+                : this.categoryDependentForm.value?.flight_journey_travel_class,
             flight_return_travel_class:
               !flightReturnTravelClassOptionsData?.areSameValues &&
               !this.touchedCategoryDepedentFields?.includes('flight_return_travel_class')
                 ? flightReturnTravelClassOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.categoryDependent.value?.flight_return_travel_class,
+                : this.categoryDependentForm.value?.flight_return_travel_class,
             train_travel_class:
               !trainTravelClassOptionsData?.areSameValues &&
               !this.touchedCategoryDepedentFields?.includes('train_travel_class')
                 ? trainTravelClassOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.categoryDependent.value?.train_travel_class,
+                : this.categoryDependentForm.value?.train_travel_class,
             bus_travel_class:
               !busTravelClassOptionsData?.areSameValues &&
               !this.touchedCategoryDepedentFields?.includes('bus_travel_class')
                 ? busTravelClassOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.categoryDependent.value?.bus_travel_class,
+                : this.categoryDependentForm.value?.bus_travel_class,
             distance:
               !distanceOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('distance')
                 ? distanceOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.categoryDependent.value?.distance,
+                : this.categoryDependentForm.value?.distance,
             distance_unit:
               !distanceUnitOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('distance_unit')
                 ? distanceUnitOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.categoryDependent.value?.distance_unit,
+                : this.categoryDependentForm.value?.distance_unit,
           },
         });
       }
