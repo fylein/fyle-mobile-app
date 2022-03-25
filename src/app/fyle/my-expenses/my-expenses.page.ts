@@ -51,6 +51,10 @@ import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { Store } from '@ngrx/store';
+import { updateFilters, clearAllFilters, removeFilter } from '../../core/store/my-expenses.action';
+import { paramsSelector } from '../../core/store/my-expenses.selectors';
+import { select } from '@ngrx/store';
 
 type Filters = Partial<{
   state: string[];
@@ -61,6 +65,8 @@ type Filters = Partial<{
   type: string[];
   sortParam: string;
   sortDir: string;
+  searchString: string;
+  pageNumber: number;
 }>;
 
 @Component({
@@ -79,21 +85,9 @@ export class MyExpensesPage implements OnInit {
 
   isInfiniteScrollRequired$: Observable<boolean>;
 
-  loadData$: BehaviorSubject<
-    Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  >;
-
   currentPageNumber = 1;
 
   acc = [];
-
-  filters: Filters;
 
   allExpensesStats$: Observable<{ count: number; amount: number }>;
 
@@ -165,6 +159,18 @@ export class MyExpensesPage implements OnInit {
     return HeaderState;
   }
 
+  ngRxFitler$: Observable<Filters>;
+
+  currentFilters: Filters;
+
+  currentParams: Partial<{
+    pageNumber: number;
+    queryParams: any;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
+  }>;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -188,8 +194,43 @@ export class MyExpensesPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
     private snackbarProperties: SnackbarPropertiesService,
-    private tasksService: TasksService
-  ) {}
+    private tasksService: TasksService,
+    private store: Store<{
+      myExpenses: Partial<{
+        pageNumber: number;
+        queryParams: any;
+        sortParam: string;
+        sortDir: string;
+        searchString: string;
+      }>;
+    }>
+  ) {
+    this.ngRxFitler$ = this.store.select('myExpenses');
+
+    this.ngRxFitler$.subscribe((filters) => {
+      this.currentFilters = filters;
+      this.filterPills = this.generateFilterPills(this.currentFilters);
+      const onlyDraftStateFilterApplied =
+        this.currentFilters?.state &&
+        this.currentFilters?.state.length === 1 &&
+        this.currentFilters?.state.includes('DRAFT');
+      const onlyCriticalPolicyFilterApplied =
+        this.currentFilters?.state?.length === 1 && this.currentFilters?.state.includes('CANNOT_REPORT');
+      const draftAndCriticalPolicyFilterApplied =
+        this.currentFilters?.state?.length === 2 &&
+        this.currentFilters?.state.includes('DRAFT') &&
+        this.currentFilters?.state.includes('CANNOT_REPORT');
+
+      this.reviewMode = false;
+      if (onlyDraftStateFilterApplied || onlyCriticalPolicyFilterApplied || draftAndCriticalPolicyFilterApplied) {
+        this.reviewMode = true;
+      }
+    });
+
+    this.ngRxFitler$.pipe(select(paramsSelector)).subscribe((filters) => {
+      this.currentParams = cloneDeep(filters);
+    });
+  }
 
   clearText(isFromCancel) {
     this.simpleSearchText = '';
@@ -224,7 +265,7 @@ export class MyExpensesPage implements OnInit {
   switchSelectionMode(expense?) {
     this.selectionMode = !this.selectionMode;
     if (!this.selectionMode) {
-      if (this.loadData$.getValue().searchString) {
+      if (this.currentParams.searchString) {
         this.headerState = HeaderState.simpleSearch;
       } else {
         this.headerState = HeaderState.base;
@@ -262,9 +303,10 @@ export class MyExpensesPage implements OnInit {
   }
 
   setAllExpensesCountAndAmount() {
-    this.allExpensesStats$ = this.loadData$.pipe(
+    this.allExpensesStats$ = this.ngRxFitler$.pipe(
+      select(paramsSelector),
       switchMap((params) => {
-        const queryParams = params.queryParams || {};
+        const queryParams = cloneDeep(params.queryParams) || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
@@ -424,9 +466,6 @@ export class MyExpensesPage implements OnInit {
     this.simpleSearchText = '';
 
     this.currentPageNumber = 1;
-    this.loadData$ = new BehaviorSubject({
-      pageNumber: 1,
-    });
 
     this.selectionMode = false;
     this.selectedElements = [];
@@ -453,16 +492,17 @@ export class MyExpensesPage implements OnInit {
         debounceTime(400)
       )
       .subscribe((searchString) => {
-        const currentParams = this.loadData$.getValue();
+        const currentParams = this.currentParams;
         currentParams.searchString = searchString;
         this.currentPageNumber = 1;
         currentParams.pageNumber = this.currentPageNumber;
-        this.loadData$.next(currentParams);
+        this.store.dispatch(updateFilters({ filters: currentParams }));
       });
 
-    const paginatedPipe = this.loadData$.pipe(
+    const paginatedPipe = this.ngRxFitler$.pipe(
+      select(paramsSelector),
       switchMap((params) => {
-        let queryParams = params.queryParams || {};
+        let queryParams = cloneDeep(params.queryParams) || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
@@ -502,9 +542,10 @@ export class MyExpensesPage implements OnInit {
 
     this.myExpenses$ = paginatedPipe.pipe(shareReplay(1));
 
-    this.count$ = this.loadData$.pipe(
+    this.count$ = this.ngRxFitler$.pipe(
+      select(paramsSelector),
       switchMap((params) => {
-        let queryParams = params.queryParams || {};
+        let queryParams = cloneDeep(params.queryParams) || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
@@ -520,11 +561,11 @@ export class MyExpensesPage implements OnInit {
       switchMap((etxns) => this.count$.pipe(map((count) => count > etxns.length)))
     );
 
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
+    this.isInfiniteScrollRequired$ = this.ngRxFitler$.pipe(switchMap((_) => paginatedScroll$));
 
     this.setAllExpensesCountAndAmount();
 
-    this.allExpenseCountHeader$ = this.loadData$.pipe(
+    this.allExpenseCountHeader$ = this.ngRxFitler$.pipe(
       switchMap(() =>
         this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
@@ -538,7 +579,7 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.draftExpensesCount$ = this.loadData$.pipe(
+    this.draftExpensesCount$ = this.ngRxFitler$.pipe(
       switchMap(() =>
         this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
@@ -552,8 +593,8 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.loadData$.subscribe((params) => {
-      const queryParams: Params = { filters: JSON.stringify(this.filters) };
+    this.ngRxFitler$.subscribe((params) => {
+      const queryParams: Params = { filters: JSON.stringify(this.currentFilters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
         queryParams,
@@ -565,11 +606,14 @@ export class MyExpensesPage implements OnInit {
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     if (this.activatedRoute.snapshot.queryParams.filters) {
-      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
+      this.store.dispatch(
+        updateFilters(
+          Object.assign({}, this.currentFilters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters), {
+            pageNumber: 1,
+            searchString: this.simpleSearchText,
+          })
+        )
+      );
     } else if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
       if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
@@ -583,11 +627,15 @@ export class MyExpensesPage implements OnInit {
       } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
         filters = { tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT' };
       }
-      this.filters = Object.assign({}, this.filters, filters);
-      this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
+      const generatedFilters = Object.assign({}, this.currentFilters, filters, {
+        pageNumber: 1,
+        searchString: this.simpleSearchText,
+      });
+      this.store.dispatch(
+        updateFilters({
+          filters: generatedFilters,
+        })
+      );
     } else {
       this.clearFilters();
     }
@@ -620,10 +668,11 @@ export class MyExpensesPage implements OnInit {
 
   loadData(event) {
     this.currentPageNumber = this.currentPageNumber + 1;
-
-    const params = this.loadData$.getValue();
-    params.pageNumber = this.currentPageNumber;
-    this.loadData$.next(params);
+    this.store.dispatch(
+      updateFilters({
+        filters: Object.assign({}, this.currentFilters, { pageNumber: this.currentPageNumber }),
+      })
+    );
 
     setTimeout(() => {
       event.target.complete();
@@ -655,10 +704,12 @@ export class MyExpensesPage implements OnInit {
     if (this.selectionMode) {
       this.setExpenseStatsOnSelect();
     }
-    const params = this.loadData$.getValue();
-    params.pageNumber = this.currentPageNumber;
     this.transactionService.clearCache().subscribe(() => {
-      this.loadData$.next(params);
+      this.store.dispatch(
+        updateFilters({
+          filters: Object.assign({}, this.currentFilters, { pageNumber: this.currentPageNumber }),
+        })
+      );
       if (event) {
         setTimeout(() => {
           event.target.complete();
@@ -670,23 +721,23 @@ export class MyExpensesPage implements OnInit {
   generateFilterPills(filter: Filters) {
     const filterPills: FilterPill[] = [];
 
-    if (filter.state && filter.state.length) {
+    if (filter?.state && filter?.state.length) {
       this.generateStateFilterPills(filterPills, filter);
     }
 
-    if (filter.receiptsAttached) {
+    if (filter?.receiptsAttached) {
       this.generateReceiptsAttachedFilterPills(filterPills, filter);
     }
 
-    if (filter.date) {
+    if (filter?.date) {
       this.generateDateFilterPills(filter, filterPills);
     }
 
-    if (filter.type && filter.type.length) {
+    if (filter?.type && filter?.type.length) {
       this.generateTypeFilterPills(filter, filterPills);
     }
 
-    if (filter.sortParam && filter.sortDir) {
+    if (filter?.sortParam && filter?.sortDir) {
       this.generateSortFilterPills(filter, filterPills);
     }
 
@@ -702,13 +753,13 @@ export class MyExpensesPage implements OnInit {
   }
 
   generateSortCategoryPills(filter: any, filterPills: FilterPill[]) {
-    if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
+    if (filter?.sortParam === 'tx_org_category' && filter?.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
         value: 'category - a to z',
       });
-    } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
+    } else if (filter?.sortParam === 'tx_org_category' && filter?.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
@@ -718,13 +769,13 @@ export class MyExpensesPage implements OnInit {
   }
 
   generateSortAmountPills(filter: any, filterPills: FilterPill[]) {
-    if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
+    if (filter?.sortParam === 'tx_amount' && filter?.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
         value: 'amount - high to low',
       });
-    } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
+    } else if (filter?.sortParam === 'tx_amount' && filter?.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
@@ -734,13 +785,13 @@ export class MyExpensesPage implements OnInit {
   }
 
   generateSortTxnDatePills(filter: any, filterPills: FilterPill[]) {
-    if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
+    if (filter?.sortParam === 'tx_txn_dt' && filter?.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
         value: 'date - old to new',
       });
-    } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
+    } else if (filter?.sortParam === 'tx_txn_dt' && filter?.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
@@ -750,7 +801,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   generateTypeFilterPills(filter, filterPills: FilterPill[]) {
-    const combinedValue = filter.type
+    const combinedValue = filter?.type
       .map((type) => {
         if (type === 'RegularExpenses') {
           return 'Regular Expenses';
@@ -772,7 +823,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   generateDateFilterPills(filter, filterPills: FilterPill[]) {
-    if (filter.date === DateFilters.thisWeek) {
+    if (filter?.date === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Date',
         type: 'date',
@@ -780,7 +831,7 @@ export class MyExpensesPage implements OnInit {
       });
     }
 
-    if (filter.date === DateFilters.thisMonth) {
+    if (filter?.date === DateFilters.thisMonth) {
       filterPills.push({
         label: 'Date',
         type: 'date',
@@ -788,7 +839,7 @@ export class MyExpensesPage implements OnInit {
       });
     }
 
-    if (filter.date === DateFilters.all) {
+    if (filter?.date === DateFilters.all) {
       filterPills.push({
         label: 'Date',
         type: 'date',
@@ -796,7 +847,7 @@ export class MyExpensesPage implements OnInit {
       });
     }
 
-    if (filter.date === DateFilters.lastMonth) {
+    if (filter?.date === DateFilters.lastMonth) {
       filterPills.push({
         label: 'Date',
         type: 'date',
@@ -804,14 +855,14 @@ export class MyExpensesPage implements OnInit {
       });
     }
 
-    if (filter.date === DateFilters.custom) {
+    if (filter?.date === DateFilters.custom) {
       this.generateCustomDatePill(filter, filterPills);
     }
   }
 
   generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
-    const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
-    const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
+    const startDate = filter?.customDateStart && moment(filter?.customDateStart).format('y-MM-D');
+    const endDate = filter?.customDateEnd && moment(filter?.customDateEnd).format('y-MM-D');
 
     if (startDate && endDate) {
       filterPills.push({
@@ -838,7 +889,7 @@ export class MyExpensesPage implements OnInit {
     filterPills.push({
       label: 'Receipts Attached',
       type: 'receiptsAttached',
-      value: filter.receiptsAttached.toLowerCase(),
+      value: filter?.receiptsAttached.toLowerCase(),
     });
   }
 
@@ -846,7 +897,7 @@ export class MyExpensesPage implements OnInit {
     filterPills.push({
       label: 'Type',
       type: 'state',
-      value: filter.state
+      value: filter?.state
         .map((state) => {
           if (state === 'DRAFT') {
             return 'Incomplete';
@@ -858,95 +909,42 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  addNewFiltersToParams() {
-    const currentParams = this.loadData$.getValue();
-    currentParams.pageNumber = 1;
-    const newQueryParams: any = {
-      or: [],
-    };
-    this.generateDateParams(newQueryParams);
-
-    this.generateReceiptAttachedParams(newQueryParams);
-
-    this.generateStateFilters(newQueryParams);
-
-    this.generateTypeFilters(newQueryParams);
-
-    this.setSortParams(currentParams);
-
-    currentParams.queryParams = newQueryParams;
-
-    const onlyDraftStateFilterApplied =
-      this.filters.state && this.filters.state.length === 1 && this.filters.state.includes('DRAFT');
-    const onlyCriticalPolicyFilterApplied =
-      this.filters.state?.length === 1 && this.filters.state.includes('CANNOT_REPORT');
-    const draftAndCriticalPolicyFilterApplied =
-      this.filters.state?.length === 2 &&
-      this.filters.state.includes('DRAFT') &&
-      this.filters.state.includes('CANNOT_REPORT');
-
-    this.reviewMode = false;
-    if (onlyDraftStateFilterApplied || onlyCriticalPolicyFilterApplied || draftAndCriticalPolicyFilterApplied) {
-      this.reviewMode = true;
-    }
-
-    return currentParams;
-  }
-
-  setSortParams(
-    currentParams: Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  ) {
-    if (this.filters.sortParam && this.filters.sortDir) {
-      currentParams.sortParam = this.filters.sortParam;
-      currentParams.sortDir = this.filters.sortDir;
-    } else {
-      currentParams.sortParam = 'tx_txn_dt';
-      currentParams.sortDir = 'desc';
-    }
-  }
-
   generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
     const generatedFilters: SelectedFilters<any>[] = [];
 
-    if (filter.state) {
+    if (filter?.state) {
       generatedFilters.push({
         name: 'Type',
-        value: filter.state,
+        value: filter?.state,
       });
     }
 
-    if (filter.receiptsAttached) {
+    if (filter?.receiptsAttached) {
       generatedFilters.push({
         name: 'Receipts Attached',
-        value: filter.receiptsAttached,
+        value: filter?.receiptsAttached,
       });
     }
 
-    if (filter.date) {
+    if (filter?.date) {
       generatedFilters.push({
         name: 'Date',
-        value: filter.date,
+        value: filter?.date,
         associatedData: {
-          startDate: filter.customDateStart,
-          endDate: filter.customDateEnd,
+          startDate: filter?.customDateStart,
+          endDate: filter?.customDateEnd,
         },
       });
     }
 
-    if (filter.type) {
+    if (filter?.type) {
       generatedFilters.push({
         name: 'Expense Type',
-        value: filter.type,
+        value: filter?.type,
       });
     }
 
-    if (filter.sortParam && filter.sortDir) {
+    if (filter?.sortParam && filter?.sortDir) {
       this.addSortToGeneatedFilters(filter, generatedFilters);
     }
 
@@ -986,12 +984,12 @@ export class MyExpensesPage implements OnInit {
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
-    if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
+    if (filter?.sortParam === 'tx_org_category' && filter?.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'categoryAToZ',
       });
-    } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
+    } else if (filter?.sortParam === 'tx_org_category' && filter?.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'categoryZToA',
@@ -1012,12 +1010,12 @@ export class MyExpensesPage implements OnInit {
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
-    if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
+    if (filter?.sortParam === 'tx_amount' && filter?.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'amountHighToLow',
       });
-    } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
+    } else if (filter?.sortParam === 'tx_amount' && filter?.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'amountLowToHigh',
@@ -1038,12 +1036,12 @@ export class MyExpensesPage implements OnInit {
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
-    if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
+    if (filter?.sortParam === 'tx_txn_dt' && filter?.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'dateOldToNew',
       });
-    } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
+    } else if (filter?.sortParam === 'tx_txn_dt' && filter?.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'dateNewToOld',
@@ -1054,31 +1052,31 @@ export class MyExpensesPage implements OnInit {
   convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
     const generatedFilters: Filters = {};
 
-    const typeFilter = selectedFilters.find((filter) => filter.name === 'Type');
+    const typeFilter = selectedFilters.find((filter) => filter?.name === 'Type');
     if (typeFilter) {
       generatedFilters.state = typeFilter.value;
     }
 
-    const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
+    const dateFilter = selectedFilters.find((filter) => filter?.name === 'Date');
     if (dateFilter) {
       generatedFilters.date = dateFilter.value;
       generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
 
-    const receiptAttachedFilter = selectedFilters.find((filter) => filter.name === 'Receipts Attached');
+    const receiptAttachedFilter = selectedFilters.find((filter) => filter?.name === 'Receipts Attached');
 
     if (receiptAttachedFilter) {
       generatedFilters.receiptsAttached = receiptAttachedFilter.value;
     }
 
-    const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense Type');
+    const expenseTypeFilter = selectedFilters.find((filter) => filter?.name === 'Expense Type');
 
     if (expenseTypeFilter) {
       generatedFilters.type = expenseTypeFilter.value;
     }
 
-    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
+    const sortBy = selectedFilters.find((filter) => filter?.name === 'Sort By');
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
@@ -1237,7 +1235,7 @@ export class MyExpensesPage implements OnInit {
             ],
           } as FilterOptions<string>,
         ],
-        selectedFilterValues: this.generateSelectedFilters(this.filters),
+        selectedFilterValues: this.generateSelectedFilters(this.currentFilters),
         activeFilterInitialName,
       },
       cssClass: 'dialog-popover',
@@ -1247,33 +1245,26 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      this.filters = this.convertFilters(data);
+      const filters = this.convertFilters(data);
       this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
+      this.store.dispatch(
+        updateFilters({
+          filters: Object.assign({}, filters, { pageNumber: this.currentPageNumber }),
+        })
+      );
       this.trackingService.myExpensesFilterApplied({
-        ...this.filters,
+        ...filters,
       });
     }
   }
 
   clearFilters() {
-    this.filters = {};
     this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    this.filterPills = this.generateFilterPills(this.filters);
-  }
-
-  async setState(state: string) {
-    this.isLoading = true;
-    this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
+    this.store.dispatch(
+      updateFilters({
+        filters: Object.assign({}, { pageNumber: this.currentPageNumber }),
+      })
+    );
   }
 
   async onDeleteExpenseClick(etxn: Expense, index?: number) {
@@ -1510,10 +1501,11 @@ export class MyExpensesPage implements OnInit {
   }
 
   openReviewExpenses() {
-    const allDataPipe$ = this.loadData$.pipe(
+    const allDataPipe$ = this.ngRxFitler$.pipe(
       take(1),
+      select(paramsSelector),
       switchMap((params) => {
-        const queryParams = params.queryParams || {};
+        const queryParams = cloneDeep(params.queryParams) || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
 
@@ -1781,11 +1773,12 @@ export class MyExpensesPage implements OnInit {
         this.setExpenseStatsOnSelect();
       }
 
-      this.loadData$
+      this.ngRxFitler$
         .pipe(
           take(1),
+          select(paramsSelector),
           map((params) => {
-            let queryParams = params.queryParams || {};
+            let queryParams = cloneDeep(params.queryParams) || {};
 
             queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
             queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
@@ -1833,11 +1826,18 @@ export class MyExpensesPage implements OnInit {
   }
 
   onFilterClose(filterType: string) {
-    delete this.filters[filterType];
     this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    this.filterPills = this.generateFilterPills(this.filters);
+    this.store.dispatch(
+      removeFilter({
+        filterName: filterType,
+      })
+    );
+
+    this.store.dispatch(
+      updateFilters({
+        filters: Object.assign({}, this.currentFilters, { pageNumber: this.currentPageNumber }),
+      })
+    );
   }
 
   onHomeClicked() {
@@ -1867,109 +1867,6 @@ export class MyExpensesPage implements OnInit {
         navigate_back: true,
       },
     ]);
-  }
-
-  generateTypeFilters(newQueryParams) {
-    const typeOrFilter = [];
-
-    if (this.filters.type) {
-      if (this.filters.type.includes('Mileage')) {
-        typeOrFilter.push('tx_fyle_category.eq.Mileage');
-      }
-
-      if (this.filters.type.includes('PerDiem')) {
-        // The space encoding is done by angular into %20 so no worries here
-        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
-      }
-
-      if (this.filters.type.includes('RegularExpenses')) {
-        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
-      }
-    }
-
-    if (typeOrFilter.length > 0) {
-      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
-      newQueryParams.or.push(combinedTypeOrFilter);
-    }
-  }
-
-  generateStateFilters(newQueryParams) {
-    const stateOrFilter = [];
-
-    if (this.filters.state) {
-      newQueryParams.tx_report_id = 'is.null';
-      if (this.filters.state.includes('READY_TO_REPORT')) {
-        stateOrFilter.push('and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
-      }
-
-      if (this.filters.state.includes('POLICY_VIOLATED')) {
-        stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
-      }
-
-      if (this.filters.state.includes('CANNOT_REPORT')) {
-        stateOrFilter.push('tx_policy_amount.lt.0.0001');
-      }
-
-      if (this.filters.state.includes('DRAFT')) {
-        stateOrFilter.push('tx_state.in.(DRAFT)');
-      }
-    }
-
-    if (stateOrFilter.length > 0) {
-      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParams.or.push(combinedStateOrFilter);
-    }
-  }
-
-  generateReceiptAttachedParams(newQueryParams) {
-    if (this.filters.receiptsAttached) {
-      if (this.filters.receiptsAttached === 'YES') {
-        newQueryParams.tx_num_files = 'gt.0';
-      }
-
-      if (this.filters.receiptsAttached === 'NO') {
-        newQueryParams.tx_num_files = 'eq.0';
-      }
-    }
-  }
-
-  generateDateParams(newQueryParams) {
-    if (this.filters.date) {
-      this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
-      this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
-      if (this.filters.date === DateFilters.thisMonth) {
-        const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and = `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`;
-      }
-
-      if (this.filters.date === DateFilters.thisWeek) {
-        const thisWeek = this.dateService.getThisWeekRange();
-        newQueryParams.and = `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`;
-      }
-
-      if (this.filters.date === DateFilters.lastMonth) {
-        const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and = `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
-      }
-
-      this.generateCustomDateParams(newQueryParams);
-    }
-  }
-
-  generateCustomDateParams(newQueryParams: any) {
-    if (this.filters.date === DateFilters.custom) {
-      const startDate = this.filters?.customDateStart?.toISOString();
-      const endDate = this.filters?.customDateEnd?.toISOString();
-      if (this.filters.customDateStart && this.filters.customDateEnd) {
-        newQueryParams.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
-      } else if (this.filters.customDateStart) {
-        newQueryParams.and = `(tx_txn_dt.gte.${startDate})`;
-      } else if (this.filters.customDateEnd) {
-        newQueryParams.and = `(tx_txn_dt.lt.${endDate})`;
-      }
-    }
   }
 
   searchClick() {

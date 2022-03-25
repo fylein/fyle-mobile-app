@@ -21,6 +21,9 @@ import { TokenService } from './core/services/token.service';
 import { StorageService } from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import { GoogleMapsModule } from '@angular/google-maps';
+import { StoreModule } from '@ngrx/store';
+import { myExpensesReducer } from './core/store/my-expenses.reducer';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -48,6 +51,10 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     HttpClientJsonpModule,
     SharedModule,
     HammerModule,
+    StoreModule.forRoot({ myExpenses: myExpensesReducer }),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25, // Retains last 25 states
+    }),
   ],
   providers: [
     StatusBar,
