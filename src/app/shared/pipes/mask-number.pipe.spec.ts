@@ -1,8 +1,8 @@
-import { MaskNumberPipe } from './mask-number.pipe';
+import { MaskNumber } from './mask-number.pipe';
 
-describe('MaskNumberPipe', () => {
+describe('MaskNumber', () => {
   it('create an instance', () => {
-    const pipe = new MaskNumberPipe();
+    const pipe = new MaskNumber();
     expect(pipe).toBeTruthy();
   });
 });
