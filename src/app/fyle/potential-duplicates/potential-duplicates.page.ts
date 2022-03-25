@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, EMPTY, from, noop, Observable, Subject } from 'rxjs';
 import { map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
-import { DuplicateSets } from 'src/app/core/models/v2/duplicate-sets.model';
+import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { Params, Router } from '@angular/router';
@@ -10,21 +10,23 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+type Expenses = Expense[];
+
 @Component({
   selector: 'app-potential-duplicates',
   templateUrl: './potential-duplicates.page.html',
   styleUrls: ['./potential-duplicates.page.scss'],
 })
 export class PotentialDuplicatesPage implements OnInit {
-  duplicateSets$: Observable<Expense[][]>;
+  duplicateSets$: Observable<Expenses[]>;
 
   loadData$ = new BehaviorSubject<void>(null);
 
   selectedSet = 0;
 
-  duplicateSetData: DuplicateSets[];
+  duplicateSetData: DuplicateSet[];
 
-  duplicateExpenses: Expense[][];
+  duplicateExpenses: Expenses[];
 
   isLoading = true;
 
@@ -62,10 +64,7 @@ export class PotentialDuplicatesPage implements OnInit {
               map((expenses) => {
                 const expensesArray = expenses as [];
                 return duplicateSets.map((duplicateSet) =>
-                  duplicateSet.transaction_ids.map(
-                    (expenseId) =>
-                      expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
-                  )
+                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
                 );
               })
             );
@@ -78,6 +77,12 @@ export class PotentialDuplicatesPage implements OnInit {
       })
     );
     this.duplicateSets$.subscribe(noop);
+  }
+
+  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]) {
+    return duplicateSet.transaction_ids.map(
+      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
+    );
   }
 
   next() {
@@ -121,9 +126,6 @@ export class PotentialDuplicatesPage implements OnInit {
       tx_id: `in.(${selectedTxnIds.join(',')})`,
     };
     this.transaction.getETxnc({ offset: 0, limit: 10, params }).subscribe((selectedExpenses) => {
-      // this.router.navigate(['/', 'enterprise', 'merge_expense'], {
-      //   state: { selectedElements: selectedExpenses, from: 'TASK' },
-      // });
       this.router.navigate([
         '/',
         'enterprise',

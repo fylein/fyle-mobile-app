@@ -17,7 +17,7 @@ import { ReportService } from './report.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { HandleDuplicatesService } from './handle-duplicates.service';
-import { DuplicateSets } from '../models/v2/duplicate-sets.model';
+import { DuplicateSet } from '../models/v2/duplicate-sets.model';
 
 type TaskDict = {
   sentBackReports: DashboardTask[];
@@ -86,9 +86,8 @@ export class TasksService {
     return this.advancesTaskCount$.asObservable();
   }
 
-  // eslint-disable-next-line complexity
   generateSelectedFilters(filters: TaskFilters): SelectedFilters<any>[] {
-    const selectedFilters = [];
+    let selectedFilters = [];
 
     if (filters.draftExpenses) {
       selectedFilters.push({
@@ -110,15 +109,7 @@ export class TasksService {
     }
 
     if (filters.potentialDuplicates) {
-      const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
-      if (existingFilter) {
-        existingFilter.value.push('DUPLICATE');
-      } else {
-        selectedFilters.push({
-          name: 'Expenses',
-          value: ['DUPLICATE'],
-        });
-      }
+      selectedFilters = this.generatePotentialDuplicatesFilter(selectedFilters);
     }
 
     if (filters.draftReports) {
@@ -129,15 +120,7 @@ export class TasksService {
     }
 
     if (filters.sentBackReports) {
-      const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
-      if (existingFilter) {
-        existingFilter.value.push('SENT_BACK');
-      } else {
-        selectedFilters.push({
-          name: 'Reports',
-          value: ['SENT_BACK'],
-        });
-      }
+      selectedFilters = this.generateSentBackFilter(selectedFilters);
     }
 
     if (filters.teamReports) {
@@ -159,6 +142,32 @@ export class TasksService {
       });
     }
 
+    return selectedFilters;
+  }
+
+  generatePotentialDuplicatesFilter(selectedFilters) {
+    const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
+    if (existingFilter) {
+      existingFilter.value.push('DUPLICATE');
+    } else {
+      selectedFilters.push({
+        name: 'Expenses',
+        value: ['DUPLICATE'],
+      });
+    }
+    return selectedFilters;
+  }
+
+  generateSentBackFilter(selectedFilters) {
+    const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
+    if (existingFilter) {
+      existingFilter.value.push('SENT_BACK');
+    } else {
+      selectedFilters.push({
+        name: 'Reports',
+        value: ['SENT_BACK'],
+      });
+    }
     return selectedFilters;
   }
 
@@ -480,7 +489,7 @@ export class TasksService {
       );
   }
 
-  private mapPotentialDuplicatesTasks(duplicateSets: DuplicateSets[]) {
+  private mapPotentialDuplicatesTasks(duplicateSets: DuplicateSet[]) {
     const duplicateIds = duplicateSets
       .map((value) => value.transaction_ids)
       .reduce((acc, curVal) => acc.concat(curVal), []);

@@ -101,6 +101,7 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -4292,23 +4293,24 @@ export class AddEditExpensePage implements OnInit {
             const params = {
               tx_id: `in.(${duplicateIds.join(',')})`,
             };
-            return this.transactionService.getETxnc({ offset: 0, limit: 10, params }).pipe(
+            return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
               map((expenses) => {
                 const expensesArray = expenses as [];
-                return duplicateSets.map((set) =>
-                  set.transaction_ids.map((expenseId) => {
-                    const index = expensesArray.findIndex((duplicateTxn: Expense) => expenseId === duplicateTxn.tx_id);
-                    return expensesArray[index];
-                  })
-                );
+                duplicateSets.map((duplicateSet) => this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray));
               })
             );
           })
         )
-        .subscribe((duplicateExpenses) => {
-          this.duplicateExpenses = duplicateExpenses[0];
+        .subscribe((duplicateExpensesSet) => {
+          this.duplicateExpenses = duplicateExpensesSet[0];
         });
     }
+  }
+
+  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]) {
+    return duplicateSet.transaction_ids.map(
+      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
+    );
   }
 
   async showSuggestedDuplicates(duplicateExpenses: Expense[]) {
