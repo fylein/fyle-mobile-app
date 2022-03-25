@@ -169,6 +169,7 @@ export class MyExpensesPage implements OnInit {
   expensesToBeDeleted: Expense[];
 
   cccExpenses: number;
+
   isUnifyCCCEnabled$: Observable<{ enabled: boolean }>;
 
   isUnifyCCCEnabled: boolean;
@@ -742,7 +743,7 @@ export class MyExpensesPage implements OnInit {
   generateFilterPills(filter: Filters) {
     const filterPills: FilterPill[] = [];
 
-    if (filter.state && filter.state.length) {
+    if (filter.state?.length > 0) {
       this.generateStateFilterPills(filterPills, filter);
     }
 
@@ -754,7 +755,7 @@ export class MyExpensesPage implements OnInit {
       this.generateDateFilterPills(filter, filterPills);
     }
 
-    if (filter.type && filter.type.length) {
+    if (filter.type?.length > 0) {
       this.generateTypeFilterPills(filter, filterPills);
     }
 
@@ -762,7 +763,7 @@ export class MyExpensesPage implements OnInit {
       this.generateSortFilterPills(filter, filterPills);
     }
 
-    if (filter.cardNumbers && filter.cardNumbers.length) {
+    if (filter.cardNumbers?.length > 0) {
       this.generateCardFilterPills(filterPills, filter);
     }
     return filterPills;
