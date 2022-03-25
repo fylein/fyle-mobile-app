@@ -572,7 +572,6 @@ export class MergeExpensePage implements OnInit {
               this.fg.controls.custom_inputs?.value?.fields || [],
               this.customInputsService.filterByCategory(fields, categoryId)
             );
-
             return customFields;
           }),
           toArray()
