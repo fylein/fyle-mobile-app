@@ -32,50 +32,62 @@
       <app-fy-alert-info *ngIf="expenseToKeepInfoText" [message]="expenseToKeepInfoText" [type]="'information'">
       </app-fy-alert-info>
 
-      <app-generic-fields-form
-        [genericFieldsFormGroup]="fg.get('genericFields')"
-        [amountOptionsData$]="amountOptionsData$"
-        [receiptOptions$]="receiptOptions$"
-        [attachments$]="attachments$"
-        [dateOfSpendOptionsData$]="dateOfSpendOptionsData$"
-        [paymentModeOptionsData$]="paymentModeOptionsData$"
-        [CCCTxn$]="CCCTxn$"
-        [projectOptionsData$]="projectOptionsData$"
-        [billableOptionsData$]="billableOptionsData$"
-        [vendorOptionsData$]="vendorOptionsData$"
-        [categoryOptionsData$]="categoryOptionsData$"
-        [taxGroupOptionsData$]="taxGroupOptionsData$"
-        [taxAmountOptionsData$]="taxAmountOptionsData$"
-        [constCenterOptionsData$]="constCenterOptionsData$"
-        [purposeOptionsData$]="purposeOptionsData$"
-        [categoryDependentTemplate]="categoryDependentFields"
-        [disableFormElements]="disableFormElements"
-      ></app-generic-fields-form>
+      <ng-container *ngIf="genericFieldsOptions$|async as genericFieldsOptions">
+        <app-generic-fields-form
+          formControlName="genericFields"
+          [amountOptionsData]="genericFieldsOptions.amountOptionsData"
+          [receiptOptions]="receiptOptions"
+          [attachments]="attachments"
+          [dateOfSpendOptionsData]="genericFieldsOptions.dateOfSpendOptionsData"
+          [paymentModeOptionsData]="genericFieldsOptions.paymentModeOptionsData"
+          [CCCTxns]="CCCTxns"
+          [projectOptionsData]="genericFieldsOptions.projectOptionsData"
+          [billableOptionsData]="genericFieldsOptions.billableOptionsData"
+          [vendorOptionsData]="genericFieldsOptions.vendorOptionsData"
+          [categoryOptionsData]="genericFieldsOptions.categoryOptionsData"
+          [taxGroupOptionsData]="genericFieldsOptions.taxGroupOptionsData"
+          [taxAmountOptionsData]="genericFieldsOptions.taxAmountOptionsData"
+          [constCenterOptionsData]="genericFieldsOptions.constCenterOptionsData"
+          [purposeOptionsData]="genericFieldsOptions.purposeOptionsData"
+          [categoryDependentTemplate]="categoryDependentFields"
+          [disableFormElements]="disableFormElements"
+          (fieldsTouched)="onGenericFieldsTouched($event)"
+          (categoryChanged)="onCategoryChanged($event)"
+          (receiptChanged)="onReceiptChanged($event)"
+          (paymentModeChanged)="onPaymentModeChanged($event)"
+        ></app-generic-fields-form>
+      </ng-container>
 
       <ng-template #categoryDependentFields>
         <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(selectedCategoryName)">
-          <app-category-dependent-fields-form
-            [categoryDependentFormGroup]="fg.get('categoryDependent')"
-            [location1OptionsData$]="location1OptionsData$"
-            [location2OptionsData$]="location2OptionsData$"
-            [onwardDateOptionsData$]="onwardDateOptionsData$"
-            [returnDateOptionsData$]="returnDateOptionsData$"
-            [flightJourneyTravelClassOptionsData$]="flightJourneyTravelClassOptionsData$"
-            [flightReturnTravelClassOptionsData$]="flightReturnTravelClassOptionsData$"
-            [trainTravelClassOptionsData$]="trainTravelClassOptionsData$"
-            [busTravelClassOptionsData$]="busTravelClassOptionsData$"
-            [distanceOptionsData$]="distanceOptionsData$"
-            [distanceUnitOptionsData$]="distanceUnitOptionsData$"
-            [disableFormElements]="disableFormElements"
-          ></app-category-dependent-fields-form>
+          <ng-container *ngIf="categoryDependentFieldsOptions$|async as categoryDependentFieldsOptions">
+            <app-category-dependent-fields-form
+              formControlName="categoryDependent"
+              [location1OptionsData]="categoryDependentFieldsOptions.location1OptionsData"
+              [location2OptionsData]="categoryDependentFieldsOptions.location2OptionsData"
+              [onwardDateOptionsData]="categoryDependentFieldsOptions.onwardDateOptionsData"
+              [returnDateOptionsData]="categoryDependentFieldsOptions.returnDateOptionsData"
+              [flightJourneyTravelClassOptionsData]="categoryDependentFieldsOptions.flightJourneyTravelClassOptionsData"
+              [flightReturnTravelClassOptionsData]="categoryDependentFieldsOptions.flightReturnTravelClassOptionsData"
+              [trainTravelClassOptionsData]="categoryDependentFieldsOptions.trainTravelClassOptionsData"
+              [busTravelClassOptionsData]="categoryDependentFieldsOptions.busTravelClassOptionsData"
+              [distanceOptionsData]="categoryDependentFieldsOptions.distanceOptionsData"
+              [distanceUnitOptionsData]="categoryDependentFieldsOptions.distanceUnitOptionsData"
+              [disableFormElements]="disableFormElements"
+              (fieldsTouched)="onCategoryDependentFieldsTouched($event)"
+            ></app-category-dependent-fields-form>
+          </ng-container>
         </ng-container>
       </ng-template>
 
-      <app-custom-inputs-fields-form
-        [disableFormElements]="disableFormElements"
-        [customInputs$]="customInputs$"
-        [combinedCustomProperties]="combinedCustomProperties"
-      ></app-custom-inputs-fields-form>
+      <ng-container *ngIf="customInputs$ | async as customInputs">
+        <app-custom-inputs-fields-form
+          formControlName="custom_inputs"
+          [disableFormElements]="disableFormElements"
+          [customInputs]="customInputs"
+          [combinedCustomProperties]="combinedCustomProperties"
+        ></app-custom-inputs-fields-form>
+      </ng-container>
     </form>
   </ng-container>
 </ion-content>

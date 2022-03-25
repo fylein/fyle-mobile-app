@@ -1,53 +1,143 @@
-import { Component, Input, OnInit, TemplateRef } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, TemplateRef } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
-import { Option } from 'src/app/core/models/option.type';
-import { OptionsData } from 'src/app/core/models/options-data.type';
+import {
+  FormControl,
+  FormGroup,
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  FormBuilder,
+  Validators,
+  NgControl,
+} from '@angular/forms';
+
+type Option = Partial<{
+  label: string;
+  value: any;
+}>;
+
+type OptionsData = Partial<{
+  options: Option[];
+  areSameValues: boolean;
+  name: string;
+  value: any;
+}>;
 
 @Component({
   selector: 'app-generic-fields-form',
   templateUrl: './generic-fields-form.component.html',
   styleUrls: ['./generic-fields-form.component.scss'],
+  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: GenericFieldsFormComponent, multi: true }],
 })
-export class GenericFieldsFormComponent implements OnInit {
-  @Input() amountOptionsData$: Observable<OptionsData>;
+export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
+  @Input() amountOptionsData: OptionsData;
 
-  @Input() receiptOptions$: Observable<Option[]>;
+  @Input() receiptOptions: Option[];
 
-  @Input() dateOfSpendOptionsData$: Observable<OptionsData>;
+  @Input() dateOfSpendOptionsData: OptionsData;
 
-  @Input() paymentModeOptionsData$: Observable<OptionsData>;
+  @Input() paymentModeOptionsData: OptionsData;
 
-  @Input() attachments$: Observable<OptionsData>;
+  @Input() attachments: OptionsData;
 
-  @Input() projectOptionsData$: Observable<OptionsData>;
+  @Input() projectOptionsData: OptionsData;
 
-  @Input() billableOptionsData$: Observable<OptionsData>;
+  @Input() billableOptionsData: OptionsData;
 
-  @Input() categoryOptionsData$: Observable<OptionsData>;
+  @Input() categoryOptionsData: OptionsData;
 
-  @Input() vendorOptionsData$: Observable<OptionsData>;
+  @Input() vendorOptionsData: OptionsData;
 
-  @Input() taxGroupOptionsData$: Observable<OptionsData>;
+  @Input() taxGroupOptionsData: OptionsData;
 
-  @Input() taxAmountOptionsData$: Observable<OptionsData>;
+  @Input() taxAmountOptionsData: OptionsData;
 
-  @Input() constCenterOptionsData$: Observable<OptionsData>;
+  @Input() constCenterOptionsData: OptionsData;
 
-  @Input() purposeOptionsData$: Observable<OptionsData>;
-
-  @Input() genericFieldsFormGroup: FormGroup;
+  @Input() purposeOptionsData: OptionsData;
 
   @Input() categoryDependentFormGroup: FormGroup;
 
   @Input() categoryDependentTemplate: TemplateRef<any>;
 
-  @Input() CCCTxn$: Observable<CorporateCardExpense[]>;
+  @Input() CCCTxns: CorporateCardExpense[];
 
   @Input() disableFormElements: boolean;
 
-  constructor() {}
+  @Output() fieldsTouched = new EventEmitter<string[]>();
 
-  ngOnInit() {}
+  @Output() categoryChanged = new EventEmitter<void>();
+
+  @Output() receiptChanged = new EventEmitter<void>();
+
+  @Output() paymentModeChanged = new EventEmitter<void>();
+
+  genericFieldsFormGroup: FormGroup;
+
+  onChangeSub: Subscription;
+
+  private ngControl: NgControl;
+
+  constructor(private formBuilder: FormBuilder, private injector: Injector) {}
+
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
+
+    this.genericFieldsFormGroup = this.formBuilder.group({
+      amount: [, Validators.required],
+      receipt_ids: [],
+      dateOfSpend: [],
+      paymentMode: [, Validators.required],
+      project: [],
+      billable: [],
+      vendor: [],
+      category: [],
+      tax_group: [],
+      tax_amount: [],
+      costCenter: [],
+      purpose: [],
+    });
+
+    this.genericFieldsFormGroup.controls.category.valueChanges.subscribe((categoryId) => {
+      this.categoryChanged.emit(categoryId);
+    });
+
+    this.genericFieldsFormGroup.controls.paymentMode.valueChanges.subscribe((paymentMode) => {
+      this.paymentModeChanged.emit(paymentMode);
+    });
+
+    this.genericFieldsFormGroup.controls.receipt_ids.valueChanges.subscribe((receiptIds) => {
+      this.receiptChanged.emit(receiptIds);
+    });
+
+    this.genericFieldsFormGroup.valueChanges.subscribe((formControlNames) => {
+      const touchedItems = [];
+      Object.keys(formControlNames).forEach((key) => {
+        if (this.genericFieldsFormGroup.get(key).touched) {
+          touchedItems.push(key);
+        }
+      });
+      this.fieldsTouched.emit(touchedItems);
+    });
+  }
+
+  onTouched = () => {};
+
+  ngOnDestroy(): void {
+    this.onChangeSub.unsubscribe();
+  }
+
+  writeValue(value: any) {
+    if (value) {
+      this.genericFieldsFormGroup.patchValue(value);
+    }
+  }
+
+  registerOnChange(onChange): void {
+    this.onChangeSub = this.genericFieldsFormGroup.valueChanges.subscribe(onChange);
+  }
+
+  registerOnTouched(onTouched): void {
+    this.onTouched = onTouched;
+  }
 }

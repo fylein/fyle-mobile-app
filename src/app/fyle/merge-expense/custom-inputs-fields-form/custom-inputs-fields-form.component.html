@@ -1,25 +1,23 @@
-<ng-container *ngIf="customInputs$ | async">
-  <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
-    <ng-container *ngIf="combinedCustomProperties">
-      <form [formGroup]="customInput.control">
-        <div class="internal-block" *ngIf="combinedCustomProperties[customInput.name]?.options">
-          <app-fy-select
-            [enableSearch]="false"
-            [label]="customInput.name"
-            [nullOption]="false"
-            [nullOption]="combinedCustomProperties[customInput.name]?.options?.length === 1"
-            [disabled]="
-              disableFormElements ||
-              combinedCustomProperties[customInput.name]?.areSameValues ||
-              combinedCustomProperties[customInput.name]?.options?.length === 0
-            "
-            [options]="combinedCustomProperties[customInput.name]?.options"
-            [selectModalHeader]="'Select'"
-            formControlName="value"
-          >
-          </app-fy-select>
-        </div>
-      </form>
-    </ng-container>
+<ng-container *ngIf="combinedCustomProperties">
+  <ng-container *ngFor="let customField of customFields">
+    <form [formGroup]="customField.control">
+      <div class="internal-block" *ngIf="combinedCustomProperties[customField.name]?.options">
+        <app-fy-select
+          [enableSearch]="false"
+          [label]="customField.name"
+          [nullOption]="false"
+          [nullOption]="combinedCustomProperties[customField.name]?.options?.length === 1"
+          [disabled]="
+            disableFormElements ||
+            combinedCustomProperties[customField.name]?.areSameValues ||
+            combinedCustomProperties[customField.name]?.options?.length === 0
+          "
+          [options]="combinedCustomProperties[customField.name]?.options"
+          [selectModalHeader]="'Select'"
+          formControlName="value"
+        >
+        </app-fy-select>
+      </div>
+    </form>
   </ng-container>
 </ng-container>

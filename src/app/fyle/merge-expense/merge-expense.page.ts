@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { forkJoin, noop, Observable } from 'rxjs';
+import { BehaviorSubject, forkJoin, noop, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, shareReplay, startWith, switchMap, take, tap, toArray } from 'rxjs/operators';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -16,10 +16,38 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
-import { Option } from 'src/app/core/models/option.type';
-import { OptionsData } from 'src/app/core/models/options-data.type';
-import { CustomInputs } from 'src/app/core/models/custom-input.type';
-import { CombinedOptions } from 'src/app/core/models/combined-options.model';
+
+type Option = Partial<{
+  label: string;
+  value: any;
+}>;
+
+type OptionsData = Partial<{
+  options: Option[];
+  areSameValues: boolean;
+  name: string;
+  value: any;
+}>;
+
+type CustomInputs = Partial<{
+  control: FormControl;
+  id: string;
+  mandatory: boolean;
+  name: string;
+  options: Option[];
+  placeholder: string;
+  prefix: string;
+  type: string;
+  value: string;
+}>;
+
+interface CombinedOptions {
+  [key: string]: OptionsData;
+}
+
+interface OptionsSet {
+  [key: string]: OptionsData;
+}
 
 @Component({
   selector: 'app-merge-expense',
@@ -75,7 +103,13 @@ export class MergeExpensePage implements OnInit {
 
   distanceUnitOptionsData$: Observable<OptionsData>;
 
-  receiptOptions$: Observable<Option[]>;
+  receiptOptions: Option[];
+
+  genericFieldsOptions$: Observable<OptionsSet>;
+
+  categoryDependentFieldsOptions$: Observable<OptionsSet>;
+
+  loadCustomFields$: BehaviorSubject<string>;
 
   isMerging = false;
 
@@ -83,7 +117,7 @@ export class MergeExpensePage implements OnInit {
 
   customInputs$: Observable<CustomInputs[]>;
 
-  attachments$: Observable<FileObject[]>;
+  attachments: FileObject[];
 
   combinedCustomProperties: CombinedOptions = {};
 
@@ -99,9 +133,13 @@ export class MergeExpensePage implements OnInit {
 
   expenseToKeepInfoText: string;
 
-  CCCTxn$: Observable<CorporateCardExpense[]>;
+  CCCTxns: CorporateCardExpense[];
 
   redirectedFrom: string;
+
+  touchedGenericFields: string[];
+
+  touchedCategoryDepedentFields: string[];
 
   constructor(
     private router: Router,
@@ -124,38 +162,16 @@ export class MergeExpensePage implements OnInit {
   ionViewWillEnter() {
     this.fg = this.formBuilder.group({
       target_txn_id: [, Validators.required],
-      genericFields: this.formBuilder.group({
-        amount: [, Validators.required],
-        receipt_ids: [],
-        dateOfSpend: [],
-        paymentMode: [, Validators.required],
-        project: [],
-        billable: [],
-        vendor: [],
-        category: [],
-        tax_group: [],
-        tax_amount: [],
-        costCenter: [],
-        purpose: [],
-      }),
-      categoryDependent: this.formBuilder.group({
-        location_1: [],
-        location_2: [],
-        from_dt: [],
-        to_dt: [],
-        flight_journey_travel_class: [],
-        flight_return_travel_class: [],
-        train_travel_class: [],
-        bus_travel_class: [],
-        distance: [],
-        distance_unit: [],
-      }),
-      custom_inputs: new FormArray([]),
+      genericFields: [],
+      categoryDependent: [],
+      custom_inputs: [],
     });
 
     this.expenseOptions$ = this.mergeExpensesService.generateExpenseToKeepOptions(this.expenses);
 
-    this.receiptOptions$ = this.mergeExpensesService.generateReceiptOptions(this.expenses).pipe(shareReplay(1));
+    this.mergeExpensesService.generateReceiptOptions(this.expenses).subscribe((receiptOptions) => {
+      this.receiptOptions = receiptOptions;
+    });
 
     this.amountOptionsData$ = this.mergeExpensesService.generateAmountOptions(this.expenses).pipe(shareReplay(1));
 
@@ -223,23 +239,20 @@ export class MergeExpensePage implements OnInit {
       .generateDistanceUnitOptions(this.expenses)
       .pipe(shareReplay(1));
 
+    this.loadCustomFields$ = new BehaviorSubject(this.fg.controls.genericFields.value?.category);
+
     this.setupCustomInputs();
     this.generateCustomInputOptions();
 
-    this.patchValuesOnGenericFields();
-    this.patchValuesOnCategoryDependentFields();
+    this.genericFieldsOptions$ = this.loadGenericFieldsOptions();
+    this.loadCategoryDependentFields();
     this.subscribeExpenseChange();
 
-    const expensesInfo = this.mergeExpensesService.setDefaultExpenseToKeep(this.expenses);
-    const isAllAdvanceExpenses = this.mergeExpensesService.isAllAdvanceExpenses(this.expenses);
-    this.setInitialExpenseToKeepDetails(expensesInfo, isAllAdvanceExpenses);
-    this.subscribePaymentModeChange();
-    this.loadAttchments();
     this.combinedCustomProperties = this.generateCustomInputOptions();
   }
 
-  patchValuesOnGenericFields() {
-    forkJoin({
+  loadGenericFieldsOptions() {
+    return forkJoin({
       amountOptionsData: this.amountOptionsData$,
       dateOfSpendOptionsData: this.dateOfSpendOptionsData$,
       paymentModeOptionsData: this.paymentModeOptionsData$,
@@ -251,37 +264,42 @@ export class MergeExpensePage implements OnInit {
       taxAmountOptionsData: this.taxAmountOptionsData$,
       constCenterOptionsData: this.constCenterOptionsData$,
       purposeOptionsData: this.purposeOptionsData$,
-    }).subscribe(
-      // eslint-disable-next-line complexity
-      ({
-        amountOptionsData,
-        dateOfSpendOptionsData,
-        paymentModeOptionsData,
-        projectOptionsData,
-        billableOptionsData,
-        categoryOptionsData,
-        vendorOptionsData,
-        taxGroupOptionsData,
-        taxAmountOptionsData,
-        constCenterOptionsData,
-        purposeOptionsData,
-      }) => {
-        this.fg.patchValue({
-          genericFields: {
-            amount: amountOptionsData?.areSameValues ? amountOptionsData?.options[0]?.value : null,
-            dateOfSpend: dateOfSpendOptionsData?.areSameValues ? dateOfSpendOptionsData?.options[0]?.value : null,
-            paymentMode: paymentModeOptionsData?.areSameValues ? paymentModeOptionsData?.options[0]?.value : null,
-            project: projectOptionsData?.areSameValues ? projectOptionsData?.options[0]?.value : null,
-            billable: billableOptionsData?.areSameValues ? billableOptionsData?.options[0]?.value : null,
-            category: categoryOptionsData?.areSameValues ? categoryOptionsData?.options[0]?.value : null,
-            vendor: vendorOptionsData?.areSameValues ? vendorOptionsData?.options[0]?.value : null,
-            tax_group: taxGroupOptionsData?.areSameValues ? taxGroupOptionsData?.options[0]?.value : null,
-            tax_amount: taxAmountOptionsData?.areSameValues ? taxAmountOptionsData?.options[0]?.value : null,
-            costCenter: constCenterOptionsData?.areSameValues ? constCenterOptionsData?.options[0]?.value : null,
-            purpose: purposeOptionsData?.areSameValues ? purposeOptionsData?.options[0]?.value : null,
-          },
-        });
-      }
+    }).pipe(
+      tap(
+        // eslint-disable-next-line complexity
+        ({
+          amountOptionsData,
+          dateOfSpendOptionsData,
+          paymentModeOptionsData,
+          projectOptionsData,
+          billableOptionsData,
+          categoryOptionsData,
+          vendorOptionsData,
+          taxGroupOptionsData,
+          taxAmountOptionsData,
+          constCenterOptionsData,
+          purposeOptionsData,
+        }) => {
+          this.fg.patchValue({
+            genericFields: {
+              amount: amountOptionsData?.areSameValues ? amountOptionsData?.options[0]?.value : null,
+              dateOfSpend: dateOfSpendOptionsData?.areSameValues ? dateOfSpendOptionsData?.options[0]?.value : null,
+              paymentMode: paymentModeOptionsData?.areSameValues ? paymentModeOptionsData?.options[0]?.value : null,
+              project: projectOptionsData?.areSameValues ? projectOptionsData?.options[0]?.value : null,
+              billable: billableOptionsData?.areSameValues ? billableOptionsData?.options[0]?.value : null,
+              category: categoryOptionsData?.areSameValues ? categoryOptionsData?.options[0]?.value : null,
+              vendor: vendorOptionsData?.areSameValues ? vendorOptionsData?.options[0]?.value : null,
+              tax_group: taxGroupOptionsData?.areSameValues ? taxGroupOptionsData?.options[0]?.value : null,
+              tax_amount: taxAmountOptionsData?.areSameValues ? taxAmountOptionsData?.options[0]?.value : null,
+              costCenter: constCenterOptionsData?.areSameValues ? constCenterOptionsData?.options[0]?.value : null,
+              purpose: purposeOptionsData?.areSameValues ? purposeOptionsData?.options[0]?.value : null,
+            },
+          });
+          const expensesInfo = this.mergeExpensesService.setDefaultExpenseToKeep(this.expenses);
+          const isAllAdvanceExpenses = this.mergeExpensesService.isAllAdvanceExpenses(this.expenses);
+          this.setInitialExpenseToKeepDetails(expensesInfo, isAllAdvanceExpenses);
+        }
+      )
     );
   }
 
@@ -289,6 +307,7 @@ export class MergeExpensePage implements OnInit {
     this.fg.controls.target_txn_id.valueChanges.subscribe((expenseId) => {
       const selectedIndex = this.expenses.map((e) => e.tx_id).indexOf(expenseId);
       this.onExpenseChanged(selectedIndex);
+      this.patchCategoryDependentFields(selectedIndex);
     });
   }
 
@@ -324,61 +343,61 @@ export class MergeExpensePage implements OnInit {
           genericFields: {
             receipt_ids:
               this.expenses[selectedIndex]?.tx_file_ids?.length > 0 &&
-              !this.fg.controls.genericFields.get('receipt_ids').touched
+              !this.touchedGenericFields?.includes('receipt_ids')
                 ? this.expenses[selectedIndex]?.tx_split_group_id
                 : null,
             amount:
-              !amountOptionsData?.areSameValues && !this.fg.controls.genericFields.get('amount').touched
+              !amountOptionsData?.areSameValues && !this.touchedGenericFields?.includes('amount')
                 ? amountOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('amount').value,
+                : this.fg.controls.genericFields.value?.amount,
             dateOfSpend:
-              !dateOfSpendOptionsData?.areSameValues && !this.fg.controls.genericFields.get('dateOfSpend').touched
+              !dateOfSpendOptionsData?.areSameValues && !this.touchedGenericFields?.includes('dateOfSpend')
                 ? dateOfSpendOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('dateOfSpend').value,
+                : this.fg.controls.genericFields.value?.dateOfSpend,
             paymentMode:
-              !paymentModeOptionsData?.areSameValues && !this.fg.controls.genericFields.get('paymentMode').touched
+              !paymentModeOptionsData?.areSameValues && !this.touchedGenericFields?.includes('paymentMode')
                 ? paymentModeOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('paymentMode').value,
+                : this.fg.controls.genericFields.value.paymentMode,
             project:
-              !projectOptionsData?.areSameValues && !this.fg.controls.genericFields.get('project').touched
+              !projectOptionsData?.areSameValues && !this.touchedGenericFields?.includes('project')
                 ? projectOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('project').value,
+                : this.fg.controls.genericFields.value?.project,
             billable:
-              !billableOptionsData?.areSameValues && !this.fg.controls.genericFields.get('billable').touched
+              !billableOptionsData?.areSameValues && !this.touchedGenericFields?.includes('billable')
                 ? billableOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('billable').value,
+                : this.fg.controls.genericFields.value?.billable,
             category:
-              !categoryOptionsData?.areSameValues && !this.fg.controls.genericFields.get('category').touched
+              !categoryOptionsData?.areSameValues && !this.touchedGenericFields?.includes('category')
                 ? categoryOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('category').value,
+                : this.fg.controls.genericFields.value?.category,
             vendor:
-              !vendorOptionsData?.areSameValues && !this.fg.controls.genericFields.get('vendor').touched
+              !vendorOptionsData?.areSameValues && !this.touchedGenericFields?.includes('vendor')
                 ? vendorOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('vendor').value,
+                : this.fg.controls.genericFields.value?.vendor,
             tax_group:
-              !taxGroupOptionsData?.areSameValues && !this.fg.controls.genericFields.get('tax_group').touched
+              !taxGroupOptionsData?.areSameValues && !this.touchedGenericFields?.includes('tax_group')
                 ? taxGroupOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('tax_group').value,
+                : this.fg.controls.genericFields.value?.tax_group,
             tax_amount:
-              !taxAmountOptionsData?.areSameValues && !this.fg.controls.genericFields.get('tax_amount').touched
+              !taxAmountOptionsData?.areSameValues && !this.touchedGenericFields?.includes('tax_amount')
                 ? taxAmountOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('tax_amount').value,
+                : this.fg.controls.genericFields.value?.tax_amount,
             costCenter:
-              !constCenterOptionsData?.areSameValues && !this.fg.controls.genericFields.get('costCenter').touched
+              !constCenterOptionsData?.areSameValues && !this.touchedGenericFields?.includes('costCenter')
                 ? constCenterOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('costCenter').value,
+                : this.fg.controls.genericFields.value?.costCenter,
             purpose:
-              !purposeOptionsData?.areSameValues && !this.fg.controls.genericFields.get('purpose').touched
+              !purposeOptionsData?.areSameValues && !this.touchedGenericFields?.includes('purpose')
                 ? purposeOptionsData?.options[selectedIndex]?.value
-                : this.fg.controls.genericFields.get('purpose').value,
+                : this.fg.controls.genericFields.value?.purpose,
           },
         });
       }
     );
   }
 
-  patchValuesOnCategoryDependentFields() {
-    forkJoin({
+  loadCategoryDependentFields() {
+    this.categoryDependentFieldsOptions$ = forkJoin({
       location1OptionsData: this.location1OptionsData$,
       location2OptionsData: this.location2OptionsData$,
       onwardDateOptionsData: this.onwardDateOptionsData$,
@@ -389,54 +408,53 @@ export class MergeExpensePage implements OnInit {
       busTravelClassOptionsData: this.busTravelClassOptionsData$,
       distanceOptionsData: this.distanceOptionsData$,
       distanceUnitOptionsData: this.distanceUnitOptionsData$,
-    }).subscribe(
-      // eslint-disable-next-line complexity
-      ({
-        location1OptionsData,
-        location2OptionsData,
-        onwardDateOptionsData,
-        returnDateOptionsData,
-        flightJourneyTravelClassOptionsData,
-        flightReturnTravelClassOptionsData,
-        trainTravelClassOptionsData,
-        busTravelClassOptionsData,
-        distanceOptionsData,
-        distanceUnitOptionsData,
-      }) => {
-        this.fg.patchValue({
-          categoryDependent: {
-            location_1: location1OptionsData?.areSameValues ? location1OptionsData?.options[0]?.value : null,
-            location_2: location2OptionsData?.areSameValues ? location2OptionsData?.options[0]?.value : null,
-            from_dt: onwardDateOptionsData?.areSameValues ? onwardDateOptionsData?.options[0]?.value : null,
-            to_dt: returnDateOptionsData?.areSameValues ? returnDateOptionsData?.options[0]?.value : null,
-            flight_journey_travel_class: flightJourneyTravelClassOptionsData?.areSameValues
-              ? flightJourneyTravelClassOptionsData?.options[0]?.value
-              : null,
-            flight_return_travel_class: flightReturnTravelClassOptionsData?.areSameValues
-              ? flightReturnTravelClassOptionsData?.options[0]?.value
-              : null,
-            train_travel_class: trainTravelClassOptionsData?.areSameValues
-              ? trainTravelClassOptionsData?.options[0]?.value
-              : null,
-            bus_travel_class: busTravelClassOptionsData?.areSameValues
-              ? busTravelClassOptionsData?.options[0]?.value
-              : null,
-            distance: distanceOptionsData?.areSameValues ? distanceOptionsData?.options[0]?.value : null,
-            distance_unit: distanceUnitOptionsData?.areSameValues ? distanceUnitOptionsData?.options[0]?.value : null,
-          },
-        });
-      }
+    }).pipe(
+      tap(
+        // eslint-disable-next-line complexity
+        ({
+          location1OptionsData,
+          location2OptionsData,
+          onwardDateOptionsData,
+          returnDateOptionsData,
+          flightJourneyTravelClassOptionsData,
+          flightReturnTravelClassOptionsData,
+          trainTravelClassOptionsData,
+          busTravelClassOptionsData,
+          distanceOptionsData,
+          distanceUnitOptionsData,
+        }) => {
+          this.fg.patchValue({
+            categoryDependent: {
+              location_1: location1OptionsData?.areSameValues ? location1OptionsData?.options[0]?.value : null,
+              location_2: location2OptionsData?.areSameValues ? location2OptionsData?.options[0]?.value : null,
+              from_dt: onwardDateOptionsData?.areSameValues ? onwardDateOptionsData?.options[0]?.value : null,
+              to_dt: returnDateOptionsData?.areSameValues ? returnDateOptionsData?.options[0]?.value : null,
+              flight_journey_travel_class: flightJourneyTravelClassOptionsData?.areSameValues
+                ? flightJourneyTravelClassOptionsData?.options[0]?.value
+                : null,
+              flight_return_travel_class: flightReturnTravelClassOptionsData?.areSameValues
+                ? flightReturnTravelClassOptionsData?.options[0]?.value
+                : null,
+              train_travel_class: trainTravelClassOptionsData?.areSameValues
+                ? trainTravelClassOptionsData?.options[0]?.value
+                : null,
+              bus_travel_class: busTravelClassOptionsData?.areSameValues
+                ? busTravelClassOptionsData?.options[0]?.value
+                : null,
+              distance: distanceOptionsData?.areSameValues ? distanceOptionsData?.options[0]?.value : null,
+              distance_unit: distanceUnitOptionsData?.areSameValues ? distanceUnitOptionsData?.options[0]?.value : null,
+            },
+          });
+        }
+      )
     );
   }
 
-  loadAttchments() {
-    this.attachments$ = this.fg.controls.genericFields.get('receipt_ids').valueChanges.pipe(
-      startWith({}),
-      switchMap((receipt_ids) => this.mergeExpensesService.getAttachements(receipt_ids)),
-      tap((receipts) => {
-        this.selectedReceiptsId = receipts.map((receipt) => receipt.id);
-      })
-    );
+  onReceiptChanged(receipt_ids) {
+    this.mergeExpensesService.getAttachements(receipt_ids).subscribe((receipts) => {
+      this.selectedReceiptsId = receipts.map((receipt) => receipt.id);
+      this.attachments = receipts;
+    });
   }
 
   mergeExpense() {
@@ -450,17 +468,14 @@ export class MergeExpensePage implements OnInit {
       });
       sourceTxnIds = sourceTxnIds.filter((id) => id !== selectedExpense);
 
-      this.generateFromFg()
+      this.mergeExpensesService
+        .mergeExpenses(sourceTxnIds, selectedExpense, this.generateFromFg())
         .pipe(
-          switchMap((formValues) =>
-            this.mergeExpensesService.mergeExpenses(sourceTxnIds, selectedExpense, formValues).pipe(
-              finalize(() => {
-                this.isMerging = false;
-                this.showMergedSuccessToast();
-                this.goBack();
-              })
-            )
-          )
+          finalize(() => {
+            this.isMerging = false;
+            this.showMergedSuccessToast();
+            this.goBack();
+          })
         )
         .subscribe(noop);
     }
@@ -488,12 +503,11 @@ export class MergeExpensePage implements OnInit {
   }
 
   generateFromFg() {
-    const customFields$ = this.getCustomFields();
     const sourceExpense = this.expenses.find(
-      (expense) => expense.source_account_type === this.fg.controls.genericFields.get('paymentMode').value
+      (expense) => expense.source_account_type === this.fg.controls.genericFields.value.paymentMode
     );
     const amountExpense = this.expenses.find(
-      (expense) => expense.tx_id === this.fg.controls.genericFields.get('amount').value
+      (expense) => expense.tx_id === this.fg.controls.genericFields.value.amount
     );
     const CCCGroupIds = this.expenses.map(
       (expense) =>
@@ -501,73 +515,57 @@ export class MergeExpensePage implements OnInit {
     );
     let locations;
     if (this.fg.value.location_1 && this.fg.value.location_2) {
-      locations = [
-        this.fg.controls.genericFields.get('location_1').value,
-        this.fg.controls.genericFields.get('location_2').value,
-      ];
+      locations = [this.fg.controls.genericFields.value.location_1, this.fg.controls.genericFields.value.location_2];
     } else if (this.fg.value.location_1) {
-      locations = [this.fg.controls.genericFields.get('location_1').value];
+      locations = [this.fg.controls.genericFields.value.location_1];
     }
-    return customFields$.pipe(
-      take(1),
-      map((customProperties) => ({
-        source_account_id: sourceExpense?.tx_source_account_id,
-        billable: this.fg.controls.genericFields.get('billable')?.value,
-        currency: amountExpense?.tx_currency,
-        amount: amountExpense?.tx_amount,
-        project_id: this.fg.controls.genericFields.get('project')?.value,
-        tax_amount: this.fg.controls.genericFields.get('tax_amount')?.value,
-        tax_group_id: this.fg.controls.genericFields.get('tax_group')?.value,
-        org_category_id: this.fg.controls.genericFields.get('category')?.value,
-        fyle_category: this.fg.controls.genericFields.get('category')?.value,
-        vendor: this.fg.controls.genericFields.get('vendor')?.value,
-        purpose: this.fg.controls.genericFields.get('purpose')?.value,
-        txn_dt: this.fg.controls.genericFields.get('dateOfSpend')?.value,
-        receipt_ids: this.selectedReceiptsId,
-        custom_properties: customProperties,
-        ccce_group_id: CCCGroupIds && CCCGroupIds[0],
-        from_dt: this.fg.controls.genericFields.get('from_dt')?.value,
-        to_dt: this.fg.controls.genericFields.get('to_dt')?.value,
-        flight_journey_travel_class: this.fg.controls.genericFields.get('flight_journey_travel_class')?.value,
-        flight_return_travel_class: this.fg.controls.genericFields.get('flight_return_travel_class')?.value,
-        train_travel_class: this.fg.controls.genericFields.get('train_travel_class')?.value,
-        bus_travel_class: this.fg.controls.genericFields.get('bus_travel_class')?.value,
-        distance: this.fg.controls.genericFields.get('distance')?.value,
-        distance_unit: this.fg.controls.genericFields.get('distance_unit')?.value,
-        locations: locations || [],
-      }))
-    );
+    return {
+      source_account_id: sourceExpense?.tx_source_account_id,
+      billable: this.fg.controls.genericFields.value.billable,
+      currency: amountExpense?.tx_currency,
+      amount: amountExpense?.tx_amount,
+      project_id: this.fg.controls.genericFields.value.project,
+      tax_amount: this.fg.controls.genericFields.value.tax_amount,
+      tax_group_id: this.fg.controls.genericFields.value.tax_group,
+      org_category_id: this.fg.controls.genericFields.value.category,
+      fyle_category: this.fg.controls.genericFields.value.category,
+      vendor: this.fg.controls.genericFields.value.vendor,
+      purpose: this.fg.controls.genericFields.value.purpose,
+      txn_dt: this.fg.controls.genericFields.value.dateOfSpend,
+      receipt_ids: this.selectedReceiptsId,
+      custom_properties: this.fg.controls.custom_inputs.value.fields,
+      ccce_group_id: CCCGroupIds && CCCGroupIds[0],
+      from_dt: this.fg.controls.genericFields.value.from_dt,
+      to_dt: this.fg.controls.genericFields.value.to_dt,
+      flight_journey_travel_class: this.fg.controls.genericFields.value.flight_journey_travel_class,
+      flight_return_travel_class: this.fg.controls.genericFields.value.flight_return_travel_class,
+      train_travel_class: this.fg.controls.genericFields.value.train_travel_class,
+      bus_travel_class: this.fg.controls.genericFields.value.bus_travel_class,
+      distance: this.fg.controls.genericFields.value.distance,
+      distance_unit: this.fg.controls.genericFields.value.distance_unit,
+      locations: locations || [],
+    };
+  }
+
+  onCategoryChanged(categoryId) {
+    this.mergeExpensesService.getCategoryName(categoryId).subscribe((categoryName) => {
+      this.selectedCategoryName = categoryName;
+    });
+    this.loadCustomFields$.next(categoryId);
   }
 
   setupCustomInputs() {
-    this.customInputs$ = this.fg.controls.genericFields.get('category').valueChanges.pipe(
+    this.customInputs$ = this.loadCustomFields$.pipe(
       startWith({}),
-      switchMap(() =>
+      switchMap((categoryId) =>
         this.offlineService.getCustomInputs().pipe(
           switchMap((fields) => {
-            this.mergeExpensesService
-              .getCategoryName(this.fg.controls.genericFields.get('category').value)
-              .subscribe((categoryName) => {
-                this.selectedCategoryName = categoryName;
-              });
-            const formValue = this.fg.value;
             const customFields = this.customFieldsService.standardizeCustomFields(
-              formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(fields, this.fg.controls.genericFields.get('category').value)
+              this.fg.controls.custom_inputs?.value?.fields || [],
+              this.customInputsService.filterByCategory(fields, categoryId)
             );
 
-            const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
-            customFieldsFormArray.clear();
-            for (const customField of customFields) {
-              customFieldsFormArray.push(
-                this.formBuilder.group({
-                  name: [customField.name],
-                  value: [customField.value],
-                })
-              );
-            }
-            customFieldsFormArray.updateValueAndValidity();
-            return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+            return customFields;
           }),
           toArray()
         )
@@ -575,7 +573,6 @@ export class MergeExpensePage implements OnInit {
       tap((customInputs) => {
         if (!this.isMerging) {
           this.patchCustomInputsValues(customInputs);
-          this.patchValuesOnCategoryDependentFields();
         }
       })
     );
@@ -601,11 +598,10 @@ export class MergeExpensePage implements OnInit {
     this.fg.controls.custom_inputs.patchValue(customInputValues);
   }
 
-  subscribePaymentModeChange() {
-    this.CCCTxn$ = this.fg.controls.genericFields.get('paymentMode').valueChanges.pipe(
-      startWith({}),
-      switchMap(() => this.mergeExpensesService.getCardCardTransactions(this.expenses))
-    );
+  onPaymentModeChanged() {
+    this.mergeExpensesService.getCardCardTransactions(this.expenses).subscribe((txns) => {
+      this.CCCTxns = txns;
+    });
   }
 
   generateCustomInputOptions(): CombinedOptions {
@@ -680,16 +676,89 @@ export class MergeExpensePage implements OnInit {
     }
   }
 
-  getCustomFields(): Observable<CustomInputs[]> {
-    return this.customInputs$.pipe(
-      take(1),
-      map((customInputs) =>
-        customInputs.map((customInput, i) => ({
-          id: customInput.id,
-          name: customInput.name,
-          value: this.fg.value.custom_inputs[i].value,
-        }))
-      )
+  onGenericFieldsTouched(touchedGenericFields) {
+    this.touchedGenericFields = touchedGenericFields;
+  }
+
+  onCategoryDependentFieldsTouched(touchedGenericFields) {
+    this.touchedCategoryDepedentFields = touchedGenericFields;
+  }
+
+  patchCategoryDependentFields(selectedIndex: number) {
+    forkJoin({
+      location1OptionsData: this.location1OptionsData$,
+      location2OptionsData: this.location2OptionsData$,
+      onwardDateOptionsData: this.onwardDateOptionsData$,
+      returnDateOptionsData: this.returnDateOptionsData$,
+      flightJourneyTravelClassOptionsData: this.flightJourneyTravelClassOptionsData$,
+      flightReturnTravelClassOptionsData: this.flightReturnTravelClassOptionsData$,
+      trainTravelClassOptionsData: this.trainTravelClassOptionsData$,
+      busTravelClassOptionsData: this.busTravelClassOptionsData$,
+      distanceOptionsData: this.distanceOptionsData$,
+      distanceUnitOptionsData: this.distanceUnitOptionsData$,
+    }).subscribe(
+      // eslint-disable-next-line complexity
+      ({
+        location1OptionsData,
+        location2OptionsData,
+        onwardDateOptionsData,
+        returnDateOptionsData,
+        flightJourneyTravelClassOptionsData,
+        flightReturnTravelClassOptionsData,
+        trainTravelClassOptionsData,
+        busTravelClassOptionsData,
+        distanceOptionsData,
+        distanceUnitOptionsData,
+      }) => {
+        this.fg.patchValue({
+          categoryDependent: {
+            location_1:
+              !location1OptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('location_1')
+                ? location1OptionsData?.options[selectedIndex]?.value
+                : this.fg.controls.categoryDependent.value?.location_1,
+            location_2:
+              !location2OptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('location_2')
+                ? location2OptionsData?.options[selectedIndex]?.value
+                : this.fg.controls.categoryDependent.value?.location_2,
+            from_dt:
+              !onwardDateOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('from_dt')
+                ? onwardDateOptionsData?.options[selectedIndex]?.value
+                : this.fg.controls.categoryDependent.value?.from_dt,
+            to_dt:
+              !returnDateOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('to_dt')
+                ? returnDateOptionsData?.options[selectedIndex]?.value
+                : this.fg.controls.categoryDependent.value?.to_dt,
+            flight_journey_travel_class:
+              !flightJourneyTravelClassOptionsData?.areSameValues &&
+              !this.touchedCategoryDepedentFields?.includes('flight_journey_travel_class')
+                ? flightJourneyTravelClassOptionsData?.options[selectedIndex]?.value
+                : this.fg.controls.categoryDependent.value?.flight_journey_travel_class,
+            flight_return_travel_class:
+              !flightReturnTravelClassOptionsData?.areSameValues &&
+              !this.touchedCategoryDepedentFields?.includes('flight_return_travel_class')
+                ? flightReturnTravelClassOptionsData?.options[selectedIndex]?.value
+                : this.fg.controls.categoryDependent.value?.flight_return_travel_class,
+            train_travel_class:
+              !trainTravelClassOptionsData?.areSameValues &&
+              !this.touchedCategoryDepedentFields?.includes('train_travel_class')
+                ? trainTravelClassOptionsData?.options[selectedIndex]?.value
+                : this.fg.controls.categoryDependent.value?.train_travel_class,
+            bus_travel_class:
+              !busTravelClassOptionsData?.areSameValues &&
+              !this.touchedCategoryDepedentFields?.includes('bus_travel_class')
+                ? busTravelClassOptionsData?.options[selectedIndex]?.value
+                : this.fg.controls.categoryDependent.value?.bus_travel_class,
+            distance:
+              !distanceOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('distance')
+                ? distanceOptionsData?.options[selectedIndex]?.value
+                : this.fg.controls.categoryDependent.value?.distance,
+            distance_unit:
+              !distanceUnitOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('distance_unit')
+                ? distanceUnitOptionsData?.options[selectedIndex]?.value
+                : this.fg.controls.categoryDependent.value?.distance_unit,
+          },
+        });
+      }
     );
   }
 }

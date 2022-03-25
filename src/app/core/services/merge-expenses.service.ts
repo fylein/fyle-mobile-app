@@ -11,13 +11,34 @@ import * as moment from 'moment';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ProjectsService } from './projects.service';
 import { CategoriesService } from './categories.service';
-import { Option } from 'src/app/core/models/option.type';
-import { OptionsData } from 'src/app/core/models/options-data.type';
 import { FileObject } from '../models/file_obj.model';
 import { FileResponse } from './file-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
-import { CustomInputs } from '../models/custom-input.type';
-import { CombinedOptions } from '../models/combined-options.model';
+import { FormControl } from '@angular/forms';
+
+type Option = Partial<{
+  label: string;
+  value: any;
+}>;
+
+type OptionsData = Partial<{
+  options: Option[];
+  areSameValues: boolean;
+  name: string;
+  value: any;
+}>;
+
+type CustomInputs = Partial<{
+  control: FormControl;
+  id: string;
+  mandatory: boolean;
+  name: string;
+  options: Option[];
+  placeholder: string;
+  prefix: string;
+  type: string;
+  value: string;
+}>;
 
 @Injectable({
   providedIn: 'root',
@@ -426,7 +447,13 @@ export class MergeExpensesService {
         acc.push(curr);
         return acc;
       }, []),
-      map((options: Option[]) => this.formatOptions(options))
+      map((options: Option[]) => {
+        const optionLabels = options.map((option) => option.label);
+        return {
+          options,
+          areSameValues: this.checkOptionsAreSame(optionLabels),
+        };
+      })
     );
   }
 

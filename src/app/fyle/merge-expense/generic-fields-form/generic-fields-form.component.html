@@ -1,134 +1,123 @@
 <form [formGroup]="genericFieldsFormGroup">
-  <ng-container *ngIf="amountOptionsData$ | async as amountOptionsData">
-    <div class="merge-expenses--internal-block">
-      <app-fy-select
-        [enableSearch]="false"
-        [label]="'Amount'"
-        [mandatory]="false"
-        [nullOption]="false"
-        [disabled]="disableFormElements || amountOptionsData?.options?.length === 0 || amountOptionsData?.areSameValues"
-        [options]="amountOptionsData?.options"
-        [selectModalHeader]="'Select amount'"
-        formControlName="amount"
-      >
-      </app-fy-select>
-    </div>
-    <div
-      *ngIf="genericFieldsFormGroup.controls.amount.touched && genericFieldsFormGroup.controls.amount.invalid"
-      class="merge-expenses--error"
+  <div class="merge-expenses--internal-block">
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Amount'"
+      [mandatory]="false"
+      [nullOption]="false"
+      [disabled]="disableFormElements || amountOptionsData?.options?.length === 0 || amountOptionsData?.areSameValues"
+      [options]="amountOptionsData?.options"
+      [selectModalHeader]="'Select amount'"
+      formControlName="amount"
     >
-      Please select a valid amount
-    </div>
-  </ng-container>
+    </app-fy-select>
+  </div>
+  <div
+    *ngIf="genericFieldsFormGroup.controls.amount.touched && genericFieldsFormGroup.controls.amount.invalid"
+    class="merge-expenses--error"
+  >
+    Please select a valid amount
+  </div>
 
   <div class="merge-expenses--primary-block">
     <ion-grid class="merge-expenses--grid">
       <ion-row>
         <ion-col size="6">
-          <ng-container *ngIf="dateOfSpendOptionsData$ | async as dateOfSpendOptionsData">
-            <div
-              [ngClass]="{
-                'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.dateOfSpend.value
-              }"
-              class="merge-expenses--internal-block merge-expenses--internal-block__margin"
+          <div
+            [ngClass]="{
+              'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.dateOfSpend.value
+            }"
+            class="merge-expenses--internal-block merge-expenses--internal-block__margin"
+          >
+            <app-fy-select
+              [enableSearch]="false"
+              [label]="'Date of Spend'"
+              [mandatory]="false"
+              [nullOption]="false"
+              [disabled]="
+                disableFormElements ||
+                dateOfSpendOptionsData?.options?.length === 0 ||
+                dateOfSpendOptionsData?.areSameValues
+              "
+              [options]="dateOfSpendOptionsData?.options"
+              [selectModalHeader]="'Select spend date'"
+              formControlName="dateOfSpend"
             >
-              <app-fy-select
-                [enableSearch]="false"
-                [label]="'Date of Spend'"
-                [mandatory]="false"
-                [nullOption]="false"
-                [disabled]="
-                  disableFormElements ||
-                  dateOfSpendOptionsData?.options?.length === 0 ||
-                  dateOfSpendOptionsData?.areSameValues
-                "
-                [options]="dateOfSpendOptionsData?.options"
-                [selectModalHeader]="'Select spend date'"
-                formControlName="dateOfSpend"
-              >
-              </app-fy-select>
-            </div>
-          </ng-container>
+            </app-fy-select>
+          </div>
         </ion-col>
         <ion-col size="6">
-          <ng-container *ngIf="paymentModeOptionsData$ | async as paymentModeOptionsData">
-            <div
-              [ngClass]="{
-                'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.paymentMode.value
-              }"
-              class="merge-expenses--internal-block"
-            >
-              <app-fy-select
-                [enableSearch]="false"
-                [label]="'Payment Mode'"
-                [mandatory]="true"
-                [nullOption]="false"
-                [disabled]="
-                  disableFormElements ||
-                  paymentModeOptionsData?.options?.length === 0 ||
-                  paymentModeOptionsData?.areSameValues
-                "
-                [options]="paymentModeOptionsData?.options"
-                [selectModalHeader]="'Select Payment Mode'"
-                formControlName="paymentMode"
-              >
-              </app-fy-select>
-            </div>
-
-            <div
-              *ngIf="
-                genericFieldsFormGroup.controls.paymentMode.touched &&
-                genericFieldsFormGroup.controls.paymentMode.invalid
+          <div
+            [ngClass]="{
+              'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.paymentMode.value
+            }"
+            class="merge-expenses--internal-block"
+          >
+            <app-fy-select
+              [enableSearch]="false"
+              [label]="'Payment Mode'"
+              [mandatory]="true"
+              [nullOption]="false"
+              [disabled]="
+                disableFormElements ||
+                paymentModeOptionsData?.options?.length === 0 ||
+                paymentModeOptionsData?.areSameValues
               "
-              class="merge-expenses--error"
+              [options]="paymentModeOptionsData?.options"
+              [selectModalHeader]="'Select Payment Mode'"
+              formControlName="paymentMode"
             >
-              Please select a valid payment mode
-            </div>
-          </ng-container>
+            </app-fy-select>
+          </div>
+
+          <div
+            *ngIf="
+              genericFieldsFormGroup.controls.paymentMode.touched && genericFieldsFormGroup.controls.paymentMode.invalid
+            "
+            class="merge-expenses--error"
+          >
+            Please select a valid payment mode
+          </div>
         </ion-col>
       </ion-row>
     </ion-grid>
   </div>
 
-  <ng-container *ngIf="receiptOptions$ | async as receiptOptions">
-    <div *ngIf="receiptOptions?.length !== 0" class="merge-expenses--internal-block">
-      <app-fy-select
-        [enableSearch]="false"
-        [label]="'Select receipt'"
-        [disabled]="disableFormElements || receiptOptions?.length === 0"
-        [mandatory]="false"
-        [nullOption]="true"
-        [options]="receiptOptions"
-        [selectModalHeader]="'Select receipt'"
-        formControlName="receipt_ids"
-      >
-      </app-fy-select>
-    </div>
-
-    <div class="merge-expenses--internal-block merge-expenses--text" *ngIf="receiptOptions?.length === 0">
-      <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
-      <div class="merge-expenses--disabled">
-        <input
-          [disabled]="disableFormElements || true"
-          [placeholder]="'No Receipt'"
-          class="merge-expenses--text-input"
-          type="text"
-        />
-      </div>
-    </div>
-  </ng-container>
-
-  <ng-container *ngIf="attachments$ | async as attachments">
-    <app-receipt-preview-thumbnail
-      *ngIf="attachments?.length > 0"
-      [attachments]="attachments"
-      [canEdit]="false"
-      [hideLabel]="true"
+  <div *ngIf="receiptOptions?.length !== 0" class="merge-expenses--internal-block">
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Select receipt'"
+      [disabled]="disableFormElements || receiptOptions?.length === 0"
+      [mandatory]="false"
+      [nullOption]="true"
+      [options]="receiptOptions"
+      [selectModalHeader]="'Select receipt'"
+      formControlName="receipt_ids"
     >
-    </app-receipt-preview-thumbnail>
-  </ng-container>
+    </app-fy-select>
+  </div>
 
-  <ng-container *ngFor="let selectedCCCTransaction of CCCTxn$ | async as cccTxns">
+  <div class="merge-expenses--internal-block merge-expenses--text" *ngIf="receiptOptions?.length === 0">
+    <div class="merge-expenses--text-label merge-expenses--text-label__large">Select receipt</div>
+    <div class="merge-expenses--disabled">
+      <input
+        [disabled]="disableFormElements || true"
+        [placeholder]="'No Receipt'"
+        class="merge-expenses--text-input"
+        type="text"
+      />
+    </div>
+  </div>
+
+  <app-receipt-preview-thumbnail
+    *ngIf="attachments?.length > 0"
+    [attachments]="attachments"
+    [canEdit]="false"
+    [hideLabel]="true"
+  >
+  </app-receipt-preview-thumbnail>
+
+  <ng-container *ngFor="let selectedCCCTransaction of CCCTxns">
     <ng-container
       *ngIf="genericFieldsFormGroup.controls.paymentMode.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'"
     >
@@ -136,187 +125,165 @@
     </ng-container>
   </ng-container>
 
-  <ng-container *ngIf="projectOptionsData$ | async as projectOptionsData">
-    <div class="merge-expenses--primary-block" *ngIf="projectOptionsData?.options?.length !== 0">
-      <ion-grid class="merge-expenses--grid">
-        <ion-row>
-          <ion-col size="6">
-            <ng-container>
-              <div
-                [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.project.value }"
-                class="merge-expenses--internal-block merge-expenses--internal-block__margin"
-              >
-                <app-fy-select
-                  [enableSearch]="false"
-                  [label]="'Project'"
-                  [mandatory]="false"
-                  [nullOption]="false"
-                  [disabled]="
-                    disableFormElements ||
-                    projectOptionsData?.options?.length === 0 ||
-                    projectOptionsData?.areSameValues
-                  "
-                  [options]="projectOptionsData?.options"
-                  [selectModalHeader]="'Select project'"
-                  formControlName="project"
-                >
-                </app-fy-select>
-              </div>
-            </ng-container>
-          </ion-col>
-          <ion-col size="6">
-            <ng-container *ngIf="billableOptionsData$ | async as billableOptionsData">
-              <div
-                [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.billable.value }"
-                class="merge-expenses--internal-block"
-              >
-                <app-fy-select
-                  [enableSearch]="false"
-                  [label]="'Billable'"
-                  [mandatory]="false"
-                  [nullOption]="false"
-                  [disabled]="
-                    disableFormElements ||
-                    billableOptionsData?.options?.length === 0 ||
-                    billableOptionsData?.areSameValues
-                  "
-                  [options]="billableOptionsData?.options"
-                  [selectModalHeader]="'Select billable'"
-                  formControlName="billable"
-                >
-                </app-fy-select>
-              </div>
-            </ng-container>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-  </ng-container>
+  <div class="merge-expenses--primary-block" *ngIf="projectOptionsData?.options?.length !== 0">
+    <ion-grid class="merge-expenses--grid">
+      <ion-row>
+        <ion-col size="6">
+          <div
+            [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.project.value }"
+            class="merge-expenses--internal-block merge-expenses--internal-block__margin"
+          >
+            <app-fy-select
+              [enableSearch]="false"
+              [label]="'Project'"
+              [mandatory]="false"
+              [nullOption]="false"
+              [disabled]="
+                disableFormElements || projectOptionsData?.options?.length === 0 || projectOptionsData?.areSameValues
+              "
+              [options]="projectOptionsData?.options"
+              [selectModalHeader]="'Select project'"
+              formControlName="project"
+              (change)="(someThingChanged)"
+            >
+            </app-fy-select>
+          </div>
+        </ion-col>
 
-  <ng-container *ngIf="vendorOptionsData$ | async as vendorOptionsData">
-    <div
-      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.vendor.value }"
-      class="merge-expenses--internal-block"
-      *ngIf="vendorOptionsData?.options.length > 0"
-    >
-      <app-fy-select
-        [enableSearch]="false"
-        [label]="'Merchant'"
-        [mandatory]="false"
-        [nullOption]="true"
-        [disabled]="disableFormElements || vendorOptionsData?.options?.length === 0 || vendorOptionsData?.areSameValues"
-        [options]="vendorOptionsData?.options"
-        [selectModalHeader]="'Select merchant'"
-        formControlName="vendor"
-      >
-      </app-fy-select>
-    </div>
-  </ng-container>
+        <ion-col size="6">
+          <div
+            [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.billable.value }"
+            class="merge-expenses--internal-block"
+          >
+            <app-fy-select
+              [enableSearch]="false"
+              [label]="'Billable'"
+              [mandatory]="false"
+              [nullOption]="false"
+              [disabled]="
+                disableFormElements || billableOptionsData?.options?.length === 0 || billableOptionsData?.areSameValues
+              "
+              [options]="billableOptionsData?.options"
+              [selectModalHeader]="'Select billable'"
+              formControlName="billable"
+            >
+            </app-fy-select>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 
-  <ng-container *ngIf="categoryOptionsData$ | async as categoryOptionsData">
-    <div
-      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.category.value }"
-      class="merge-expenses--internal-block"
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.vendor.value }"
+    class="merge-expenses--internal-block"
+    *ngIf="vendorOptionsData?.options.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Merchant'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="disableFormElements || vendorOptionsData?.options?.length === 0 || vendorOptionsData?.areSameValues"
+      [options]="vendorOptionsData?.options"
+      [selectModalHeader]="'Select merchant'"
+      formControlName="vendor"
     >
-      <app-fy-select
-        [enableSearch]="false"
-        [label]="'Category'"
-        [mandatory]="false"
-        [nullOption]="true"
-        [disabled]="
-          disableFormElements || categoryOptionsData?.options?.length === 0 || categoryOptionsData?.areSameValues
-        "
-        [options]="categoryOptionsData?.options"
-        [selectModalHeader]="'Select category'"
-        formControlName="category"
-      >
-      </app-fy-select>
-    </div>
-  </ng-container>
+    </app-fy-select>
+  </div>
+
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.category.value }"
+    class="merge-expenses--internal-block"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Category'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements || categoryOptionsData?.options?.length === 0 || categoryOptionsData?.areSameValues
+      "
+      [options]="categoryOptionsData?.options"
+      [selectModalHeader]="'Select category'"
+      formControlName="category"
+    >
+    </app-fy-select>
+  </div>
 
   <ng-container *ngTemplateOutlet="categoryDependentTemplate"> </ng-container>
 
-  <ng-container *ngIf="taxGroupOptionsData$ | async as taxGroupOptionsData">
-    <div
-      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.tax_group.value }"
-      class="merge-expenses--internal-block"
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.tax_group.value }"
+    class="merge-expenses--internal-block"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Tax Group'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements || taxGroupOptionsData?.options?.length === 0 || taxGroupOptionsData?.areSameValues
+      "
+      [options]="taxGroupOptionsData?.options"
+      [selectModalHeader]="'Select Tax Group'"
+      formControlName="tax_group"
     >
-      <app-fy-select
-        [enableSearch]="false"
-        [label]="'Tax Group'"
-        [mandatory]="false"
-        [nullOption]="true"
-        [disabled]="
-          disableFormElements || taxGroupOptionsData?.options?.length === 0 || taxGroupOptionsData?.areSameValues
-        "
-        [options]="taxGroupOptionsData?.options"
-        [selectModalHeader]="'Select Tax Group'"
-        formControlName="tax_group"
-      >
-      </app-fy-select>
-    </div>
-  </ng-container>
+    </app-fy-select>
+  </div>
 
-  <ng-container *ngIf="taxAmountOptionsData$ | async as taxAmountOptionsData">
-    <div
-      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.tax_amount.value }"
-      class="merge-expenses--internal-block"
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.tax_amount.value }"
+    class="merge-expenses--internal-block"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Tax'"
+      [mandatory]="false"
+      [disabled]="
+        disableFormElements || taxAmountOptionsData?.options?.length === 0 || taxAmountOptionsData?.areSameValues
+      "
+      [nullOption]="taxAmountOptionsData?.options?.length === 1"
+      [options]="taxAmountOptionsData?.options"
+      [selectModalHeader]="'Select Tax'"
+      formControlName="tax_amount"
     >
-      <app-fy-select
-        [enableSearch]="false"
-        [label]="'Tax'"
-        [mandatory]="false"
-        [disabled]="
-          disableFormElements || taxAmountOptionsData?.options?.length === 0 || taxAmountOptionsData?.areSameValues
-        "
-        [nullOption]="taxAmountOptionsData?.options?.length === 1"
-        [options]="taxAmountOptionsData?.options"
-        [selectModalHeader]="'Select Tax'"
-        formControlName="tax_amount"
-      >
-      </app-fy-select>
-    </div>
-  </ng-container>
+    </app-fy-select>
+  </div>
 
-  <ng-container *ngIf="constCenterOptionsData$ | async as constCenterOptionsData">
-    <div
-      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.tax_amount.value }"
-      class="merge-expenses--internal-block"
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.tax_amount.value }"
+    class="merge-expenses--internal-block"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Cost center'"
+      [mandatory]="false"
+      [nullOption]="constCenterOptionsData?.options?.length === 1"
+      [disabled]="
+        disableFormElements || constCenterOptionsData?.options?.length === 0 || constCenterOptionsData?.areSameValues
+      "
+      [options]="constCenterOptionsData?.options"
+      [selectModalHeader]="'Select Cost center'"
+      formControlName="costCenter"
     >
-      <app-fy-select
-        [enableSearch]="false"
-        [label]="'Cost center'"
-        [mandatory]="false"
-        [nullOption]="constCenterOptionsData?.options?.length === 1"
-        [disabled]="
-          disableFormElements || constCenterOptionsData?.options?.length === 0 || constCenterOptionsData?.areSameValues
-        "
-        [options]="constCenterOptionsData?.options"
-        [selectModalHeader]="'Select Cost center'"
-        formControlName="costCenter"
-      >
-      </app-fy-select>
-    </div>
-  </ng-container>
+    </app-fy-select>
+  </div>
 
-  <ng-container *ngIf="purposeOptionsData$ | async as purposeOptionsData">
-    <div
-      [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.purpose.value }"
-      class="merge-expenses--internal-block"
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': genericFieldsFormGroup.controls.purpose.value }"
+    class="merge-expenses--internal-block"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Purpose'"
+      [mandatory]="false"
+      [nullOption]="purposeOptionsData?.options?.length === 1"
+      [disabled]="disableFormElements || purposeOptionsData?.options?.length === 0 || purposeOptionsData?.areSameValues"
+      [options]="purposeOptionsData?.options"
+      [selectModalHeader]="'Select Purpose'"
+      formControlName="purpose"
     >
-      <app-fy-select
-        [enableSearch]="false"
-        [label]="'Purpose'"
-        [mandatory]="false"
-        [nullOption]="purposeOptionsData?.options?.length === 1"
-        [disabled]="
-          disableFormElements || purposeOptionsData?.options?.length === 0 || purposeOptionsData?.areSameValues
-        "
-        [options]="purposeOptionsData?.options"
-        [selectModalHeader]="'Select Purpose'"
-        formControlName="purpose"
-      >
-      </app-fy-select>
-    </div>
-  </ng-container>
+    </app-fy-select>
+  </div>
 </form>
