@@ -40,7 +40,7 @@ type CustomInputs = Partial<{
   value: string;
 }>;
 
-type mergeFormData = {
+type mergeFormValues = {
   [key: string]: any;
 };
 
@@ -58,7 +58,7 @@ export class MergeExpensesService {
     private categoriesService: CategoriesService
   ) {}
 
-  mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields: mergeFormData): Observable<string> {
+  mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields: mergeFormValues): Observable<string> {
     return this.apiService.post('/transactions/merge', {
       source_txn_ids: sourceTxnIds,
       target_txn_id: targetTxnId,
