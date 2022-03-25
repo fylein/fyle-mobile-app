@@ -38,7 +38,7 @@
         </div>
       </div>
       <div class="stats--ccc-stats-title">
-        Incomplete {{ cardDetail.totalDraftTxns === 1 ? 'Expense' : 'Expenses' }}
+        Incomplete Card {{ cardDetail.totalDraftTxns === 1 ? 'Expense' : 'Expenses' }}
       </div>
     </div>
 
@@ -55,7 +55,7 @@
           {{ cardDetail.totalAmountValue | humanizeCurrency: (homeCurrency | async):2:true }}
         </div>
       </div>
-      <div class="stats--ccc-stats-title">{{ cardDetail.totalTxnsCount === 1 ? 'Expense' : 'Expenses' }}</div>
+      <div class="stats--ccc-stats-title">Total {{ cardDetail.totalTxnsCount === 1 ? 'Expense' : 'Expenses' }}</div>
     </div>
   </div>
 </div>

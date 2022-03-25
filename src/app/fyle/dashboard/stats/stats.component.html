@@ -96,7 +96,13 @@
     class="stats--ccc-cards-section"
   >
     <div>
-      <ion-grid>
+      <ion-grid
+        [ngClass]="{
+          'stats--ccc-cards-grid': !isUnifyCCCExpensesSettings,
+          'stats--ccc-cards-grid-multiple': isUnifyCCCExpensesSettings
+        }"
+        class=""
+      >
         <ion-row>
           <ion-col>
             <div class="stats--header stats--ccc-cards-header">CARD SPEND</div>

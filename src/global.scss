@@ -1110,6 +1110,12 @@ ion-modal.auto-height {
   opacity: 0.3;
 }
 
+.spent-cards {
+  .swiper-slide-active {
+    margin-left: -20px !important;
+  }
+}
+
 .spent-cards.swiper-pagination-bullet {
   width: 6px !important;
   height: 6px !important;
@@ -1137,7 +1143,7 @@ ion-modal.auto-height {
 }
 
 .spent-cards--swiper .swiper-wrapper {
-  margin-top: 10px;
+  margin-top: 16px;
 }
 
 .ios .fy-footer--icon-pill {

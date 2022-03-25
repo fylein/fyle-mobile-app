@@ -3,6 +3,14 @@
 $ccc-bank-name: #c4cae8;
 
 .stats {
+  &--ccc-cards-grid {
+    margin-bottom: 2%;
+  }
+
+  &--ccc-cards-grid-multiple {
+    margin-bottom: -4%;
+  }
+
   &--menu-button {
     padding: 8px;
   }
@@ -144,7 +152,7 @@ $ccc-bank-name: #c4cae8;
   &--ccc-cards-section {
     position: relative;
     top: -104px;
-    margin-bottom: 24px;
+    margin-bottom: 30%;
   }
 
   &--ccc-cards-header {
