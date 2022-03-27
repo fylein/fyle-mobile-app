@@ -1,7 +1,7 @@
 <ng-container *ngIf="combinedCustomProperties">
   <ng-container *ngFor="let customField of customFields">
     <form [formGroup]="customField.control">
-      <div class="internal-block" *ngIf="combinedCustomProperties[customField.name]?.options">
+      <div class="merge-expenses--internal-block" *ngIf="combinedCustomProperties[customField.name]?.options">
         <app-fy-select
           [enableSearch]="false"
           [label]="customField.name"

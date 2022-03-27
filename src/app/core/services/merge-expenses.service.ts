@@ -736,8 +736,8 @@ export class MergeExpensesService {
         } else {
           formatedlabel = field.value.toString();
         }
-        if (existing?.length) {
-          const existingIndex = customProperty.indexOf(existing[0]);
+        if (existing) {
+          const existingIndex = customProperty.indexOf(existing);
           if (
             typeof customProperty[existingIndex].value === 'string' ||
             typeof customProperty[existingIndex].value === 'number'
