@@ -502,7 +502,7 @@ export class TasksService {
         icon: TaskIcon.WARNING,
         ctas: [
           {
-            content: `Review`,
+            content: 'Review',
             event: TASKEVENT.openPotentialDuplicates,
           },
         ],

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, EMPTY, from, noop, Observable, Subject } from 'rxjs';
-import { map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
+import { finalize, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
@@ -68,15 +68,16 @@ export class PotentialDuplicatesPage implements OnInit {
                 );
               })
             );
+          }),
+          finalize(() => {
+            this.isLoading = false;
           })
         )
-      ),
-      tap((duplicateExpenses) => {
-        this.duplicateExpenses = duplicateExpenses;
-        this.isLoading = false;
-      })
+      )
     );
-    this.duplicateSets$.subscribe(noop);
+    this.duplicateSets$.subscribe((duplicateExpenses) => {
+      this.duplicateExpenses = duplicateExpenses;
+    });
   }
 
   addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]) {
@@ -117,6 +118,9 @@ export class PotentialDuplicatesPage implements OnInit {
       }
       this.showDismissedSuccessToast();
       this.loadData$.next();
+      this.duplicateSets$.subscribe((duplicateExpenses) => {
+        this.duplicateExpenses = duplicateExpenses;
+      });
     });
   }
 
