@@ -239,12 +239,26 @@ export class MergeExpensePage implements OnInit {
       .generateDistanceUnitOptions(this.expenses)
       .pipe(shareReplay(1));
 
+    this.genericFieldsOptions$ = forkJoin({
+      amountOptionsData: this.amountOptionsData$,
+      dateOfSpendOptionsData: this.dateOfSpendOptionsData$,
+      paymentModeOptionsData: this.paymentModeOptionsData$,
+      projectOptionsData: this.projectOptionsData$,
+      billableOptionsData: this.billableOptionsData$,
+      categoryOptionsData: this.categoryOptionsData$,
+      vendorOptionsData: this.vendorOptionsData$,
+      taxGroupOptionsData: this.taxGroupOptionsData$,
+      taxAmountOptionsData: this.taxAmountOptionsData$,
+      constCenterOptionsData: this.constCenterOptionsData$,
+      purposeOptionsData: this.purposeOptionsData$,
+    });
+
     this.loadCustomFields$ = new BehaviorSubject(this.fg.controls.genericFields.value?.category);
 
     this.setupCustomInputs();
     this.generateCustomInputOptions();
 
-    this.genericFieldsOptions$ = this.loadGenericFieldsOptions();
+    this.loadGenericFieldsOptions();
     this.loadCategoryDependentFields();
     this.subscribeExpenseChange();
 
@@ -260,54 +274,40 @@ export class MergeExpensePage implements OnInit {
   }
 
   loadGenericFieldsOptions() {
-    return forkJoin({
-      amountOptionsData: this.amountOptionsData$,
-      dateOfSpendOptionsData: this.dateOfSpendOptionsData$,
-      paymentModeOptionsData: this.paymentModeOptionsData$,
-      projectOptionsData: this.projectOptionsData$,
-      billableOptionsData: this.billableOptionsData$,
-      categoryOptionsData: this.categoryOptionsData$,
-      vendorOptionsData: this.vendorOptionsData$,
-      taxGroupOptionsData: this.taxGroupOptionsData$,
-      taxAmountOptionsData: this.taxAmountOptionsData$,
-      constCenterOptionsData: this.constCenterOptionsData$,
-      purposeOptionsData: this.purposeOptionsData$,
-    }).pipe(
-      tap(
-        // eslint-disable-next-line complexity
-        ({
-          amountOptionsData,
-          dateOfSpendOptionsData,
-          paymentModeOptionsData,
-          projectOptionsData,
-          billableOptionsData,
-          categoryOptionsData,
-          vendorOptionsData,
-          taxGroupOptionsData,
-          taxAmountOptionsData,
-          constCenterOptionsData,
-          purposeOptionsData,
-        }) => {
-          this.fg.patchValue({
-            genericFields: {
-              amount: amountOptionsData?.areSameValues ? amountOptionsData?.options[0]?.value : null,
-              dateOfSpend: dateOfSpendOptionsData?.areSameValues ? dateOfSpendOptionsData?.options[0]?.value : null,
-              paymentMode: paymentModeOptionsData?.areSameValues ? paymentModeOptionsData?.options[0]?.value : null,
-              project: projectOptionsData?.areSameValues ? projectOptionsData?.options[0]?.value : null,
-              billable: billableOptionsData?.areSameValues ? billableOptionsData?.options[0]?.value : null,
-              category: categoryOptionsData?.areSameValues ? categoryOptionsData?.options[0]?.value : null,
-              vendor: vendorOptionsData?.areSameValues ? vendorOptionsData?.options[0]?.value : null,
-              tax_group: taxGroupOptionsData?.areSameValues ? taxGroupOptionsData?.options[0]?.value : null,
-              tax_amount: taxAmountOptionsData?.areSameValues ? taxAmountOptionsData?.options[0]?.value : null,
-              costCenter: constCenterOptionsData?.areSameValues ? constCenterOptionsData?.options[0]?.value : null,
-              purpose: purposeOptionsData?.areSameValues ? purposeOptionsData?.options[0]?.value : null,
-            },
-          });
-          const expensesInfo = this.mergeExpensesService.setDefaultExpenseToKeep(this.expenses);
-          const isAllAdvanceExpenses = this.mergeExpensesService.isAllAdvanceExpenses(this.expenses);
-          this.setInitialExpenseToKeepDetails(expensesInfo, isAllAdvanceExpenses);
-        }
-      )
+    this.genericFieldsOptions$.subscribe(
+      // eslint-disable-next-line complexity
+      ({
+        amountOptionsData,
+        dateOfSpendOptionsData,
+        paymentModeOptionsData,
+        projectOptionsData,
+        billableOptionsData,
+        categoryOptionsData,
+        vendorOptionsData,
+        taxGroupOptionsData,
+        taxAmountOptionsData,
+        constCenterOptionsData,
+        purposeOptionsData,
+      }) => {
+        this.fg.patchValue({
+          genericFields: {
+            amount: amountOptionsData?.areSameValues ? amountOptionsData?.options[0]?.value : null,
+            dateOfSpend: dateOfSpendOptionsData?.areSameValues ? dateOfSpendOptionsData?.options[0]?.value : null,
+            paymentMode: paymentModeOptionsData?.areSameValues ? paymentModeOptionsData?.options[0]?.value : null,
+            project: projectOptionsData?.areSameValues ? projectOptionsData?.options[0]?.value : null,
+            billable: billableOptionsData?.areSameValues ? billableOptionsData?.options[0]?.value : null,
+            category: categoryOptionsData?.areSameValues ? categoryOptionsData?.options[0]?.value : null,
+            vendor: vendorOptionsData?.areSameValues ? vendorOptionsData?.options[0]?.value : null,
+            tax_group: taxGroupOptionsData?.areSameValues ? taxGroupOptionsData?.options[0]?.value : null,
+            tax_amount: taxAmountOptionsData?.areSameValues ? taxAmountOptionsData?.options[0]?.value : null,
+            costCenter: constCenterOptionsData?.areSameValues ? constCenterOptionsData?.options[0]?.value : null,
+            purpose: purposeOptionsData?.areSameValues ? purposeOptionsData?.options[0]?.value : null,
+          },
+        });
+        const expensesInfo = this.mergeExpensesService.setDefaultExpenseToKeep(this.expenses);
+        const isAllAdvanceExpenses = this.mergeExpensesService.isAllAdvanceExpenses(this.expenses);
+        this.setInitialExpenseToKeepDetails(expensesInfo, isAllAdvanceExpenses);
+      }
     );
   }
 
@@ -320,19 +320,7 @@ export class MergeExpensePage implements OnInit {
   }
 
   onExpenseChanged(selectedIndex: number) {
-    forkJoin({
-      amountOptionsData: this.amountOptionsData$,
-      dateOfSpendOptionsData: this.dateOfSpendOptionsData$,
-      paymentModeOptionsData: this.paymentModeOptionsData$,
-      projectOptionsData: this.projectOptionsData$,
-      billableOptionsData: this.billableOptionsData$,
-      categoryOptionsData: this.categoryOptionsData$,
-      vendorOptionsData: this.vendorOptionsData$,
-      taxGroupOptionsData: this.taxGroupOptionsData$,
-      taxAmountOptionsData: this.taxAmountOptionsData$,
-      constCenterOptionsData: this.constCenterOptionsData$,
-      purposeOptionsData: this.purposeOptionsData$,
-    }).subscribe(
+    this.genericFieldsOptions$.subscribe(
       // eslint-disable-next-line complexity
       ({
         amountOptionsData,
@@ -356,47 +344,47 @@ export class MergeExpensePage implements OnInit {
                 : null,
             amount:
               !amountOptionsData?.areSameValues && !this.touchedGenericFields?.includes('amount')
-                ? amountOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.tx_amount
                 : this.fg.controls.genericFields.value?.amount,
             dateOfSpend:
               !dateOfSpendOptionsData?.areSameValues && !this.touchedGenericFields?.includes('dateOfSpend')
-                ? dateOfSpendOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.tx_txn_dt
                 : this.fg.controls.genericFields.value?.dateOfSpend,
             paymentMode:
               !paymentModeOptionsData?.areSameValues && !this.touchedGenericFields?.includes('paymentMode')
-                ? paymentModeOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.source_account_type
                 : this.fg.controls.genericFields.value.paymentMode,
             project:
               !projectOptionsData?.areSameValues && !this.touchedGenericFields?.includes('project')
-                ? projectOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.tx_project_id
                 : this.fg.controls.genericFields.value?.project,
             billable:
               !billableOptionsData?.areSameValues && !this.touchedGenericFields?.includes('billable')
-                ? billableOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.tx_billable
                 : this.fg.controls.genericFields.value?.billable,
             category:
               !categoryOptionsData?.areSameValues && !this.touchedGenericFields?.includes('category')
-                ? categoryOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.tx_category
                 : this.fg.controls.genericFields.value?.category,
             vendor:
               !vendorOptionsData?.areSameValues && !this.touchedGenericFields?.includes('vendor')
-                ? vendorOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.tx_vendor
                 : this.fg.controls.genericFields.value?.vendor,
             tax_group:
               !taxGroupOptionsData?.areSameValues && !this.touchedGenericFields?.includes('tax_group')
-                ? taxGroupOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.tx_tax_group_id
                 : this.fg.controls.genericFields.value?.tax_group,
             tax_amount:
               !taxAmountOptionsData?.areSameValues && !this.touchedGenericFields?.includes('tax_amount')
-                ? taxAmountOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.tx_amount
                 : this.fg.controls.genericFields.value?.tax_amount,
             costCenter:
               !constCenterOptionsData?.areSameValues && !this.touchedGenericFields?.includes('costCenter')
-                ? constCenterOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.tx_cost_center_name
                 : this.fg.controls.genericFields.value?.costCenter,
             purpose:
               !purposeOptionsData?.areSameValues && !this.touchedGenericFields?.includes('purpose')
-                ? purposeOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex]?.tx_purpose
                 : this.fg.controls.genericFields.value?.purpose,
           },
         });
@@ -692,18 +680,7 @@ export class MergeExpensePage implements OnInit {
   }
 
   patchCategoryDependentFields(selectedIndex: number) {
-    forkJoin({
-      location1OptionsData: this.location1OptionsData$,
-      location2OptionsData: this.location2OptionsData$,
-      onwardDateOptionsData: this.onwardDateOptionsData$,
-      returnDateOptionsData: this.returnDateOptionsData$,
-      flightJourneyTravelClassOptionsData: this.flightJourneyTravelClassOptionsData$,
-      flightReturnTravelClassOptionsData: this.flightReturnTravelClassOptionsData$,
-      trainTravelClassOptionsData: this.trainTravelClassOptionsData$,
-      busTravelClassOptionsData: this.busTravelClassOptionsData$,
-      distanceOptionsData: this.distanceOptionsData$,
-      distanceUnitOptionsData: this.distanceUnitOptionsData$,
-    }).subscribe(
+    this.categoryDependentFieldsOptions$.subscribe(
       // eslint-disable-next-line complexity
       ({
         location1OptionsData,
@@ -721,48 +698,48 @@ export class MergeExpensePage implements OnInit {
           categoryDependent: {
             location_1:
               !location1OptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('location_1')
-                ? location1OptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex].tx_locations[0]
                 : this.categoryDependentForm.value?.location_1,
             location_2:
               !location2OptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('location_2')
-                ? location2OptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex].tx_locations[1]
                 : this.categoryDependentForm.value?.location_2,
             from_dt:
               !onwardDateOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('from_dt')
-                ? onwardDateOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex].tx_from_dt
                 : this.categoryDependentForm.value?.from_dt,
             to_dt:
               !returnDateOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('to_dt')
-                ? returnDateOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex].tx_to_dt
                 : this.categoryDependentForm.value?.to_dt,
             flight_journey_travel_class:
               !flightJourneyTravelClassOptionsData?.areSameValues &&
               !this.touchedCategoryDepedentFields?.includes('flight_journey_travel_class')
-                ? flightJourneyTravelClassOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex].tx_flight_journey_travel_class
                 : this.categoryDependentForm.value?.flight_journey_travel_class,
             flight_return_travel_class:
               !flightReturnTravelClassOptionsData?.areSameValues &&
               !this.touchedCategoryDepedentFields?.includes('flight_return_travel_class')
-                ? flightReturnTravelClassOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex].tx_flight_return_travel_class
                 : this.categoryDependentForm.value?.flight_return_travel_class,
             train_travel_class:
               !trainTravelClassOptionsData?.areSameValues &&
               !this.touchedCategoryDepedentFields?.includes('train_travel_class')
-                ? trainTravelClassOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex].tx_train_travel_class
                 : this.categoryDependentForm.value?.train_travel_class,
             bus_travel_class:
               !busTravelClassOptionsData?.areSameValues &&
               !this.touchedCategoryDepedentFields?.includes('bus_travel_class')
-                ? busTravelClassOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex].tx_bus_travel_class
                 : this.categoryDependentForm.value?.bus_travel_class,
             distance:
               !distanceOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('distance')
-                ? distanceOptionsData?.options[selectedIndex]?.value
+                ? this.expenses[selectedIndex].tx_distance
                 : this.categoryDependentForm.value?.distance,
             distance_unit:
               !distanceUnitOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('distance_unit')
-                ? distanceUnitOptionsData?.options[selectedIndex]?.value
-                : this.categoryDependentForm.value?.distance_unit,
+                ? this.expenses[selectedIndex].tx_flight_journey_travel_class
+                : this.categoryDependentForm.value?.tx_distance_unit,
           },
         });
       }

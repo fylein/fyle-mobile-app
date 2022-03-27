@@ -32,25 +32,25 @@ type OptionsData = Partial<{
 export class CategoryDependentFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
   @Output() fieldsTouched = new EventEmitter<string[]>();
 
-  @Input() location1OptionsData: Observable<OptionsData>;
+  @Input() location1OptionsData: OptionsData;
 
-  @Input() location2OptionsData: Observable<OptionsData>;
+  @Input() location2OptionsData: OptionsData;
 
-  @Input() onwardDateOptionsData: Observable<OptionsData>;
+  @Input() onwardDateOptionsData: OptionsData;
 
-  @Input() returnDateOptionsData: Observable<OptionsData>;
+  @Input() returnDateOptionsData: OptionsData;
 
-  @Input() flightJourneyTravelClassOptionsData: Observable<OptionsData>;
+  @Input() flightJourneyTravelClassOptionsData: OptionsData;
 
-  @Input() flightReturnTravelClassOptionsData: Observable<OptionsData>;
+  @Input() flightReturnTravelClassOptionsData: OptionsData;
 
-  @Input() trainTravelClassOptionsData: Observable<OptionsData>;
+  @Input() trainTravelClassOptionsData: OptionsData;
 
-  @Input() busTravelClassOptionsData: Observable<OptionsData>;
+  @Input() busTravelClassOptionsData: OptionsData;
 
-  @Input() distanceOptionsData: Observable<OptionsData>;
+  @Input() distanceOptionsData: OptionsData;
 
-  @Input() distanceUnitOptionsData: Observable<OptionsData>;
+  @Input() distanceUnitOptionsData: OptionsData;
 
   @Input() disableFormElements: boolean;
 
