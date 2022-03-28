@@ -111,6 +111,11 @@ export class SignInPage implements OnInit {
       });
   }
 
+  openInAppBrowser(url: string) {
+    const browser = this.inAppBrowser.create(url, '_blank', 'location=yes');
+    browser.on('loadstop').subscribe();
+  }
+
   async checkIfEmailExists() {
     if (this.fg.controls.email.valid) {
       this.emailLoading = true;

@@ -118,7 +118,9 @@
       </button>
     </div>
   </div>
-  <ion-button expand="block" href="http://http.badssl.com/"> Redirect Http </ion-button>
-  <ion-button expand="block" href="https://self-signed.badssl.com/"> Self signed ssl </ion-button>
-  <ion-button expand="block" href="https://sha256.badssl.com/"> Working ssl </ion-button>
+  <ion-button expand="block" (click)="openInAppBrowser('http://http.badssl.com/')"> Redirect Http </ion-button>
+  <ion-button expand="block" (click)="openInAppBrowser('https://self-signed.badssl.com/')">
+    Self signed ssl
+  </ion-button>
+  <ion-button expand="block" (click)="openInAppBrowser('https://sha256.badssl.com/')"> Working ssl </ion-button>
 </ion-content>
