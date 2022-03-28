@@ -19,10 +19,8 @@ export class CardDetailComponent implements OnInit {
 
   constructor(private router: Router, private trackingService: TrackingService) {}
 
-  goToExpensesPage(state: string) {
-    console.log(state);
-
-    if (state === 'incompleteExpenses') {
+  goToExpensesPage(state: string, cardDetail: CardDetail) {
+    if (state === 'incompleteExpenses' && cardDetail.totalDraftTxns && cardDetail.totalDraftTxns > 0) {
       const queryParams: Params = {
         filters: JSON.stringify({ state: ['DRAFT'], cardNumbers: [this.cardDetail?.cardNumber] }),
       };
@@ -31,7 +29,7 @@ export class CardDetailComponent implements OnInit {
       });
 
       this.trackingService.dashboardOnIncompleteCardExpensesClick();
-    } else if (state === 'totalExpenses') {
+    } else if (state === 'totalExpenses' && cardDetail.totalTxnsCount && cardDetail.totalTxnsCount > 0) {
       const queryParams: Params = {
         filters: JSON.stringify({ state: ['DRAFT,READY_TO_REPORT'], cardNumbers: [this.cardDetail?.cardNumber] }),
       };
