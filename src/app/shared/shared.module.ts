@@ -117,6 +117,8 @@ import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
 import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.component';
 import { FySummaryTileComponent } from './components/summary-tile/summary-tile.component';
+import { ViewExpenseSkeletonLoaderComponent } from './components/view-expense-skeleton-loader/view-expense-skeleton-loader.component';
+
 @NgModule({
   declarations: [
     AdvanceState,
@@ -212,6 +214,7 @@ import { FySummaryTileComponent } from './components/summary-tile/summary-tile.c
     FyNumberComponent,
     FyStatisticComponent,
     FySummaryTileComponent,
+    ViewExpenseSkeletonLoaderComponent,
   ],
   imports: [
     CommonModule,
@@ -313,6 +316,7 @@ import { FySummaryTileComponent } from './components/summary-tile/summary-tile.c
     FyNumberComponent,
     FyStatisticComponent,
     FySummaryTileComponent,
+    ViewExpenseSkeletonLoaderComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })

@@ -1,0 +1,86 @@
+@import '../../../../theme/colors.scss';
+
+$divider-height: 1px;
+$divider-padding-block: 30px; //block = top + bottom
+$divider-padding-inline: 16px; //inline = left + right
+
+$row-padding-block: 16px;
+$row-padding-inline: 20px;
+
+$shimmer-border-radius: 4px;
+$shimmer-diameter: 35px;
+$shimmer-gap: 10px;
+$shimmer-height: 12px;
+$shimmer-width-big: 115px;
+$shimmer-width-small: 85px;
+
+$card-background: linear-gradient(97.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
+$card-border-radius: 16px;
+$card-margin: 16px;
+$card-padding-block: 26px;
+$card-padding-inline: 12px;
+
+.skeleton-card {
+  background: $card-background;
+  border-radius: $card-border-radius;
+  margin: $card-margin;
+  padding: $card-padding-block $card-padding-inline;
+
+  &__content-container {
+    display: flex;
+    flex-direction: column;
+
+    &__header,
+    &__sub-header {
+      border-radius: $shimmer-border-radius;
+      height: calc(#{$shimmer-height} * 4 / 3);
+    }
+
+    &__header {
+      margin-bottom: calc(#{$shimmer-gap} / 2);
+      width: calc(#{$shimmer-width-small} * 2);
+    }
+
+    &__sub-header {
+      margin-top: calc(#{$shimmer-gap} / 2);
+      width: calc(#{$shimmer-width-big} * 2);
+    }
+  }
+}
+
+.skeleton-row {
+  padding: 0 $row-padding-block $row-padding-inline;
+
+  &__icon {
+    border-radius: 50%;
+    height: $shimmer-diameter;
+    width: $shimmer-diameter;
+  }
+
+  &__content-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-left: $shimmer-gap;
+
+    &__header,
+    &__sub-header {
+      border-radius: $shimmer-border-radius;
+      height: $shimmer-height;
+    }
+
+    &__header {
+      width: $shimmer-width-small;
+    }
+
+    &__sub-header {
+      width: $shimmer-width-big;
+    }
+  }
+}
+
+.skeleton-divider {
+  background-color: $grey-lighter;
+  height: $divider-height;
+  margin: calc(#{$divider-padding-block} - #{$row-padding-block}) $divider-padding-inline $divider-padding-block;
+}
