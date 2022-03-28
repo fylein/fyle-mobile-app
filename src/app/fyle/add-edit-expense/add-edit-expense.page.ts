@@ -911,7 +911,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense && this.isExpenseMatchedForDebitCCCE) {
           this.actionSheetButtons.push({
-            text: 'Mark expense as Personal',
+            text: 'Mark as Personal',
             handler: () => {
               this.markPeronsalOrDismiss('personal');
             },
@@ -920,7 +920,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense && this.canDismissCCCE) {
           this.actionSheetButtons.push({
-            text: 'Dimiss Expense as Card Payment',
+            text: 'Dimiss as Card Payment',
             handler: () => {
               this.markPeronsalOrDismiss('dismiss');
             },

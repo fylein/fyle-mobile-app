@@ -110,7 +110,9 @@
             <ion-row>
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Card number</div>
-                <div class="add-edit-expense--card-container__value">{{ cardNumber | maskNumber }}</div>
+                <div class="add-edit-expense--card-container__value">
+                  {{ cardNumber ? (cardNumber | maskNumber) : '-' }}
+                </div>
               </ion-col>
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend Date</div>
@@ -325,7 +327,15 @@
         </div>
 
         <ng-container *ngIf="isCCCPaymentModeSelected$|async">
-          <div *ngIf="showCardTransaction && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense)">
+          <app-fy-alert-info
+            *ngIf="isUnifyCcceExpensesSettingsEnabled && !isCccExpense"
+            [type]="'information'"
+            [message]="'Fyle will automatically merge this expense with the corresponding corporate card transaction when it flows into fyle.'"
+          ></app-fy-alert-info>
+        </ng-container>
+
+        <ng-container *ngIf="isCCCPaymentModeSelected$|async">
+          <div *ngIf="showCardTransaction && (isCCCAccountSelected$|async) && !isUnifyCcceExpensesSettingsEnabled">
             <div class="add-edit-expense--card-header">Card Transaction</div>
             <div
               *ngIf="((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) || !selectedCCCTransaction) && !isLoadingSuggestions && !isCreatedFromCCC && !((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) && selectedCCCTransaction)"
@@ -1027,7 +1037,7 @@
 
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container
-          *ngIf="(etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction) && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense)"
+          *ngIf="(etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction) && !isUnifyCcceExpensesSettingsEnabled"
         >
           <app-fy-alert [message]="'Automatically created from your company\'s card feed'" [type]="'card'">
           </app-fy-alert>
