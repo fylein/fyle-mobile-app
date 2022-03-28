@@ -4296,7 +4296,9 @@ export class AddEditExpensePage implements OnInit {
             return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
               map((expenses) => {
                 const expensesArray = expenses as [];
-                duplicateSets.map((duplicateSet) => this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray));
+                return duplicateSets.map((duplicateSet) =>
+                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                );
               })
             );
           })

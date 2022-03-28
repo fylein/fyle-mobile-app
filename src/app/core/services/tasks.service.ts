@@ -497,7 +497,7 @@ export class TasksService {
       {
         hideAmount: true,
         count: duplicateSets.length,
-        header: `${duplicateIds.length} Potential duplicates`,
+        header: `${duplicateIds.length} Potential Duplicates`,
         subheader: `We detected ${duplicateIds.length} expenses which may be duplicates`,
         icon: TaskIcon.WARNING,
         ctas: [
