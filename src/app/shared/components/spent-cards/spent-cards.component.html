@@ -1,4 +1,4 @@
-<div class="spent-cards">
+<div [ngClass]="{ 'spent-cards': spentCards.length > 1, 'spent-card': spentCards.length === 1 }">
   <swiper
     #swiper
     class="spent-cards--swiper"
