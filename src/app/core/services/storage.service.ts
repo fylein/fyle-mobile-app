@@ -28,6 +28,7 @@ export class StorageService {
         return JSON.parse(stringifiedObject.value);
       }
     } catch {
+      console.log(key, 'does not exist');
       return null;
     }
   }
