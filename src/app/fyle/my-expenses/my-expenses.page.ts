@@ -166,11 +166,15 @@ export class MyExpensesPage implements OnInit {
 
   isUnifyCCCEnabled$: Observable<{ enabled: boolean }>;
 
-  isUnifyCCCEnabled: boolean;
-
   cardNumbers: { label: string; value: string }[] = [];
 
   maskNumber = new MaskNumber();
+
+  isUnifyCCCExpensesSettings: boolean;
+
+  expensesToBeDeleted: Expense[];
+
+  cccExpenses: number;
 
   get HeaderState() {
     return HeaderState;
@@ -437,6 +441,10 @@ export class MyExpensesPage implements OnInit {
       .pipe(map((orgSettings) => orgSettings.per_diem.enabled));
 
     this.offlineService.getOrgSettings().subscribe((orgSettings) => {
+      this.isUnifyCCCExpensesSettings =
+        orgSettings.unify_ccce_expenses_settings &&
+        orgSettings.unify_ccce_expenses_settings.allowed &&
+        orgSettings.unify_ccce_expenses_settings.enabled;
       this.setupActionSheet(orgSettings);
     });
 
@@ -1438,6 +1446,16 @@ export class MyExpensesPage implements OnInit {
       this.selectedElements.push(expense);
     }
     this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+
+    if (this.selectedElements?.length > 0) {
+      this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
+
+      if (this.isUnifyCCCExpensesSettings) {
+        this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
+      }
+      this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+    }
+
     // setting Expenses count and amount stats on select
     if (this.allExpensesCount === this.selectedElements.length) {
       this.selectAll = true;
@@ -1530,7 +1548,7 @@ export class MyExpensesPage implements OnInit {
     this.trackingService.addToReport({ count: this.selectedElements.length });
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
-    selectedElements = selectedElements.filter((exp) => exp.tx_id);
+    selectedElements = selectedElements.filter((expense) => expense.tx_id);
     if (!selectedElements.length) {
       this.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
       return;
@@ -1816,22 +1834,32 @@ export class MyExpensesPage implements OnInit {
 
   async deleteSelectedExpenses() {
     let offlineExpenses: Expense[];
+
+    const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
+
+    const cccExpensesMessage = this.transactionService.getCCCExpenseMessage(this.expensesToBeDeleted, this.cccExpenses);
+
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: `Are you sure you want to delete ${
-          this.selectedElements.length === 1 ? '1 expense?' : this.selectedElements.length + ' expenses?'
-        }`,
+        body: this.transactionService.getDeleteDialogBody(
+          this.expensesToBeDeleted,
+          this.cccExpenses,
+          expenseDeletionMessage,
+          cccExpensesMessage
+        ),
+        ctaText: this.expensesToBeDeleted?.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
+        disableDelete: this.expensesToBeDeleted?.length > 0 ? false : true,
         deleteMethod: () => {
-          offlineExpenses = this.selectedElements.filter((exp) => !exp.tx_id);
+          offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
 
           this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
 
-          this.selectedElements = this.selectedElements.filter((exp) => exp.tx_id);
-          if (this.selectedElements.length > 0) {
+          this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
+          if (this.selectedElements?.length > 0) {
             return this.transactionService.deleteBulk(
               this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
             );
@@ -1848,10 +1876,10 @@ export class MyExpensesPage implements OnInit {
 
     if (data) {
       this.trackingService.myExpensesBulkDeleteExpenses({
-        count: this.selectedElements.length,
+        count: this.selectedElements?.length,
       });
       if (data.status === 'success') {
-        const totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
+        const totalNoOfSelectedExpenses = offlineExpenses?.length + this.selectedElements?.length;
         const message =
           totalNoOfSelectedExpenses === 1
             ? '1 expense has been deleted'

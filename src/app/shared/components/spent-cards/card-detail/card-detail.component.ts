@@ -20,8 +20,6 @@ export class CardDetailComponent implements OnInit {
   constructor(private router: Router, private trackingService: TrackingService) {}
 
   goToExpensesPage(state: string) {
-    console.log(state);
-
     if (state === 'incompleteExpenses') {
       const queryParams: Params = {
         filters: JSON.stringify({ state: ['DRAFT'], cardNumbers: [this.cardDetail?.cardNumber] }),
