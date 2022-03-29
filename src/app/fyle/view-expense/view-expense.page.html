@@ -65,7 +65,7 @@
         <div *ngIf="isProjectShown" class="view-expense--card-container__project">
           {{ projectFieldName | titlecase }}: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
         </div>
-        <div *ngIf="isUnifyCcceExpensesSettingsEnabled && isCCCTransaction">
+        <div *ngIf="isUnifyCcceExpensesSettingsEnabled && isCCCTransaction && cardNumber">
           Card Number: {{ cardNumber | maskNumber }}
         </div>
       </div>

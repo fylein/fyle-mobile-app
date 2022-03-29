@@ -39,7 +39,9 @@
       <ion-button class="add-edit-expense--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
-      <ng-container *ngIf="canDeleteExpense && etxn$|async as etxn">
+      <ng-container
+        *ngIf="canDeleteExpense && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && etxn$|async as etxn"
+      >
         <ion-button class="add-edit-expense--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
           <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
         </ion-button>
@@ -49,7 +51,7 @@
         <ng-container *ngIf="isConnected$|async as isConnected">
           <ng-container *ngIf="isSplitExpenseAllowed$|async as isSplitExpenseAllowed">
             <ng-container
-              *ngIf="(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)"
+              *ngIf="(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)"
             >
               <ion-button class="add-edit-expense--header-btn-container__btn" (click)="moreActions()">
                 <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
@@ -108,7 +110,9 @@
             <ion-row>
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Card number</div>
-                <div class="add-edit-expense--card-container__value">{{ cardNumber | maskNumber }}</div>
+                <div class="add-edit-expense--card-container__value">
+                  {{ cardNumber ? (cardNumber | maskNumber) : '-' }}
+                </div>
               </ion-col>
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend Date</div>
@@ -323,10 +327,20 @@
         </div>
 
         <ng-container *ngIf="isCCCPaymentModeSelected$|async">
-          <div *ngIf="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense)">
-            <div *ngIf="showCardTransaction">
-              <div class="add-edit-expense--card-header">Card Transaction</div>
-              >
+          <app-fy-alert-info
+            *ngIf="isUnifyCcceExpensesSettingsEnabled && !isCccExpense"
+            [type]="'information'"
+            [message]="'Fyle will automatically merge this expense with the corresponding corporate card transaction when it flows into fyle.'"
+          ></app-fy-alert-info>
+        </ng-container>
+
+        <ng-container *ngIf="isCCCPaymentModeSelected$|async">
+          <div *ngIf="showCardTransaction && (isCCCAccountSelected$|async) && !isUnifyCcceExpensesSettingsEnabled">
+            <div class="add-edit-expense--card-header">Card Transaction</div>
+            <div
+              *ngIf="((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) || !selectedCCCTransaction) && !isLoadingSuggestions && !isCreatedFromCCC && !((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) && selectedCCCTransaction)"
+              class="add-edit-expense--card-txn-container"
+            >
               <mat-icon svgIcon="fy-corporate-card" class="add-edit-expense--icon-corporate-card"></mat-icon>
               <div *ngIf="(!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount)">
                 Enter date and amount to search for the matching card transaction
@@ -1000,7 +1014,7 @@
       <div *ngIf="etxn$|async as etxn">
         <div
           class="add-edit-expense--split-expense-block"
-          *ngIf="(isConnected$|async) && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && !(etxn?.tx?.report_id) && (isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)"
+          *ngIf="(isConnected$|async) && !(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && (isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)"
         >
           <button class="add-edit-expense--split-expense-container" (click)="moreActions()">
             <div class="add-edit-expense--split-expense-title">Split Expense</div>
@@ -1023,7 +1037,7 @@
 
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container
-          *ngIf="(etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction) && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense)"
+          *ngIf="(etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction) && !isUnifyCcceExpensesSettingsEnabled"
         >
           <app-fy-alert [message]="'Automatically created from your company\'s card feed'" [type]="'card'">
           </app-fy-alert>
