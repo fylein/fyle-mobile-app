@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { BankAccountsAssigned } from '../models/v2/bank-accounts-assigned.model';
+import { CardAggregateStat } from '../models/card-aggregate-stat.model';
 
 @Injectable({
   providedIn: 'root',
@@ -131,6 +132,34 @@ export class CorporateCreditCardExpenseService {
     queryString = queryString.slice(0, -1);
     queryString += ')';
     return queryString;
+  }
+
+  getExpenseDetailsInCards(uniqueCards: { cardNumber: string; cardName: string }, statsResponse: CardAggregateStat[]) {
+    const cardsCopy = JSON.parse(JSON.stringify(uniqueCards));
+    const uniqueCardsCopy = [];
+    cardsCopy?.forEach((card) => {
+      if (uniqueCardsCopy.filter((uniqueCard) => uniqueCard.cardNumber === card.cardNumber).length === 0) {
+        uniqueCardsCopy.push(card);
+      }
+    });
+    uniqueCardsCopy.forEach((card) => {
+      card.totalDraftTxns = 0;
+      card.totalDraftValue = 0;
+      card.totalCompleteTxns = 0;
+      card.totalCompleteExpensesValue = 0;
+      statsResponse.forEach((stats) => {
+        if (stats.key[1].column_value === card.cardNumber && stats.key[2].column_value === 'DRAFT') {
+          card.totalDraftTxns = stats.aggregates[0].function_value;
+          card.totalDraftValue = stats.aggregates[1].function_value;
+        } else if (stats.key[1].column_value === card.cardNumber && stats.key[2].column_value === 'COMPLETE') {
+          card.totalCompleteTxns = stats.aggregates[0].function_value;
+          card.totalCompleteExpensesValue = stats.aggregates[1].function_value;
+        }
+        card.totalTxnsCount = card.totalDraftTxns + card.totalCompleteTxns;
+        card.totalAmountValue = card.totalDraftValue + card.totalCompleteExpensesValue;
+      });
+    });
+    return uniqueCardsCopy;
   }
 
   getAssignedCards() {
