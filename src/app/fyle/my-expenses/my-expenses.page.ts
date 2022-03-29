@@ -474,7 +474,6 @@ export class MyExpensesPage implements OnInit {
         })
       )
       .subscribe((cards) => {
-        this.cardNumbers = [];
         cards.forEach((card) => {
           this.cardNumbers.push({ label: this.maskNumber.transform(card.cardNumber), value: card.cardNumber });
         });
@@ -741,7 +740,7 @@ export class MyExpensesPage implements OnInit {
   generateFilterPills(filter: Filters) {
     const filterPills: FilterPill[] = [];
 
-    if (filter.state && filter.state.length) {
+    if (filter.state?.length > 0) {
       this.generateStateFilterPills(filterPills, filter);
     }
 
@@ -753,7 +752,7 @@ export class MyExpensesPage implements OnInit {
       this.generateDateFilterPills(filter, filterPills);
     }
 
-    if (filter.type && filter.type.length) {
+    if (filter.type?.length > 0) {
       this.generateTypeFilterPills(filter, filterPills);
     }
 
@@ -761,7 +760,7 @@ export class MyExpensesPage implements OnInit {
       this.generateSortFilterPills(filter, filterPills);
     }
 
-    if (filter.cardNumbers && filter.cardNumbers.length) {
+    if (filter.cardNumbers?.length > 0) {
       this.generateCardFilterPills(filterPills, filter);
     }
     return filterPills;
@@ -2060,7 +2059,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   generateCardNumberParams(newQueryParams) {
-    if (this.filters.cardNumbers && this.filters.cardNumbers.length > 0) {
+    if (this.filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
       this.filters.cardNumbers?.forEach((cardNumber) => {
         cardNumberString += cardNumber + ',';
