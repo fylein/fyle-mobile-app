@@ -19,13 +19,15 @@ export class StorageService {
   }
 
   async get(key: string) {
-    const stringifiedObject = await SecureStoragePlugin.get({
-      key,
-    });
+    try {
+      const stringifiedObject = await SecureStoragePlugin.get({
+        key,
+      });
 
-    if (stringifiedObject && stringifiedObject.value) {
-      return JSON.parse(stringifiedObject.value);
-    } else {
+      if (stringifiedObject && stringifiedObject.value) {
+        return JSON.parse(stringifiedObject.value);
+      }
+    } catch {
       return null;
     }
   }
