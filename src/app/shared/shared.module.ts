@@ -320,6 +320,7 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     FyStatisticComponent,
     FySummaryTileComponent,
     SpentCardsComponent,
+    CardDetailComponent,
     MaskNumber,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
