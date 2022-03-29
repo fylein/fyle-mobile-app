@@ -53,9 +53,10 @@
     }
 
     &__amount-section {
-      float: right;
+      display: flex;
+      justify-content: end;
       width: 90%;
-      margin-left: 20px;
+      margin-left: 16px;
       align-items: center;
     }
 
@@ -82,10 +83,19 @@
       width: 18px;
     }
 
+    &__currency {
+      margin-right: 2px;
+    }
+
     &__amount {
       font-size: 20px;
       font-weight: 500;
       color: $blue-black;
+      margin-right: 4px;
+    }
+
+    &__txn-type {
+      margin-right: 6px;
     }
 
     &__exchange-rate {
