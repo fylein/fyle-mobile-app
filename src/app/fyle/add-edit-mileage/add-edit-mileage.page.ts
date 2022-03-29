@@ -638,20 +638,6 @@ export class AddEditMileagePage implements OnInit {
       map(({ orgSettings, orgUserMileageSettings }) => {
         const mileageConfig = orgSettings.mileage;
         orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
-        if (orgUserMileageSettings.length > 0) {
-          const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1'];
-
-          orgUserMileageSettings.forEach((mileageLabel) => {
-            const index = allVehicleTypes.indexOf(mileageLabel);
-            if (index > -1) {
-              allVehicleTypes.splice(index, 1);
-            }
-          });
-
-          allVehicleTypes.forEach((vehicleType) => {
-            delete mileageConfig[vehicleType];
-          });
-        }
         return this.generateVehicleOptions(mileageConfig);
       }),
       shareReplay(1)
@@ -664,10 +650,26 @@ export class AddEditMileagePage implements OnInit {
       vehicleTypeOptions.push({ label: 'Two Wheeler', value: 'two_wheeler' });
     }
     if (mileageConfig.four_wheeler) {
-      vehicleTypeOptions.push({ label: 'Four Wheeler', value: 'four_wheeler' });
+      vehicleTypeOptions.push({ label: 'Four Wheeler - Type 1', value: 'four_wheeler' });
     }
     if (mileageConfig.four_wheeler1) {
-      vehicleTypeOptions.push({ label: 'Four Wheeler 1', value: 'four_wheeler1' });
+      vehicleTypeOptions.push({ label: 'Four Wheeler - Type 2', value: 'four_wheeler2' });
+    }
+
+    if (mileageConfig.four_wheeler1) {
+      vehicleTypeOptions.push({ label: 'Four Wheeler - Type 3', value: 'four_wheeler3' });
+    }
+
+    if (mileageConfig.four_wheeler1) {
+      vehicleTypeOptions.push({ label: 'Four Wheeler - Type 4', value: 'four_wheeler4' });
+    }
+
+    if (mileageConfig.four_wheeler1) {
+      vehicleTypeOptions.push({ label: 'Bicycle', value: 'bicycle' });
+    }
+
+    if (mileageConfig.four_wheeler1) {
+      vehicleTypeOptions.push({ label: 'Electric Car', value: 'electric_car' });
     }
 
     return vehicleTypeOptions;
