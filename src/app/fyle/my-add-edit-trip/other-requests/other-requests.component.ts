@@ -552,9 +552,7 @@ export class OtherRequestsComponent implements OnInit {
           transport.length > 0 ? forkJoin(transport) : of([]),
         ]);
       }
-    } catch (e) {
-      console.log('e', e);
-    }
+    } catch (e) {}
   }
 
   handleTransportDetails(formValue: any, mode: any, transport: any[], trpId: any) {

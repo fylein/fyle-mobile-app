@@ -1,19 +1,10 @@
-@import '../../../../theme/colors';
-
-$ccc-bank-name: #c4cae8;
+@import '../../../../../theme/colors';
 
 .stats {
-  &--ccc-cards-grid {
-    margin-bottom: 2%;
-  }
-
-  &--ccc-cards-grid-multiple {
-    margin-bottom: -4%;
-  }
-
   &--menu-button {
     padding: 8px;
   }
+
   &--header-bar {
     padding-top: 12px;
     --ion-grid-padding: 0;
@@ -29,7 +20,7 @@ $ccc-bank-name: #c4cae8;
     top: 0;
     box-shadow: 0px -2px 8px rgb(215 215 215 / 25%);
     min-height: 420px;
-    background: url('../../../../assets/images/new-background.png') no-repeat bottom;
+    background: url('../../../../../assets/images/new-background.png') no-repeat bottom;
     background-size: 105% 105%;
   }
 
@@ -58,7 +49,7 @@ $ccc-bank-name: #c4cae8;
     box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
     border-radius: 16px;
     width: calc(100% - 32px);
-    margin: 0px;
+    margin: 0;
     left: 50%;
     transform: translate(-50%, 0);
     padding: 8px 6px 12px;
@@ -80,10 +71,6 @@ $ccc-bank-name: #c4cae8;
     font-size: 12px;
     line-height: 15px;
     color: $black-light;
-  }
-
-  &--expenses-amount {
-    text-align: right;
   }
 
   &--expenses-title {
@@ -111,48 +98,10 @@ $ccc-bank-name: #c4cae8;
     }
   }
 
-  &--zero-state {
-    position: relative;
-    top: -96px;
-  }
-
-  &--report-badge-col {
-    padding-top: 0;
-    &__left {
-      padding-left: 0;
-      padding-right: 4px;
-    }
-
-    &__right {
-      padding-left: 4px;
-      padding-right: 0;
-    }
-
-    &__top {
-      padding-bottom: 4px;
-    }
-
-    &__bottom {
-      padding-top: 4px;
-    }
-  }
-
-  &--report-stats-row {
-    padding-bottom: 18px;
-    padding-top: 8px;
-    --ion-grid-column-padding: 0;
-  }
-
-  &--expenses-stats-row {
-    padding-bottom: 18px;
-    padding-top: 19px;
-    --ion-grid-column-padding: 0;
-  }
-
   &--ccc-cards-section {
     position: relative;
     top: -104px;
-    margin-bottom: 30%;
+    margin-bottom: 24px;
   }
 
   &--ccc-cards-header {
@@ -164,8 +113,8 @@ $ccc-bank-name: #c4cae8;
     left: 50%;
     transform: translate(-50%, 0);
     min-height: 85px;
-    width: calc(100% - 64px);
-    background: url('../../../../assets/images/card-bg.png') no-repeat bottom;
+    width: calc(100% - 36px);
+    background: url('../../../../../assets/images/card-bg.png') no-repeat bottom;
     background-size: 100% 100%;
     box-shadow: 0px 2px 8px $transparent-pearl-grey;
     border-radius: 8px;
@@ -186,7 +135,7 @@ $ccc-bank-name: #c4cae8;
     padding: 66px 32px 32px 32px;
     background: $pure-white;
     border-radius: 16px;
-    width: calc(100% - 32px);
+    width: calc(100% - 12px);
     position: relative;
     left: 50%;
     transform: translate(-50%, 0px);
@@ -272,28 +221,5 @@ $ccc-bank-name: #c4cae8;
   &--ccc-stats-divider {
     border-bottom: 1px solid $grey-lighter;
     margin-top: 24px;
-  }
-
-  &--ccc-skeleton-text {
-    height: 18px;
-    background-color: $grey-light;
-    &__height-small {
-      height: 12px;
-    }
-    &__width-small {
-      width: 33%;
-    }
-
-    &__width-medium {
-      width: 66%;
-    }
-
-    &__width-large {
-      width: 80%;
-    }
-
-    &__align-right {
-      margin-left: auto;
-    }
   }
 }

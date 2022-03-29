@@ -52,6 +52,13 @@
       width: 100%;
     }
 
+    &__amount-section {
+      float: right;
+      width: 90%;
+      margin-left: 20px;
+      align-items: center;
+    }
+
     &__category {
       color: $black;
       font-size: 18px;
@@ -102,6 +109,11 @@
         border-radius: 16px;
         padding: 5px 15px;
       }
+    }
+
+    &__credit {
+      color: $green;
+      font-weight: 500;
     }
   }
 

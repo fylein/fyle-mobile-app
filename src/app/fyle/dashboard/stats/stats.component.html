@@ -91,23 +91,40 @@
 
   <ng-container *ngIf="isConnected$ | async; else offlineMessage"></ng-container>
 
-  <div *ngIf="(isConnected$ | async) && cardTransactionsAndDetails" class="stats--ccc-cards-section">
+  <div
+    *ngIf="(isConnected$ | async) && (cardTransactionsAndDetails?.length > 0 || cardTransactionsAndDetailsNonUnifyCCC)"
+    class="stats--ccc-cards-section"
+  >
     <div>
-      <ion-grid>
+      <ion-grid
+        [ngClass]="{
+          'stats--ccc-cards-grid': !isUnifyCCCExpensesSettings,
+          'stats--ccc-cards-grid-multiple': isUnifyCCCExpensesSettings
+        }"
+        class=""
+      >
         <ion-row>
           <ion-col>
             <div class="stats--header stats--ccc-cards-header">CARD SPEND</div>
           </ion-col>
         </ion-row>
       </ion-grid>
-      <ng-container>
+      <ng-container *ngIf="isUnifyCCCExpensesSettings">
+        <app-spent-cards
+          [spentCards]="cardTransactionsAndDetails"
+          [homeCurrency]="homeCurrency$"
+          [currencySymbol]="currencySymbol$"
+        ></app-spent-cards>
+      </ng-container>
+
+      <ng-container *ngIf="!isUnifyCCCExpensesSettings">
         <div class="stats--ccc-card-details">
           <div class="stats--ccc-bank-name1">
             <ion-grid class="stats--ccc-container">
               <ion-row class="stats--ccc-block">
                 <ion-col class="stats--ccc-bank-name" size="8">
                   <div>
-                    {{ cardTransactionsAndDetails.ba_bank_name }}
+                    {{ cardTransactionsAndDetailsNonUnifyCCC.ba_bank_name }}
                   </div>
                 </ion-col>
                 <ion-col size="4">
@@ -117,31 +134,33 @@
               <ion-row>
                 <ion-col class="stats--ccc-account-info">
                   <span class="stats--ccc-account-info__type"> CREDIT </span>
-                  <span class="stats--ccc-account-info__mask">{{ ' xxxx ' + cardTransactionsAndDetails.ba_mask }}</span>
+                  <span class="stats--ccc-account-info__mask">{{
+                    ' xxxx ' + cardTransactionsAndDetailsNonUnifyCCC.ba_mask
+                  }}</span>
                 </ion-col>
               </ion-row>
             </ion-grid>
           </div>
-          <div class="stats--ccc-sync-detail" *ngIf="cardTransactionsAndDetails.ba_last_synced_at">
-            Last synced: {{ cardTransactionsAndDetails.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
+          <div class="stats--ccc-sync-detail" *ngIf="cardTransactionsAndDetailsNonUnifyCCC.ba_last_synced_at">
+            Last synced: {{ cardTransactionsAndDetailsNonUnifyCCC.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
           </div>
         </div>
         <div class="stats--ccc-stats">
           <div class="stats--ccc-created_dt">
-            Showing all transactions from {{ cardTransactionsAndDetails.ba_created_at | date: 'MMM d, y' }}
+            Showing all transactions from {{ cardTransactionsAndDetailsNonUnifyCCC.ba_created_at | date: 'MMM d, y' }}
           </div>
           <div>
             <div (click)="goToCCCPage('classified')">
               <div class="stats--ccc-classified-stats">
                 <div class="stats--ccc-classified-count">
-                  {{ cardTransactionsAndDetails.total_classified_count }}
+                  {{ cardTransactionsAndDetailsNonUnifyCCC.total_classified_count }}
                 </div>
                 <div class="stats--ccc-classified-amount">
                   <span class="stats--expenses-amount-currency">
                     {{ currencySymbol$ | async }}
                   </span>
                   {{
-                    cardTransactionsAndDetails.total_classified_amount
+                    cardTransactionsAndDetailsNonUnifyCCC.total_classified_amount
                       | humanizeCurrency: (homeCurrency$ | async):2:true
                   }}
                 </div>
@@ -152,14 +171,14 @@
             <div (click)="goToCCCPage('unclassified')">
               <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
                 <div class="stats--ccc-classified-count">
-                  {{ cardTransactionsAndDetails.total_unclassified_count }}
+                  {{ cardTransactionsAndDetailsNonUnifyCCC.total_unclassified_count }}
                 </div>
                 <div class="stats--ccc-classified-amount">
                   <span class="stats--expenses-amount-currency">
                     {{ currencySymbol$ | async }}
                   </span>
                   {{
-                    cardTransactionsAndDetails.total_unclassified_amount
+                    cardTransactionsAndDetailsNonUnifyCCC.total_unclassified_amount
                       | humanizeCurrency: (homeCurrency$ | async):2:true
                   }}
                 </div>
