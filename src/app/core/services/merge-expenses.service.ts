@@ -15,6 +15,7 @@ import { FileObject } from '../models/file_obj.model';
 import { FileResponse } from './file-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { FormControl } from '@angular/forms';
+import { DateService } from './date.service';
 
 type Option = Partial<{
   label: string;
@@ -55,7 +56,8 @@ export class MergeExpensesService {
     private offlineService: OfflineService,
     private humanizeCurrency: HumanizeCurrencyPipe,
     private projectService: ProjectsService,
-    private categoriesService: CategoriesService
+    private categoriesService: CategoriesService,
+    private dateService: DateService
   ) {}
 
   mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields: mergeFormValues): Observable<string> {
@@ -731,7 +733,7 @@ export class MergeExpensesService {
       const existing = customProperty.find((option) => option.name === field.name);
       if (field.value) {
         let formatedlabel;
-        if (moment(field.value, moment.ISO_8601, true).isValid()) {
+        if (this.dateService.isValidDate(field.value)) {
           formatedlabel = moment(field.value).format('MMM DD, YYYY');
         } else {
           formatedlabel = field.value.toString();
@@ -754,5 +756,21 @@ export class MergeExpensesService {
       }
     });
     return customProperty;
+  }
+
+  getFieldValue(optionsData: OptionsData) {
+    if (optionsData?.areSameValues) {
+      return optionsData?.options[0]?.value;
+    } else {
+      return null;
+    }
+  }
+
+  getFieldValueOnChange(optionsData: OptionsData, isTouched: boolean, selectedExpenseValue: any, formValue: any) {
+    if (!optionsData?.areSameValues && !isTouched) {
+      return selectedExpenseValue;
+    } else {
+      return formValue;
+    }
   }
 }

@@ -327,4 +327,8 @@ export class DateService {
   isSameDate(date1: Date, date2: Date) {
     return moment(date1).startOf('day').isSame(moment(date2).startOf('day'));
   }
+
+  isValidDate(date) {
+    return moment(date, moment.ISO_8601, true).isValid();
+  }
 }

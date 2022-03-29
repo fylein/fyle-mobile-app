@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject, forkJoin, noop, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, map, shareReplay, startWith, switchMap, take, tap, toArray } from 'rxjs/operators';
+import { finalize, map, reduce, shareReplay, startWith, switchMap, take, tap, toArray } from 'rxjs/operators';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -253,7 +253,7 @@ export class MergeExpensePage implements OnInit {
       purposeOptionsData: this.purposeOptionsData$,
     });
 
-    this.loadCustomFields$ = new BehaviorSubject(this.fg.controls.genericFields.value?.category);
+    this.loadCustomFields$ = new BehaviorSubject(this.genericFieldsForm.value?.category);
 
     this.setupCustomInputs();
     this.generateCustomInputOptions();
@@ -275,7 +275,6 @@ export class MergeExpensePage implements OnInit {
 
   loadGenericFieldsOptions() {
     this.genericFieldsOptions$.subscribe(
-      // eslint-disable-next-line complexity
       ({
         amountOptionsData,
         dateOfSpendOptionsData,
@@ -291,17 +290,17 @@ export class MergeExpensePage implements OnInit {
       }) => {
         this.fg.patchValue({
           genericFields: {
-            amount: amountOptionsData?.areSameValues ? amountOptionsData?.options[0]?.value : null,
-            dateOfSpend: dateOfSpendOptionsData?.areSameValues ? dateOfSpendOptionsData?.options[0]?.value : null,
-            paymentMode: paymentModeOptionsData?.areSameValues ? paymentModeOptionsData?.options[0]?.value : null,
-            project: projectOptionsData?.areSameValues ? projectOptionsData?.options[0]?.value : null,
-            billable: billableOptionsData?.areSameValues ? billableOptionsData?.options[0]?.value : null,
-            category: categoryOptionsData?.areSameValues ? categoryOptionsData?.options[0]?.value : null,
-            vendor: vendorOptionsData?.areSameValues ? vendorOptionsData?.options[0]?.value : null,
-            tax_group: taxGroupOptionsData?.areSameValues ? taxGroupOptionsData?.options[0]?.value : null,
-            tax_amount: taxAmountOptionsData?.areSameValues ? taxAmountOptionsData?.options[0]?.value : null,
-            costCenter: constCenterOptionsData?.areSameValues ? constCenterOptionsData?.options[0]?.value : null,
-            purpose: purposeOptionsData?.areSameValues ? purposeOptionsData?.options[0]?.value : null,
+            amount: this.mergeExpensesService.getFieldValue(amountOptionsData),
+            dateOfSpend: this.mergeExpensesService.getFieldValue(dateOfSpendOptionsData),
+            paymentMode: this.mergeExpensesService.getFieldValue(paymentModeOptionsData),
+            project: this.mergeExpensesService.getFieldValue(projectOptionsData),
+            billable: this.mergeExpensesService.getFieldValue(billableOptionsData),
+            category: this.mergeExpensesService.getFieldValue(categoryOptionsData),
+            vendor: this.mergeExpensesService.getFieldValue(vendorOptionsData),
+            tax_group: this.mergeExpensesService.getFieldValue(taxGroupOptionsData),
+            tax_amount: this.mergeExpensesService.getFieldValue(taxAmountOptionsData),
+            costCenter: this.mergeExpensesService.getFieldValue(constCenterOptionsData),
+            purpose: this.mergeExpensesService.getFieldValue(purposeOptionsData),
           },
         });
         const expensesInfo = this.mergeExpensesService.setDefaultExpenseToKeep(this.expenses);
@@ -321,7 +320,6 @@ export class MergeExpensePage implements OnInit {
 
   onExpenseChanged(selectedIndex: number) {
     this.genericFieldsOptions$.subscribe(
-      // eslint-disable-next-line complexity
       ({
         amountOptionsData,
         dateOfSpendOptionsData,
@@ -342,50 +340,72 @@ export class MergeExpensePage implements OnInit {
               !this.touchedGenericFields?.includes('receipt_ids')
                 ? this.expenses[selectedIndex]?.tx_split_group_id
                 : null,
-            amount:
-              !amountOptionsData?.areSameValues && !this.touchedGenericFields?.includes('amount')
-                ? this.expenses[selectedIndex]?.tx_amount
-                : this.fg.controls.genericFields.value?.amount,
-            dateOfSpend:
-              !dateOfSpendOptionsData?.areSameValues && !this.touchedGenericFields?.includes('dateOfSpend')
-                ? this.expenses[selectedIndex]?.tx_txn_dt
-                : this.fg.controls.genericFields.value?.dateOfSpend,
-            paymentMode:
-              !paymentModeOptionsData?.areSameValues && !this.touchedGenericFields?.includes('paymentMode')
-                ? this.expenses[selectedIndex]?.source_account_type
-                : this.fg.controls.genericFields.value.paymentMode,
-            project:
-              !projectOptionsData?.areSameValues && !this.touchedGenericFields?.includes('project')
-                ? this.expenses[selectedIndex]?.tx_project_id
-                : this.fg.controls.genericFields.value?.project,
-            billable:
-              !billableOptionsData?.areSameValues && !this.touchedGenericFields?.includes('billable')
-                ? this.expenses[selectedIndex]?.tx_billable
-                : this.fg.controls.genericFields.value?.billable,
-            category:
-              !categoryOptionsData?.areSameValues && !this.touchedGenericFields?.includes('category')
-                ? this.expenses[selectedIndex]?.tx_category
-                : this.fg.controls.genericFields.value?.category,
-            vendor:
-              !vendorOptionsData?.areSameValues && !this.touchedGenericFields?.includes('vendor')
-                ? this.expenses[selectedIndex]?.tx_vendor
-                : this.fg.controls.genericFields.value?.vendor,
-            tax_group:
-              !taxGroupOptionsData?.areSameValues && !this.touchedGenericFields?.includes('tax_group')
-                ? this.expenses[selectedIndex]?.tx_tax_group_id
-                : this.fg.controls.genericFields.value?.tax_group,
-            tax_amount:
-              !taxAmountOptionsData?.areSameValues && !this.touchedGenericFields?.includes('tax_amount')
-                ? this.expenses[selectedIndex]?.tx_amount
-                : this.fg.controls.genericFields.value?.tax_amount,
-            costCenter:
-              !constCenterOptionsData?.areSameValues && !this.touchedGenericFields?.includes('costCenter')
-                ? this.expenses[selectedIndex]?.tx_cost_center_name
-                : this.fg.controls.genericFields.value?.costCenter,
-            purpose:
-              !purposeOptionsData?.areSameValues && !this.touchedGenericFields?.includes('purpose')
-                ? this.expenses[selectedIndex]?.tx_purpose
-                : this.fg.controls.genericFields.value?.purpose,
+            amount: this.mergeExpensesService.getFieldValueOnChange(
+              amountOptionsData,
+              this.touchedGenericFields?.includes('amount'),
+              this.expenses[selectedIndex]?.tx_id,
+              this.genericFieldsForm.value?.amount
+            ),
+            dateOfSpend: this.mergeExpensesService.getFieldValueOnChange(
+              dateOfSpendOptionsData,
+              this.touchedGenericFields?.includes('dateOfSpend'),
+              this.expenses[selectedIndex]?.tx_txn_dt,
+              this.genericFieldsForm.value?.dateOfSpend
+            ),
+            paymentMode: this.mergeExpensesService.getFieldValueOnChange(
+              paymentModeOptionsData,
+              this.touchedGenericFields?.includes('paymentMode'),
+              this.expenses[selectedIndex]?.source_account_type,
+              this.genericFieldsForm.value?.paymentMode
+            ),
+            project: this.mergeExpensesService.getFieldValueOnChange(
+              projectOptionsData,
+              this.touchedGenericFields?.includes('project'),
+              this.expenses[selectedIndex]?.tx_project_id,
+              this.genericFieldsForm.value?.project
+            ),
+            billable: this.mergeExpensesService.getFieldValueOnChange(
+              billableOptionsData,
+              this.touchedGenericFields?.includes('billable'),
+              this.expenses[selectedIndex]?.tx_billable,
+              this.genericFieldsForm.value?.billable
+            ),
+            category: this.mergeExpensesService.getFieldValueOnChange(
+              categoryOptionsData,
+              this.touchedGenericFields?.includes('category'),
+              this.expenses[selectedIndex]?.tx_category,
+              this.genericFieldsForm.value?.category
+            ),
+            vendor: this.mergeExpensesService.getFieldValueOnChange(
+              vendorOptionsData,
+              this.touchedGenericFields?.includes('vendor'),
+              this.expenses[selectedIndex]?.tx_vendor,
+              this.genericFieldsForm.value?.vendor
+            ),
+            tax_group: this.mergeExpensesService.getFieldValueOnChange(
+              taxGroupOptionsData,
+              this.touchedGenericFields?.includes('tax_group'),
+              this.expenses[selectedIndex]?.tx_tax_group_id,
+              this.genericFieldsForm.value?.tax_group
+            ),
+            tax_amount: this.mergeExpensesService.getFieldValueOnChange(
+              taxAmountOptionsData,
+              this.touchedGenericFields?.includes('tax_amount'),
+              this.expenses[selectedIndex]?.tx_amount,
+              this.genericFieldsForm.value?.tax_amount
+            ),
+            costCenter: this.mergeExpensesService.getFieldValueOnChange(
+              constCenterOptionsData,
+              this.touchedGenericFields?.includes('costCenter'),
+              this.expenses[selectedIndex]?.tx_cost_center_name,
+              this.genericFieldsForm.value?.costCenter
+            ),
+            purpose: this.mergeExpensesService.getFieldValueOnChange(
+              purposeOptionsData,
+              this.touchedGenericFields?.includes('purpose'),
+              this.expenses[selectedIndex]?.tx_purpose,
+              this.genericFieldsForm.value?.purpose
+            ),
           },
         });
       }
@@ -404,45 +424,36 @@ export class MergeExpensePage implements OnInit {
       busTravelClassOptionsData: this.busTravelClassOptionsData$,
       distanceOptionsData: this.distanceOptionsData$,
       distanceUnitOptionsData: this.distanceUnitOptionsData$,
-    }).pipe(
-      tap(
-        // eslint-disable-next-line complexity
-        ({
-          location1OptionsData,
-          location2OptionsData,
-          onwardDateOptionsData,
-          returnDateOptionsData,
-          flightJourneyTravelClassOptionsData,
-          flightReturnTravelClassOptionsData,
-          trainTravelClassOptionsData,
-          busTravelClassOptionsData,
-          distanceOptionsData,
-          distanceUnitOptionsData,
-        }) => {
-          this.fg.patchValue({
-            categoryDependent: {
-              location_1: location1OptionsData?.areSameValues ? location1OptionsData?.options[0]?.value : null,
-              location_2: location2OptionsData?.areSameValues ? location2OptionsData?.options[0]?.value : null,
-              from_dt: onwardDateOptionsData?.areSameValues ? onwardDateOptionsData?.options[0]?.value : null,
-              to_dt: returnDateOptionsData?.areSameValues ? returnDateOptionsData?.options[0]?.value : null,
-              flight_journey_travel_class: flightJourneyTravelClassOptionsData?.areSameValues
-                ? flightJourneyTravelClassOptionsData?.options[0]?.value
-                : null,
-              flight_return_travel_class: flightReturnTravelClassOptionsData?.areSameValues
-                ? flightReturnTravelClassOptionsData?.options[0]?.value
-                : null,
-              train_travel_class: trainTravelClassOptionsData?.areSameValues
-                ? trainTravelClassOptionsData?.options[0]?.value
-                : null,
-              bus_travel_class: busTravelClassOptionsData?.areSameValues
-                ? busTravelClassOptionsData?.options[0]?.value
-                : null,
-              distance: distanceOptionsData?.areSameValues ? distanceOptionsData?.options[0]?.value : null,
-              distance_unit: distanceUnitOptionsData?.areSameValues ? distanceUnitOptionsData?.options[0]?.value : null,
-            },
-          });
-        }
-      )
+    });
+
+    this.categoryDependentFieldsOptions$.subscribe(
+      ({
+        location1OptionsData,
+        location2OptionsData,
+        onwardDateOptionsData,
+        returnDateOptionsData,
+        flightJourneyTravelClassOptionsData,
+        flightReturnTravelClassOptionsData,
+        trainTravelClassOptionsData,
+        busTravelClassOptionsData,
+        distanceOptionsData,
+        distanceUnitOptionsData,
+      }) => {
+        this.fg.patchValue({
+          categoryDependent: {
+            location_1: this.mergeExpensesService.getFieldValue(location1OptionsData),
+            location_2: this.mergeExpensesService.getFieldValue(location2OptionsData),
+            from_dt: this.mergeExpensesService.getFieldValue(onwardDateOptionsData),
+            to_dt: this.mergeExpensesService.getFieldValue(returnDateOptionsData),
+            flight_journey_travel_class: this.mergeExpensesService.getFieldValue(flightJourneyTravelClassOptionsData),
+            flight_return_travel_class: this.mergeExpensesService.getFieldValue(flightReturnTravelClassOptionsData),
+            train_travel_class: this.mergeExpensesService.getFieldValue(trainTravelClassOptionsData),
+            bus_travel_class: this.mergeExpensesService.getFieldValue(busTravelClassOptionsData),
+            distance: this.mergeExpensesService.getFieldValue(distanceOptionsData),
+            distance_unit: this.mergeExpensesService.getFieldValue(distanceUnitOptionsData),
+          },
+        });
+      }
     );
   }
 
@@ -500,45 +511,43 @@ export class MergeExpensePage implements OnInit {
 
   generateFromFg() {
     const sourceExpense = this.expenses.find(
-      (expense) => expense.source_account_type === this.fg.controls.genericFields.value.paymentMode
+      (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
     );
-    const amountExpense = this.expenses.find(
-      (expense) => expense.tx_id === this.fg.controls.genericFields.value.amount
-    );
+    const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsForm.value.amount);
     const CCCGroupIds = this.expenses.map(
       (expense) =>
         expense.tx_corporate_credit_card_expense_group_id && expense.tx_corporate_credit_card_expense_group_id
     );
     let locations;
     if (this.fg.value.location_1 && this.fg.value.location_2) {
-      locations = [this.fg.controls.genericFields.value.location_1, this.fg.controls.genericFields.value.location_2];
+      locations = [this.genericFieldsForm.value.location_1, this.genericFieldsForm.value.location_2];
     } else if (this.fg.value.location_1) {
-      locations = [this.fg.controls.genericFields.value.location_1];
+      locations = [this.genericFieldsForm.value.location_1];
     }
     return {
       source_account_id: sourceExpense?.tx_source_account_id,
-      billable: this.fg.controls.genericFields.value.billable,
+      billable: this.genericFieldsForm.value.billable,
       currency: amountExpense?.tx_currency,
       amount: amountExpense?.tx_amount,
-      project_id: this.fg.controls.genericFields.value.project,
-      tax_amount: this.fg.controls.genericFields.value.tax_amount,
-      tax_group_id: this.fg.controls.genericFields.value.tax_group,
-      org_category_id: this.fg.controls.genericFields.value.category,
-      fyle_category: this.fg.controls.genericFields.value.category,
-      vendor: this.fg.controls.genericFields.value.vendor,
-      purpose: this.fg.controls.genericFields.value.purpose,
-      txn_dt: this.fg.controls.genericFields.value.dateOfSpend,
+      project_id: this.genericFieldsForm.value.project,
+      tax_amount: this.genericFieldsForm.value.tax_amount,
+      tax_group_id: this.genericFieldsForm.value.tax_group,
+      org_category_id: this.genericFieldsForm.value.category,
+      fyle_category: this.genericFieldsForm.value.category,
+      vendor: this.genericFieldsForm.value.vendor,
+      purpose: this.genericFieldsForm.value.purpose,
+      txn_dt: this.genericFieldsForm.value.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
       custom_properties: this.fg.controls.custom_inputs.value.fields,
       ccce_group_id: CCCGroupIds && CCCGroupIds[0],
-      from_dt: this.fg.controls.genericFields.value.from_dt,
-      to_dt: this.fg.controls.genericFields.value.to_dt,
-      flight_journey_travel_class: this.fg.controls.genericFields.value.flight_journey_travel_class,
-      flight_return_travel_class: this.fg.controls.genericFields.value.flight_return_travel_class,
-      train_travel_class: this.fg.controls.genericFields.value.train_travel_class,
-      bus_travel_class: this.fg.controls.genericFields.value.bus_travel_class,
-      distance: this.fg.controls.genericFields.value.distance,
-      distance_unit: this.fg.controls.genericFields.value.distance_unit,
+      from_dt: this.genericFieldsForm.value.from_dt,
+      to_dt: this.genericFieldsForm.value.to_dt,
+      flight_journey_travel_class: this.genericFieldsForm.value.flight_journey_travel_class,
+      flight_return_travel_class: this.genericFieldsForm.value.flight_return_travel_class,
+      train_travel_class: this.genericFieldsForm.value.train_travel_class,
+      bus_travel_class: this.genericFieldsForm.value.bus_travel_class,
+      distance: this.genericFieldsForm.value.distance,
+      distance_unit: this.genericFieldsForm.value.distance_unit,
       locations: locations || [],
     };
   }
@@ -562,7 +571,10 @@ export class MergeExpensePage implements OnInit {
             );
             return customFields;
           }),
-          toArray()
+          reduce((acc, curr) => {
+            acc.push(curr);
+            return acc;
+          }, [])
         )
       ),
       tap((customInputs) => {
@@ -681,7 +693,6 @@ export class MergeExpensePage implements OnInit {
 
   patchCategoryDependentFields(selectedIndex: number) {
     this.categoryDependentFieldsOptions$.subscribe(
-      // eslint-disable-next-line complexity
       ({
         location1OptionsData,
         location2OptionsData,
@@ -696,50 +707,66 @@ export class MergeExpensePage implements OnInit {
       }) => {
         this.fg.patchValue({
           categoryDependent: {
-            location_1:
-              !location1OptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('location_1')
-                ? this.expenses[selectedIndex].tx_locations[0]
-                : this.categoryDependentForm.value?.location_1,
-            location_2:
-              !location2OptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('location_2')
-                ? this.expenses[selectedIndex].tx_locations[1]
-                : this.categoryDependentForm.value?.location_2,
-            from_dt:
-              !onwardDateOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('from_dt')
-                ? this.expenses[selectedIndex].tx_from_dt
-                : this.categoryDependentForm.value?.from_dt,
-            to_dt:
-              !returnDateOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('to_dt')
-                ? this.expenses[selectedIndex].tx_to_dt
-                : this.categoryDependentForm.value?.to_dt,
-            flight_journey_travel_class:
-              !flightJourneyTravelClassOptionsData?.areSameValues &&
-              !this.touchedCategoryDepedentFields?.includes('flight_journey_travel_class')
-                ? this.expenses[selectedIndex].tx_flight_journey_travel_class
-                : this.categoryDependentForm.value?.flight_journey_travel_class,
-            flight_return_travel_class:
-              !flightReturnTravelClassOptionsData?.areSameValues &&
-              !this.touchedCategoryDepedentFields?.includes('flight_return_travel_class')
-                ? this.expenses[selectedIndex].tx_flight_return_travel_class
-                : this.categoryDependentForm.value?.flight_return_travel_class,
-            train_travel_class:
-              !trainTravelClassOptionsData?.areSameValues &&
-              !this.touchedCategoryDepedentFields?.includes('train_travel_class')
-                ? this.expenses[selectedIndex].tx_train_travel_class
-                : this.categoryDependentForm.value?.train_travel_class,
-            bus_travel_class:
-              !busTravelClassOptionsData?.areSameValues &&
-              !this.touchedCategoryDepedentFields?.includes('bus_travel_class')
-                ? this.expenses[selectedIndex].tx_bus_travel_class
-                : this.categoryDependentForm.value?.bus_travel_class,
-            distance:
-              !distanceOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('distance')
-                ? this.expenses[selectedIndex].tx_distance
-                : this.categoryDependentForm.value?.distance,
-            distance_unit:
-              !distanceUnitOptionsData?.areSameValues && !this.touchedCategoryDepedentFields?.includes('distance_unit')
-                ? this.expenses[selectedIndex].tx_flight_journey_travel_class
-                : this.categoryDependentForm.value?.tx_distance_unit,
+            location_1: this.mergeExpensesService.getFieldValueOnChange(
+              location1OptionsData,
+              this.touchedGenericFields?.includes('location_1'),
+              this.expenses[selectedIndex]?.tx_locations[0],
+              this.genericFieldsForm.value?.location_1
+            ),
+            location_2: this.mergeExpensesService.getFieldValueOnChange(
+              location2OptionsData,
+              this.touchedGenericFields?.includes('location_2'),
+              this.expenses[selectedIndex]?.tx_locations[1],
+              this.genericFieldsForm.value?.location_2
+            ),
+            from_dt: this.mergeExpensesService.getFieldValueOnChange(
+              onwardDateOptionsData,
+              this.touchedGenericFields?.includes('from_dt'),
+              this.expenses[selectedIndex]?.tx_from_dt,
+              this.genericFieldsForm.value?.from_dt
+            ),
+            to_dt: this.mergeExpensesService.getFieldValueOnChange(
+              returnDateOptionsData,
+              this.touchedGenericFields?.includes('to_dt'),
+              this.expenses[selectedIndex]?.tx_to_dt,
+              this.genericFieldsForm.value?.to_dt
+            ),
+            flight_journey_travel_class: this.mergeExpensesService.getFieldValueOnChange(
+              flightJourneyTravelClassOptionsData,
+              this.touchedGenericFields?.includes('flight_journey_travel_class'),
+              this.expenses[selectedIndex]?.tx_flight_journey_travel_class,
+              this.genericFieldsForm.value?.flight_journey_travel_class
+            ),
+            flight_return_travel_class: this.mergeExpensesService.getFieldValueOnChange(
+              flightReturnTravelClassOptionsData,
+              this.touchedGenericFields?.includes('flight_return_travel_class'),
+              this.expenses[selectedIndex]?.tx_flight_return_travel_class,
+              this.genericFieldsForm.value?.flight_return_travel_class
+            ),
+            train_travel_class: this.mergeExpensesService.getFieldValueOnChange(
+              trainTravelClassOptionsData,
+              this.touchedGenericFields?.includes('train_travel_class'),
+              this.expenses[selectedIndex]?.tx_train_travel_class,
+              this.genericFieldsForm.value?.train_travel_class
+            ),
+            bus_travel_class: this.mergeExpensesService.getFieldValueOnChange(
+              busTravelClassOptionsData,
+              this.touchedGenericFields?.includes('bus_travel_class'),
+              this.expenses[selectedIndex]?.tx_bus_travel_class,
+              this.genericFieldsForm.value?.bus_travel_class
+            ),
+            distance: this.mergeExpensesService.getFieldValueOnChange(
+              distanceOptionsData,
+              this.touchedGenericFields?.includes('distance'),
+              this.expenses[selectedIndex]?.tx_distance,
+              this.genericFieldsForm.value?.distance
+            ),
+            distance_unit: this.mergeExpensesService.getFieldValueOnChange(
+              distanceUnitOptionsData,
+              this.touchedGenericFields?.includes('distance_unit'),
+              this.expenses[selectedIndex]?.tx_flight_journey_travel_class,
+              this.genericFieldsForm.value?.tx_distance_unit
+            ),
           },
         });
       }
