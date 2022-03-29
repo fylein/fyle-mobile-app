@@ -164,19 +164,17 @@ export class MyExpensesPage implements OnInit {
 
   isCameraShown = false;
 
+  isUnifyCCCEnabled$: Observable<{ enabled: boolean }>;
+
+  cardNumbers: { label: string; value: string }[] = [];
+
+  maskNumber = new MaskNumber();
+
   isUnifyCCCExpensesSettings: boolean;
 
   expensesToBeDeleted: Expense[];
 
   cccExpenses: number;
-
-  isUnifyCCCEnabled$: Observable<{ enabled: boolean }>;
-
-  isUnifyCCCEnabled: boolean;
-
-  cardNumbers: { label: string; value: string }[] = [];
-
-  maskNumber = new MaskNumber();
 
   get HeaderState() {
     return HeaderState;
@@ -476,7 +474,6 @@ export class MyExpensesPage implements OnInit {
         })
       )
       .subscribe((cards) => {
-        this.cardNumbers = [];
         cards.forEach((card) => {
           this.cardNumbers.push({ label: this.maskNumber.transform(card.cardNumber), value: card.cardNumber });
         });
@@ -1229,7 +1226,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string) {
-    const filterMaster = [
+    const filterMain = [
       {
         name: 'Type',
         optionType: FilterOptionType.multiselect,
@@ -1343,7 +1340,7 @@ export class MyExpensesPage implements OnInit {
     ];
     this.isUnifyCCCEnabled$.subscribe((isEnabled) => {
       if (isEnabled && this.cardNumbers?.length > 0) {
-        filterMaster.push({
+        filterMain.push({
           name: 'Cards',
           optionType: FilterOptionType.multiselect,
           options: this.cardNumbers,
@@ -1354,7 +1351,7 @@ export class MyExpensesPage implements OnInit {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
-        filterOptions: filterMaster,
+        filterOptions: filterMain,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },
@@ -2062,7 +2059,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   generateCardNumberParams(newQueryParams) {
-    if (this.filters.cardNumbers && this.filters.cardNumbers.length > 0) {
+    if (this.filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
       this.filters.cardNumbers?.forEach((cardNumber) => {
         cardNumberString += cardNumber + ',';
