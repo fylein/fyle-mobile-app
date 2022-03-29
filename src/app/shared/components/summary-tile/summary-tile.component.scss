@@ -3,7 +3,6 @@
 $advance_pulled_back_color: #979797;
 $advance_pending_approval_color: #1ab6bb;
 $advance_paid_color: darken(#5cb85c, 15%);
-$advance_rejected_color: #d50000;
 
 .summary-tile {
   &--card-container {
@@ -96,7 +95,7 @@ $advance_rejected_color: #d50000;
       }
 
       &__rejected {
-        background: $advance_rejected_color;
+        background: $rejected-color;
       }
     }
   }
@@ -177,6 +176,10 @@ $advance_rejected_color: #d50000;
 
     &__approval_disabled {
       background-color: $gray-3;
+    }
+
+    &__approval_rejected {
+      background-color: $rejected-color;
     }
   }
 }
