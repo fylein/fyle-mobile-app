@@ -363,7 +363,7 @@ export class MergeExpensesService {
   generateCategoryOptions(expenses: Expense[]): Observable<OptionsData> {
     return from(expenses).pipe(
       map((expense) => ({
-        label: expense.tx_org_category_id.toString(),
+        label: '',
         value: expense.tx_org_category_id,
       })),
       mergeMap((option) => this.formatCategoryOption(option)),
