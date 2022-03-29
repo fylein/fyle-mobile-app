@@ -1226,7 +1226,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string) {
-    const filterMaster = [
+    const filterMain = [
       {
         name: 'Type',
         optionType: FilterOptionType.multiselect,
@@ -1340,7 +1340,7 @@ export class MyExpensesPage implements OnInit {
     ];
     this.isUnifyCCCEnabled$.subscribe((isEnabled) => {
       if (isEnabled && this.cardNumbers?.length > 0) {
-        filterMaster.push({
+        filterMain.push({
           name: 'Cards',
           optionType: FilterOptionType.multiselect,
           options: this.cardNumbers,
@@ -1351,7 +1351,7 @@ export class MyExpensesPage implements OnInit {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
-        filterOptions: filterMaster,
+        filterOptions: filterMain,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },
