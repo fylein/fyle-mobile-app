@@ -53,13 +53,21 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isFromViewReports: boolean;
 
+  @Input() isFromPotentialDuplicates: boolean;
+
   @Input() etxnIndex: number;
+
+  @Input() isDismissable: boolean;
+
+  @Input() showDt = true;
 
   @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter();
 
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
 
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
+
+  @Output() dismissed: EventEmitter<Expense> = new EventEmitter();
 
   @Output() showCamera = new EventEmitter<boolean>();
 
@@ -70,8 +78,6 @@ export class ExpensesCardComponent implements OnInit {
   receiptIcon: string;
 
   receipt: string;
-
-  showDt = true;
 
   isPolicyViolated: boolean;
 
@@ -148,6 +154,9 @@ export class ExpensesCardComponent implements OnInit {
     } else {
       if (!this.expense.tx_file_ids) {
         this.receiptIcon = 'assets/svg/add-receipt.svg';
+        if (this.isFromPotentialDuplicates || this.isFromViewReports) {
+          this.receiptIcon = 'assets/svg/fy-expense.svg';
+        }
       } else {
         this.fileService
           .getFilesWithThumbnail(this.expense.tx_id)
@@ -367,7 +376,7 @@ export class ExpensesCardComponent implements OnInit {
   canAddAttachment() {
     return (
       !this.isFromViewReports &&
-      !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) &&
+      !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids || this.isFromPotentialDuplicates) &&
       !this.isSelectionModeEnabled
     );
   }
@@ -477,5 +486,11 @@ export class ExpensesCardComponent implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       startWith(true)
     );
+  }
+
+  dismiss(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.dismissed.emit(this.expense);
   }
 }

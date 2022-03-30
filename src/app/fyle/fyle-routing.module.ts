@@ -161,6 +161,11 @@ const routes: Routes = [
     path: 'merge_expense',
     loadChildren: () => import('./merge-expense/merge-expense.module').then((m) => m.MergeExpensePageModule),
   },
+  {
+    path: 'potential-duplicates',
+    loadChildren: () =>
+      import('./potential-duplicates/potential-duplicates.module').then((m) => m.PotentialDuplicatesPageModule),
+  },
 ];
 
 @NgModule({

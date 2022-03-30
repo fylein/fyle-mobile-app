@@ -1,0 +1,34 @@
+<ion-header mode="md">
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+</ion-header>
+
+<ion-content>
+  <div class="suggested-duplicates--body">
+    <div class="suggested-duplicates--container">
+      <div class="suggested-duplicates--header text-center">
+        {{ duplicateExpenses.length }} expenses for
+        {{ 0 | currency: duplicateExpenses[0].tx_currency:'symbol-narrow' | slice: 0:1 }}
+        {{ duplicateExpenses[0].tx_amount | number: '1.2-2' }}
+      </div>
+      <ng-container *ngFor="let expense of duplicateExpenses as list; let i = index">
+        <app-expense-card
+          [previousExpenseTxnDate]="list[i - 1]?.tx_txn_dt"
+          [previousExpenseCreatedAt]="list[i - 1]?.tx_created_at"
+          [expense]="expense"
+        >
+        </app-expense-card>
+      </ng-container>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar mode="md">
+    <div class="fy-footer-cta-container">
+      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="dismissAll()">
+        Dismiss All
+      </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="mergeExpenses()"> Merge </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

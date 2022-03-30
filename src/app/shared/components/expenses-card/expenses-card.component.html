@@ -246,6 +246,9 @@
           </div>
         </ng-template>
       </div>
+      <div *ngIf="isDismissable" (click)="dismiss($event)">
+        <ion-icon class="expenses-card--dismiss" [src]="'assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
+      </div>
     </div>
   </ng-container>
 </div>
