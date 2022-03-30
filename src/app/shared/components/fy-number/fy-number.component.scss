@@ -11,5 +11,13 @@
     width: 100%;
     margin: 4px 0;
     padding: 0;
+
+    &__disabled {
+      background-color: $off-white;
+      margin-bottom: 0;
+      height: 28px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
   }
 }

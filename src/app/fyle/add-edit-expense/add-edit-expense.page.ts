@@ -229,6 +229,8 @@ export class AddEditExpensePage implements OnInit {
 
   isSplitExpensesPresent: boolean;
 
+  showCardTransaction = true;
+
   canEditCCCMatchedSplitExpense: boolean;
 
   cardEndingDigits: string;
@@ -310,6 +312,12 @@ export class AddEditExpensePage implements OnInit {
 
   canDeleteExpense = true;
 
+  isUnifyCcceExpensesSettingsEnabled: boolean;
+
+  isCccExpense: boolean;
+
+  cardNumber: string;
+
   policyDetails;
 
   source = 'MOBILE';
@@ -317,6 +325,12 @@ export class AddEditExpensePage implements OnInit {
   isCameraShown = false;
 
   isIos = false;
+
+  isExpenseMatchedForDebitCCCE: boolean;
+
+  canDismissCCCE: boolean;
+
+  corporateCreditCardExpenseGroupId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -776,7 +790,83 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  async splitExpense() {
+  markCCCAsPersonal(txnId: string) {
+    return this.transactionService.delete(txnId).pipe(
+      switchMap((res) => {
+        if (res) {
+          this.trackingService.deleteExpense({ Type: 'Marked Personal' });
+          return this.corporateCreditCardExpenseService.markPersonal(this.corporateCreditCardExpenseGroupId);
+        }
+      })
+    );
+  }
+
+  dismissCCC(txnId: string, corporateCreditCardExpenseId: string) {
+    return this.transactionService.delete(txnId).pipe(
+      switchMap((res) => {
+        if (res) {
+          this.trackingService.deleteExpense({ Type: 'Dismiss as Card Payment' });
+          return this.corporateCreditCardExpenseService.dismissCreditTransaction(corporateCreditCardExpenseId);
+        }
+      })
+    );
+  }
+
+  async markPeronsalOrDismiss(type: string) {
+    const id = this.activatedRoute.snapshot.params.id;
+    this.etxn$.subscribe(
+      (etxn) => (this.corporateCreditCardExpenseGroupId = etxn?.tx?.corporate_credit_card_expense_group_id)
+    );
+    const isMarkPersonal = type === 'personal' && this.isExpenseMatchedForDebitCCCE;
+    const isDismiss = type === 'dismiss' && this.canDismissCCCE;
+    const header = isMarkPersonal ? 'Mark Expense as Personal' : 'Dismiss this expense?';
+    const body = isMarkPersonal
+      ? "This corporate card expense will be marked as personal and you won't be able to edit it.\nDo you wish to proceed?"
+      : "This corporate card expense will be dismissed and you won't be able to edit it.\nDo you wish to proceed?";
+    const ctaText = 'Yes';
+    const ctaLoadingText = isMarkPersonal ? 'Marking' : 'Dismissing';
+
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header,
+        body,
+        ctaText,
+        ctaLoadingText,
+        deleteMethod: () => {
+          if (isMarkPersonal) {
+            return this.transactionService
+              .unmatchCCCExpense(id, this.corporateCreditCardExpenseGroupId)
+              .pipe(switchMap(() => this.markCCCAsPersonal(id)));
+          } else {
+            return this.transactionService
+              .unmatchCCCExpense(id, this.matchedCCCTransaction.id)
+              .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction.id)));
+          }
+        },
+      },
+    });
+
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      const toastMessage = isMarkPersonal ? 'Marked expense as Personal' : 'Dismissed expense';
+      const toastMessageData = {
+        message: toastMessage,
+      };
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
+        panelClass: ['msb-info'],
+      });
+      this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+    }
+  }
+
+  async moreActions() {
     if (this.fg.valid) {
       return forkJoin({
         orgSettings$: this.offlineService.getOrgSettings(),
@@ -791,7 +881,7 @@ export class AddEditExpensePage implements OnInit {
 
         this.actionSheetButtons = [
           {
-            text: 'Category',
+            text: 'Split Expense By Category',
             handler: () => {
               this.openSplitExpenseModal('categories');
             },
@@ -800,7 +890,7 @@ export class AddEditExpensePage implements OnInit {
 
         if (areProjectsAvailable) {
           this.actionSheetButtons.push({
-            text: this.titleCasePipe.transform(projectField?.field_name),
+            text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
             handler: () => {
               this.openSplitExpenseModal('projects');
             },
@@ -809,15 +899,33 @@ export class AddEditExpensePage implements OnInit {
 
         if (areCostCentersAvailable) {
           this.actionSheetButtons.push({
-            text: 'Cost Center',
+            text: 'Split Expense By Cost Center',
             handler: () => {
               this.openSplitExpenseModal('cost centers');
             },
           });
         }
 
+        if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense && this.isExpenseMatchedForDebitCCCE) {
+          this.actionSheetButtons.push({
+            text: 'Mark as Personal',
+            handler: () => {
+              this.markPeronsalOrDismiss('personal');
+            },
+          });
+        }
+
+        if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense && this.canDismissCCCE) {
+          this.actionSheetButtons.push({
+            text: 'Dimiss as Card Payment',
+            handler: () => {
+              this.markPeronsalOrDismiss('dismiss');
+            },
+          });
+        }
+
         const actionSheet = await this.actionSheetController.create({
-          header: 'SPLIT EXPENSE BY',
+          header: 'MORE ACTIONS',
           mode: 'md',
           cssClass: 'fy-action-sheet',
           buttons: this.actionSheetButtons,
@@ -957,13 +1065,32 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       accounts: accounts$,
       orgSettings: orgSettings$,
+      etxn: this.etxn$,
     }).pipe(
-      map(({ accounts, orgSettings }) => {
+      map(({ accounts, orgSettings, etxn }) => {
         const isAdvanceEnabled =
           (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
         const isMultipleAdvanceEnabled =
           orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
+        const isCCCEnabled =
+          orgSettings &&
+          orgSettings.corporate_credit_card_settings.allowed &&
+          orgSettings.corporate_credit_card_settings.enabled;
+        /**
+         * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
+         * But if already an expense is created as CCC payment mode then on edit of that expense it should be visible
+         */
+        if (
+          !isCCCEnabled &&
+          !etxn.tx.corporate_credit_card_expense_group_id &&
+          etxn.source?.account_type !== 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+        ) {
+          accounts = accounts.filter((account) => account.acc.type !== 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+        }
+        if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
+          this.showCardTransaction = false;
+        }
         const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
@@ -2451,6 +2578,11 @@ export class AddEditExpensePage implements OnInit {
     );
 
     orgSettings$.subscribe((orgSettings) => {
+      this.isUnifyCcceExpensesSettingsEnabled =
+        orgSettings.unify_ccce_expenses_settings &&
+        orgSettings.unify_ccce_expenses_settings.allowed &&
+        orgSettings.unify_ccce_expenses_settings.enabled;
+
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&
         orgSettings.ccc_draft_expense_settings.allowed &&
@@ -2539,8 +2671,6 @@ export class AddEditExpensePage implements OnInit {
 
     const activeCategories$ = this.getActiveCategories();
 
-    this.paymentModes$ = this.getPaymentModes();
-
     this.paymentAccount$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
@@ -2590,12 +2720,19 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     );
 
+    this.paymentModes$ = this.getPaymentModes();
+
     orgSettings$
       .pipe(
-        filter((orgSettings) => orgSettings.corporate_credit_card_settings.enabled),
-        switchMap(() => this.etxn$),
-        filter((etxn) => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
-        switchMap((etxn) =>
+        switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
+        filter(
+          ({ orgSettings, etxn }) =>
+            (orgSettings.corporate_credit_card_settings.allowed &&
+              orgSettings.corporate_credit_card_settings.enabled) ||
+            etxn.tx.corporate_credit_card_expense_group_id
+        ),
+        filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
+        switchMap(({ etxn }) =>
           this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(
             map((splitExpenses) => ({
               etxn,
@@ -2647,6 +2784,7 @@ export class AddEditExpensePage implements OnInit {
             this.selectedCCCTransaction.amount;
 
           if (this.selectedCCCTransaction) {
+            this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
             this.selectedCCCTransactionInSuggestions = this.matchingCCCTransactions.some(
               (cccExpense) => cccExpense.id === this.matchedCCCTransaction.id
             );
@@ -2712,6 +2850,12 @@ export class AddEditExpensePage implements OnInit {
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
     );
+
+    this.etxn$.subscribe((etxn) => {
+      this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
+      this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
+      this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
+    });
 
     this.getPolicyDetails();
     this.isIos = this.platform.is('ios');
