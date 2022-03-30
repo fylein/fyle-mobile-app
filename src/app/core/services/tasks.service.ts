@@ -145,7 +145,7 @@ export class TasksService {
     return selectedFilters;
   }
 
-  generatePotentialDuplicatesFilter(selectedFilters) {
+  generatePotentialDuplicatesFilter(selectedFilters: SelectedFilters<any>[]) {
     const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
     if (existingFilter) {
       existingFilter.value.push('DUPLICATE');
@@ -158,7 +158,7 @@ export class TasksService {
     return selectedFilters;
   }
 
-  generateSentBackFilter(selectedFilters) {
+  generateSentBackFilter(selectedFilters: SelectedFilters<any>[]) {
     const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
     if (existingFilter) {
       existingFilter.value.push('SENT_BACK');
