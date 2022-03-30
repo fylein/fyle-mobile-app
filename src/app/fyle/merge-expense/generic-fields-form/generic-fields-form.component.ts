@@ -9,6 +9,7 @@ import {
   FormBuilder,
   Validators,
 } from '@angular/forms';
+import { FileObject } from 'src/app/core/models/file_obj.model';
 
 type Option = Partial<{
   label: string;
@@ -37,7 +38,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Input() paymentModeOptionsData: OptionsData;
 
-  @Input() attachments: OptionsData;
+  @Input() attachments: FileObject[];
 
   @Input() projectOptionsData: OptionsData;
 
