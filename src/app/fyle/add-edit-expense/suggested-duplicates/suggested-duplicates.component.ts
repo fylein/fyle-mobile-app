@@ -38,9 +38,9 @@ export class SuggestedDuplicatesComponent implements OnInit {
   }
 
   mergeExpenses() {
-    const txnIds = this.duplicateExpenses.map((expense) => expense.tx_id);
+    const txnIds = this.duplicateExpenses.map((expense) => expense.tx_id).join(',');
     const params = {
-      tx_id: `in.(${txnIds.join(',')})`,
+      tx_id: `in.(${txnIds})`,
     };
     this.transaction.getETxnc({ offset: 0, limit: 10, params }).subscribe((selectedExpenses) => {
       this.modalController.dismiss();
