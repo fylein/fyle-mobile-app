@@ -170,9 +170,7 @@
                   <ng-container *ngIf="txnFields$|async as txnFields">
                     <div
                       *ngIf="txnFields?.txn_dt"
-                      class="
-                        add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin
-                      "
+                      class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
                       [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                     >
                       <div class="add-edit-mileage--date-label">
