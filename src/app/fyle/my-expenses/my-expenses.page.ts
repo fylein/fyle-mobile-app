@@ -474,6 +474,7 @@ export class MyExpensesPage implements OnInit {
         })
       )
       .subscribe((cards) => {
+        this.cardNumbers = [];
         cards.forEach((card) => {
           this.cardNumbers.push({ label: this.maskNumber.transform(card.cardNumber), value: card.cardNumber });
         });
