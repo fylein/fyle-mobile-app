@@ -50,12 +50,47 @@
         </ng-container>
       </ng-container>
 
-      <div class="view-expense--policy-container" *ngIf="(isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)">
-        <span class="info-text m-0">
-          Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to {{
-          etxn.tx_amount | currency:etxn.tx_currency: 'symbol-narrow'}} due to policy.
-        </span>
+
+    <div class="view-expense--policy-container" *ngIf="(isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)">
+      <span class="info-text m-0">
+        Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to {{
+        etxn.tx_amount | currency:etxn.tx_currency: 'symbol-narrow'}} due to policy.
+      </span>
+    </div>
+
+    <div class="d-flex view-expense--card-container">
+      <div class="view-expense--card-container__block">
+        <div class="view-expense--card-container__category">{{ etxn.tx_categoryDisplayName || 'Unspecified' }}</div>
+        <div class="view-expense--card-container__merchant">
+          {{ etxn.tx_vendor || merchantFieldName + ' Unspecified'}}
+        </div>
+        <div *ngIf="isProjectShown" class="view-expense--card-container__project">
+          {{ projectFieldName | titlecase }}: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
+        </div>
+        <div *ngIf="isUnifyCcceExpensesSettingsEnabled && isCCCTransaction && cardNumber">
+          Card Number: {{ cardNumber | maskNumber }}
+        </div>
       </div>
+      <div class="ion-text-right view-expense--card-container__block">
+        <div class="view-expense--card-container__amount-section">
+          <span class="view-expense--card-container__currency">{{ etxnCurrencySymbol }}</span>
+          <span class="view-expense--card-container__amount">
+            {{ etxn.tx_amount | humanizeCurrency: etxn.tx_currency:2:true }}
+          </span>
+          <div *ngIf="isUnifyCcceExpensesSettingsEnabled && isCCCTransaction">
+            <div
+              class="view-expense--card-container__txn-type"
+              [ngClass]="{'view-expense--card-container__credit': etxn.tx_amount < 0}"
+            >
+              {{ etxn.tx_amount > 0 ? 'DR' : 'CR' }}
+            </div>
+          </div>
+          <ion-icon
+            class="view-expense--card-container__icon"
+            [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+          ></ion-icon>
+        </div>
+
 
       <div class="d-flex view-expense--card-container">
         <div class="view-expense--card-container__block">

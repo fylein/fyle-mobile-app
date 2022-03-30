@@ -118,6 +118,9 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
 import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.component';
 import { FySummaryTileComponent } from './components/summary-tile/summary-tile.component';
 import { ViewExpenseSkeletonLoaderComponent } from './components/view-expense-skeleton-loader/view-expense-skeleton-loader.component';
+import { SpentCardsComponent } from './components/spent-cards/spent-cards.component';
+import { CardDetailComponent } from './components/spent-cards/card-detail/card-detail.component';
+import { MaskNumber } from './pipes/mask-number.pipe';
 
 @NgModule({
   declarations: [
@@ -215,6 +218,9 @@ import { ViewExpenseSkeletonLoaderComponent } from './components/view-expense-sk
     FyStatisticComponent,
     FySummaryTileComponent,
     ViewExpenseSkeletonLoaderComponent,
+    SpentCardsComponent,
+    CardDetailComponent,
+    MaskNumber,
   ],
   imports: [
     CommonModule,
@@ -317,6 +323,9 @@ import { ViewExpenseSkeletonLoaderComponent } from './components/view-expense-sk
     FyStatisticComponent,
     FySummaryTileComponent,
     ViewExpenseSkeletonLoaderComponent,
+    SpentCardsComponent,
+    CardDetailComponent,
+    MaskNumber,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })

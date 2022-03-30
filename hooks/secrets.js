@@ -138,14 +138,6 @@ module.exports = {
     <dict>
         <key>NSAllowsArbitraryLoads</key>
         <false/>
-        <key>NSExceptionDomains</key>
-        <dict>
-            <key>localhost</key>
-            <dict>
-                <key>NSExceptionAllowsInsecureHTTPLoads</key>
-                <true/>
-            </dict>
-        </dict>
     </dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Fyle needs camera access to capture your receipts and attach them to expenses.</string>
