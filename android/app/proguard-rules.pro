@@ -23,10 +23,10 @@
 # Basic proguard rules
 
 -optimizations !code/simplification/arithmetic
--keepattributes <em>Annotation</em>
+-keepattributes *Annotation*
 -keepattributes InnerClasses
 -keepattributes EnclosingMethod
--keep class *<em>.R$</em>
+-keep class **.R$*
 -dontskipnonpubliclibraryclasses
 -forceprocessing
 -optimizationpasses 5
