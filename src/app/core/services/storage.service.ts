@@ -23,18 +23,20 @@ export class StorageService {
       const stringifiedObject = await SecureStoragePlugin.get({
         key,
       });
-
       if (stringifiedObject && stringifiedObject.value) {
         return JSON.parse(stringifiedObject.value);
       }
     } catch {
-      console.log(key, 'does not exist');
       return null;
     }
   }
 
   async delete(key: string) {
-    return await SecureStoragePlugin.remove({ key });
+    try {
+      return await SecureStoragePlugin.remove({ key });
+    } catch {
+      return null;
+    }
   }
 
   async clearAll() {
