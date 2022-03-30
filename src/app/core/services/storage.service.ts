@@ -4,6 +4,7 @@ import { Plugins } from '@capacitor/core';
 
 const { Storage } = Plugins;
 
+// This is used to store only in transaction service to save outbox and data extraction queue in bulkfyle
 @Injectable({
   providedIn: 'root',
 })
