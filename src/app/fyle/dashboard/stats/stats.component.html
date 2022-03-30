@@ -111,10 +111,19 @@
       </ion-grid>
       <ng-container *ngIf="isUnifyCCCExpensesSettings">
         <app-spent-cards
+          *ngIf="cardTransactionsAndDetails?.length > 1"
           [spentCards]="cardTransactionsAndDetails"
           [homeCurrency]="homeCurrency$"
           [currencySymbol]="currencySymbol$"
         ></app-spent-cards>
+        <div *ngIf="cardTransactionsAndDetails?.length === 1" class="stats--single-ccc">
+          <app-card-detail
+            [cardDetail]="cardTransactionsAndDetails[0]"
+            [homeCurrency]="homeCurrency$"
+            [currencySymbol]="currencySymbol$"
+          >
+          </app-card-detail>
+        </div>
       </ng-container>
 
       <ng-container *ngIf="!isUnifyCCCExpensesSettings">
