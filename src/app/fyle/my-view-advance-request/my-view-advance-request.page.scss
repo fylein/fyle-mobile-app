@@ -4,7 +4,7 @@
   &--card {
     padding: 0 16px;
     margin: 16px;
-    border: 1px solid #e5e5e5;
+    border: 1px solid $grey-5;
     border-radius: 4px;
   }
 
@@ -41,7 +41,7 @@
     height: 88px;
     border-radius: 6px;
     background: #d8d8d8;
-    color: #ababab;
+    color: $gray-3;
     font-size: 14px;
     font-weight: 500;
     float: left;
@@ -111,7 +111,7 @@
     width: calc(100% - 88px);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1) !important;
     border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid $grey-6;
     padding: 20px 0;
     height: 88px;
     display: flex;
@@ -120,14 +120,14 @@
   &--currency {
     font-size: 16px;
     font-weight: 500;
-    color: #4a4a4a;
+    color: $grey-light-2;
     width: 40%;
     padding: 12px 16px;
     line-height: 1.5;
     height: auto;
     text-align: center;
     letter-spacing: 1px;
-    border-right: 1px solid #e0e0e0;
+    border-right: 1px solid $grey-6;
   }
 
   &--amount {
@@ -141,11 +141,31 @@
     background: transparent;
   }
 
-  &--element {
-    display: flex;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 16px 0;
+  &--container {
+    padding: 0px 16px 16px;
+  }
 
+  &--content-container {
+    margin-top: 24px;
+  }
+
+  &--content-section {
+    border-bottom: 1px solid $grey-6;
+    margin-bottom: 6px;
+    padding: 8px 0px;
+  }
+
+  &--row-items {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+  }
+
+  &--padding-0 {
+    padding: 0;
+  }
+
+  &--element {
     &:first-child {
       margin-top: 0;
     }
@@ -156,12 +176,22 @@
     }
   }
 
+  &--grid {
+    padding: 0px;
+    margin-top: -15px;
+  }
+
+  &--divider {
+    margin: 24px 0px;
+    border-bottom: 1px solid $grey-lighter;
+  }
+
   &--element-label {
     min-width: 120px;
     max-width: 30%;
     margin: 0 8px 0 0;
     font-size: 16px;
-    color: #ababab;
+    color: $gray-3;
     font-weight: 500;
     line-height: 1.5;
   }
@@ -187,12 +217,12 @@
     }
 
     &__comment {
-      color: #0077ee;
+      color: $blue;
     }
 
     mat-icon {
       font-size: 24px;
-      color: #ababab;
+      color: $gray-3;
       display: inline-block;
       vertical-align: middle;
     }
@@ -205,7 +235,26 @@
   }
 
   &--view-advance {
-    margin-left: 12px;
-    margin-bottom: 12px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+  }
+
+  &--icon-container {
+    background: $off-white;
+    border-radius: 22px;
+    height: 34px;
+    width: 34px;
+    display: inline-flex;
+    margin-right: 12px;
+  }
+
+  &--icon {
+    padding: 8px;
+  }
+
+  &--anchor {
+    text-decoration: none;
+    font-weight: 500;
   }
 }

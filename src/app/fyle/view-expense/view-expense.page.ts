@@ -96,6 +96,10 @@ export class ViewExpensePage implements OnInit {
 
   projectFieldName: string;
 
+  isUnifyCcceExpensesSettingsEnabled: boolean;
+
+  cardNumber: string;
+
   get ExpenseView() {
     return ExpenseView;
   }
@@ -255,6 +259,9 @@ export class ViewExpensePage implements OnInit {
               (matchedExpense) => matchedExpense[0] && (this.paymentModeIcon = 'fy-matched') && matchedExpense[0].ccce
             )
           );
+        this.matchingCCCTransaction$.subscribe((cardTxn) => {
+          this.cardNumber = cardTxn?.card_or_account_number;
+        });
       }
       this.foreignCurrencySymbol = getCurrencySymbol(etxn.tx_orig_currency, 'wide');
       this.etxnCurrencySymbol = getCurrencySymbol(etxn.tx_currency, 'wide');
@@ -305,6 +312,9 @@ export class ViewExpensePage implements OnInit {
 
     this.offlineService.getOrgSettings().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
+      this.isUnifyCcceExpensesSettingsEnabled =
+        this.orgSettings?.unify_ccce_expenses_settings?.allowed &&
+        this.orgSettings?.unify_ccce_expenses_settings?.enabled;
     });
 
     this.offlineService

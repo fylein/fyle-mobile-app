@@ -152,7 +152,7 @@ export class TransactionsOutboxService {
                 that.transactionService
                   .upsert(entry.transaction)
                   .toPromise()
-                  .then(() => console.log(entry.transaction))
+                  .then(() => {})
                   .finally(() => {
                     this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
                   });
@@ -475,9 +475,7 @@ export class TransactionsOutboxService {
         });
     });
 
-    return this.syncDeferred.then(() => {
-      // console.log('Sync initiatiated');
-    });
+    return this.syncDeferred.then(() => {});
   }
 
   createTxnAndUploadBase64File(transaction, base64Content) {

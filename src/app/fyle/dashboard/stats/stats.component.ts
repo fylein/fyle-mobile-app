@@ -12,6 +12,8 @@ import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { CardDetail } from 'src/app/core/models/card-detail.model';
+import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 
 @Component({
   selector: 'app-stats',
@@ -45,11 +47,17 @@ export class StatsComponent implements OnInit {
 
   loadData$ = new Subject();
 
-  cardTransactionsAndDetails$: Observable<BankAccountsAssigned>;
-
   isCCCStatsLoading: boolean;
 
-  cardTransactionsAndDetails: BankAccountsAssigned;
+  cardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned>;
+
+  cardTransactionsAndDetailsNonUnifyCCC: BankAccountsAssigned;
+
+  cardTransactionsAndDetails$: Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }>;
+
+  cardTransactionsAndDetails: CardDetail[];
+
+  isUnifyCCCExpensesSettings: boolean;
 
   get ReportStates() {
     return ReportStates;
@@ -106,15 +114,40 @@ export class StatsComponent implements OnInit {
     );
   }
 
-  initializeCCCStats() {
-    this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
-      map((res) => res[0]),
-      shareReplay(1)
-    );
-    this.cardTransactionsAndDetails$.subscribe((details) => {
-      this.cardTransactionsAndDetails = details;
-      this.isCCCStatsLoading = false;
+  getCardDetail(statsResponses) {
+    const cardNames = [];
+    statsResponses.forEach((response) => {
+      const cardDetail = {
+        cardNumber: response.key[1].column_value,
+        cardName: response.key[0].column_value,
+      };
+      cardNames.push(cardDetail);
     });
+    const uniqueCards = JSON.parse(JSON.stringify(cardNames));
+
+    return this.dashboardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
+  }
+
+  initializeCCCStats() {
+    if (this.isUnifyCCCExpensesSettings) {
+      this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
+        map((cccDetail) => cccDetail),
+        shareReplay(1)
+      );
+      this.cardTransactionsAndDetails$.subscribe((details) => {
+        this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
+        this.isCCCStatsLoading = false;
+      });
+    } else {
+      this.cardTransactionsAndDetailsNonUnifyCCC$ = this.dashboardService.getNonUnifyCCCDetails().pipe(
+        map((res) => res[0]),
+        shareReplay(1)
+      );
+      this.cardTransactionsAndDetailsNonUnifyCCC$.subscribe((details) => {
+        this.cardTransactionsAndDetailsNonUnifyCCC = details;
+        this.isCCCStatsLoading = false;
+      });
+    }
   }
 
   /*
@@ -133,10 +166,15 @@ export class StatsComponent implements OnInit {
     that.initializeExpensesStats();
     that.offlineService.getOrgSettings().subscribe((orgSettings) => {
       if (orgSettings.corporate_credit_card_settings.enabled) {
+        this.isUnifyCCCExpensesSettings =
+          orgSettings.unify_ccce_expenses_settings &&
+          orgSettings.unify_ccce_expenses_settings.allowed &&
+          orgSettings.unify_ccce_expenses_settings.enabled;
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();
       } else {
         this.cardTransactionsAndDetails$ = of(null);
+        this.cardTransactionsAndDetailsNonUnifyCCC$ = of(null);
       }
     });
   }

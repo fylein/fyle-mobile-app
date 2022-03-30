@@ -113,6 +113,10 @@ export class ExpensesCardComponent implements OnInit {
 
   isPerDiem: boolean;
 
+  isUnifyCcceExpensesSettings: boolean;
+
+  showPaymentModeIcon: boolean;
+
   isIos = false;
 
   constructor(
@@ -259,8 +263,15 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
+  canShowPaymentModeIcon() {
+    this.showPaymentModeIcon =
+      this.expense.source_account_type === 'PERSONAL_ACCOUNT' && !this.expense.tx_skip_reimbursement;
+  }
+
   ngOnInit() {
     this.setupNetworkWatcher();
+    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+
     this.isSycing$ = this.isConnected$.pipe(
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
@@ -286,9 +297,17 @@ export class ExpensesCardComponent implements OnInit {
       )
       .subscribe(noop);
 
-    this.isProjectEnabled$ = this.offlineService.getOrgSettings().pipe(
+    this.isProjectEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
       shareReplay(1)
+    );
+
+    orgSettings$.subscribe(
+      (orgSettings) =>
+        (this.isUnifyCcceExpensesSettings =
+          orgSettings.unify_ccce_expenses_settings &&
+          orgSettings.unify_ccce_expenses_settings.allowed &&
+          orgSettings.unify_ccce_expenses_settings.enabled)
     );
 
     if (!this.expense.tx_id) {
@@ -298,6 +317,8 @@ export class ExpensesCardComponent implements OnInit {
       const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
       this.showDt = currentDate !== previousDate;
     }
+
+    this.canShowPaymentModeIcon();
 
     this.getReceipt();
 
