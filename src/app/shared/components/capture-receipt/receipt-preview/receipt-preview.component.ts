@@ -8,6 +8,11 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
+import { SwiperComponent } from 'swiper/angular';
+import SwiperCore, { Pagination } from 'swiper';
+
+// install Swiper modules
+SwiperCore.use([Pagination]);
 
 type Image = Partial<{
   source: string;
@@ -19,7 +24,7 @@ type Image = Partial<{
   styleUrls: ['./receipt-preview.component.scss'],
 })
 export class ReceiptPreviewComponent implements OnInit {
-  @ViewChild('slides') imageSlides: any;
+  @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
   @Input() base64ImagesWithSource: Image[];
 
@@ -56,7 +61,7 @@ export class ReceiptPreviewComponent implements OnInit {
 
     if (data && data.base64ImageWithSource) {
       this.base64ImagesWithSource[this.activeIndex] = data.base64ImageWithSource;
-      await this.imageSlides.update();
+      await this.swiper.swiperRef.update();
       this.trackingService.cropReceipt();
     }
   }
@@ -74,7 +79,7 @@ export class ReceiptPreviewComponent implements OnInit {
     this.backButtonAction = this.platform.backButton.subscribeWithPriority(200, () => {
       this.retake();
     });
-    this.imageSlides.update();
+    this.swiper.swiperRef.update();
   }
 
   ionViewWillLeave() {
@@ -174,7 +179,7 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   async deleteReceipt() {
-    const activeIndex = await this.imageSlides.getActiveIndex();
+    const activeIndex = await this.swiper.swiperRef.activeIndex;
     const deletePopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
@@ -203,8 +208,8 @@ export class ReceiptPreviewComponent implements OnInit {
         if (this.base64ImagesWithSource.length === 0) {
           this.retake();
         } else {
-          await this.imageSlides.update();
-          this.activeIndex = await this.imageSlides.getActiveIndex();
+          await this.swiper.swiperRef.update();
+          this.activeIndex = await this.swiper.swiperRef.activeIndex;
         }
       }
     }
@@ -218,17 +223,17 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   async goToNextSlide() {
-    await this.imageSlides.slideNext();
-    await this.imageSlides.update();
+    await this.swiper.swiperRef.slideNext();
+    await this.swiper.swiperRef.update();
   }
 
   async goToPrevSlide() {
-    await this.imageSlides.slidePrev();
-    await this.imageSlides.update();
+    await this.swiper.swiperRef.slidePrev();
+    await this.swiper.swiperRef.update();
   }
 
   async ionSlideDidChange() {
-    const activeIndex = await this.imageSlides.getActiveIndex();
+    const activeIndex = await this.swiper.swiperRef.activeIndex;
     this.activeIndex = activeIndex;
   }
 }
