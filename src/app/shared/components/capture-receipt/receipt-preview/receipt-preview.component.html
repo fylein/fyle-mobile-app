@@ -27,23 +27,19 @@
 </ion-header>
 
 <ion-content>
-  <ion-slides
+  <swiper
+    #swiper
     class="full-height ion-slides"
-    #slides
-    [options]="sliderOptions"
-    zoom
-    (ionSlideDidChange)="ionSlideDidChange()"
+    [centeredSlides]="true"
+    [pagination]="pagination"
+    (activeIndexChange)="ionSlideDidChange()"
   >
-    <ng-container *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i">
-      <ion-slide>
-        <div>
-          <pinch-zoom class="receipt-preview__image-container">
-            <img [src]="base64ImageWithSource.base64Image" />
-          </pinch-zoom>
-        </div>
-      </ion-slide>
-    </ng-container>
-  </ion-slides>
+    <ng-template *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i" swiperSlide>
+      <pinch-zoom class="receipt-preview__image-container">
+        <img [src]="base64ImageWithSource.base64Image" />
+      </pinch-zoom>
+    </ng-template>
+  </swiper>
 
   <div class="receipt-preview__controls" *ngIf="base64ImagesWithSource.length > 1">
     <div
