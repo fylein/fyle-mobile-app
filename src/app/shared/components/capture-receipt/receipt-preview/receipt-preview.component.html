@@ -31,7 +31,7 @@
     #swiper
     class="full-height ion-slides"
     [centeredSlides]="true"
-    [pagination]="pagination"
+    [pagination]="false"
     (activeIndexChange)="ionSlideDidChange()"
   >
     <ng-template *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i" swiperSlide>
