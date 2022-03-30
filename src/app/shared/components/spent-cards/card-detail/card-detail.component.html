@@ -4,7 +4,11 @@
       <ion-row class="stats--ccc-block">
         <ion-col class="stats--ccc-bank-name" size="8">
           <div>
-            {{ cardDetail.cardName }}
+            {{
+              cardDetail.cardName
+                ? cardDetail.cardName
+                : 'Card ending with ' + cardDetail.cardNumber.slice(cardDetail.cardNumber.length - 4)
+            }}
           </div>
         </ion-col>
         <ion-col size="4">
