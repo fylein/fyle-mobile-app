@@ -8,7 +8,6 @@ import {
   NG_VALUE_ACCESSOR,
   FormBuilder,
   Validators,
-  NgControl,
   FormArray,
   AbstractControl,
 } from '@angular/forms';
@@ -58,8 +57,6 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
   customFieldsForm: FormGroup;
 
   customFields: CustomInputs[];
-
-  private ngControl: NgControl;
 
   constructor(private formBuilder: FormBuilder, private injector: Injector) {}
 

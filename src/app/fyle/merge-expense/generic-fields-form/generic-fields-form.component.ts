@@ -8,7 +8,6 @@ import {
   NG_VALUE_ACCESSOR,
   FormBuilder,
   Validators,
-  NgControl,
 } from '@angular/forms';
 
 type Option = Partial<{
@@ -56,8 +55,6 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Input() purposeOptionsData: OptionsData;
 
-  @Input() categoryDependentFormGroup: FormGroup;
-
   @Input() categoryDependentTemplate: TemplateRef<any>;
 
   @Input() CCCTxns: CorporateCardExpense[];
@@ -76,13 +73,9 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   onChangeSub: Subscription;
 
-  private ngControl: NgControl;
-
   constructor(private formBuilder: FormBuilder, private injector: Injector) {}
 
   ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-
     this.genericFieldsFormGroup = this.formBuilder.group({
       amount: [, Validators.required],
       receipt_ids: [],

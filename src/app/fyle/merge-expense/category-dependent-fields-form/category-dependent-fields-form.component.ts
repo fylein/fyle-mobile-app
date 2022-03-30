@@ -8,7 +8,6 @@ import {
   NG_VALUE_ACCESSOR,
   FormBuilder,
   Validators,
-  NgControl,
 } from '@angular/forms';
 
 type Option = Partial<{
@@ -58,13 +57,9 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
 
   onChangeSub: Subscription;
 
-  private ngControl: NgControl;
-
   constructor(private formBuilder: FormBuilder, private injector: Injector) {}
 
   ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
-
     this.categoryDependentFormGroup = this.formBuilder.group({
       location_1: [],
       location_2: [],
