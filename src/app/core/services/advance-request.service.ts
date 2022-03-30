@@ -4,7 +4,7 @@ import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
-import { StorageService } from './storage.service';
+import { SecureStorageService } from './secure-storage.service';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
@@ -53,7 +53,7 @@ type advanceRequestStat = {
 export class AdvanceRequestService {
   constructor(
     private networkService: NetworkService,
-    private storageService: StorageService,
+    private secureStorageService: SecureStorageService,
     private apiService: ApiService,
     private apiv2Service: ApiV2Service,
     private authService: AuthService,
@@ -277,11 +277,11 @@ export class AdvanceRequestService {
         if (isOnline) {
           return this.apiService.get('/eadvance_requests/count', { params }).pipe(
             tap((res) => {
-              this.storageService.set('eadvanceRequestsCount' + JSON.stringify(params), res);
+              this.secureStorageService.set('eadvanceRequestsCount' + JSON.stringify(params), res);
             })
           );
         } else {
-          return from(this.storageService.get('eadvanceRequestsCount' + JSON.stringify(params)));
+          return from(this.secureStorageService.get('eadvanceRequestsCount' + JSON.stringify(params)));
         }
       })
     );

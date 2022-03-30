@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
-import { StorageService } from './storage.service';
+import { SecureStorageService } from './secure-storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginInfoService {
-  constructor(private storageService: StorageService) {}
+  constructor(private secureStorageService: SecureStorageService) {}
 
   async addLoginInfo(version, time) {
     // login succeeded on this version at this time
-    let loginInfo = await this.storageService.get('loginInfo');
+    let loginInfo = await this.secureStorageService.get('loginInfo');
 
     if (!loginInfo) {
       loginInfo = {};
@@ -26,11 +26,11 @@ export class LoginInfoService {
       loginInfo.lastLoggedInTime = time.toUTCString();
     }
 
-    await this.storageService.set('loginInfo', loginInfo);
+    await this.secureStorageService.set('loginInfo', loginInfo);
   }
 
   async getLastLoggedInVersion() {
-    let loginInfo = await this.storageService.get('loginInfo');
+    let loginInfo = await this.secureStorageService.get('loginInfo');
 
     if (!loginInfo) {
       loginInfo = {};

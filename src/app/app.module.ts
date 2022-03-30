@@ -18,6 +18,7 @@ import * as Sentry from '@sentry/angular';
 import { ConfigService } from './core/services/config.service';
 import { RouterAuthService } from './core/services/router-auth.service';
 import { TokenService } from './core/services/token.service';
+import { SecureStorageService } from './core/services/secure-storage.service';
 import { StorageService } from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import { GoogleMapsModule } from '@angular/google-maps';
@@ -79,7 +80,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     {
       provide: APP_INITIALIZER,
       useFactory: (configService: ConfigService) => () => configService.loadConfigurationData(),
-      deps: [ConfigService, RouterAuthService, TokenService, StorageService, Sentry.TraceService],
+      deps: [ConfigService, RouterAuthService, TokenService, SecureStorageService, StorageService, Sentry.TraceService],
       multi: true,
     },
     {

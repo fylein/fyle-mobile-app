@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { NetworkService } from './network.service';
-import { StorageService } from './storage.service';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { from, Observable, range } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';

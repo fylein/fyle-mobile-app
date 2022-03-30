@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { StorageService } from './storage.service';
+import { SecureStorageService } from './secure-storage.service';
 import { UserEventService } from './user-event.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TokenService {
-  constructor(private storageService: StorageService, private userEventService: UserEventService) {
+  constructor(private secureStorageService: SecureStorageService, private userEventService: UserEventService) {
     this.userEventService.onLogout(() => {
       this.resetRefreshToken();
       this.resetAccessToken();
@@ -15,39 +15,39 @@ export class TokenService {
   }
 
   getAccessToken() {
-    return this.storageService.get('X-AUTH-TOKEN');
+    return this.secureStorageService.get('X-AUTH-TOKEN');
   }
 
   getRefreshToken() {
-    return this.storageService.get('X-REFRESH-TOKEN');
+    return this.secureStorageService.get('X-REFRESH-TOKEN');
   }
 
   setAccessToken(accessToken) {
     this.userEventService.setToken();
-    return this.storageService.set('X-AUTH-TOKEN', accessToken);
+    return this.secureStorageService.set('X-AUTH-TOKEN', accessToken);
   }
 
   setRefreshToken(refreshToken) {
-    return this.storageService.set('X-REFRESH-TOKEN', refreshToken);
+    return this.secureStorageService.set('X-REFRESH-TOKEN', refreshToken);
   }
 
   setClusterDomain(clusterDomain) {
-    return this.storageService.set('CLUSTER-DOMAIN', clusterDomain);
+    return this.secureStorageService.set('CLUSTER-DOMAIN', clusterDomain);
   }
 
   getClusterDomain() {
-    return this.storageService.get('CLUSTER-DOMAIN');
+    return this.secureStorageService.get('CLUSTER-DOMAIN');
   }
 
   resetAccessToken() {
-    return this.storageService.delete('X-AUTH-TOKEN');
+    return this.secureStorageService.delete('X-AUTH-TOKEN');
   }
 
   resetClusterDomain() {
-    return this.storageService.delete('CLUSTER-DOMAIN');
+    return this.secureStorageService.delete('CLUSTER-DOMAIN');
   }
 
   resetRefreshToken() {
-    return this.storageService.delete('X-REFRESH-TOKEN');
+    return this.secureStorageService.delete('X-REFRESH-TOKEN');
   }
 }

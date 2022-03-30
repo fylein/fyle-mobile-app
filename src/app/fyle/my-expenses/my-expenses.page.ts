@@ -26,7 +26,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { TrackingService } from '../../core/services/tracking.service';
-import { StorageService } from '../../core/services/storage.service';
+import { SecureStorageService } from '../../core/services/secure-storage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { cloneDeep, indexOf, isEqual } from 'lodash';
@@ -194,7 +194,7 @@ export class MyExpensesPage implements OnInit {
     private offlineService: OfflineService,
     private popupService: PopupService,
     private trackingService: TrackingService,
-    private storageService: StorageService,
+    private secureStorageService: SecureStorageService,
     private tokenService: TokenService,
     private apiV2Service: ApiV2Service,
     private modalProperties: ModalPropertiesService,
@@ -264,14 +264,14 @@ export class MyExpensesPage implements OnInit {
 
   async sendFirstExpenseCreatedEvent() {
     // checking if the expense is first expense
-    const isFirstExpenseCreated = await this.storageService.get('isFirstExpenseCreated');
+    const isFirstExpenseCreated = await this.secureStorageService.get('isFirstExpenseCreated');
 
     // for first expense etxnc size will be 0
     if (!isFirstExpenseCreated) {
       this.allExpensesStats$.subscribe(async (res) => {
         if (res.count === 0) {
           this.trackingService.createFirstExpense();
-          await this.storageService.set('isFirstExpenseCreated', true);
+          await this.secureStorageService.set('isFirstExpenseCreated', true);
         }
       });
     }

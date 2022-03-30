@@ -3,7 +3,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { concat, forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { filter, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { StorageService } from 'src/app/core/services/storage.service';
+import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { ActionSheetController, PopoverController } from '@ionic/angular';
 import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
 import { NetworkService } from '../../core/services/network.service';
@@ -57,7 +57,7 @@ export class DashboardPage implements OnInit {
   constructor(
     private offlineService: OfflineService,
     private transactionService: TransactionService,
-    private storageService: StorageService,
+    private secureStorageService: SecureStorageService,
     private popoverController: PopoverController,
     private networkService: NetworkService,
     private activatedRoute: ActivatedRoute,
@@ -89,7 +89,7 @@ export class DashboardPage implements OnInit {
     await getStartedPopup.present();
     await getStartedPopup.onWillDismiss();
 
-    await this.storageService.set('getStartedPopupShown', true);
+    await this.secureStorageService.set('getStartedPopupShown', true);
   }
 
   ionViewWillEnter() {
@@ -116,7 +116,7 @@ export class DashboardPage implements OnInit {
      * https://forum.ionicframework.com/t/angular-variable-is-not-updating-when-i-return-to-previous-page/202919
      * */
     forkJoin({
-      isGetStartedPopupShown: from(this.storageService.get('getStartedPopupShown')),
+      isGetStartedPopupShown: from(this.secureStorageService.get('getStartedPopupShown')),
       totalCount: this.transactionService.getPaginatedETxncCount(),
     })
       .pipe(filter(({ isGetStartedPopupShown, totalCount }) => !isGetStartedPopupShown && totalCount.count === 0))

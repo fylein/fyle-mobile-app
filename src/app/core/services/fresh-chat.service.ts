@@ -2,7 +2,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { OfflineService } from './offline.service';
 import { AuthService } from './auth.service';
-import { StorageService } from './storage.service';
+import { SecureStorageService } from './secure-storage.service';
 import { Plugins } from '@capacitor/core';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { NetworkService } from './network.service';
@@ -18,7 +18,7 @@ export class FreshChatService {
   constructor(
     private offlineService: OfflineService,
     private authService: AuthService,
-    private storageService: StorageService,
+    private secureStorageService: SecureStorageService,
     private orgUserSettingsService: OrgUserSettingsService,
     private networkService: NetworkService
   ) {}
@@ -37,7 +37,7 @@ export class FreshChatService {
           orgUserSettings.in_app_chat_settings.allowed &&
           orgUserSettings.in_app_chat_settings.enabled
         ) {
-          await that.storageService.set('inAppChatRestoreId', orgUserSettings.in_app_chat_settings.restore_id);
+          await that.secureStorageService.set('inAppChatRestoreId', orgUserSettings.in_app_chat_settings.restore_id);
           that.initiateCall();
         }
       }
@@ -61,7 +61,7 @@ export class FreshChatService {
   private async initFreshChat() {
     const that = this;
     const eou = await that.authService.getEou();
-    const inAppChatRestoreId = await that.storageService.get('inAppChatRestoreId');
+    const inAppChatRestoreId = await that.secureStorageService.get('inAppChatRestoreId');
     let device = '';
 
     const info = await Device.getInfo();
@@ -120,7 +120,7 @@ export class FreshChatService {
             orgUserSettings.in_app_chat_settings.restore_id = data.restoreId; // that restoreId is stored in our db here
             await that.orgUserSettingsService.post(orgUserSettings);
 
-            await that.storageService.set('inAppChatRestoreId', data.restoreId); // For easier access storing it in localStorage too
+            await that.secureStorageService.set('inAppChatRestoreId', data.restoreId); // For easier access storing it in localStorage too
           }
         });
       }

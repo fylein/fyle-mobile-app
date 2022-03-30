@@ -8,7 +8,6 @@ import { AuthService } from './auth.service';
 import { Observable, range, Subject, from } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { DataTransformService } from './data-transform.service';
-import { StorageService } from './storage.service';
 import { Cacheable, globalCacheBusterNotifier, CacheBuster } from 'ts-cacheable';
 import { TrackingService } from './tracking.service';
 import { ApiV2Service } from './api-v2.service';
@@ -26,7 +25,6 @@ export class OrgUserService {
     private apiService: ApiService,
     private authService: AuthService,
     private dataTransformService: DataTransformService,
-    private storageService: StorageService,
     private trackingService: TrackingService,
     private apiV2Service: ApiV2Service
   ) {}

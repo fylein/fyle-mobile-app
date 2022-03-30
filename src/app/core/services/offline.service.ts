@@ -10,7 +10,7 @@ import { PerDiemService } from './per-diem.service';
 import { CustomInputsService } from './custom-inputs.service';
 import { OrgService } from './org.service';
 import { AccountsService } from './accounts.service';
-import { StorageService } from './storage.service';
+import { SecureStorageService } from './secure-storage.service';
 import { CurrencyService } from './currency.service';
 import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
@@ -45,7 +45,7 @@ export class OfflineService {
     private orgService: OrgService,
     private accountsService: AccountsService,
     private currencyService: CurrencyService,
-    private storageService: StorageService,
+    private secureStorageService: SecureStorageService,
     private permissionsService: PermissionsService,
     private orgUserService: OrgUserService,
     private deviceService: DeviceService,
@@ -60,11 +60,11 @@ export class OfflineService {
         if (isOnline) {
           return this.orgUserService.findDelegatedAccounts().pipe(
             tap((orgSettings) => {
-              this.storageService.set('delegatedAccounts', orgSettings);
+              this.secureStorageService.set('delegatedAccounts', orgSettings);
             })
           );
         } else {
-          return from(this.storageService.get('delegatedAccounts'));
+          return from(this.secureStorageService.get('delegatedAccounts'));
         }
       })
     );
@@ -77,11 +77,11 @@ export class OfflineService {
         if (isOnline) {
           return this.currencyService.getAll().pipe(
             tap((orgSettings) => {
-              this.storageService.set('cachedCurrencies', orgSettings);
+              this.secureStorageService.set('cachedCurrencies', orgSettings);
             })
           );
         } else {
-          return from(this.storageService.get('cachedCurrencies'));
+          return from(this.secureStorageService.get('cachedCurrencies'));
         }
       })
     );
@@ -94,11 +94,11 @@ export class OfflineService {
         if (isOnline) {
           return this.orgSettingsService.get().pipe(
             tap((orgSettings) => {
-              this.storageService.set('cachedOrgSettings', orgSettings);
+              this.secureStorageService.set('cachedOrgSettings', orgSettings);
             })
           );
         } else {
-          return from(this.storageService.get('cachedOrgSettings'));
+          return from(this.secureStorageService.get('cachedOrgSettings'));
         }
       })
     );
@@ -120,11 +120,11 @@ export class OfflineService {
         if (isOnline) {
           return this.orgUserSettingsService.get().pipe(
             tap((orgUserSettings) => {
-              this.storageService.set('cachedOrgUserSettings', orgUserSettings);
+              this.secureStorageService.set('cachedOrgUserSettings', orgUserSettings);
             })
           );
         } else {
-          return from(this.storageService.get('cachedOrgUserSettings'));
+          return from(this.secureStorageService.get('cachedOrgUserSettings'));
         }
       })
     );
@@ -145,11 +145,11 @@ export class OfflineService {
           };
           return this.taxGroupService.get(params).pipe(
             tap((taxGroups) => {
-              this.storageService.set('cachedTaxGroups', taxGroups);
+              this.secureStorageService.set('cachedTaxGroups', taxGroups);
             })
           );
         } else {
-          return from(this.storageService.get('cachedTaxGroups'));
+          return from(this.secureStorageService.get('cachedTaxGroups'));
         }
       })
     );
@@ -162,11 +162,11 @@ export class OfflineService {
         if (isOnline) {
           return this.orgUserSettingsService.getAllowedCostCenteres(orgUserSettings).pipe(
             tap((allowedCostCenters) => {
-              this.storageService.set('allowedCostCenters', allowedCostCenters);
+              this.secureStorageService.set('allowedCostCenters', allowedCostCenters);
             })
           );
         } else {
-          return from(this.storageService.get('allowedCostCenters'));
+          return from(this.secureStorageService.get('allowedCostCenters'));
         }
       })
     );
@@ -179,11 +179,11 @@ export class OfflineService {
         if (isOnline) {
           return this.orgUserSettingsService.getDefaultCostCenter().pipe(
             tap((defaultCostCenter) => {
-              this.storageService.set('defaultCostCenter', defaultCostCenter);
+              this.secureStorageService.set('defaultCostCenter', defaultCostCenter);
             })
           );
         } else {
-          return from(this.storageService.get('defaultCostCenter'));
+          return from(this.secureStorageService.get('defaultCostCenter'));
         }
       })
     );
@@ -196,11 +196,11 @@ export class OfflineService {
         if (isOnline) {
           return this.currencyService.getHomeCurrency().pipe(
             tap((homeCurrency) => {
-              this.storageService.set('cachedHomeCurrency', homeCurrency);
+              this.secureStorageService.set('cachedHomeCurrency', homeCurrency);
             })
           );
         } else {
-          return from(this.storageService.get('cachedHomeCurrency'));
+          return from(this.secureStorageService.get('cachedHomeCurrency'));
         }
       })
     );
@@ -213,11 +213,11 @@ export class OfflineService {
         if (isOnline) {
           return this.categoriesService.getAll().pipe(
             tap((categories) => {
-              this.storageService.set('cachedCategories', categories);
+              this.secureStorageService.set('cachedCategories', categories);
             })
           );
         } else {
-          return from(this.storageService.get('cachedCategories'));
+          return from(this.secureStorageService.get('cachedCategories'));
         }
       })
     );
@@ -237,11 +237,11 @@ export class OfflineService {
         if (isOnline) {
           return this.accountsService.getEMyAccounts().pipe(
             tap((accounts) => {
-              this.storageService.set('cachedPaymentModeAccounts', accounts);
+              this.secureStorageService.set('cachedPaymentModeAccounts', accounts);
             })
           );
         } else {
-          return from(this.storageService.get('cachedPaymentModeAccounts'));
+          return from(this.secureStorageService.get('cachedPaymentModeAccounts'));
         }
       })
     );
@@ -254,11 +254,11 @@ export class OfflineService {
         if (isOnline) {
           return this.costCentersService.getAllActive().pipe(
             tap((costCenters) => {
-              this.storageService.set('cachedCostCenters', costCenters);
+              this.secureStorageService.set('cachedCostCenters', costCenters);
             })
           );
         } else {
-          return from(this.storageService.get('cachedCostCenters'));
+          return from(this.secureStorageService.get('cachedCostCenters'));
         }
       })
     );
@@ -271,11 +271,11 @@ export class OfflineService {
         if (isOnline) {
           return this.projectsService.getAllActive().pipe(
             tap((projects) => {
-              this.storageService.set('cachedProjects', projects);
+              this.secureStorageService.set('cachedProjects', projects);
             })
           );
         } else {
-          return from(this.storageService.get('cachedProjects'));
+          return from(this.secureStorageService.get('cachedProjects'));
         }
       })
     );
@@ -288,11 +288,11 @@ export class OfflineService {
         if (isOnline) {
           return this.perDiemsService.getRates().pipe(
             tap((rates) => {
-              this.storageService.set('cachedPerDiemRates', rates);
+              this.secureStorageService.set('cachedPerDiemRates', rates);
             })
           );
         } else {
-          return from(this.storageService.get('cachedPerDiemRates'));
+          return from(this.secureStorageService.get('cachedPerDiemRates'));
         }
       })
     );
@@ -305,11 +305,11 @@ export class OfflineService {
         if (isOnline) {
           return this.customInputsService.getAll(true).pipe(
             tap((customInputs) => {
-              this.storageService.set('cachedCustomInputs', customInputs);
+              this.secureStorageService.set('cachedCustomInputs', customInputs);
             })
           );
         } else {
-          return from(this.storageService.get('cachedCustomInputs'));
+          return from(this.secureStorageService.get('cachedCustomInputs'));
         }
       })
     );
@@ -322,11 +322,11 @@ export class OfflineService {
         if (isOnline) {
           return this.orgService.getCurrentOrg().pipe(
             tap((currentOrg) => {
-              this.storageService.set('cachedCurrentOrg', currentOrg);
+              this.secureStorageService.set('cachedCurrentOrg', currentOrg);
             })
           );
         } else {
-          return from(this.storageService.get('cachedCurrentOrg'));
+          return from(this.secureStorageService.get('cachedCurrentOrg'));
         }
       })
     );
@@ -339,11 +339,11 @@ export class OfflineService {
         if (isOnline) {
           return this.orgService.getPrimaryOrg().pipe(
             tap((primaryOrg) => {
-              this.storageService.set('cachedPrimaryOrg', primaryOrg);
+              this.secureStorageService.set('cachedPrimaryOrg', primaryOrg);
             })
           );
         } else {
-          return from(this.storageService.get('cachedPrimaryOrg'));
+          return from(this.secureStorageService.get('cachedPrimaryOrg'));
         }
       })
     );
@@ -356,11 +356,11 @@ export class OfflineService {
         if (isOnline) {
           return this.orgService.getOrgs().pipe(
             tap((orgs) => {
-              this.storageService.set('cachedOrgs', orgs);
+              this.secureStorageService.set('cachedOrgs', orgs);
             })
           );
         } else {
-          return from(this.storageService.get('cachedOrgs')).pipe(map((data) => data as Org[]));
+          return from(this.secureStorageService.get('cachedOrgs')).pipe(map((data) => data as Org[]));
         }
       })
     );
@@ -373,11 +373,11 @@ export class OfflineService {
         if (isOnline) {
           return this.expenseFieldsService.getAllEnabled().pipe(
             tap((allExpenseFields) => {
-              this.storageService.set('cachedAllExpenseFields', allExpenseFields);
+              this.secureStorageService.set('cachedAllExpenseFields', allExpenseFields);
             })
           );
         } else {
-          return from(this.storageService.get('cachedAllExpenseFields'));
+          return from(this.secureStorageService.get('cachedAllExpenseFields'));
         }
       })
     );
@@ -390,11 +390,11 @@ export class OfflineService {
         if (isOnline) {
           return this.expenseFieldsService.getAllMap().pipe(
             tap((expenseFieldMap) => {
-              this.storageService.set('cachedExpenseFieldsMap', expenseFieldMap);
+              this.secureStorageService.set('cachedExpenseFieldsMap', expenseFieldMap);
             })
           );
         } else {
-          return from(this.storageService.get('cachedExpenseFieldsMap'));
+          return from(this.secureStorageService.get('cachedExpenseFieldsMap'));
         }
       })
     );
@@ -420,19 +420,19 @@ export class OfflineService {
   }
 
   getActiveExpenseTab() {
-    return from(this.storageService.get('activeExpenseTab'));
+    return from(this.secureStorageService.get('activeExpenseTab'));
   }
 
   setActiveExpenseTab(activeTab) {
-    return from(this.storageService.set('activeExpenseTab', activeTab));
+    return from(this.secureStorageService.set('activeExpenseTab', activeTab));
   }
 
   setActiveCorporateCardExpenseTab(activeTab) {
-    return from(this.storageService.set('activeCorporateCardExpenseTab', activeTab));
+    return from(this.secureStorageService.set('activeCorporateCardExpenseTab', activeTab));
   }
 
   getActiveCorporateCardExpenseTab() {
-    return from(this.storageService.get('activeCorporateCardExpenseTab'));
+    return from(this.secureStorageService.get('activeCorporateCardExpenseTab'));
   }
 
   getReportActions(orgSettings) {
@@ -441,11 +441,11 @@ export class OfflineService {
         if (isOnline) {
           return this.getReportPermissions(orgSettings).pipe(
             tap((allowedActions) => {
-              this.storageService.set('cachedReportActions', allowedActions);
+              this.secureStorageService.set('cachedReportActions', allowedActions);
             })
           );
         } else {
-          return from(this.storageService.get('cachedReportActions'));
+          return from(this.secureStorageService.get('cachedReportActions'));
         }
       })
     );
@@ -519,11 +519,11 @@ export class OfflineService {
         if (isOnline) {
           return this.orgUserService.getCurrent().pipe(
             tap((currentUser) => {
-              this.storageService.set('currentUser', currentUser);
+              this.secureStorageService.set('currentUser', currentUser);
             })
           );
         } else {
-          return from(this.storageService.get('currentUser'));
+          return from(this.secureStorageService.get('currentUser'));
         }
       })
     );

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
-import { StorageService } from './storage.service';
+import { SecureStorageService } from './secure-storage.service';
 import { NetworkService } from './network.service';
 import { from, Observable, range, concat, forkJoin, Subject, of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
@@ -30,7 +30,7 @@ type PaymentMode = {
 export class TransactionService {
   constructor(
     private networkService: NetworkService,
-    private storageService: StorageService,
+    private secureStorageService: SecureStorageService,
     private apiService: ApiService,
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
@@ -418,11 +418,11 @@ export class TransactionService {
         if (isOnline) {
           return this.apiService.get('/etxns/count', { params }).pipe(
             tap((res) => {
-              this.storageService.set('etxncCount' + JSON.stringify(params), res);
+              this.secureStorageService.set('etxncCount' + JSON.stringify(params), res);
             })
           );
         } else {
-          return from(this.storageService.get('etxncCount' + JSON.stringify(params)));
+          return from(this.secureStorageService.get('etxncCount' + JSON.stringify(params)));
         }
       })
     );
@@ -560,11 +560,11 @@ export class TransactionService {
   }
 
   setDefaultVehicleType(vehicleType) {
-    return from(this.storageService.set('vehicle_preference', vehicleType));
+    return from(this.secureStorageService.set('vehicle_preference', vehicleType));
   }
 
   getDefaultVehicleType() {
-    return from(this.storageService.get('vehicle_preference'));
+    return from(this.secureStorageService.get('vehicle_preference'));
   }
 
   uploadBase64File(txnId, name, base64Content) {

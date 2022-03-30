@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { RouterApiService } from './router-api.service';
 import { tap, switchMap, map } from 'rxjs/operators';
-import { StorageService } from './storage.service';
+import { SecureStorageService } from './secure-storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { AuthResponse } from '../models/auth-response.model';
@@ -22,7 +22,7 @@ import { PushNotificationService } from './push-notification.service';
 export class RouterAuthService {
   constructor(
     private routerApiService: RouterApiService,
-    private storageService: StorageService,
+    private secureStorageService: SecureStorageService,
     private tokenService: TokenService,
     private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private apiService: ApiService,
@@ -47,8 +47,8 @@ export class RouterAuthService {
   }
 
   async newRefreshToken(refreshToken) {
-    await this.storageService.delete('user');
-    await this.storageService.delete('role');
+    await this.secureStorageService.delete('user');
+    await this.secureStorageService.delete('role');
     await this.tokenService.setRefreshToken(refreshToken);
   }
 

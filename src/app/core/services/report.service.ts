@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
-import { StorageService } from './storage.service';
+import { SecureStorageService } from './secure-storage.service';
 import { concatMap, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { from, of, range, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
@@ -24,7 +24,7 @@ const reportsCacheBuster$ = new Subject<void>();
 export class ReportService {
   constructor(
     private networkService: NetworkService,
-    private storageService: StorageService,
+    private secureStorageService: SecureStorageService,
     private apiService: ApiService,
     private authService: AuthService,
     private apiv2Service: ApiV2Service,
@@ -260,11 +260,11 @@ export class ReportService {
         if (isOnline) {
           return this.apiService.get('/erpts/count', { params }).pipe(
             tap((res) => {
-              this.storageService.set('erpts-count' + JSON.stringify(params), res);
+              this.secureStorageService.set('erpts-count' + JSON.stringify(params), res);
             })
           );
         } else {
-          return from(this.storageService.get('erpts-count' + JSON.stringify(params)));
+          return from(this.secureStorageService.get('erpts-count' + JSON.stringify(params)));
         }
       })
     );
