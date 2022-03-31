@@ -1,4 +1,4 @@
-export interface Employee {
+export interface SpenderEmployee {
   ou_id: string;
   ou_org_id: string;
   ou_status: string;
