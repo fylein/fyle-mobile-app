@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { SecureStorageService } from './secure-storage.service';
+import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { switchMap, map, finalize } from 'rxjs/operators';
@@ -14,7 +14,7 @@ import { Cacheable } from 'ts-cacheable';
 })
 export class AuthService {
   constructor(
-    private secureStorageService: SecureStorageService,
+    private storageService: StorageService,
     private tokenService: TokenService,
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
@@ -22,14 +22,14 @@ export class AuthService {
   ) {}
 
   getEou(): Promise<ExtendedOrgUser> {
-    return this.secureStorageService.get('user');
+    return this.storageService.get('user');
   }
 
   refreshEou(): Observable<ExtendedOrgUser> {
     return this.apiService.get('/eous/current').pipe(
       switchMap((data) => {
         const extendedOrgUser = this.dataTransformService.unflatten(data);
-        return from(this.secureStorageService.set('user', extendedOrgUser)).pipe(
+        return from(this.storageService.set('user', extendedOrgUser)).pipe(
           map(() => extendedOrgUser as ExtendedOrgUser)
         );
       })
@@ -39,8 +39,8 @@ export class AuthService {
   newRefreshToken(token: string): Observable<ExtendedOrgUser> {
     const that = this;
     return forkJoin([
-      that.secureStorageService.delete('user'),
-      that.secureStorageService.delete('role'),
+      that.storageService.delete('user'),
+      that.storageService.delete('role'),
       that.tokenService.resetAccessToken(),
       that.tokenService.setRefreshToken(token),
     ]).pipe(
@@ -87,20 +87,20 @@ export class AuthService {
       this.apiService.post('/auth/logout')
     ).pipe(
       finalize(async () => {
-        await this.secureStorageService.delete('recentlyUsedProjects');
-        await this.secureStorageService.delete('recentlyUsedCategories');
-        await this.secureStorageService.delete('recentlyUsedMileageCategories');
-        await this.secureStorageService.delete('recentlyUsedPerDiemCategories');
-        await this.secureStorageService.delete('recentlyUsedCostCenters');
-        await this.secureStorageService.delete('user');
-        await this.secureStorageService.delete('role');
-        await this.secureStorageService.delete('currentView');
-        await this.secureStorageService.delete('ui-grid-pagination-page-size');
-        await this.secureStorageService.delete('ui-grid-pagination-page-number');
-        await this.secureStorageService.delete('customExportFields');
-        await this.secureStorageService.delete('lastLoggedInDelegatee');
-        await this.secureStorageService.delete('lastLoggedInOrgQueue');
-        await this.secureStorageService.delete('isSidenavCollapsed');
+        await this.storageService.delete('recentlyUsedProjects');
+        await this.storageService.delete('recentlyUsedCategories');
+        await this.storageService.delete('recentlyUsedMileageCategories');
+        await this.storageService.delete('recentlyUsedPerDiemCategories');
+        await this.storageService.delete('recentlyUsedCostCenters');
+        await this.storageService.delete('user');
+        await this.storageService.delete('role');
+        await this.storageService.delete('currentView');
+        await this.storageService.delete('ui-grid-pagination-page-size');
+        await this.storageService.delete('ui-grid-pagination-page-number');
+        await this.storageService.delete('customExportFields');
+        await this.storageService.delete('lastLoggedInDelegatee');
+        await this.storageService.delete('lastLoggedInOrgQueue');
+        await this.storageService.delete('isSidenavCollapsed');
       })
     );
   }

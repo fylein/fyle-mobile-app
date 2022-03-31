@@ -14,7 +14,7 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { ReportSummaryComponent } from './report-summary/report-summary.component';
 import { TrackingService } from '../../core/services/tracking.service';
-import { SecureStorageService } from '../../core/services/secure-storage.service';
+import { StorageService } from '../../core/services/storage.service';
 import { NgModel } from '@angular/forms';
 import { getCurrencySymbol } from '@angular/common';
 
@@ -74,7 +74,7 @@ export class MyCreateReportPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private tripRequestsService: TripRequestsService,
     private trackingService: TrackingService,
-    private secureStorageService: SecureStorageService
+    private storageService: StorageService
   ) {}
 
   cancel() {
@@ -86,7 +86,7 @@ export class MyCreateReportPage implements OnInit {
   }
 
   async sendFirstReportCreated() {
-    const isFirstReportCreated = await this.secureStorageService.get('isFirstReportCreated');
+    const isFirstReportCreated = await this.storageService.get('isFirstReportCreated');
 
     if (!isFirstReportCreated) {
       this.reportService.getMyReportsCount({}).subscribe(async (allReportsCount) => {
@@ -101,7 +101,7 @@ export class MyCreateReportPage implements OnInit {
             Expense_Count: txnIds.length,
             Report_Value: selectedTotalAmount,
           });
-          await this.secureStorageService.set('isFirstReportCreated', true);
+          await this.storageService.set('isFirstReportCreated', true);
         }
       });
     }

@@ -4,6 +4,7 @@ import { Plugins } from '@capacitor/core';
 
 const { SecureStoragePlugin } = Plugins;
 
+// This is used only for storing access token, refresh token and cluster domain in token service
 @Injectable({
   providedIn: 'root',
 })

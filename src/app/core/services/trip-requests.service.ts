@@ -9,7 +9,7 @@ import { DataTransformService } from './data-transform.service';
 import { TripDatesService } from './trip-dates.service';
 import { Approval } from '../models/approval.model';
 import { NetworkService } from './network.service';
-import { SecureStorageService } from './secure-storage.service';
+import { StorageService } from './storage.service';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 
 const tripRequestsCacheBuster$ = new Subject<void>();
@@ -25,7 +25,7 @@ export class TripRequestsService {
     private dataTransformService: DataTransformService,
     private tripDatesService: TripDatesService,
     private networkService: NetworkService,
-    private secureStorageService: SecureStorageService
+    private storageService: StorageService
   ) {}
 
   @Cacheable({
@@ -475,11 +475,11 @@ export class TripRequestsService {
         if (isOnline) {
           return this.apiService.get('/etrip_requests/count', { params }).pipe(
             tap((res) => {
-              this.secureStorageService.set('etripRequestsCount' + JSON.stringify(params), res);
+              this.storageService.set('etripRequestsCount' + JSON.stringify(params), res);
             })
           );
         } else {
-          return from(this.secureStorageService.get('etripRequestsCount' + JSON.stringify(params)));
+          return from(this.storageService.get('etripRequestsCount' + JSON.stringify(params)));
         }
       })
     );

@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
 import { from } from 'rxjs';
-import { SecureStorageService } from './secure-storage.service';
+import { StorageService } from './storage.service';
 import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RecentLocalStorageItemsService {
-  constructor(private secureStorageService: SecureStorageService) {}
+  constructor(private storageService: StorageService) {}
 
   async get(cacheName) {
     let recentItems = [];
-    const res = await this.secureStorageService.get(cacheName);
+    const res = await this.storageService.get(cacheName);
 
     if (res && res.updatedAt) {
       if (moment(res.updatedAt).diff(moment.now(), 'minute') > 2) {
-        await this.secureStorageService.delete(cacheName);
+        await this.storageService.delete(cacheName);
         return [];
       }
     }
@@ -28,7 +28,7 @@ export class RecentLocalStorageItemsService {
   }
 
   async clear(cacheName) {
-    await this.secureStorageService.delete(cacheName);
+    await this.storageService.delete(cacheName);
   }
 
   clearRecentLocalStorageCache() {
@@ -100,7 +100,7 @@ export class RecentLocalStorageItemsService {
       recentItems.unshift(item);
     }
 
-    await this.secureStorageService.set(cacheName, { recentItems, updatedAt: new Date() });
+    await this.storageService.set(cacheName, { recentItems, updatedAt: new Date() });
     return recentItems;
   }
 }
