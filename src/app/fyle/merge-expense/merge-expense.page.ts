@@ -373,7 +373,7 @@ export class MergeExpensePage implements OnInit {
             category: this.mergeExpensesService.getFieldValueOnChange(
               categoryOptionsData,
               this.touchedGenericFields?.includes('category'),
-              this.expenses[selectedIndex]?.tx_category,
+              this.expenses[selectedIndex]?.tx_org_category_id,
               this.genericFieldsForm.value?.category
             ),
             vendor: this.mergeExpensesService.getFieldValueOnChange(
@@ -391,7 +391,7 @@ export class MergeExpensePage implements OnInit {
             tax_amount: this.mergeExpensesService.getFieldValueOnChange(
               taxAmountOptionsData,
               this.touchedGenericFields?.includes('tax_amount'),
-              this.expenses[selectedIndex]?.tx_amount,
+              this.expenses[selectedIndex]?.tx_tax,
               this.genericFieldsForm.value?.tax_amount
             ),
             costCenter: this.mergeExpensesService.getFieldValueOnChange(

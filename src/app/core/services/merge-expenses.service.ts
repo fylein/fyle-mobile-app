@@ -103,7 +103,7 @@ export class MergeExpensesService {
       thumbnail: 'img/fy-receipt.svg',
     };
 
-    if (extension.endsWith('.pdf')) {
+    if (extension.endsWith('pdf')) {
       fileResponse.type = 'pdf';
       fileResponse.thumbnail = 'img/fy-pdf.svg';
     } else if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
@@ -229,7 +229,6 @@ export class MergeExpensesService {
 
   generateReceiptOptions(expenses: Expense[]): Observable<Option[]> {
     return from(expenses).pipe(
-      filter((expense) => expense.tx_file_ids !== null),
       map((expense, index) => ({
         label: `Receipt From Expense ${index + 1} `,
         value: expense.tx_id,
@@ -399,10 +398,10 @@ export class MergeExpensesService {
 
   generateTaxAmountOptions(expenses: Expense[]): Observable<OptionsData> {
     return from(expenses).pipe(
-      filter((expense) => expense.tx_amount !== null),
+      filter((expense) => expense.tx_tax !== null),
       map((expense) => ({
-        label: expense.tx_amount.toString(),
-        value: expense.tx_amount,
+        label: expense.tx_tax.toString(),
+        value: expense.tx_tax,
       })),
       reduce((acc, curr) => {
         acc.push(curr);
