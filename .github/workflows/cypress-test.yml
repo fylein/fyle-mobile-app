@@ -15,6 +15,11 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
+
+      - name: Install dependencies
+        run: npm install --save-dev
+
+      
       - run: node ./hooks/testbuild.js
         env:
           FYLE_TEST_MOBILE_ROOT_URL: '${{ secrets.FYLE_TEST_MOBILE_ROOT_URL }}' 
@@ -25,10 +30,6 @@ jobs:
           FYLE_TEST_MOBILE_FRESHCHAT_TOKEN: '${{ secrets.FYLE_TEST_MOBILE_FRESHCHAT_TOKEN }}'
           FYLE_TEST_MOBILE_SENTRY_DSN: '${{ secrets.FYLE_TEST_MOBILE_SENTRY_DSN }}'
           FYLE_TEST_REFINER_NPS_FORM_ID: '${{ secrets.FYLE_TEST_REFINER_NPS_FORM_ID }}'
-      
-      - name: Install dependencies
-        run: npm install --save-dev
-
 
       - name: Start server in the background
         run: npm start &
