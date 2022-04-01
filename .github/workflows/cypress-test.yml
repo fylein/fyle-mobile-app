@@ -31,7 +31,7 @@ jobs:
 
 
       - name: Start server in the background
-        run: ionic serve -c staging
+        run: npm start &
 
       # Cypress has its own package.json in folder "e2e"
       - name: Install Cypress and run tests
