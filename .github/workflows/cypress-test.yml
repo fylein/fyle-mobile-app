@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@master
-      - name: Install root dependencies
-        uses: bahmutov/npm-install@v1
 
       - uses: actions/setup-node@v2
         with:
@@ -27,6 +25,10 @@ jobs:
           FYLE_TEST_MOBILE_FRESHCHAT_TOKEN: '${{ secrets.FYLE_TEST_MOBILE_FRESHCHAT_TOKEN }}'
           FYLE_TEST_MOBILE_SENTRY_DSN: '${{ secrets.FYLE_TEST_MOBILE_SENTRY_DSN }}'
           FYLE_TEST_REFINER_NPS_FORM_ID: '${{ secrets.FYLE_TEST_REFINER_NPS_FORM_ID }}'
+      
+      - name: Install dependencies
+        run: npm install --save-dev
+
 
       - name: Start server in the background
         run: ionic serve -c staging
