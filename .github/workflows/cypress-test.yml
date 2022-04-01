@@ -1,0 +1,36 @@
+name: E2E
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@master
+      - name: Install root dependencies
+        uses: bahmutov/npm-install@v1
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: node ./hooks/testbuild.js
+        env:
+          FYLE_TEST_MOBILE_ROOT_URL: '${{ secrets.FYLE_TEST_MOBILE_ROOT_URL }}' 
+          FYLE_TEST_MOBILE_ROUTER_API_ENDPOINT: '${{ secrets.FYLE_TEST_MOBILE_ROUTER_API_ENDPOINT }}'
+          FYLE_TEST_MOBILE_ANDROID_CLIENT_ID: '${{ secrets.FYLE_TEST_MOBILE_ANDROID_CLIENT_ID }}'
+          FYLE_TEST_MOBILE_IP_FIND_KEY: '${{ secrets.FYLE_TEST_MOBILE_IP_FIND_KEY }}'
+          FYLE_TEST_MOBILE_GOOGLE_MAPS_API_KEY: '${{ secrets.FYLE_TEST_MOBILE_GOOGLE_MAPS_API_KEY }}'
+          FYLE_TEST_MOBILE_FRESHCHAT_TOKEN: '${{ secrets.FYLE_TEST_MOBILE_FRESHCHAT_TOKEN }}'
+          FYLE_TEST_MOBILE_SENTRY_DSN: '${{ secrets.FYLE_TEST_MOBILE_SENTRY_DSN }}'
+          FYLE_TEST_REFINER_NPS_FORM_ID: '${{ secrets.FYLE_TEST_REFINER_NPS_FORM_ID }}'
+
+      - name: Start server in the background
+        run: ionic serve -c staging
+
+      # Cypress has its own package.json in folder "e2e"
+      - name: Install Cypress and run tests
+        uses: cypress-io/github-action@v2
