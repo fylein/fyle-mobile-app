@@ -1,7 +1,7 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
 dotenv.config();
-const secrets = require('./secrets');
+const secrets = require('./testsecrets');
 
 module.exports = function (ctx) {
   // Creating environment.prod.ts file
