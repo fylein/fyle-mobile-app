@@ -16,12 +16,11 @@ jobs:
         with:
           node-version: '14'
 
-      # Cypress has its own package.json in folder "e2e"
-      - name: Install Cypress and run tests
-        uses: cypress-io/github-action@v2
-        with:
-          start: npm install --save-dev, node ./hooks/testbuild.js, npm start
-          wait-on: 'http://localhost:8100'
+      - name: Install dependencies
+        run: npm install --save-dev
+
+      
+      - run: node ./hooks/testbuild.js
         env:
           FYLE_TEST_MOBILE_ROOT_URL: '${{ secrets.FYLE_TEST_MOBILE_ROOT_URL }}' 
           FYLE_TEST_MOBILE_ROUTER_API_ENDPOINT: '${{ secrets.FYLE_TEST_MOBILE_ROUTER_API_ENDPOINT }}'
@@ -31,5 +30,9 @@ jobs:
           FYLE_TEST_MOBILE_FRESHCHAT_TOKEN: '${{ secrets.FYLE_TEST_MOBILE_FRESHCHAT_TOKEN }}'
           FYLE_TEST_MOBILE_SENTRY_DSN: '${{ secrets.FYLE_TEST_MOBILE_SENTRY_DSN }}'
           FYLE_TEST_REFINER_NPS_FORM_ID: '${{ secrets.FYLE_TEST_REFINER_NPS_FORM_ID }}'
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Start app
+        run: npm start &
+
+      - name: Start cypress
+        run: npx cypress run --env coverage=true
