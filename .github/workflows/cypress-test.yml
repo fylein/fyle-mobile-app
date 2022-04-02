@@ -31,9 +31,8 @@ jobs:
           FYLE_TEST_MOBILE_SENTRY_DSN: '${{ secrets.FYLE_TEST_MOBILE_SENTRY_DSN }}'
           FYLE_TEST_REFINER_NPS_FORM_ID: '${{ secrets.FYLE_TEST_REFINER_NPS_FORM_ID }}'
 
-      - name: Start server in the background
-        run: npm start &
-
       # Cypress has its own package.json in folder "e2e"
       - name: Install Cypress and run tests
         uses: cypress-io/github-action@v2
+        with:
+          start: npm start
