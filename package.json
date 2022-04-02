@@ -5,7 +5,7 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 8100 -c staging",
+    "start": "ionic serve -c staging",
     "build": "ng build",
     "appflow": "sh build_appflow.sh",
     "test": "ng test --watch=false --browsers=ChromeHeadless",
@@ -15,7 +15,7 @@
     "format:check": "prettier --write ./src",
     "prepare": "husky install",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run --record --key 45b83920-1df2-4a80-b596-3a9bff4499a1"
   },
   "resolutions": {
     "webpack": "^5.0.0"
