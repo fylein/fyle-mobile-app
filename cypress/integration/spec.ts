@@ -3,6 +3,7 @@ describe('My First Test', () => {
     cy.visit('/');
     cy.contains('Sign In');
     cy.get('#sign-in--email').should('be.visible').type('ajain@fyle.in');
+    cy.get('#sign-in--email').invoke('val').should('eq', 'ajain@fyle.in');
     cy.get('#sign-in--continue').click();
     cy.get('#sign-in--password').type('KalaChashma');
     cy.get('#sign-in--btn-sign-in').click();
