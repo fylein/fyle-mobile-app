@@ -3,4 +3,4 @@ const dotenv = require('dotenv');
 dotenv.config();
 const secrets = require('./testsecrets');
 
-fs.writeFileSync(`${ctx.project.dir}/src/environments/environment.staging.ts`, secrets.testEnviroinent);
+fs.writeFileSync(`./src/environments/environment.staging.ts`, secrets.testEnviroinent);
