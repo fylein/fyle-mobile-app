@@ -31,8 +31,5 @@ jobs:
           FYLE_TEST_MOBILE_SENTRY_DSN: '${{ secrets.FYLE_TEST_MOBILE_SENTRY_DSN }}'
           FYLE_TEST_REFINER_NPS_FORM_ID: '${{ secrets.FYLE_TEST_REFINER_NPS_FORM_ID }}'
 
-      - name: Start app
-        run: npm start &
-
       - name: Start cypress
-        run: npx cypress run --env coverage=true
+        run: npm run e2e
