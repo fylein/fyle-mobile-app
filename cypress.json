@@ -5,5 +5,6 @@
   "screenshotsFolder": "cypress/screenshots",
   "pluginsFile": "cypress/plugins/index.ts",
   "fixturesFolder": "cypress/fixtures",
-  "baseUrl": "http://localhost:8100"
+  "baseUrl": "http://localhost:8100",
+  "projectId": "svwsfd"
 }
