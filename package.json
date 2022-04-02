@@ -5,7 +5,7 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
-    "start": "ionic serve -c staging",
+    "start": "ng serve --port 8100 -c staging",
     "build": "ng build",
     "appflow": "sh build_appflow.sh",
     "test": "ng test --watch=false --browsers=ChromeHeadless",
