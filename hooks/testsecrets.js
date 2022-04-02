@@ -4,7 +4,7 @@ dotenv.config();
 module.exports = {
     testEnviroinent: `
         export const environment = {
-            production: true,
+            production: false,
             NAME: '',
             CLUSTER_DOMAIN: '',
             ROOT_URL: '` + process.env.FYLE_TEST_MOBILE_ROOT_URL + `',
