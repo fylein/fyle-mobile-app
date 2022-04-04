@@ -99,6 +99,7 @@ import { CaptureReceiptComponent } from 'src/app/shared/components/capture-recei
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-add-edit-expense',
