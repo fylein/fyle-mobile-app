@@ -23,7 +23,7 @@ export class SecureStorageService {
       const stringifiedObject = await SecureStoragePlugin.get({
         key,
       });
-      if (stringifiedObject && stringifiedObject.value) {
+      if (stringifiedObject?.value) {
         return JSON.parse(stringifiedObject.value);
       }
     } catch {
