@@ -1,0 +1,217 @@
+<form [formGroup]="categoryDependentFormGroup">
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.location_1.value }"
+    class="merge-expenses--internal-block"
+    *ngIf="location1OptionsData?.options?.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'From'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements || location1OptionsData?.options?.length === 0 || location1OptionsData?.areSameValues
+      "
+      [options]="location1OptionsData?.options"
+      [selectModalHeader]="'Select From'"
+      formControlName="location_1"
+    >
+    </app-fy-select>
+  </div>
+
+  <div
+    class="merge-expenses--internal-block"
+    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.location_2.value }"
+    *ngIf="location2OptionsData?.options?.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'To'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements || location2OptionsData?.options?.length === 0 || location2OptionsData?.areSameValues
+      "
+      [options]="location2OptionsData?.options"
+      [selectModalHeader]="'Select To'"
+      formControlName="location_2"
+    >
+    </app-fy-select>
+  </div>
+
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.from_dt.value }"
+    class="merge-expenses--internal-block"
+    *ngIf="onwardDateOptionsData?.options?.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Onward Date'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements || onwardDateOptionsData?.options?.length === 0 || onwardDateOptionsData?.areSameValues
+      "
+      [options]="onwardDateOptionsData?.options"
+      [selectModalHeader]="'Select Onward Date'"
+      formControlName="from_dt"
+    >
+    </app-fy-select>
+  </div>
+
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.to_dt.value }"
+    class="merge-expenses--internal-block"
+    *ngIf="returnDateOptionsData?.options?.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Return Date'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements || returnDateOptionsData?.options?.length === 0 || returnDateOptionsData?.areSameValues
+      "
+      [options]="returnDateOptionsData?.options"
+      [selectModalHeader]="'Select Return Date'"
+      formControlName="to_dt"
+    >
+    </app-fy-select>
+  </div>
+
+  <div
+    [ngClass]="{
+      'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.flight_journey_travel_class.value
+    }"
+    class="merge-expenses--internal-block"
+    *ngIf="flightJourneyTravelClassOptionsData?.options?.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Travel Class'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements ||
+        flightJourneyTravelClassOptionsData?.options?.length === 0 ||
+        flightJourneyTravelClassOptionsData?.areSameValues
+      "
+      [options]="flightJourneyTravelClassOptionsData?.options"
+      [selectModalHeader]="'Select Travel Class'"
+      formControlName="flight_journey_travel_class"
+    >
+    </app-fy-select>
+  </div>
+
+  <div
+    [ngClass]="{
+      'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.flight_return_travel_class.value
+    }"
+    class="merge-expenses--internal-block"
+    *ngIf="flightReturnTravelClassOptionsData?.options?.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Return Travel Class'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements ||
+        flightReturnTravelClassOptionsData?.options?.length === 0 ||
+        flightReturnTravelClassOptionsData?.areSameValues
+      "
+      [options]="flightReturnTravelClassOptionsData?.options"
+      [selectModalHeader]="'Select Return Travel Class'"
+      formControlName="flight_return_travel_class"
+    >
+    </app-fy-select>
+  </div>
+
+  <div
+    [ngClass]="{
+      'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.train_travel_class.value
+    }"
+    class="merge-expenses--internal-block"
+    *ngIf="trainTravelClassOptionsData?.options?.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Travel Class'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements ||
+        trainTravelClassOptionsData?.options?.length === 0 ||
+        trainTravelClassOptionsData?.areSameValues
+      "
+      [options]="trainTravelClassOptionsData?.options"
+      [selectModalHeader]="'Select Travel Class'"
+      formControlName="train_travel_class"
+    >
+    </app-fy-select>
+  </div>
+
+  <div
+    [ngClass]="{
+      'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.bus_travel_class.value
+    }"
+    class="merge-expenses--internal-block"
+    *ngIf="busTravelClassOptionsData?.options?.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Travel Class'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements ||
+        busTravelClassOptionsData?.options?.length === 0 ||
+        busTravelClassOptionsData?.areSameValues
+      "
+      [options]="busTravelClassOptionsData?.options"
+      [selectModalHeader]="'Select Travel Class'"
+      formControlName="bus_travel_class"
+    >
+    </app-fy-select>
+  </div>
+
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.distance.value }"
+    class="merge-expenses--internal-block"
+    *ngIf="distanceOptionsData?.options?.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Distance'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements || distanceOptionsData?.options?.length === 0 || distanceOptionsData?.areSameValues
+      "
+      [options]="distanceOptionsData?.options"
+      [selectModalHeader]="'Select Distance'"
+      formControlName="distance"
+    >
+    </app-fy-select>
+  </div>
+
+  <div
+    [ngClass]="{ 'merge-expenses--internal-block_special': categoryDependentFormGroup.controls.distance_unit.value }"
+    class="merge-expenses--internal-block"
+    *ngIf="distanceUnitOptionsData?.options?.length > 0"
+  >
+    <app-fy-select
+      [enableSearch]="false"
+      [label]="'Distance'"
+      [mandatory]="false"
+      [nullOption]="true"
+      [disabled]="
+        disableFormElements || distanceUnitOptionsData?.options?.length === 0 || distanceUnitOptionsData?.areSameValues
+      "
+      [options]="distanceUnitOptionsData?.options"
+      [selectModalHeader]="'Select Distance Unit'"
+      formControlName="distance_unit"
+    >
+    </app-fy-select>
+  </div>
+</form>
