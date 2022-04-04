@@ -158,6 +158,11 @@ const routes: Routes = [
     loadChildren: () => import('./view-per-diem/view-per-diem.module').then((m) => m.ViewPerDiemPageModule),
   },
   {
+    path: 'potential-duplicates',
+    loadChildren: () =>
+      import('./potential-duplicates/potential-duplicates.module').then((m) => m.PotentialDuplicatesPageModule),
+  },
+  {
     path: 'merge_expense',
     loadChildren: () => import('./merge-expense/merge-expense.module').then((m) => m.MergeExpensePageModule),
   },

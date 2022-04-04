@@ -96,6 +96,10 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
+import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -326,6 +330,8 @@ export class AddEditExpensePage implements OnInit {
 
   isIos = false;
 
+  duplicateExpenses: Expense[];
+
   isExpenseMatchedForDebitCCCE: boolean;
 
   canDismissCCCE: boolean;
@@ -374,7 +380,8 @@ export class AddEditExpensePage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
-    private titleCasePipe: TitleCasePipe
+    private titleCasePipe: TitleCasePipe,
+    private handleDuplicates: HandleDuplicatesService
   ) {}
 
   goBack() {
@@ -2858,6 +2865,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.getPolicyDetails();
+    this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
     document.addEventListener('keydown', this.scrollInputIntoView);
   }
@@ -4413,5 +4421,59 @@ export class AddEditExpensePage implements OnInit {
     return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
       switchMap((fileObj: any) => this.postToFileService(fileObj, txnId))
     );
+  }
+
+  getDuplicateExpenses() {
+    if (this.activatedRoute.snapshot.params.id) {
+      this.handleDuplicates
+        .getDuplicatesByExpense(this.activatedRoute.snapshot.params.id)
+        .pipe(
+          switchMap((duplicateSets) => {
+            const duplicateIds = duplicateSets
+              .map((value) => value.transaction_ids)
+              .reduce((acc, curVal) => acc.concat(curVal), []);
+            const params = {
+              tx_id: `in.(${duplicateIds.join(',')})`,
+            };
+            return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
+              map((expenses) => {
+                const expensesArray = expenses as [];
+                return duplicateSets.map((duplicateSet) =>
+                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                );
+              })
+            );
+          })
+        )
+        .subscribe((duplicateExpensesSet) => {
+          this.duplicateExpenses = duplicateExpensesSet[0];
+        });
+    }
+  }
+
+  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]) {
+    return duplicateSet.transaction_ids.map(
+      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
+    );
+  }
+
+  async showSuggestedDuplicates(duplicateExpenses: Expense[]) {
+    const currencyModal = await this.modalController.create({
+      component: SuggestedDuplicatesComponent,
+      componentProps: {
+        duplicateExpenses,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await currencyModal.present();
+
+    const { data } = await currencyModal.onWillDismiss();
+
+    if (data?.action === 'dismissed') {
+      this.getDuplicateExpenses();
+    }
   }
 }
