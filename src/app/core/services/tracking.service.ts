@@ -966,4 +966,8 @@ export class TrackingService {
   cropReceipt(properties = {}) {
     this.eventTrack('Receipt Cropped', properties);
   }
+
+  saveReceiptWithInvalidForm(properties = {}) {
+    this.eventTrack('Save receipt with invalid form', properties);
+  }
 }
