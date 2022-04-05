@@ -3137,6 +3137,10 @@ export class AddEditExpensePage implements OnInit {
             if (that.isCreatedFromPersonalCard) {
               that.saveAndMatchWithPersonalCardTxn();
             } else {
+              if (saveIncompleteExpense && !that.fg.valid) {
+                this.trackingService.saveReceiptWithInvalidForm();
+              }
+
               that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
                 if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
                   this.addToNewReport(res.transaction.id);
