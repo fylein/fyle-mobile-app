@@ -681,6 +681,7 @@ export class MyExpensesPage implements OnInit {
         )
       )
     );
+    this.doRefresh();
   }
 
   setupNetworkWatcher() {
@@ -1932,6 +1933,14 @@ export class MyExpensesPage implements OnInit {
         )
         .subscribe((allExpenses) => {
           this.selectedElements = this.selectedElements.concat(allExpenses);
+          if (this.selectedElements?.length > 0) {
+            this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
+
+            if (this.isUnifyCCCExpensesSettings) {
+              this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
+            }
+            this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+          }
           this.allExpensesCount = this.selectedElements.length;
           this.isReportableExpensesSelected =
             this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
@@ -2125,6 +2134,33 @@ export class MyExpensesPage implements OnInit {
     setTimeout(() => {
       searchInput.focus();
     }, 300);
+  }
+
+  mergeExpenses() {
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'merge_expense',
+      {
+        selectedElements: JSON.stringify(this.selectedElements),
+        from: 'MY_EXPENSES',
+      },
+    ]);
+  }
+
+  isMergeAllowed(expenses: Expense[]) {
+    if (expenses?.length === 2) {
+      const areSomeMileageOrPerDiemExpenses = expenses.some(
+        (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
+      );
+      const areAllExpensesSubmitted = expenses.every((expense) =>
+        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
+      );
+      const areAllCCCMatchedExpenses = expenses.every((expense) => expense.tx_corporate_credit_card_expense_group_id);
+      return !areSomeMileageOrPerDiemExpenses && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
+    } else {
+      return false;
+    }
   }
 
   showCamera(isCameraShown: boolean) {

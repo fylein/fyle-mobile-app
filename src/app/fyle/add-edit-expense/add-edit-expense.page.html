@@ -77,6 +77,17 @@
 
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
+        <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
+          <app-fy-alert-info
+            [message]="'This expense might be a duplicate of an existing  expense.'"
+            [type]="'warning'"
+            [showActionButton]="true"
+            [actionButtonContent]="'View'"
+            (actionClick)="showSuggestedDuplicates(duplicateExpenses)"
+          >
+          </app-fy-alert-info>
+        </div>
+
         <div *ngIf="instaFyleCancelled" class="add-edit-expense--alert-offline">
           <app-fy-alert-info
             [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details manually'"
