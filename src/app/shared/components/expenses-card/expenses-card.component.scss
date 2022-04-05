@@ -4,7 +4,7 @@
   &--date {
     color: $grey-light;
     font-size: 14px;
-    padding: 16px 0 12px 16px;
+    padding: 12px 0 12px 12px;
     background-color: $white;
     font-weight: 500;
 
@@ -16,7 +16,7 @@
   &--body {
     background-color: $pure-white;
     min-height: 106px;
-    padding: 16px;
+    padding: 12px;
 
     &__with-border {
       padding-top: 0;
@@ -226,7 +226,7 @@
     font-weight: 500;
     font-size: 16px;
     line-height: 1.25;
-    margin-right: 0;
+    margin-right: 1px;
   }
 
   &--amount {
@@ -296,5 +296,10 @@
   &--spinner-placeholder {
     text-align: center;
     padding: 4px;
+  }
+
+  &--dismiss {
+    margin: 0 0 0 8px;
+    padding: 2px;
   }
 }

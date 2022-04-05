@@ -290,12 +290,9 @@ export class MyCreateReportPage implements OnInit {
     );
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
-      return this.reportService
-        .getReportPurpose({ ids: txnIds })
-        .pipe(map((res) => res))
-        .subscribe((res) => {
-          this.reportTitle = res;
-        });
+      return this.reportService.getReportPurpose({ ids: txnIds }).subscribe((res) => {
+        this.reportTitle = res;
+      });
     }
   }
 

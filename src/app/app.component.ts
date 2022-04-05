@@ -214,6 +214,7 @@ export class AppComponent implements OnInit {
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut();
       this.freshChatService.destory();
+      this.isSwitchedToDelegator = false;
       this.router.navigate(['/', 'auth', 'sign_in']);
     });
 
@@ -230,12 +231,13 @@ export class AppComponent implements OnInit {
         this.previousUrl = this.router.url;
       }
       if (ev instanceof NavigationEnd) {
-        this.menuController.swipeGesture(false);
         if (
           ev.urlAfterRedirects.indexOf('enterprise') > -1 &&
           !(ev.urlAfterRedirects.indexOf('delegated_accounts') > -1)
         ) {
-          this.menuController.swipeGesture(true);
+          setTimeout(() => this.menuController.swipeGesture(true), 500);
+        } else {
+          setTimeout(() => this.menuController.swipeGesture(false), 500);
         }
       }
     });

@@ -2,11 +2,17 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
-import { from } from 'rxjs';
+import { from, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
+import { SwiperComponent } from 'swiper/angular';
+import SwiperCore, { Pagination } from 'swiper';
+
+// install Swiper modules
+SwiperCore.use([Pagination]);
 
 type Image = Partial<{
   source: string;
@@ -18,7 +24,7 @@ type Image = Partial<{
   styleUrls: ['./receipt-preview.component.scss'],
 })
 export class ReceiptPreviewComponent implements OnInit {
-  @ViewChild('slides') imageSlides: any;
+  @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
   @Input() base64ImagesWithSource: Image[];
 
@@ -28,6 +34,10 @@ export class ReceiptPreviewComponent implements OnInit {
 
   activeIndex: number;
 
+  backButtonAction: Subscription;
+
+  isCropModalOpen = false;
+
   constructor(
     private platform: Platform,
     private modalController: ModalController,
@@ -35,15 +45,7 @@ export class ReceiptPreviewComponent implements OnInit {
     private matBottomSheet: MatBottomSheet,
     private imagePicker: ImagePicker,
     private trackingService: TrackingService
-  ) {
-    this.registerBackButtonAction();
-  }
-
-  registerBackButtonAction() {
-    this.platform.backButton.subscribe(async () => {
-      this.retake();
-    });
-  }
+  ) {}
 
   async openCropReceiptModal() {
     const cropReceiptModal = await this.modalController.create({
@@ -53,11 +55,13 @@ export class ReceiptPreviewComponent implements OnInit {
       },
     });
     await cropReceiptModal.present();
+    this.isCropModalOpen = true;
     const { data } = await cropReceiptModal.onWillDismiss();
+    this.isCropModalOpen = false;
 
     if (data && data.base64ImageWithSource) {
       this.base64ImagesWithSource[this.activeIndex] = data.base64ImageWithSource;
-      await this.imageSlides.update();
+      await this.swiper.swiperRef.update();
       this.trackingService.cropReceipt();
     }
   }
@@ -72,7 +76,14 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.imageSlides.update();
+    this.backButtonAction = this.platform.backButton.subscribeWithPriority(200, () => {
+      this.retake();
+    });
+    this.swiper.swiperRef.update();
+  }
+
+  ionViewWillLeave() {
+    this.backButtonAction.unsubscribe();
   }
 
   saveReceipt() {
@@ -168,7 +179,7 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   async deleteReceipt() {
-    const activeIndex = await this.imageSlides.getActiveIndex();
+    const activeIndex = await this.swiper.swiperRef.activeIndex;
     const deletePopOver = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
@@ -197,8 +208,8 @@ export class ReceiptPreviewComponent implements OnInit {
         if (this.base64ImagesWithSource.length === 0) {
           this.retake();
         } else {
-          await this.imageSlides.update();
-          this.activeIndex = await this.imageSlides.getActiveIndex();
+          await this.swiper.swiperRef.update();
+          this.activeIndex = await this.swiper.swiperRef.activeIndex;
         }
       }
     }
@@ -212,17 +223,17 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   async goToNextSlide() {
-    await this.imageSlides.slideNext();
-    await this.imageSlides.update();
+    await this.swiper.swiperRef.slideNext();
+    await this.swiper.swiperRef.update();
   }
 
   async goToPrevSlide() {
-    await this.imageSlides.slidePrev();
-    await this.imageSlides.update();
+    await this.swiper.swiperRef.slidePrev();
+    await this.swiper.swiperRef.update();
   }
 
   async ionSlideDidChange() {
-    const activeIndex = await this.imageSlides.getActiveIndex();
+    const activeIndex = await this.swiper.swiperRef.activeIndex;
     this.activeIndex = activeIndex;
   }
 }

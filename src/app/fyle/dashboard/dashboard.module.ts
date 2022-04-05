@@ -17,6 +17,7 @@ import { TasksComponent } from './tasks/tasks.component';
 import { TasksCardComponent } from './tasks/tasks-card/tasks-card.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SwiperModule } from 'swiper/angular';
 
 @NgModule({
   imports: [
@@ -31,6 +32,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatTabsModule,
     MatBottomSheetModule,
     MatSnackBarModule,
+    SwiperModule,
   ],
   declarations: [
     DashboardPage,

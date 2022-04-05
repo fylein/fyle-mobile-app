@@ -204,10 +204,6 @@ export class AddEditMileagePage implements OnInit {
 
   canDeleteExpense = true;
 
-  isReportMandatory = false;
-
-  saveWithCriticalPolicyViolation = false;
-
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -243,18 +239,18 @@ export class AddEditMileagePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  ngOnInit() {
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
-  }
-
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
   }
 
   get route() {
     return this.fg.controls.route;
+  }
+
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
   }
 
   goToPrev() {
@@ -1000,18 +996,7 @@ export class AddEditMileagePage implements OnInit {
       this.mode = 'edit';
     }
 
-    this.setupNetworkWatcher();
-
     this.isExpandedView = this.mode !== 'add';
-
-    if (this.mode === 'add') {
-      this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
-        if (isConnected) {
-          this.fg.controls.report.setValidators(Validators.required);
-          this.isReportMandatory = true;
-        }
-      });
-    }
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
@@ -1023,6 +1008,8 @@ export class AddEditMileagePage implements OnInit {
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
       )
     );
+
+    this.setupNetworkWatcher();
 
     this.recentlyUsedValues$ = this.isConnected$.pipe(
       take(1),
@@ -1569,7 +1556,22 @@ export class AddEditMileagePage implements OnInit {
           }, 1000);
         }
       );
+
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   async showClosePopup() {
     const isAutofilled =
@@ -1688,20 +1690,9 @@ export class AddEditMileagePage implements OnInit {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
             that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
-              if (
-                !this.saveWithCriticalPolicyViolation &&
-                that.fg.controls.add_to_new_report.value &&
-                etxn &&
-                etxn.tx &&
-                etxn.tx.id
-              ) {
+              if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id) {
                 this.addToNewReport(etxn.tx.id);
-              } else if (
-                !this.saveWithCriticalPolicyViolation &&
-                that.fg.value.report &&
-                that.fg.value.report.rp &&
-                that.fg.value.report.rp.id
-              ) {
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
                 that.close();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
@@ -1711,14 +1702,9 @@ export class AddEditMileagePage implements OnInit {
           } else {
             // to do edit
             that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
-              if (!this.saveWithCriticalPolicyViolation && that.fg.controls.add_to_new_report.value && tx && tx.id) {
+              if (that.fg.controls.add_to_new_report.value && tx && tx.id) {
                 this.addToNewReport(tx.id);
-              } else if (
-                !this.saveWithCriticalPolicyViolation &&
-                that.fg.value.report &&
-                that.fg.value.report.rp &&
-                that.fg.value.report.rp.id
-              ) {
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
                 that.close();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
@@ -1749,13 +1735,7 @@ export class AddEditMileagePage implements OnInit {
 
   async reloadCurrentRoute() {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
-    await this.router.navigate([
-      '/',
-      'enterprise',
-      'add_edit_mileage',
-      ,
-      { rp_id: this.fg.controls.report.value.rp.id },
-    ]);
+    await this.router.navigate(['/', 'enterprise', 'add_edit_mileage']);
   }
 
   saveAndNewExpense() {
@@ -1944,9 +1924,6 @@ export class AddEditMileagePage implements OnInit {
     await fyCriticalPolicyViolationPopOver.present();
 
     const { data } = await fyCriticalPolicyViolationPopOver.onWillDismiss();
-    if (data) {
-      this.saveWithCriticalPolicyViolation = true;
-    }
     return !!data;
   }
 
@@ -2208,7 +2185,7 @@ export class AddEditMileagePage implements OnInit {
               switchMap((tx) => {
                 const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
                 const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-                if (!this.saveWithCriticalPolicyViolation && !criticalPolicyViolated) {
+                if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
@@ -2423,15 +2400,12 @@ export class AddEditMileagePage implements OnInit {
             }
 
             let reportId;
-            if (!this.saveWithCriticalPolicyViolation) {
-              if (
-                this.fg.value.report &&
-                (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
-              ) {
-                reportId = this.fg.value.report.rp.id;
-              }
+            if (
+              this.fg.value.report &&
+              (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
+            ) {
+              reportId = this.fg.value.report.rp.id;
             }
-
             let entry;
             if (this.fg.value.add_to_new_report) {
               entry = {

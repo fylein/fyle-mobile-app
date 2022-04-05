@@ -756,6 +756,18 @@ export class TrackingService {
     this.eventTrack('dashboard unreported expenses clicked', properties);
   }
 
+  dashboardOnIncompleteExpensesClick(properties = {}) {
+    this.eventTrack('dashboard incomplete expenses clicked', properties);
+  }
+
+  dashboardOnIncompleteCardExpensesClick(properties = {}) {
+    this.eventTrack('dashboard incomplete corporate card expenses clicked', properties);
+  }
+
+  dashboardOnTotalCardExpensesClick(properties = {}) {
+    this.eventTrack('dashboard total corporate card expenses clicked', properties);
+  }
+
   dashboardOnReportPillClick(properties) {
     this.eventTrack('dashboard report pill clicked', properties);
   }

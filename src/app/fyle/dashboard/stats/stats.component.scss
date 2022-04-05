@@ -3,6 +3,14 @@
 $ccc-bank-name: #c4cae8;
 
 .stats {
+  &--ccc-cards-grid {
+    margin-bottom: 2%;
+  }
+
+  &--ccc-cards-grid-multiple {
+    margin-bottom: -4%;
+  }
+
   &--menu-button {
     padding: 8px;
   }
@@ -17,12 +25,16 @@ $ccc-bank-name: #c4cae8;
     --ion-grid-padding: 16px;
   }
 
+  &--single-ccc {
+    margin: 20px 10px 0px 10px;
+  }
+
   &--background {
     top: 0;
     box-shadow: 0px -2px 8px rgb(215 215 215 / 25%);
-    min-height: 300px;
+    min-height: 420px;
     background: url('../../../../assets/images/new-background.png') no-repeat bottom;
-    background-size: 105%;
+    background-size: 105% 105%;
   }
 
   &--header {
@@ -143,8 +155,8 @@ $ccc-bank-name: #c4cae8;
 
   &--ccc-cards-section {
     position: relative;
-    top: -48px;
-    margin-bottom: 24px;
+    top: -104px;
+    margin-bottom: 30%;
   }
 
   &--ccc-cards-header {

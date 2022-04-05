@@ -732,4 +732,55 @@ export class TransactionService {
       .map((currency) => currencyMap[currency])
       .sort((a, b) => (a.amount < b.amount ? 1 : -1));
   }
+
+  excludeCCCExpenses(expenses: Expense[]) {
+    return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
+  }
+
+  getDeletableTxns(expenses: Expense[]) {
+    return expenses.filter((expense) => expense && expense.tx_user_can_delete);
+  }
+
+  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]) {
+    return `You are about to permanently delete ${
+      expensesToBeDeleted?.length === 1 ? '1 selected expense.' : expensesToBeDeleted?.length + ' selected expenses.'
+    }`;
+  }
+
+  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number) {
+    return `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
+      cccExpenses > 1 ? 'expenses' : 'expense'
+    } from the selection which can\'t be deleted. ${
+      expensesToBeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
+    }`;
+  }
+
+  getDeleteDialogBody(
+    expensesToBeDeleted: Expense[],
+    cccExpenses: number,
+    expenseDeletionMessage: string,
+    cccExpensesMessage: string
+  ) {
+    let dialogBody: string;
+
+    if (expensesToBeDeleted?.length > 0 && cccExpenses > 0) {
+      dialogBody = `<ul class="text-left">
+        <li>${cccExpensesMessage}</li>
+        <li>Once deleted, the action can't be reversed.</li>
+        </ul>
+        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+    } else if (expensesToBeDeleted?.length > 0 && cccExpenses === 0) {
+      dialogBody = `<ul class="text-left">
+      <li>${expenseDeletionMessage}</li>
+      <li>Once deleted, the action can't be reversed.</li>
+      </ul>
+      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+    } else if (expensesToBeDeleted?.length === 0 && cccExpenses > 0) {
+      dialogBody = `<ul class="text-left">
+      <li>${cccExpensesMessage}</li>
+      </ul>`;
+    }
+
+    return dialogBody;
+  }
 }

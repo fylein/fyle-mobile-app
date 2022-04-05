@@ -26,6 +26,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
+import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
@@ -71,6 +72,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   saveAdvanceLoading = false;
 
   isDeviceWidthSmall = window.innerWidth < 375;
+
+  expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
 
   isCameraShown = false;
 
@@ -122,6 +125,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
         can_submit: true,
       };
     }
+
+    this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
   }
 
   goBack() {
@@ -648,7 +653,22 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
 
     this.setupNetworkWatcher();
+
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
