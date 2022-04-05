@@ -1933,6 +1933,14 @@ export class MyExpensesPage implements OnInit {
         )
         .subscribe((allExpenses) => {
           this.selectedElements = this.selectedElements.concat(allExpenses);
+          if (this.selectedElements?.length > 0) {
+            this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
+
+            if (this.isUnifyCCCExpensesSettings) {
+              this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
+            }
+            this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+          }
           this.allExpensesCount = this.selectedElements.length;
           this.isReportableExpensesSelected =
             this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
