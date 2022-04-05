@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -10,9 +10,11 @@ import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
 import { DashboardTask } from 'src/app/core/models/task.model';
+import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -37,6 +39,9 @@ export class TasksComponent implements OnInit {
     draftReports: false,
     draftExpenses: false,
     unreportedExpenses: false,
+    teamReports: false,
+    sentBackAdvances: false,
+    potentialDuplicates: false,
   });
 
   isConnected$: Observable<boolean>;
@@ -49,6 +54,7 @@ export class TasksComponent implements OnInit {
     private taskService: TasksService,
     private transactionService: TransactionService,
     private reportService: ReportService,
+    private advanceRequestService: AdvanceRequestService,
     private modalController: ModalController,
     private trackingService: TrackingService,
     private loaderService: LoaderService,
@@ -58,7 +64,8 @@ export class TasksComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private offlineService: OfflineService
   ) {}
 
   ngOnInit() {
@@ -89,6 +96,9 @@ export class TasksComponent implements OnInit {
         unreportedExpenses: true,
         draftReports: false,
         sentBackReports: false,
+        teamReports: false,
+        sentBackAdvances: false,
+        potentialDuplicates: true,
       });
     }
 
@@ -98,6 +108,33 @@ export class TasksComponent implements OnInit {
         unreportedExpenses: false,
         draftReports: true,
         sentBackReports: true,
+        teamReports: false,
+        sentBackAdvances: false,
+        potentialDuplicates: false,
+      });
+    }
+
+    if (paramFilters === 'team_reports') {
+      this.loadData$.next({
+        draftExpenses: false,
+        unreportedExpenses: false,
+        draftReports: false,
+        sentBackReports: false,
+        teamReports: true,
+        sentBackAdvances: false,
+        potentialDuplicates: false,
+      });
+    }
+
+    if (paramFilters === 'advances') {
+      this.loadData$.next({
+        draftExpenses: false,
+        unreportedExpenses: false,
+        draftReports: false,
+        sentBackReports: false,
+        teamReports: false,
+        sentBackAdvances: true,
+        potentialDuplicates: false,
       });
     }
 
@@ -145,6 +182,10 @@ export class TasksComponent implements OnInit {
                 label: 'Draft',
                 value: 'DRAFT',
               },
+              {
+                label: 'Duplicate',
+                value: 'DUPLICATE',
+              },
             ],
           } as FilterOptions<string>,
           {
@@ -158,6 +199,20 @@ export class TasksComponent implements OnInit {
               {
                 label: 'Unsubmitted',
                 value: 'DRAFT',
+              },
+              {
+                label: 'Unapproved',
+                value: 'TEAM',
+              },
+            ],
+          } as FilterOptions<string>,
+          {
+            name: 'Advances',
+            optionType: FilterOptionType.multiselect,
+            options: [
+              {
+                label: 'Sent Back',
+                value: 'SENT_BACK',
               },
             ],
           } as FilterOptions<string>,
@@ -187,6 +242,7 @@ export class TasksComponent implements OnInit {
         ...this.loadData$.getValue(),
         draftExpenses: false,
         unreportedExpenses: false,
+        potentialDuplicates: false,
       });
     }
 
@@ -195,6 +251,13 @@ export class TasksComponent implements OnInit {
         ...this.loadData$.getValue(),
         draftReports: false,
         sentBackReports: false,
+      });
+    }
+
+    if (filterPillType === 'Advances') {
+      this.applyFilters({
+        ...this.loadData$.getValue(),
+        sentBackAdvances: false,
       });
     }
 
@@ -249,6 +312,15 @@ export class TasksComponent implements OnInit {
         break;
       case TASKEVENT.reviewExpenses:
         this.onReviewExpensesTaskClick(taskCta, task);
+        break;
+      case TASKEVENT.openTeamReport:
+        this.onTeamReportsTaskClick(taskCta, task);
+        break;
+      case TASKEVENT.openPotentialDuplicates:
+        this.onPotentialDuplicatesTaskClick(taskCta, task);
+        break;
+      case TASKEVENT.openSentBackAdvance:
+        this.onSentBackAdvanceTaskClick(taskCta, task);
         break;
       default:
         break;
@@ -340,7 +412,67 @@ export class TasksComponent implements OnInit {
           this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
         });
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_reports', { state: ['APPROVER_INQUIRY'] }]);
+      this.router.navigate(['/', 'enterprise', 'my_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['APPROVER_INQUIRY'] }),
+        },
+      });
+    }
+  }
+
+  onSentBackAdvanceTaskClick(taskCta: TaskCta, task: DashboardTask) {
+    if (task.count === 1) {
+      const queryParams = {
+        areq_state: 'in.(DRAFT)',
+        areq_is_sent_back: 'is.true',
+      };
+
+      from(this.loaderService.showLoader('Opening your advance request...'))
+        .pipe(
+          switchMap(() => this.advanceRequestService.getMyadvanceRequests({ queryParams, offset: 0, limit: 1 })),
+          finalize(() => this.loaderService.hideLoader())
+        )
+        .subscribe((res) => {
+          this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: res.data[0].areq_id }]);
+        });
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_advances'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['SENT_BACK'] }),
+        },
+      });
+    }
+  }
+
+  onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask) {
+    if (task.count === 1) {
+      from(this.loaderService.showLoader('Opening your report...'))
+        .pipe(
+          switchMap(() =>
+            forkJoin({
+              eou: from(this.authService.getEou()),
+              sequentalApproversEnabled: this.offlineService
+                .getOrgSettings()
+                .pipe(map((orgSettings) => orgSettings.approval_settings.enable_sequential_approvers)),
+            })
+          ),
+          map(({ eou, sequentalApproversEnabled }) => ({
+            rp_approval_state: ['in.(APPROVAL_PENDING)'],
+            rp_state: ['in.(APPROVER_PENDING)'],
+            sequential_approval_turn: sequentalApproversEnabled ? ['in.(true)'] : ['in.(true)'],
+          })),
+          switchMap((queryParams) => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
+          finalize(() => this.loaderService.hideLoader())
+        )
+        .subscribe((res) => {
+          this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res.data[0].rp_id, navigate_back: true }]);
+        });
+    } else {
+      this.router.navigate(['/', 'enterprise', 'team_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['APPROVER_PENDING'] }),
+        },
+      });
     }
   }
 
@@ -359,12 +491,20 @@ export class TasksComponent implements OnInit {
           this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
         });
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_reports', { state: ['DRAFT'] }]);
+      this.router.navigate(['/', 'enterprise', 'my_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['DRAFT'] }),
+        },
+      });
     }
   }
 
   onCreateReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
     this.router.navigate(['/', 'enterprise', 'my_create_report']);
+  }
+
+  onPotentialDuplicatesTaskClick(taskCta: TaskCta, task: DashboardTask) {
+    this.router.navigate(['/', 'enterprise', 'potential-duplicates']);
   }
 
   addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {

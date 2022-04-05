@@ -1,0 +1,17 @@
+<div class="preference-setting__card">
+  <div class="preference-setting__card__title">{{ title }}</div>
+  <div class="d-flex preference-setting__content-container">
+    <div class="preference-setting__card__content">{{ content }}</div>
+    <ion-toggle mode="ios" [(ngModel)]="isEnabled" (ionChange)="onChange()"> </ion-toggle>
+  </div>
+  <div *ngIf="key === 'defaultCurrency' && isEnabled" class="preference-setting__input-container">
+    <input
+      class="preference-setting__input-container__input"
+      type="text"
+      placeholder="Select Currency"
+      [ngModel]="defaultCurrency"
+      (click)="openCurrencyModal()"
+    />
+    <mat-icon class="fy-select--icon" svgIcon="fy-arrow-down"></mat-icon>
+  </div>
+</div>

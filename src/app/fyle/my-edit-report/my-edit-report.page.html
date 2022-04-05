@@ -149,14 +149,11 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar mode="md">
+  <ion-toolbar class="fy-footer-cta-container" mode="md">
     <ng-container *ngIf="extendedReport$|async as extendedReport">
       <ion-button
         *ngIf="(extendedReport.rp_state === 'DRAFT') || ((noOfTxnsInReport + selectedTotalTxns) > 0 && extendedReport.rp_state !== 'DRAFT')"
-        class="my-edit-report--primary-cta"
-        fill="solid"
-        color="fyle-primary"
-        expand="block"
+        class="fy-footer-cta fy-footer-cta--primary"
         [disabled]="!isReportEdited"
         (click)="saveReport()"
         appFormButtonValidation
@@ -167,10 +164,7 @@
       </ion-button>
       <ion-button
         *ngIf="((noOfTxnsInReport + selectedTotalTxns) === 0 && extendedReport.rp_state !== 'DRAFT')"
-        class="my-edit-report--primary-cta"
-        fill="solid"
-        color="fyle-primary"
-        expand="block"
+        class="fy-footer-cta fy-footer-cta--primary"
         [disabled]="!isReportEdited"
         (click)="deleteReport()"
       >

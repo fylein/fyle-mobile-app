@@ -138,14 +138,6 @@ module.exports = {
     <dict>
         <key>NSAllowsArbitraryLoads</key>
         <false/>
-        <key>NSExceptionDomains</key>
-        <dict>
-            <key>localhost</key>
-            <dict>
-                <key>NSExceptionAllowsInsecureHTTPLoads</key>
-                <true/>
-            </dict>
-        </dict>
     </dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Fyle needs camera access to capture your receipts and attach them to expenses.</string>
@@ -198,7 +190,8 @@ module.exports = {
                 IP_FIND_KEY: '` + process.env.FYLE_MOBILE_IP_FIND_KEY + `',
                 GOOGLE_MAPS_API_KEY: '` + process.env.FYLE_MOBILE_GOOGLE_MAPS_API_KEY + `',
                 FRESHCHAT_TOKEN: '` + process.env.FYLE_MOBILE_FRESHCHAT_TOKEN + `',
-                SENTRY_DSN: '` + process.env.FYLE_MOBILE_SENTRY_DSN + `'
+                SENTRY_DSN: '` + process.env.FYLE_MOBILE_SENTRY_DSN + `',
+                REFINER_NPS_FORM_ID: '` + process.env.REFINER_NPS_FORM_ID + `'
               };
         
             `

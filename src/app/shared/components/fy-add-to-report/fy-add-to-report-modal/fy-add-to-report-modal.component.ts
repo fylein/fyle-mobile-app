@@ -8,11 +8,17 @@ import {
   ChangeDetectorRef,
   TemplateRef,
 } from '@angular/core';
-import { from, fromEvent, Observable, of } from 'rxjs';
-import { map, startWith, distinctUntilChanged, tap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
-import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { getCurrencySymbol } from '@angular/common';
+import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+
+type Option = {
+  label: string;
+  value: UnflattenedReport;
+  selected?: boolean;
+};
 
 @Component({
   selector: 'app-add-to-report-modal',
@@ -22,9 +28,9 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+  @Input() options: Option[] = [];
 
-  @Input() currentSelection: any;
+  @Input() currentSelection: UnflattenedReport;
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
@@ -38,45 +44,29 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @Input() enableSearch;
 
-  filteredOptions: { label: string; value: any; selected?: boolean }[];
-
-  value = '';
-
-  states: any = {};
-
-  selectedOption: { label: string; value: any; selected?: boolean };
+  reportCurrencySymbol: string;
 
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private offlineService: OfflineService
   ) {}
 
   ngOnInit() {
-    this.states.DRAFT = 'draft';
-    this.states.DRAFT_INQUIRY = 'incomplete';
-    this.states.COMPLETE = 'fyled';
-    this.states.APPROVER_PENDING = 'reported';
-    this.states.SUBMITTED = 'reported';
-    this.states.APPROVER_INQUIRY = 'sent_back';
-    this.states.POLICY_INQUIRY = 'auto_flagged';
-    this.states.REJECTED = 'rejected';
-    this.states.APPROVED = 'approved';
-    this.states.PAYMENT_PENDING = 'payment_pending';
-    this.states.PAYMENT_PROCESSING = 'payment_processing';
-    this.states.PAID = 'paid';
-    this.states.CANCELLED = 'cancelled';
-    this.states.APPROVAL_PENDING = 'reported';
-    this.states.APPROVAL_DONE = 'approved';
-    this.states.APPROVAL_DISABLED = 'disabled';
-    this.states.APPROVAL_REJECTED = 'rejected';
+    if (this.currentSelection) {
+      this.options = this.options
+        .map((option) =>
+          isEqual(option.value, this.currentSelection) ? { ...option, selected: true } : { ...option, selected: false }
+        )
+        .sort((a, b) => (a.selected === b.selected ? 0 : a.selected ? -1 : 1));
+    }
+
+    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+      this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
+    });
   }
 
   ngAfterViewInit() {
-    this.filteredOptions = this.options.filter((option) => !isEqual(option.value, this.currentSelection));
-
-    this.selectedOption = this.options.find((option) => isEqual(option.value, this.currentSelection));
-
     this.cdr.detectChanges();
   }
 
@@ -84,8 +74,12 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option) {
+  onElementSelect(option: Option) {
     this.modalController.dismiss(option);
+  }
+
+  createDraftReport() {
+    this.modalController.dismiss({ createDraftReport: true });
   }
 
   onNoneSelect() {

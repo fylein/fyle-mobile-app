@@ -69,7 +69,7 @@
       </div>
 
       <div *ngIf="advanceRequest.project_name" class="view-advances--element">
-        <div class="view-advances--element-label">Project</div>
+        <div class="view-advances--element-label">{{projectFieldName | titlecase}}</div>
         <div class="view-advances--element-value">{{advanceRequest.project_name || '-'}}</div>
       </div>
 
@@ -133,15 +133,7 @@
 </ion-content>
 
 <ion-footer *ngIf="showAdvanceActions$|async">
-  <ion-toolbar mode="md">
-    <ion-button
-      class="view-advances--primary-cta flat-button"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
-      (click)="openAdvanceActionsPopover()"
-    >
-      Advance Actions
-    </ion-button>
+  <ion-toolbar class="fy-footer-cta-container" mode="md">
+    <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="openActionSheet()"> Advance Actions </ion-button>
   </ion-toolbar>
 </ion-footer>

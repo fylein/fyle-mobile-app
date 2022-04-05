@@ -1,0 +1,26 @@
+<input
+  *ngIf="isIos"
+  class="fy-number--input"
+  [min]="min"
+  [disabled]="disabled"
+  [formControl]="fc"
+  [placeholder]="placeholder || ''"
+  (blur)="(onBlur)"
+  type="text"
+  pattern="[0-9]*"
+  decimal="true"
+  decimal-char="."
+  [ngClass]="{ 'fy-number--input__disabled': disabled }"
+/>
+<input
+  *ngIf="!isIos"
+  class="fy-number--input"
+  [min]="min"
+  [disabled]="disabled"
+  [formControl]="fc"
+  [placeholder]="placeholder || ''"
+  (blur)="(onBlur)"
+  type="number"
+  inputmode="decimal"
+  [ngClass]="{ 'fy-number--input__disabled': disabled }"
+/>

@@ -12,6 +12,8 @@ import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { CardDetail } from 'src/app/core/models/card-detail.model';
+import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 
 @Component({
   selector: 'app-stats',
@@ -33,19 +35,29 @@ export class StatsComponent implements OnInit {
 
   currencySymbol$: Observable<string>;
 
-  unreportedExpensesCount$: Observable<{ count: number }>;
+  unreportedExpensesStats$: Observable<{ count: number; sum: number }>;
 
-  unreportedExpensesAmount$: Observable<{ amount: number }>;
+  incompleteExpensesStats$: Observable<{ count: number; sum: number }>;
+
+  isUnreportedExpensesStatsLoading = true;
+
+  isIncompleteExpensesStatsLoading = true;
 
   reportStatsLoading = true;
 
   loadData$ = new Subject();
 
-  cardTransactionsAndDetails$: Observable<BankAccountsAssigned>;
-
   isCCCStatsLoading: boolean;
 
-  cardTransactionsAndDetails: BankAccountsAssigned;
+  cardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned>;
+
+  cardTransactionsAndDetailsNonUnifyCCC: BankAccountsAssigned;
+
+  cardTransactionsAndDetails$: Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }>;
+
+  cardTransactionsAndDetails: CardDetail[];
+
+  isUnifyCCCExpensesSettings: boolean;
 
   get ReportStates() {
     return ReportStates;
@@ -87,22 +99,55 @@ export class StatsComponent implements OnInit {
   }
 
   initializeExpensesStats() {
-    const unreportedExpensesStats$ = this.dashboardService.getUnreportedExpensesStats().pipe(shareReplay(1));
+    this.unreportedExpensesStats$ = this.dashboardService.getUnreportedExpensesStats().pipe(
+      shareReplay(1),
+      tap(() => {
+        this.isUnreportedExpensesStatsLoading = false;
+      })
+    );
 
-    this.unreportedExpensesCount$ = unreportedExpensesStats$.pipe(map((stats) => ({ count: stats.totalCount })));
+    this.incompleteExpensesStats$ = this.dashboardService.getIncompleteExpensesStats().pipe(
+      shareReplay(1),
+      tap(() => {
+        this.isIncompleteExpensesStatsLoading = false;
+      })
+    );
+  }
 
-    this.unreportedExpensesAmount$ = unreportedExpensesStats$.pipe(map((stats) => ({ amount: stats.totalAmount })));
+  getCardDetail(statsResponses) {
+    const cardNames = [];
+    statsResponses.forEach((response) => {
+      const cardDetail = {
+        cardNumber: response.key[1].column_value,
+        cardName: response.key[0].column_value,
+      };
+      cardNames.push(cardDetail);
+    });
+    const uniqueCards = JSON.parse(JSON.stringify(cardNames));
+
+    return this.dashboardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
   }
 
   initializeCCCStats() {
-    this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
-      map((res) => res[0]),
-      shareReplay(1)
-    );
-    this.cardTransactionsAndDetails$.subscribe((details) => {
-      this.cardTransactionsAndDetails = details;
-      this.isCCCStatsLoading = false;
-    });
+    if (this.isUnifyCCCExpensesSettings) {
+      this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
+        map((cccDetail) => cccDetail),
+        shareReplay(1)
+      );
+      this.cardTransactionsAndDetails$.subscribe((details) => {
+        this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
+        this.isCCCStatsLoading = false;
+      });
+    } else {
+      this.cardTransactionsAndDetailsNonUnifyCCC$ = this.dashboardService.getNonUnifyCCCDetails().pipe(
+        map((res) => res[0]),
+        shareReplay(1)
+      );
+      this.cardTransactionsAndDetailsNonUnifyCCC$.subscribe((details) => {
+        this.cardTransactionsAndDetailsNonUnifyCCC = details;
+        this.isCCCStatsLoading = false;
+      });
+    }
   }
 
   /*
@@ -121,10 +166,15 @@ export class StatsComponent implements OnInit {
     that.initializeExpensesStats();
     that.offlineService.getOrgSettings().subscribe((orgSettings) => {
       if (orgSettings.corporate_credit_card_settings.enabled) {
+        this.isUnifyCCCExpensesSettings =
+          orgSettings.unify_ccce_expenses_settings &&
+          orgSettings.unify_ccce_expenses_settings.allowed &&
+          orgSettings.unify_ccce_expenses_settings.enabled;
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();
       } else {
         this.cardTransactionsAndDetails$ = of(null);
+        this.cardTransactionsAndDetailsNonUnifyCCC$ = of(null);
       }
     });
   }
@@ -135,9 +185,10 @@ export class StatsComponent implements OnInit {
   }
 
   goToReportsPage(state: ReportStates) {
-    const queryParams: Params = { filters: JSON.stringify({ state: state.toString() }) };
     this.router.navigate(['/', 'enterprise', 'my_reports'], {
-      queryParams,
+      queryParams: {
+        filters: JSON.stringify({ state: [state.toString()] }),
+      },
     });
 
     this.trackingService.dashboardOnReportPillClick({
@@ -145,13 +196,22 @@ export class StatsComponent implements OnInit {
     });
   }
 
-  goToExpensesPage() {
-    const queryParams: Params = { filters: JSON.stringify({ state: ['READY_TO_REPORT'] }) };
-    this.router.navigate(['/', 'enterprise', 'my_expenses'], {
-      queryParams,
-    });
+  goToExpensesPage(state: string) {
+    if (state === 'COMPLETE') {
+      const queryParams: Params = { filters: JSON.stringify({ state: ['READY_TO_REPORT'] }) };
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+        queryParams,
+      });
 
-    this.trackingService.dashboardOnUnreportedExpensesClick();
+      this.trackingService.dashboardOnUnreportedExpensesClick();
+    } else {
+      const queryParams: Params = { filters: JSON.stringify({ state: ['DRAFT'] }) };
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+        queryParams,
+      });
+
+      this.trackingService.dashboardOnIncompleteExpensesClick();
+    }
   }
 
   goToCCCPage(state: string) {

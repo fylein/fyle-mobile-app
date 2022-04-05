@@ -1,4 +1,5 @@
 <app-fy-header
+  [ngClass]="{'d-none': isCameraShown}"
   [currentState]="headerState"
   [navigateBack]="navigateBack"
   [title]="'Expenses'"
@@ -62,7 +63,13 @@
       </ng-container>
     </ng-container>
     <ion-buttons mode="md" slot="end">
-      <ion-button (click)="deleteSelectedExpenses()" [disabled]="selectedElements?.length === 0">
+      <ion-button *ngIf="isMergeAllowed(selectedElements)" (click)="mergeExpenses()">
+        <ion-icon src="../../../assets/svg/fy-merge.svg"></ion-icon>
+      </ion-button>
+      <ion-button
+        (click)="deleteSelectedExpenses()"
+        [disabled]="selectedElements?.length === 0 || (expensesToBeDeleted?.length === 0 && cccExpenses > 0)"
+      >
         <ion-icon src="../../../assets/svg/fy-delete.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -76,7 +83,7 @@
   </ng-container>
 </app-fy-header>
 
-<ion-content class="my-expenses--content">
+<ion-content [ngClass]="{'d-none': isCameraShown}" class="my-expenses--content">
   <div
     class="my-expenses--body"
     [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}"
@@ -182,6 +189,7 @@
           (goToTransaction)="goToTransaction($event)"
           (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)"
+          (showCamera)="showCamera($event)"
         >
         </app-expense-card>
       </div>
@@ -205,7 +213,7 @@
   </ng-container>
 </ion-content>
 
-<ion-footer *ngIf="!isSearchBarFocused">
+<ion-footer [ngClass]="{'d-none': isCameraShown}" *ngIf="!isSearchBarFocused">
   <app-fy-footer
     *ngIf="!selectionMode"
     (homeClicked)="onHomeClicked()"

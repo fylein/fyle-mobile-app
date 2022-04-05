@@ -1,0 +1,36 @@
+@import '../../../../theme/colors.scss';
+@import '../../../../theme/forms.scss';
+
+.card-transaction {
+  padding: 10px 0;
+  &--matching-card {
+    border-bottom: 1px solid $grey-lighter;
+    display: flex;
+    padding: 4px 0;
+    justify-content: space-between;
+    color: $blue-black;
+  }
+
+  &--icon-corporate-card {
+    height: 24px;
+    width: 28px;
+    margin-right: 8px;
+  }
+
+  &--ccc-expense {
+    pointer-events: none;
+    color: $grey-light;
+  }
+
+  &--matching-content {
+    flex: 80;
+    line-height: 24px;
+  }
+
+  &--header {
+    font-size: 12px;
+    color: #5a5d72;
+    line-height: 16px;
+    white-space: nowrap;
+  }
+}

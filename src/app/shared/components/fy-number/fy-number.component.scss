@@ -1,0 +1,23 @@
+@import '../../../../theme/colors.scss';
+
+.fy-number {
+  &--input {
+    border: 0;
+    font-size: 14px;
+    font-weight: 400;
+    height: 24px;
+    line-height: 18px;
+    color: $blue-black;
+    width: 100%;
+    margin: 4px 0;
+    padding: 0;
+
+    &__disabled {
+      background-color: $off-white;
+      margin-bottom: 0;
+      height: 28px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+  }
+}

@@ -4,7 +4,7 @@
   &--date {
     color: $grey-light;
     font-size: 14px;
-    padding: 16px 0 12px 16px;
+    padding: 12px 0 12px 12px;
     background-color: $white;
     font-weight: 500;
 
@@ -16,7 +16,7 @@
   &--body {
     background-color: $pure-white;
     min-height: 106px;
-    padding: 16px;
+    padding: 12px;
 
     &__with-border {
       padding-top: 0;
@@ -59,7 +59,7 @@
     &__container {
       padding: 3px 11px 0 11px;
       overflow: hidden;
-      min-width: 160px;
+      width: 100%;
       &-error {
         display: flex;
         align-items: center;
@@ -226,7 +226,7 @@
     font-weight: 500;
     font-size: 16px;
     line-height: 1.25;
-    margin-right: 2px;
+    margin-right: 1px;
   }
 
   &--amount {
@@ -242,6 +242,7 @@
     height: 20px;
     width: 20px;
     font-size: 20px;
+    color: $black;
   }
 
   &--exchange-rate {
@@ -281,7 +282,7 @@
     color: $pure-white;
     background-color: $highlight-black;
     border-radius: 16px;
-    padding: 4px 29px;
+    padding: 4px 24px;
   }
 
   &--spinner-icon {
@@ -295,5 +296,10 @@
   &--spinner-placeholder {
     text-align: center;
     padding: 4px;
+  }
+
+  &--dismiss {
+    margin: 0 0 0 8px;
+    padding: 2px;
   }
 }

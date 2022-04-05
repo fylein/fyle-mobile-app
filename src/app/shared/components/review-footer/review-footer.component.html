@@ -1,14 +1,13 @@
 <ion-footer mode="md" class="review-footer--footer-container">
   <ion-toolbar mode="md" class="review-footer--footer-toolbar__shadow review-footer--footer-toolbar__spacing">
-    <ion-buttons>
+    <div class="fy-footer-cta-container">
       <ion-button
         *ngIf="activeIndex !== 0 && reviewList?.length > 0"
         (click)="onSaveAndGoToPrev()"
         [loadingText]="'Saving'"
         [loading]="saveAndPrevLoader"
         appFormButtonValidation
-        class="review-footer--secondary-cta text-capitalize"
-        fill="clear"
+        class="fy-footer-cta fy-footer-cta--tertiary-secondary"
       >
         Save and Previous
       </ion-button>
@@ -17,12 +16,10 @@
         [loadingText]="'Saving'"
         [loading]="saveAndNextLoader"
         appFormButtonValidation
-        class="review-footer--primary-cta text-capitalize"
-        color="fyle-primary"
-        fill="solid"
+        class="fy-footer-cta fy-footer-cta--primary"
       >
         {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
       </ion-button>
-    </ion-buttons>
+    </div>
   </ion-toolbar>
 </ion-footer>

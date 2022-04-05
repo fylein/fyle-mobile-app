@@ -18,6 +18,12 @@ import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 
 const transactionsCacheBuster$ = new Subject<void>();
+
+type PaymentMode = {
+  name: string;
+  key: string;
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -625,5 +631,156 @@ export class TransactionService {
 
   getIsDraft(expense: Expense): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
+  }
+
+  getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]) {
+    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key));
+  }
+
+  isEtxnInPaymentMode(etxn: Expense, paymentMode: string) {
+    let etxnInPaymentMode = false;
+    const isAdvanceOrCCCEtxn =
+      etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' ||
+      etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+
+    if (paymentMode === 'reimbursable') {
+      //Paid by Employee: reimbursable
+      etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'nonReimbursable') {
+      //Paid by Company: not reimbursable
+      etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
+    } else if (paymentMode === 'advance') {
+      //Paid from Advance account: not reimbursable
+      etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT';
+    } else if (paymentMode === 'ccc') {
+      //Paid from CCC: not reimbursable
+      etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+    }
+    return etxnInPaymentMode;
+  }
+
+  getPaymentModeWiseSummary(etxns: Expense[]) {
+    const paymentModes = [
+      {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+      },
+      {
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
+      },
+    ];
+
+    return etxns
+      .map((etxn) => ({
+        ...etxn,
+        paymentMode: this.getPaymentModeForEtxn(etxn, paymentModes),
+      }))
+      .reduce((paymentMap, etxnData) => {
+        if (paymentMap.hasOwnProperty(etxnData.paymentMode.key)) {
+          paymentMap[etxnData.paymentMode.key].name = etxnData.paymentMode.name;
+          paymentMap[etxnData.paymentMode.key].key = etxnData.paymentMode.key;
+          paymentMap[etxnData.paymentMode.key].amount += etxnData.tx_amount;
+          paymentMap[etxnData.paymentMode.key].count++;
+        } else {
+          paymentMap[etxnData.paymentMode.key] = {
+            name: etxnData.paymentMode.name,
+            key: etxnData.paymentMode.key,
+            amount: etxnData.tx_amount,
+            count: 1,
+          };
+        }
+        return paymentMap;
+      }, {});
+  }
+
+  addEtxnToCurrencyMap(currencyMap: {}, txCurrency: string, txAmount: number, txOrigAmount: number = null) {
+    if (currencyMap.hasOwnProperty(txCurrency)) {
+      currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
+      currencyMap[txCurrency].amount += txAmount;
+      currencyMap[txCurrency].count++;
+    } else {
+      currencyMap[txCurrency] = {
+        name: txCurrency,
+        currency: txCurrency,
+        amount: txAmount,
+        origAmount: txOrigAmount ? txOrigAmount : txAmount,
+        count: 1,
+      };
+    }
+  }
+
+  getCurrenyWiseSummary(etxns: Expense[]) {
+    const currencyMap = {};
+    etxns.forEach((etxn) => {
+      if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
+        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_currency, etxn.tx_amount);
+      } else {
+        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_orig_currency, etxn.tx_amount, etxn.tx_orig_amount);
+      }
+    });
+
+    return Object.keys(currencyMap)
+      .map((currency) => currencyMap[currency])
+      .sort((a, b) => (a.amount < b.amount ? 1 : -1));
+  }
+
+  excludeCCCExpenses(expenses: Expense[]) {
+    return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
+  }
+
+  getDeletableTxns(expenses: Expense[]) {
+    return expenses.filter((expense) => expense && expense.tx_user_can_delete);
+  }
+
+  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]) {
+    return `You are about to permanently delete ${
+      expensesToBeDeleted?.length === 1 ? '1 selected expense.' : expensesToBeDeleted?.length + ' selected expenses.'
+    }`;
+  }
+
+  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number) {
+    return `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
+      cccExpenses > 1 ? 'expenses' : 'expense'
+    } from the selection which can\'t be deleted. ${
+      expensesToBeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
+    }`;
+  }
+
+  getDeleteDialogBody(
+    expensesToBeDeleted: Expense[],
+    cccExpenses: number,
+    expenseDeletionMessage: string,
+    cccExpensesMessage: string
+  ) {
+    let dialogBody: string;
+
+    if (expensesToBeDeleted?.length > 0 && cccExpenses > 0) {
+      dialogBody = `<ul class="text-left">
+        <li>${cccExpensesMessage}</li>
+        <li>Once deleted, the action can't be reversed.</li>
+        </ul>
+        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+    } else if (expensesToBeDeleted?.length > 0 && cccExpenses === 0) {
+      dialogBody = `<ul class="text-left">
+      <li>${expenseDeletionMessage}</li>
+      <li>Once deleted, the action can't be reversed.</li>
+      </ul>
+      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+    } else if (expensesToBeDeleted?.length === 0 && cccExpenses > 0) {
+      dialogBody = `<ul class="text-left">
+      <li>${cccExpensesMessage}</li>
+      </ul>`;
+    }
+
+    return dialogBody;
   }
 }

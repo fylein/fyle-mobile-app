@@ -1,0 +1,51 @@
+@import '../../../../theme/colors.scss';
+
+.send-email {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+
+  &__footer {
+    padding: 8px 0 24px;
+  }
+
+  &__error-message {
+    color: $red;
+  }
+
+  &__header {
+    height: 180px;
+    background-color: $black;
+
+    &__logo {
+      max-width: 100px;
+    }
+  }
+
+  &__form {
+    padding: 24px;
+
+    &__title {
+      font-size: 24px;
+      margin: 16px 0 8px;
+      color: $pure-black;
+      font-weight: 700;
+    }
+
+    &__content {
+      font-size: 16px;
+      color: $black-light;
+      margin: 24px 0;
+    }
+  }
+
+  &__btn {
+    margin-top: 24px;
+    .mat-button-base {
+      width: 100%;
+      font-weight: 700;
+      min-height: 47px;
+    }
+  }
+}

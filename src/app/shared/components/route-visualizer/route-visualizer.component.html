@@ -1,26 +1,22 @@
-<agm-map
+<google-map
   (click)="mapClicked($event)"
   class="route-visualizer--map"
-  [disableDefaultUI]="true"
+  [options]="mapOptions"
   *ngIf="origin && destination"
 >
-  <agm-direction
-    [markerOptions]="markerOptions"
-    [renderOptions]="renderOptions"
-    [origin]="origin"
-    [destination]="destination"
-    [waypoints]="waypoints"
-  ></agm-direction>
-</agm-map>
+  <map-marker *ngFor="let markerPosition of markerPositions" [position]="markerPosition" [options]="markerOptions">
+  </map-marker>
+  <map-directions-renderer *ngIf="directionsResults$ | async as directionsResults" [directions]="directionsResults">
+  </map-directions-renderer>
+</google-map>
+
 <ng-container *ngIf="!(origin && destination) && showEmptyMap">
   <ng-container *ngIf="currentLocation">
-    <agm-map
-      (click)="mapClicked($event)"
+    <google-map
+      (mapClick)="mapClicked($event)"
       class="route-visualizer--map"
-      [disableDefaultUI]="true"
-      [latitude]="currentLocation?.lat"
-      [longitude]="currentLocation?.lng"
-    >
-    </agm-map>
+      [center]="currentLocation"
+      [options]="mapOptions"
+    ></google-map>
   </ng-container>
 </ng-container>

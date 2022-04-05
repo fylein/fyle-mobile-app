@@ -23,6 +23,8 @@ import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 
 @NgModule({
   imports: [
@@ -43,6 +45,7 @@ import { MatButtonModule } from '@angular/material/button';
     PinchZoomModule,
     PdfViewerModule,
     MatButtonModule,
+    MatSnackBarModule,
   ],
   declarations: [
     AddEditExpensePage,
@@ -52,6 +55,7 @@ import { MatButtonModule } from '@angular/material/button';
     PolicyViolationComponent,
     CameraOptionsPopupComponent,
     MatchTransactionComponent,
+    SuggestedDuplicatesComponent,
   ],
 })
 export class AddEditExpensePageModule {}

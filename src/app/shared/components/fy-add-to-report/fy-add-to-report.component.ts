@@ -1,11 +1,15 @@
 import { Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
-import { RecentLocalStorageItemsService } from '../../../core/services/recent-local-storage-items.service';
+import { map, concatMap, tap } from 'rxjs/operators';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { isEqual } from 'lodash';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
 
 @Component({
   selector: 'app-fy-add-to-report',
@@ -20,7 +24,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ],
 })
 export class FyAddToReportComponent implements OnInit, OnDestroy {
-  @Input() options: { label: string; value: any }[] = [];
+  @Input() options: { label: string; value: UnflattenedReport }[] = [];
 
   @Input() disabled = false;
 
@@ -61,7 +65,10 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
   constructor(
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private injector: Injector
+    private injector: Injector,
+    private popoverController: PopoverController,
+    private reportService: ReportService,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit() {
@@ -114,9 +121,54 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
 
     const { data } = await selectionModal.onWillDismiss();
 
-    if (data) {
+    if (data && !data.createDraftReport) {
       this.value = data.value;
+      this.trackingService.addToReportFromExpense();
     }
+
+    if (data && data.createDraftReport) {
+      const reportTitle = await this.reportService.getReportPurpose({ ids: null }).toPromise();
+
+      const draftReportPopover = await this.popoverController.create({
+        component: FyInputPopoverComponent,
+        componentProps: {
+          title: 'New Draft Report',
+          ctaText: 'Save',
+          inputValue: reportTitle,
+          inputLabel: 'Report Name',
+          isRequired: true,
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+
+      await draftReportPopover.present();
+      const { data } = await draftReportPopover.onWillDismiss();
+
+      if (data && data.newValue) {
+        const report = {
+          purpose: data.newValue,
+          source: 'MOBILE',
+        };
+
+        this.reportService
+          .createDraft(report)
+          .pipe(
+            concatMap((newReport) =>
+              this.reportService.getFilteredPendingReports({ state: 'edit' }).pipe(
+                map((reports) => reports.map((report) => ({ label: report.rp.purpose, value: report }))),
+                tap((options) => {
+                  this.options = options;
+                  this.value = this.options.find((option) => isEqual(newReport.id, option.value.rp.id))?.value;
+                })
+              )
+            )
+          )
+          .subscribe(noop);
+        this.trackingService.createDraftReportFromExpense();
+      }
+      this.trackingService.openCreateDraftReportPopover();
+    }
+    this.trackingService.openAddToReportModal();
   }
 
   onBlur() {

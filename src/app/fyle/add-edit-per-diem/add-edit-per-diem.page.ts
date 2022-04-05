@@ -55,6 +55,9 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -103,6 +106,8 @@ export class AddEditPerDiemPage implements OnInit {
   individualProjectIds$: Observable<[]>;
 
   isProjectsEnabled$: Observable<boolean>;
+
+  isCostCentersEnabled$: Observable<boolean>;
 
   customInputs$: Observable<any>;
 
@@ -213,14 +218,10 @@ export class AddEditPerDiemPage implements OnInit {
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private expenseFieldsService: ExpenseFieldsService,
     private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
-
-  ngOnInit() {
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
-  }
 
   get minPerDiemDate() {
     return this.fg.controls.from_dt.value && moment(this.fg.controls.from_dt.value).subtract(1, 'day').format('y-MM-D');
@@ -228,6 +229,12 @@ export class AddEditPerDiemPage implements OnInit {
 
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
+  }
+
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
   }
 
   async showClosePopup() {
@@ -984,6 +991,8 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.customInputs$ = this.getCustomInputs();
 
+    this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
+
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$,
@@ -1020,61 +1029,78 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
         switchMap((txnFields) =>
-          this.isConnected$.pipe(
-            take(1),
-            withLatestFrom(this.costCenters$),
-            map(([isConnected, costCenters]) => ({
+          forkJoin({
+            isConnected: this.isConnected$.pipe(take(1)),
+            orgSettings: this.offlineService.getOrgSettings(),
+            costCenters: this.costCenters$,
+            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+            individualProjectIds: this.individualProjectIds$,
+          }).pipe(
+            map(({ isConnected, orgSettings, costCenters, isIndividualProjectsEnabled, individualProjectIds }) => ({
               isConnected,
               txnFields,
+              orgSettings,
               costCenters,
+              isIndividualProjectsEnabled,
+              individualProjectIds,
             }))
           )
         )
       )
-      .subscribe(({ isConnected, txnFields, costCenters }) => {
-        const keyToControlMap: { [id: string]: AbstractControl } = {
-          purpose: this.fg.controls.purpose,
-          cost_center_id: this.fg.controls.costCenter,
-          from_dt: this.fg.controls.from_dt,
-          to_dt: this.fg.controls.to_dt,
-          num_days: this.fg.controls.num_days,
-          project_id: this.fg.controls.project,
-          billable: this.fg.controls.billable,
-        };
+      .subscribe(
+        ({ isConnected, txnFields, costCenters, orgSettings, individualProjectIds, isIndividualProjectsEnabled }) => {
+          const keyToControlMap: { [id: string]: AbstractControl } = {
+            purpose: this.fg.controls.purpose,
+            cost_center_id: this.fg.controls.costCenter,
+            from_dt: this.fg.controls.from_dt,
+            to_dt: this.fg.controls.to_dt,
+            num_days: this.fg.controls.num_days,
+            project_id: this.fg.controls.project,
+            billable: this.fg.controls.billable,
+          };
 
-        for (const control of Object.values(keyToControlMap)) {
-          control.clearValidators();
-          control.updateValueAndValidity();
-        }
-
-        for (const txnFieldKey of Object.keys(txnFields)) {
-          const control = keyToControlMap[txnFieldKey];
-
-          if (txnFields[txnFieldKey].is_mandatory) {
-            if (txnFieldKey === 'num_days') {
-              control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
-            } else if (txnFieldKey === 'to_dt') {
-              control.setValidators(
-                isConnected ? Validators.compose([this.customDateValidator.bind(this), Validators.required]) : null
-              );
-            } else if (txnFieldKey === 'cost_center_id') {
-              control.setValidators(isConnected && costCenters && costCenters.length > 0 ? Validators.required : null);
-            } else {
-              control.setValidators(isConnected ? Validators.required : null);
-            }
-          } else {
-            if (txnFieldKey === 'num_days') {
-              control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
-            }
-            if (txnFieldKey === 'to_dt') {
-              control.setValidators(isConnected ? this.customDateValidator.bind(this) : null);
-            }
+          for (const control of Object.values(keyToControlMap)) {
+            control.clearValidators();
+            control.updateValueAndValidity();
           }
-          control.updateValueAndValidity();
-        }
 
-        this.fg.updateValueAndValidity();
-      });
+          for (const txnFieldKey of Object.keys(txnFields)) {
+            const control = keyToControlMap[txnFieldKey];
+
+            if (txnFields[txnFieldKey].is_mandatory) {
+              if (txnFieldKey === 'num_days') {
+                control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
+              } else if (txnFieldKey === 'to_dt') {
+                control.setValidators(
+                  isConnected ? Validators.compose([this.customDateValidator.bind(this), Validators.required]) : null
+                );
+              } else if (txnFieldKey === 'cost_center_id') {
+                control.setValidators(
+                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null
+                );
+              } else if (txnFieldKey === 'project_id') {
+                control.setValidators(
+                  orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
+                    ? null
+                    : Validators.required
+                );
+              } else {
+                control.setValidators(isConnected ? Validators.required : null);
+              }
+            } else {
+              if (txnFieldKey === 'num_days') {
+                control.setValidators(Validators.compose([Validators.required, Validators.min(0)]));
+              }
+              if (txnFieldKey === 'to_dt') {
+                control.setValidators(isConnected ? this.customDateValidator.bind(this) : null);
+              }
+            }
+            control.updateValueAndValidity();
+          }
+
+          this.fg.updateValueAndValidity();
+        }
+      );
 
     this.setupTfcDefaultValues();
 
@@ -1511,7 +1537,22 @@ export class AddEditPerDiemPage implements OnInit {
         }
       })
     );
+
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
     return forkJoin({
@@ -1549,7 +1590,7 @@ export class AddEditPerDiemPage implements OnInit {
             per_diem_rate_id: formValue.per_diem_rate.id,
             source: 'MOBILE',
             currency: amountData.currency,
-            amount: amountData.amount,
+            amount: parseInt(amountData.amount, 10),
             orig_currency: amountData.orig_currency,
             orig_amount: amountData.orig_amount,
             project_id: formValue.project && formValue.project.project_id,
@@ -2018,6 +2059,22 @@ export class AddEditPerDiemPage implements OnInit {
       });
   }
 
+  showAddToReportSuccessToast(reportId: string) {
+    const toastMessageData = {
+      message: 'Per diem expense added to report successfully',
+      redirectionText: 'View Report',
+    };
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
+    });
+  }
+
   savePerDiem() {
     const that = this;
 
@@ -2030,6 +2087,9 @@ export class AddEditPerDiemPage implements OnInit {
             that.addExpense('SAVE_PER_DIEM').subscribe((res: any) => {
               if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
                 this.addToNewReport(res.transaction.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.goBack();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.goBack();
               }
@@ -2038,6 +2098,9 @@ export class AddEditPerDiemPage implements OnInit {
             that.editExpense('SAVE_PER_DIEM').subscribe((res) => {
               if (that.fg.controls.add_to_new_report.value && res && res.id) {
                 this.addToNewReport(res.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.goBack();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.goBack();
               }
@@ -2185,18 +2248,6 @@ export class AddEditPerDiemPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  // getFormValidationErrors() {
-  //   Object.keys(this.fg.controls).forEach(key => {
-
-  //     const controlErrors: ValidationErrors = this.fg.get(key).errors;
-  //     if (controlErrors != null) {
-  //       Object.keys(controlErrors).forEach(keyError => {
-  //         console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-  //       });
-  //     }
-  //   });
-  // }
-
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
     const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
@@ -2257,17 +2308,6 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     }
-  }
-
-  getFormValidationErrors() {
-    Object.keys(this.fg.controls).forEach((key) => {
-      const controlErrors: ValidationErrors = this.fg.get(key).errors;
-      if (controlErrors != null) {
-        Object.keys(controlErrors).forEach((keyError) => {
-          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-        });
-      }
-    });
   }
 
   async openCommentsModal() {

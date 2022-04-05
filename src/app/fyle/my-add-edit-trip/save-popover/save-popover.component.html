@@ -44,12 +44,9 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar class="save-trip--cta-container">
+  <ion-toolbar class="fy-footer-cta-container">
     <ion-button
-      class="save-trip--cta-container-cta"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
+      class="fy-footer-cta fy-footer-cta--primary"
       type="button"
       (click)="saveAsDraft()"
       *ngIf="saveMode === 'DRAFT'"
@@ -57,10 +54,7 @@
       Finish
     </ion-button>
     <ion-button
-      class="save-trip--cta-container-cta"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
+      class="fy-footer-cta fy-footer-cta--primary"
       type="button"
       (click)="saveAsDraft()"
       *ngIf="saveMode === 'SUBMIT'"
@@ -68,10 +62,7 @@
       Continue
     </ion-button>
     <ion-button
-      class="save-trip--cta-container-cta"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
+      class="fy-footer-cta fy-footer-cta--primary"
       type="button"
       (click)="saveAsDraft()"
       *ngIf="saveMode === 'CLOSE'"

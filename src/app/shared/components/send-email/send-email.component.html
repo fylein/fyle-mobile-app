@@ -1,0 +1,52 @@
+<ion-content>
+  <div class="send-email">
+    <div>
+      <ion-grid class="send-email__header text-center">
+        <ion-row class="full-height ion-align-items-center">
+          <ion-col>
+            <img class="send-email__header__logo" src="../../../../assets/svg/logo-white.svg" alt="fyle-logo" />
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <div class="send-email__form" *ngIf="sendEmailPageState === pageStates.notSent">
+        <div class="send-email__form__title">{{ title }}</div>
+        <div class="send-email__form__content">{{ content }}</div>
+        <div *ngIf="subcontent" class="send-email__form__content">{{ subcontent }}</div>
+        <form [formGroup]="fg">
+          <mat-form-field class="full-width mat-form-field-no-padding" appearance="outline">
+            <input formControlName="email" type="email" matInput placeholder="Work Email" />
+          </mat-form-field>
+          <div class="send-email__error-message" *ngIf="fg.controls.email.touched && !fg.controls.email.valid">
+            Please enter a valid email.
+          </div>
+        </form>
+        <div class="send-email__btn">
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="onClickSend()"
+            appFormButtonValidation
+            [loading]="isLoading"
+            loadingText="Sending link"
+            class="text-uppercase"
+          >
+            {{ ctaText }}
+          </button>
+        </div>
+      </div>
+      <div class="send-email__form" *ngIf="sendEmailPageState === pageStates.success">
+        <div class="send-email__form__title">{{ successTitle }}</div>
+        <div class="send-email__form__content">
+          {{ successContent }}
+        </div>
+      </div>
+      <div class="send-email__form" *ngIf="sendEmailPageState === pageStates.failure">
+        <div class="send-email__form__title">Request failed</div>
+        <div class="send-email__form__content">Something went wrong. Please send us a note at support@fylehq.com</div>
+      </div>
+    </div>
+    <ion-toolbar class="send-email__footer" mode="md">
+      <ion-button fill="clear" expand="full" [routerLink]="['/', 'auth', 'sign_in']"> Back to Sign in </ion-button>
+    </ion-toolbar>
+  </div>
+</ion-content>

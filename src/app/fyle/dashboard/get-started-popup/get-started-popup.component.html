@@ -1,16 +1,16 @@
 <div class="get-started-popup--container" *ngIf="gettingStartedImagesAndInfos$ | async as gettingStartedImagesAndInfos">
-  <ion-slides [pager]="true">
-    <ion-slide *ngFor="let gettingStartedImagesAndInfo of gettingStartedImagesAndInfos">
+  <swiper #swiper class="get-started-popup--swiper" [pagination]="true">
+    <ng-template *ngFor="let gettingStartedImagesAndInfo of gettingStartedImagesAndInfos" swiperSlide>
       <div>
         <div class="banner-image">
           <img [src]="gettingStartedImagesAndInfo.src" class="get-started-popup--image" />
         </div>
         <div>
-          <div class="get-started-popup--heading">{{ gettingStartedImagesAndInfo.heading }}</div>
-          <div class="get-started-popup--info">{{ gettingStartedImagesAndInfo.info }}</div>
+          <div class="get-started-popup--heading text-center">{{ gettingStartedImagesAndInfo.heading }}</div>
+          <div class="get-started-popup--info text-center">{{ gettingStartedImagesAndInfo.info }}</div>
           <button class="get-started-popup--button" (click)="close()">LET'S DO THIS!</button>
         </div>
       </div>
-    </ion-slide>
-  </ion-slides>
+    </ng-template>
+  </swiper>
 </div>
