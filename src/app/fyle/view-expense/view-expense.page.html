@@ -65,13 +65,24 @@
         <div *ngIf="isProjectShown" class="view-expense--card-container__project">
           {{ projectFieldName | titlecase }}: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
         </div>
+        <div *ngIf="isUnifyCcceExpensesSettingsEnabled && isCCCTransaction && cardNumber">
+          Card Number: {{ cardNumber | maskNumber }}
+        </div>
       </div>
       <div class="ion-text-right view-expense--card-container__block">
-        <div>
-          <span>{{ etxnCurrencySymbol }}</span>
+        <div class="view-expense--card-container__amount-section">
+          <span class="view-expense--card-container__currency">{{ etxnCurrencySymbol }}</span>
           <span class="view-expense--card-container__amount">
             {{ etxn.tx_amount | humanizeCurrency: etxn.tx_currency:2:true }}
           </span>
+          <div *ngIf="isUnifyCcceExpensesSettingsEnabled && isCCCTransaction">
+            <div
+              class="view-expense--card-container__txn-type"
+              [ngClass]="{'view-expense--card-container__credit': etxn.tx_amount < 0}"
+            >
+              {{ etxn.tx_amount > 0 ? 'DR' : 'CR' }}
+            </div>
+          </div>
           <ion-icon
             class="view-expense--card-container__icon"
             [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"

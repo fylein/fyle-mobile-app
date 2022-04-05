@@ -35,9 +35,7 @@
           </span>
           <span *ngIf="estatus.st.category === 'Card Transaction Matched'">Card Transaction Details: </span>
           <span
-            *ngIf="
-              estatus.st.category === 'Expense automatically merged' || estatus.st.category === 'Expense merged'
-            "
+            *ngIf="estatus.st.category === 'Expense automatically merged' || estatus.st.category === 'Expense merged'"
             >Details of the merged expense:
           </span>
           <ul class="audit-history--diff-list">

@@ -334,6 +334,10 @@ textarea:focus {
   font-size: 12px;
 }
 
+.text-left {
+  text-align: left !important;
+}
+
 .text-right {
   text-align: right !important;
 }
@@ -931,11 +935,20 @@ ref - https://stackoverflow.com/a/31162426
 
 .delete-dialog {
   --width: 296px;
-  --max-height: 266px;
+  --max-height: 326px;
   .popover-content {
     border-radius: 16px;
   }
   background: rgba(0, 0, 0, 0.6);
+}
+
+.fy-delete-dialog--body ul {
+  padding: 0 0 0 14px;
+  margin: 0;
+}
+
+.fy-delete-dialog--body p.confirmation-message {
+  margin-top: 8px;
 }
 
 .route-visualizer--map {
@@ -1097,6 +1110,42 @@ ion-modal.auto-height {
   opacity: 0.3;
 }
 
+.spent-cards {
+  .swiper-slide-active {
+    margin-left: -20px !important;
+  }
+}
+
+.spent-cards.swiper-pagination-bullet {
+  width: 6px !important;
+  height: 6px !important;
+  background: $pure-white !important;
+  border: 1px solid $black !important;
+  box-sizing: border-box !important;
+  opacity: 0.3;
+}
+
+.spent-cards.swiper-pagination-bullet-active {
+  width: 16px !important;
+  height: 6px !important;
+  background: $black !important;
+  border-radius: 4px !important;
+  opacity: 0.3;
+}
+
+.spent-cards--swiper .swiper-pagination {
+  position: absolute;
+  text-align: center;
+  transition: 300ms opacity;
+  z-index: 10;
+  top: 0%;
+  margin-left: 40%;
+}
+
+.spent-cards--swiper .swiper-wrapper {
+  margin-top: 6%;
+}
+
 .ios .fy-footer--icon-pill {
   margin-left: 7px !important;
 }
@@ -1245,4 +1294,8 @@ ion-toggle.toggle-checked::before {
       margin-bottom: 0;
     }
   }
+}
+
+.get-started-popup--swiper .swiper-pagination {
+  top: 50%;
 }
