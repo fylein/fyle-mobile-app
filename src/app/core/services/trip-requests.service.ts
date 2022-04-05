@@ -525,20 +525,19 @@ export class TripRequestsService {
   getTripDeprecationMsg(view: 'individual' | 'team') {
     return this.doesOrgHaveExtension().pipe(
       map((doesOrgHaveExtension) => {
-        const lastTripCreationDate = 'Mar 31';
-        let lastApprovalSendBackDate = 'Apr 30';
-        let msg = `We are removing Trips from our app. You won't be able to create new trip requests after ${lastTripCreationDate}, 2022.`;
-
-        if (!doesOrgHaveExtension) {
-          lastApprovalSendBackDate = 'Feb 28';
+        let msg = '';
+        if (doesOrgHaveExtension) {
           msg = `We are removing Trips from our app. You won't be able to create new trip requests going forward.`;
+          if (view === 'team') {
+            msg = msg.replace('You', 'Users');
+            msg += ` You cannot approve or send back trip requests after Apr 30, 2022.`;
+          }
+        } else {
+          msg = `We have removed Trips from our app. You won't be able to create or edit trip requests. However, you can view the existing trip requests.`;
+          if (view === 'team') {
+            msg = `We have removed Trips from our app. Users won't be able to create or edit trip requests. You won't be able to take any action on trip requests going forward. However, you can view the existing trip requests of the users.`;
+          }
         }
-
-        if (view === 'team') {
-          msg = msg.replace('You', 'Users');
-          msg += ` You cannot approve or send back trip requests after ${lastApprovalSendBackDate}, 2022.`;
-        }
-
         return msg;
       })
     );

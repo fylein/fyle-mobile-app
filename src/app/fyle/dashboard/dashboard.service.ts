@@ -6,6 +6,7 @@ import { TransactionService } from '../../core/services/transaction.service';
 import { Observable } from 'rxjs';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
+import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 
 @Injectable()
 export class DashboardService {
@@ -25,15 +26,38 @@ export class DashboardService {
       })
       .pipe(
         map((rawStatsResponse) => {
-          const countAggregate = rawStatsResponse[0].aggregates.find(
+          const countAggregate = rawStatsResponse[0]?.aggregates?.find(
             (aggregate) => aggregate.function_name === 'count(tx_id)'
           );
-          const amountAggregate = rawStatsResponse[0].aggregates.find(
+          const amountAggregate = rawStatsResponse[0]?.aggregates?.find(
             (aggregate) => aggregate.function_name === 'sum(tx_amount)'
           );
           return {
-            totalCount: countAggregate && countAggregate.function_value,
-            totalAmount: amountAggregate && amountAggregate.function_value,
+            count: countAggregate && countAggregate.function_value,
+            sum: amountAggregate && amountAggregate.function_value,
+          };
+        })
+      );
+  }
+
+  getIncompleteExpensesStats() {
+    return this.transactionService
+      .getTransactionStats('count(tx_id),sum(tx_amount)', {
+        scalar: true,
+        tx_state: 'in.(DRAFT)',
+        tx_report_id: 'is.null',
+      })
+      .pipe(
+        map((rawStatsResponse) => {
+          const countAggregate = rawStatsResponse[0]?.aggregates?.find(
+            (aggregate) => aggregate.function_name === 'count(tx_id)'
+          );
+          const amountAggregate = rawStatsResponse[0]?.aggregates?.find(
+            (aggregate) => aggregate.function_name === 'sum(tx_amount)'
+          );
+          return {
+            count: countAggregate && countAggregate.function_value,
+            sum: amountAggregate && amountAggregate.function_value,
           };
         })
       );
@@ -88,7 +112,15 @@ export class DashboardService {
     };
   }
 
-  getCCCDetails(): Observable<BankAccountsAssigned[]> {
+  getExpenseDetailsInCards(uniqueCards: { cardNumber: string; cardName: string }, statsResponse: CardAggregateStat[]) {
+    return this.corporateCreditCardExpenseService.getExpenseDetailsInCards(uniqueCards, statsResponse);
+  }
+
+  getCCCDetails(): Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }> {
     return this.corporateCreditCardExpenseService.getAssignedCards();
+  }
+
+  getNonUnifyCCCDetails(): Observable<BankAccountsAssigned[]> {
+    return this.corporateCreditCardExpenseService.getNonUnifyCCCAssignedCards();
   }
 }

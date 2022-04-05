@@ -1,0 +1,63 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
+    <ion-title mode="md" class="page-title"> Potential Duplicates </ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div class="potential-duplicates--body">
+    <div class="potential-duplicates--navigation">
+      <div class="potential-duplicates--navigation-button text-center">
+        <span *ngIf="selectedSet !== 0" (click)="prev()"> Prev </span>
+      </div>
+      <div class="potential-duplicates--navigation-count">{{selectedSet + 1}} of {{duplicateSetData?.length}}</div>
+      <div class="potential-duplicates--navigation-button text-center">
+        <span *ngIf="selectedSet+1 !== duplicateSetData?.length" (click)="next()"> Next </span>
+      </div>
+    </div>
+
+    <div class="potential-duplicates--container" *ngIf="!isLoading">
+      <ng-container *ngFor="let duplicatesSet of duplicateExpenses; let setIndex=index">
+        <div *ngIf="setIndex === selectedSet" class="potential-duplicates--header text-center">
+          {{duplicatesSet?.length}} expenses for {{ 0 | currency: duplicatesSet[0].tx_currency:'symbol-narrow' | slice:
+          0:1 }} {{ duplicatesSet[0].tx_amount | number : '1.2-2'}}
+        </div>
+        <ng-container *ngFor="let expense of duplicatesSet as list; let i = index;">
+          <ng-container *ngIf="setIndex === selectedSet">
+            <app-expense-card
+              [showDt]="false"
+              [isFromPotentialDuplicates]="true"
+              [expense]="expense"
+              [isDismissable]="duplicatesSet?.length > 2"
+              (dismissed)="dismiss($event)"
+              (goToTransaction)="goToTransaction($event)"
+            >
+            </app-expense-card>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </div>
+
+    <div class="potential-duplicates--container" *ngIf="isLoading">
+      <div class="potential-duplicates--shimmers-title text-center">
+        <ion-skeleton-text animated></ion-skeleton-text>
+      </div>
+      <div class="potential-duplicates--shimmers">
+        <app-fy-loading-screen></app-fy-loading-screen>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer class="potential-duplicates--footer-container">
+  <ion-toolbar mode="md">
+    <div class="potential-duplicates--footer-toolbar">
+      <ion-buttons>
+        <ion-button (click)="dismissAll()" class="btn-secondary"> Dismiss All </ion-button>
+        <ion-button (click)="mergeExpense()" class="btn-primary"> Merge </ion-button>
+      </ion-buttons>
+    </div>
+  </ion-toolbar>
+</ion-footer>

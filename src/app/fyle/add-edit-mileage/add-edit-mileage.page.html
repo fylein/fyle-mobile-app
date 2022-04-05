@@ -170,9 +170,7 @@
                   <ng-container *ngIf="txnFields$|async as txnFields">
                     <div
                       *ngIf="txnFields?.txn_dt"
-                      class="
-                        add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin
-                      "
+                      class="add-edit-mileage--date add-edit-mileage--internal-block add-edit-mileage--internal-block__margin"
                       [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                     >
                       <div class="add-edit-mileage--date-label">
@@ -271,7 +269,8 @@
                         <app-fy-select-project
                           [cacheName]="'mileageProjectCache'"
                           [categoryIds]="projectCategoryIds"
-                          [label]="'Project'"
+                          [label]="txnFields.project_id?.field_name"
+                          [placeholder]="txnFields.project_id?.placeholder"
                           [mandatory]="txnFields.project_id?.is_mandatory"
                           [defaultValue]="true"
                           [recentlyUsed]="recentProjects"
@@ -490,19 +489,12 @@
               <ng-container *ngIf="reports$|async as reports">
                 <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
                   <ng-container>
-                    <div class="add-edit-mileage--internal-block add-edit-mileage--report-section">
+                    <div class="add-edit-mileage--internal-block">
                       <app-fy-add-to-report
                         [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                         [options]="reports"
                         formControlName="report"
-                        [mandatory]="isReportMandatory"
                       ></app-fy-add-to-report>
-                      <div
-                        *ngIf="isReportMandatory && fg.controls.report.touched && !fg.controls.report.valid"
-                        class="add-edit-mileage--error add-edit-mileage--report-error"
-                      >
-                        Please select a report.
-                      </div>
                     </div>
                   </ng-container>
                 </ng-container>

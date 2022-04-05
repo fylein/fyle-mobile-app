@@ -3,5 +3,7 @@ export interface TaskFilters {
   draftReports: boolean;
   draftExpenses: boolean;
   unreportedExpenses: boolean;
+  potentialDuplicates: boolean;
   teamReports: boolean;
+  sentBackAdvances: boolean;
 }

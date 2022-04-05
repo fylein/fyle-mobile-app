@@ -7,6 +7,10 @@
 
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+
+    &__title {
+      padding-right: 60px;
+    }
   }
 
   &--header-btn-container {
@@ -183,7 +187,7 @@
   &--amount-error {
     color: $red;
     font-size: 12px;
-    margin: -8px 0 0 44%;
+    margin: -8px 0 0 52%;
   }
 
   &--primary-cta {

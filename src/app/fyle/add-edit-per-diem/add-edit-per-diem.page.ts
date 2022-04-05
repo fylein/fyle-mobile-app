@@ -188,10 +188,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   canDeleteExpense = true;
 
-  isReportMandatory = false;
-
-  saveWithCriticalPolicyViolation = false;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -227,18 +223,18 @@ export class AddEditPerDiemPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  ngOnInit() {
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
-  }
-
   get minPerDiemDate() {
     return this.fg.controls.from_dt.value && moment(this.fg.controls.from_dt.value).subtract(1, 'day').format('y-MM-D');
   }
 
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
+  }
+
+  ngOnInit() {
+    if (this.activatedRoute.snapshot.params.remove_from_report) {
+      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    }
   }
 
   async showClosePopup() {
@@ -863,18 +859,7 @@ export class AddEditPerDiemPage implements OnInit {
       this.mode = 'edit';
     }
 
-    this.setupNetworkWatcher();
-
     this.isExpandedView = this.mode !== 'add';
-
-    if (this.mode === 'add') {
-      this.isConnected$.pipe(take(1)).subscribe((isConnected) => {
-        if (isConnected) {
-          this.fg.controls.report.setValidators(Validators.required);
-          this.isReportMandatory = true;
-        }
-      });
-    }
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const perDiemRates$ = this.offlineService.getPerDiemRates();
@@ -891,6 +876,8 @@ export class AddEditPerDiemPage implements OnInit {
     this.individualPerDiemRatesEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.per_diem.enable_individual_per_diem_rates)
     );
+
+    this.setupNetworkWatcher();
 
     this.recentlyUsedValues$ = this.isConnected$.pipe(
       take(1),
@@ -1550,7 +1537,22 @@ export class AddEditPerDiemPage implements OnInit {
         }
       })
     );
+
+    document.addEventListener('keydown', this.scrollInputIntoView);
   }
+
+  ionViewWillLeave() {
+    document.removeEventListener('keydown', this.scrollInputIntoView);
+  }
+
+  scrollInputIntoView = () => {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  };
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
     return forkJoin({
@@ -1669,9 +1671,6 @@ export class AddEditPerDiemPage implements OnInit {
     await fyCriticalPolicyViolationPopOver.present();
 
     const { data } = await fyCriticalPolicyViolationPopOver.onWillDismiss();
-    if (data) {
-      this.saveWithCriticalPolicyViolation = true;
-    }
     return !!data;
   }
 
@@ -1812,15 +1811,12 @@ export class AddEditPerDiemPage implements OnInit {
             }
 
             let reportId;
-            if (!this.saveWithCriticalPolicyViolation) {
-              if (
-                this.fg.value.report &&
-                (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
-              ) {
-                reportId = this.fg.value.report.rp.id;
-              }
+            if (
+              this.fg.value.report &&
+              (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
+            ) {
+              reportId = this.fg.value.report.rp.id;
             }
-
             let entry;
             if (this.fg.value.add_to_new_report) {
               entry = {
@@ -1985,7 +1981,7 @@ export class AddEditPerDiemPage implements OnInit {
               switchMap((tx) => {
                 const selectedReportId = this.fg.value.report && this.fg.value.report.rp && this.fg.value.report.rp.id;
                 const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-                if (!this.saveWithCriticalPolicyViolation && !criticalPolicyViolated) {
+                if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
@@ -2089,19 +2085,9 @@ export class AddEditPerDiemPage implements OnInit {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
             that.addExpense('SAVE_PER_DIEM').subscribe((res: any) => {
-              if (
-                !this.saveWithCriticalPolicyViolation &&
-                that.fg.controls.add_to_new_report.value &&
-                res &&
-                res.transaction
-              ) {
+              if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
                 this.addToNewReport(res.transaction.id);
-              } else if (
-                !this.saveWithCriticalPolicyViolation &&
-                that.fg.value.report &&
-                that.fg.value.report.rp &&
-                that.fg.value.report.rp.id
-              ) {
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
                 that.goBack();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
@@ -2110,14 +2096,9 @@ export class AddEditPerDiemPage implements OnInit {
             });
           } else {
             that.editExpense('SAVE_PER_DIEM').subscribe((res) => {
-              if (!this.saveWithCriticalPolicyViolation && that.fg.controls.add_to_new_report.value && res && res.id) {
+              if (that.fg.controls.add_to_new_report.value && res && res.id) {
                 this.addToNewReport(res.id);
-              } else if (
-                !this.saveWithCriticalPolicyViolation &&
-                that.fg.value.report &&
-                that.fg.value.report.rp &&
-                that.fg.value.report.rp.id
-              ) {
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
                 that.goBack();
                 this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
@@ -2149,13 +2130,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   async reloadCurrentRoute() {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
-    await this.router.navigate([
-      '/',
-      'enterprise',
-      'add_edit_per_diem',
-      ,
-      { rp_id: this.fg.controls.report.value.rp.id },
-    ]);
+    await this.router.navigate(['/', 'enterprise', 'add_edit_per_diem']);
   }
 
   saveAndNewExpense() {
@@ -2273,18 +2248,6 @@ export class AddEditPerDiemPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  // getFormValidationErrors() {
-  //   Object.keys(this.fg.controls).forEach(key => {
-
-  //     const controlErrors: ValidationErrors = this.fg.get(key).errors;
-  //     if (controlErrors != null) {
-  //       Object.keys(controlErrors).forEach(keyError => {
-  //         console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-  //       });
-  //     }
-  //   });
-  // }
-
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
     const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
@@ -2345,17 +2308,6 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     }
-  }
-
-  getFormValidationErrors() {
-    Object.keys(this.fg.controls).forEach((key) => {
-      const controlErrors: ValidationErrors = this.fg.get(key).errors;
-      if (controlErrors != null) {
-        Object.keys(controlErrors).forEach((keyError) => {
-          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-        });
-      }
-    });
   }
 
   async openCommentsModal() {

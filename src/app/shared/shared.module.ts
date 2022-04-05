@@ -115,7 +115,11 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
-
+import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.component';
+import { FySummaryTileComponent } from './components/summary-tile/summary-tile.component';
+import { SpentCardsComponent } from './components/spent-cards/spent-cards.component';
+import { CardDetailComponent } from './components/spent-cards/card-detail/card-detail.component';
+import { MaskNumber } from './pipes/mask-number.pipe';
 @NgModule({
   declarations: [
     AdvanceState,
@@ -209,6 +213,11 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
     AddMorePopupComponent,
     CropReceiptComponent,
     FyNumberComponent,
+    FyStatisticComponent,
+    FySummaryTileComponent,
+    SpentCardsComponent,
+    CardDetailComponent,
+    MaskNumber,
   ],
   imports: [
     CommonModule,
@@ -308,6 +317,11 @@ import { FyNumberComponent } from './components/fy-number/fy-number.component';
     AddMorePopupComponent,
     CropReceiptComponent,
     FyNumberComponent,
+    FyStatisticComponent,
+    FySummaryTileComponent,
+    SpentCardsComponent,
+    CardDetailComponent,
+    MaskNumber,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })

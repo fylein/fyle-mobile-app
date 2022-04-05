@@ -64,7 +64,8 @@
           {{extendedPerDiem.tx_num_days}} {{extendedPerDiem.tx_num_days === 1 ? 'Day' : 'Days'}}
         </div>
         <div *ngIf="isProjectShown" class="view-per-diem--card-container__project">
-          Project: {{ extendedPerDiem.tx_project_name ? extendedPerDiem.tx_project_name : 'Unspecified' }}
+          {{ projectFieldName | titlecase }} : {{ extendedPerDiem.tx_project_name ? extendedPerDiem.tx_project_name :
+          'Unspecified' }}
         </div>
       </div>
       <div class="ion-text-right view-per-diem--card-container__block">
