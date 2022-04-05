@@ -96,13 +96,11 @@ export class ViewExpensePage implements OnInit {
 
   projectFieldName: string;
 
-
   isLoading = true;
 
   isUnifyCcceExpensesSettingsEnabled: boolean;
 
   cardNumber: string;
-
 
   get ExpenseView() {
     return ExpenseView;
