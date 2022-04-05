@@ -1,6 +1,5 @@
 @import '../../../../theme/colors.scss';
 
-$divider-height: 1px;
 $divider-padding-block: 30px; //block = top + bottom
 $divider-padding-inline: 16px; //inline = left + right
 
@@ -14,17 +13,11 @@ $shimmer-height: 12px;
 $shimmer-width-big: 115px;
 $shimmer-width-small: 85px;
 
-$card-background: linear-gradient(97.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
-$card-border-radius: 16px;
-$card-margin: 16px;
-$card-padding-block: 26px;
-$card-padding-inline: 12px;
-
 .skeleton-card {
-  background: $card-background;
-  border-radius: $card-border-radius;
-  margin: $card-margin;
-  padding: $card-padding-block $card-padding-inline;
+  background: linear-gradient(97.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
+  border-radius: 16px;
+  margin: 16px;
+  padding: 26px 12px;
 
   &__content-container {
     display: flex;
@@ -81,6 +74,6 @@ $card-padding-inline: 12px;
 
 .skeleton-divider {
   background-color: $grey-lighter;
-  height: $divider-height;
+  height: 1px;
   margin: calc(#{$divider-padding-block} - #{$row-padding-block}) $divider-padding-inline $divider-padding-block;
 }
