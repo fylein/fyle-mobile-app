@@ -504,6 +504,7 @@ export class TasksComponent implements OnInit {
   }
 
   onPotentialDuplicatesTaskClick(taskCta: TaskCta, task: DashboardTask) {
+    this.trackingService.duplicateTaskClicked();
     this.router.navigate(['/', 'enterprise', 'potential-duplicates']);
   }
 

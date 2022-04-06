@@ -16,6 +16,7 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 type Option = Partial<{
   label: string;
@@ -151,7 +152,8 @@ export class MergeExpensePage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private mergeExpensesService: MergeExpensesService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit() {
@@ -480,6 +482,7 @@ export class MergeExpensePage implements OnInit {
         .pipe(
           finalize(() => {
             this.isMerging = false;
+            this.trackingService.expensesMerged();
             this.showMergedSuccessToast();
             this.goBack();
           })
