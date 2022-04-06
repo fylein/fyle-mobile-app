@@ -12,7 +12,7 @@ import {
   tap,
 } from 'rxjs/operators';
 import { isEqual, cloneDeep, startsWith } from 'lodash';
-import { Employee } from 'src/app/core/models/employee.model';
+import { SpenderEmployee } from 'src/app/core/models/spender-employee.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -27,7 +27,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   @Input() currentSelections: any[] = [];
 
-  @Input() filteredOptions$: Observable<Employee[]>;
+  @Input() filteredOptions$: Observable<SpenderEmployee[]>;
 
   @Input() placeholder;
 
@@ -35,7 +35,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   value;
 
-  eouc$: Observable<Employee[]>;
+  eouc$: Observable<SpenderEmployee[]>;
 
   options: { label: string; value: any; selected?: boolean }[] = [];
 
@@ -43,9 +43,9 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   intialSelectedEmployees: any[] = [];
 
-  userListCopy$: Observable<Employee[]>;
+  userListCopy$: Observable<SpenderEmployee[]>;
 
-  newlyAddedItems$: Observable<Partial<Employee>[]>;
+  newlyAddedItems$: Observable<Partial<SpenderEmployee>[]>;
 
   invalidEmail = false;
 
@@ -185,7 +185,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  filterSearchedEmployees(searchedEmployees: Employee[], employees: Employee[]) {
+  filterSearchedEmployees(searchedEmployees: SpenderEmployee[], employees: SpenderEmployee[]) {
     searchedEmployees = searchedEmployees.filter(
       (searchedEmployee) => !employees.find((employee) => employee.us_email === searchedEmployee.us_email)
     );
@@ -208,7 +208,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
     // create a temp list of type Partial<Employee>[] and
     /// push items in currentSelectionsCopy as partial employee objects and setting the is_selected to true
-    const newEmpList: Partial<Employee>[] = [];
+    const newEmpList: Partial<SpenderEmployee>[] = [];
     this.currentSelectionsCopy.forEach((item) => {
       newEmpList.push({ us_email: item, is_selected: true });
     });
@@ -220,7 +220,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     return from(this.filteredOptions$).pipe(
       switchMap((filteredOptions) =>
         this.getNewlyAddedUsers(filteredOptions).pipe(
-          map((newlyAddedItems: Partial<Employee>[]) => {
+          map((newlyAddedItems: Partial<SpenderEmployee>[]) => {
             if (searchText && searchText.length > 0) {
               const searchTextLowerCase = searchText.toLowerCase();
               const newItem = {
@@ -270,7 +270,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onSelect(selectedOption: Partial<Employee>, event: { checked: boolean }) {
+  onSelect(selectedOption: Partial<SpenderEmployee>, event: { checked: boolean }) {
     if (event.checked) {
       this.currentSelections.push(selectedOption.us_email);
     } else {

@@ -12,7 +12,7 @@ import { StorageService } from './storage.service';
 import { Cacheable, globalCacheBusterNotifier, CacheBuster } from 'ts-cacheable';
 import { TrackingService } from './tracking.service';
 import { ApiV2Service } from './api-v2.service';
-import { Employee } from '../models/employee.model';
+import { SpenderEmployee } from '../models/spender-employee.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -42,12 +42,12 @@ export class OrgUserService {
   })
   getEmployeesByParams(params): Observable<{
     count: number;
-    data: Employee[];
+    data: SpenderEmployee[];
     limit: number;
     offset: number;
     url: string;
   }> {
-    return this.apiV2Service.get('/employees', { params });
+    return this.apiV2Service.get('/spender_employees', { params });
   }
 
   @CacheBuster({
@@ -76,18 +76,18 @@ export class OrgUserService {
     );
   }
 
-  getEmployees(params): Observable<Employee[]> {
+  getEmployees(params): Observable<SpenderEmployee[]> {
     return this.getEmployeesByParams({ ...params, limit: 1 }).pipe(
       switchMap((res) => {
         const count = res.count > 200 ? res.count / 200 : 1;
         return range(0, count);
       }),
       concatMap((page) => this.getEmployeesByParams({ ...params, offset: 200 * page, limit: 200 })),
-      reduce((acc, curr) => acc.concat(curr.data), [] as Employee[])
+      reduce((acc, curr) => acc.concat(curr.data), [] as SpenderEmployee[])
     );
   }
 
-  getEmployeesBySearch(params): Observable<Employee[]> {
+  getEmployeesBySearch(params): Observable<SpenderEmployee[]> {
     if (params.or) {
       params.and = `(or${params.or},or(ou_status.like.*"ACTIVE",ou_status.like.*"PENDING_DETAILS"))`;
     } else {
