@@ -4,7 +4,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { switchMap, map, finalize, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import { SpenderEmployee } from 'src/app/core/models/spender-employee.model';
+import { Employee } from 'src/app/core/models/spender/employee.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 
@@ -35,7 +35,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   approverList$: Observable<any>;
 
-  searchedApprovers$: Observable<SpenderEmployee[]>;
+  searchedApprovers$: Observable<Employee[]>;
 
   selectedApproversList: Approver[] = [];
 
@@ -98,7 +98,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     this.modalController.dismiss({ selectedApproversList: this.selectedApproversList });
   }
 
-  onSelectApprover(approver: SpenderEmployee, event: { checked: boolean }) {
+  onSelectApprover(approver: Employee, event: { checked: boolean }) {
     if (event.checked) {
       this.selectedApproversList.push({ name: approver.us_full_name, email: approver.us_email });
     } else {
@@ -182,7 +182,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
     }
   }
 
-  getSearchedEmployees(searchedEmployees: SpenderEmployee[], employees: SpenderEmployee[]) {
+  getSearchedEmployees(searchedEmployees: Employee[], employees: Employee[]) {
     searchedEmployees = searchedEmployees.filter(
       (searchedEmployee) => !employees.find((employee) => employee.us_email === searchedEmployee.us_email)
     );

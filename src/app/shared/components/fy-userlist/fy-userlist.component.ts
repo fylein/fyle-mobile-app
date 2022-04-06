@@ -4,7 +4,7 @@ import { noop, Observable } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { FyUserlistModalComponent } from './fy-userlist-modal/fy-userlist-modal.component';
-import { SpenderEmployee } from 'src/app/core/models/spender-employee.model';
+import { Employee } from 'src/app/core/models/spender/employee.model';
 import { cloneDeep } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
@@ -31,7 +31,7 @@ export class FyUserlistComponent implements OnInit {
 
   @Input() allowCustomValues: boolean;
 
-  eouc$: Observable<SpenderEmployee[]>;
+  eouc$: Observable<Employee[]>;
 
   displayValue;
 
