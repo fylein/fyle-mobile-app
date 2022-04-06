@@ -22,9 +22,11 @@
         </ion-col>
         <ion-col size="4">
           <div class="text-right">
-            <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
+            <span class="reports-card--currency">
+              <ng-container *ngIf="erpt.rp_amount < 0"> - </ng-container> {{ reportCurrencySymbol }}</span
+            >
             <span class="reports-card--amount">
-              {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:2:true }}
+              {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:2:true:true }}
             </span>
           </div>
         </ion-col>

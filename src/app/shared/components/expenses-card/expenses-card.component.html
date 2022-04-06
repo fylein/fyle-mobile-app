@@ -208,9 +208,12 @@
           <div class="d-flex">
             <div>
               <div class="expenses-card--currency-amount-container ion-text-right">
-                <span class="expenses-card--currency"> {{ expense.tx_currency || homeCurrencySymbol }} </span>
+                <span class="expenses-card--currency">
+                  <ng-container *ngIf="expense.tx_amount < 0"> - </ng-container>
+                  {{ expense.tx_currency || homeCurrencySymbol }}
+                </span>
                 <span class="expenses-card--amount">{{
-                  expense.tx_amount | humanizeCurrency: expense.tx_currency || homeCurrencySymbol:2:true
+                  expense.tx_amount | humanizeCurrency: expense.tx_currency || homeCurrencySymbol:2:true:true
                 }}</span>
                 <mat-icon
                   *ngIf="!isUnifyCcceExpensesSettings"

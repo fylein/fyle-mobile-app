@@ -3,7 +3,7 @@
 </div>
 <div
   class="reports-card"
-  [ngClass]="{'reports-card__with-border': !showDate}"
+  [ngClass]="{ 'reports-card__with-border': !showDate }"
   (click)="onGoToReport()"
   *ngIf="!actionOpened"
   matRipple
@@ -12,15 +12,17 @@
   <div class="reports-card--main-info">
     <div class="reports-card--purpose-amount-block">
       <div class="reports-card--purpose">
-        <span>{{ erpt.rp_purpose | ellipsis: 40}}</span>
+        <span>{{ erpt.rp_purpose | ellipsis: 40 }}</span>
         <span *ngIf="erpt.rp_manual_flag || erpt.rp_policy_flag">
           <mat-icon class="reports-card--icon-policy-violation" svgIcon="error-filled"></mat-icon>
         </span>
       </div>
       <div class="reports-card--amount-block">
-        <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
+        <span class="reports-card--currency">
+          <ng-container *ngIf="erpt.rp_amount < 0"> - </ng-container>{{ reportCurrencySymbol }}</span
+        >
         <span class="reports-card--amount">
-          {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:2:true }}
+          {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:2:true:true }}
         </span>
       </div>
     </div>
