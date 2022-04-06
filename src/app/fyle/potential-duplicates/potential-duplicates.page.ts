@@ -111,9 +111,7 @@ export class PotentialDuplicatesPage implements OnInit {
   dismissAll() {
     const txnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
     this.handleDuplicates.dismissAll(txnIds, txnIds).subscribe(() => {
-      if (this.selectedSet === 0) {
-        this.selectedSet = 1;
-      } else {
+      if (this.selectedSet !== 0) {
         this.selectedSet--;
       }
       this.showDismissedSuccessToast();
