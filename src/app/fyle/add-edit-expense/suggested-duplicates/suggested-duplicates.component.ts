@@ -44,9 +44,15 @@ export class SuggestedDuplicatesComponent implements OnInit {
     };
     this.transaction.getETxnc({ offset: 0, limit: 10, params }).subscribe((selectedExpenses) => {
       this.modalController.dismiss();
-      this.router.navigate(['/', 'enterprise', 'merge_expense'], {
-        state: { selectedElements: selectedExpenses, from: 'EDIT_EXPENSE' },
-      });
+      this.router.navigate([
+        '/',
+        'enterprise',
+        'merge_expense',
+        {
+          selectedElements: JSON.stringify(selectedExpenses),
+          from: 'EDIT_EXPENSE',
+        },
+      ]);
     });
   }
 
