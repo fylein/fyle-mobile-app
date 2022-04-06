@@ -17,6 +17,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { StorageService } from '../../core/services/storage.service';
 import { NgModel } from '@angular/forms';
 import { getCurrencySymbol } from '@angular/common';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 @Component({
   selector: 'app-my-create-report',
@@ -74,7 +75,8 @@ export class MyCreateReportPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private tripRequestsService: TripRequestsService,
     private trackingService: TrackingService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private refinerService: RefinerService
   ) {}
 
   cancel() {
@@ -162,6 +164,8 @@ export class MyCreateReportPage implements OnInit {
           finalize(() => {
             this.saveReportLoading = false;
             this.router.navigate(['/', 'enterprise', 'my_reports']);
+
+            this.refinerService.startSurvey({ actionName: 'Submit Report' });
           })
         )
         .subscribe(noop);
