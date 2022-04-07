@@ -1,17 +1,6 @@
 @import '../../../../theme/colors.scss';
 
-$divider-padding-block: 30px; //block = top + bottom
-$divider-padding-inline: 16px; //inline = left + right
-
-$row-padding-block: 16px;
-$row-padding-inline: 20px;
-
 $shimmer-border-radius: 4px;
-$shimmer-diameter: 35px;
-$shimmer-gap: 10px;
-$shimmer-height: 12px;
-$shimmer-width-big: 115px;
-$shimmer-width-small: 85px;
 
 .skeleton-card {
   background: linear-gradient(97.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
@@ -26,48 +15,48 @@ $shimmer-width-small: 85px;
     &__header,
     &__sub-header {
       border-radius: $shimmer-border-radius;
-      height: calc(#{$shimmer-height} * 4 / 3);
+      height: 16px;
     }
 
     &__header {
-      margin-bottom: calc(#{$shimmer-gap} / 2);
-      width: calc(#{$shimmer-width-small} * 2);
+      margin-bottom: 5px;
+      width: 170px;
     }
 
     &__sub-header {
-      margin-top: calc(#{$shimmer-gap} / 2);
-      width: calc(#{$shimmer-width-big} * 2);
+      margin-top: 5px;
+      width: 230px;
     }
   }
 }
 
 .skeleton-row {
-  padding: 0 $row-padding-block $row-padding-inline;
+  padding: 0 16px 20px;
 
   &__icon {
     border-radius: 50%;
-    height: $shimmer-diameter;
-    width: $shimmer-diameter;
+    height: 35px;
+    width: 35px;
   }
 
   &__content-container {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    margin-left: $shimmer-gap;
+    margin-left: 10px;
 
     &__header,
     &__sub-header {
       border-radius: $shimmer-border-radius;
-      height: $shimmer-height;
+      height: 12px;
     }
 
     &__header {
-      width: $shimmer-width-small;
+      width: 85px;
     }
 
     &__sub-header {
-      width: $shimmer-width-big;
+      width: 115px;
     }
   }
 }
@@ -75,5 +64,5 @@ $shimmer-width-small: 85px;
 .skeleton-divider {
   background-color: $grey-lighter;
   height: 1px;
-  margin: calc(#{$divider-padding-block} - #{$row-padding-block}) $divider-padding-inline $divider-padding-block;
+  margin: calc(30px - 16px) 16px 30px;
 }
