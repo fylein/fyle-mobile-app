@@ -247,4 +247,3 @@ export class AppComponent implements OnInit {
     this.isSwitchedToDelegator = isSwitchedToDelegator;
   }
 }
-// testing
