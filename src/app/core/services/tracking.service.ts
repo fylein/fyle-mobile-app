@@ -966,4 +966,29 @@ export class TrackingService {
   cropReceipt(properties = {}) {
     this.eventTrack('Receipt Cropped', properties);
   }
+
+  saveReceiptWithInvalidForm(properties = {}) {
+    this.eventTrack('Save receipt with invalid form', properties);
+  }
+
+  // Merge related trackings
+  expensesMerged(properties = {}) {
+    this.eventTrack('Expenses merged successfully', properties);
+  }
+
+  duplicateTaskClicked(properties = {}) {
+    this.eventTrack('potential duplicate task clicked from dashboard', properties);
+  }
+
+  dismissedDuplicateSet(properties = {}) {
+    this.eventTrack('duplicate set dismissed', properties);
+  }
+
+  dismissedIndividualExpenses(properties = {}) {
+    this.eventTrack('individual expense dismissed as not duplicate', properties);
+  }
+
+  visitedMergeExpensesPageFromTask(properties = {}) {
+    this.eventTrack('visited merged expense page from tasks', properties);
+  }
 }

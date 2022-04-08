@@ -9,6 +9,7 @@ import { Params, Router } from '@angular/router';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 type Expenses = Expense[];
 
@@ -35,7 +36,8 @@ export class PotentialDuplicatesPage implements OnInit {
     private transaction: TransactionService,
     private router: Router,
     private snackbarProperties: SnackbarPropertiesService,
-    private matSnackBar: MatSnackBar
+    private matSnackBar: MatSnackBar,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit() {}
@@ -98,6 +100,7 @@ export class PotentialDuplicatesPage implements OnInit {
     const transactionIds = [expense.tx_id];
     const duplicateTxnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
     this.handleDuplicates.dismissAll(duplicateTxnIds, transactionIds).subscribe(() => {
+      this.trackingService.dismissedIndividualExpenses();
       this.showDismissedSuccessToast();
       this.duplicateSetData[this.selectedSet].transaction_ids = this.duplicateSetData[
         this.selectedSet
@@ -111,11 +114,10 @@ export class PotentialDuplicatesPage implements OnInit {
   dismissAll() {
     const txnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
     this.handleDuplicates.dismissAll(txnIds, txnIds).subscribe(() => {
-      if (this.selectedSet === 0) {
-        this.selectedSet = 1;
-      } else {
+      if (this.selectedSet !== 0) {
         this.selectedSet--;
       }
+      this.trackingService.dismissedDuplicateSet();
       this.showDismissedSuccessToast();
       this.loadData$.next();
       this.duplicateSets$.subscribe((duplicateExpenses) => {
@@ -130,6 +132,7 @@ export class PotentialDuplicatesPage implements OnInit {
       tx_id: `in.(${selectedTxnIds.join(',')})`,
     };
     this.transaction.getETxnc({ offset: 0, limit: 10, params }).subscribe((selectedExpenses) => {
+      this.trackingService.visitedMergeExpensesPageFromTask();
       this.router.navigate([
         '/',
         'enterprise',
