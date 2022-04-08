@@ -2087,7 +2087,7 @@ export class AddEditExpensePage implements OnInit {
             taxGroups: this.taxGroups$,
             isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
             individualProjectIds: this.individualProjectIds$,
-            filteredCategories: this.filteredCategories$,
+            filteredCategories: this.filteredCategories$.pipe(take(1)),
           }).pipe(
             map(
               ({
