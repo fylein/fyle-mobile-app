@@ -5,7 +5,6 @@ import { filter, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { ActionSheetController, PopoverController } from '@ionic/angular';
-import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
@@ -78,18 +77,6 @@ export class DashboardPage implements OnInit {
       takeUntil(this.onPageExit$),
       shareReplay(1)
     );
-  }
-
-  async showGetStartedPopup() {
-    const getStartedPopup = await this.popoverController.create({
-      component: GetStartedPopupComponent,
-      cssClass: 'get-started-popup',
-    });
-
-    await getStartedPopup.present();
-    await getStartedPopup.onWillDismiss();
-
-    await this.storageService.set('getStartedPopupShown', true);
   }
 
   ionViewWillEnter() {

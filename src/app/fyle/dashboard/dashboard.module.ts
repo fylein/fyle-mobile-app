@@ -8,7 +8,6 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { DashboardService } from 'src/app/fyle/dashboard/dashboard.service';
 import { MatIconModule } from '@angular/material/icon';
-import { GetStartedPopupComponent } from './get-started-popup/get-started-popup.component';
 import { StatsComponent } from './stats/stats.component';
 import { StatBadgeComponent } from './stat-badge/stat-badge.component';
 import { MatRippleModule } from '@angular/material/core';
@@ -34,14 +33,7 @@ import { SwiperModule } from 'swiper/angular';
     MatSnackBarModule,
     SwiperModule,
   ],
-  declarations: [
-    DashboardPage,
-    GetStartedPopupComponent,
-    StatsComponent,
-    StatBadgeComponent,
-    TasksComponent,
-    TasksCardComponent,
-  ],
+  declarations: [DashboardPage, StatsComponent, StatBadgeComponent, TasksComponent, TasksCardComponent],
   providers: [DashboardService],
 })
 export class DashboardPageModule {}
