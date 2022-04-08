@@ -115,12 +115,6 @@ export class DashboardPage implements OnInit {
      * Heres a guy using it in the ionic forum
      * https://forum.ionicframework.com/t/angular-variable-is-not-updating-when-i-return-to-previous-page/202919
      * */
-    forkJoin({
-      isGetStartedPopupShown: from(this.storageService.get('getStartedPopupShown')),
-      totalCount: this.transactionService.getPaginatedETxncCount(),
-    })
-      .pipe(filter(({ isGetStartedPopupShown, totalCount }) => !isGetStartedPopupShown && totalCount.count === 0))
-      .subscribe((_) => this.showGetStartedPopup());
 
     this.isConnected$
       .pipe(switchMap((isConnected) => (isConnected ? this.tasksService.getTotalTaskCount() : of(0))))
