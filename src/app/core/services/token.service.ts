@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { SecureStorageService } from './secure-storage.service';
 import { UserEventService } from './user-event.service';
+import { PCacheable, PCacheBuster } from 'ts-cacheable';
+import { Subject } from 'rxjs';
 
+const tokenCacheBuster$ = new Subject<void>();
 @Injectable({
   providedIn: 'root',
 })
@@ -14,6 +17,9 @@ export class TokenService {
     });
   }
 
+  @PCacheable({
+    cacheBusterObserver: tokenCacheBuster$,
+  })
   getAccessToken() {
     return this.secureStorageService.get('X-AUTH-TOKEN');
   }
@@ -22,32 +28,38 @@ export class TokenService {
     return this.secureStorageService.get('X-REFRESH-TOKEN');
   }
 
-  setAccessToken(accessToken) {
-    this.userEventService.setToken();
-    return this.secureStorageService.set('X-AUTH-TOKEN', accessToken);
-  }
-
-  setRefreshToken(refreshToken) {
-    return this.secureStorageService.set('X-REFRESH-TOKEN', refreshToken);
-  }
-
-  setClusterDomain(clusterDomain) {
-    return this.secureStorageService.set('CLUSTER-DOMAIN', clusterDomain);
-  }
-
   getClusterDomain() {
     return this.secureStorageService.get('CLUSTER-DOMAIN');
   }
 
+  @PCacheBuster({
+    cacheBusterNotifier: tokenCacheBuster$,
+  })
+  setAccessToken(accessToken: string) {
+    this.userEventService.setToken();
+    return this.secureStorageService.set('X-AUTH-TOKEN', accessToken);
+  }
+
+  setRefreshToken(refreshToken: string) {
+    return this.secureStorageService.set('X-REFRESH-TOKEN', refreshToken);
+  }
+
+  setClusterDomain(clusterDomain: string) {
+    return this.secureStorageService.set('CLUSTER-DOMAIN', clusterDomain);
+  }
+
+  @PCacheBuster({
+    cacheBusterNotifier: tokenCacheBuster$,
+  })
   resetAccessToken() {
     return this.secureStorageService.delete('X-AUTH-TOKEN');
   }
 
-  resetClusterDomain() {
-    return this.secureStorageService.delete('CLUSTER-DOMAIN');
-  }
-
   resetRefreshToken() {
     return this.secureStorageService.delete('X-REFRESH-TOKEN');
+  }
+
+  resetClusterDomain() {
+    return this.secureStorageService.delete('CLUSTER-DOMAIN');
   }
 }
