@@ -2070,7 +2070,6 @@ export class AddEditExpensePage implements OnInit {
             }
           }
         }
-        console.log('check expense field map->', expenseFieldsMap);
         return expenseFieldsMap;
       }),
       shareReplay(1)
@@ -2151,10 +2150,8 @@ export class AddEditExpensePage implements OnInit {
           }
           // setup validations
           for (const txnFieldKey of Object.keys(txnFields)) {
-            console.log('check txnfields 1 ->', txnFieldKey);
             const control = keyToControlMap[txnFieldKey];
             if (txnFields[txnFieldKey].is_mandatory) {
-              console.log('check txnfields 2 -->', txnFields[txnFieldKey].is_mandatory);
               if (txnFieldKey === 'vendor_id') {
                 if (isConnected) {
                   control.setValidators(Validators.compose([Validators.required, this.merchantValidator]));
@@ -2207,7 +2204,6 @@ export class AddEditExpensePage implements OnInit {
                     : Validators.required
                 );
               } else if (txnFieldKey === 'org_category_id') {
-                console.log('check org cat id-->', txnFieldKey, isConnected, filteredCategories, this.fg);
                 control.setValidators(
                   isConnected && filteredCategories && filteredCategories.length > 0 ? Validators.required : null
                 );
