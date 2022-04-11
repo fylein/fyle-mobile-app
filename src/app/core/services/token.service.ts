@@ -24,28 +24,12 @@ export class TokenService {
     return this.secureStorageService.get('X-AUTH-TOKEN');
   }
 
-  getRefreshToken() {
-    return this.secureStorageService.get('X-REFRESH-TOKEN');
-  }
-
-  getClusterDomain() {
-    return this.secureStorageService.get('CLUSTER-DOMAIN');
-  }
-
   @PCacheBuster({
     cacheBusterNotifier: tokenCacheBuster$,
   })
   setAccessToken(accessToken: string) {
     this.userEventService.setToken();
     return this.secureStorageService.set('X-AUTH-TOKEN', accessToken);
-  }
-
-  setRefreshToken(refreshToken: string) {
-    return this.secureStorageService.set('X-REFRESH-TOKEN', refreshToken);
-  }
-
-  setClusterDomain(clusterDomain: string) {
-    return this.secureStorageService.set('CLUSTER-DOMAIN', clusterDomain);
   }
 
   @PCacheBuster({
@@ -55,8 +39,24 @@ export class TokenService {
     return this.secureStorageService.delete('X-AUTH-TOKEN');
   }
 
+  getRefreshToken() {
+    return this.secureStorageService.get('X-REFRESH-TOKEN');
+  }
+
+  setRefreshToken(refreshToken: string) {
+    return this.secureStorageService.set('X-REFRESH-TOKEN', refreshToken);
+  }
+
   resetRefreshToken() {
     return this.secureStorageService.delete('X-REFRESH-TOKEN');
+  }
+
+  getClusterDomain() {
+    return this.secureStorageService.get('CLUSTER-DOMAIN');
+  }
+
+  setClusterDomain(clusterDomain: string) {
+    return this.secureStorageService.set('CLUSTER-DOMAIN', clusterDomain);
   }
 
   resetClusterDomain() {
