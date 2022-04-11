@@ -34,7 +34,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { TripRequestPolicyService } from 'src/app/core/services/trip-request-policy.service';
 import { StatusService } from '../../core/services/status.service';
-import { Employee } from 'src/app/core/models/employee.model';
+import { Employee } from 'src/app/core/models/spender/employee.model';
 
 @Component({
   selector: 'app-my-add-edit-trip',

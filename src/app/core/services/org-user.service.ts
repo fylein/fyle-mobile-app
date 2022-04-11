@@ -11,7 +11,7 @@ import { DataTransformService } from './data-transform.service';
 import { Cacheable, globalCacheBusterNotifier, CacheBuster } from 'ts-cacheable';
 import { TrackingService } from './tracking.service';
 import { ApiV2Service } from './api-v2.service';
-import { Employee } from '../models/employee.model';
+import { Employee } from '../models/spender/employee.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -45,7 +45,7 @@ export class OrgUserService {
     offset: number;
     url: string;
   }> {
-    return this.apiV2Service.get('/employees', { params });
+    return this.apiV2Service.get('/spender_employees', { params });
   }
 
   @CacheBuster({

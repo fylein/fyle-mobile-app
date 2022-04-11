@@ -68,3 +68,12 @@
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>
+
+<ion-footer>
+  <app-fy-footer
+    (homeClicked)="onHomeClicked()"
+    (taskClicked)="onTaskClicked()"
+    (cameraClicked)="onCameraClicked()"
+    [taskCount]="totalTaskCount"
+  ></app-fy-footer>
+</ion-footer>

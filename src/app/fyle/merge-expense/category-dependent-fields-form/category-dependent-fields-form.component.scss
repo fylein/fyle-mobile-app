@@ -1,0 +1,55 @@
+@import '../../../../theme/colors.scss';
+@import '../../../../theme/forms.scss';
+
+.merge-expenses {
+  &--text-label {
+    margin: 0 8px 0 0;
+    max-width: 90%;
+    min-width: 120px;
+    font-size: 12px;
+    color: $black-light;
+    line-height: 16px;
+    white-space: nowrap;
+  }
+
+  &--text-input {
+    border: 0;
+    height: 24px;
+    line-height: 18px;
+    color: $blue-black;
+    width: 100%;
+    margin: 6px 0;
+    padding: 0;
+  }
+
+  &--grid {
+    --ion-grid-padding: 0;
+    --ion-grid-column-padding: 0;
+  }
+
+  &--internal-block {
+    padding: 6px 0;
+    background: $pure-white;
+    line-height: 1;
+    margin-bottom: 12px;
+    &__margin {
+      margin-right: 12px;
+    }
+  }
+
+  &--error {
+    color: $red;
+    line-height: 16px;
+    margin-top: -12px;
+    font-size: 12px;
+  }
+
+  &--mandatory {
+    color: $brand-primary;
+    display: inline-block;
+  }
+
+  &--disabled {
+    background: $grey-7;
+  }
+}

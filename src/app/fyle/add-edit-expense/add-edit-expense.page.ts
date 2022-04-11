@@ -9,7 +9,6 @@ import {
   from,
   iif,
   merge,
-  noop,
   Observable,
   of,
   BehaviorSubject,
@@ -25,7 +24,6 @@ import {
   filter,
   finalize,
   map,
-  mergeMap,
   reduce,
   shareReplay,
   startWith,
@@ -97,8 +95,11 @@ import { TaxGroup } from 'src/app/core/models/tax_group.model';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { Expense } from 'src/app/core/models/expense.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
+import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -167,8 +168,6 @@ export class AddEditExpensePage implements OnInit {
   canChangeMatchingCCCTransaction = true;
 
   transactionInReport$: Observable<boolean>;
-
-  transactionMandatoyFields$: Observable<any>;
 
   isCriticalPolicyViolated = false;
 
@@ -329,6 +328,8 @@ export class AddEditExpensePage implements OnInit {
 
   isIos = false;
 
+  duplicateExpenses: Expense[];
+
   isExpenseMatchedForDebitCCCE: boolean;
 
   canDismissCCCE: boolean;
@@ -377,7 +378,8 @@ export class AddEditExpensePage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
-    private titleCasePipe: TitleCasePipe
+    private titleCasePipe: TitleCasePipe,
+    private handleDuplicates: HandleDuplicatesService
   ) {}
 
   goBack() {
@@ -987,45 +989,6 @@ export class AddEditExpensePage implements OnInit {
         }))
       )
     );
-  }
-
-  setupTransactionMandatoryFields() {
-    this.transactionMandatoyFields$ = this.isConnected$.pipe(
-      filter((isConnected) => !!isConnected),
-      switchMap(() => this.offlineService.getOrgSettings()),
-      map((orgSettings) => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
-    );
-
-    this.transactionMandatoyFields$.pipe(
-      filter((transactionMandatoyFields) => !isEqual(transactionMandatoyFields, {})),
-      switchMap((transactionMandatoyFields) =>
-        forkJoin({
-          individualProjectIds: this.individualProjectIds$,
-          isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-          orgSettings: this.offlineService.getOrgSettings(),
-        }).pipe(
-          map(({ individualProjectIds, isIndividualProjectsEnabled, orgSettings }) => ({
-            transactionMandatoyFields,
-            individualProjectIds,
-            isIndividualProjectsEnabled,
-            orgSettings,
-          }))
-        )
-      )
-    );
-
-    combineLatest([this.isConnected$, this.filteredCategories$, this.transactionMandatoyFields$])
-      .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
-      .subscribe(([isConnected, filteredCategories, transactionMandatoyFields]) => {
-        if (isConnected) {
-          if (transactionMandatoyFields.category && filteredCategories.length) {
-            this.fg.controls.category.setValidators(Validators.required);
-          } else {
-            this.fg.controls.category.clearValidators();
-          }
-          this.fg.controls.category.updateValueAndValidity();
-        }
-      });
   }
 
   setupBalanceFlag() {
@@ -2081,6 +2044,7 @@ export class AddEditExpensePage implements OnInit {
               'bus_travel_class',
               'billable',
               'tax_group_id',
+              'org_category_id',
             ];
             return this.expenseFieldsService.filterByOrgCategoryId(expenseFieldsMap, fields, formValue.category);
           })
@@ -2122,6 +2086,7 @@ export class AddEditExpensePage implements OnInit {
             taxGroups: this.taxGroups$,
             isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
             individualProjectIds: this.individualProjectIds$,
+            filteredCategories: this.filteredCategories$.pipe(take(1)),
           }).pipe(
             map(
               ({
@@ -2131,6 +2096,7 @@ export class AddEditExpensePage implements OnInit {
                 taxGroups,
                 isIndividualProjectsEnabled,
                 individualProjectIds,
+                filteredCategories,
               }) => ({
                 isConnected,
                 txnFields,
@@ -2139,6 +2105,7 @@ export class AddEditExpensePage implements OnInit {
                 taxGroups,
                 isIndividualProjectsEnabled,
                 individualProjectIds,
+                filteredCategories,
               })
             )
           )
@@ -2153,6 +2120,7 @@ export class AddEditExpensePage implements OnInit {
           taxGroups,
           individualProjectIds,
           isIndividualProjectsEnabled,
+          filteredCategories,
         }) => {
           const keyToControlMap: {
             [id: string]: AbstractControl;
@@ -2174,6 +2142,7 @@ export class AddEditExpensePage implements OnInit {
             project_id: this.fg.controls.project,
             billable: this.fg.controls.billable,
             tax_group_id: this.fg.controls.tax_group,
+            org_category_id: this.fg.controls.category,
           };
           for (const control of Object.values(keyToControlMap)) {
             control.clearValidators();
@@ -2233,6 +2202,10 @@ export class AddEditExpensePage implements OnInit {
                   orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
                     ? null
                     : Validators.required
+                );
+              } else if (txnFieldKey === 'org_category_id') {
+                control.setValidators(
+                  isConnected && filteredCategories && filteredCategories.length > 0 ? Validators.required : null
                 );
               } else {
                 control.setValidators(isConnected ? Validators.required : null);
@@ -2803,8 +2776,6 @@ export class AddEditExpensePage implements OnInit {
 
     this.setupTfc();
 
-    this.setupTransactionMandatoryFields();
-
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map(
         (txnFields) =>
@@ -2861,6 +2832,7 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.getPolicyDetails();
+    this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
     document.addEventListener('keydown', this.scrollInputIntoView);
   }
@@ -3123,11 +3095,19 @@ export class AddEditExpensePage implements OnInit {
       .checkIfInvalidPaymentMode()
       .pipe(take(1))
       .subscribe((invalidPaymentMode) => {
-        if (that.fg.valid && !invalidPaymentMode) {
+        const saveIncompleteExpense =
+          that.activatedRoute.snapshot.params.dataUrl &&
+          !that.fg.controls.add_to_new_report.value &&
+          !that.fg.value.report?.rp?.id;
+        if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode)) {
           if (that.mode === 'add') {
             if (that.isCreatedFromPersonalCard) {
               that.saveAndMatchWithPersonalCardTxn();
             } else {
+              if (saveIncompleteExpense && !that.fg.valid) {
+                this.trackingService.saveReceiptWithInvalidForm();
+              }
+
               that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
                 if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
                   this.addToNewReport(res.transaction.id);
@@ -4416,5 +4396,59 @@ export class AddEditExpensePage implements OnInit {
     return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
       switchMap((fileObj: any) => this.postToFileService(fileObj, txnId))
     );
+  }
+
+  getDuplicateExpenses() {
+    if (this.activatedRoute.snapshot.params.id) {
+      this.handleDuplicates
+        .getDuplicatesByExpense(this.activatedRoute.snapshot.params.id)
+        .pipe(
+          switchMap((duplicateSets) => {
+            const duplicateIds = duplicateSets
+              .map((value) => value.transaction_ids)
+              .reduce((acc, curVal) => acc.concat(curVal), []);
+            const params = {
+              tx_id: `in.(${duplicateIds.join(',')})`,
+            };
+            return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
+              map((expenses) => {
+                const expensesArray = expenses as [];
+                return duplicateSets.map((duplicateSet) =>
+                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                );
+              })
+            );
+          })
+        )
+        .subscribe((duplicateExpensesSet) => {
+          this.duplicateExpenses = duplicateExpensesSet[0];
+        });
+    }
+  }
+
+  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]) {
+    return duplicateSet.transaction_ids.map(
+      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
+    );
+  }
+
+  async showSuggestedDuplicates(duplicateExpenses: Expense[]) {
+    const currencyModal = await this.modalController.create({
+      component: SuggestedDuplicatesComponent,
+      componentProps: {
+        duplicateExpenses,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await currencyModal.present();
+
+    const { data } = await currencyModal.onWillDismiss();
+
+    if (data?.action === 'dismissed') {
+      this.getDuplicateExpenses();
+    }
   }
 }

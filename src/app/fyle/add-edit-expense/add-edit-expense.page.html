@@ -77,6 +77,17 @@
 
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
+        <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
+          <app-fy-alert-info
+            [message]="'This expense might be a duplicate of an existing  expense.'"
+            [type]="'warning'"
+            [showActionButton]="true"
+            [actionButtonContent]="'View'"
+            (actionClick)="showSuggestedDuplicates(duplicateExpenses)"
+          >
+          </app-fy-alert-info>
+        </div>
+
         <div *ngIf="instaFyleCancelled" class="add-edit-expense--alert-offline">
           <app-fy-alert-info
             [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details manually'"
@@ -440,11 +451,12 @@
             </div>
           </ng-container>
 
-          <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+          <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
               <ng-container *ngIf="filteredCategories$|async as categories">
                 <ng-container *ngIf="categories.length">
                   <div
+                    *ngIf="txnFields?.org_category_id"
                     [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}"
                     class="add-edit-expense--internal-block"
                   >
@@ -452,7 +464,7 @@
                       [cacheName]="'recentCategoryList'"
                       [defaultLabelProp]="'displayName'"
                       [label]="'Category'"
-                      [mandatory]="transactionMandatoyFields.category"
+                      [mandatory]="txnFields?.org_category_id?.is_mandatory"
                       [options]="categories"
                       [selectModalHeader]="'Select Category'"
                       [recentlyUsed]="recentCategories"

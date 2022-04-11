@@ -133,7 +133,7 @@
               <ion-row class="stats--ccc-block">
                 <ion-col class="stats--ccc-bank-name" size="8">
                   <div>
-                    {{ cardTransactionsAndDetailsNonUnifyCCC.ba_bank_name }}
+                    {{ cardTransactionsAndDetailsNonUnifyCCC?.ba_bank_name }}
                   </div>
                 </ion-col>
                 <ion-col size="4">
@@ -144,32 +144,32 @@
                 <ion-col class="stats--ccc-account-info">
                   <span class="stats--ccc-account-info__type"> CREDIT </span>
                   <span class="stats--ccc-account-info__mask">{{
-                    ' xxxx ' + cardTransactionsAndDetailsNonUnifyCCC.ba_mask
+                    ' xxxx ' + cardTransactionsAndDetailsNonUnifyCCC?.ba_mask
                   }}</span>
                 </ion-col>
               </ion-row>
             </ion-grid>
           </div>
-          <div class="stats--ccc-sync-detail" *ngIf="cardTransactionsAndDetailsNonUnifyCCC.ba_last_synced_at">
-            Last synced: {{ cardTransactionsAndDetailsNonUnifyCCC.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
+          <div class="stats--ccc-sync-detail" *ngIf="cardTransactionsAndDetailsNonUnifyCCC?.ba_last_synced_at">
+            Last synced: {{ cardTransactionsAndDetailsNonUnifyCCC?.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
           </div>
         </div>
         <div class="stats--ccc-stats">
           <div class="stats--ccc-created_dt">
-            Showing all transactions from {{ cardTransactionsAndDetailsNonUnifyCCC.ba_created_at | date: 'MMM d, y' }}
+            Showing all transactions from {{ cardTransactionsAndDetailsNonUnifyCCC?.ba_created_at | date: 'MMM d, y' }}
           </div>
           <div>
             <div (click)="goToCCCPage('classified')">
               <div class="stats--ccc-classified-stats">
                 <div class="stats--ccc-classified-count">
-                  {{ cardTransactionsAndDetailsNonUnifyCCC.total_classified_count }}
+                  {{ cardTransactionsAndDetailsNonUnifyCCC?.total_classified_count }}
                 </div>
                 <div class="stats--ccc-classified-amount">
                   <span class="stats--expenses-amount-currency">
                     {{ currencySymbol$ | async }}
                   </span>
                   {{
-                    cardTransactionsAndDetailsNonUnifyCCC.total_classified_amount
+                    cardTransactionsAndDetailsNonUnifyCCC?.total_classified_amount
                       | humanizeCurrency: (homeCurrency$ | async):2:true
                   }}
                 </div>
@@ -180,14 +180,14 @@
             <div (click)="goToCCCPage('unclassified')">
               <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
                 <div class="stats--ccc-classified-count">
-                  {{ cardTransactionsAndDetailsNonUnifyCCC.total_unclassified_count }}
+                  {{ cardTransactionsAndDetailsNonUnifyCCC?.total_unclassified_count }}
                 </div>
                 <div class="stats--ccc-classified-amount">
                   <span class="stats--expenses-amount-currency">
                     {{ currencySymbol$ | async }}
                   </span>
                   {{
-                    cardTransactionsAndDetailsNonUnifyCCC.total_unclassified_amount
+                    cardTransactionsAndDetailsNonUnifyCCC?.total_unclassified_amount
                       | humanizeCurrency: (homeCurrency$ | async):2:true
                   }}
                 </div>
