@@ -91,10 +91,10 @@ export class RouterAuthService {
     //   data.cluster_domain = environment.CLUSTER_DOMAIN;
     //   data.redirect_url = data.redirect_url.replace('https://staging.fyle.in', data.cluster_domain);
     // }
-    await this.newRefreshToken(data.refresh_token);
-    await this.setClusterDomain(data.cluster_domain);
-    const resp = await this.fetchAccessToken(data.refresh_token);
-    await this.newAccessToken(resp.access_token);
+    // await this.newRefreshToken(data.refresh_token);
+    // await this.setClusterDomain(data.cluster_domain);
+    // const resp = await this.fetchAccessToken(data.refresh_token);
+    // await this.newAccessToken(resp.access_token);
     return data;
   }
 
