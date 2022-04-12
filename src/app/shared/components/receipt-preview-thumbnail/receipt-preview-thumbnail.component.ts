@@ -3,6 +3,10 @@ import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { Swiper } from 'swiper';
 import { SwiperComponent } from 'swiper/angular';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { TrackingService } from '../../../core/services/tracking.service';
+import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-receipt-preview-thumbnail',
@@ -18,8 +22,6 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   @Input() canEdit: boolean;
 
-  @Input() hideLabel: boolean;
-
   @Output() addMoreAttachments: EventEmitter<void> = new EventEmitter();
 
   @Output() viewAttachments: EventEmitter<void> = new EventEmitter();
@@ -32,8 +34,11 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   numLoadedImage = 0;
 
-  constructor() {}
-
+  constructor(
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
+    private trackingService: TrackingService
+  ) {}
   ngOnInit() {
     this.sliderOptions = {
       slidesPerView: 1,
@@ -64,12 +69,19 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   ngDoCheck() {
     if (this.attachments.length !== this.previousCount) {
+      if (this.attachments.length > this.previousCount) {
+        const message = 'Receipt added to Expense successfully';
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
+        this.trackingService.showToastMessage({ ToastContent: message });
+      }
       this.previousCount = this.attachments.length;
       timer(100).subscribe(() => this.imageSlides.swiperRef.slideTo(this.attachments.length));
       this.getActiveIndex();
     }
   }
-
   onLoad() {
     this.numLoadedImage++;
   }
