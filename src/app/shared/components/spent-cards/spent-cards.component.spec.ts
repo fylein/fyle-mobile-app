@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { GetStartedPopupComponent } from './get-started-popup.component';
+import { SpentCardsComponent } from './spent-cards.component';
 
-describe('GetStartedPopupComponent', () => {
-  let component: GetStartedPopupComponent;
-  let fixture: ComponentFixture<GetStartedPopupComponent>;
+describe('SpentCardsComponent', () => {
+  let component: SpentCardsComponent;
+  let fixture: ComponentFixture<SpentCardsComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [GetStartedPopupComponent],
+        declarations: [SpentCardsComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(GetStartedPopupComponent);
+      fixture = TestBed.createComponent(SpentCardsComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })

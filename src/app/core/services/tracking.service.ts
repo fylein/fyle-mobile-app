@@ -760,6 +760,14 @@ export class TrackingService {
     this.eventTrack('dashboard incomplete expenses clicked', properties);
   }
 
+  dashboardOnIncompleteCardExpensesClick(properties = {}) {
+    this.eventTrack('dashboard incomplete corporate card expenses clicked', properties);
+  }
+
+  dashboardOnTotalCardExpensesClick(properties = {}) {
+    this.eventTrack('dashboard total corporate card expenses clicked', properties);
+  }
+
   dashboardOnReportPillClick(properties) {
     this.eventTrack('dashboard report pill clicked', properties);
   }
@@ -957,5 +965,30 @@ export class TrackingService {
 
   cropReceipt(properties = {}) {
     this.eventTrack('Receipt Cropped', properties);
+  }
+
+  saveReceiptWithInvalidForm(properties = {}) {
+    this.eventTrack('Save receipt with invalid form', properties);
+  }
+
+  // Merge related trackings
+  expensesMerged(properties = {}) {
+    this.eventTrack('Expenses merged successfully', properties);
+  }
+
+  duplicateTaskClicked(properties = {}) {
+    this.eventTrack('potential duplicate task clicked from dashboard', properties);
+  }
+
+  dismissedDuplicateSet(properties = {}) {
+    this.eventTrack('duplicate set dismissed', properties);
+  }
+
+  dismissedIndividualExpenses(properties = {}) {
+    this.eventTrack('individual expense dismissed as not duplicate', properties);
+  }
+
+  visitedMergeExpensesPageFromTask(properties = {}) {
+    this.eventTrack('visited merged expense page from tasks', properties);
   }
 }

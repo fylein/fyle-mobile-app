@@ -24,6 +24,7 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { MatchTransactionComponent } from './match-transaction/match-transaction.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 
 @NgModule({
   imports: [
@@ -54,6 +55,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     PolicyViolationComponent,
     CameraOptionsPopupComponent,
     MatchTransactionComponent,
+    SuggestedDuplicatesComponent,
   ],
 })
 export class AddEditExpensePageModule {}

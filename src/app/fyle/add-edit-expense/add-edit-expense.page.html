@@ -39,10 +39,26 @@
       <ion-button class="add-edit-expense--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
-      <ng-container *ngIf="canDeleteExpense && etxn$|async as etxn">
+      <ng-container
+        *ngIf="canDeleteExpense && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && etxn$|async as etxn"
+      >
         <ion-button class="add-edit-expense--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
           <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
         </ion-button>
+      </ng-container>
+
+      <ng-container *ngIf="etxn$|async as etxn">
+        <ng-container *ngIf="isConnected$|async as isConnected">
+          <ng-container *ngIf="isSplitExpenseAllowed$|async as isSplitExpenseAllowed">
+            <ng-container
+              *ngIf="(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)"
+            >
+              <ion-button class="add-edit-expense--header-btn-container__btn" (click)="moreActions()">
+                <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
+              </ion-button>
+            </ng-container>
+          </ng-container>
+        </ng-container>
       </ng-container>
     </ion-buttons>
   </ion-toolbar>
@@ -61,6 +77,17 @@
 
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
+        <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
+          <app-fy-alert-info
+            [message]="'This expense might be a duplicate of an existing  expense.'"
+            [type]="'warning'"
+            [showActionButton]="true"
+            [actionButtonContent]="'View'"
+            (actionClick)="showSuggestedDuplicates(duplicateExpenses)"
+          >
+          </app-fy-alert-info>
+        </div>
+
         <div *ngIf="instaFyleCancelled" class="add-edit-expense--alert-offline">
           <app-fy-alert-info
             [message]="'Extracting receipt details is taking longer than expected due to a bad network, please add the details manually'"
@@ -87,6 +114,48 @@
               </div>
             </div>
           </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="isUnifyCcceExpensesSettingsEnabled && isCccExpense">
+          <ion-grid class="add-edit-expense--card-container">
+            <ion-row>
+              <ion-col>
+                <div class="add-edit-expense--card-container__label">Card number</div>
+                <div class="add-edit-expense--card-container__value">
+                  {{ cardNumber ? (cardNumber | maskNumber) : '-' }}
+                </div>
+              </ion-col>
+              <ion-col>
+                <div class="add-edit-expense--card-container__label">Spend Date</div>
+                <div class="add-edit-expense--card-container__value">
+                  {{ fg?.controls?.dateOfSpend?.value | date: 'MMM dd, yyyy' }}
+                </div>
+              </ion-col>
+              <ion-col>
+                <div class="add-edit-expense--card-container__label">Spend Amount</div>
+                <div *ngIf="fg?.controls?.currencyObj?.value?.amount > 0">
+                  <span class="add-edit-expense--card-container__value"
+                    >{{ fg?.controls?.currencyObj?.value?.amount | humanizeCurrency:
+                    fg?.controls?.currencyObj?.value?.currency:2:true }}</span
+                  >
+                  <span class="add-edit-expense--card-container__txn-type">DR</span>
+                </div>
+                <div *ngIf="fg?.controls?.currencyObj?.value?.amount < 0">
+                  <span class="add-edit-expense--card-container__value add-edit-expense--card-container__credit"
+                    >{{ fg?.controls?.currencyObj?.value?.amount * -1 | humanizeCurrency:
+                    fg?.controls?.currencyObj?.value?.currency:2:true }}</span
+                  >
+                  <span class="add-edit-expense--card-container__txn-type add-edit-expense--card-container__credit"
+                    >CR</span
+                  >
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+          <app-fy-alert-info
+            [type]="'information'"
+            [message]="'You won\'t be able to change the Amount, Spend Date and Currency for the corporate card expenses.'"
+          ></app-fy-alert-info>
         </ng-container>
 
         <div class="add-edit-expense--receipt-currency-container">
@@ -135,6 +204,7 @@
                   [recentlyUsed]="recentCurrencies"
                   [txnDt]="fg?.controls?.dateOfSpend?.value"
                   [expanded]="attachedReceiptsCount === 0"
+                  [disabled]="isUnifyCcceExpensesSettingsEnabled && isCccExpense"
                 >
                 </app-fy-currency>
                 <div
@@ -175,14 +245,12 @@
         <div class="add-edit-expense--primary-block">
           <ion-grid class="ion-grid-no-padding">
             <ion-row>
-              <ion-col size="6">
+              <ion-col [size]="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) ? 6 : 12">
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
                     *ngIf="txnFields?.txn_dt"
-                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
-                    class="
-                      add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin
-                    "
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid, 'add-edit-expense--date-block-disabled': isUnifyCcceExpensesSettingsEnabled && isCccExpense}"
+                    class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin"
                   >
                     <div
                       [ngClass]="{'add-edit-expense--date-label__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
@@ -201,6 +269,7 @@
                       formControlName="dateOfSpend"
                       type="date"
                       [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
+                      [ngClass]="{'add-edit-expense--date-disabled': isUnifyCcceExpensesSettingsEnabled && isCccExpense}"
                     />
                   </div>
                   <div
@@ -211,7 +280,7 @@
                   </div>
                 </ng-container>
               </ion-col>
-              <ion-col size="6">
+              <ion-col size="6" *ngIf="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense)">
                 <ng-container *ngIf="paymentModes$|async as paymentModes">
                   <div
                     *ngIf="paymentModes.length > 1"
@@ -269,61 +338,71 @@
         </div>
 
         <ng-container *ngIf="isCCCPaymentModeSelected$|async">
-          <div class="add-edit-expense--card-header">Card Transaction</div>
-          <div
-            *ngIf="((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) || !selectedCCCTransaction) && !isLoadingSuggestions && !isCreatedFromCCC && !((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) && selectedCCCTransaction)"
-            class="add-edit-expense--card-txn-container"
-          >
-            <mat-icon svgIcon="fy-corporate-card" class="add-edit-expense--icon-corporate-card"></mat-icon>
-            <div *ngIf="(!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount)">
-              Enter date and amount to search for the matching card transaction
-            </div>
+          <app-fy-alert-info
+            *ngIf="isUnifyCcceExpensesSettingsEnabled && !isCccExpense"
+            [type]="'information'"
+            [message]="'Fyle will automatically merge this expense with the corresponding corporate card transaction when it flows into fyle.'"
+          ></app-fy-alert-info>
+        </ng-container>
+
+        <ng-container *ngIf="isCCCPaymentModeSelected$|async">
+          <div *ngIf="showCardTransaction && (isCCCAccountSelected$|async) && !isUnifyCcceExpensesSettingsEnabled">
+            <div class="add-edit-expense--card-header">Card Transaction</div>
             <div
-              *ngIf="this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount && !selectedCCCTransaction && !isLoadingSuggestions"
+              *ngIf="((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) || !selectedCCCTransaction) && !isLoadingSuggestions && !isCreatedFromCCC && !((!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount) && selectedCCCTransaction)"
+              class="add-edit-expense--card-txn-container"
             >
-              <div *ngIf="matchingCCCTransactions.length === 0">No matching transactions available</div>
+              <mat-icon svgIcon="fy-corporate-card" class="add-edit-expense--icon-corporate-card"></mat-icon>
+              <div *ngIf="(!this.fg.value.dateOfSpend || !this.fg.value?.currencyObj?.amount)">
+                Enter date and amount to search for the matching card transaction
+              </div>
               <div
-                (click)="openMatchingTransactions()"
-                *ngIf="(matchingCCCTransactions.length > 0 || selectedCCCTransaction) && canChangeMatchingCCCTransaction && !isCreatedFromCCC"
+                *ngIf="this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount && !selectedCCCTransaction && !isLoadingSuggestions"
               >
-                No transaction selected. Change option.
+                <div *ngIf="matchingCCCTransactions.length === 0">No matching transactions available</div>
+                <div
+                  (click)="openMatchingTransactions()"
+                  *ngIf="(matchingCCCTransactions.length > 0 || selectedCCCTransaction) && canChangeMatchingCCCTransaction && !isCreatedFromCCC"
+                >
+                  No transaction selected. Change option.
+                </div>
               </div>
             </div>
-          </div>
 
-          <div
-            *ngIf="(this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount) || isLoadingSuggestions || selectedCCCTransaction"
-            class="add-edit-expense--matching-card"
-            [ngClass]="{'add-edit-expense--no-matching-card': !selectedCCCTransaction}"
-          >
-            <div *ngIf="isLoadingSuggestions" class="add-edit-expense--loading-suggestions">
-              <ion-skeleton-text class="add-edit-expense--icon-loading"></ion-skeleton-text>
-              <ion-skeleton-text class="add-edit-expense--text-loading"></ion-skeleton-text>
-            </div>
-            <mat-icon
-              *ngIf="selectedCCCTransaction && !isLoadingSuggestions"
-              svgIcon="fy-corporate-card"
-              class="add-edit-expense--icon-corporate-card"
-            ></mat-icon>
             <div
-              *ngIf="selectedCCCTransaction && !isLoadingSuggestions"
-              (click)="openMatchingTransactions()"
-              class="add-edit-expense--matching-content"
-              [ngClass]="{'add-edit-expense--ccc-expense': isCreatedFromCCC}"
+              *ngIf="(this.fg.value.dateOfSpend && this.fg.value?.currencyObj?.amount) || isLoadingSuggestions || selectedCCCTransaction"
+              class="add-edit-expense--matching-card"
+              [ngClass]="{'add-edit-expense--no-matching-card': !selectedCCCTransaction}"
             >
-              <span class="text-capitalize"
-                >{{ (selectedCCCTransaction.vendor || selectedCCCTransaction.description) | ellipsis:20}},
-              </span>
-              <span>{{ selectedCCCTransaction.txn_dt | date: 'MMM dd, yyyy'}} - </span>
-              <span
-                >{{ selectedCCCTransaction.amount | currency: selectedCCCTransaction.currency: 'symbol-narrow'}}</span
+              <div *ngIf="isLoadingSuggestions" class="add-edit-expense--loading-suggestions">
+                <ion-skeleton-text class="add-edit-expense--icon-loading"></ion-skeleton-text>
+                <ion-skeleton-text class="add-edit-expense--text-loading"></ion-skeleton-text>
+              </div>
+              <mat-icon
+                *ngIf="selectedCCCTransaction && !isLoadingSuggestions"
+                svgIcon="fy-corporate-card"
+                class="add-edit-expense--icon-corporate-card"
+              ></mat-icon>
+              <div
+                *ngIf="selectedCCCTransaction && !isLoadingSuggestions"
+                (click)="openMatchingTransactions()"
+                class="add-edit-expense--matching-content"
+                [ngClass]="{'add-edit-expense--ccc-expense': isCreatedFromCCC}"
               >
+                <span class="text-capitalize"
+                  >{{ (selectedCCCTransaction.vendor || selectedCCCTransaction.description) | ellipsis:20}},
+                </span>
+                <span>{{ selectedCCCTransaction.txn_dt | date: 'MMM dd, yyyy'}} - </span>
+                <span
+                  >{{ selectedCCCTransaction.amount | currency: selectedCCCTransaction.currency: 'symbol-narrow'}}</span
+                >
+              </div>
+              <mat-icon
+                *ngIf="selectedCCCTransaction && !isLoadingSuggestions"
+                class="add-edit-expense--card-arrow"
+                svgIcon="fy-arrow-down"
+              ></mat-icon>
             </div>
-            <mat-icon
-              *ngIf="selectedCCCTransaction && !isLoadingSuggestions"
-              class="add-edit-expense--card-arrow"
-              svgIcon="fy-arrow-down"
-            ></mat-icon>
           </div>
         </ng-container>
 
@@ -372,11 +451,12 @@
             </div>
           </ng-container>
 
-          <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
+          <ng-container *ngIf="txnFields$|async as txnFields">
             <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
               <ng-container *ngIf="filteredCategories$|async as categories">
                 <ng-container *ngIf="categories.length">
                   <div
+                    *ngIf="txnFields?.org_category_id"
                     [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}"
                     class="add-edit-expense--internal-block"
                   >
@@ -384,7 +464,7 @@
                       [cacheName]="'recentCategoryList'"
                       [defaultLabelProp]="'displayName'"
                       [label]="'Category'"
-                      [mandatory]="transactionMandatoyFields.category"
+                      [mandatory]="txnFields?.org_category_id?.is_mandatory"
                       [options]="categories"
                       [selectModalHeader]="'Select Category'"
                       [recentlyUsed]="recentCategories"
@@ -946,9 +1026,9 @@
       <div *ngIf="etxn$|async as etxn">
         <div
           class="add-edit-expense--split-expense-block"
-          *ngIf="(isConnected$|async) && !(etxn?.tx?.report_id) && (isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)"
+          *ngIf="(isConnected$|async) && !(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && (isSplitExpenseAllowed$|async) && !(reviewList && reviewList.length > 1)"
         >
-          <button class="add-edit-expense--split-expense-container" (click)="splitExpense()">
+          <button class="add-edit-expense--split-expense-container" (click)="moreActions()">
             <div class="add-edit-expense--split-expense-title">Split Expense</div>
           </button>
           <div class="add-edit-expense--split-info-container">
@@ -968,14 +1048,18 @@
       </app-fy-alert-info>
 
       <ng-container *ngIf="etxn$|async as etxn">
-        <ng-container *ngIf="etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction">
+        <ng-container
+          *ngIf="(etxn && etxn.tx.creator_id === 'SYSTEM_CORPORATE_CARD' && selectedCCCTransaction) && !isUnifyCcceExpensesSettingsEnabled"
+        >
           <app-fy-alert [message]="'Automatically created from your company\'s card feed'" [type]="'card'">
           </app-fy-alert>
         </ng-container>
       </ng-container>
 
       <ng-container *ngIf="etxn$|async as etxn">
-        <ng-container *ngIf="etxn.tx && etxn.tx.amount < 0 && !!etxn.tx.corporate_credit_card_expense_group_id">
+        <ng-container
+          *ngIf="etxn.tx && etxn.tx.amount < 0 && !!etxn.tx.corporate_credit_card_expense_group_id && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense)"
+        >
           <app-fy-alert [message]="'Expense created due to reversal of card transaction.'" [type]="'card'">
           </app-fy-alert>
         </ng-container>
