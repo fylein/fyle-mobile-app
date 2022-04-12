@@ -185,7 +185,7 @@ export class SignInPage implements OnInit {
             this.handleError(err);
             return throwError(err);
           }),
-          switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
+          switchMap(() => this.authService.refreshEou()),
           tap(async () => {
             await this.trackLoginInfo();
             this.trackingService.onSignin(this.fg.value.email, {
