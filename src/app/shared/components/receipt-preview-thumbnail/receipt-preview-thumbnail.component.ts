@@ -39,6 +39,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
     private snackbarProperties: SnackbarPropertiesService,
     private trackingService: TrackingService
   ) {}
+
   ngOnInit() {
     this.sliderOptions = {
       slidesPerView: 1,
@@ -82,6 +83,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
       this.getActiveIndex();
     }
   }
+
   onLoad() {
     this.numLoadedImage++;
   }
