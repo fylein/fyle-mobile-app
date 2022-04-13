@@ -7,7 +7,6 @@ import { TripRequestsService } from 'src/app/core/services/trip-requests.service
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { map } from 'rxjs/operators';
-import { RefinerService } from 'src/app/core/services/refiner.service';
 
 @Component({
   selector: 'app-resubmit-report-popover',
@@ -29,8 +28,7 @@ export class ResubmitReportPopoverComponent implements OnInit {
     private popoverController: PopoverController,
     private offlineService: OfflineService,
     private tripRequestService: TripRequestsService,
-    private reportService: ReportService,
-    private refinerService: RefinerService
+    private reportService: ReportService
   ) {}
 
   ngOnInit() {
@@ -107,8 +105,6 @@ export class ResubmitReportPopoverComponent implements OnInit {
       this.popoverController.dismiss({
         goBack: true,
       });
-
-      this.refinerService.startSurvey({ actionName: 'Resubmit Report ' });
     });
   }
 }
