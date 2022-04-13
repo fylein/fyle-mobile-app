@@ -117,11 +117,9 @@ import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
 import { FyStatisticComponent } from './components/fy-statistic/fy-statistic.component';
 import { FySummaryTileComponent } from './components/summary-tile/summary-tile.component';
-import { ViewExpenseSkeletonLoaderComponent } from './components/view-expense-skeleton-loader/view-expense-skeleton-loader.component';
 import { SpentCardsComponent } from './components/spent-cards/spent-cards.component';
 import { CardDetailComponent } from './components/spent-cards/card-detail/card-detail.component';
 import { MaskNumber } from './pipes/mask-number.pipe';
-
 @NgModule({
   declarations: [
     AdvanceState,
@@ -217,7 +215,6 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     FyNumberComponent,
     FyStatisticComponent,
     FySummaryTileComponent,
-    ViewExpenseSkeletonLoaderComponent,
     SpentCardsComponent,
     CardDetailComponent,
     MaskNumber,
@@ -322,7 +319,6 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     FyNumberComponent,
     FyStatisticComponent,
     FySummaryTileComponent,
-    ViewExpenseSkeletonLoaderComponent,
     SpentCardsComponent,
     CardDetailComponent,
     MaskNumber,

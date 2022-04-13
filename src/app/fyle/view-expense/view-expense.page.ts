@@ -96,8 +96,6 @@ export class ViewExpensePage implements OnInit {
 
   projectFieldName: string;
 
-  isLoading = true;
-
   isUnifyCcceExpensesSettingsEnabled: boolean;
 
   cardNumber: string;
@@ -204,7 +202,10 @@ export class ViewExpensePage implements OnInit {
     const txId = this.activatedRoute.snapshot.params.id;
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
-      switchMap(() => this.transactionService.getEtxn(txId)),
+      switchMap(() =>
+        from(this.loaderService.showLoader()).pipe(switchMap(() => this.transactionService.getEtxn(txId)))
+      ),
+      finalize(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
 
@@ -351,9 +352,7 @@ export class ViewExpensePage implements OnInit {
 
     this.attachments$ = editExpenseAttachments;
     this.updateFlag$.next();
-    this.attachments$.subscribe(noop, noop, () => {
-      this.isLoading = false;
-    });
+    this.attachments$.subscribe(noop);
 
     const etxnIds =
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
