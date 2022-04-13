@@ -53,6 +53,7 @@ import { SnackbarPropertiesService } from '../../core/services/snackbar-properti
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
+import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 
 type Filters = Partial<{
   state: string[];
@@ -175,6 +176,8 @@ export class MyExpensesPage implements OnInit {
   expensesToBeDeleted: Expense[];
 
   cccExpenses: number;
+
+  allCardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned[]>;
 
   get HeaderState() {
     return HeaderState;
@@ -415,6 +418,10 @@ export class MyExpensesPage implements OnInit {
     this.onPageExit$.next();
   }
 
+  getNonUnifyCCCDetails(): Observable<BankAccountsAssigned[]> {
+    return this.corporateCreditCardService.getNonUnifyCCCAssignedCards();
+  }
+
   ionViewWillEnter() {
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
@@ -448,6 +455,11 @@ export class MyExpensesPage implements OnInit {
       this.setupActionSheet(orgSettings);
     });
 
+    this.allCardTransactionsAndDetailsNonUnifyCCC$ = this.getNonUnifyCCCDetails().pipe(
+      map((res) => res),
+      shareReplay(1)
+    );
+
     this.isUnifyCCCEnabled$ = this.offlineService
       .getOrgSettings()
       .pipe(
@@ -477,6 +489,21 @@ export class MyExpensesPage implements OnInit {
         this.cardNumbers = [];
         cards.forEach((card) => {
           this.cardNumbers.push({ label: this.maskNumber.transform(card.cardNumber), value: card.cardNumber });
+        });
+
+        this.allCardTransactionsAndDetailsNonUnifyCCC$.subscribe((details) => {
+          details.forEach((detail) => {
+            if (
+              this.cardNumbers.filter(
+                (cardDetail) => cardDetail.label === this.maskNumber.transform(detail.ba_account_number)
+              ).length === 0
+            ) {
+              this.cardNumbers.push({
+                label: this.maskNumber.transform(detail.ba_account_number),
+                value: detail.ba_account_number,
+              });
+            }
+          });
         });
       });
 

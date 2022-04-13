@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
-import { delay, map, startWith, tap } from 'rxjs/operators';
+import { delay, map, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
@@ -48,6 +48,8 @@ export class StatsComponent implements OnInit {
   loadData$ = new Subject();
 
   isCCCStatsLoading: boolean;
+
+  allCardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned[]>;
 
   cardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned>;
 
@@ -134,9 +136,33 @@ export class StatsComponent implements OnInit {
         map((cccDetail) => cccDetail),
         shareReplay(1)
       );
+
+      this.allCardTransactionsAndDetailsNonUnifyCCC$ = this.dashboardService.getNonUnifyCCCDetails().pipe(
+        map((res) => res),
+        shareReplay(1)
+      );
       this.cardTransactionsAndDetails$.subscribe((details) => {
         this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-        this.isCCCStatsLoading = false;
+        this.allCardTransactionsAndDetailsNonUnifyCCC$.subscribe((cards) => {
+          cards.forEach((card) => {
+            if (
+              this.cardTransactionsAndDetails.filter((cardDetail) => cardDetail.cardNumber === card.ba_account_number)
+                .length === 0
+            ) {
+              this.cardTransactionsAndDetails.push({
+                cardNumber: card.ba_account_number,
+                cardName: card.ba_bank_name,
+                totalAmountValue: 0,
+                totalCompleteExpensesValue: 0,
+                totalCompleteTxns: 0,
+                totalDraftTxns: 0,
+                totalDraftValue: 0,
+                totalTxnsCount: 0,
+              });
+            }
+          });
+          this.isCCCStatsLoading = false;
+        });
       });
     } else {
       this.cardTransactionsAndDetailsNonUnifyCCC$ = this.dashboardService.getNonUnifyCCCDetails().pipe(
