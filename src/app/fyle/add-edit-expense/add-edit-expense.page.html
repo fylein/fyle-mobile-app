@@ -451,12 +451,11 @@
             </div>
           </ng-container>
 
-          <ng-container *ngIf="txnFields$|async as txnFields">
+          <ng-container *ngIf="transactionMandatoyFields$|async as transactionMandatoyFields">
             <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
               <ng-container *ngIf="filteredCategories$|async as categories">
                 <ng-container *ngIf="categories.length">
                   <div
-                    *ngIf="txnFields?.org_category_id"
                     [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}"
                     class="add-edit-expense--internal-block"
                   >
@@ -464,7 +463,7 @@
                       [cacheName]="'recentCategoryList'"
                       [defaultLabelProp]="'displayName'"
                       [label]="'Category'"
-                      [mandatory]="txnFields?.org_category_id?.is_mandatory"
+                      [mandatory]="transactionMandatoyFields.category"
                       [options]="categories"
                       [selectModalHeader]="'Select Category'"
                       [recentlyUsed]="recentCategories"
