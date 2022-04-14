@@ -148,12 +148,6 @@ export class SignInPage implements OnInit {
     if (error.status === 400) {
       this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value }]);
       return;
-    } else if (error.status === 401) {
-      header = 'Unauthorized';
-
-      if (error.error && error.error.message) {
-        header = "Account doesn't exist";
-      }
     } else if (error.status === 500) {
       header = 'Sorry... Something went wrong!';
     } else if (error.status === 433) {
