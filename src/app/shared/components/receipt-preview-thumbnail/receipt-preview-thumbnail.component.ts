@@ -69,8 +69,8 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   }
 
   ngDoCheck() {
-    if (this.attachments.length !== this.previousCount) {
-      if (this.attachments.length > this.previousCount) {
+    if (this.attachments?.length !== this.previousCount) {
+      if (this.attachments?.length > this.previousCount) {
         const message = 'Receipt added to Expense successfully';
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
