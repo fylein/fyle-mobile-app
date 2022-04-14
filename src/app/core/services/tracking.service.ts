@@ -95,6 +95,10 @@ export class TrackingService {
     this.eventTrack('Create Expense', properties);
   }
 
+  splittingExpense(properties) {
+    this.eventTrack('Splitting Expense', properties);
+  }
+
   bulkAddExpenses(properties) {
     this.eventTrack('Create Bulk Expenses', properties);
   }

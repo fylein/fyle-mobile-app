@@ -391,6 +391,11 @@ export class SplitExpensePage implements OnInit {
             }),
             finalize(() => {
               this.saveSplitExpenseLoading = false;
+
+              const splitTrackingProps = {
+                'Split Type': this.splitType,
+              };
+              this.trackingService.splittingExpense(splitTrackingProps);
             })
           )
           .subscribe(noop);
