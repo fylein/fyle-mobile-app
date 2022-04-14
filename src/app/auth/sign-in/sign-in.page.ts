@@ -62,11 +62,11 @@ export class SignInPage implements OnInit {
       this.handleError(err);
     } else {
       // Login Success
-      await this.routerAuthService.handleSignInResponse(data);
-      const samlNewRefreshToken$ = this.authService.newRefreshToken(data.refresh_token);
 
-      samlNewRefreshToken$
+      from(this.routerAuthService.handleSignInResponse(data))
         .pipe(
+          take(1),
+          switchMap(() => this.authService.refreshEou()),
           tap(async () => {
             await this.trackLoginInfo();
             this.trackingService.onSignin(this.fg.value.email, {
