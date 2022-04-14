@@ -169,8 +169,6 @@ export class AddEditExpensePage implements OnInit {
 
   transactionInReport$: Observable<boolean>;
 
-  transactionMandatoyFields$: Observable<any>;
-
   isCriticalPolicyViolated = false;
 
   showSelectedTransaction = false;
@@ -991,45 +989,6 @@ export class AddEditExpensePage implements OnInit {
         }))
       )
     );
-  }
-
-  setupTransactionMandatoryFields() {
-    this.transactionMandatoyFields$ = this.isConnected$.pipe(
-      filter((isConnected) => !!isConnected),
-      switchMap(() => this.offlineService.getOrgSettings()),
-      map((orgSettings) => orgSettings.transaction_fields_settings.transaction_mandatory_fields || {})
-    );
-
-    this.transactionMandatoyFields$.pipe(
-      filter((transactionMandatoyFields) => !isEqual(transactionMandatoyFields, {})),
-      switchMap((transactionMandatoyFields) =>
-        forkJoin({
-          individualProjectIds: this.individualProjectIds$,
-          isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-          orgSettings: this.offlineService.getOrgSettings(),
-        }).pipe(
-          map(({ individualProjectIds, isIndividualProjectsEnabled, orgSettings }) => ({
-            transactionMandatoyFields,
-            individualProjectIds,
-            isIndividualProjectsEnabled,
-            orgSettings,
-          }))
-        )
-      )
-    );
-
-    combineLatest([this.isConnected$, this.filteredCategories$, this.transactionMandatoyFields$])
-      .pipe(distinctUntilChanged((a, b) => isEqual(a, b)))
-      .subscribe(([isConnected, filteredCategories, transactionMandatoyFields]) => {
-        if (isConnected) {
-          if (transactionMandatoyFields.category && filteredCategories.length) {
-            this.fg.controls.category.setValidators(Validators.required);
-          } else {
-            this.fg.controls.category.clearValidators();
-          }
-          this.fg.controls.category.updateValueAndValidity();
-        }
-      });
   }
 
   setupBalanceFlag() {
@@ -2085,6 +2044,7 @@ export class AddEditExpensePage implements OnInit {
               'bus_travel_class',
               'billable',
               'tax_group_id',
+              'org_category_id',
             ];
             return this.expenseFieldsService.filterByOrgCategoryId(expenseFieldsMap, fields, formValue.category);
           })
@@ -2126,6 +2086,7 @@ export class AddEditExpensePage implements OnInit {
             taxGroups: this.taxGroups$,
             isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
             individualProjectIds: this.individualProjectIds$,
+            filteredCategories: this.filteredCategories$.pipe(take(1)),
           }).pipe(
             map(
               ({
@@ -2135,6 +2096,7 @@ export class AddEditExpensePage implements OnInit {
                 taxGroups,
                 isIndividualProjectsEnabled,
                 individualProjectIds,
+                filteredCategories,
               }) => ({
                 isConnected,
                 txnFields,
@@ -2143,6 +2105,7 @@ export class AddEditExpensePage implements OnInit {
                 taxGroups,
                 isIndividualProjectsEnabled,
                 individualProjectIds,
+                filteredCategories,
               })
             )
           )
@@ -2157,6 +2120,7 @@ export class AddEditExpensePage implements OnInit {
           taxGroups,
           individualProjectIds,
           isIndividualProjectsEnabled,
+          filteredCategories,
         }) => {
           const keyToControlMap: {
             [id: string]: AbstractControl;
@@ -2178,6 +2142,7 @@ export class AddEditExpensePage implements OnInit {
             project_id: this.fg.controls.project,
             billable: this.fg.controls.billable,
             tax_group_id: this.fg.controls.tax_group,
+            org_category_id: this.fg.controls.category,
           };
           for (const control of Object.values(keyToControlMap)) {
             control.clearValidators();
@@ -2237,6 +2202,10 @@ export class AddEditExpensePage implements OnInit {
                   orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
                     ? null
                     : Validators.required
+                );
+              } else if (txnFieldKey === 'org_category_id') {
+                control.setValidators(
+                  isConnected && filteredCategories && filteredCategories.length > 0 ? Validators.required : null
                 );
               } else {
                 control.setValidators(isConnected ? Validators.required : null);
@@ -2806,8 +2775,6 @@ export class AddEditExpensePage implements OnInit {
     this.setupFilteredCategories(activeCategories$);
 
     this.setupTfc();
-
-    this.setupTransactionMandatoryFields();
 
     this.flightJourneyTravelClassOptions$ = this.txnFields$.pipe(
       map(
