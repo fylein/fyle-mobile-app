@@ -1,0 +1,68 @@
+@import '../../../../theme/colors.scss';
+
+$shimmer-border-radius: 4px;
+
+.skeleton-card {
+  background: linear-gradient(97.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
+  border-radius: 16px;
+  margin: 16px;
+  padding: 26px 12px;
+
+  &__content-container {
+    display: flex;
+    flex-direction: column;
+
+    &__header,
+    &__sub-header {
+      border-radius: $shimmer-border-radius;
+      height: 16px;
+    }
+
+    &__header {
+      margin-bottom: 5px;
+      width: 170px;
+    }
+
+    &__sub-header {
+      margin-top: 5px;
+      width: 230px;
+    }
+  }
+}
+
+.skeleton-row {
+  padding: 0 16px 20px;
+
+  &__icon {
+    border-radius: 50%;
+    height: 35px;
+    width: 35px;
+  }
+
+  &__content-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-left: 10px;
+
+    &__header,
+    &__sub-header {
+      border-radius: $shimmer-border-radius;
+      height: 12px;
+    }
+
+    &__header {
+      width: 85px;
+    }
+
+    &__sub-header {
+      width: 115px;
+    }
+  }
+}
+
+.skeleton-divider {
+  background-color: $grey-lighter;
+  height: 1px;
+  margin: calc(30px - 16px) 16px 30px;
+}
