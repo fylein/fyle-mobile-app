@@ -527,7 +527,7 @@ export class TripRequestsService {
       map((doesOrgHaveExtension) => {
         let msg = '';
         if (doesOrgHaveExtension) {
-          msg = `We are removing Trips from our app. You won't be able to create new trip requests after Mar 31, 2022.`;
+          msg = `We are removing Trips from our app. You won't be able to create new trip requests going forward.`;
           if (view === 'team') {
             msg = msg.replace('You', 'Users');
             msg += ` You cannot approve or send back trip requests after Apr 30, 2022.`;

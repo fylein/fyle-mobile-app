@@ -1,16 +1,20 @@
 import { AfterViewChecked, ChangeDetectorRef, Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { Observable, Subject, from, noop } from 'rxjs';
-import { concatMap, switchMap, finalize, map, scan, shareReplay, take } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
+import { Params, Router } from '@angular/router';
+import { TasksService } from 'src/app/core/services/tasks.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { Observable, Subject, noop } from 'rxjs';
+import { concatMap, switchMap, finalize, map, scan, shareReplay, take } from 'rxjs/operators';
 import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
-import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { TitleCasePipe } from '@angular/common';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -34,6 +38,8 @@ export class TeamAdvancePage implements AfterViewChecked {
 
   count$: Observable<number>;
 
+  totalTaskCount = 0;
+
   currentPageNumber = 1;
 
   isInfiniteScrollRequired$: Observable<boolean>;
@@ -44,14 +50,22 @@ export class TeamAdvancePage implements AfterViewChecked {
 
   isLoading = false;
 
+  projectFieldName = 'Project';
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
+    private tasksService: TasksService,
+    private trackingService: TrackingService,
     private cdRef: ChangeDetectorRef,
     private router: Router,
-    private filtersHelperService: FiltersHelperService
+    private filtersHelperService: FiltersHelperService,
+    private offlineService: OfflineService,
+    private titleCasePipe: TitleCasePipe
   ) {}
 
   ionViewWillEnter() {
+    this.tasksService.getTotalTaskCount().subscribe((totalTaskCount) => (this.totalTaskCount = totalTaskCount));
+
     this.setupDefaultFilters();
     this.currentPageNumber = 1;
     this.isLoading = true;
@@ -118,6 +132,8 @@ export class TeamAdvancePage implements AfterViewChecked {
       sortParam: this.filters.sortParam,
       sortDir: this.filters.sortDir,
     });
+
+    this.getAndUpdateProjectName();
   }
 
   ngAfterViewChecked() {
@@ -141,6 +157,13 @@ export class TeamAdvancePage implements AfterViewChecked {
     if (event) {
       event.target.complete();
     }
+  }
+
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
+      this.projectFieldName = projectField?.field_name;
+    });
   }
 
   async openFilters(activeFilterInitialName?: string) {
@@ -172,11 +195,11 @@ export class TeamAdvancePage implements AfterViewChecked {
             value: SortingValue.creationDateDesc,
           },
           {
-            label: 'Project - A to Z',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - A to Z`,
             value: SortingValue.projectAsc,
           },
           {
-            label: 'Project - Z to A',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - Z to A`,
             value: SortingValue.projectDesc,
           },
         ],
@@ -191,7 +214,7 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     if (filters) {
       this.filters = filters;
-      this.filterPills = this.filtersHelperService.generateFilterPills(this.filters);
+      this.filterPills = this.filtersHelperService.generateFilterPills(this.filters, this.projectFieldName);
       this.changeState();
     }
   }
@@ -265,5 +288,27 @@ export class TeamAdvancePage implements AfterViewChecked {
     }
 
     return extraParams;
+  }
+
+  onHomeClicked() {
+    const queryParams: Params = { state: 'home' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onTaskClicked() {
+    const queryParams: Params = { state: 'tasks' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'Team Advances',
+    });
+  }
+
+  onCameraClicked() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 }

@@ -2248,18 +2248,6 @@ export class AddEditPerDiemPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  // getFormValidationErrors() {
-  //   Object.keys(this.fg.controls).forEach(key => {
-
-  //     const controlErrors: ValidationErrors = this.fg.get(key).errors;
-  //     if (controlErrors != null) {
-  //       Object.keys(controlErrors).forEach(keyError => {
-  //         console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-  //       });
-  //     }
-  //   });
-  // }
-
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
     const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
@@ -2320,17 +2308,6 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     }
-  }
-
-  getFormValidationErrors() {
-    Object.keys(this.fg.controls).forEach((key) => {
-      const controlErrors: ValidationErrors = this.fg.get(key).errors;
-      if (controlErrors != null) {
-        Object.keys(controlErrors).forEach((keyError) => {
-          console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
-        });
-      }
-    });
   }
 
   async openCommentsModal() {

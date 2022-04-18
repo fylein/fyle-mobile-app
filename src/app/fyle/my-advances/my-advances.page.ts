@@ -1,5 +1,6 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
+import { TitleCasePipe } from '@angular/common';
 
 import {
   concat,
@@ -19,6 +20,8 @@ import { concatMap, map, reduce, shareReplay, startWith, switchMap, takeUntil, t
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NetworkService } from '../../core/services/network.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
@@ -31,8 +34,6 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
-import { TrackingService } from 'src/app/core/services/tracking.service';
-import { TasksService } from 'src/app/core/services/tasks.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -56,6 +57,8 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   navigateBack = false;
 
+  totalTaskCount = 0;
+
   refreshAdvances$: Subject<void> = new Subject();
 
   advances$: Observable<any>;
@@ -70,6 +73,8 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   advancesTaskCount = 0;
 
+  projectFieldName = 'Project';
+
   constructor(
     private advanceRequestService: AdvanceRequestService,
     private activatedRoute: ActivatedRoute,
@@ -79,6 +84,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     private offlineService: OfflineService,
     private filtersHelperService: FiltersHelperService,
     private utilityService: UtilityService,
+    private titleCasePipe: TitleCasePipe,
     private trackingService: TrackingService,
     private tasksService: TasksService,
     private cdr: ChangeDetectorRef
@@ -103,6 +109,13 @@ export class MyAdvancesPage implements AfterViewChecked {
     });
   }
 
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
+      this.projectFieldName = projectField?.field_name;
+    });
+  }
+
   ionViewWillEnter() {
     this.setupNetworkWatcher();
 
@@ -111,6 +124,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     });
 
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.tasksService.getTotalTaskCount().subscribe((totalTaskCount) => (this.totalTaskCount = totalTaskCount));
 
     const oldFilters = this.activatedRoute.snapshot.queryParams.filters;
     if (oldFilters) {
@@ -214,6 +228,8 @@ export class MyAdvancesPage implements AfterViewChecked {
         }
       })
     );
+
+    this.getAndUpdateProjectName();
   }
 
   ngAfterViewChecked() {
@@ -293,6 +309,7 @@ export class MyAdvancesPage implements AfterViewChecked {
       queryParams,
     });
     this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
       from: 'My Advances',
     });
   }
@@ -369,11 +386,11 @@ export class MyAdvancesPage implements AfterViewChecked {
             value: SortingValue.approvalDateDesc,
           },
           {
-            label: 'Project - A to Z',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - A to Z`,
             value: SortingValue.projectAsc,
           },
           {
-            label: 'Project - Z to A',
+            label: `${this.titleCasePipe.transform(this.projectFieldName)} - Z to A`,
             value: SortingValue.projectDesc,
           },
         ],
@@ -386,7 +403,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     );
     if (filters) {
       this.filterParams$.next(filters);
-      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
+      this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value, this.projectFieldName);
     }
   }
 }

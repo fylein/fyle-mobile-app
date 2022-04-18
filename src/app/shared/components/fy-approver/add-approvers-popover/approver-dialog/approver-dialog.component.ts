@@ -4,7 +4,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { switchMap, map, finalize, startWith, distinctUntilChanged } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import { Employee } from 'src/app/core/models/employee.model';
+import { Employee } from 'src/app/core/models/spender/employee.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 

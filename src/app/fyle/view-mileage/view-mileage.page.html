@@ -64,7 +64,8 @@
           {{extendedMileage.tx_distance || 0}} {{extendedMileage.tx_distance_unit | titlecase}}
         </div>
         <div *ngIf="isProjectShown" class="view-mileage--card-container__project">
-          Project: {{ extendedMileage.tx_project_name ? extendedMileage.tx_project_name : 'Unspecified' }}
+          {{ projectFieldName | titlecase }} : {{ extendedMileage.tx_project_name ? extendedMileage.tx_project_name :
+          'Unspecified' }}
         </div>
       </div>
       <div class="ion-text-right view-mileage--card-container__block">

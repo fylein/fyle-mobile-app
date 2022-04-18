@@ -8,6 +8,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgService } from 'src/app/core/services/org.service';
@@ -53,6 +54,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private userService: UserService,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
+    private secureStorageService: SecureStorageService,
     private storageService: StorageService,
     private router: Router,
     private networkService: NetworkService,
@@ -213,6 +215,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           from(this.proceed()).subscribe(noop);
         },
         async (err) => {
+          await this.secureStorageService.clearAll();
           await this.storageService.clearAll();
           this.userEventService.logout();
           globalCacheBusterNotifier.next();
@@ -235,6 +238,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             })
           ),
           finalize(() => {
+            this.secureStorageService.clearAll();
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
@@ -242,6 +246,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         )
         .subscribe(noop);
     } catch (e) {
+      this.secureStorageService.clearAll();
       this.storageService.clearAll();
       globalCacheBusterNotifier.next();
     }
