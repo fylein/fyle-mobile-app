@@ -135,9 +135,9 @@ export class StatsComponent implements OnInit {
       this.dashboardService
         .getCCCDetails()
         .pipe(
-          switchMap((details) => {
-            return this.dashboardService.getNonUnifyCCCDetails().pipe(map((cards) => ({ details, cards })));
-          })
+          switchMap((details) =>
+            this.dashboardService.getNonUnifyCCCDetails().pipe(map((cards) => ({ details, cards })))
+          )
         )
         .subscribe(({ details, cards }) => {
           this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);

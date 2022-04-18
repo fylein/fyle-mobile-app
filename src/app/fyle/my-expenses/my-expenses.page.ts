@@ -476,12 +476,8 @@ export class MyExpensesPage implements OnInit {
     })
       .pipe(
         filter(({ isConnected, isUnifyCCCEnabled }) => isConnected && isUnifyCCCEnabled),
-        switchMap(() => {
-          return this.corporateCreditCardService.getAssignedCards();
-        }),
-        switchMap((unifyCards) => {
-          return this.getNonUnifyCCCDetails().pipe(map((allCards) => ({ unifyCards, allCards })));
-        })
+        switchMap(() => this.corporateCreditCardService.getAssignedCards()),
+        switchMap((unifyCards) => this.getNonUnifyCCCDetails().pipe(map((allCards) => ({ unifyCards, allCards }))))
       )
       .subscribe(({ unifyCards, allCards }) => {
         const cards = this.getCardDetail(unifyCards.cardDetails);
