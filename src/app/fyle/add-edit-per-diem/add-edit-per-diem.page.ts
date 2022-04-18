@@ -1,7 +1,7 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -1537,14 +1537,9 @@ export class AddEditPerDiemPage implements OnInit {
         }
       })
     );
-
-    document.addEventListener('keydown', () => this.scrollInputIntoView());
   }
 
-  ionViewWillLeave() {
-    document.removeEventListener('keydown', () => this.scrollInputIntoView());
-  }
-
+  @HostListener('keydown')
   scrollInputIntoView() {
     const el = document.activeElement;
     if (el && el instanceof HTMLInputElement) {
