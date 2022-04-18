@@ -231,6 +231,16 @@ export class AddEditPerDiemPage implements OnInit {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
   }
 
+  @HostListener('keydown')
+  scrollInputIntoView() {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  }
+
   ngOnInit() {
     if (this.activatedRoute.snapshot.params.remove_from_report) {
       this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
@@ -1537,16 +1547,6 @@ export class AddEditPerDiemPage implements OnInit {
         }
       })
     );
-  }
-
-  @HostListener('keydown')
-  scrollInputIntoView() {
-    const el = document.activeElement;
-    if (el && el instanceof HTMLInputElement) {
-      el.scrollIntoView({
-        block: 'center',
-      });
-    }
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {

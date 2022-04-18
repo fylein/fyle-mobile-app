@@ -99,6 +99,16 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private trackingService: TrackingService
   ) {}
 
+  @HostListener('keydown')
+  scrollInputIntoView() {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  }
+
   currencyObjValidator(c: FormControl): ValidationErrors {
     if (c.value && c.value.amount && c.value.currency) {
       return null;
@@ -652,16 +662,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
       })
     );
     this.setupNetworkWatcher();
-  }
-
-  @HostListener('keydown')
-  scrollInputIntoView() {
-    const el = document.activeElement;
-    if (el && el instanceof HTMLInputElement) {
-      el.scrollIntoView({
-        block: 'center',
-      });
-    }
   }
 
   setupNetworkWatcher() {

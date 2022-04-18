@@ -247,6 +247,16 @@ export class AddEditMileagePage implements OnInit {
     return this.fg.controls.route;
   }
 
+  @HostListener('keydown')
+  scrollInputIntoView() {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  }
+
   ngOnInit() {
     if (this.activatedRoute.snapshot.params.remove_from_report) {
       this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
@@ -1556,16 +1566,6 @@ export class AddEditMileagePage implements OnInit {
           }, 1000);
         }
       );
-  }
-
-  @HostListener('keydown')
-  scrollInputIntoView() {
-    const el = document.activeElement;
-    if (el && el instanceof HTMLInputElement) {
-      el.scrollIntoView({
-        block: 'center',
-      });
-    }
   }
 
   async showClosePopup() {
