@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
-import { delay, map, tap } from 'rxjs/operators';
+import { delay, map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
@@ -132,18 +132,15 @@ export class StatsComponent implements OnInit {
 
   initializeCCCStats() {
     if (this.isUnifyCCCExpensesSettings) {
-      this.cardTransactionsAndDetails$ = this.dashboardService.getCCCDetails().pipe(
-        map((cccDetail) => cccDetail),
-        shareReplay(1)
-      );
-
-      this.allCardTransactionsAndDetailsNonUnifyCCC$ = this.dashboardService.getNonUnifyCCCDetails().pipe(
-        map((res) => res),
-        shareReplay(1)
-      );
-      this.cardTransactionsAndDetails$.subscribe((details) => {
-        this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-        this.allCardTransactionsAndDetailsNonUnifyCCC$.subscribe((cards) => {
+      this.dashboardService
+        .getCCCDetails()
+        .pipe(
+          switchMap((details) => {
+            return this.dashboardService.getNonUnifyCCCDetails().pipe(map((cards) => ({ details, cards })));
+          })
+        )
+        .subscribe(({ details, cards }) => {
+          this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
           cards.forEach((card) => {
             if (
               this.cardTransactionsAndDetails.filter((cardDetail) => cardDetail.cardNumber === card.ba_account_number)
@@ -163,7 +160,6 @@ export class StatsComponent implements OnInit {
           });
           this.isCCCStatsLoading = false;
         });
-      });
     } else {
       this.cardTransactionsAndDetailsNonUnifyCCC$ = this.dashboardService.getNonUnifyCCCDetails().pipe(
         map((res) => res[0]),

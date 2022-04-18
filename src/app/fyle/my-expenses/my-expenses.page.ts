@@ -16,6 +16,7 @@ import {
   take,
   takeUntil,
   tap,
+  filter,
 } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -165,7 +166,7 @@ export class MyExpensesPage implements OnInit {
 
   isCameraShown = false;
 
-  isUnifyCCCEnabled$: Observable<{ enabled: boolean }>;
+  isUnifyCCCEnabled$: Observable<boolean>;
 
   cardNumbers: { label: string; value: string }[] = [];
 
@@ -474,36 +475,33 @@ export class MyExpensesPage implements OnInit {
       isUnifyCCCEnabled: this.isUnifyCCCEnabled$.pipe(take(1)),
     })
       .pipe(
-        switchMap(({ isConnected, isUnifyCCCEnabled }) => {
-          if (isConnected && isUnifyCCCEnabled) {
-            return this.corporateCreditCardService.getAssignedCards().pipe(
-              map((cccDetail) => this.getCardDetail(cccDetail.cardDetails)),
-              shareReplay(1)
-            );
-          } else {
-            return of([]);
-          }
+        filter(({ isConnected, isUnifyCCCEnabled }) => isConnected && isUnifyCCCEnabled),
+        switchMap(() => {
+          return this.corporateCreditCardService.getAssignedCards();
+        }),
+        switchMap((unifyCards) => {
+          return this.getNonUnifyCCCDetails().pipe(map((allCards) => ({ unifyCards, allCards })));
         })
       )
-      .subscribe((cards) => {
+      .subscribe(({ unifyCards, allCards }) => {
+        const cards = this.getCardDetail(unifyCards.cardDetails);
+
         this.cardNumbers = [];
         cards.forEach((card) => {
           this.cardNumbers.push({ label: this.maskNumber.transform(card.cardNumber), value: card.cardNumber });
         });
 
-        this.allCardTransactionsAndDetailsNonUnifyCCC$.subscribe((details) => {
-          details.forEach((detail) => {
-            if (
-              this.cardNumbers.filter(
-                (cardDetail) => cardDetail.label === this.maskNumber.transform(detail.ba_account_number)
-              ).length === 0
-            ) {
-              this.cardNumbers.push({
-                label: this.maskNumber.transform(detail.ba_account_number),
-                value: detail.ba_account_number,
-              });
-            }
-          });
+        allCards.forEach((detail) => {
+          if (
+            this.cardNumbers.filter(
+              (cardDetail) => cardDetail.label === this.maskNumber.transform(detail.ba_account_number)
+            ).length === 0
+          ) {
+            this.cardNumbers.push({
+              label: this.maskNumber.transform(detail.ba_account_number),
+              value: detail.ba_account_number,
+            });
+          }
         });
       });
 
