@@ -272,6 +272,7 @@
   &--project-block {
     flex-grow: 1;
     margin-right: 26px;
+    margin-top: -12px;
   }
 
   &--primary-block {
@@ -606,8 +607,8 @@
   &--error {
     color: $red;
     line-height: 16px;
-    margin-top: -12px;
     font-size: 12px;
+    margin-top: -12px;
   }
 
   &--amount-error {
