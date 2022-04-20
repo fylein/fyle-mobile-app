@@ -2000,8 +2000,8 @@ export class MyExpensesPage implements OnInit {
 
   onFilterClose(filterType: string) {
     if (filterType === 'sort') {
-      delete this.filters['sortDir'];
-      delete this.filters['sortParam'];
+      delete this.filters.sortDir;
+      delete this.filters.sortParam;
     } else {
       delete this.filters[filterType];
     }
