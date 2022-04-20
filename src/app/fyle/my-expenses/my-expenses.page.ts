@@ -941,7 +941,7 @@ export class MyExpensesPage implements OnInit {
   generateCardFilterPills(filterPills: FilterPill[], filter) {
     filterPills.push({
       label: 'Cards',
-      type: 'card',
+      type: 'cardNumbers',
       value: filter.cardNumbers
         .map((cardNumber) => this.maskNumber.transform(cardNumber))
         .reduce((state1, state2) => `${state1}, ${state2}`),
@@ -1999,7 +1999,12 @@ export class MyExpensesPage implements OnInit {
   }
 
   onFilterClose(filterType: string) {
-    delete this.filters[filterType];
+    if (filterType === 'sort') {
+      delete this.filters['sortDir'];
+      delete this.filters['sortParam'];
+    } else {
+      delete this.filters[filterType];
+    }
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
