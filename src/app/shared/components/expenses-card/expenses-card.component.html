@@ -194,8 +194,10 @@
               class="expenses-card--project"
               [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
             >
-              <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
-              {{ expense.tx_project_name ? expense.tx_project_name : 'Unspecified' }}
+              <div *ngIf="expense.tx_project_name.length > 0">
+                <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
+                {{ expense.tx_project_name ? expense.tx_project_name : 'Unspecified' }}
+              </div>
             </div>
           </div>
           <div

@@ -285,7 +285,6 @@ export class ExpensesCardComponent implements OnInit {
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
     this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
-
     this.offlineService
       .getHomeCurrency()
       .pipe(
