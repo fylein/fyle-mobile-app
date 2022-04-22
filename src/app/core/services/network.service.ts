@@ -1,10 +1,9 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { Plugins } from '@capacitor/core';
+import { Network } from '@capacitor/network';
 import { concat, from, of } from 'rxjs';
 import { delay, map, pairwise, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { ConnectionMessageStatus } from '../../shared/components/fy-connection/connection-status.enum';
-const { Network } = Plugins;
 
 @Injectable({
   providedIn: 'root',

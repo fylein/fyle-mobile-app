@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-
-import { Plugins } from '@capacitor/core';
-import { from } from 'rxjs';
-
-const { Device } = Plugins;
+import { Device } from '@capacitor/device';
+import { App } from '@capacitor/app';
+import { forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +11,16 @@ export class DeviceService {
   constructor() {}
 
   getDeviceInfo() {
-    return from(Device.getInfo());
+    return forkJoin({
+      deviceInfo: Device.getInfo(),
+      deviceId: Device.getId(),
+      appInfo: App.getInfo(),
+    }).pipe(
+      map(({ deviceInfo, deviceId, appInfo }) => {
+        return Object.assign(deviceInfo, deviceId, {
+          appVersion: appInfo.version,
+        });
+      })
+    );
   }
 }

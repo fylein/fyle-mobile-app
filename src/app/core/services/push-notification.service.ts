@@ -1,19 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {
-  Capacitor,
-  Plugins,
-  PushNotification,
-  PushNotificationActionPerformed,
-  PushNotificationToken,
-} from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
+import { PushNotifications, PushNotificationSchema, ActionPerformed, Token } from '@capacitor/push-notifications';
 import { forkJoin, iif, noop, of } from 'rxjs';
 import { concatMap, map, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { DeepLinkService } from './deep-link.service';
 import { DeviceService } from './device.service';
 import { UserService } from './user.service';
-const { PushNotifications } = Plugins;
 
 @Injectable({
   providedIn: 'root',
@@ -44,28 +38,25 @@ export class PushNotificationService {
     const that = this;
     // If we don't call removeAllListeners() then PushNotifications will start add listeners every time user open the app
     PushNotifications.removeAllListeners();
-    PushNotifications.requestPermission().then((result) => {
-      if (result.granted) {
+    PushNotifications.requestPermissions().then((result) => {
+      if (result.receive === 'granted') {
         PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
       }
     });
 
-    PushNotifications.addListener('registration', (token: PushNotificationToken) => {
+    PushNotifications.addListener('registration', (token: Token) => {
       that.postDeviceInfo(token.value).subscribe(noop);
     });
 
-    PushNotifications.addListener('pushNotificationReceived', (notification: PushNotification) => {
+    PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
       that.updateNotificationStatusAndRedirect(notification.data).subscribe(noop);
     });
 
-    PushNotifications.addListener(
-      'pushNotificationActionPerformed',
-      (notification: PushNotificationActionPerformed) => {
-        that.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(() => {
-          that.deepLinkService.redirect(that.deepLinkService.getJsonFromUrl(notification.notification.data.cta_url));
-        });
-      }
-    );
+    PushNotifications.addListener('pushNotificationActionPerformed', (notification: ActionPerformed) => {
+      that.updateNotificationStatusAndRedirect(notification.notification.data, true).subscribe(() => {
+        that.deepLinkService.redirect(that.deepLinkService.getJsonFromUrl(notification.notification.data.cta_url));
+      });
+    });
   }
 
   postDeviceInfo(token) {

@@ -1,7 +1,6 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController, PopoverController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { from, concat, Observable, noop } from 'rxjs';
 import { switchMap, shareReplay } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
@@ -13,7 +12,8 @@ import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
 import { GlobalCacheConfig } from 'ts-cacheable';
 import { NetworkService } from './core/services/network.service';
-import { Plugins, StatusBarStyle } from '@capacitor/core';
+import { App } from '@capacitor/app';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { FreshChatService } from './core/services/fresh-chat.service';
 import { DeepLinkService } from './core/services/deep-link.service';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
@@ -24,9 +24,6 @@ import { PopupService } from './core/services/popup.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
-
-const { App } = Plugins;
-const CapStatusBar = Plugins.StatusBar;
 
 @Component({
   selector: 'app-root',
@@ -52,7 +49,6 @@ export class AppComponent implements OnInit {
 
   constructor(
     private platform: Platform,
-    private statusBar: StatusBar,
     private router: Router,
     private authService: AuthService,
     private userEventService: UserEventService,
@@ -134,9 +130,9 @@ export class AppComponent implements OnInit {
     });
 
     this.platform.ready().then(() => {
-      this.statusBar.styleDefault();
-      CapStatusBar.setStyle({
-        style: StatusBarStyle.Dark,
+      // this.statusBar.styleDefault();
+      StatusBar.setStyle({
+        style: Style.Default,
       });
       this.splashScreen.hide();
 
