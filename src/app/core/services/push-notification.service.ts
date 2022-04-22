@@ -29,7 +29,7 @@ export class PushNotificationService {
   }
 
   initPush() {
-    if (Capacitor.platform !== 'web') {
+    if (Capacitor.getPlatform() !== 'web') {
       this.registerPush();
     }
   }

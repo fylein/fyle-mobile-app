@@ -190,7 +190,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   toggleFlashMode() {
-    if (Capacitor.platform !== 'web') {
+    if (Capacitor.getPlatform() !== 'web') {
       let nextActiveFlashMode = 'on';
       if (this.flashMode === 'on') {
         nextActiveFlashMode = 'off';
@@ -206,7 +206,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async getFlashModes() {
-    if (Capacitor.platform !== 'web') {
+    if (Capacitor.getPlatform() !== 'web') {
       CameraPreview.getSupportedFlashModes().then((flashModes) => {
         if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
           this.flashMode = this.flashMode || 'off';
