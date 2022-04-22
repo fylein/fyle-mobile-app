@@ -1,6 +1,6 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -245,6 +245,16 @@ export class AddEditMileagePage implements OnInit {
 
   get route() {
     return this.fg.controls.route;
+  }
+
+  @HostListener('keydown')
+  scrollInputIntoView() {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
   }
 
   ngOnInit() {
@@ -1556,22 +1566,7 @@ export class AddEditMileagePage implements OnInit {
           }, 1000);
         }
       );
-
-    document.addEventListener('keydown', this.scrollInputIntoView);
   }
-
-  ionViewWillLeave() {
-    document.removeEventListener('keydown', this.scrollInputIntoView);
-  }
-
-  scrollInputIntoView = () => {
-    const el = document.activeElement;
-    if (el && el instanceof HTMLInputElement) {
-      el.scrollIntoView({
-        block: 'center',
-      });
-    }
-  };
 
   async showClosePopup() {
     const isAutofilled =

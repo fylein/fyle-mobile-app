@@ -1,6 +1,6 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import {
   combineLatest,
   concat,
@@ -381,6 +381,16 @@ export class AddEditExpensePage implements OnInit {
     private titleCasePipe: TitleCasePipe,
     private handleDuplicates: HandleDuplicatesService
   ) {}
+
+  @HostListener('keydown')
+  scrollInputIntoView() {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  }
 
   goBack() {
     const bankTxn =
@@ -2834,21 +2844,7 @@ export class AddEditExpensePage implements OnInit {
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
-    document.addEventListener('keydown', this.scrollInputIntoView);
   }
-
-  ionViewWillLeave() {
-    document.removeEventListener('keydown', this.scrollInputIntoView);
-  }
-
-  scrollInputIntoView = () => {
-    const el = document.activeElement;
-    if (el && el instanceof HTMLInputElement) {
-      el.scrollIntoView({
-        block: 'center',
-      });
-    }
-  };
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
     const editExpenseAttachments = etxn$.pipe(
