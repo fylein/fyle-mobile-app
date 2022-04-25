@@ -11,6 +11,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { Browser } from '@capacitor/browser';
 import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { AppVersionService } from '../../core/services/app-version.service';
