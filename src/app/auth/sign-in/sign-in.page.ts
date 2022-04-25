@@ -8,13 +8,10 @@ import { shareReplay, catchError, filter, finalize, switchMap, map, concatMap, t
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
-import { Browser } from '@capacitor/browser';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { AppVersionService } from '../../core/services/app-version.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
 

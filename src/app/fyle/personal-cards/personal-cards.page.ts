@@ -4,7 +4,7 @@ import { BehaviorSubject, concat, from, fromEvent, noop, Observable, of, Subject
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
