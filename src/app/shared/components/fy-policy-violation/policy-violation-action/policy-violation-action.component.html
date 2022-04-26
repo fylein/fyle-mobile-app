@@ -3,8 +3,6 @@
     <div class="policy-violation-action--icon" *ngIf="icon">
       <img [src]="icon" />
     </div>
-    <div class="policy-violation-action--message">
-      {{ message }}
-    </div>
+    <div class="policy-violation-action--message" [innerHTML]="message"></div>
   </div>
 </div>

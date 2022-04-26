@@ -34,14 +34,14 @@
     <ng-container *ngIf="isExpenseCapped">
       <app-policy-violation-action
         [icon]="'../../../../assets/svg/capped-amount.svg'"
-        [message]="'Expense will be capped to USD 10'"
+        [message]="cappedAmountString"
       ></app-policy-violation-action>
     </ng-container>
 
     <ng-container *ngIf="needAdditionalApproval">
       <app-policy-violation-action
         [icon]="'../../../../assets/svg/2-users.svg'"
-        [message]="'Expense will need additional approval from dimple.kh@fyle.in, aiyush.dhar@fyle.in'"
+        [message]="additionalApprovalString"
       ></app-policy-violation-action>
     </ng-container>
 
@@ -52,7 +52,12 @@
       </p>
     </div>
 
-    <textarea class="policy-violation--textarea" [(ngModel)]="comment" placeholder="Type the reason here"></textarea>
+    <textarea
+      maxlength="250"
+      class="policy-violation--textarea"
+      [(ngModel)]="comment"
+      placeholder="Type the reason here"
+    ></textarea>
   </div>
 </ion-content>
 

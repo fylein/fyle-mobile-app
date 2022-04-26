@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-fy-policy-violation',
@@ -21,19 +22,15 @@ export class FyPolicyViolationComponent implements OnInit {
 
   isExpenseCapped: boolean;
 
+  additionalApprovalString: string;
+
+  cappedAmountString: string;
+
   constructor(private modalController: ModalController) {}
 
   ngOnInit() {
-    this.policyViolationMessages = [
-      'Sentence1 of the fortst sdfkjsdf sdf sdf sdf sdfsdf sdf,\n asdsadasdasdasdsad \n sdssfsd \n sdfsfdsf \n asdasdasd \n sdfsdfsdfdsf',
-      'sdfds fsdf werui sdifsdfuoisf  sdifus  oisdufu iudfo fusdof usdof osd fuos fosdufos fosdu fsd',
-      'sdfdsf sdf sdf sdf sdf sdfsdf sdf sdf sdf sdf sdf sdf sdf sdf sdf dsf dsf sdf sdf sd fsdf sd fsdf sd fsd fsd fsd fsd fsd',
-      'sdf s  s dfsd fsd fsd f',
-      'sdfsdf  fs sf sdfsdf f sd fs s fsdf sd fsd fsd fsdf ',
-    ];
-
     this.policyActionDescription =
-      'The policy violation will trigger the following action(s): expense will be flagged for verification and approval, primary approver will be skipped, expense will need additional approval from dimple.kh@fyle.in, aiyush.dhar@fyle.in, expense will be capped to USD 10';
+      'The policy violation will trigger the following action(s): expense will be flagged for verification and approval, primary approver will be skipped, expense will need additional approval from dimple.kh@fyle.in, aiyush.dhar@fyle.in, expense will be capped to USD 100.3';
 
     if (this.policyActionDescription) {
       if (this.policyActionDescription.toLowerCase().includes('expense will be flagged')) {
@@ -44,9 +41,25 @@ export class FyPolicyViolationComponent implements OnInit {
       }
       if (this.policyActionDescription.toLowerCase().includes('expense will need additional approval from')) {
         this.needAdditionalApproval = true;
+        const emails = this.policyActionDescription.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi);
+        if (emails?.length > 0) {
+          this.additionalApprovalString = 'Expense will need additional approval from ';
+          let index = 0;
+          emails.forEach((email) => {
+            this.additionalApprovalString += '<b>' + email + '</b>';
+            if (index < emails.length - 1) {
+              this.additionalApprovalString += ', ';
+            }
+            index += 1;
+          });
+        }
       }
       if (this.policyActionDescription.toLowerCase().includes('expense will be capped to')) {
         this.isExpenseCapped = true;
+        const cappedAmount = this.policyActionDescription.match(/capped to ([a-zA-Z]{1,3} \d+)/i)[1];
+        const cappedAmountSplit = cappedAmount.split(' ');
+        this.cappedAmountString =
+          'Expense will be capped to ' + getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') + cappedAmountSplit[1];
       }
     }
   }

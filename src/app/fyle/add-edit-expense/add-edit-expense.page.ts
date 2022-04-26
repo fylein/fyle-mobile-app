@@ -63,7 +63,6 @@ import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detec
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
@@ -3265,7 +3264,7 @@ export class AddEditExpensePage implements OnInit {
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations,
       },
-      cssClass: 'pop-up-in-center',
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await fyCriticalPolicyViolationPopOver.present();
