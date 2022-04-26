@@ -10,7 +10,6 @@ export interface OrgUser {
   level?: any;
   level_id?: any;
   band?: any;
-  rank?: any;
   business_unit?: any;
   department_id?: any;
   department?: any;

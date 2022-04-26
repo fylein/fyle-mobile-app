@@ -21,7 +21,6 @@ export interface Expense {
   ou_mobile: string;
   ou_org_id: string;
   ou_org_name: string;
-  ou_rank: number;
   ou_sub_department: string;
   ou_title: string;
   ou_user_id: string;

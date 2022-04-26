@@ -3,6 +3,7 @@ import { ModalController, Platform } from '@ionic/angular';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { Observable, combineLatest } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe } from '@angular/common';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
@@ -76,7 +77,7 @@ export class FyViewReportInfoComponent implements OnInit {
   ngOnInit(): void {}
 
   ionViewWillEnter() {
-    this.erpt$.subscribe((erpt) => {
+    this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt) => {
       this.reportDetails = {
         'Report Name': erpt.rp_purpose,
         Owner: erpt.us_full_name,
