@@ -29,8 +29,8 @@ export class FyPolicyViolationComponent implements OnInit {
   constructor(private modalController: ModalController) {}
 
   ngOnInit() {
-    this.policyActionDescription =
-      'The policy violation will trigger the following action(s): expense will be flagged for verification and approval, primary approver will be skipped, expense will need additional approval from dimple.kh@fyle.in, aiyush.dhar@fyle.in, expense will be capped to USD 100.3';
+    // this.policyActionDescription =
+    //   'The policy violation will trigger the following action(s): expense will be flagged for verification and approval, primary approver will be skipped, expense will need additional approval from dimple.kh@fyle.in, aiyush.dhar@fyle.in, expense will be capped to USD 100.3';
 
     if (this.policyActionDescription) {
       if (this.policyActionDescription.toLowerCase().includes('expense will be flagged')) {
