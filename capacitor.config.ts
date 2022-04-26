@@ -5,6 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Fyle',
   webDir: 'www',
   bundledWebRuntime: false,
+  loggingBehavior: 'debug',
   plugins: {
     SplashScreen: {
       launchShowDuration: 5000,
