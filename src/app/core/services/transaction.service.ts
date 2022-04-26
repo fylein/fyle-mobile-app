@@ -16,6 +16,7 @@ import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
+import { SpenderPlatformExpense } from '../models/spender-platform/spender-platform-expense';
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -23,6 +24,24 @@ type PaymentMode = {
   name: string;
   key: string;
 };
+
+// Expense DataMapper - Mapping to move from model to another
+export interface DataMapper<From, To> {
+  transformTo(f: From): To;
+  transformFrom(t: To): From;
+}
+
+class ExpenseDataMapper implements DataMapper<Expense, SpenderPlatformExpense> {
+  transformTo(f: Expense): SpenderPlatformExpense {
+    console.log('check what is f', f);
+    throw new Error('Method not implemented.');
+  }
+
+  // Used for POST calls
+  transformFrom(t: SpenderPlatformExpense): Expense {
+    throw new Error('Method not implemented.');
+  }
+}
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +60,8 @@ export class TransactionService {
     private utilityService: UtilityService,
     private fileService: FileService,
     private policyApiService: PolicyApiService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private expenseDataMapper: ExpenseDataMapper
   ) {
     transactionsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -165,6 +185,9 @@ export class TransactionService {
           },
         })
       ),
+      tap((res) => {
+        console.log('check what happends-->', this.expenseDataMapper.transformTo(res));
+      }),
       map(
         (res) =>
           res as {
