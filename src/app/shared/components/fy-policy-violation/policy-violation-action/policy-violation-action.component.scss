@@ -1,0 +1,20 @@
+.policy-violation-action {
+  &--container {
+    padding: 16px;
+    border: 1px solid #eff5fc;
+    border-radius: 4px 4px 0px 0px;
+  }
+
+  &--content {
+    display: flex;
+    align-items: center;
+  }
+
+  &--icon {
+    position: relative;
+  }
+
+  &--message {
+    margin-left: 10px;
+  }
+}
