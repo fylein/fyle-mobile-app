@@ -16,7 +16,6 @@ import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -42,8 +41,7 @@ export class TransactionService {
     private utilityService: UtilityService,
     private fileService: FileService,
     private policyApiService: PolicyApiService,
-    private userEventService: UserEventService,
-    private spenderPlatformApiService: SpenderPlatformApiService
+    private userEventService: UserEventService
   ) {
     transactionsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -157,18 +155,16 @@ export class TransactionService {
   ) {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.spenderPlatformApiService.get('/expenses', {
+        this.apiV2Service.get('/expenses', {
           params: {
             offset: config.offset,
             limit: config.limit,
-            order: `${'spent_at.desc'},created_at.desc,id.desc`,
-            employee_id: 'eq.' + eou.ou.id,
+            order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
+            tx_org_user_id: 'eq.' + eou.ou.id,
+            ...config.queryParams,
           },
         })
       ),
-      tap((res) => {
-        console.log('check what is res', res);
-      }),
       map(
         (res) =>
           res as {
