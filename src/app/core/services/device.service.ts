@@ -17,11 +17,11 @@ export class DeviceService {
       deviceId: Device.getId(),
       appInfo: this.getAppInfo(),
     }).pipe(
-      map(({ deviceInfo, deviceId, appInfo }) => {
-        return Object.assign(deviceInfo, deviceId, {
+      map(({ deviceInfo, deviceId, appInfo }) =>
+        Object.assign(deviceInfo, deviceId, {
           appVersion: appInfo.version,
-        });
-      })
+        })
+      )
     );
   }
 
