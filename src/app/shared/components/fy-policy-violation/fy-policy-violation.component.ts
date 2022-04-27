@@ -30,6 +30,8 @@ export class FyPolicyViolationComponent implements OnInit {
   constructor(private modalController: ModalController, private policyService: PolicyService) {}
 
   ngOnInit() {
+    this.policyActionDescription =
+      'The policy violation will trigger the following action(s): expense will be flagged for verification and approval, primary approver will be skipped, expense will need additional approval from dimple.kh@fyle.in, aiyush.dhar@fyle.in, expense will be capped to USD 100.3';
     if (this.policyActionDescription) {
       this.isExpenseFlagged = this.policyService.isExpenseFlagged(this.policyActionDescription);
       this.isPrimaryApproverSkipped = this.policyService.isPrimaryApproverSkipped(this.policyActionDescription);
@@ -51,9 +53,11 @@ export class FyPolicyViolationComponent implements OnInit {
 
       if (this.isExpenseCapped) {
         const cappedAmount = this.policyActionDescription.match(/capped to ([a-zA-Z]{1,3} \d+)/i)[1];
-        const cappedAmountSplit = cappedAmount.split(' ');
-        this.cappedAmountString =
-          'Expense will be capped to ' + getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') + cappedAmountSplit[1];
+        if (cappedAmount) {
+          const cappedAmountSplit = cappedAmount.split(' ');
+          this.cappedAmountString =
+            'Expense will be capped to ' + getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') + cappedAmountSplit[1];
+        }
       }
     }
   }
