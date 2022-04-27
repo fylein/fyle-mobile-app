@@ -31,14 +31,14 @@
       ></app-policy-violation-action>
     </ng-container>
 
-    <ng-container *ngIf="isExpenseCapped">
+    <ng-container *ngIf="isExpenseCapped && cappedAmountString">
       <app-policy-violation-action
         [icon]="'../../../../assets/svg/capped-amount.svg'"
         [message]="cappedAmountString"
       ></app-policy-violation-action>
     </ng-container>
 
-    <ng-container *ngIf="needAdditionalApproval">
+    <ng-container *ngIf="needAdditionalApproval && additionalApprovalString">
       <app-policy-violation-action
         [icon]="'../../../../assets/svg/2-users.svg'"
         [message]="additionalApprovalString"

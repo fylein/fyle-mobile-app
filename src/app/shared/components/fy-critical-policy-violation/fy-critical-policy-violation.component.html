@@ -1,5 +1,3 @@
-<!-- <div class="critical-policy-violation"> -->
-
 <ion-header mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
@@ -18,35 +16,10 @@
         <app-fy-critical-policy-violation-message [message]="violation"></app-fy-critical-policy-violation-message>
       </ng-container>
     </ng-container>
-
-    <!-- <div class="critical-policy-violation--body">
-        <mat-icon class="critical-policy-violation--error-icon">error</mat-icon>
-    
-        <div class="critical-policy-violation--container">
-          <ng-container *ngIf="criticalViolationMessages.length === 1">
-            <span class="critical-policy-violation--list__element">{{ criticalViolationMessages[0] }}</span>
-          </ng-container>
-          <ul *ngIf="criticalViolationMessages.length !== 1" class="critical-policy-violation--list m-0 p-0">
-            <ng-container *ngFor="let criticalViolationMessage of criticalViolationMessages">
-              <li class="critical-policy-violation--list__elements">
-                {{ criticalViolationMessage }}
-              </li>
-            </ng-container>
-          </ul>
-        </div> -->
-    <!-- </div> -->
   </div>
 </ion-content>
 
 <ion-footer class="critical-policy-violation--footer">
-  <!-- <div class="critical-policy-violation--alert-info">
-      <app-fy-alert-info
-        [type]="'information'"
-        [message]="'An expense with a critical policy violation cannot be added to any report.'"
-      >
-      </app-fy-alert-info>
-    </div> -->
-
   <div class="critical-policy-violation--cta-container">
     <ion-grid class="ion-no-padding">
       <ion-row>
@@ -72,4 +45,3 @@
     </ion-grid>
   </div>
 </ion-footer>
-<!-- </div> -->

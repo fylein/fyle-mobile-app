@@ -1,9 +1,11 @@
+@import '../../../../../theme/colors.scss';
+
 .critical-policy-violation-message {
   &--container {
     padding: 16px;
     border-radius: 3px;
-    background: #fef6f6;
-    border: 1px solid #fbe8e9;
+    background: $snow-white;
+    border: 1px solid $pale-pink;
     margin-bottom: 12px;
   }
 }

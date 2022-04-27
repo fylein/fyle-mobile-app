@@ -37,4 +37,36 @@ export class PolicyService {
     };
     return this.policyApiService.get('/policy/violating_transactions', { params });
   }
+
+  isExpenseFlagged(policyActionDescription): boolean {
+    if (policyActionDescription.toLowerCase().includes('expense will be flagged')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isPrimaryApproverSkipped(policyActionDescription): boolean {
+    if (policyActionDescription.toLowerCase().includes('primary approver will be skipped')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  needAdditionalApproval(policyActionDescription): boolean {
+    if (policyActionDescription.toLowerCase().includes('expense will need additional approval from')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isExpenseCapped(policyActionDescription): boolean {
+    if (policyActionDescription.toLowerCase().includes('expense will be capped to')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
