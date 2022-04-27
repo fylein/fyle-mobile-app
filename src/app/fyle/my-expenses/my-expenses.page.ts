@@ -1255,7 +1255,7 @@ export class MyExpensesPage implements OnInit {
         optionType: FilterOptionType.multiselect,
         options: [
           {
-            label: 'Ready To Report',
+            label: 'Unreported',
             value: 'READY_TO_REPORT',
           },
           {
