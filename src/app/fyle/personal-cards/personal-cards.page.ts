@@ -24,7 +24,7 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
-import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
+import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 type Filters = Partial<{
