@@ -1,6 +1,14 @@
-// Plugins enable you to tap into, modify, or extend the internal behavior of Cypress
-// For more info, visit https://on.cypress.io/plugins-api
+import * as webpackConfig from './webpack.config';
+
 module.exports = (on, config) => {
+  const { startDevServer } = require('@cypress/webpack-dev-server');
+
+  on('dev-server:start', (options) =>
+    startDevServer({
+      options,
+      webpackConfig,
+    })
+  );
   require('@cypress/code-coverage/task')(on, config);
   return config;
 };

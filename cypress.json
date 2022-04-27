@@ -1,5 +1,4 @@
 {
-  "integrationFolder": "cypress/integration",
   "supportFile": "cypress/support/index.ts",
   "videosFolder": "cypress/videos",
   "screenshotsFolder": "cypress/screenshots",
@@ -8,5 +7,10 @@
   "baseUrl": "http://localhost:8100",
   "viewportHeight": 667,
   "viewportWidth": 375,
-  "projectId": "svwsfd"
+  "projectId": "svwsfd",
+  "testFiles": "cypress/spec/**/*",
+  "component": {
+    "componentFolder": "cypress/comp",
+    "testFiles": "**/*.ts"
+  }
 }

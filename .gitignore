@@ -24,6 +24,8 @@ npm-debug.log*
 /.versions
 /.vscode
 /coverage
+/cypress/videos
+/cypress/screenshots
 /dist
 /node_modules
 /platforms
