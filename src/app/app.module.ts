@@ -19,6 +19,7 @@ import { SecureStorageService } from './core/services/secure-storage.service';
 import { StorageService } from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import { GoogleMapsModule } from '@angular/google-maps';
+import { SplashScreen } from '@awesome-cordova-plugins/splash-screen/ngx';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -50,6 +51,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
   providers: [
     GooglePlus,
     InAppBrowser,
+    SplashScreen,
     {
       provide: HAMMER_GESTURE_CONFIG,
       useClass: MyHammerConfig,
