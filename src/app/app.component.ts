@@ -125,10 +125,10 @@ export class AppComponent implements OnInit {
     });
 
     this.platform.ready().then(async () => {
-      StatusBar.setStyle({
+      await StatusBar.setStyle({
         style: Style.Default,
       });
-      await SplashScreen.hide();
+      setTimeout(async () => await SplashScreen.hide(), 1000);
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;

@@ -12,8 +12,8 @@
     <param name="android-package" value="org.apache.cordova.inappbrowser.InAppBrowser"/>
   </feature>
 
-  <feature name="CDVOrientation">
-    <param name="android-package" value="cordova.plugins.screenorientation.CDVOrientation"/>
+  <feature name="SpinnerDialog">
+    <param name="android-package" value="com.greybax.spinnerdialog.SpinnerDialog"/>
   </feature>
 
   <feature name="ImagePicker">
