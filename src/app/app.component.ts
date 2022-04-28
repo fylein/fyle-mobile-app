@@ -13,7 +13,7 @@ import { GlobalCacheConfig } from 'ts-cacheable';
 import { NetworkService } from './core/services/network.service';
 import { App } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
-import { SplashScreen } from '@awesome-cordova-plugins/splash-screen/ngx';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { FreshChatService } from './core/services/fresh-chat.service';
 import { DeepLinkService } from './core/services/deep-link.service';
 import { PushNotificationService } from './core/services/push-notification.service';
@@ -62,8 +62,7 @@ export class AppComponent implements OnInit {
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private navController: NavController,
-    private popoverController: PopoverController,
-    private splashScreen: SplashScreen
+    private popoverController: PopoverController
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -129,7 +128,7 @@ export class AppComponent implements OnInit {
       StatusBar.setStyle({
         style: Style.Default,
       });
-      this.splashScreen.hide();
+      await SplashScreen.hide();
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
