@@ -24,6 +24,7 @@ import { PopupService } from './core/services/popup.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
+import { HTTP } from '@ionic-native/http/ngx';
 
 const { App } = Plugins;
 const CapStatusBar = Plugins.StatusBar;
@@ -71,7 +72,8 @@ export class AppComponent implements OnInit {
     private loginInfoService: LoginInfoService,
     private popupService: PopupService,
     private navController: NavController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private http: HTTP
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -139,6 +141,11 @@ export class AppComponent implements OnInit {
         style: StatusBarStyle.Dark,
       });
       this.splashScreen.hide();
+
+      this.http
+        .setServerTrustMode('pinned')
+        .then(() => console.log('Mutual fund sahi hai!'))
+        .catch((err) => console.log('Yeh galat hai :('));
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
