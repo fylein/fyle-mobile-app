@@ -2,14 +2,14 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
 import { AuthService } from './auth.service';
-import { OfflineService } from './offline.service';
 import { NetworkService } from './network.service';
+import { DeviceService } from './device.service';
+import { OrgService } from './org.service';
 
 import { concat } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import * as LDClient from 'launchdarkly-js-client-sdk';
-import { DeviceService } from './device.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +19,7 @@ export class LaunchDarklyService {
 
   constructor(
     private authService: AuthService,
-    private offlineService: OfflineService,
+    private orgService: OrgService,
     private networkService: NetworkService,
     private deviceService: DeviceService
   ) {
@@ -30,9 +30,13 @@ export class LaunchDarklyService {
     const eou = await this.authService.getEou();
 
     if (eou && this.isOnline) {
-      const currentOrg = await this.getCurrentOrg();
       const platform = await this.getDevicePlatform();
+      const currentOrg = await this.getCurrentOrg();
 
+      // HACK ALERT - Added (currentOrg as any).created_at because created_at is typed as a date but internally is a string
+      // Typescript complains when passed date to LaunchDarkly, only primitive types and arrays are accepted
+      // But since created_at is a string we have to convert currentOrg to any.
+      // TODO - REMOVE THIS AFTER THE ORG MODEL IS FIXED
       if (currentOrg) {
         const user = {
           key: eou.ou.user_id,
@@ -40,7 +44,7 @@ export class LaunchDarklyService {
             org_id: eou.ou.org_id,
             org_user_id: eou.ou.id,
             org_currency: currentOrg.currency,
-            org_created_at: currentOrg.created_at,
+            org_created_at: (currentOrg as any).created_at,
             asset: `MOBILE - ${platform.toUpperCase()}`,
           },
         };
@@ -65,7 +69,7 @@ export class LaunchDarklyService {
   }
 
   private getCurrentOrg() {
-    return this.offlineService.getCurrentOrg().toPromise();
+    return this.orgService.getCurrentOrg().toPromise();
   }
 
   private getDevicePlatform() {
