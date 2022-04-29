@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <domain-config>
+  <domain-config>
+    <domain includeSubdomains="true">*.fylehq.com</domain>
+    <domain includeSubdomains="true">*.fyle.tech</domain>
     <pin-set>
+      <!-- fylehq.com/ app.fyle.tech -->
+      <pin digest="SHA-256">47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</pin>
+
       <!-- fylehq.com/ app.fyle.tech -->
       <pin digest="SHA-256">47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</pin>
 
@@ -11,5 +16,5 @@
       <!-- accounts.fylehq.com -->
       <pin digest="SHA-256">GNtJjUBxaBTiR+BNSFmsUyZKCDIDJvBmZZDQG2KPq1M=</pin>
     </pin-set>
-    </domain-config>
+  </domain-config>
 </network-security-config>
