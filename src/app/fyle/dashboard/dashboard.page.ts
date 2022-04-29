@@ -48,6 +48,8 @@ export class DashboardPage implements OnInit {
 
   dummyData$: Observable<any>;
 
+  showDummyData = false;
+
   get displayedTaskCount() {
     if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
       return this.tasksComponent?.taskCount;
@@ -81,6 +83,10 @@ export class DashboardPage implements OnInit {
       takeUntil(this.onPageExit$),
       shareReplay(1)
     );
+  }
+
+  toggleDummy() {
+    this.showDummyData = !this.showDummyData;
   }
 
   ionViewWillEnter() {
