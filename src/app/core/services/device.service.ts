@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
-import { App } from '@capacitor/app';
-import { forkJoin, of } from 'rxjs';
+import { App, AppInfo } from '@capacitor/app';
+import { forkJoin, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,7 @@ import { map } from 'rxjs/operators';
 export class DeviceService {
   constructor() {}
 
-  getDeviceInfo() {
+  getDeviceInfo(): Observable<ExtendedDeviceInfo> {
     return forkJoin({
       deviceInfo: Device.getInfo(),
       deviceId: Device.getId(),
@@ -25,8 +26,8 @@ export class DeviceService {
     );
   }
 
-  //App plugin does have a web implementation
-  getAppInfo() {
+  //App plugin does not have a web implementation
+  getAppInfo(): Promise<AppInfo> | Observable<{ version: string }> {
     return Capacitor.getPlatform() === 'web' ? of({ version: '1.2.3' }) : App.getInfo();
   }
 }
