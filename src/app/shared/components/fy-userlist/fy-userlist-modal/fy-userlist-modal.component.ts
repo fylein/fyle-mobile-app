@@ -12,7 +12,7 @@ import {
   tap,
 } from 'rxjs/operators';
 import { isEqual, cloneDeep, startsWith } from 'lodash';
-import { Employee } from 'src/app/core/models/employee.model';
+import { Employee } from 'src/app/core/models/spender/employee.model';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';

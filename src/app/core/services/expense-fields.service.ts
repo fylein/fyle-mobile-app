@@ -91,7 +91,7 @@ export class ExpenseFieldsService {
             const configurations = tfcMap[field];
             let filteredField;
 
-            const fieldsIndependentOfCategory = ['project_id', 'billable', 'tax_group_id'];
+            const fieldsIndependentOfCategory = ['project_id', 'billable', 'tax_group_id', 'org_category_id'];
             const defaultFields = ['purpose', 'txn_dt', 'vendor_id', 'cost_center_id'];
             if (configurations && configurations.length > 0) {
               configurations.some((configuration) => {

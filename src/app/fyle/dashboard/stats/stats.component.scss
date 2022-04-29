@@ -3,6 +3,14 @@
 $ccc-bank-name: #c4cae8;
 
 .stats {
+  &--ccc-cards-grid {
+    margin-bottom: 2%;
+  }
+
+  &--ccc-cards-grid-multiple {
+    margin-bottom: -4%;
+  }
+
   &--menu-button {
     padding: 8px;
   }
@@ -15,6 +23,10 @@ $ccc-bank-name: #c4cae8;
   &--body {
     padding-top: 0;
     --ion-grid-padding: 16px;
+  }
+
+  &--single-ccc {
+    margin: 20px 10px 0px 10px;
   }
 
   &--background {
@@ -144,7 +156,7 @@ $ccc-bank-name: #c4cae8;
   &--ccc-cards-section {
     position: relative;
     top: -104px;
-    margin-bottom: 24px;
+    margin-bottom: 30%;
   }
 
   &--ccc-cards-header {

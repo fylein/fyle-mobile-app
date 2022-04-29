@@ -96,6 +96,12 @@ export class ViewExpensePage implements OnInit {
 
   projectFieldName: string;
 
+  isLoading = true;
+
+  isUnifyCcceExpensesSettingsEnabled: boolean;
+
+  cardNumber: string;
+
   get ExpenseView() {
     return ExpenseView;
   }
@@ -198,10 +204,7 @@ export class ViewExpensePage implements OnInit {
     const txId = this.activatedRoute.snapshot.params.id;
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
-      switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.transactionService.getEtxn(txId)))
-      ),
-      finalize(() => this.loaderService.hideLoader()),
+      switchMap(() => this.transactionService.getEtxn(txId)),
       shareReplay(1)
     );
 
@@ -255,6 +258,9 @@ export class ViewExpensePage implements OnInit {
               (matchedExpense) => matchedExpense[0] && (this.paymentModeIcon = 'fy-matched') && matchedExpense[0].ccce
             )
           );
+        this.matchingCCCTransaction$.subscribe((cardTxn) => {
+          this.cardNumber = cardTxn?.card_or_account_number;
+        });
       }
       this.foreignCurrencySymbol = getCurrencySymbol(etxn.tx_orig_currency, 'wide');
       this.etxnCurrencySymbol = getCurrencySymbol(etxn.tx_currency, 'wide');
@@ -305,6 +311,9 @@ export class ViewExpensePage implements OnInit {
 
     this.offlineService.getOrgSettings().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
+      this.isUnifyCcceExpensesSettingsEnabled =
+        this.orgSettings?.unify_ccce_expenses_settings?.allowed &&
+        this.orgSettings?.unify_ccce_expenses_settings?.enabled;
     });
 
     this.offlineService
@@ -342,7 +351,9 @@ export class ViewExpensePage implements OnInit {
 
     this.attachments$ = editExpenseAttachments;
     this.updateFlag$.next();
-    this.attachments$.subscribe(noop);
+    this.attachments$.subscribe(noop, noop, () => {
+      this.isLoading = false;
+    });
 
     const etxnIds =
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);

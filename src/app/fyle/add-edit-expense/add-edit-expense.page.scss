@@ -9,7 +9,6 @@
     }
 
     &__title {
-      padding-right: 60px;
       text-align: center;
     }
   }
@@ -62,6 +61,7 @@
 
   &--footer-toolbar {
     padding: 14px 16px;
+    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
     &__shadow {
       box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
     }
@@ -271,6 +271,7 @@
   &--project-block {
     flex-grow: 1;
     margin-right: 26px;
+    margin-top: -12px;
   }
 
   &--primary-block {
@@ -605,8 +606,8 @@
   &--error {
     color: $red;
     line-height: 16px;
-    margin-top: -12px;
     font-size: 12px;
+    margin-top: -12px;
   }
 
   &--amount-error {
@@ -638,5 +639,46 @@
   &--cost-center-alert {
     margin-top: 8px;
     display: block;
+  }
+
+  &--card-container {
+    background: $pink-gradient-2;
+    padding: 16px;
+    margin: 12px 0;
+    border-radius: 8px;
+
+    &__label {
+      color: $black-light;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    &__value {
+      color: $blue-black;
+      font-weight: 500;
+    }
+
+    &__txn-type {
+      font-size: 12px;
+      margin-left: 4px;
+    }
+
+    &__credit {
+      color: $green;
+      font-weight: 500;
+    }
+  }
+
+  &--date-block-disabled {
+    padding-bottom: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  &--date-disabled {
+    background-color: $off-white;
+    margin-bottom: 0;
+    height: 28px;
+    border-radius: 4px;
+    pointer-events: none;
   }
 }

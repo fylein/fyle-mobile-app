@@ -1,0 +1,78 @@
+@import '../../../theme/colors';
+
+.potential-duplicates {
+  &--body {
+    background: $white;
+    height: 100%;
+  }
+
+  &--navigation {
+    display: flex;
+    height: 60px;
+    justify-content: space-between;
+    padding: 20px 0;
+    &-button {
+      color: $brand-primary;
+      font-size: 16px;
+      padding: 10px;
+      width: 20%;
+      font-weight: 500;
+    }
+
+    &-count {
+      color: $pure-black;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+
+  &--container {
+    height: 88%;
+    width: 93%;
+    margin: 10px auto 20px auto;
+    background: $off-white;
+    border: 1px solid $grey;
+    box-sizing: border-box;
+    border-radius: 16px;
+    align-content: center;
+    border-radius: 20px;
+    overflow-y: scroll;
+  }
+
+  &--header {
+    font-size: 18px;
+    line-height: 23px;
+    color: $pure-black;
+    padding: 10px;
+  }
+
+  &--divider {
+    height: 1px;
+    background-color: $grey;
+  }
+
+  &--footer {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  &--footer-container {
+    &::before {
+      content: none;
+    }
+  }
+
+  &--footer-toolbar {
+    padding: 14px 16px;
+  }
+
+  &--shimmers {
+    height: 300px;
+  }
+
+  &--shimmers-title {
+    width: 80px;
+    margin: auto;
+  }
+}
