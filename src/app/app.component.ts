@@ -24,6 +24,7 @@ import { PopupService } from './core/services/popup.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
+import { LaunchDarklyService } from './core/services/launch-darkly.service';
 
 const { App } = Plugins;
 const CapStatusBar = Plugins.StatusBar;
@@ -71,7 +72,8 @@ export class AppComponent implements OnInit {
     private loginInfoService: LoginInfoService,
     private popupService: PopupService,
     private navController: NavController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private launchDarklyService: LaunchDarklyService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();

@@ -6,7 +6,7 @@ import { OfflineService } from './offline.service';
 import { NetworkService } from './network.service';
 
 import { concat } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import * as LDClient from 'launchdarkly-js-client-sdk';
 import { DeviceService } from './device.service';
@@ -30,12 +30,11 @@ export class LaunchDarklyService {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
 
-    concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable())
-      .pipe(shareReplay(1))
-      .subscribe((isOnline) => {
-        this.isOnline = isOnline;
-        this.initializeLaunchDarkly();
-      });
+    // networkWatcherEmitter will emit an event as the network status keeps changing
+    concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).subscribe((isOnline) => {
+      this.isOnline = isOnline;
+      this.initializeLaunchDarkly();
+    });
   }
 
   private getCurrentOrg() {
