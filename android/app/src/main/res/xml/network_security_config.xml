@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config>
-    <!-- Staging - staging.fyle.tech -->
-        <domain includeSubdomains="true">staging.fyle.tech</domain>
-        <pin-set>
-            <pin digest="SHA-256">ES/HtnkpiFpIB0zdZIwkTv5lEzKn8jc/nmJ7FD8327w=</pin>
-            <pin digest="SHA-256">JSMzqOOrtyOT1kmau6zKhgT676hGgczD5VMdRMyJZFA=</pin>
-            <pin digest="SHA-256">++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=</pin>
-            <pin digest="SHA-256">KwccWaCgrnaw6tsrrSO61FgLacNgG2MMLq8GE6+oP5I=</pin>
-        </pin-set>
+    <pin-set>
+      <!-- fylehq.com/ app.fyle.tech -->
+      <pin digest="SHA-256">47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</pin>
+
+      <!-- accounts.fyle.tech -->
+      <pin digest="SHA-256">ES/HtnkpiFpIB0zdZIwkTv5lEzKn8jc/nmJ7FD8327w=</pin>
+
+      <!-- accounts.fylehq.com -->
+      <pin digest="SHA-256">GNtJjUBxaBTiR+BNSFmsUyZKCDIDJvBmZZDQG2KPq1M=</pin>
+    </pin-set>
     </domain-config>
 </network-security-config>
