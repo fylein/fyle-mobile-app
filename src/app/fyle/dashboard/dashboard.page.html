@@ -43,11 +43,15 @@
     </mat-tab>
   </mat-tab-group>
 
-  <ion-list *ngIf="dummyData$ | async as entries">
-    <ion-item *ngFor="let entry of entries">
-      <ion-label>{{ entry.id }} -> {{ entry.title }}</ion-label>
-    </ion-item>
-  </ion-list>
+  <ion-button expand="block" (click)="toggleDummy()">Call jsonplaceholder</ion-button>
+  <ng-container *ngIf="showDummyData">
+    <ion-list *ngIf="dummyData$ | async as entries">
+      <ion-item *ngFor="let entry of entries">
+        <ion-label>{{ entry.id }} -> {{ entry.title }}</ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-container>
+
   <ion-button expand="block" href="http://http.badssl.com/"> Redirect Http </ion-button>
   <ion-button expand="block" href="https://self-signed.badssl.com/"> Self signed ssl </ion-button>
   <ion-button expand="block" href="https://sha256.badssl.com/"> Working ssl </ion-button>
