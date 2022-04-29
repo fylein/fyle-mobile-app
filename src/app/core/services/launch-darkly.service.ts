@@ -26,28 +26,6 @@ export class LaunchDarklyService {
     this.setupNetworkWatcher();
   }
 
-  private setupNetworkWatcher() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-
-    // networkWatcherEmitter will emit an event as the network status keeps changing
-    concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).subscribe((isOnline) => {
-      this.isOnline = isOnline;
-      this.initializeLaunchDarkly();
-    });
-  }
-
-  private getCurrentOrg() {
-    return this.offlineService.getCurrentOrg().toPromise();
-  }
-
-  private getDevicePlatform() {
-    return this.deviceService
-      .getDeviceInfo()
-      .pipe(map((device) => device.platform))
-      .toPromise();
-  }
-
   async initializeLaunchDarkly() {
     const eou = await this.authService.getEou();
 
@@ -73,5 +51,27 @@ export class LaunchDarklyService {
         (window as any).ldclient.on('change', () => {});
       }
     }
+  }
+
+  private setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+
+    // networkWatcherEmitter will emit an event as the network status keeps changing
+    concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).subscribe((isOnline) => {
+      this.isOnline = isOnline;
+      this.initializeLaunchDarkly();
+    });
+  }
+
+  private getCurrentOrg() {
+    return this.offlineService.getCurrentOrg().toPromise();
+  }
+
+  private getDevicePlatform() {
+    return this.deviceService
+      .getDeviceInfo()
+      .pipe(map((device) => device.platform))
+      .toPromise();
   }
 }
