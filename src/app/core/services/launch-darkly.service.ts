@@ -6,7 +6,7 @@ import { NetworkService } from './network.service';
 import { DeviceService } from './device.service';
 import { OrgService } from './org.service';
 
-import { concat } from 'rxjs';
+import { concat, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import * as LDClient from 'launchdarkly-js-client-sdk';
@@ -30,14 +30,15 @@ export class LaunchDarklyService {
     const eou = await this.authService.getEou();
 
     if (eou && this.isOnline) {
-      const platform = await this.getDevicePlatform();
-      const currentOrg = await this.getCurrentOrg();
+      const currentOrg$ = this.orgService.getCurrentOrg();
+      const devicePlatform$ = this.getDevicePlatform();
 
-      // HACK ALERT - Added (currentOrg as any).created_at because created_at is typed as a date but internally is a string
-      // Typescript complains when passed date to LaunchDarkly, only primitive types and arrays are accepted
-      // But since created_at is a string we have to convert currentOrg to any.
-      // TODO - REMOVE THIS AFTER THE ORG MODEL IS FIXED
-      if (currentOrg) {
+      forkJoin([currentOrg$, devicePlatform$]).subscribe(([currentOrg, devicePlatform]) => {
+        // HACK ALERT - Added (currentOrg as any).created_at because created_at is typed as a date but internally is a string
+        // Typescript complains when passed date to LaunchDarkly, only primitive types and arrays are accepted
+        // But since created_at is a string we have to convert currentOrg to any.
+        // TODO - REMOVE THIS AFTER THE ORG MODEL IS FIXED
+
         const user = {
           key: eou.ou.user_id,
           custom: {
@@ -45,7 +46,7 @@ export class LaunchDarklyService {
             org_user_id: eou.ou.id,
             org_currency: currentOrg.currency,
             org_created_at: (currentOrg as any).created_at,
-            asset: `MOBILE - ${platform.toUpperCase()}`,
+            asset: `MOBILE - ${devicePlatform.toUpperCase()}`,
           },
         };
 
@@ -53,7 +54,7 @@ export class LaunchDarklyService {
 
         (window as any).ldclient.on('ready', () => {});
         (window as any).ldclient.on('change', () => {});
-      }
+      });
     }
   }
 
@@ -68,14 +69,7 @@ export class LaunchDarklyService {
     });
   }
 
-  private getCurrentOrg() {
-    return this.orgService.getCurrentOrg().toPromise();
-  }
-
   private getDevicePlatform() {
-    return this.deviceService
-      .getDeviceInfo()
-      .pipe(map((device) => device.platform))
-      .toPromise();
+    return this.deviceService.getDeviceInfo().pipe(map((device) => device.platform));
   }
 }
