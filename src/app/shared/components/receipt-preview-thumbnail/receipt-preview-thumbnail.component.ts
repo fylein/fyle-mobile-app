@@ -46,6 +46,8 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
       spaceBetween: 80,
     };
     this.previousCount = this.attachments.length;
+    console.log(this.attachments.length);
+    console.log(this.previousCount);
   }
 
   goToNextSlide() {
@@ -70,14 +72,6 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   ngDoCheck() {
     if (this.attachments?.length !== this.previousCount) {
-      if (this.attachments?.length > this.previousCount) {
-        const message = 'Receipt added to Expense successfully';
-        this.matSnackBar.openFromComponent(ToastMessageComponent, {
-          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
-          panelClass: ['msb-success-with-camera-icon'],
-        });
-        this.trackingService.showToastMessage({ ToastContent: message });
-      }
       this.previousCount = this.attachments.length;
       timer(100).subscribe(() => this.imageSlides.swiperRef.slideTo(this.attachments.length));
       this.getActiveIndex();
