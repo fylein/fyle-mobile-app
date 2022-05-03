@@ -17,6 +17,7 @@ import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { SpenderPlatformExpense } from '../models/spender-platform/spender-platform-expense';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -24,24 +25,6 @@ type PaymentMode = {
   name: string;
   key: string;
 };
-
-// Expense DataMapper - Mapping to move from model to another
-export interface DataMapper<From, To> {
-  transformTo(f: From): To;
-  transformFrom(t: To): From;
-}
-
-class ExpenseDataMapper implements DataMapper<Expense, SpenderPlatformExpense> {
-  transformTo(f: Expense): SpenderPlatformExpense {
-    console.log('check what is f', f);
-    throw new Error('Method not implemented.');
-  }
-
-  // Used for POST calls
-  transformFrom(t: SpenderPlatformExpense): Expense {
-    throw new Error('Method not implemented.');
-  }
-}
 
 @Injectable({
   providedIn: 'root',
@@ -61,7 +44,7 @@ export class TransactionService {
     private fileService: FileService,
     private policyApiService: PolicyApiService,
     private userEventService: UserEventService,
-    private expenseDataMapper: ExpenseDataMapper
+    private spenderPlatformApiService: SpenderPlatformApiService
   ) {
     transactionsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -146,18 +129,25 @@ export class TransactionService {
   ) {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiV2Service.get('/expenses', {
+        this.spenderPlatformApiService.get('/expenses', {
+          // params: {
+          //   offset: config.offset,
+          //   limit: config.limit,
+          //   order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
+          //   tx_org_user_id: 'eq.' + eou.ou.id,
+          //   ...config.queryParams,
+          // },
           params: {
             offset: config.offset,
             limit: config.limit,
-            order: `${config.order || 'tx_txn_dt.desc'},tx_created_at.desc,tx_id.desc`,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
+            order: `${'spent_at.desc'},created_at.desc,id.desc`,
+            employee_id: 'eq.' + eou.ou.id,
           },
         })
       ),
       tap((res) => {
-        console.log('check what happends-->', this.expenseDataMapper.transformTo(res));
+        console.log('check what happends-->', this.transformFrom(res?.data));
+        console.log('check what happends-->', res);
       }),
       map(
         (res) =>
@@ -191,6 +181,94 @@ export class TransactionService {
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as any[])
     );
+  }
+
+  // Used for POST calls
+  transformTo(t: Expense): SpenderPlatformExpense {
+    console.log('check what is t', t);
+
+    return;
+  }
+
+  // Transform the entire object
+  // Use this method specific to data,
+  // Use a different method for the rest of things
+  transformFrom(f: SpenderPlatformExpense[]): Expense[] {
+    // Do some optimisation here
+    const newExpenseModel = f;
+    console.log('check what is newexpensemodel', newExpenseModel);
+    let oldExpenseModel = [];
+    oldExpenseModel = newExpenseModel.map((res) => {
+      return {
+        ou_department: res.employee.department,
+        ou_department_id: res.employee?.department_id,
+        ou_employee_id: res.employee?.id,
+        ou_id: res.employee_id,
+        ou_org_id: res.org_id,
+        ou_sub_department: res.employee?.department?.sub_department,
+        ou_user_id: res.employee?.user_id,
+        rp_approved_at: res.report?.last_approved_at,
+        rp_reimbursed_at: res.report?.last_paid_at,
+        source_account_id: res.source_account_id,
+        source_account_type: res.source_account?.type,
+        tx_activity_details: res.activity_details,
+        tx_admin_amount: res.admin_amount,
+        tx_amount: res.amount,
+        tx_billable: res.is_billable,
+        tx_category: res.category,
+        tx_cost_center_code: res.cost_center?.code,
+        tx_cost_center_id: res.cost_center_id,
+        tx_cost_center_name: res.cost_center?.name,
+        tx_created_at: res.created_at,
+        tx_currency: res.currency,
+        tx_custom_attributes: res.custom_fields,
+        tx_distance: res.distance,
+        tx_distance_unit: res.distance_unit,
+        tx_file_ids: res.file_ids,
+        tx_hotel_is_breakfast_provided: res.hotel_is_breakfast_provided,
+        tx_id: res.id,
+        tx_locations: res.locations,
+        tx_mileage_calculated_amount: res.mileage_calculated_amount,
+        tx_mileage_calculated_distance: res.mileage_calculated_distance,
+        tx_mileage_is_round_trip: res.mileage_is_round_trip,
+        tx_mileage_rate: res.mileage_rate,
+        tx_mileage_vehicle_type: res.mileage_rate?.vehicle_type,
+        tx_num_days: res.num_days,
+        tx_num_files: res.files,
+        tx_org_category: res.category?.name,
+        tx_org_category_code: res.category?.code,
+        tx_org_category_id: res.category?.id,
+        tx_org_user_id: res.employee_id,
+        tx_orig_amount: res.foreign_amount,
+        tx_orig_currency: res.foreign_currency,
+        tx_per_diem_rate_id: res.per_diem_rate_id,
+        tx_policy_amount: res.policy_amount,
+        tx_project_code: res.project?.id,
+        tx_project_id: res.project_id,
+        tx_project_name: res.project?.name,
+        tx_purpose: res.purpose,
+        tx_receipt_required: res.is_receipt_mandatory,
+        tx_report_id: res.report_id,
+        tx_reported_at: res.added_to_report_at,
+        tx_skip_reimbursement: res.is_reimbursable,
+        tx_source: res.source,
+        tx_source_account_id: res.source_account_id,
+        tx_state: res.state,
+        tx_sub_category: res.category?.sub_category,
+        tx_tax: res.tax_amount,
+        tx_tax_group_id: res.tax_group_id,
+        tx_txn_dt: res.spent_at,
+        tx_updated_at: res.updated_at,
+        tx_user_amount: res.amount,
+        tx_vendor: res.merchant,
+        tx_verification_state: res.is_verified,
+        us_email: res.user?.email,
+        us_full_name: res.user?.full_name,
+      };
+    });
+
+    console.log('check what is the old expense model', oldExpenseModel);
+    return oldExpenseModel;
   }
 
   @Cacheable({
