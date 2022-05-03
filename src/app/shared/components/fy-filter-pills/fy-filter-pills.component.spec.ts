@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyFilterPillsComponent } from './fy-filter-pills.component';
 
-describe('FyFilterPillsComponent', () => {
+xdescribe('FyFilterPillsComponent', () => {
   let component: FyFilterPillsComponent;
   let fixture: ComponentFixture<FyFilterPillsComponent>;
 

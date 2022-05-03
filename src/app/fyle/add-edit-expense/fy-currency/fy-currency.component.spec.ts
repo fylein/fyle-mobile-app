@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyCurrencyComponent } from './fy-currency.component';
 
-describe('FyCurrencyComponent', () => {
+xdescribe('FyCurrencyComponent', () => {
   let component: FyCurrencyComponent;
   let fixture: ComponentFixture<FyCurrencyComponent>;
 

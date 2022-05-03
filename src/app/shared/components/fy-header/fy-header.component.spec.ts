@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyHeaderComponent } from './fy-header.component';
 
-describe('FyHeaderComponent', () => {
+xdescribe('FyHeaderComponent', () => {
   let component: FyHeaderComponent;
   let fixture: ComponentFixture<FyHeaderComponent>;
 

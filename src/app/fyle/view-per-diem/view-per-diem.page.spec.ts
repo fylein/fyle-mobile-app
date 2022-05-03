@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ViewPerDiemPage } from './view-per-diem.page';
 
-describe('ViewPerDiemPage', () => {
+xdescribe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
   let fixture: ComponentFixture<ViewPerDiemPage>;
 

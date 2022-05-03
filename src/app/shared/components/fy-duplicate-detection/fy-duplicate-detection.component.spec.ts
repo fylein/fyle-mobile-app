@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyDuplicateDetectionComponent } from './fy-duplicate-detection.component';
 
-describe('FyDuplicateDetectionComponent', () => {
+xdescribe('FyDuplicateDetectionComponent', () => {
   let component: FyDuplicateDetectionComponent;
   let fixture: ComponentFixture<FyDuplicateDetectionComponent>;
 

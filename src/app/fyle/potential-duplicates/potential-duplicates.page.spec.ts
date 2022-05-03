@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { PotentialDuplicatesPage } from './potential-duplicates.page';
 
-describe('PotentialDuplicatesPage', () => {
+xdescribe('PotentialDuplicatesPage', () => {
   let component: PotentialDuplicatesPage;
   let fixture: ComponentFixture<PotentialDuplicatesPage>;
 

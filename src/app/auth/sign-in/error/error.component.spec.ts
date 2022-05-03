@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ErrorComponent } from './error.component';
 
-describe('ErrorComponent', () => {
+xdescribe('ErrorComponent', () => {
   let component: ErrorComponent;
   let fixture: ComponentFixture<ErrorComponent>;
 

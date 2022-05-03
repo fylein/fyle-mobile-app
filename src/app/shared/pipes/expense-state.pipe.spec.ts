@@ -1,6 +1,6 @@
 import { ExpenseState } from './expense-state.pipe';
 
-fdescribe('ExpenseStatePipe', () => {
+describe('ExpenseStatePipe', () => {
   const pipe = new ExpenseState();
 
   it('transforms "" state to ""', () => {

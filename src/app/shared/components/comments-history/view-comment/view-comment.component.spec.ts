@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ViewCommentComponent } from './view-comment.component';
 
-describe('ViewCommentComponent', () => {
+xdescribe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
   let fixture: ComponentFixture<ViewCommentComponent>;
 

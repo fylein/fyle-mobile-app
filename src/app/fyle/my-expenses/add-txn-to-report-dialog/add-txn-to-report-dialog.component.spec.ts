@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog.component';
 
-describe('AddTxnToReportDialogComponent', () => {
+xdescribe('AddTxnToReportDialogComponent', () => {
   let component: AddTxnToReportDialogComponent;
   let fixture: ComponentFixture<AddTxnToReportDialogComponent>;
 

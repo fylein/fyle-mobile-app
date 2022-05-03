@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { PopupAlertComponentComponent } from './popup-alert-component.component';
 
-describe('PopupAlertComponentComponent', () => {
+xdescribe('PopupAlertComponentComponent', () => {
   let component: PopupAlertComponentComponent;
   let fixture: ComponentFixture<PopupAlertComponentComponent>;
 

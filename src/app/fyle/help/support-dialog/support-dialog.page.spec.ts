@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { SupportDialogPage } from './support-dialog.page';
 
-describe('SupportDialogPage', () => {
+xdescribe('SupportDialogPage', () => {
   let component: SupportDialogPage;
   let fixture: ComponentFixture<SupportDialogPage>;
 

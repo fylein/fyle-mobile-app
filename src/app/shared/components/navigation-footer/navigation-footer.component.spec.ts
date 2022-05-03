@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { NavigationFooterComponent } from './navigation-footer.component';
 
-describe('NavigationFooterComponent', () => {
+xdescribe('NavigationFooterComponent', () => {
   let component: NavigationFooterComponent;
   let fixture: ComponentFixture<NavigationFooterComponent>;
 
