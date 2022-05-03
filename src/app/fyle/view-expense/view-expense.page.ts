@@ -236,10 +236,10 @@ export class ViewExpensePage implements OnInit {
       }
 
       if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
-        this.paymentMode = 'Paid from Advance';
+        this.paymentMode = 'Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else if (etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-        this.paymentMode = 'Paid via Corporate Card';
+        this.paymentMode = 'Corporate Card';
         this.paymentModeIcon = 'fy-unmatched';
         this.isCCCTransaction = true;
       } else if (etxn.tx_skip_reimbursement) {

@@ -736,7 +736,7 @@ export class TasksService {
       const task = {
         amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
         count: aggregate.totalCount,
-        header: `Ready to Report`,
+        header: `Unreported`,
         subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(
           aggregate.totalAmount,
           homeCurrency

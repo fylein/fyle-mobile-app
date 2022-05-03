@@ -1258,7 +1258,7 @@ export class AddEditPerDiemPage implements OnInit {
               paymentModes
                 .map((res) => res.value)
                 .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Paid by Me') {
+                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
                     return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
                   } else {
                     return paymentMode.acc.id === etxn.tx.source_account_id;
@@ -1273,7 +1273,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
-        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Paid by Me')
+        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash')
       )
     );
 
