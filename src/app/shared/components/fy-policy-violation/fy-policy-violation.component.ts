@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { getCurrencySymbol } from '@angular/common';
 import { PolicyService } from 'src/app/core/services/policy.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
 
 @Component({
   selector: 'app-fy-policy-violation',
@@ -27,7 +28,11 @@ export class FyPolicyViolationComponent implements OnInit {
 
   cappedAmountString: string;
 
-  constructor(private modalController: ModalController, private policyService: PolicyService) {}
+  constructor(
+    private modalController: ModalController,
+    private policyService: PolicyService,
+    private utilityService: UtilityService
+  ) {}
 
   ngOnInit() {
     if (this.policyActionDescription) {
@@ -37,7 +42,7 @@ export class FyPolicyViolationComponent implements OnInit {
       this.isExpenseCapped = this.policyService.isExpenseCapped(this.policyActionDescription);
 
       if (this.needAdditionalApproval) {
-        const emails = this.policyActionDescription.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi);
+        const emails = this.utilityService.getEmailsFromString(this.policyActionDescription);
         if (emails?.length > 0) {
           this.additionalApprovalString = 'Expense will need additional approval from ';
           emails.forEach((email, index) => {
@@ -50,11 +55,16 @@ export class FyPolicyViolationComponent implements OnInit {
       }
 
       if (this.isExpenseCapped) {
-        const cappedAmount = this.policyActionDescription.match(/capped to ([a-zA-Z]{1,3} \d+)/i)[1];
-        if (cappedAmount) {
-          const cappedAmountSplit = cappedAmount.split(' ');
-          this.cappedAmountString =
-            'Expense will be capped to ' + getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') + cappedAmountSplit[1];
+        const cappedAmountMatches = this.utilityService.getAmountWithCurrencyFromString(this.policyActionDescription);
+        if (cappedAmountMatches?.length > 0) {
+          const cappedAmount = cappedAmountMatches[1];
+          if (cappedAmount) {
+            const cappedAmountSplit = cappedAmount.split(' ');
+            this.cappedAmountString =
+              'Expense will be capped to ' +
+              getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') +
+              cappedAmountSplit[1];
+          }
         }
       }
     }

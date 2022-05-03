@@ -39,34 +39,18 @@ export class PolicyService {
   }
 
   isExpenseFlagged(policyActionDescription): boolean {
-    if (policyActionDescription.toLowerCase().includes('expense will be flagged')) {
-      return true;
-    } else {
-      return false;
-    }
+    return policyActionDescription.toLowerCase().includes('expense will be flagged');
   }
 
   isPrimaryApproverSkipped(policyActionDescription): boolean {
-    if (policyActionDescription.toLowerCase().includes('primary approver will be skipped')) {
-      return true;
-    } else {
-      return false;
-    }
+    return policyActionDescription.toLowerCase().includes('primary approver will be skipped');
   }
 
   needAdditionalApproval(policyActionDescription): boolean {
-    if (policyActionDescription.toLowerCase().includes('expense will need additional approval from')) {
-      return true;
-    } else {
-      return false;
-    }
+    return policyActionDescription.toLowerCase().includes('expense will need additional approval from');
   }
 
   isExpenseCapped(policyActionDescription): boolean {
-    if (policyActionDescription.toLowerCase().includes('expense will be capped to')) {
-      return true;
-    } else {
-      return false;
-    }
+    return policyActionDescription.toLowerCase().includes('expense will be capped to');
   }
 }

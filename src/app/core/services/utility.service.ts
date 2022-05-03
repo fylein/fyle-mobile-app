@@ -165,4 +165,12 @@ export class UtilityService {
       return null;
     }
   }
+
+  getEmailsFromString(text: String) {
+    return text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi);
+  }
+
+  getAmountWithCurrencyFromString(text: String) {
+    return text.match(/capped to ([a-zA-Z]{1,3} \d+)/i);
+  }
 }
