@@ -112,7 +112,7 @@ const unflattenedAccount2 = {
 
 const accountsCallResponse1 = [account1, account2];
 
-xdescribe('AccountsService', () => {
+describe('AccountsService', () => {
   let accountsService: AccountsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
