@@ -46,8 +46,6 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
       spaceBetween: 80,
     };
     this.previousCount = this.attachments.length;
-    console.log(this.attachments.length);
-    console.log(this.previousCount);
   }
 
   goToNextSlide() {
