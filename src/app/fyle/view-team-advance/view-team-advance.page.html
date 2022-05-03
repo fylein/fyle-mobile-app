@@ -10,7 +10,7 @@
       </ion-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title" [ngClass]="{'view-advance-request--title-sm': isDeviceWidthSmall}">
-      View Advance Request
+      View Advance
     </ion-title>
     <ion-buttons
       class="view-advance-request--header-btn-container"
@@ -108,13 +108,6 @@
       </div>
     </div>
     <ng-container *ngIf="actions$|async as actions">
-      <div class="view-advances--card view-advances--card__modified-padding" *ngIf="actions.can_edit">
-        <div class="view-advances--common-action-block" (click)="edit()">
-          <mat-icon>edit</mat-icon>
-          <p>Edit Advance</p>
-        </div>
-      </div>
-
       <ng-container *ngIf="actions.can_add_approver">
         <ng-container *ngIf="activeApprovals$ | async as activeApprovals">
           <div class="view-advances--card_external-component m-0">
