@@ -673,11 +673,11 @@ export class MergeExpensesService {
 
   formatPaymentModeOptions(option: Option): Option {
     if (option.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-      option.label = 'Paid via Corporate Card';
+      option.label = 'Corporate Card';
     } else if (option.value === 'PERSONAL_ACCOUNT') {
-      option.label = 'Paid by Me';
+      option.label = 'Personal Card/Cash';
     } else if (option.value === 'PERSONAL_ADVANCE_ACCOUNT') {
-      option.label = 'Paid from Advance';
+      option.label = 'Advance';
     }
     return option;
   }

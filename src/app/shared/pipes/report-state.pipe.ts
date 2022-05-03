@@ -12,7 +12,7 @@ export class ReportState implements PipeTransform {
     const states = {
       DRAFT: 'draft',
       DRAFT_INQUIRY: 'incomplete',
-      COMPLETE: 'fyled',
+      COMPLETE: 'unreported',
       APPROVER_PENDING: 'reported',
       SUBMITTED: 'reported',
       APPROVER_INQUIRY: 'sent_back',

@@ -77,7 +77,7 @@
         <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
           <app-stat-badge
             [currency]="homeCurrency$ | async"
-            [name]="'Ready to Report'"
+            [name]="'Unreported'"
             [expenseState]="'COMPLETE'"
             [count]="(unreportedExpensesStats$ | async)?.count"
             [value]="(unreportedExpensesStats$ | async)?.sum"

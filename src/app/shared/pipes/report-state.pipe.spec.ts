@@ -15,8 +15,8 @@ describe('ReportStatePipe', () => {
     expect(pipe.transform('DRAFT_INQUIRY')).toBe('incomplete');
   });
 
-  it('transforms "COMPLETE" state to "fyled"', () => {
-    expect(pipe.transform('COMPLETE')).toBe('fyled');
+  it('transforms "COMPLETE" state to "unreported"', () => {
+    expect(pipe.transform('COMPLETE')).toBe('unreported');
   });
 
   it('transforms "APPROVER_PENDING" state to "reported"', () => {
