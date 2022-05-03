@@ -38,19 +38,19 @@ export class PolicyService {
     return this.policyApiService.get('/policy/violating_transactions', { params });
   }
 
-  isExpenseFlagged(policyActionDescription): boolean {
+  isExpenseFlagged(policyActionDescription: string): boolean {
     return policyActionDescription.toLowerCase().includes('expense will be flagged');
   }
 
-  isPrimaryApproverSkipped(policyActionDescription): boolean {
+  isPrimaryApproverSkipped(policyActionDescription: string): boolean {
     return policyActionDescription.toLowerCase().includes('primary approver will be skipped');
   }
 
-  needAdditionalApproval(policyActionDescription): boolean {
+  needAdditionalApproval(policyActionDescription: string): boolean {
     return policyActionDescription.toLowerCase().includes('expense will need additional approval from');
   }
 
-  isExpenseCapped(policyActionDescription): boolean {
+  isExpenseCapped(policyActionDescription: string): boolean {
     return policyActionDescription.toLowerCase().includes('expense will be capped to');
   }
 }

@@ -1,9 +1,11 @@
+@import '../../../../../theme/colors.scss';
+
 .policy-violation-message {
   &--container {
     padding: 16px;
     border-radius: 3px;
-    background: #fffcf5;
-    border: 1px solid #ffefb7;
+    background: $floral-white;
+    border: 1px solid $butter-milk;
     margin-bottom: 12px;
   }
 }

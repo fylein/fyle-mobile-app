@@ -44,13 +44,7 @@ export class FyPolicyViolationComponent implements OnInit {
       if (this.needAdditionalApproval) {
         const emails = this.utilityService.getEmailsFromString(this.policyActionDescription);
         if (emails?.length > 0) {
-          this.additionalApprovalString = 'Expense will need additional approval from ';
-          emails.forEach((email, index) => {
-            this.additionalApprovalString += '<b>' + email + '</b>';
-            if (index < emails.length - 1) {
-              this.additionalApprovalString += ', ';
-            }
-          });
+          this.additionalApprovalString = this.getApprovalString(emails);
         }
       }
 
@@ -68,6 +62,17 @@ export class FyPolicyViolationComponent implements OnInit {
         }
       }
     }
+  }
+
+  getApprovalString(emails) {
+    let additionalApprovalString = 'Expense will need additional approval from ';
+    emails.forEach((email, index) => {
+      additionalApprovalString += '<b>' + email + '</b>';
+      if (index < emails.length - 1) {
+        additionalApprovalString += ', ';
+      }
+    });
+    return additionalApprovalString;
   }
 
   cancel() {
