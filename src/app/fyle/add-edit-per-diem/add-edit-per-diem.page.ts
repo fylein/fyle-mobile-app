@@ -186,7 +186,9 @@ export class AddEditPerDiemPage implements OnInit {
 
   billableDefaultValue: boolean;
 
-  canDeleteExpense = true;
+  isRedirectedFromReport = false;
+
+  canRemoveFromReport = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -242,9 +244,8 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ngOnInit() {
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
+    this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
+    this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
   }
 
   async showClosePopup() {
@@ -2245,15 +2246,13 @@ export class AddEditPerDiemPage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
-    const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
-
-    const header = reportId && removeExpenseFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
+    const header = reportId && this.isRedirectedFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
     const body =
-      reportId && removeExpenseFromReport
+      reportId && this.isRedirectedFromReport
         ? 'Are you sure you want to remove this Per Diem expense from this report?'
         : 'Are you sure you want to delete this Per Diem expense?';
-    const ctaText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = reportId && removeExpenseFromReport ? 'Removing' : 'Deleting';
+    const ctaText = reportId && this.isRedirectedFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = reportId && this.isRedirectedFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -2265,7 +2264,7 @@ export class AddEditPerDiemPage implements OnInit {
         ctaText,
         ctaLoadingText,
         deleteMethod: () => {
-          if (reportId && removeExpenseFromReport) {
+          if (reportId && this.isRedirectedFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);

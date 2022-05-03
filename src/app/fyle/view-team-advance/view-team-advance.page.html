@@ -10,7 +10,7 @@
       </ion-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title" [ngClass]="{'view-advance-request--title-sm': isDeviceWidthSmall}">
-      View Advance
+      View Advance Request
     </ion-title>
     <ion-buttons
       class="view-advance-request--header-btn-container"
@@ -26,10 +26,6 @@
 
 <ion-content>
   <div *ngIf="advanceRequest$|async as advanceRequest">
-    <div class="view-advances--attachment-currency-container">
-      <p class="view-advances--content-header">Advance Request</p>
-    </div>
-
     <div class="view-advances--card">
       <div class="view-advances--element">
         <div class="view-advances--element-label">Created On</div>
