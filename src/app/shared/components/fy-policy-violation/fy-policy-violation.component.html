@@ -13,55 +13,63 @@
       <app-policy-violation-message [message]="violation"></app-policy-violation-message>
     </ng-container>
 
-    <div>
-      <p class="policy-violation--action-header">The policy violation will trigger the following action(s):</p>
-    </div>
+    <ng-container *ngIf="policyActionDescription">
+      <div>
+        <p class="policy-violation--action-header">The policy violation will trigger the following action(s):</p>
+      </div>
 
-    <ng-container *ngIf="isExpenseFlagged">
-      <app-policy-violation-action
-        [icon]="'../../../../assets/svg/flag-outline.svg'"
-        [message]="'Expense will be flagged for verification and approval'"
-      ></app-policy-violation-action>
+      <ng-container *ngIf="isExpenseFlagged">
+        <app-policy-violation-action
+          [icon]="'../../../../assets/svg/flag-outline.svg'"
+          [message]="'Expense will be flagged for verification and approval'"
+          [actionsCount]="availableActionsCount"
+        ></app-policy-violation-action>
+      </ng-container>
+
+      <ng-container *ngIf="isPrimaryApproverSkipped">
+        <app-policy-violation-action
+          [icon]="'../../../../assets/svg/profile-outline.svg'"
+          [message]="'Primary approver will be skipped'"
+          [actionsCount]="availableActionsCount"
+        ></app-policy-violation-action>
+      </ng-container>
+
+      <ng-container *ngIf="isExpenseCapped && cappedAmountString">
+        <app-policy-violation-action
+          [icon]="'../../../../assets/svg/capped-amount.svg'"
+          [message]="cappedAmountString"
+          [actionsCount]="availableActionsCount"
+        ></app-policy-violation-action>
+      </ng-container>
+
+      <ng-container *ngIf="needAdditionalApproval && additionalApprovalString">
+        <app-policy-violation-action
+          [icon]="'../../../../assets/svg/2-users.svg'"
+          [message]="additionalApprovalString"
+          [actionsCount]="availableActionsCount"
+        ></app-policy-violation-action>
+      </ng-container>
     </ng-container>
 
-    <ng-container *ngIf="isPrimaryApproverSkipped">
-      <app-policy-violation-action
-        [icon]="'../../../../assets/svg/profile-outline.svg'"
-        [message]="'Primary approver will be skipped'"
-      ></app-policy-violation-action>
+    <ng-container *ngIf="showComment">
+      <div>
+        <p class="policy-violation--additional-details-header">
+          Please provide additional details for approval
+          <span class="policy-violation--additional-details-comment-length">{{ comment.length }}/250</span>
+        </p>
+      </div>
+
+      <textarea
+        maxlength="250"
+        class="policy-violation--textarea"
+        [(ngModel)]="comment"
+        placeholder="Type the reason here"
+      ></textarea>
     </ng-container>
-
-    <ng-container *ngIf="isExpenseCapped && cappedAmountString">
-      <app-policy-violation-action
-        [icon]="'../../../../assets/svg/capped-amount.svg'"
-        [message]="cappedAmountString"
-      ></app-policy-violation-action>
-    </ng-container>
-
-    <ng-container *ngIf="needAdditionalApproval && additionalApprovalString">
-      <app-policy-violation-action
-        [icon]="'../../../../assets/svg/2-users.svg'"
-        [message]="additionalApprovalString"
-      ></app-policy-violation-action>
-    </ng-container>
-
-    <div>
-      <p class="policy-violation--additional-details-header">
-        Please provide additional details for approval
-        <span class="policy-violation--additional-details-comment-length">{{ comment.length }}/250</span>
-      </p>
-    </div>
-
-    <textarea
-      maxlength="250"
-      class="policy-violation--textarea"
-      [(ngModel)]="comment"
-      placeholder="Type the reason here"
-    ></textarea>
   </div>
 </ion-content>
 
-<ion-footer>
+<ion-footer *ngIf="showCTA">
   <ion-toolbar mode="md">
     <div class="fy-footer-cta-container">
       <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>

@@ -1,4 +1,10 @@
-<div class="policy-violation-action--container">
+<div
+  class="policy-violation-action--container"
+  [ngClass]="{
+    'policy-violation-action--container__single-action': actionsCount === 1,
+    'policy-violation-action--container__multiple-actions': actionsCount > 1
+  }"
+>
   <div class="policy-violation-action--content">
     <div class="policy-violation-action--icon" *ngIf="icon">
       <img [src]="icon" />

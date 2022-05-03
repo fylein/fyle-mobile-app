@@ -12,9 +12,13 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 export class FyPolicyViolationComponent implements OnInit {
   @Input() policyViolationMessages = [];
 
-  @Input() policyActionDescription = '';
+  @Input() policyActionDescription: string;
+
+  @Input() showComment = true;
 
   @Input() comment = '';
+
+  @Input() showCTA = true;
 
   isExpenseFlagged: boolean;
 
@@ -27,6 +31,9 @@ export class FyPolicyViolationComponent implements OnInit {
   additionalApprovalString: string;
 
   cappedAmountString: string;
+
+  //Remove this once the policy action description gets returned as an array while integrating platform API
+  availableActionsCount = 0;
 
   constructor(
     private modalController: ModalController,
@@ -41,10 +48,15 @@ export class FyPolicyViolationComponent implements OnInit {
       this.needAdditionalApproval = this.policyService.needAdditionalApproval(this.policyActionDescription);
       this.isExpenseCapped = this.policyService.isExpenseCapped(this.policyActionDescription);
 
+      if (this.isExpenseFlagged) this.availableActionsCount += 1;
+      if (this.isPrimaryApproverSkipped) this.availableActionsCount += 1;
+      if (this.needAdditionalApproval) this.availableActionsCount += 1;
+      if (this.isExpenseCapped) this.availableActionsCount += 1;
+
       if (this.needAdditionalApproval) {
         const emails = this.utilityService.getEmailsFromString(this.policyActionDescription);
         if (emails?.length > 0) {
-          this.additionalApprovalString = this.getApprovalString(emails);
+          this.additionalApprovalString = this.policyService.getApprovalString(emails);
         }
       }
 
@@ -62,17 +74,6 @@ export class FyPolicyViolationComponent implements OnInit {
         }
       }
     }
-  }
-
-  getApprovalString(emails) {
-    let additionalApprovalString = 'Expense will need additional approval from ';
-    emails.forEach((email, index) => {
-      additionalApprovalString += '<b>' + email + '</b>';
-      if (index < emails.length - 1) {
-        additionalApprovalString += ', ';
-      }
-    });
-    return additionalApprovalString;
   }
 
   cancel() {

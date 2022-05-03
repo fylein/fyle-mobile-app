@@ -10,6 +10,8 @@ export class PolicyViolationActionComponent implements OnInit {
 
   @Input() icon: string;
 
+  @Input() actionsCount: number;
+
   constructor() {}
 
   ngOnInit() {}

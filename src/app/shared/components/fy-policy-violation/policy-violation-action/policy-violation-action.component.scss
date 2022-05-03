@@ -4,7 +4,12 @@
   &--container {
     padding: 16px;
     border: 1px solid $alice-blue;
-    border-radius: 4px 4px 0px 0px;
+    &__multiple-actions {
+      border-radius: 4px 4px 0px 0px;
+    }
+    &__single-action {
+      border-radius: 4px 4px 4px 4px;
+    }
   }
 
   &--icon {

@@ -38,6 +38,17 @@ export class PolicyService {
     return this.policyApiService.get('/policy/violating_transactions', { params });
   }
 
+  getApprovalString(emails) {
+    let additionalApprovalString = 'Expense will need additional approval from ';
+    emails.forEach((email, index) => {
+      additionalApprovalString += '<b>' + email + '</b>';
+      if (index < emails.length - 1) {
+        additionalApprovalString += ', ';
+      }
+    });
+    return additionalApprovalString;
+  }
+
   isExpenseFlagged(policyActionDescription: string): boolean {
     return policyActionDescription.toLowerCase().includes('expense will be flagged');
   }
