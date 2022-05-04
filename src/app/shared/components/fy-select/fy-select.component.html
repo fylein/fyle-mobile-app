@@ -3,11 +3,14 @@
     {{ label }}
     <span *ngIf="mandatory" class="fy-select--mandatory"> * </span>
   </div>
-  <div class="fy-select--input-container" [ngClass]="{ 'fy-select--input-invalid': !valid }">
+  <div
+    class="fy-select--input-container"
+    [ngClass]="{ 'fy-select--input-invalid': !valid, 'fy-select--disabled': disabled }"
+  >
     <input
       class="fy-select--input"
       type="text"
-      [placeholder]="'Select ' + label"
+      [placeholder]="!disabled ? 'Select ' + label : ''"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"

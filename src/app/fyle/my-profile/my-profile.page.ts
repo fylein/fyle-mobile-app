@@ -5,6 +5,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -63,6 +64,7 @@ export class MyProfilePage implements OnInit {
     private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
     private userEventService: UserEventService,
+    private secureStorageService: SecureStorageService,
     private storageService: StorageService,
     private deviceService: DeviceService,
     private loaderService: LoaderService,
@@ -84,6 +86,7 @@ export class MyProfilePage implements OnInit {
             })
           ),
           finalize(() => {
+            this.secureStorageService.clearAll();
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
@@ -91,6 +94,7 @@ export class MyProfilePage implements OnInit {
         )
         .subscribe(noop);
     } catch (e) {
+      this.secureStorageService.clearAll();
       this.storageService.clearAll();
       globalCacheBusterNotifier.next();
     }

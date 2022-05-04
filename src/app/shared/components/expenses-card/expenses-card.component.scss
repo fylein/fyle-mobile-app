@@ -226,7 +226,7 @@
     font-weight: 500;
     font-size: 16px;
     line-height: 1.25;
-    margin-right: 0;
+    margin-right: 1px;
   }
 
   &--amount {
@@ -296,5 +296,10 @@
   &--spinner-placeholder {
     text-align: center;
     padding: 4px;
+  }
+
+  &--dismiss {
+    margin: 0 0 0 8px;
+    padding: 2px;
   }
 }

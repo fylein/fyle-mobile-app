@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, forkJoin, from, noop, Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, from, noop, Observable, of } from 'rxjs';
+import { map, mergeAll, switchMap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -16,6 +16,8 @@ import { OfflineService } from './offline.service';
 import { ReportService } from './report.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
+import { HandleDuplicatesService } from './handle-duplicates.service';
+import { DuplicateSet } from '../models/v2/duplicate-sets.model';
 
 type TaskDict = {
   sentBackReports: DashboardTask[];
@@ -24,6 +26,7 @@ type TaskDict = {
   unreportedExpenses: DashboardTask[];
   teamReports: DashboardTask[];
   sentBackAdvances: DashboardTask[];
+  potentialDuplicates: DashboardTask[];
 };
 
 @Injectable({
@@ -47,6 +50,7 @@ export class TasksService {
     private offlineService: OfflineService,
     private userEventService: UserEventService,
     private authService: AuthService,
+    private handleDuplicatesService: HandleDuplicatesService,
     private advancesRequestService: AdvanceRequestService
   ) {
     this.userEventService.onTaskCacheClear(() => {
@@ -83,7 +87,7 @@ export class TasksService {
   }
 
   generateSelectedFilters(filters: TaskFilters): SelectedFilters<any>[] {
-    const selectedFilters = [];
+    let selectedFilters = [];
 
     if (filters.draftExpenses) {
       selectedFilters.push({
@@ -104,6 +108,10 @@ export class TasksService {
       }
     }
 
+    if (filters.potentialDuplicates) {
+      selectedFilters = this.generatePotentialDuplicatesFilter(selectedFilters);
+    }
+
     if (filters.draftReports) {
       selectedFilters.push({
         name: 'Reports',
@@ -112,15 +120,7 @@ export class TasksService {
     }
 
     if (filters.sentBackReports) {
-      const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
-      if (existingFilter) {
-        existingFilter.value.push('SENT_BACK');
-      } else {
-        selectedFilters.push({
-          name: 'Reports',
-          value: ['SENT_BACK'],
-        });
-      }
+      selectedFilters = this.generateSentBackFilter(selectedFilters);
     }
 
     if (filters.teamReports) {
@@ -145,12 +145,39 @@ export class TasksService {
     return selectedFilters;
   }
 
+  generatePotentialDuplicatesFilter(selectedFilters: SelectedFilters<any>[]) {
+    const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
+    if (existingFilter) {
+      existingFilter.value.push('DUPLICATE');
+    } else {
+      selectedFilters.push({
+        name: 'Expenses',
+        value: ['DUPLICATE'],
+      });
+    }
+    return selectedFilters;
+  }
+
+  generateSentBackFilter(selectedFilters: SelectedFilters<any>[]) {
+    const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
+    if (existingFilter) {
+      existingFilter.value.push('SENT_BACK');
+    } else {
+      selectedFilters.push({
+        name: 'Reports',
+        value: ['SENT_BACK'],
+      });
+    }
+    return selectedFilters;
+  }
+
   convertFilters(selectedFilters: SelectedFilters<any>[]): TaskFilters {
     const generatedFilters: TaskFilters = {
       draftExpenses: false,
       draftReports: false,
       sentBackReports: false,
       unreportedExpenses: false,
+      potentialDuplicates: false,
       teamReports: false,
       sentBackAdvances: false,
     };
@@ -162,6 +189,10 @@ export class TasksService {
     if (selectedFilters.some((filter) => filter.name === 'Expenses' && filter.value.includes('DRAFT'))) {
       generatedFilters.draftExpenses = true;
     }
+
+    generatedFilters.potentialDuplicates = selectedFilters.some(
+      (filter) => filter.name === 'Expenses' && filter.value.includes('DUPLICATE')
+    );
 
     if (selectedFilters.some((filter) => filter.name === 'Reports' && filter.value.includes('SENT_BACK'))) {
       generatedFilters.sentBackReports = true;
@@ -183,13 +214,23 @@ export class TasksService {
   }
 
   getExpensePill(filters: TaskFilters): FilterPill {
+    const expensePills = [];
     const draftExpensesContent = filters.draftExpenses ? 'Draft' : '';
+    if (draftExpensesContent) {
+      expensePills.push(draftExpensesContent);
+    }
     const unreportedExpensesContent = filters.unreportedExpenses ? 'Unreported' : '';
-    const comma = draftExpensesContent && unreportedExpensesContent ? ', ' : '';
+    if (unreportedExpensesContent) {
+      expensePills.push(unreportedExpensesContent);
+    }
+    const potentialDuplicatesContent = filters.potentialDuplicates ? 'Duplicate' : '';
+    if (potentialDuplicatesContent) {
+      expensePills.push(potentialDuplicatesContent);
+    }
     return {
       label: 'Expenses',
       type: 'Expenses',
-      value: `${draftExpensesContent}${comma}${unreportedExpensesContent}`,
+      value: expensePills.join(', '),
     };
   }
 
@@ -232,7 +273,7 @@ export class TasksService {
   generateFilterPills(filters: TaskFilters): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
-    if (filters.draftExpenses || filters.unreportedExpenses) {
+    if (filters.draftExpenses || filters.unreportedExpenses || filters.potentialDuplicates) {
       filterPills.push(this.getExpensePill(filters));
     }
 
@@ -249,6 +290,7 @@ export class TasksService {
 
   getTasks(filters?: TaskFilters): Observable<DashboardTask[]> {
     return forkJoin({
+      potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackReports: this.getSentBackReportTasks(),
       unreportedExpenses: this.getUnreportedExpensesTasks(),
       unsubmittedReports: this.getUnsubmittedReportsTasks(),
@@ -257,28 +299,40 @@ export class TasksService {
       sentBackAdvances: this.getSentBackAdvanceTasks(),
     }).pipe(
       map(
-        ({ sentBackReports, unreportedExpenses, unsubmittedReports, draftExpenses, teamReports, sentBackAdvances }) => {
+        ({
+          potentialDuplicates,
+          sentBackReports,
+          unreportedExpenses,
+          unsubmittedReports,
+          draftExpenses,
+          teamReports,
+          sentBackAdvances,
+        }) => {
           this.totalTaskCount$.next(
             sentBackReports.length +
               draftExpenses.length +
               unsubmittedReports.length +
               unreportedExpenses.length +
               teamReports.length +
+              potentialDuplicates.length +
               sentBackAdvances.length
           );
-          this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length);
+          this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length + potentialDuplicates.length);
           this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
           this.teamReportsTaskCount$.next(teamReports.length);
+
           this.advancesTaskCount$.next(sentBackAdvances.length);
           if (
             !filters?.draftExpenses &&
             !filters?.draftReports &&
             !filters?.sentBackReports &&
             !filters?.unreportedExpenses &&
+            !filters?.potentialDuplicates &&
             !filters?.teamReports &&
             !filters?.sentBackAdvances
           ) {
-            return sentBackReports
+            return potentialDuplicates
+              .concat(sentBackReports)
               .concat(draftExpenses)
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
@@ -286,6 +340,7 @@ export class TasksService {
               .concat(sentBackAdvances);
           } else {
             return this.getFilteredTaskList(filters, {
+              potentialDuplicates,
               sentBackReports,
               draftExpenses,
               unsubmittedReports,
@@ -300,9 +355,20 @@ export class TasksService {
   }
 
   private getFilteredTaskList(filters: TaskFilters, tasksDict: TaskDict) {
-    const { draftExpenses, sentBackReports, teamReports, unreportedExpenses, unsubmittedReports, sentBackAdvances } =
-      tasksDict;
+    const {
+      draftExpenses,
+      sentBackReports,
+      teamReports,
+      unreportedExpenses,
+      potentialDuplicates,
+      unsubmittedReports,
+      sentBackAdvances,
+    } = tasksDict;
     let tasks = [];
+
+    if (filters?.potentialDuplicates) {
+      tasks = tasks.concat(potentialDuplicates);
+    }
 
     if (filters?.sentBackReports) {
       tasks = tasks.concat(sentBackReports);
@@ -411,6 +477,38 @@ export class TasksService {
         this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
       )
     );
+  }
+
+  private getPotentialDuplicatesTasks() {
+    return this.handleDuplicatesService
+      .getDuplicateSets()
+      .pipe(
+        switchMap((duplicateSets) =>
+          duplicateSets?.length > 0 ? this.mapPotentialDuplicatesTasks(duplicateSets) : of([])
+        )
+      );
+  }
+
+  private mapPotentialDuplicatesTasks(duplicateSets: DuplicateSet[]) {
+    const duplicateIds = duplicateSets
+      .map((value) => value.transaction_ids)
+      .reduce((acc, curVal) => acc.concat(curVal), []);
+    const task = [
+      {
+        hideAmount: true,
+        count: duplicateSets.length,
+        header: `${duplicateIds.length} Potential Duplicates`,
+        subheader: `We detected ${duplicateIds.length} expenses which may be duplicates`,
+        icon: TaskIcon.WARNING,
+        ctas: [
+          {
+            content: 'Review',
+            event: TASKEVENT.openPotentialDuplicates,
+          },
+        ],
+      } as DashboardTask,
+    ];
+    return [task];
   }
 
   private getUnsubmittedReportsTasks() {
@@ -638,7 +736,7 @@ export class TasksService {
       const task = {
         amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
         count: aggregate.totalCount,
-        header: `Ready to Report`,
+        header: `Unreported`,
         subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(
           aggregate.totalAmount,
           homeCurrency
