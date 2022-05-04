@@ -67,7 +67,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService // private storageService: StorageService
   ) {}
 
   setupNetworkWatcher() {
@@ -218,7 +218,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  setUpAndStartCamera() {
+  async setUpAndStartCamera() {
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -227,11 +227,29 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         height: window.innerHeight,
         parent: 'cameraPreview',
       };
-
-      CameraPreview.start(cameraPreviewOptions).then((res) => {
-        this.isCameraShown = true;
-        this.getFlashModes();
-      });
+      // this.storageService.set('cameraPermission', 'PERMISSION_GRANTED');
+      // this.storageService.get('cameraPermission').then((permission) => {
+      //   if (!permission || permission === 'PERMISSION_GRANTED') {
+      CameraPreview.start(cameraPreviewOptions)
+        .then((res) => {
+          console.log('Camera Preview : ', JSON.stringify(res));
+          // this.haveCameraPermission = 'PERMISSION_GRANTED';
+          this.isCameraShown = true;
+          this.getFlashModes();
+        })
+        .catch(async (err) => {
+          // this.storageService.set('cameraPermission', 'PERMISSION_DENIED');
+          // this.haveCameraPermission = 'PERMISSION_DENIED';
+          await this.showPermissionDeniedMessage();
+          console.log('Error Ouccred', JSON.stringify(err.message));
+          console.log('PLEASE ENABLE CAMERA PERMISSION');
+          // this.close();
+        });
+      //   }
+      //   else {
+      //     console.log('PLEASE ENABLE CAMERA PERMISSION');
+      //   }
+      // })
     }
   }
 
@@ -354,6 +372,24 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
 
     await limitPopover.present();
+  }
+
+  async showPermissionDeniedMessage() {
+    const permission = await this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title: 'Camera Permission',
+        message:
+          'To capture photos, please allow Fyle access to your camera. Go to Settings --> Apps --> Fyle --> Permissions, and allow camera access.',
+        primaryCta: {
+          text: 'Ok',
+          action: 'close',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await permission.present();
   }
 
   async onCapture() {
