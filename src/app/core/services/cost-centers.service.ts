@@ -24,11 +24,9 @@ export class CostCentersService {
         is_enabled: 'eq.' + true,
       },
     };
-    return this.spenderPlatformApiService.get('/cost_centers', data).pipe(
-      map((res: PlatformCostCenter) => {
-        return this.transformFrom(res.data);
-      })
-    );
+    return this.spenderPlatformApiService
+      .get('/cost_centers', data)
+      .pipe(map((res: PlatformCostCenter) => this.transformFrom(res.data)));
   }
 
   transformFrom(platformCostCenter: PlatformCostCenterData[]): CostCenter[] {
