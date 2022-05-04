@@ -179,8 +179,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  close() {
-    this.stopCamera();
+  async close() {
+    await this.stopCamera();
     if (this.isModal) {
       this.modalController.dismiss();
     } else {
@@ -381,10 +381,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  galleryUpload() {
+  async galleryUpload() {
     this.trackingService.instafyleGalleryUploadOpened({});
 
-    this.stopCamera();
+    await this.stopCamera();
     this.imagePicker.hasReadPermission().then((permission) => {
       if (permission) {
         const options = {
