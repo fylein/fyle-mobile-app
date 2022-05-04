@@ -209,6 +209,8 @@ export class TransactionService {
         ou_user_id: res.employee?.user_id,
         rp_approved_at: res.report?.last_approved_at,
         rp_reimbursed_at: res.report?.last_paid_at,
+        rp_purpose: res.report?.title,
+        rp_claim_number: res.report?.seq_num,
         source_account_id: res.source_account_id,
         source_account_type: res.source_account?.type,
         tx_activity_details: res.activity_details,
@@ -264,6 +266,16 @@ export class TransactionService {
         tx_verification_state: res.is_verified,
         us_email: res.user?.email,
         us_full_name: res.user?.full_name,
+        transaction_approvals: res.approvals,
+        tx_bus_travel_class: res.travel_classes[0],
+        tx_flight_journey_travel_class: res.travel_classes[0],
+        tx_flight_return_travel_class: res.travel_classes[1],
+        tx_train_travel_class: res.travel_classes[0],
+        tx_expense_number: res.seq_num,
+        tx_from_dt: res.started_at,
+        tx_to_dt: res.ended_at,
+        tx_dataUrls: {},
+        tx_external_expense_id: res.code,
       };
     });
 
