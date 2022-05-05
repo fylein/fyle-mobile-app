@@ -1,6 +1,6 @@
 import { ReportState } from './report-state.pipe';
 
-fdescribe('ReportStatePipe', () => {
+describe('ReportStatePipe', () => {
   const pipe = new ReportState();
 
   it('transforms "" state to ""', () => {

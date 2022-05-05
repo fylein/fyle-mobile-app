@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyZeroStateComponent } from './fy-zero-state.component';
 
-describe('FyZeroStateComponent', () => {
+xdescribe('FyZeroStateComponent', () => {
   let component: FyZeroStateComponent;
   let fixture: ComponentFixture<FyZeroStateComponent>;
 

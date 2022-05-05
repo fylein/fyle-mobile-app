@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyMultiselectComponent } from './fy-multiselect.component';
 
-describe('FyMultiselectComponent', () => {
+xdescribe('FyMultiselectComponent', () => {
   let component: FyMultiselectComponent;
   let fixture: ComponentFixture<FyMultiselectComponent>;
 

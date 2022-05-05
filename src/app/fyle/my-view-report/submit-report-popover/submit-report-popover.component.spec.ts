@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { SubmitReportPopoverComponent } from './submit-report-popover.component';
 
-describe('SubmitReportPopoverComponent', () => {
+xdescribe('SubmitReportPopoverComponent', () => {
   let component: SubmitReportPopoverComponent;
   let fixture: ComponentFixture<SubmitReportPopoverComponent>;
 

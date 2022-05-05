@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { AddExpensesToReportComponent } from './add-expenses-to-report.component';
 
-describe('AddExpensesToReportComponent', () => {
+xdescribe('AddExpensesToReportComponent', () => {
   let component: AddExpensesToReportComponent;
   let fixture: ComponentFixture<AddExpensesToReportComponent>;
 

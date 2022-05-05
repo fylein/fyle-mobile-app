@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { ApiV2Service } from './api-v2.service';
-import { map, switchMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
@@ -11,40 +11,7 @@ import { ExtendedProject } from '../models/v2/extended-project.model';
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(
-    private apiService: ApiService,
-    private apiV2Service: ApiV2Service,
-    private dataTransformService: DataTransformService
-  ) {}
-
-  @Cacheable()
-  getByParams(
-    queryParams: Partial<{
-      orgId;
-      active;
-      orgCategoryIds;
-      searchNameText;
-      limit;
-      offset;
-      sortOrder;
-      sortDirection;
-      projectIds;
-    }>
-  ): Observable<ExtendedProject[]> {
-    const { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
-      queryParams;
-    return this.getByParamsUnformatted({
-      orgId,
-      active,
-      orgCategoryIds,
-      searchNameText,
-      limit,
-      offset,
-      sortOrder,
-      sortDirection,
-      projectIds,
-    }).pipe(map(this.parseRawEProjects));
-  }
+  constructor(private apiService: ApiService, private apiV2Service: ApiV2Service) {}
 
   @Cacheable()
   getByParamsUnformatted(
@@ -89,7 +56,15 @@ export class ProjectsService {
       .get('/projects', {
         params,
       })
-      .pipe(map((res) => res.data));
+      .pipe(
+        map((res) =>
+          res.data.map((datum) => ({
+            ...datum,
+            project_created_at: new Date(datum.project_created_at),
+            project_updated_at: new Date(datum.project_updated_at),
+          }))
+        )
+      );
   }
 
   addNameSearchFilter(searchNameText: any, params: any) {
@@ -142,6 +117,7 @@ export class ProjectsService {
     return categoryList;
   }
 
+  // TODO: We should remove this from being used and replace with transform
   getAllActive() {
     const data = {
       params: {
@@ -152,18 +128,22 @@ export class ProjectsService {
     return this.apiService.get('/projects', data);
   }
 
-  parseRawEProjects(res) {
-    const rawEprojects = (res && res.data) || [];
-    return rawEprojects.map((rawEproject) => this.dataTransformService.unflatten(rawEproject));
-  }
-
-  getbyId(projectId: number) {
+  getbyId(projectId: number): Observable<ExtendedProject> {
     return this.apiV2Service
       .get('/projects', {
         params: {
           project_id: `eq.${projectId}`,
         },
       })
-      .pipe(map((res) => res.data[0]));
+      .pipe(
+        map(
+          (res) =>
+            res.data.map((datum) => ({
+              ...datum,
+              project_created_at: new Date(datum.project_created_at),
+              project_updated_at: new Date(datum.project_updated_at),
+            }))[0]
+        )
+      );
   }
 }

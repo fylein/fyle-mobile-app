@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 
-describe('CorporateCreditCardExpenseService', () => {
+xdescribe('CorporateCreditCardExpenseService', () => {
   let service: CorporateCreditCardExpenseService;
 
   beforeEach(() => {

@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ReviewFooterComponent } from './review-footer.component';
 
-describe('ReviewFooterComponent', () => {
+xdescribe('ReviewFooterComponent', () => {
   let component: ReviewFooterComponent;
   let fixture: ComponentFixture<ReviewFooterComponent>;
 

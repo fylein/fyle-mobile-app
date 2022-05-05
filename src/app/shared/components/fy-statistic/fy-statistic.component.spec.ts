@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyStatisticComponent } from './fy-statistic.component';
 
-describe('FyStatisticComponent', () => {
+xdescribe('FyStatisticComponent', () => {
   let component: FyStatisticComponent;
   let fixture: ComponentFixture<FyStatisticComponent>;
 

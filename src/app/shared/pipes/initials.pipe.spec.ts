@@ -1,6 +1,6 @@
 import { InitialsPipe } from './initials.pipe';
 
-fdescribe('InitialsPipe', () => {
+describe('InitialsPipe', () => {
   const initialsPipe = new InitialsPipe();
   it('create an instance', () => {
     expect(initialsPipe).toBeTruthy();

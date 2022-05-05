@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { RecentLocalStorageItemsService } from './recent-local-storage-items.service';
 
-describe('RecentLocalStorageItemsService', () => {
+xdescribe('RecentLocalStorageItemsService', () => {
   let service: RecentLocalStorageItemsService;
 
   beforeEach(() => {
