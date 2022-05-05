@@ -233,23 +233,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       CameraPreview.start(cameraPreviewOptions)
         .then((res) => {
           console.log('Camera Preview : ', JSON.stringify(res));
-          // this.haveCameraPermission = 'PERMISSION_GRANTED';
           this.isCameraShown = true;
           this.getFlashModes();
         })
         .catch(async (err) => {
-          // this.storageService.set('cameraPermission', 'PERMISSION_DENIED');
-          // this.haveCameraPermission = 'PERMISSION_DENIED';
           await this.showPermissionDeniedMessage();
           console.log('Error Ouccred', JSON.stringify(err.message));
           console.log('PLEASE ENABLE CAMERA PERMISSION');
-          // this.close();
         });
-      //   }
-      //   else {
-      //     console.log('PLEASE ENABLE CAMERA PERMISSION');
-      //   }
-      // })
     }
   }
 
@@ -380,7 +371,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       componentProps: {
         title: 'Camera Permission',
         message:
-          'To capture photos, please allow Fyle access to your camera. Go to Settings --> Apps --> Fyle --> Permissions, and allow camera access.',
+          'To capture and attach photos, please allow Fyle acess to your camera and your device’s photos, media, and files. Tap Settings > Permissions, and allow camera access and files & media access.',
         primaryCta: {
           text: 'Ok',
           action: 'close',
@@ -390,6 +381,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
 
     await permission.present();
+
+    const { data } = await permission.onWillDismiss();
+
+    if (data && data.action === 'close') {
+      this.close();
+    }
   }
 
   async onCapture() {
