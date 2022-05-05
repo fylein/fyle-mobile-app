@@ -259,6 +259,7 @@ export class OrgSettingsService {
           incoming.verification_settings.late_mode_enabled,
       },
       data_extraction_settings: incoming.data_extraction_settings,
+      data_extractor_settings: incoming.data_extractor_settings,
       advance_account_settings: incoming.advance_account_settings,
       settlements_excel_settings: incoming.settlements_excel_settings,
       bank_payment_file_settings: incoming.bank_payment_file_settings,
@@ -360,6 +361,14 @@ export class OrgSettingsService {
       workflow_settings: {
         allowed: incoming.workflow_settings && incoming.workflow_settings.allowed,
         enabled: incoming.workflow_settings && incoming.workflow_settings.enabled,
+      },
+      org_personal_cards_settings: {
+        allowed: incoming.org_personal_cards_settings && incoming.org_personal_cards_settings.allowed,
+        enabled: incoming.org_personal_cards_settings && incoming.org_personal_cards_settings.enabled,
+      },
+      unify_ccce_expenses_settings: {
+        allowed: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.allowed,
+        enabled: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.enabled,
       },
     };
 
@@ -514,6 +523,7 @@ export class OrgSettingsService {
       expense_limit_settings: outgoing.expense_limit_settings,
       recurrences_settings: outgoing.recurrences_settings,
       workflow_settings: outgoing.workflow_settings,
+      unify_ccce_expenses_settings: outgoing.unify_ccce_expenses_settings,
     };
   }
 }

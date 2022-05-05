@@ -91,7 +91,8 @@ export interface NotificationSettings {
   email: Email;
   push: Push;
   whatsapp: Whatsapp;
-  notify_only_delegatee: boolean;
+  notify_delegatee: boolean;
+  notify_user: boolean;
 }
 
 export interface CurrencySettings {
@@ -121,6 +122,10 @@ export interface ExpenseFormAutofills {
   allowed: boolean;
   enabled: boolean;
 }
+export interface PersonalCardsSettings {
+  enabled: boolean;
+  personal_cards_data_aggregator: string;
+}
 
 export interface OrgUserSettings {
   id: string;
@@ -147,4 +152,5 @@ export interface OrgUserSettings {
   locale: Locale;
   in_app_chat_settings: InAppChatSettings;
   expense_form_autofills: ExpenseFormAutofills;
+  personal_cards_settings: PersonalCardsSettings;
 }

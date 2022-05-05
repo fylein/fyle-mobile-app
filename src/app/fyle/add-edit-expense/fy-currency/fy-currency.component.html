@@ -1,35 +1,43 @@
 <div class="fy-currency">
   <form [formGroup]="fg" class="fy-currency--form">
-    <div class="fy-currency--input-container fy-currency--currency-block">
+    <div
+      class="fy-currency--input-container fy-currency--currency-block"
+      [ngClass]="{ 'fy-currency--currency-block__disabled': disabled }"
+    >
       <div class="fy-currency--label">
         Currency
         <span class="fy-currency--mandatory"> * </span>
       </div>
-      <input class="fy-currency--input" (click)="openCurrencyModal()" formControlName="currency" (blur)="onBlur()" />
+      <input
+        [ngClass]="{ 'fy-currency--input__disabled': disabled }"
+        class="fy-currency--input"
+        (click)="openCurrencyModal()"
+        formControlName="currency"
+        (blur)="onBlur()"
+      />
     </div>
-    <div class="fy-currency--input-container fy-currency--amount-block" [ngClass]="{ 'fy-currency__invalid': !valid }">
+    <div
+      class="fy-currency--input-container fy-currency--amount-block"
+      [ngClass]="{ 'fy-currency__invalid': !valid, 'fy-currency--currency-block__disabled': disabled }"
+    >
       <div class="fy-currency--label">
         Amount
         <span class="fy-currency--mandatory"> * </span>
       </div>
-      <input
-        class="fy-currency--input fy-currency--amount"
-        formControlName="amount"
-        (blur)="onBlur()"
-        inputmode="decimal"
-        type="number"
-        placeholder="00.00"
-      />
+      <app-fy-number placeholder="00.00" formControlName="amount" [disabled]="disabled"> </app-fy-number>
     </div>
   </form>
 </div>
 <ng-container *ngIf="value?.currency && value?.orig_currency">
-  <div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
+  <div
+    class="fy-currency--exchange-rate-container"
+    [ngClass]="{ expanded: expanded, 'fy-currency--exchange-rate-container__disabled': disabled }"
+  >
     <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="fy-info"></mat-icon>
     <div class="fy-currency--exchange-rate-message">
       <strong>{{ value.currency }} {{ value.amount | number: '1.0-2' }}</strong>
       at {{ exchangeRate | number: '1.0-6' }} {{ value.currency }} / {{ value.orig_currency }}
     </div>
-    <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">Modify</button>
+    <button *ngIf="!disabled" class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">Modify</button>
   </div>
 </ng-container>

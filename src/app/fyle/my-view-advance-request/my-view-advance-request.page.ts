@@ -10,8 +10,6 @@ import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PullBackAdvanceRequestComponent } from './pull-back-advance-request/pull-back-advance-request.component';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -19,6 +17,10 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -40,6 +42,12 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   isDeviceWidthSmall = window.innerWidth < this.minScreenWidth;
 
+  projectFieldName = 'Project';
+
+  internalState: { name: string; state: string };
+
+  currencySymbol: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -47,13 +55,17 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private fileService: FileService,
     private router: Router,
     private popoverController: PopoverController,
-    private popupService: PopupService,
     private modalController: ModalController,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
+    private offlineService: OfflineService,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
+
+  get StatisticTypes() {
+    return StatisticTypes;
+  }
 
   getReceiptExtension(name) {
     let res = null;
@@ -88,6 +100,17 @@ export class MyViewAdvanceRequestPage implements OnInit {
     return res;
   }
 
+  // TODO - replace forEach with find
+  getAndUpdateProjectName() {
+    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+      expenseFields.forEach((expenseField) => {
+        if (expenseField.column_name === 'project_id') {
+          this.projectFieldName = expenseField.field_name;
+        }
+      });
+    });
+  }
+
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
     this.advanceRequest$ = from(this.loaderService.showLoader()).pipe(
@@ -95,6 +118,11 @@ export class MyViewAdvanceRequestPage implements OnInit {
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
+
+    this.advanceRequest$.subscribe((advanceRequest) => {
+      this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(advanceRequest);
+      this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
+    });
 
     this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
@@ -142,33 +170,36 @@ export class MyViewAdvanceRequestPage implements OnInit {
         return res.customFields;
       })
     );
+
+    this.getAndUpdateProjectName();
   }
 
   async pullBack() {
     const pullBackPopover = await this.popoverController.create({
-      component: PullBackAdvanceRequestComponent,
-      cssClass: 'dialog-popover',
+      component: FyPopoverComponent,
+      componentProps: {
+        title: 'Pull Back Advance?',
+        formLabel: 'Pulling back your advance request will allow you to edit and re-submit the request.',
+      },
+      cssClass: 'fy-dialog-popover',
     });
 
     await pullBackPopover.present();
-
     const { data } = await pullBackPopover.onWillDismiss();
 
-    if (data) {
+    if (data && data.comment) {
       const status = {
-        comment: data.reason,
+        comment: data.comment,
       };
-
-      const addStatusPayload = {
+      const statusPayload = {
         status,
         notify: false,
       };
-
       const id = this.activatedRoute.snapshot.params.id;
 
       from(this.loaderService.showLoader())
         .pipe(
-          switchMap(() => this.advanceRequestService.pullBackadvanceRequest(id, addStatusPayload)),
+          switchMap(() => this.advanceRequestService.pullBackadvanceRequest(id, statusPayload)),
           finalize(() => from(this.loaderService.hideLoader()))
         )
         .subscribe(() => {
@@ -190,7 +221,6 @@ export class MyViewAdvanceRequestPage implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
-      backdropDismiss: false,
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',

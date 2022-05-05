@@ -1,6 +1,6 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -57,6 +57,9 @@ import { RouteSelectorComponent } from 'src/app/shared/components/route-selector
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -103,6 +106,8 @@ export class AddEditMileagePage implements OnInit {
   individualProjectIds$: Observable<string[]>;
 
   isProjectsEnabled$: Observable<boolean>;
+
+  isCostCentersEnabled$: Observable<boolean>;
 
   customInputs$: Observable<any>;
 
@@ -160,6 +165,7 @@ export class AddEditMileagePage implements OnInit {
 
   recentlyUsedMileageLocations$: Observable<{
     recent_start_locations?: string[];
+    recent_end_locations?: string[];
     recent_locations?: string[];
   }>;
 
@@ -196,7 +202,9 @@ export class AddEditMileagePage implements OnInit {
 
   billableDefaultValue: boolean;
 
-  canDeleteExpense = true;
+  isRedirectedFromReport = false;
+
+  canRemoveFromReport = false;
 
   constructor(
     private router: Router,
@@ -228,14 +236,10 @@ export class AddEditMileagePage implements OnInit {
     private locationService: LocationService,
     private expenseFieldsService: ExpenseFieldsService,
     private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
-
-  ngOnInit() {
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
-  }
 
   get showSaveAndNext() {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
@@ -243,6 +247,21 @@ export class AddEditMileagePage implements OnInit {
 
   get route() {
     return this.fg.controls.route;
+  }
+
+  @HostListener('keydown')
+  scrollInputIntoView() {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  }
+
+  ngOnInit() {
+    this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
+    this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
   }
 
   goToPrev() {
@@ -1017,6 +1036,7 @@ export class AddEditMileagePage implements OnInit {
     this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
       map((recentlyUsedValues) => ({
         recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
+        recent_end_locations: recentlyUsedValues?.recent_end_locations || [],
         recent_locations: recentlyUsedValues?.recent_locations || [],
       }))
     );
@@ -1063,6 +1083,8 @@ export class AddEditMileagePage implements OnInit {
 
     this.customInputs$ = this.getCustomInputs();
 
+    this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
+
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$,
@@ -1099,50 +1121,66 @@ export class AddEditMileagePage implements OnInit {
       .pipe(
         distinctUntilChanged((a, b) => isEqual(a, b)),
         switchMap((txnFields) =>
-          this.isConnected$.pipe(
-            take(1),
-            withLatestFrom(this.costCenters$),
-            map(([isConnected, costCenters]) => ({
+          forkJoin({
+            isConnected: this.isConnected$.pipe(take(1)),
+            orgSettings: this.offlineService.getOrgSettings(),
+            costCenters: this.costCenters$,
+            isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
+            individualProjectIds: this.individualProjectIds$,
+          }).pipe(
+            map(({ isConnected, orgSettings, costCenters, isIndividualProjectsEnabled, individualProjectIds }) => ({
               isConnected,
               txnFields,
+              orgSettings,
               costCenters,
+              isIndividualProjectsEnabled,
+              individualProjectIds,
             }))
           )
         )
       )
-      .subscribe(({ isConnected, txnFields, costCenters }) => {
-        const keyToControlMap: { [id: string]: AbstractControl } = {
-          purpose: this.fg.controls.purpose,
-          cost_center_id: this.fg.controls.costCenter,
-          txn_dt: this.fg.controls.dateOfSpend,
-          project_id: this.fg.controls.project,
-          billable: this.fg.controls.billable,
-        };
+      .subscribe(
+        ({ isConnected, txnFields, costCenters, orgSettings, individualProjectIds, isIndividualProjectsEnabled }) => {
+          const keyToControlMap: { [id: string]: AbstractControl } = {
+            purpose: this.fg.controls.purpose,
+            cost_center_id: this.fg.controls.costCenter,
+            txn_dt: this.fg.controls.dateOfSpend,
+            project_id: this.fg.controls.project,
+            billable: this.fg.controls.billable,
+          };
 
-        for (const control of Object.values(keyToControlMap)) {
-          control.clearValidators();
-          control.updateValueAndValidity();
-        }
-
-        for (const txnFieldKey of intersection(Object.keys(keyToControlMap), Object.keys(txnFields))) {
-          const control = keyToControlMap[txnFieldKey];
-
-          if (txnFields[txnFieldKey].is_mandatory) {
-            if (txnFieldKey === 'txn_dt') {
-              control.setValidators(
-                isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
-              );
-            } else if (txnFieldKey === 'cost_center_id') {
-              control.setValidators(isConnected && costCenters && costCenters.length > 0 ? Validators.required : null);
-            } else {
-              control.setValidators(isConnected ? Validators.required : null);
-            }
+          for (const control of Object.values(keyToControlMap)) {
+            control.clearValidators();
+            control.updateValueAndValidity();
           }
-          control.updateValueAndValidity();
-        }
 
-        this.fg.updateValueAndValidity();
-      });
+          for (const txnFieldKey of intersection(Object.keys(keyToControlMap), Object.keys(txnFields))) {
+            const control = keyToControlMap[txnFieldKey];
+            if (txnFields[txnFieldKey].is_mandatory) {
+              if (txnFieldKey === 'txn_dt') {
+                control.setValidators(
+                  isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
+                );
+              } else if (txnFieldKey === 'cost_center_id') {
+                control.setValidators(
+                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null
+                );
+              } else if (txnFieldKey === 'project_id') {
+                control.setValidators(
+                  orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
+                    ? null
+                    : Validators.required
+                );
+              } else {
+                control.setValidators(isConnected ? Validators.required : null);
+              }
+            }
+            control.updateValueAndValidity();
+          }
+
+          this.fg.updateValueAndValidity();
+        }
+      );
 
     this.isAmountCapped$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
@@ -1253,7 +1291,7 @@ export class AddEditMileagePage implements OnInit {
               paymentModes
                 .map((res) => res.value)
                 .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Paid by Me') {
+                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
                     return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
                   } else {
                     return paymentMode.acc.id === etxn.tx.source_account_id;
@@ -1268,7 +1306,7 @@ export class AddEditMileagePage implements OnInit {
 
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
-        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Paid by Me')
+        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash')
       )
     );
 
@@ -1364,7 +1402,7 @@ export class AddEditMileagePage implements OnInit {
           )
       )
     );
-    from(this.loaderService.showLoader())
+    from(this.loaderService.showLoader('Please wait...', 10000))
       .pipe(
         switchMap(() =>
           combineLatest([
@@ -1622,6 +1660,22 @@ export class AddEditMileagePage implements OnInit {
       });
   }
 
+  showAddToReportSuccessToast(reportId: string) {
+    const toastMessageData = {
+      message: 'Mileage expense added to report successfully',
+      redirectionText: 'View Report',
+    };
+    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
+    });
+  }
+
   saveExpense() {
     const that = this;
 
@@ -1634,6 +1688,9 @@ export class AddEditMileagePage implements OnInit {
             that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
               if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id) {
                 this.addToNewReport(etxn.tx.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.close();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.close();
               }
@@ -1643,6 +1700,9 @@ export class AddEditMileagePage implements OnInit {
             that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
               if (that.fg.controls.add_to_new_report.value && tx && tx.id) {
                 this.addToNewReport(tx.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.close();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.close();
               }
@@ -2373,15 +2433,14 @@ export class AddEditMileagePage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
-    const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
-    const header = reportId && removeExpenseFromReport ? 'Remove Mileage' : 'Delete Mileage';
+    const header = reportId && this.isRedirectedFromReport ? 'Remove Mileage' : 'Delete Mileage';
     const body =
-      reportId && removeExpenseFromReport
+      reportId && this.isRedirectedFromReport
         ? 'Are you sure you want to remove this mileage expense from this report?'
         : 'Are you sure you want to delete this mileage expense?';
-    const ctaText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = reportId && removeExpenseFromReport ? 'Removing' : 'Deleting';
+    const ctaText = reportId && this.isRedirectedFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = reportId && this.isRedirectedFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -2393,7 +2452,7 @@ export class AddEditMileagePage implements OnInit {
         ctaText,
         ctaLoadingText,
         deleteMethod: () => {
-          if (reportId && removeExpenseFromReport) {
+          if (reportId && this.isRedirectedFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);

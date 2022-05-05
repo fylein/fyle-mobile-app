@@ -50,6 +50,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   @Input() recentlyUsedMileageLocations: {
     recent_start_locations?: string[];
+    recent_end_locations?: string[];
     recent_locations?: string[];
   };
 

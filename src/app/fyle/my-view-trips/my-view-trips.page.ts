@@ -20,8 +20,8 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { TransportationRequestsComponent } from './transportation-requests/transportation-requests.component';
 import { HotelRequestsComponent } from './hotel-requests/hotel-requests.component';
 import { AdvanceRequestsComponent } from './advance-requests/advance-requests.component';
-import { PullBackTripComponent } from './pull-back-trip/pull-back-trip.component';
 import { PopupService } from 'src/app/core/services/popup.service';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 @Component({
   selector: 'app-my-view-trips',
@@ -44,6 +44,8 @@ export class MyViewTripsPage implements OnInit {
   allTripRequestCustomFields$: Observable<any>;
 
   activeApprovals$: Observable<Approval[]>;
+
+  showTripActionCta = false;
 
   tripExtraInfo$: Observable<{
     submittedBy: {
@@ -74,6 +76,8 @@ export class MyViewTripsPage implements OnInit {
   deleteLoading = false;
 
   closeLoading = false;
+
+  deprecationMsg$: Observable<string>;
 
   constructor(
     private tripRequestsService: TripRequestsService,
@@ -250,17 +254,21 @@ export class MyViewTripsPage implements OnInit {
   async pullBack() {
     this.pullbackLoading = true;
     const pullBackPopover = await this.popoverController.create({
-      component: PullBackTripComponent,
-      cssClass: 'dialog-popover',
+      component: FyPopoverComponent,
+      componentProps: {
+        title: 'Pull Back Trip',
+        formLabel: 'Pulling back your trip request will allow you to edit and re-submit the request.',
+      },
+      cssClass: 'fy-dialog-popover',
     });
 
     await pullBackPopover.present();
 
     const { data } = await pullBackPopover.onWillDismiss();
 
-    if (data && data.reason) {
+    if (data && data.comment) {
       const status = {
-        comment: data.reason,
+        comment: data.comment,
       };
 
       const addStatusPayload = {
@@ -317,6 +325,11 @@ export class MyViewTripsPage implements OnInit {
 
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
+
+    this.tripRequestsService
+      .doesOrgHaveExtension()
+      .subscribe((doesOrgHaveExtension) => (this.showTripActionCta = doesOrgHaveExtension));
+
     const eou$ = from(this.authService.getEou());
     this.tripRequest$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.tripRequestsService.getTrip(id)),
@@ -420,6 +433,8 @@ export class MyViewTripsPage implements OnInit {
         });
       })
     );
+
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('individual');
   }
 
   ngOnInit() {}

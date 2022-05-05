@@ -8,6 +8,7 @@
           *ngIf="!estatus.us_full_name"
           [ngClass]="{
             'audit-history--circle': estatus.st.icon === 'circle',
+            'audit-history--delete': estatus.st.icon === 'fy-delete',
             'icon--alert-warning': estatus.st.icon === 'danger',
             'icon--flagged': estatus.st.category === 'Flagged',
             'icon--unflagged': estatus.st.category === 'Unflagged'
@@ -26,11 +27,17 @@
             *ngIf="
               estatus.st.category !== 'Expense Issues' &&
               estatus.st.category !== 'Failed to run policies' &&
-              estatus.st.category !== 'Card Transaction Matched'
+              estatus.st.category !== 'Card Transaction Matched' &&
+              estatus.st.category !== 'Expense automatically merged' &&
+              estatus.st.category !== 'Expense merged'
             "
             >Details:
           </span>
           <span *ngIf="estatus.st.category === 'Card Transaction Matched'">Card Transaction Details: </span>
+          <span
+            *ngIf="estatus.st.category === 'Expense automatically merged' || estatus.st.category === 'Expense merged'"
+            >Details of the merged expense:
+          </span>
           <ul class="audit-history--diff-list">
             <div *ngFor="let item of estatus.st_diff | keyvalue" class="audit-history--diff">
               <app-statuses-diff [key]="item.key" [value]="item.value"></app-statuses-diff>

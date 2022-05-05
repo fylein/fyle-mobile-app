@@ -18,7 +18,7 @@
   &--body {
     font-size: 14px;
     line-height: 18px;
-    text-align: center;
+    text-align: left;
     color: $blue-black;
     padding: 7px 7px 0;
     width: 247px;
@@ -33,6 +33,7 @@
     &__icon {
       width: 18px;
       height: 18px;
+      color: $highlight-blue;
     }
 
     &__message {
@@ -44,18 +45,22 @@
   }
 
   &--cta-container {
-    margin-top: 28px;
+    margin-top: 18px;
   }
 
   &--delete {
-    min-width: 124px;
-    min-height: 35px;
+    min-width: 132px;
+    min-height: 36px;
     background: $red;
     border-radius: 4px;
     color: $pure-white;
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  &--delete-disabled {
+    opacity: 0.6;
   }
 
   &--cancel {

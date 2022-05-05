@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -26,6 +26,8 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
+import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -51,8 +53,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   customFields$: Observable<any>;
 
-  attachmentUploadInProgress: boolean;
-
   dataUrls: any[];
 
   customFieldValues: any[];
@@ -72,6 +72,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
   saveAdvanceLoading = false;
 
   isDeviceWidthSmall = window.innerWidth < 375;
+
+  expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+
+  isCameraShown = false;
 
   constructor(
     private offlineService: OfflineService,
@@ -94,6 +98,16 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService
   ) {}
+
+  @HostListener('keydown')
+  scrollInputIntoView() {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
     if (c.value && c.value.amount && c.value.currency) {
@@ -121,6 +135,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
         can_submit: true,
       };
     }
+
+    this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
   }
 
   goBack() {
@@ -181,7 +197,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
       const { data } = await policyViolationModal.onWillDismiss();
       if (data) {
-        // this.loaderService.showLoader('Creating Advance Request...');
         return this.saveAndSubmit(event, advanceRequest)
           .pipe(
             switchMap((res) =>
@@ -193,7 +208,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
             ),
             finalize(() => {
               this.fg.reset();
-              // this.loaderService.hideLoader();
               if (event === 'draft') {
                 this.saveDraftAdvanceLoading = false;
               } else {
@@ -369,13 +383,33 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     await cameraOptionsPopup.present();
 
-    const { data } = await cameraOptionsPopup.onWillDismiss();
+    let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss();
 
-    if (data) {
+    if (receiptDetails && receiptDetails.option === 'camera') {
+      const captureReceiptModal = await this.modalController.create({
+        component: CaptureReceiptComponent,
+        componentProps: {
+          isModal: true,
+          allowGalleryUploads: false,
+          allowBulkFyle: false,
+        },
+        cssClass: 'hide-modal',
+      });
+      await captureReceiptModal.present();
+      this.isCameraShown = true;
+
+      const { data } = await captureReceiptModal.onWillDismiss();
+      this.isCameraShown = false;
+
+      if (data && data.dataUrl) {
+        receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };
+      }
+    }
+    if (receiptDetails && receiptDetails.dataUrl) {
       this.dataUrls.push({
-        type: data.type,
-        url: data.dataUrl,
-        thumbnail: data.dataUrl,
+        type: receiptDetails.type,
+        url: receiptDetails.dataUrl,
+        thumbnail: receiptDetails.dataUrl,
       });
     }
   }
@@ -397,7 +431,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await attachmentsModal.present();
@@ -628,7 +661,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
         });
       })
     );
-
     this.setupNetworkWatcher();
   }
 

@@ -17,6 +17,10 @@
     white-space: nowrap;
   }
 
+  &--disabled {
+    background: $grey-7;
+  }
+
   &--input-container {
     display: flex;
     align-items: center;
@@ -39,7 +43,7 @@
   }
 
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     font-size: 14px;
     font-weight: 400;
   }

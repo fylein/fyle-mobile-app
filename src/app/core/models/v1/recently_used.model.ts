@@ -5,5 +5,6 @@ export interface RecentlyUsed {
   recent_currencies?: string[];
   recent_vehicle_types?: string[];
   recent_start_locations?: string[];
+  recent_end_locations?: string[];
   recent_locations?: string[];
 }

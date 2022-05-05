@@ -7,6 +7,10 @@
 
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+
+    &__title {
+      padding-right: 60px;
+    }
   }
 
   &--header-btn-container {
@@ -15,6 +19,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
+      color: $black-light;
     }
   }
 
@@ -47,14 +52,6 @@
 
   &--receipt-text {
     margin-top: 20px;
-  }
-
-  &--receipt-image-icon {
-    font-size: 32px;
-    color: $primary;
-    position: absolute;
-    left: 20px;
-    bottom: -8px;
   }
 
   &--receipt-spinner-icon {
@@ -94,8 +91,7 @@
   }
 
   &--currency {
-    margin: 12px 0;
-    width: calc(100% - 88px);
+    margin: 12px 0 0 0;
   }
 
   &--primary-block {
@@ -153,9 +149,7 @@
   }
 
   &--checkbox {
-    font-size: 16px;
-    color: #ababab;
-    font-weight: 500;
+    color: $blue-black;
   }
 
   &--date-input {
@@ -184,7 +178,7 @@
   }
 
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -193,6 +187,7 @@
   &--amount-error {
     color: $red;
     font-size: 12px;
+    margin: -8px 0 0 52%;
   }
 
   &--primary-cta {
@@ -206,5 +201,76 @@
     height: 80px;
     padding: 14px 16px;
     justify-content: space-between;
+  }
+
+  &--receipt-currency-container {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  &--receipt {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 4px;
+    color: $gray-3;
+    margin: 12px 12px 0 0;
+    height: 64px;
+  }
+
+  &--receipt-image {
+    background-color: $light-grey;
+    min-width: 64px;
+    min-height: 64px;
+    max-width: 64px;
+    max-height: 88px;
+    border-radius: 16px;
+    position: relative;
+  }
+
+  &--spinner-icon {
+    margin-top: 12px;
+    color: $brand-primary;
+  }
+
+  &--receipt-image-subheader {
+    font-size: 8px;
+  }
+
+  &--receipt-image-icon {
+    height: 32px;
+    width: 31px;
+    margin: 16px;
+  }
+
+  &--receipt-background {
+    position: absolute;
+    top: 24%;
+    left: 16px;
+    font-size: 64px;
+    height: 36px;
+    width: 34px;
+    background-color: $light-grey;
+    border-radius: 16px;
+  }
+
+  &--receipt-text {
+    position: relative;
+    padding-top: 10px;
+    padding-bottom: 6px;
+    &__count {
+      color: $blue-black;
+      font-size: 24px;
+      font-weight: 400;
+      padding-top: 24px;
+    }
+  }
+
+  &--receipt-add-more-icon {
+    top: 2%;
+    left: 4%;
+    font-size: 24px;
   }
 }

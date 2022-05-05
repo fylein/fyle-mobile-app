@@ -1,73 +1,78 @@
-<div class="receipt-preview-thumbnail--actions">
-  <div class="receipt-preview-thumbnail--receipt-index">
+<div class="receipt-preview-thumbnail--actions" [ngClass]="{ 'mt-0': !canEdit }">
+  <div class="receipt-preview-thumbnail--receipt-index" *ngIf="!hideLabel">
     Receipt <ng-container *ngIf="attachments.length > 1">{{ activeIndex + 1 }}/{{ attachments.length }} </ng-container>
   </div>
-  <div (click)="addAttachments($event)" class="receipt-preview-thumbnail--add-more">
+  <div *ngIf="canEdit" (click)="addAttachments($event)" class="receipt-preview-thumbnail--add-more">
     <mat-icon class="receipt-preview-thumbnail--icon" svgIcon="plus"></mat-icon>
     <span class="receipt-preview-thumbnail--add-more-text">Add More</span>
   </div>
 </div>
 
-<div class="receipt-preview-thumbnail--slider-container">
-  <div class="receipt-preview-thumbnail--spinner-overlay" *ngIf="isUploading">
+<div
+  class="receipt-preview-thumbnail--slider-container"
+  [ngClass]="{ 'receipt-loader': numLoadedImage === attachments.length ? false : true }"
+>
+  <div class="receipt-preview-thumbnail--spinner-overlay" *ngIf="isUploading || !numLoadedImage">
     <div class="receipt-preview-thumbnail--spinner-container">
       <ion-spinner class="receipt-preview-thumbnail--spinner" name="crescent"></ion-spinner>
-      <span class="receipt-preview-thumbnail--spinner-text">Uploading receipt</span>
+      <div class="text-center receipt-preview-thumbnail--spinner-text">
+        {{ (isUploading ? 'Uploading' : 'Loading') + ' receipt' }}
+      </div>
     </div>
   </div>
 
   <ng-container *ngIf="attachments.length > 1">
     <div class="receipt-preview-thumbnail--controls">
       <div *ngIf="activeIndex !== 0" class="receipt-preview-thumbnail--go-back" (click)="goToPrevSlide()">
-        <mat-icon class="receipt-preview-thumbnail--go-back__btn">
-          arrow_back_ios
-        </mat-icon>
+        <mat-icon class="receipt-preview-thumbnail--go-back__btn"> arrow_back_ios </mat-icon>
       </div>
-      <div *ngIf="activeIndex !== attachments.length-1" class="receipt-preview-thumbnail--go-forward" (click)="goToNextSlide()">
-        <mat-icon class="receipt-preview-thumbnail--go-forward__btn">
-          arrow_forward_ios
-        </mat-icon>
+      <div
+        *ngIf="activeIndex !== attachments.length - 1"
+        class="receipt-preview-thumbnail--go-forward"
+        (click)="goToNextSlide()"
+      >
+        <mat-icon class="receipt-preview-thumbnail--go-forward__btn"> arrow_forward_ios </mat-icon>
       </div>
     </div>
   </ng-container>
 
-  <ion-slides
+  <swiper
     #slides
-    [options]="sliderOptions"
-    (ionSlidesDidLoad)="getActiveIndex()"
-    (ionSlideDidChange)="getActiveIndex()"
+    (onSwiper)="getActiveIndex()"
+    (slideChange)="getActiveIndex()"
+    [slidesPerView]="1"
+    [spaceBetween]="80"
   >
-    <ng-container *ngFor="let attachment of attachments">
-      <ion-slide (click)="previewAttachments()">
-        <div class="receipt-preview-thumbnail--container">
+    <ng-template *ngFor="let attachment of attachments" swiperSlide>
+      <div class="receipt-preview-thumbnail--container" (click)="previewAttachments()">
+        <pinch-zoom
+          class="pinch-zoom"
+          *ngIf="attachment?.type !== 'pdf'"
+          disableZoomControl="disable"
+          backgroundColor="white"
+        >
+          <img (load)="onLoad()" class="receipt-preview-thumbnail--image" [src]="attachment?.url" />
+        </pinch-zoom>
+        <div class="receipt-preview-thumbnail--image" *ngIf="attachment?.type === 'pdf'">
           <pinch-zoom
             class="pinch-zoom"
-            *ngIf="attachment?.type !== 'pdf'"
+            *ngIf="attachment?.type === 'pdf'"
             disableZoomControl="disable"
             backgroundColor="white"
           >
-            <img class="receipt-preview-thumbnail--image" [src]="attachment?.url" />
+            <pdf-viewer
+              class="receipt-preview-thumbnail--pdf-viewer"
+              [page]="1"
+              [src]="attachment?.url"
+              [original-size]="false"
+              [render-text]="true"
+              [show-all]="false"
+              [fit-to-page]="true"
+              (after-load-complete)="onLoad()"
+            ></pdf-viewer>
           </pinch-zoom>
-          <div class="receipt-preview-thumbnail--image" *ngIf="attachment?.type === 'pdf'">
-            <pinch-zoom
-              class="pinch-zoom"
-              *ngIf="attachment?.type === 'pdf'"
-              disableZoomControl="disable"
-              backgroundColor="white"
-            >
-              <pdf-viewer
-                class="receipt-preview-thumbnail--pdf-viewer"
-                [page]="1"
-                [src]="attachment?.url"
-                [original-size]="false"
-                [render-text]="true"
-                [show-all]="false"
-                [fit-to-page]="true"
-              ></pdf-viewer>
-            </pinch-zoom>
-          </div>
         </div>
-      </ion-slide>
-    </ng-container>
-  </ion-slides>
+      </div>
+    </ng-template>
+  </swiper>
 </div>

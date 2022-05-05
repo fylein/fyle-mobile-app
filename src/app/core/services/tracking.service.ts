@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
+import { DeviceService } from '../../core/services/device.service';
 
 @Injectable({
   providedIn: 'root',
@@ -7,7 +8,7 @@ import { AuthService } from './auth.service';
 export class TrackingService {
   identityEmail = null;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
   get tracking() {
     return (window as any).analytics;
@@ -58,13 +59,16 @@ export class TrackingService {
   onStateChange(toState, toParams, fromState, fromParams) {}
 
   eventTrack(action, properties = {}) {
-    properties = {
-      ...properties,
-      Asset: 'Mobile',
-    };
-    if (this.tracking) {
-      this.tracking.track(action, properties);
-    }
+    this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
+      properties = {
+        ...properties,
+        Asset: 'Mobile',
+        DeviceType: deviceInfo.platform,
+      };
+      if (this.tracking) {
+        this.tracking.track(action, properties);
+      }
+    });
   }
 
   // external APIs
@@ -89,6 +93,10 @@ export class TrackingService {
     // Temporary hack for already logged in users - we need to know their identity
     await this.updateIdentity();
     this.eventTrack('Create Expense', properties);
+  }
+
+  splittingExpense(properties) {
+    this.eventTrack('Splitting Expense', properties);
   }
 
   bulkAddExpenses(properties) {
@@ -151,6 +159,11 @@ export class TrackingService {
   // view comment event
   viewComment(properties = {}) {
     this.eventTrack('View Comment', properties);
+  }
+
+  //Actions inside comments and history
+  commentsHistoryActions(properties) {
+    this.eventTrack('Comments and History segment Actions', properties);
   }
 
   // click Add To Report event
@@ -747,12 +760,41 @@ export class TrackingService {
     this.eventTrack('dashboard unreported expenses clicked', properties);
   }
 
+  dashboardOnIncompleteExpensesClick(properties = {}) {
+    this.eventTrack('dashboard incomplete expenses clicked', properties);
+  }
+
+  dashboardOnIncompleteCardExpensesClick(properties = {}) {
+    this.eventTrack('dashboard incomplete corporate card expenses clicked', properties);
+  }
+
+  dashboardOnTotalCardExpensesClick(properties = {}) {
+    this.eventTrack('dashboard total corporate card expenses clicked', properties);
+  }
+
   dashboardOnReportPillClick(properties) {
     this.eventTrack('dashboard report pill clicked', properties);
   }
 
   dashboardOnCorporateCardClick(properties) {
     this.eventTrack('dashboard corporate card clicked', properties);
+  }
+
+  //View expenses
+  viewExpenseClicked(properties) {
+    this.eventTrack('View expense clicked', properties);
+  }
+
+  expenseNavClicked(properties) {
+    this.eventTrack('Expense navigation clicked', properties);
+  }
+
+  expenseFlagUnflagClicked(properties) {
+    this.eventTrack('Expense flagged or unflagged', properties);
+  }
+
+  expenseRemovedByApprover(properties = {}) {
+    this.eventTrack('Expense removed from report by approver', properties);
   }
 
   // Footer
@@ -770,6 +812,14 @@ export class TrackingService {
 
   myExpensesFilterApplied(properties) {
     this.eventTrack('my expenses filters applied', properties);
+  }
+
+  myReportsFilterApplied(properties) {
+    this.eventTrack('my reports filters applied', properties);
+  }
+
+  TeamReportsFilterApplied(properties) {
+    this.eventTrack('team reports filters applied', properties);
   }
 
   // Duplicates
@@ -838,5 +888,111 @@ export class TrackingService {
   async tasksFilterPillRemoveClicked(properties = {}) {
     Object.assign(properties, await this.getUserProperties());
     this.eventTrack('tasks clicked on remove filter pill', properties);
+  }
+
+  // Add to Report inside expenses
+  openAddToReportModal(properties = {}) {
+    this.eventTrack('Open Add to Report Modal', properties);
+  }
+
+  addToReportFromExpense(properties = {}) {
+    this.eventTrack('Add to Report from expense', properties);
+  }
+
+  openCreateDraftReportPopover(properties = {}) {
+    this.eventTrack('Open Create Draft Report Popover', properties);
+  }
+
+  createDraftReportFromExpense(properties = {}) {
+    this.eventTrack('Create draft report from expense', properties);
+  }
+
+  //Reports
+  //Open view report info modal
+  clickViewReportInfo(properties) {
+    this.eventTrack('Open View Report Info', properties);
+  }
+
+  //Actions inside view report info modal
+  viewReportInfo(properties) {
+    this.eventTrack('View Report Info', properties);
+  }
+
+  // Team Advances
+  async sendBackAdvance(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Send Back Advance', properties);
+  }
+
+  async rejectAdvance(properties = {}) {
+    Object.assign(properties, await this.getUserProperties());
+    this.eventTrack('Reject Advance', properties);
+  }
+
+  //Toggle settings
+  onSettingsToggle(properties) {
+    this.eventTrack('Toggle Setting', properties);
+  }
+
+  //Personal Cards
+  personalCardsViewed(properties = {}) {
+    this.eventTrack('Personal cards page opened', properties);
+  }
+
+  newCardLinkedOnPersonalCards(properties = {}) {
+    this.eventTrack('New card linked on personal cards', properties);
+  }
+
+  cardDeletedOnPersonalCards(properties = {}) {
+    this.eventTrack('Card deleted on personal cards', properties);
+  }
+
+  newExpenseCreatedFromPersonalCard(properties = {}) {
+    this.eventTrack('New expense created from personal card transaction', properties);
+  }
+
+  oldExpensematchedFromPersonalCard(properties = {}) {
+    this.eventTrack('Expense matched created from personal card transaction', properties);
+  }
+
+  unmatchedExpensesFromPersonalCard(properties = {}) {
+    this.eventTrack('Expense matched created from personal card transaction', properties);
+  }
+
+  transactionsHiddenOnPersonalCards(properties = {}) {
+    this.eventTrack('Transactions hidden on personal cards', properties);
+  }
+
+  transactionsFetchedOnPersonalCards(properties = {}) {
+    this.eventTrack('Transactions fetched on perosnal cards', properties);
+  }
+
+  cropReceipt(properties = {}) {
+    this.eventTrack('Receipt Cropped', properties);
+  }
+
+  saveReceiptWithInvalidForm(properties = {}) {
+    this.eventTrack('Save receipt with invalid form', properties);
+  }
+
+  // Merge related trackings
+  expensesMerged(properties = {}) {
+    this.eventTrack('Expenses merged successfully', properties);
+  }
+
+  duplicateTaskClicked(properties = {}) {
+    this.eventTrack('potential duplicate task clicked from dashboard', properties);
+  }
+
+  dismissedDuplicateSet(properties = {}) {
+    this.eventTrack('duplicate set dismissed', properties);
+  }
+
+  dismissedIndividualExpenses(properties = {}) {
+    this.eventTrack('individual expense dismissed as not duplicate', properties);
+  }
+
+  visitedMergeExpensesPageFromTask(properties = {}) {
+    this.eventTrack('visited merged expense page from tasks', properties);
   }
 }

@@ -26,45 +26,4 @@
       padding: 0 32px;
     }
   }
-
-  &--primary-cta,
-  &--secondary-cta {
-    height: 48px;
-    font-size: 14px;
-    font-weight: 700;
-    border-radius: 8px;
-    width: 100%;
-    margin: 12px 0;
-    --border-radius: 4px !important;
-
-    &:first-child {
-      margin-right: 4px;
-    }
-
-    &:last-child {
-      margin-left: 4px;
-    }
-  }
-
-  &--secondary-cta {
-    margin: 0;
-    border-radius: 0;
-    &__border {
-      border-right: 1px solid $grey;
-    }
-  }
-
-  &--secondary-cta-text {
-    min-width: 80px;
-  }
-
-  &--secondary-cta-icon {
-    &__left {
-      margin-right: 18px;
-    }
-
-    &__right {
-      margin-left: 18px;
-    }
-  }
 }

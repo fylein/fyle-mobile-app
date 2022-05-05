@@ -1,5 +1,5 @@
-<div class="toast-message--container display-flex">
-  <div class="display-flex">
+<div class="toast-message--container d-flex">
+  <div class="d-flex">
     <mat-icon
       *ngIf="data.icon"
       class="toast-message--left-icon icon--toast-danger"
@@ -8,7 +8,7 @@
     <span class="toast-message--body">{{ data.message }}</span>
   </div>
 
-  <div class="display-flex ion-text-right">
+  <div class="d-flex ion-text-right">
     <span *ngIf="data.redirectionText" class="toast-message--redirection ion-text-right" (click)="actionEvent()">{{
       data.redirectionText
     }}</span>

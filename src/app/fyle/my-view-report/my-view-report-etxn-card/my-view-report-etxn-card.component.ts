@@ -10,6 +10,8 @@ export class MyViewReportEtxnCardComponent implements OnInit {
 
   @Input() prevDate: Date;
 
+  @Input() etxnIndex: number;
+
   @Output() goToTransaciton: EventEmitter<any> = new EventEmitter();
 
   showDate = true;
@@ -23,6 +25,6 @@ export class MyViewReportEtxnCardComponent implements OnInit {
   }
 
   goToTransactionClicked() {
-    this.goToTransaciton.emit(this.etxn);
+    this.goToTransaciton.emit({ etxn: this.etxn, etxnIndex: this.etxnIndex });
   }
 }

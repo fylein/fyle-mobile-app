@@ -1,3 +1,5 @@
+@import '../../../theme/colors.scss';
+
 .view-advances {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
@@ -38,6 +40,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
+      color: $black-light;
     }
   }
 
@@ -210,11 +213,6 @@
 
   &--view-advance {
     margin-left: 12px;
-  }
-
-  &--primary-cta {
-    margin: 12px;
-    height: 48px;
   }
 
   &--element-value-subheader {

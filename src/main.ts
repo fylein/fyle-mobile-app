@@ -17,7 +17,7 @@ Sentry.init({
       routingInstrumentation: Sentry.routingInstrumentation,
     }),
   ],
-  tracesSampleRate: 1.0,
+  tracesSampleRate: 0.1,
   release: 'please-replace-your-git-commit-version',
   ignoreErrors: ['Non-Error exception captured'],
 });
@@ -28,7 +28,7 @@ if (environment.production) {
 
 platformBrowserDynamic()
   .bootstrapModule(AppModule)
-  .catch((err) => console.log(err));
+  .catch(() => {});
 
 // Call the element loader after the platform has been bootstrapped
 defineCustomElements(window);

@@ -306,4 +306,29 @@ export class DateService {
       to: this.lastOfThisWeek(),
     };
   }
+
+  getLastDaysRange(numOfDays) {
+    const startDate = new Date(this.today.getTime() - numOfDays * 24 * 60 * 60 * 1000);
+    return {
+      from: startDate,
+      to: this.today,
+    };
+  }
+
+  convertUTCDateToLocalDate(date) {
+    const newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+    const offset = date.getTimezoneOffset() / 60;
+    const hours = date.getHours();
+    newDate.setHours(hours - offset);
+
+    return newDate;
+  }
+
+  isSameDate(date1: Date, date2: Date) {
+    return moment(date1).startOf('day').isSame(moment(date2).startOf('day'));
+  }
+
+  isValidDate(date) {
+    return moment(date, moment.ISO_8601, true).isValid();
+  }
 }

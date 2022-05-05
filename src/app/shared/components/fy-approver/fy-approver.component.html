@@ -1,6 +1,9 @@
-<div class="approver--card" (click)="openApproverListDialog()">
+<div *ngIf="type !== 'TEAM_REPORT'" class="approver--card" (click)="openApproverListDialog()">
   <div class="approver--card-action">
     <mat-icon class="approver--card-action-icon">add_circle</mat-icon>
     <div class="approver--card-action-text approver--card-action-text__comment">Add Approver</div>
   </div>
+</div>
+<div *ngIf="type === 'TEAM_REPORT'" (click)="openApproverListDialog()">
+  <img [src]="'../../../../assets/svg/fy-edit-gradient.svg'" class="approver--icon" />
 </div>

@@ -54,6 +54,8 @@ export class ViewCommentComponent implements OnInit {
 
   showDt: boolean;
 
+  isSwipe = false;
+
   constructor(
     private statusService: StatusService,
     private authService: AuthService,
@@ -86,7 +88,7 @@ export class ViewCommentComponent implements OnInit {
   }
 
   async closeCommentModal() {
-    if(this.newComment) {
+    if (this.newComment) {
       const unsavedChangesPopOver = await this.popoverController.create({
         component: PopupAlertComponentComponent,
         componentProps: {
@@ -122,21 +124,38 @@ export class ViewCommentComponent implements OnInit {
     }
   }
 
-  segmentChanged(event) {
+  segmentChanged() {
     this.isCommentsView = !this.isCommentsView;
+    if (!this.isSwipe) {
+      this.trackingService.commentsHistoryActions({
+        action: 'click',
+        segment: this.isCommentsView ? 'comments' : 'history',
+      });
+    }
+    this.isSwipe = false;
   }
 
   swipeRightToHistory(event) {
+    this.isSwipe = true;
     if (event && event.direction === 2) {
-      const historyBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--btn-segment')[1];
+      const historyBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--segment-block__btn')[1];
       historyBtn.click();
+      this.trackingService.commentsHistoryActions({
+        action: 'swipe',
+        segment: 'comments',
+      });
     }
   }
 
   swipeLeftToComments(event) {
+    this.isSwipe = true;
     if (event && event.direction === 4) {
-      const commentsBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--btn-segment')[0];
+      const commentsBtn = this.elementRef.nativeElement.getElementsByClassName('view-comment--segment-block__btn')[0];
       commentsBtn.click();
+      this.trackingService.commentsHistoryActions({
+        action: 'swipe',
+        segment: 'history',
+      });
     }
   }
 
@@ -213,7 +232,7 @@ export class ViewCommentComponent implements OnInit {
       this.router.navigate([
         '/',
         'enterprise',
-        'my_view_expense',
+        'view_expense',
         {
           id: this.matchedExpense.tx_id,
         },

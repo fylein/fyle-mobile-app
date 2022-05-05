@@ -9,7 +9,6 @@
     }
 
     &__title {
-      padding-right: 60px;
       text-align: center;
     }
   }
@@ -20,6 +19,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
+      color: $black-light;
     }
   }
 
@@ -61,6 +61,7 @@
 
   &--footer-toolbar {
     padding: 14px 16px;
+    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
     &__shadow {
       box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
     }
@@ -165,12 +166,9 @@
   }
 
   &--receipt-image-icon {
-    color: $primary;
-    height: 36px;
-    width: 34px;
-    position: relative;
-    top: 24%;
-    left: 5px;
+    height: 32px;
+    width: 31px;
+    margin: 16px;
   }
 
   &--receipt-add-more-icon {
@@ -254,11 +252,6 @@
     padding: 0;
   }
 
-  &--grid {
-    --ion-grid-padding: 0;
-    --ion-grid-column-padding: 0;
-  }
-
   &--checkbox {
     font-size: 14px;
     color: $blue-black;
@@ -278,6 +271,7 @@
   &--project-block {
     flex-grow: 1;
     margin-right: 26px;
+    margin-top: -12px;
   }
 
   &--primary-block {
@@ -325,6 +319,7 @@
   }
 
   &--split-info-icon {
+    color: $highlight-blue;
     margin-right: 10px;
   }
 
@@ -401,13 +396,6 @@
 
   &--duplicate-reason-select {
     padding: 8px;
-  }
-
-  &--critical-policy {
-    border-radius: 6px;
-    background: #f2f2f2;
-    padding: 8px 16px;
-    margin: 8px 0;
   }
 
   &--receipt-currency-container {
@@ -541,7 +529,7 @@
   }
 
   &--check {
-    color: $primary;
+    color: $brand-primary;
     font-size: 20px;
   }
 
@@ -618,22 +606,22 @@
   &--error {
     color: $red;
     line-height: 16px;
-    margin-top: -12px;
     font-size: 12px;
+    margin-top: -12px;
   }
 
   &--amount-error {
     color: $red;
     font-size: 12px;
-    margin: -8px 0 0 44%;
+    margin: -8px 0 0 52%;
   }
 
   &--orig-amount-error {
-    margin: -68px 4px 48px 44%;
+    margin: -68px 4px 48px 52%;
   }
 
   &--mandatory {
-    color: $primary;
+    color: $brand-primary;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -646,5 +634,51 @@
 
   &--text-block {
     margin-bottom: 12px;
+  }
+
+  &--cost-center-alert {
+    margin-top: 8px;
+    display: block;
+  }
+
+  &--card-container {
+    background: $pink-gradient-2;
+    padding: 16px;
+    margin: 12px 0;
+    border-radius: 8px;
+
+    &__label {
+      color: $black-light;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    &__value {
+      color: $blue-black;
+      font-weight: 500;
+    }
+
+    &__txn-type {
+      font-size: 12px;
+      margin-left: 4px;
+    }
+
+    &__credit {
+      color: $green;
+      font-weight: 500;
+    }
+  }
+
+  &--date-block-disabled {
+    padding-bottom: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  &--date-disabled {
+    background-color: $off-white;
+    margin-bottom: 0;
+    height: 28px;
+    border-radius: 4px;
+    pointer-events: none;
   }
 }

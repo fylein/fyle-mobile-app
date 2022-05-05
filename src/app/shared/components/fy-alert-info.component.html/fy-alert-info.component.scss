@@ -14,6 +14,7 @@ $container-border: #dfdfe2;
     width: 20px;
     margin-right: 8px;
     min-width: 20px;
+    color: $highlight-blue;
   }
 
   &--message {
@@ -25,7 +26,7 @@ $container-border: #dfdfe2;
   &--button {
     font-size: 12px;
     line-height: 15px;
-    color: $primary;
+    color: $brand-primary;
     --padding-top: 0;
     height: 12px;
   }

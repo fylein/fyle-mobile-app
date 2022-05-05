@@ -15,6 +15,9 @@
 </ion-header>
 
 <ion-content>
+  <ng-container *ngIf="deprecationMsg$|async as deprecationMsg">
+    <app-fy-alert-info [message]="deprecationMsg" type="warning" class="deprecate-msg"></app-fy-alert-info>
+  </ng-container>
   <div *ngIf="transformedTripRequests$|async as tripRequest">
     <div *ngIf="tripExtraInfo$| async as tripExtraInfo">
       <div class="trip-request--content-header">Trip Information</div>
@@ -129,18 +132,20 @@
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="activeApprovals$|async as activeApprovals">
-        <ng-container *ngIf="actions$|async as actions">
-          <div class="trip-request--card_external-component" *ngIf="actions.can_add_approver">
-            <app-fy-approver
-              [approverEmailsList]="getApproverEmails(activeApprovals)"
-              [id]="tripRequest.trp_id"
-              [ownerEmail]="tripRequest.us_email"
-              [type]="'TRIP_REQUEST'"
-              (notify)="onUpdateApprover($event)"
-            >
-            </app-fy-approver>
-          </div>
+      <ng-container *ngIf="showTripActionCta">
+        <ng-container *ngIf="activeApprovals$|async as activeApprovals">
+          <ng-container *ngIf="actions$|async as actions">
+            <div class="trip-request--card_external-component" *ngIf="actions.can_add_approver">
+              <app-fy-approver
+                [approverEmailsList]="getApproverEmails(activeApprovals)"
+                [id]="tripRequest.trp_id"
+                [ownerEmail]="tripRequest.us_email"
+                [type]="'TRIP_REQUEST'"
+                (notify)="onUpdateApprover($event)"
+              >
+              </app-fy-approver>
+            </div>
+          </ng-container>
         </ng-container>
       </ng-container>
 
@@ -159,17 +164,12 @@
   </div>
 </ion-content>
 
-<ion-footer *ngIf="canDoAction$|async">
-  <ion-toolbar mode="md">
-    <ion-button
-      (click)="openActionBlock()"
-      class="trip-request--primary-cta flat-button"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
-      [disabled]="actionsLoading"
-    >
-      Trip Actions
-    </ion-button>
-  </ion-toolbar>
-</ion-footer>
+<ng-container *ngIf="showTripActionCta">
+  <ion-footer *ngIf="canDoAction$|async">
+    <ion-toolbar class="fy-footer-cta-container" mode="md">
+      <ion-button (click)="openActionBlock()" class="fy-footer-cta fy-footer-cta--primary" [disabled]="actionsLoading">
+        Trip Actions
+      </ion-button>
+    </ion-toolbar>
+  </ion-footer>
+</ng-container>

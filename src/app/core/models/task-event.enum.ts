@@ -4,4 +4,7 @@ export enum TASKEVENT {
   openSentBackReport,
   reviewExpenses,
   openDraftReports,
+  openTeamReport,
+  openPotentialDuplicates,
+  openSentBackAdvance,
 }

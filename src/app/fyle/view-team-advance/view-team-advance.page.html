@@ -10,13 +10,18 @@
       </ion-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title" [ngClass]="{'view-advance-request--title-sm': isDeviceWidthSmall}">
-      View Advance
+      View Advance Request
     </ion-title>
     <ion-buttons
       class="view-advance-request--header-btn-container"
       [ngClass]="{'view-advance-request--header-btn-container__sm': isDeviceWidthSmall}"
       slot="end"
     >
+      <ng-container *ngIf="actions$|async as actions">
+        <ion-button *ngIf="actions?.can_edit" class="view-advance-request--header-btn-container__btn" (click)="edit()">
+          <ion-icon [src]="'../../../assets/svg/fy-edit-2.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
       <ion-button (click)="openCommentsModal()" class="view-advance-request--header-btn-container__btn">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
@@ -26,10 +31,6 @@
 
 <ion-content>
   <div *ngIf="advanceRequest$|async as advanceRequest">
-    <div class="view-advances--attachment-currency-container">
-      <p class="view-advances--content-header">Advance Request</p>
-    </div>
-
     <div class="view-advances--card">
       <div class="view-advances--element">
         <div class="view-advances--element-label">Created On</div>
@@ -69,7 +70,7 @@
       </div>
 
       <div *ngIf="advanceRequest.project_name" class="view-advances--element">
-        <div class="view-advances--element-label">Project</div>
+        <div class="view-advances--element-label">{{projectFieldName | titlecase}}</div>
         <div class="view-advances--element-value">{{advanceRequest.project_name || '-'}}</div>
       </div>
 
@@ -107,13 +108,6 @@
       </div>
     </div>
     <ng-container *ngIf="actions$|async as actions">
-      <div class="view-advances--card view-advances--card__modified-padding" *ngIf="actions.can_edit">
-        <div class="view-advances--common-action-block" (click)="edit()">
-          <mat-icon>edit</mat-icon>
-          <p>Edit Advance</p>
-        </div>
-      </div>
-
       <ng-container *ngIf="actions.can_add_approver">
         <ng-container *ngIf="activeApprovals$ | async as activeApprovals">
           <div class="view-advances--card_external-component m-0">
@@ -133,15 +127,7 @@
 </ion-content>
 
 <ion-footer *ngIf="showAdvanceActions$|async">
-  <ion-toolbar mode="md">
-    <ion-button
-      class="view-advances--primary-cta flat-button"
-      fill="solid"
-      color="fyle-primary"
-      expand="block"
-      (click)="openAdvanceActionsPopover()"
-    >
-      Advance Actions
-    </ion-button>
+  <ion-toolbar class="fy-footer-cta-container" mode="md">
+    <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="openActionSheet()"> Advance Actions </ion-button>
   </ion-toolbar>
 </ion-footer>

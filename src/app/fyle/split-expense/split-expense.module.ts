@@ -9,7 +9,6 @@ import { SplitExpensePageRoutingModule } from './split-expense-routing.module';
 import { SplitExpensePage } from './split-expense.page';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { SplitExpenseStatusComponent } from './split-expense-status/split-expense-status.component';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
@@ -25,6 +24,6 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatInputModule,
   ],
-  declarations: [SplitExpensePage, SplitExpenseStatusComponent],
+  declarations: [SplitExpensePage],
 })
 export class SplitExpensePageModule {}

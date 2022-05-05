@@ -34,7 +34,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { TripRequestPolicyService } from 'src/app/core/services/trip-request-policy.service';
 import { StatusService } from '../../core/services/status.service';
-import { Employee } from 'src/app/core/models/employee.model';
+import { Employee } from 'src/app/core/models/spender/employee.model';
 
 @Component({
   selector: 'app-my-add-edit-trip',
@@ -105,6 +105,8 @@ export class MyAddEditTripPage implements OnInit {
 
   fg: FormGroup;
 
+  deprecationMsg$: Observable<string>;
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -122,6 +124,10 @@ export class MyAddEditTripPage implements OnInit {
     private tripRequestPolicyService: TripRequestPolicyService,
     private statusService: StatusService
   ) {}
+
+  ionViewWillEnter() {
+    this.deprecationMsg$ = this.tripRequestsService.getTripDeprecationMsg('individual');
+  }
 
   async goBack() {
     const addExpensePopover = await this.popoverController.create({

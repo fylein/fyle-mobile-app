@@ -3,7 +3,7 @@
     <ion-grid class="stats--body">
       <ion-row class="stats--report-stats-row" *ngIf="isConnected$ | async">
         <ion-col class="stats--report-stats-col">
-          <div class="stats--header">REPORTS</div>
+          <div class="stats--header">EXPENSE REPORTS</div>
         </ion-col>
       </ion-row>
       <ion-row *ngIf="isConnected$ | async">
@@ -59,92 +59,81 @@
       </ion-row>
       <ion-row class="stats--expenses-stats-row" *ngIf="isConnected$ | async">
         <ion-col class="stats--expenses-stats-col">
-          <div class="stats--header">EXPENSES</div>
+          <div class="stats--header">ALL EXPENSES</div>
         </ion-col>
       </ion-row>
-    </ion-grid>
-  </div>
-  <div
-    *ngIf="isConnected$ | async; else offlineMessage"
-    class="stats--expenses-card"
-    matRipple
-    (click)="goToExpensesPage()"
-  >
-    <ion-grid>
-      <ion-row>
-        <ion-col size="6">
-          <div class="stats--expenses-count">
-            <ng-container
-              *ngIf="unreportedExpensesCount$ | async as unreportedExpensesCount; else expenseCountSkeleton"
-            >
-              {{ unreportedExpensesCount?.count }}
-            </ng-container>
-            <ng-template #expenseCountSkeleton>
-              <ion-skeleton-text
-                class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-small"
-                animated
-              ></ion-skeleton-text>
-            </ng-template>
-          </div>
+      <ion-row *ngIf="isConnected$ | async">
+        <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
+          <app-stat-badge
+            [currency]="homeCurrency$ | async"
+            [name]="'Incomplete'"
+            [expenseState]="'DRAFT'"
+            [count]="(incompleteExpensesStats$ | async)?.count"
+            [value]="(incompleteExpensesStats$ | async)?.sum"
+            [loading]="isIncompleteExpensesStatsLoading"
+            (badgeClicked)="goToExpensesPage($event)"
+          ></app-stat-badge>
         </ion-col>
-        <ion-col size="6">
-          <div class="stats--expenses-amount">
-            <ng-container
-              *ngIf="unreportedExpensesAmount$ | async as unreportedExpensesAmount; else expenseAmountSkeleton"
-            >
-              <span class="stats--expenses-amount-currency">
-                {{ currencySymbol$ | async }}
-              </span>
-              {{ unreportedExpensesAmount?.amount | humanizeCurrency: (homeCurrency$ | async):2:true }}
-            </ng-container>
-            <ng-template #expenseAmountSkeleton>
-              <ion-skeleton-text
-                class="
-                  stats--expenses-skeleton-text
-                  stats--expenses-skeleton-text__width-medium
-                  stats--expenses-skeleton-text__align-right
-                "
-                animated
-              ></ion-skeleton-text>
-            </ng-template>
-          </div>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col class="stats--expenses-title-col">
-          <div class="stats--expenses-title">
-            <ng-container *ngIf="unreportedExpensesAmount$ | async; else unreportedExpensesStatsSkeleton">
-              Unreported Expenses
-            </ng-container>
-            <ng-template #unreportedExpensesStatsSkeleton>
-              <ion-skeleton-text
-                class="stats--expenses-skeleton-text stats--expenses-skeleton-text__width-large"
-                animated
-              ></ion-skeleton-text>
-            </ng-template>
-          </div>
+        <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
+          <app-stat-badge
+            [currency]="homeCurrency$ | async"
+            [name]="'Unreported'"
+            [expenseState]="'COMPLETE'"
+            [count]="(unreportedExpensesStats$ | async)?.count"
+            [value]="(unreportedExpensesStats$ | async)?.sum"
+            [loading]="isUnreportedExpensesStatsLoading"
+            (badgeClicked)="goToExpensesPage($event)"
+          ></app-stat-badge>
         </ion-col>
       </ion-row>
     </ion-grid>
   </div>
 
-  <div *ngIf="(isConnected$ | async) && cardTransactionsAndDetails" class="stats--ccc-cards-section">
+  <ng-container *ngIf="isConnected$ | async; else offlineMessage"></ng-container>
+
+  <div
+    *ngIf="(isConnected$ | async) && (cardTransactionsAndDetails?.length > 0 || cardTransactionsAndDetailsNonUnifyCCC)"
+    class="stats--ccc-cards-section"
+  >
     <div>
-      <ion-grid>
+      <ion-grid
+        [ngClass]="{
+          'stats--ccc-cards-grid': !isUnifyCCCExpensesSettings,
+          'stats--ccc-cards-grid-multiple': isUnifyCCCExpensesSettings
+        }"
+        class=""
+      >
         <ion-row>
           <ion-col>
-            <div class="stats--header stats--ccc-cards-header">CARD TRANSACTIONS</div>
+            <div class="stats--header stats--ccc-cards-header">CARD SPEND</div>
           </ion-col>
         </ion-row>
       </ion-grid>
-      <ng-container>
+      <ng-container *ngIf="isUnifyCCCExpensesSettings">
+        <app-spent-cards
+          *ngIf="cardTransactionsAndDetails?.length > 1"
+          [spentCards]="cardTransactionsAndDetails"
+          [homeCurrency]="homeCurrency$"
+          [currencySymbol]="currencySymbol$"
+        ></app-spent-cards>
+        <div *ngIf="cardTransactionsAndDetails?.length === 1" class="stats--single-ccc">
+          <app-card-detail
+            [cardDetail]="cardTransactionsAndDetails[0]"
+            [homeCurrency]="homeCurrency$"
+            [currencySymbol]="currencySymbol$"
+          >
+          </app-card-detail>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!isUnifyCCCExpensesSettings">
         <div class="stats--ccc-card-details">
           <div class="stats--ccc-bank-name1">
             <ion-grid class="stats--ccc-container">
               <ion-row class="stats--ccc-block">
                 <ion-col class="stats--ccc-bank-name" size="8">
                   <div>
-                    {{ cardTransactionsAndDetails.ba_bank_name }}
+                    {{ cardTransactionsAndDetailsNonUnifyCCC?.ba_bank_name }}
                   </div>
                 </ion-col>
                 <ion-col size="4">
@@ -154,31 +143,33 @@
               <ion-row>
                 <ion-col class="stats--ccc-account-info">
                   <span class="stats--ccc-account-info__type"> CREDIT </span>
-                  <span class="stats--ccc-account-info__mask">{{ ' xxxx ' + cardTransactionsAndDetails.ba_mask }}</span>
+                  <span class="stats--ccc-account-info__mask">{{
+                    ' xxxx ' + cardTransactionsAndDetailsNonUnifyCCC?.ba_mask
+                  }}</span>
                 </ion-col>
               </ion-row>
             </ion-grid>
           </div>
-          <div class="stats--ccc-sync-detail" *ngIf="cardTransactionsAndDetails.ba_last_synced_at">
-            Last synced: {{ cardTransactionsAndDetails.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
+          <div class="stats--ccc-sync-detail" *ngIf="cardTransactionsAndDetailsNonUnifyCCC?.ba_last_synced_at">
+            Last synced: {{ cardTransactionsAndDetailsNonUnifyCCC?.ba_last_synced_at | date: 'MMM d, y | h:mm a' }}
           </div>
         </div>
         <div class="stats--ccc-stats">
           <div class="stats--ccc-created_dt">
-            Showing all transactions from {{ cardTransactionsAndDetails.ba_created_at | date: 'MMM d, y' }}
+            Showing all transactions from {{ cardTransactionsAndDetailsNonUnifyCCC?.ba_created_at | date: 'MMM d, y' }}
           </div>
           <div>
             <div (click)="goToCCCPage('classified')">
               <div class="stats--ccc-classified-stats">
                 <div class="stats--ccc-classified-count">
-                  {{ cardTransactionsAndDetails.total_classified_count }}
+                  {{ cardTransactionsAndDetailsNonUnifyCCC?.total_classified_count }}
                 </div>
                 <div class="stats--ccc-classified-amount">
                   <span class="stats--expenses-amount-currency">
                     {{ currencySymbol$ | async }}
                   </span>
                   {{
-                    cardTransactionsAndDetails.total_classified_amount
+                    cardTransactionsAndDetailsNonUnifyCCC?.total_classified_amount
                       | humanizeCurrency: (homeCurrency$ | async):2:true
                   }}
                 </div>
@@ -189,14 +180,14 @@
             <div (click)="goToCCCPage('unclassified')">
               <div class="stats--ccc-classified-stats stats--ccc-classified-stats__margin-top">
                 <div class="stats--ccc-classified-count">
-                  {{ cardTransactionsAndDetails.total_unclassified_count }}
+                  {{ cardTransactionsAndDetailsNonUnifyCCC?.total_unclassified_count }}
                 </div>
                 <div class="stats--ccc-classified-amount">
                   <span class="stats--expenses-amount-currency">
                     {{ currencySymbol$ | async }}
                   </span>
                   {{
-                    cardTransactionsAndDetails.total_unclassified_amount
+                    cardTransactionsAndDetailsNonUnifyCCC?.total_unclassified_amount
                       | humanizeCurrency: (homeCurrency$ | async):2:true
                   }}
                 </div>
@@ -212,19 +203,11 @@
             <ion-row>
               <ion-col>
                 <ion-skeleton-text
-                  class="
-                    stats--ccc-skeleton-text
-                    stats--ccc-skeleton-text__height-small
-                    stats--ccc-skeleton-text__width-small
-                  "
+                  class="stats--ccc-skeleton-text stats--ccc-skeleton-text__height-small stats--ccc-skeleton-text__width-small"
                   animated
                 ></ion-skeleton-text>
                 <ion-skeleton-text
-                  class="
-                    stats--ccc-skeleton-text
-                    stats--ccc-skeleton-text__height-small
-                    stats--ccc-skeleton-text__width-small
-                  "
+                  class="stats--ccc-skeleton-text stats--ccc-skeleton-text__height-small stats--ccc-skeleton-text__width-small"
                   animated
                 ></ion-skeleton-text>
               </ion-col>
@@ -263,10 +246,7 @@
                 </ion-col>
                 <ion-col>
                   <ion-skeleton-text
-                    class="
-                      stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right
-                      stats--ccc-skeleton-text__width-medium
-                    "
+                    class="stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right stats--ccc-skeleton-text__width-medium"
                     animated
                   ></ion-skeleton-text>
                 </ion-col>
@@ -289,10 +269,7 @@
                 </ion-col>
                 <ion-col>
                   <ion-skeleton-text
-                    class="
-                      stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right
-                      stats--ccc-skeleton-text__width-medium
-                    "
+                    class="stats--expenses-skeleton-text stats--expenses-skeleton-text__align-right stats--ccc-skeleton-text__width-medium"
                     animated
                   ></ion-skeleton-text>
                 </ion-col>
@@ -305,15 +282,17 @@
   </div>
 
   <ng-template #offlineMessage>
-    <div class="stats--zero-state">
-      <app-fy-zero-state
-        class="stats--zero-state"
-        image="../../../../assets/images/no-internet.svg"
-        header="You're Offline!"
-        message="Fear not, you can still add expenses offline."
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-      ></app-fy-zero-state>
+    <div>
+      <div class="stats--zero-state">
+        <app-fy-zero-state
+          class="stats--zero-state"
+          image="../../../../assets/images/no-internet.svg"
+          header="You're Offline!"
+          message="Fear not, you can still add expenses offline."
+          [unscaledImage]="true"
+          [useNewStyling]="true"
+        ></app-fy-zero-state>
+      </div>
     </div>
   </ng-template>
 </div>

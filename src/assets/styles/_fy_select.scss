@@ -4,7 +4,7 @@ $sub-title: #ababab;
 // autocomplete loader SCSS and animation
 %autocomplete-loader {
   animation: loading-circular 0.5s linear infinite;
-  fill: $primary;
+  fill: $brand-primary;
   height: 16px;
   width: 16px;
   margin-right: 4px;
@@ -80,13 +80,13 @@ $sub-title: #ababab;
 }
 
 %fy-select-check {
-  color: $primary;
+  color: $brand-primary;
   font-size: 20px;
 }
 
 %fy-select-cta {
   --background: #{$pure-white};
-  --color: #{$primary};
+  --color: #{$brand-primary};
   --box-shadow: none;
   text-transform: capitalize;
   margin-left: -16%;

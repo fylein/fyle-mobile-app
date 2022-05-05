@@ -31,6 +31,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   @Input() expanded: boolean;
 
+  @Input() disabled: boolean;
+
   exchangeRate = 1;
 
   fg: FormGroup;
@@ -132,7 +134,13 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (this.fg && changes.txnDt && !isEqual(changes.txnDt.previousValue, changes.txnDt.currentValue)) {
+    if (
+      this.fg &&
+      changes.txnDt &&
+      changes.txnDt.previousValue &&
+      changes.txnDt.currentValue &&
+      !isEqual(changes.txnDt.previousValue, changes.txnDt.currentValue)
+    ) {
       from(this.currencyService.getExchangeRate(this.fg.value.currency, this.homeCurrency, this.txnDt || new Date()))
         .pipe()
         .subscribe((newExchangeRate) => {

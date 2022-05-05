@@ -22,6 +22,7 @@ import { DeviceService } from '../services/device.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { UserEventService } from '../services/user-event.service';
 import { StorageService } from '../services/storage.service';
+import { SecureStorageService } from '../services/secure-storage.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
@@ -35,7 +36,8 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     private routerAuthService: RouterAuthService,
     private deviceService: DeviceService,
     private userEventService: UserEventService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private secureStorageService: SecureStorageService
   ) {}
 
   secureUrl(url) {
@@ -68,6 +70,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
       concatMap((refreshToken) => this.routerAuthService.fetchAccessToken(refreshToken)),
       catchError((error) => {
         this.userEventService.logout();
+        this.secureStorageService.clearAll();
         this.storageService.clearAll();
         globalCacheBusterNotifier.next();
         return throwError(error);
@@ -143,6 +146,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
                 error.status === 401
               ) {
                 this.userEventService.logout();
+                this.secureStorageService.clearAll();
                 this.storageService.clearAll();
                 globalCacheBusterNotifier.next();
                 return throwError(error);

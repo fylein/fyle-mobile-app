@@ -152,7 +152,7 @@ export class TransactionsOutboxService {
                 that.transactionService
                   .upsert(entry.transaction)
                   .toPromise()
-                  .then(() => console.log(entry.transaction))
+                  .then(() => {})
                   .finally(() => {
                     this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
                   });
@@ -325,6 +325,21 @@ export class TransactionsOutboxService {
     });
   }
 
+  matchIfRequired(transactionId: string, cccId: string) {
+    return new Promise((resolve, reject) => {
+      if (cccId) {
+        this.transactionService
+          .matchCCCExpense(transactionId, cccId)
+          .toPromise()
+          .then(() => {
+            resolve(null);
+          });
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
   syncEntry(entry) {
     const that = this;
     const fileObjPromiseArray = [];
@@ -390,34 +405,36 @@ export class TransactionsOutboxService {
               });
           }
 
-          if (reportId) {
-            const txnIds = [resp.id];
-            that.reportService
-              .addTransactions(reportId, txnIds)
-              .toPromise()
-              .then((result) => {
-                this.trackingService.addToExistingReportAddEditExpense();
-                return result;
-              });
-          }
-
-          that.removeEntry(entry);
-
           if (entry.applyMagic) {
             that.addDataExtractionEntry(resp, entry.dataUrls);
           }
 
-          // that would be on matching an expense for the first time
-          if (entry.transaction.matchCCCId) {
-            that.transactionService
-              .matchCCCExpense(resp.id, entry.transaction.matchCCCId)
-              .toPromise()
-              .then(() => {
+          that
+            .matchIfRequired(resp.id, entry.transaction.matchCCCId)
+            .then(() => {
+              if (reportId) {
+                const txnIds = [resp.id];
+                that.reportService
+                  .addTransactions(reportId, txnIds)
+                  .toPromise()
+                  .then(() => {
+                    this.trackingService.addToExistingReportAddEditExpense();
+                    that.removeEntry(entry);
+                    resolve(entry);
+                  })
+                  .catch((err) => {
+                    this.trackingService.syncError({ label: err });
+                    reject(err);
+                  });
+              } else {
+                that.removeEntry(entry);
                 resolve(entry);
-              });
-          } else {
-            resolve(entry);
-          }
+              }
+            })
+            .catch((err) => {
+              this.trackingService.syncError({ label: err });
+              reject(err);
+            });
         })
         .catch((err) => {
           this.trackingService.syncError({ label: err });
@@ -458,9 +475,7 @@ export class TransactionsOutboxService {
         });
     });
 
-    return this.syncDeferred.then(() => {
-      // console.log('Sync initiatiated');
-    });
+    return this.syncDeferred.then(() => {});
   }
 
   createTxnAndUploadBase64File(transaction, base64Content) {
@@ -474,7 +489,7 @@ export class TransactionsOutboxService {
   }
 
   parseReceipt(data, fileType?): Promise<ParsedReceipt> {
-    const url = this.ROOT_ENDPOINT + '/data_extraction/extract';
+    const url = this.ROOT_ENDPOINT + '/data_extractor/extract';
     let suggestedCurrency = null;
     const fileName = fileType && fileType === 'pdf' ? '000.pdf' : '000.jpeg';
 
@@ -517,5 +532,9 @@ export class TransactionsOutboxService {
     const txnIds = this.dataExtractionQueue.map((entry) => entry.transaction.id);
 
     return txnIds.indexOf(txnId) > -1;
+  }
+
+  isPDF(type: string) {
+    return ['application/pdf', 'pdf'].indexOf(type) > -1;
   }
 }

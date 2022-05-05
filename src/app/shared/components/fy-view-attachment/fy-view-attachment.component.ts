@@ -7,6 +7,8 @@ import { FileService } from 'src/app/core/services/file.service';
 import { from, of } from 'rxjs';
 import { switchMap, finalize } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { SwiperComponent } from 'swiper/angular';
+import SwiperCore, { Pagination } from 'swiper';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -16,9 +18,9 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 export class FyViewAttachmentComponent implements OnInit {
   @Input() attachments: any[];
 
-  @Input() canEdit = false;
+  @Input() canEdit: boolean;
 
-  @ViewChild('slides') imageSlides: any;
+  @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
 
   sliderOptions: any;
 
@@ -51,6 +53,10 @@ export class FyViewAttachmentComponent implements OnInit {
     });
   }
 
+  ionViewWillEnter() {
+    this.imageSlides.swiperRef.update();
+  }
+
   zoomIn() {
     this.zoomScale += 0.25;
   }
@@ -68,19 +74,19 @@ export class FyViewAttachmentComponent implements OnInit {
   }
 
   goToNextSlide() {
-    this.imageSlides.slideNext();
+    this.imageSlides.swiperRef.slideNext();
   }
 
   goToPrevSlide() {
-    this.imageSlides.slidePrev();
+    this.imageSlides.swiperRef.slidePrev();
   }
 
   getActiveIndex() {
-    this.imageSlides.getActiveIndex().then(index => this.activeIndex = index);
+    this.activeIndex = this.imageSlides.swiperRef.activeIndex;
   }
 
   async deleteAttachment() {
-    const activeIndex = await this.imageSlides.getActiveIndex();
+    const activeIndex = await this.imageSlides.swiperRef.activeIndex;
     const deletePopover = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
@@ -89,43 +95,44 @@ export class FyViewAttachmentComponent implements OnInit {
         primaryCta: {
           text: 'Remove',
           action: 'remove',
-          type: 'alert'
+          type: 'alert',
         },
         secondaryCta: {
           text: 'Cancel',
-          action: 'cancel'
-        }
+          action: 'cancel',
+        },
       },
-      cssClass: 'pop-up-in-center'
+      cssClass: 'pop-up-in-center',
     });
 
     await deletePopover.present();
     const { data } = await deletePopover.onWillDismiss();
 
-    if(data && data.action) {
+    if (data && data.action) {
       if (data.action === 'remove') {
-        from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            if (this.attachments[activeIndex].id) {
-              return this.fileService.delete(this.attachments[activeIndex].id);
+        from(this.loaderService.showLoader())
+          .pipe(
+            switchMap(() => {
+              if (this.attachments[activeIndex].id) {
+                return this.fileService.delete(this.attachments[activeIndex].id);
+              } else {
+                return of(null);
+              }
+            }),
+            finalize(() => from(this.loaderService.hideLoader()))
+          )
+          .subscribe(() => {
+            this.attachments.splice(activeIndex, 1);
+            if (this.attachments.length === 0) {
+              this.modalController.dismiss({ attachments: this.attachments });
             } else {
-              return of(null);
+              if (activeIndex > 0) {
+                this.goToPrevSlide();
+              } else {
+                this.goToNextSlide();
+              }
             }
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe(() => {
-          this.attachments.splice(activeIndex, 1);
-          if (this.attachments.length === 0) {
-            this.modalController.dismiss({ attachments: this.attachments });
-          } else {
-            if (activeIndex > 0) {
-              this.goToPrevSlide();
-            } else {
-              this.goToNextSlide();
-            }
-          }
-        });
+          });
       }
     }
   }

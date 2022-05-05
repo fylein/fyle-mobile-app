@@ -16,6 +16,7 @@ import {
   take,
   takeUntil,
   tap,
+  filter,
 } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -51,6 +52,9 @@ import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
+import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 
 type Filters = Partial<{
   state: string[];
@@ -61,6 +65,7 @@ type Filters = Partial<{
   type: string[];
   sortParam: string;
   sortDir: string;
+  cardNumbers: string[];
 }>;
 
 @Component({
@@ -159,6 +164,22 @@ export class MyExpensesPage implements OnInit {
 
   expensesTaskCount = 0;
 
+  isCameraShown = false;
+
+  isUnifyCCCEnabled$: Observable<boolean>;
+
+  cardNumbers: { label: string; value: string }[] = [];
+
+  maskNumber = new MaskNumber();
+
+  isUnifyCCCExpensesSettings: boolean;
+
+  expensesToBeDeleted: Expense[];
+
+  cccExpenses: number;
+
+  allCardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned[]>;
+
   get HeaderState() {
     return HeaderState;
   }
@@ -186,7 +207,8 @@ export class MyExpensesPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private actionSheetController: ActionSheetController,
     private snackbarProperties: SnackbarPropertiesService,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private corporateCreditCardService: CorporateCreditCardExpenseService
   ) {}
 
   clearText(isFromCancel) {
@@ -262,10 +284,16 @@ export class MyExpensesPage implements OnInit {
   setAllExpensesCountAndAmount() {
     this.allExpensesStats$ = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {};
+        const queryParams = JSON.parse(JSON.stringify(params.queryParams)) || {};
 
         queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
         queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+
+        if (queryParams.corporate_credit_card_account_number) {
+          const cardParamsCopy = JSON.parse(JSON.stringify(queryParams.corporate_credit_card_account_number));
+          queryParams.or = '(corporate_credit_card_account_number.' + cardParamsCopy + ')';
+          delete queryParams.corporate_credit_card_account_number;
+        }
 
         return this.transactionService
           .getTransactionStats('count(tx_id),sum(tx_amount)', {
@@ -373,8 +401,26 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  getCardDetail(statsResponses) {
+    const cardNames = [];
+    statsResponses.forEach((response) => {
+      const cardDetail = {
+        cardNumber: response.key[1].column_value,
+        cardName: response.key[0].column_value,
+      };
+      cardNames.push(cardDetail);
+    });
+    const uniqueCards = JSON.parse(JSON.stringify(cardNames));
+
+    return this.corporateCreditCardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
+  }
+
   ionViewWillLeave() {
     this.onPageExit$.next();
+  }
+
+  getNonUnifyCCCDetails(): Observable<BankAccountsAssigned[]> {
+    return this.corporateCreditCardService.getNonUnifyCCCAssignedCards();
   }
 
   ionViewWillEnter() {
@@ -403,8 +449,57 @@ export class MyExpensesPage implements OnInit {
       .pipe(map((orgSettings) => orgSettings.per_diem.enabled));
 
     this.offlineService.getOrgSettings().subscribe((orgSettings) => {
+      this.isUnifyCCCExpensesSettings =
+        orgSettings.unify_ccce_expenses_settings &&
+        orgSettings.unify_ccce_expenses_settings.allowed &&
+        orgSettings.unify_ccce_expenses_settings.enabled;
       this.setupActionSheet(orgSettings);
     });
+
+    this.allCardTransactionsAndDetailsNonUnifyCCC$ = this.getNonUnifyCCCDetails().pipe(
+      map((res) => res),
+      shareReplay(1)
+    );
+
+    this.isUnifyCCCEnabled$ = this.offlineService
+      .getOrgSettings()
+      .pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.unify_ccce_expenses_settings?.allowed && orgSettings.unify_ccce_expenses_settings?.enabled
+        )
+      );
+
+    forkJoin({
+      isConnected: this.isConnected$.pipe(take(1)),
+      isUnifyCCCEnabled: this.isUnifyCCCEnabled$.pipe(take(1)),
+    })
+      .pipe(
+        filter(({ isConnected, isUnifyCCCEnabled }) => isConnected && isUnifyCCCEnabled),
+        switchMap(() => this.corporateCreditCardService.getAssignedCards()),
+        switchMap((unifyCards) => this.getNonUnifyCCCDetails().pipe(map((allCards) => ({ unifyCards, allCards }))))
+      )
+      .subscribe(({ unifyCards, allCards }) => {
+        const cards = this.getCardDetail(unifyCards.cardDetails);
+
+        this.cardNumbers = [];
+        cards.forEach((card) => {
+          this.cardNumbers.push({ label: this.maskNumber.transform(card.cardNumber), value: card.cardNumber });
+        });
+
+        allCards.forEach((detail) => {
+          if (
+            this.cardNumbers.filter(
+              (cardDetail) => cardDetail.label === this.maskNumber.transform(detail.ba_account_number)
+            ).length === 0
+          ) {
+            this.cardNumbers.push({
+              label: this.maskNumber.transform(detail.ba_account_number),
+              value: detail.ba_account_number,
+            });
+          }
+        });
+      });
 
     this.headerState = HeaderState.base;
 
@@ -493,7 +588,6 @@ export class MyExpensesPage implements OnInit {
         return this.acc;
       }),
       tap(() => {
-        console.log('After data is loaded from paginated pipe');
         this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
@@ -608,6 +702,7 @@ export class MyExpensesPage implements OnInit {
         )
       )
     );
+    this.doRefresh();
   }
 
   setupNetworkWatcher() {
@@ -668,7 +763,7 @@ export class MyExpensesPage implements OnInit {
   generateFilterPills(filter: Filters) {
     const filterPills: FilterPill[] = [];
 
-    if (filter.state && filter.state.length) {
+    if (filter.state?.length > 0) {
       this.generateStateFilterPills(filterPills, filter);
     }
 
@@ -680,7 +775,7 @@ export class MyExpensesPage implements OnInit {
       this.generateDateFilterPills(filter, filterPills);
     }
 
-    if (filter.type && filter.type.length) {
+    if (filter.type?.length > 0) {
       this.generateTypeFilterPills(filter, filterPills);
     }
 
@@ -688,6 +783,9 @@ export class MyExpensesPage implements OnInit {
       this.generateSortFilterPills(filter, filterPills);
     }
 
+    if (filter.cardNumbers?.length > 0) {
+      this.generateCardFilterPills(filterPills, filter);
+    }
     return filterPills;
   }
 
@@ -840,12 +938,28 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
+  generateCardFilterPills(filterPills: FilterPill[], filter) {
+    filterPills.push({
+      label: 'Cards',
+      type: 'cardNumbers',
+      value: filter.cardNumbers
+        .map((cardNumber) => this.maskNumber.transform(cardNumber))
+        .reduce((state1, state2) => `${state1}, ${state2}`),
+    });
+  }
+
   generateStateFilterPills(filterPills: FilterPill[], filter) {
     filterPills.push({
       label: 'Type',
       type: 'state',
       value: filter.state
-        .map((state) => state.replace(/_/g, ' ').toLowerCase())
+        .map((state) => {
+          if (state === 'DRAFT') {
+            return 'Incomplete';
+          } else {
+            return state.replace(/_/g, ' ').toLowerCase();
+          }
+        })
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
   }
@@ -856,6 +970,8 @@ export class MyExpensesPage implements OnInit {
     const newQueryParams: any = {
       or: [],
     };
+
+    this.generateCardNumberParams(newQueryParams);
 
     this.generateDateParams(newQueryParams);
 
@@ -939,6 +1055,13 @@ export class MyExpensesPage implements OnInit {
       });
     }
 
+    if (filter.cardNumbers) {
+      generatedFilters.push({
+        name: 'Cards',
+        value: filter.cardNumbers,
+      });
+    }
+
     if (filter.sortParam && filter.sortDir) {
       this.addSortToGeneatedFilters(filter, generatedFilters);
     }
@@ -956,6 +1079,7 @@ export class MyExpensesPage implements OnInit {
       type: string[];
       sortParam: string;
       sortDir: string;
+      cardNumbers: string[];
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
@@ -976,6 +1100,7 @@ export class MyExpensesPage implements OnInit {
       type: string[];
       sortParam: string;
       sortDir: string;
+      cardNumbers: string[];
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
@@ -1002,6 +1127,7 @@ export class MyExpensesPage implements OnInit {
       type: string[];
       sortParam: string;
       sortDir: string;
+      cardNumbers: string[];
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
@@ -1028,6 +1154,7 @@ export class MyExpensesPage implements OnInit {
       type: string[];
       sortParam: string;
       sortDir: string;
+      cardNumbers: string[];
     }>,
     generatedFilters: SelectedFilters<any>[]
   ) {
@@ -1071,6 +1198,12 @@ export class MyExpensesPage implements OnInit {
       generatedFilters.type = expenseTypeFilter.value;
     }
 
+    const cardsFilter = selectedFilters.find((filter) => filter.name === 'Cards');
+
+    if (cardsFilter) {
+      generatedFilters.cardNumbers = cardsFilter.value;
+    }
+
     const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
@@ -1089,6 +1222,7 @@ export class MyExpensesPage implements OnInit {
       type: string[];
       sortParam: string;
       sortDir: string;
+      cardNumbers: string[];
     }>
   ) {
     if (sortBy) {
@@ -1115,121 +1249,132 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string) {
+    const filterMain = [
+      {
+        name: 'Type',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Unreported',
+            value: 'READY_TO_REPORT',
+          },
+          {
+            label: 'Policy Violated',
+            value: 'POLICY_VIOLATED',
+          },
+          {
+            label: 'Cannot Report',
+            value: 'CANNOT_REPORT',
+          },
+          {
+            label: 'Incomplete',
+            value: 'DRAFT',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Date',
+        optionType: FilterOptionType.date,
+        options: [
+          {
+            label: 'All',
+            value: DateFilters.all,
+          },
+          {
+            label: 'This Week',
+            value: DateFilters.thisWeek,
+          },
+          {
+            label: 'This Month',
+            value: DateFilters.thisMonth,
+          },
+          {
+            label: 'Last Month',
+            value: DateFilters.lastMonth,
+          },
+          {
+            label: 'Custom',
+            value: DateFilters.custom,
+          },
+        ],
+      } as FilterOptions<DateFilters>,
+      {
+        name: 'Receipts Attached',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Yes',
+            value: 'YES',
+          },
+          {
+            label: 'No',
+            value: 'NO',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Expense Type',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Mileage',
+            value: 'Mileage',
+          },
+          {
+            label: 'Per Diem',
+            value: 'PerDiem',
+          },
+          {
+            label: 'Regular Expenses',
+            value: 'RegularExpenses',
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Sort By',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Date - New to Old',
+            value: 'dateNewToOld',
+          },
+          {
+            label: 'Date - Old to New',
+            value: 'dateOldToNew',
+          },
+          {
+            label: 'Amount - High to Low',
+            value: 'amountHighToLow',
+          },
+          {
+            label: 'Amount - Low to High',
+            value: 'amountLowToHigh',
+          },
+          {
+            label: 'Category - A to Z',
+            value: 'categoryAToZ',
+          },
+          {
+            label: 'Category - Z to A',
+            value: 'categoryZToA',
+          },
+        ],
+      } as FilterOptions<string>,
+    ];
+    this.isUnifyCCCEnabled$.subscribe((isEnabled) => {
+      if (isEnabled && this.cardNumbers?.length > 0) {
+        filterMain.push({
+          name: 'Cards',
+          optionType: FilterOptionType.multiselect,
+          options: this.cardNumbers,
+        } as FilterOptions<string>);
+      }
+    });
+
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
-        filterOptions: [
-          {
-            name: 'Type',
-            optionType: FilterOptionType.multiselect,
-            options: [
-              {
-                label: 'Ready To Report',
-                value: 'READY_TO_REPORT',
-              },
-              {
-                label: 'Policy Violated',
-                value: 'POLICY_VIOLATED',
-              },
-              {
-                label: 'Cannot Report',
-                value: 'CANNOT_REPORT',
-              },
-              {
-                label: 'Draft',
-                value: 'DRAFT',
-              },
-            ],
-          } as FilterOptions<string>,
-          {
-            name: 'Date',
-            optionType: FilterOptionType.date,
-            options: [
-              {
-                label: 'All',
-                value: DateFilters.all,
-              },
-              {
-                label: 'This Week',
-                value: DateFilters.thisWeek,
-              },
-              {
-                label: 'This Month',
-                value: DateFilters.thisMonth,
-              },
-              {
-                label: 'Last Month',
-                value: DateFilters.lastMonth,
-              },
-              {
-                label: 'Custom',
-                value: DateFilters.custom,
-              },
-            ],
-          } as FilterOptions<DateFilters>,
-          {
-            name: 'Receipts Attached',
-            optionType: FilterOptionType.singleselect,
-            options: [
-              {
-                label: 'Yes',
-                value: 'YES',
-              },
-              {
-                label: 'No',
-                value: 'NO',
-              },
-            ],
-          } as FilterOptions<string>,
-          {
-            name: 'Expense Type',
-            optionType: FilterOptionType.multiselect,
-            options: [
-              {
-                label: 'Mileage',
-                value: 'Mileage',
-              },
-              {
-                label: 'Per Diem',
-                value: 'PerDiem',
-              },
-              {
-                label: 'Regular Expenses',
-                value: 'RegularExpenses',
-              },
-            ],
-          } as FilterOptions<string>,
-          {
-            name: 'Sort By',
-            optionType: FilterOptionType.singleselect,
-            options: [
-              {
-                label: 'Date - New to Old',
-                value: 'dateNewToOld',
-              },
-              {
-                label: 'Date - Old to New',
-                value: 'dateOldToNew',
-              },
-              {
-                label: 'Amount - High to Low',
-                value: 'amountHighToLow',
-              },
-              {
-                label: 'Amount - Low to High',
-                value: 'amountLowToHigh',
-              },
-              {
-                label: 'Category - A to Z',
-                value: 'categoryAToZ',
-              },
-              {
-                label: 'Category - Z to A',
-                value: 'categoryZToA',
-              },
-            ],
-          } as FilterOptions<string>,
-        ],
+        filterOptions: filterMain,
         selectedFilterValues: this.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },
@@ -1323,6 +1468,16 @@ export class MyExpensesPage implements OnInit {
       this.selectedElements.push(expense);
     }
     this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+
+    if (this.selectedElements?.length > 0) {
+      this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
+
+      if (this.isUnifyCCCExpensesSettings) {
+        this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
+      }
+      this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+    }
+
     // setting Expenses count and amount stats on select
     if (this.allExpensesCount === this.selectedElements.length) {
       this.selectAll = true;
@@ -1344,7 +1499,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  goToTransaction(expense) {
+  goToTransaction({ etxn: expense, etxnIndex }) {
     let category;
 
     if (expense.tx_org_category) {
@@ -1415,7 +1570,7 @@ export class MyExpensesPage implements OnInit {
     this.trackingService.addToReport({ count: this.selectedElements.length });
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
-    selectedElements = selectedElements.filter((exp) => exp.tx_id);
+    selectedElements = selectedElements.filter((expense) => expense.tx_id);
     if (!selectedElements.length) {
       this.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
       return;
@@ -1701,22 +1856,32 @@ export class MyExpensesPage implements OnInit {
 
   async deleteSelectedExpenses() {
     let offlineExpenses: Expense[];
+
+    const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
+
+    const cccExpensesMessage = this.transactionService.getCCCExpenseMessage(this.expensesToBeDeleted, this.cccExpenses);
+
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: `Are you sure you want to delete ${
-          this.selectedElements.length === 1 ? '1 expense?' : this.selectedElements.length + ' expenses?'
-        }`,
+        body: this.transactionService.getDeleteDialogBody(
+          this.expensesToBeDeleted,
+          this.cccExpenses,
+          expenseDeletionMessage,
+          cccExpensesMessage
+        ),
+        ctaText: this.expensesToBeDeleted?.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
+        disableDelete: this.expensesToBeDeleted?.length > 0 ? false : true,
         deleteMethod: () => {
-          offlineExpenses = this.selectedElements.filter((exp) => !exp.tx_id);
+          offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
 
           this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
 
-          this.selectedElements = this.selectedElements.filter((exp) => exp.tx_id);
-          if (this.selectedElements.length > 0) {
+          this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
+          if (this.selectedElements?.length > 0) {
             return this.transactionService.deleteBulk(
               this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
             );
@@ -1733,10 +1898,10 @@ export class MyExpensesPage implements OnInit {
 
     if (data) {
       this.trackingService.myExpensesBulkDeleteExpenses({
-        count: this.selectedElements.length,
+        count: this.selectedElements?.length,
       });
       if (data.status === 'success') {
-        const totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
+        const totalNoOfSelectedExpenses = offlineExpenses?.length + this.selectedElements?.length;
         const message =
           totalNoOfSelectedExpenses === 1
             ? '1 expense has been deleted'
@@ -1789,6 +1954,14 @@ export class MyExpensesPage implements OnInit {
         )
         .subscribe((allExpenses) => {
           this.selectedElements = this.selectedElements.concat(allExpenses);
+          if (this.selectedElements?.length > 0) {
+            this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
+
+            if (this.isUnifyCCCExpensesSettings) {
+              this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
+            }
+            this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+          }
           this.allExpensesCount = this.selectedElements.length;
           this.isReportableExpensesSelected =
             this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
@@ -1826,7 +1999,12 @@ export class MyExpensesPage implements OnInit {
   }
 
   onFilterClose(filterType: string) {
-    delete this.filters[filterType];
+    if (filterType === 'sort') {
+      delete this.filters.sortDir;
+      delete this.filters.sortParam;
+    } else {
+      delete this.filters[filterType];
+    }
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
@@ -1916,6 +2094,17 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
+  generateCardNumberParams(newQueryParams) {
+    if (this.filters.cardNumbers?.length > 0) {
+      let cardNumberString = '';
+      this.filters.cardNumbers?.forEach((cardNumber) => {
+        cardNumberString += cardNumber + ',';
+      });
+      cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
+      newQueryParams.corporate_credit_card_account_number = 'in.(' + cardNumberString + ')';
+    }
+  }
+
   generateReceiptAttachedParams(newQueryParams) {
     if (this.filters.receiptsAttached) {
       if (this.filters.receiptsAttached === 'YES') {
@@ -1971,5 +2160,36 @@ export class MyExpensesPage implements OnInit {
     setTimeout(() => {
       searchInput.focus();
     }, 300);
+  }
+
+  mergeExpenses() {
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'merge_expense',
+      {
+        selectedElements: JSON.stringify(this.selectedElements),
+        from: 'MY_EXPENSES',
+      },
+    ]);
+  }
+
+  isMergeAllowed(expenses: Expense[]) {
+    if (expenses?.length === 2) {
+      const areSomeMileageOrPerDiemExpenses = expenses.some(
+        (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
+      );
+      const areAllExpensesSubmitted = expenses.every((expense) =>
+        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
+      );
+      const areAllCCCMatchedExpenses = expenses.every((expense) => expense.tx_corporate_credit_card_expense_group_id);
+      return !areSomeMileageOrPerDiemExpenses && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
+    } else {
+      return false;
+    }
+  }
+
+  showCamera(isCameraShown: boolean) {
+    this.isCameraShown = isCameraShown;
   }
 }

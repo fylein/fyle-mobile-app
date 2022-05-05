@@ -30,6 +30,7 @@ export class RouteSelectorModalComponent implements OnInit {
 
   @Input() recentlyUsedMileageLocations: {
     recent_start_locations?: string[];
+    recent_end_locations?: string[];
     recent_locations?: string[];
   };
 

@@ -21,7 +21,6 @@ export interface Expense {
   ou_mobile: string;
   ou_org_id: string;
   ou_org_name: string;
-  ou_rank: number;
   ou_sub_department: string;
   ou_title: string;
   ou_user_id: string;
@@ -132,6 +131,7 @@ export interface Expense {
   tx_state: string;
   tx_sub_category: string;
   tx_tax?: any;
+  tx_tax_group_id?: string;
   tx_text_array_column1?: any;
   tx_text_array_column10?: any;
   tx_text_array_column2?: any;
