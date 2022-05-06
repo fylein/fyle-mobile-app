@@ -1,30 +1,59 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
+import { PlatformExpenseFieldsData } from '../models/platform/platform-expense-fields-data.model';
+import { PlatformExpenseFields } from '../models/platform/platform-expense-fields.model';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseFieldsService {
-  constructor(private apiService: ApiService, private authService: AuthService) {}
+  constructor(private spenderPlatformApiService: SpenderPlatformApiService, private authService: AuthService) {}
 
   getAllEnabled(): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiService.get('/expense_fields', {
-          params: {
-            org_id: eou.ou.org_id,
-            is_enabled: true,
-            is_custom: false,
-          },
-        })
+        this.spenderPlatformApiService
+          .get('/expense_fields', {
+            params: {
+              org_id: 'eq.' + eou.ou.org_id,
+              is_enabled: 'eq.' + true,
+              is_custom: 'eq.' + false,
+            },
+          })
+          .pipe(map((res: PlatformExpenseFields) => this.transformFrom(res.data)))
       )
     );
+  }
+
+  transformFrom(platformExpenseField: PlatformExpenseFieldsData[]): ExpenseField[] {
+    let oldExpenseField = [];
+    oldExpenseField = platformExpenseField.map((expenseField) => ({
+      code: expenseField.code,
+      column_name: expenseField.column_name,
+      created_at: expenseField.created_at,
+      default_value: expenseField.default_value,
+      field_name: expenseField.field_name,
+      id: expenseField.id,
+      is_custom: expenseField.is_custom,
+      is_enabled: expenseField.is_enabled,
+      is_mandatory: expenseField.is_mandatory,
+      options: expenseField.options,
+      org_category_ids: expenseField.category_ids,
+      org_id: expenseField.org_id,
+      placeholder: expenseField.placeholder,
+      seq: expenseField.seq,
+      type: expenseField.type,
+      updated_at: expenseField.updated_at,
+    }));
+
+    return oldExpenseField;
   }
 
   formatBillableFields(expenseFields: ExpenseField[]) {
@@ -51,6 +80,7 @@ export class ExpenseFieldsService {
   getAllMap(): Observable<Partial<ExpenseFieldsMap>> {
     return this.getAllEnabled().pipe(
       map((expenseFields) => {
+        console.log('check what is the res', expenseFields);
         const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
 
         expenseFields = this.formatBillableFields(expenseFields);
@@ -117,16 +147,16 @@ export class ExpenseFieldsService {
           .filter((filteredField) => !!filteredField)
       ),
       switchMap((fields) => from(fields)),
-      concatMap((field) =>
-        forkJoin({
-          canEdit: this.canEdit(field.roles_editable),
-        }).pipe(
-          map((res) => ({
-            ...field,
-            ...res,
-          }))
-        )
-      ),
+      // concatMap((field) =>
+      //   forkJoin({
+      //     canEdit: this.canEdit(field.roles_editable),
+      //   }).pipe(
+      //     map((res) => ({
+      //       ...field,
+      //       ...res,
+      //     }))
+      //   )
+      // ),
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;

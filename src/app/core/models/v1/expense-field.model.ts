@@ -4,7 +4,7 @@ export interface ExpenseField {
   code: string;
   column_name: string;
   created_at: Date;
-  created_by: UserDetails;
+  created_by?: UserDetails;
   default_value: string | boolean;
   field_name: string;
   id?: number;
@@ -15,9 +15,9 @@ export interface ExpenseField {
   org_category_ids: number[];
   org_id: string;
   placeholder: string;
-  roles_editable: string[];
+  roles_editable?: string[];
   seq: number;
   type: string;
   updated_at: Date;
-  updated_by: UserDetails;
+  updated_by?: UserDetails;
 }

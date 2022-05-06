@@ -373,6 +373,7 @@ export class OfflineService {
         if (isOnline) {
           return this.expenseFieldsService.getAllEnabled().pipe(
             tap((allExpenseFields) => {
+              console.log('check expense fields', allExpenseFields);
               this.storageService.set('cachedAllExpenseFields', allExpenseFields);
             })
           );
