@@ -4019,6 +4019,12 @@ export class AddEditExpensePage implements OnInit {
       }
       if (receiptDetails && receiptDetails.dataUrl) {
         this.attachReceipts(receiptDetails);
+        const message = 'Receipt added to Expense successfully';
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
+        this.trackingService.showToastMessage({ ToastContent: message });
       }
     }
   }
