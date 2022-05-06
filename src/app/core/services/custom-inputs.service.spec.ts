@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { CustomInputsService } from './custom-inputs.service';
 
-describe('CustomInputsService', () => {
+xdescribe('CustomInputsService', () => {
   let service: CustomInputsService;
 
   beforeEach(() => {

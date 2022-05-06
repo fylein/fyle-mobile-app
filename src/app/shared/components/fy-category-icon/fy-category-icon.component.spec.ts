@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyCategoryIconComponent } from './fy-category-icon.component';
 
-describe('FyCategoryIconComponent', () => {
+xdescribe('FyCategoryIconComponent', () => {
   let component: FyCategoryIconComponent;
   let fixture: ComponentFixture<FyCategoryIconComponent>;
 

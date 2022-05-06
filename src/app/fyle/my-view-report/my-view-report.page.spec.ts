@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { MyViewReportPage } from './my-view-report.page';
 
-describe('MyViewReportPage', () => {
+xdescribe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
 

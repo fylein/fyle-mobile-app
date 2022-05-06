@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { SidemenuService } from './sidemenu.service';
 
-describe('SidemenuService', () => {
+xdescribe('SidemenuService', () => {
   let service: SidemenuService;
 
   beforeEach(() => {

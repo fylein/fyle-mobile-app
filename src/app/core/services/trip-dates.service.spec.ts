@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { TripDatesService } from './trip-dates.service';
 
-describe('TripDatesService', () => {
+xdescribe('TripDatesService', () => {
   let service: TripDatesService;
 
   beforeEach(() => {

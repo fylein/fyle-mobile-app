@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { RequestInvitationPage } from './request-invitation.page';
 
-describe('RequestInvitationPage', () => {
+xdescribe('RequestInvitationPage', () => {
   let component: RequestInvitationPage;
   let fixture: ComponentFixture<RequestInvitationPage>;
 

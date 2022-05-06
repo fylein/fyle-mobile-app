@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
 
-describe('AddEditPerDiemPage', () => {
+xdescribe('AddEditPerDiemPage', () => {
   let component: AddEditPerDiemPage;
   let fixture: ComponentFixture<AddEditPerDiemPage>;
 

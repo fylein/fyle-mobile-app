@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { TransportationRequestsComponent } from './transportation-requests.component';
 
-describe('TransportationRequestsComponent', () => {
+xdescribe('TransportationRequestsComponent', () => {
   let component: TransportationRequestsComponent;
   let fixture: ComponentFixture<TransportationRequestsComponent>;
 

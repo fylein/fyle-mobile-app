@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyNavFooterComponent } from './fy-nav-footer.component';
 
-describe('FyNavFooterComponent', () => {
+xdescribe('FyNavFooterComponent', () => {
   let component: FyNavFooterComponent;
   let fixture: ComponentFixture<FyNavFooterComponent>;
 

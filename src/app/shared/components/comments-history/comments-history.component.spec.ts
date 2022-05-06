@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { CommentsHistoryComponent } from './comments-history.component';
 
-describe('CommentsHistoryComponent', () => {
+xdescribe('CommentsHistoryComponent', () => {
   let component: CommentsHistoryComponent;
   let fixture: ComponentFixture<CommentsHistoryComponent>;
 

@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { MergeExpensePage } from './merge-expense.page';
 
-describe('MergeExpensePage', () => {
+xdescribe('MergeExpensePage', () => {
   let component: MergeExpensePage;
   let fixture: ComponentFixture<MergeExpensePage>;
 

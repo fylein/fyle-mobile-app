@@ -3,7 +3,6 @@ import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { Swiper } from 'swiper';
 import { SwiperComponent } from 'swiper/angular';
-
 @Component({
   selector: 'app-receipt-preview-thumbnail',
   templateUrl: './receipt-preview-thumbnail.component.html',
@@ -63,7 +62,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   }
 
   ngDoCheck() {
-    if (this.attachments.length !== this.previousCount) {
+    if (this.attachments?.length !== this.previousCount) {
       this.previousCount = this.attachments.length;
       timer(100).subscribe(() => this.imageSlides.swiperRef.slideTo(this.attachments.length));
       this.getActiveIndex();

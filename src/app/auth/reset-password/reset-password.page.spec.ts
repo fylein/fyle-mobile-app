@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ResetPasswordPage } from './reset-password.page';
 
-describe('ResetPasswordPage', () => {
+xdescribe('ResetPasswordPage', () => {
   let component: ResetPasswordPage;
   let fixture: ComponentFixture<ResetPasswordPage>;
 

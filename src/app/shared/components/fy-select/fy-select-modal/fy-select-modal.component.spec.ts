@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FySelectModalComponent } from './fy-select-modal.component';
 
-describe('FySelectModalComponent', () => {
+xdescribe('FySelectModalComponent', () => {
   let component: FySelectModalComponent;
   let fixture: ComponentFixture<FySelectModalComponent>;
 

@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyConnectionComponent } from './fy-connection.component';
 
-describe('FyConnectionComponent', () => {
+xdescribe('FyConnectionComponent', () => {
   let component: FyConnectionComponent;
   let fixture: ComponentFixture<FyConnectionComponent>;
 
