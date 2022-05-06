@@ -3,11 +3,6 @@ import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { Swiper } from 'swiper';
 import { SwiperComponent } from 'swiper/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { TrackingService } from '../../../core/services/tracking.service';
-import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
-
 @Component({
   selector: 'app-receipt-preview-thumbnail',
   templateUrl: './receipt-preview-thumbnail.component.html',
@@ -34,11 +29,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   numLoadedImage = 0;
 
-  constructor(
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService
-  ) {}
+  constructor() {}
 
   ngOnInit() {
     this.sliderOptions = {
