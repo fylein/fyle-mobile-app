@@ -44,7 +44,7 @@ Please install node v14.17.2 or above via nvm.
   - npx cap open ios
   - In Xcode, select the connected device from the top bar and click on run button.
 
-## Push Notificatios
+## Push Notifications
   **iOS**
   - Add this line `ios/App/Podfile` file (open via code editor, not xcode)
     - (After this line -> # Add your Pods here)
@@ -85,3 +85,9 @@ Please install node v14.17.2 or above via nvm.
  - Select the branch on which you want to run the workflow from the dropdown available for `Use workflow from`
  - Click on `Run Workflow`
  - This will now run the workflow on your private branch and the diawi apk link and ipa links will be shared on slack
+
+ ## Troubleshooting
+ Some common issues and how to fix them
+
+ ### `Error: Cannot GET /`  on running the app locally in browser
+ This happens because some packages listed in `package.json` are not installed locally. Delete `node_modules` and run `npm i` to fix this issue.
