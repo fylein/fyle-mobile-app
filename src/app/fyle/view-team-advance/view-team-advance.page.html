@@ -27,6 +27,13 @@
 <ion-content>
   <div *ngIf="advanceRequest$|async as advanceRequest">
     <div class="view-advances--card">
+      <app-summary-tile
+        [purpose]="advanceRequest.areq_purpose || '-'"
+        [currency]="advanceRequest.areq_currency"
+        [amount]="advanceRequest.areq_amount || '0'"
+        [status]="advanceRequest.areq_state | snakeCaseToSpaceCase "
+        [approvals]="activeApprovals$ | async"
+      ></app-summary-tile>
       <div class="view-advances--element">
         <div class="view-advances--element-label">Created On</div>
         <div class="view-advances--element-value">{{advanceRequest.areq_created_at | date: 'MMM dd, yyyy'}}</div>
@@ -38,25 +45,8 @@
       </div>
 
       <div class="view-advances--element">
-        <div class="view-advances--element-label">State</div>
-        <div class="view-advances--element-value">{{advanceRequest.areq_state | snakeCaseToSpaceCase}}</div>
-      </div>
-
-      <div class="view-advances--element">
-        <div class="view-advances--element-label">Amount</div>
-        <div class="view-advances--element-value">
-          {{advanceRequest.areq_amount | currency: advanceRequest.areq_currency : 'symbol-narrow'}}
-        </div>
-      </div>
-
-      <div class="view-advances--element">
         <div class="view-advances--element-label">Employee</div>
         <div class="view-advances--element-value">{{advanceRequest.us_full_name || '-'}}</div>
-      </div>
-
-      <div class="view-advances--element">
-        <div class="view-advances--element-label">Purpose</div>
-        <div class="view-advances--element-value">{{advanceRequest.areq_purpose || '-'}}</div>
       </div>
 
       <div class="view-advances--element">
@@ -67,18 +57,6 @@
       <div *ngIf="advanceRequest.project_name" class="view-advances--element">
         <div class="view-advances--element-label">{{projectFieldName | titlecase}}</div>
         <div class="view-advances--element-value">{{advanceRequest.project_name || '-'}}</div>
-      </div>
-
-      <div class="view-advances--element">
-        <div class="view-advances--element-label">Approvers</div>
-        <div class="view-advances--element-value">
-          <div *ngFor="let activeApproval of activeApprovals$ | async as list">
-            <span>{{activeApproval.approver_name}}</span>
-            <div class="view-advances--element-value-subheader">
-              {{activeApproval.state | advanceState | titlecase}}
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Custom Fields block -->
