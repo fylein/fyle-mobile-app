@@ -416,6 +416,7 @@ export class ViewTeamAdvancePage implements OnInit {
       this.trackingService.viewComment();
     }
   }
+
   async viewAttachments(attachments) {
     const attachmentsModal = await this.modalController.create({
       component: FyViewAttachmentComponent,
