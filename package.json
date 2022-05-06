@@ -36,7 +36,7 @@
     "@awesome-cordova-plugins/image-picker": "^5.41.0",
     "@awesome-cordova-plugins/in-app-browser": "^5.41.0",
     "@awesome-cordova-plugins/spinner-dialog": "^5.41.0",
-    "@capacitor-community/camera-preview": "^3.0.0",
+    "@capacitor-community/camera-preview": "^2.1.0",
     "@capacitor/android": "^3.5.0",
     "@capacitor/app": "^1.1.1",
     "@capacitor/browser": "^1.0.7",
