@@ -31,18 +31,16 @@ export class CostCentersService {
 
   transformFrom(platformCostCenter: PlatformCostCenterData[]): CostCenter[] {
     let oldCostCenter = [];
-    oldCostCenter = platformCostCenter.map((res) => {
-      return {
-        active: res.is_enabled,
-        code: res.code,
-        created_at: res.created_at,
-        description: res.description,
-        id: res.id,
-        name: res.name,
-        org_id: res.org_id,
-        updated_at: res.updated_at,
-      };
-    });
+    oldCostCenter = platformCostCenter.map((costCenter) => ({
+      active: costCenter.is_enabled,
+      code: costCenter.code,
+      created_at: costCenter.created_at,
+      description: costCenter.description,
+      id: costCenter.id,
+      name: costCenter.name,
+      org_id: costCenter.org_id,
+      updated_at: costCenter.updated_at,
+    }));
 
     return oldCostCenter;
   }
