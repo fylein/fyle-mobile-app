@@ -2,7 +2,9 @@
   <div class="d-flex">
     <div class="summary-tile--card-container__block">
       <div *ngIf="category" class="summary-tile--card-container__category">{{ category }}</div>
-      <div *ngIf="purpose" class="summary-tile--card-container__purpose">{{ purpose }}</div>
+      <div *ngIf="purpose" class="summary-tile--card-container__purpose">
+        {{ purpose.length > 25 ? (purpose | slice: 0:25) + '..' : purpose }}
+      </div>
 
       <div *ngIf="merchant" class="summary-tile--card-container__merchant">
         {{ merchant }}
