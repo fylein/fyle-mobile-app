@@ -32,6 +32,27 @@
 <ion-content>
   <div *ngIf="advanceRequest$|async as advanceRequest">
     <div class="view-advances--card">
+      <div *ngIf="attachedFiles$|async as attachedFiles">
+        <div *ngIf="attachedFiles?.length > 0">
+          <app-receipt-preview-thumbnail
+            [attachments]="attachedFiles"
+            (viewAttachments)="viewAttachments(attachedFiles)"
+            [canEdit]="false"
+          >
+          </app-receipt-preview-thumbnail>
+        </div>
+        <div *ngIf="attachedFiles?.length === 0" class="view-advance-request--content-container">
+          <div class="view-advance-request--element">
+            <app-fy-statistic
+              [icon]="'../../../../assets/svg/no-attachment.svg'"
+              [type]="StatisticTypes.STRING"
+              [label]="'Receipt'"
+              [value]="'Not Attached'"
+            ></app-fy-statistic>
+          </div>
+        </div>
+      </div>
+
       <div class="view-advances--element">
         <div class="view-advances--element-label">Created On</div>
         <div class="view-advances--element-value">{{advanceRequest.areq_created_at | date: 'MMM dd, yyyy'}}</div>

@@ -23,6 +23,8 @@ import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -79,6 +81,42 @@ export class ViewTeamAdvancePage implements OnInit {
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
+  get StatisticTypes() {
+    return StatisticTypes;
+  }
+
+  getReceiptExtension(name) {
+    let res = null;
+
+    if (name) {
+      const filename = name.toLowerCase();
+      const idx = filename.lastIndexOf('.');
+
+      if (idx > -1) {
+        res = filename.substring(idx + 1, filename.length);
+      }
+    }
+
+    return res;
+  }
+
+  getReceiptDetails(file) {
+    const ext = this.getReceiptExtension(file.name);
+    const res = {
+      type: 'unknown',
+      thumbnail: 'img/fy-receipt.svg',
+    };
+
+    if (ext && ['pdf'].indexOf(ext) > -1) {
+      res.type = 'pdf';
+      res.thumbnail = 'img/fy-pdf.svg';
+    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
+      res.type = 'image';
+      res.thumbnail = file.url;
+    }
+    return res;
+  }
+
   async getAndUpdateProjectName() {
     const expenseFields = await this.offlineService.getAllEnabledExpenseFields().toPromise();
     return expenseFields.filter((expenseField) => expenseField.column_name === 'project_id')[0];
@@ -111,11 +149,14 @@ export class ViewTeamAdvancePage implements OnInit {
 
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap((res) => from(res)),
-      concatMap((file) =>
-        this.fileService.downloadUrl(file.id).pipe(
-          map((url) => {
-            file.file_download_url = url;
-            return file as File;
+      concatMap((fileObj: any) =>
+        this.fileService.downloadUrl(fileObj.id).pipe(
+          map((downloadUrl) => {
+            fileObj.url = downloadUrl;
+            const details = this.getReceiptDetails(fileObj);
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
+            return fileObj;
           })
         )
       ),
@@ -374,6 +415,19 @@ export class ViewTeamAdvancePage implements OnInit {
     } else {
       this.trackingService.viewComment();
     }
+  }
+  async viewAttachments(attachments) {
+    const attachmentsModal = await this.modalController.create({
+      component: FyViewAttachmentComponent,
+      componentProps: {
+        attachments,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await attachmentsModal.present();
   }
 
   ngOnInit() {}
