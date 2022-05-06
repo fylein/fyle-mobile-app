@@ -223,7 +223,7 @@ export class TransactionService {
         tx_cost_center_name: res.cost_center?.name,
         tx_created_at: res.created_at,
         tx_currency: res.currency,
-        tx_custom_attributes: res.custom_fields,
+        tx_custom_properties: res.custom_fields,
         tx_distance: res.distance,
         tx_distance_unit: res.distance_unit,
         tx_file_ids: res.file_ids,
