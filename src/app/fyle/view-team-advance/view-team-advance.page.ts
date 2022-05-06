@@ -25,6 +25,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { FileObject } from 'src/app/core/models/file_obj.model';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -85,36 +86,36 @@ export class ViewTeamAdvancePage implements OnInit {
     return StatisticTypes;
   }
 
-  getReceiptExtension(name) {
-    let res = null;
+  getReceiptExtension(name: string) {
+    let ReceiptExtension = null;
 
     if (name) {
       const filename = name.toLowerCase();
       const idx = filename.lastIndexOf('.');
 
       if (idx > -1) {
-        res = filename.substring(idx + 1, filename.length);
+        ReceiptExtension = filename.substring(idx + 1, filename.length);
       }
     }
 
-    return res;
+    return ReceiptExtension;
   }
 
-  getReceiptDetails(file) {
-    const ext = this.getReceiptExtension(file.name);
-    const res = {
+  getReceiptDetails(file: FileObject) {
+    const ReceiptExtn = this.getReceiptExtension(file.name);
+    const ReceiptInfo = {
       type: 'unknown',
       thumbnail: 'img/fy-receipt.svg',
     };
 
-    if (ext && ['pdf'].indexOf(ext) > -1) {
-      res.type = 'pdf';
-      res.thumbnail = 'img/fy-pdf.svg';
-    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
-      res.type = 'image';
-      res.thumbnail = file.url;
+    if (ReceiptExtn && ['pdf'].indexOf(ReceiptExtn) > -1) {
+      ReceiptInfo.type = 'pdf';
+      ReceiptInfo.thumbnail = 'img/fy-pdf.svg';
+    } else if (ReceiptExtn && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ReceiptExtn) > -1) {
+      ReceiptInfo.type = 'image';
+      ReceiptInfo.thumbnail = file.url;
     }
-    return res;
+    return ReceiptInfo;
   }
 
   async getAndUpdateProjectName() {
@@ -150,12 +151,13 @@ export class ViewTeamAdvancePage implements OnInit {
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap((res) => from(res)),
       concatMap((fileObj: any) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
+        this.fileService.downloadUrl(fileObj?.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
             const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
+            fileObj.type = details?.type;
+            fileObj.thumbnail = details?.thumbnail;
+            console.log(fileObj);
             return fileObj;
           })
         )
