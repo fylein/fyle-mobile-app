@@ -7,7 +7,7 @@ import { DeviceService } from './device.service';
 import { OrgService } from './org.service';
 
 import { concat, forkJoin, from, Observable, of } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
@@ -27,16 +27,17 @@ export class LaunchDarklyService {
   }
 
   shutDownClient() {
-    (window as any).ldClient.off('initialized', this.onLDInitialized, this);
-    (window as any).ldClient.off('change', this.onLDChange, this);
+    if ((window as any).ldClient) {
+      (window as any).ldClient.off('initialized', this.onLDInitialized, this);
+      (window as any).ldClient.off('change', this.onLDChange, this);
 
-    (window as any).ldClient.close();
+      (window as any).ldClient.close();
+    }
   }
 
   changeUser() {
     this.getCurrentUser().subscribe((user) => {
-      if (this.isOnline) {
-        console.log('Changing user to ' + JSON.stringify(user));
+      if (this.isOnline && (window as any).ldClient) {
         (window as any).ldClient.identify(user);
       }
     });
@@ -44,9 +45,7 @@ export class LaunchDarklyService {
 
   private initializeUser() {
     this.getCurrentUser().subscribe((user) => {
-      if (this.isOnline) {
-        console.log('Initializing user to ' + JSON.stringify(user));
-
+      if (this.isOnline && (window as any).ldClient) {
         (window as any).ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
 
         (window as any).ldClient.on('initialized', this.onLDInitialized, this);
