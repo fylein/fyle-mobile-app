@@ -6,8 +6,8 @@ import { NetworkService } from './network.service';
 import { DeviceService } from './device.service';
 import { OrgService } from './org.service';
 
-import { concat, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { concat, forkJoin, from, Observable, of } from 'rxjs';
+import { map, switchMap, take } from 'rxjs/operators';
 
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
@@ -26,46 +26,88 @@ export class LaunchDarklyService {
     this.setupNetworkWatcher();
   }
 
-  async initializeLaunchDarkly() {
-    const eou = await this.authService.getEou();
+  shutDownClient() {
+    (window as any).ldClient.off('initialized', this.onLDInitialized, this);
+    (window as any).ldClient.off('change', this.onLDChange, this);
 
-    if (eou && this.isOnline) {
-      const currentOrg$ = this.orgService.getCurrentOrg();
-      const devicePlatform$ = this.getDevicePlatform();
+    (window as any).ldClient.close();
+  }
 
-      forkJoin([currentOrg$, devicePlatform$]).subscribe(([currentOrg, devicePlatform]) => {
-        // HACK ALERT - Added (currentOrg as any).created_at because created_at is typed as a date but internally is a string
-        // Typescript complains when passed date to LaunchDarkly, only primitive types and arrays are accepted
-        // But since created_at is a string we have to convert currentOrg to any.
-        // TODO - REMOVE THIS AFTER THE ORG MODEL IS FIXED
+  changeUser() {
+    this.getCurrentUser().subscribe((user) => {
+      if (this.isOnline) {
+        console.log('Changing user to ' + JSON.stringify(user));
+        (window as any).ldClient.identify(user);
+      }
+    });
+  }
 
-        const user = {
-          key: eou.ou.user_id,
-          custom: {
-            org_id: eou.ou.org_id,
-            org_user_id: eou.ou.id,
-            org_currency: currentOrg.currency,
-            org_created_at: (currentOrg as any).created_at,
-            asset: `MOBILE - ${devicePlatform.toUpperCase()}`,
-          },
-        };
+  private initializeUser() {
+    this.getCurrentUser().subscribe((user) => {
+      if (this.isOnline) {
+        console.log('Initializing user to ' + JSON.stringify(user));
 
-        (window as any).ldclient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
+        (window as any).ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
 
-        (window as any).ldclient.on('ready', () => {});
-        (window as any).ldclient.on('change', () => {});
-      });
-    }
+        (window as any).ldClient.on('initialized', this.onLDInitialized, this);
+        (window as any).ldClient.on('change', this.onLDChange, this);
+      }
+    });
+  }
+
+  private onLDInitialized() {
+    (window as any).addEventListener('beforeunload', this.shutDownClient);
+  }
+
+  private onLDChange() {}
+
+  private getCurrentUser(): Observable<LDClient.LDUser> {
+    const eou$ = from(this.authService.getEou());
+
+    return eou$.pipe(
+      switchMap((eou) => {
+        if (eou) {
+          const currentOrg$ = this.orgService.getCurrentOrg();
+          const devicePlatform$ = this.getDevicePlatform();
+
+          return forkJoin([currentOrg$, devicePlatform$]).pipe(
+            switchMap(([org, platform]) => {
+              // HACK ALERT - Added (currentOrg as any).created_at because created_at is typed as a date but internally is a string
+              // Typescript complains when passed date to LaunchDarkly, only primitive types and arrays are accepted
+              // But since created_at is a string we have to convert currentOrg to any.
+              // TODO - REMOVE THIS AFTER THE ORG MODEL IS FIXED
+
+              const user = {
+                key: eou.ou.user_id,
+                custom: {
+                  org_id: eou.ou.org_id,
+                  org_user_id: eou.ou.id,
+                  org_currency: org.currency,
+                  org_created_at: (org as any).created_at,
+                  asset: `MOBILE - ${platform.toUpperCase()}`,
+                },
+              };
+
+              return of(user);
+            })
+          );
+        } else {
+          const anonymousUser = {
+            anonymous: true,
+          };
+
+          return of(anonymousUser);
+        }
+      })
+    );
   }
 
   private setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
-
-    // networkWatcherEmitter will emit an event as the network status keeps changing
     concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).subscribe((isOnline) => {
       this.isOnline = isOnline;
-      this.initializeLaunchDarkly();
+      this.initializeUser();
     });
   }
 

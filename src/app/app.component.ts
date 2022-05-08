@@ -201,6 +201,7 @@ export class AppComponent implements OnInit {
 
     this.checkAppSupportedVersion();
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+      console.log(loggedInStatus);
       if (loggedInStatus) {
         this.sidemenuRef.showSideMenu();
         this.pushNotificationService.initPush();
