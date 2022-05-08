@@ -91,6 +91,7 @@ export class LaunchDarklyService {
             })
           );
         } else {
+          // Launch Darkly will figure out how to uniquely identify this anonymous user
           const anonymousUser = {
             anonymous: true,
           };
