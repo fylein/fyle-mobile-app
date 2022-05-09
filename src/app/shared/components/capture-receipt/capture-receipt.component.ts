@@ -333,7 +333,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   onBulkCapture() {
     this.captureCount += 1;
-    this.setUpAndStartCamera();
   }
 
   async showLimitMessage() {
@@ -362,10 +361,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       };
 
       const result = await CameraPreview.capture(cameraPreviewPictureOptions);
-      await this.stopCamera();
       const base64PictureData = 'data:image/jpeg;base64,' + result.value;
       this.lastImage = base64PictureData;
       if (!this.isBulkMode) {
+        await this.stopCamera();
         this.base64ImagesWithSource.push({
           source: 'MOBILE_DASHCAM_SINGLE',
           base64Image: base64PictureData,
@@ -438,7 +437,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.setUpAndStartCamera();
   }
 
-  ngOnDestroy() {
-    this.stopCamera();
+  async ngOnDestroy() {
+    await this.stopCamera();
   }
 }
