@@ -1,5 +1,9 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit } from '@angular/core';
-import { CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
+import {
+  CameraPreview,
+  CameraPreviewOptions,
+  CameraPreviewPictureOptions,
+} from '@awesome-cordova-plugins/camera-preview/ngx';
 import { Capacitor } from '@capacitor/core';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
@@ -64,7 +68,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private cameraPreview: CameraPreview
   ) {}
 
   setupNetworkWatcher() {
@@ -174,7 +179,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   async stopCamera() {
     if (this.isCameraShown === true) {
-      await CameraPreview.stop();
+      await this.cameraPreview.stopCamera();
       this.isCameraShown = false;
     }
   }
@@ -195,7 +200,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         nextActiveFlashMode = 'off';
       }
 
-      CameraPreview.setFlashMode({ flashMode: nextActiveFlashMode });
+      this.cameraPreview.setFlashMode(this.cameraPreview.FLASH_MODE.ON);
       this.flashMode = nextActiveFlashMode;
 
       this.trackingService.flashModeSet({
@@ -206,10 +211,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   async getFlashModes() {
     if (Capacitor.getPlatform() !== 'web') {
-      CameraPreview.getSupportedFlashModes().then((flashModes) => {
+      this.cameraPreview.getSupportedFlashModes().then((flashModes) => {
         if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
           this.flashMode = this.flashMode || 'off';
-          CameraPreview.setFlashMode({ flashMode: this.flashMode });
+          this.cameraPreview.setFlashMode(this.flashMode);
         }
       });
     }
@@ -218,14 +223,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   setUpAndStartCamera() {
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
-        position: 'rear',
+        camera: 'rear',
         toBack: true,
         width: window.innerWidth,
         height: window.innerHeight,
-        parent: 'cameraPreview',
+        storeToFile: false,
       };
 
-      CameraPreview.start(cameraPreviewOptions).then((res) => {
+      this.cameraPreview.startCamera(cameraPreviewOptions).then((res) => {
         this.isCameraShown = true;
         this.getFlashModes();
       });
@@ -361,9 +366,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         quality: 70,
       };
 
-      const result = await CameraPreview.capture(cameraPreviewPictureOptions);
+      const result = await this.cameraPreview.takePicture(cameraPreviewPictureOptions);
       await this.stopCamera();
-      const base64PictureData = 'data:image/jpeg;base64,' + result.value;
+      console.log(result);
+      const base64PictureData = 'data:image/jpeg;base64,' + result;
       this.lastImage = base64PictureData;
       if (!this.isBulkMode) {
         this.base64ImagesWithSource.push({
