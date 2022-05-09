@@ -9,6 +9,8 @@ import { AddApproversPopoverComponent } from '../fy-approver/add-approvers-popov
   styleUrls: ['./summary-tile.component.scss'],
 })
 export class FySummaryTileComponent implements OnInit {
+  @Output() notify: EventEmitter<any> = new EventEmitter<any>();
+
   @Input() category: string;
 
   @Input() merchant: string;
@@ -40,8 +42,6 @@ export class FySummaryTileComponent implements OnInit {
   @Input() type: any;
 
   refreshApprovers$ = new Subject();
-
-  @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
   approverList$: Observable<any>;
 
