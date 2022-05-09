@@ -157,17 +157,12 @@ export class SidemenuComponent implements OnInit {
   }
 
   getTeamOptions() {
-    const { allowedReportsActions, allowedTripsActions, allowedAdvancesActions } = this.allowedActions;
+    const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
     const teamOptions = [
       {
         title: 'Team Reports',
         isVisible: allowedReportsActions && allowedReportsActions.approve,
         route: ['/', 'enterprise', 'team_reports'],
-      },
-      {
-        title: 'Team Trips',
-        isVisible: this.orgSettings.trip_requests.enabled && allowedTripsActions && allowedReportsActions.approve,
-        route: ['/', 'enterprise', 'team_trips'],
       },
       {
         title: 'Team Advances',
@@ -208,17 +203,6 @@ export class SidemenuComponent implements OnInit {
         isVisible: true,
         icon: 'fy-report',
         route: ['/', 'enterprise', 'my_reports'],
-        disabled: !isConnected,
-      },
-      {
-        title: 'Trips',
-        isVisible:
-          this.orgSettings.trip_requests.enabled &&
-          (!this.orgSettings.trip_requests.enable_for_certain_employee ||
-            (this.orgSettings.trip_requests.enable_for_certain_employee &&
-              this.orgUserSettings.trip_request_org_user_settings.enabled)),
-        icon: 'fy-trips-new',
-        route: ['/', 'enterprise', 'my_trips'],
         disabled: !isConnected,
       },
       {
