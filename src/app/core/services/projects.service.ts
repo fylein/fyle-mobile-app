@@ -6,6 +6,7 @@ import { DataTransformService } from './data-transform.service';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
 import { ExtendedProject } from '../models/v2/extended-project.model';
+import { OrgCategory } from '../models/v1/org-category.model';
 
 @Injectable({
   providedIn: 'root',
@@ -91,20 +92,7 @@ export class ProjectsService {
     }
   }
 
-  filterById(projectId, projects) {
-    let matchingProject;
-
-    projects.some((project) => {
-      if (project.id === projectId) {
-        matchingProject = project;
-        return true;
-      }
-    });
-
-    return matchingProject;
-  }
-
-  getAllowedOrgCategoryIds(project, activeCategoryList) {
+  getAllowedOrgCategoryIds(project: ExtendedProject, activeCategoryList: OrgCategory[]): OrgCategory[] {
     let categoryList = [];
     if (project) {
       categoryList = activeCategoryList.filter(

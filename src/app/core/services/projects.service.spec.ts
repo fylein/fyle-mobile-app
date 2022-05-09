@@ -5,6 +5,7 @@ import { ApiService } from './api.service';
 import { ExtendedProject } from '../models/v2/extended-project.model';
 
 import { ProjectsService } from './projects.service';
+import { OrgCategory } from '../models/v1/org-category.model';
 
 const apiResponseActiveOnly = [
   {
@@ -295,6 +296,35 @@ const apiV2ResponseSingle = {
   url: '/v2/projects',
 };
 
+const categories: OrgCategory[] = [
+  {
+    id: 122272,
+    created_at: new Date('2021-06-12T16:23:27.873Z'),
+    updated_at: new Date('2021-06-12T16:23:27.873Z'),
+    org_id: 'orrjqbDbeP9p',
+    name: '1111',
+    code: null,
+    fyle_category: 'Bus',
+    sub_category: '1111',
+    enabled: true,
+    creator_id: 'ou9KN6pzVKce',
+    last_updated_by: 'ou9KN6pzVKce',
+  },
+  {
+    id: 116011,
+    created_at: new Date('2020-10-14T10:36:54.428Z'),
+    updated_at: new Date('2021-06-30T18:09:43.197Z'),
+    org_id: 'orrjqbDbeP9p',
+    name: '121',
+    code: '123',
+    fyle_category: 'Courier',
+    sub_category: 'asdf asdf',
+    enabled: false,
+    creator_id: 'oulcF9tfma4z',
+    last_updated_by: 'ousBleXvbs1Z',
+  },
+];
+
 const fixDate = (data) =>
   data.map((datum) => ({
     ...datum,
@@ -361,12 +391,65 @@ describe('ProjectsService', () => {
     });
   });
 
+  it('should be able to filter categories by project', () => {
+    const filteredCategories = projectService.getAllowedOrgCategoryIds(
+      fixDate(apiV2ResponseSingle.data)[0],
+      categories
+    );
+    expect(filteredCategories.length).toEqual(1);
+
+    const expectedFilteredCategory = categories.find((category) => category.id === 122272);
+    expect(filteredCategories[0]).toEqual(expectedFilteredCategory);
+
+    const unfilteredCategories = projectService.getAllowedOrgCategoryIds(null, categories);
+
+    expect(unfilteredCategories).toEqual(categories);
+  });
+
   it('should be able to fetch data when no params provided', (done) => {
     apiV2Service.get.and.returnValue(of(apiV2ResponseMultiple));
 
-    projectService.getByParamsUnformatted({}).subscribe((res) => {
-      expect(res).toEqual(fixDate(apiV2ResponseMultiple.data));
-      done();
+    projectService
+      .getByParamsUnformatted({
+        orgId: 'o123456',
+      })
+      .subscribe((res) => {
+        expect(res).toEqual(fixDate(apiV2ResponseMultiple.data));
+        done();
+      });
+
+    expect(apiV2Service.get).toHaveBeenCalledWith('/projects', {
+      params: {
+        project_org_id: 'eq.o123456',
+        order: 'project_updated_at.desc',
+        limit: 200,
+        offset: 0,
+      },
+    });
+
+    projectService.getByParamsUnformatted({
+      orgId: 'o123456',
+      sortOrder: 'project_name',
+      sortDirection: 'asc',
+      offset: 12,
+      limit: 100,
+      active: true,
+      orgCategoryIds: [122269, 122270, 122271],
+      projectIds: [257531, 257532, 257534],
+      searchNameText: 'aloo',
+    });
+
+    expect(apiV2Service.get).toHaveBeenCalledWith('/projects', {
+      params: {
+        project_org_id: 'eq.o123456',
+        order: 'project_name.asc',
+        limit: 100,
+        offset: 12,
+        project_active: 'eq.true',
+        project_org_category_ids: 'cs.{122269,122270,122271}',
+        project_id: 'in.(257531,257532,257534)',
+        project_name: 'ilike.%aloo%',
+      },
     });
   });
 });
