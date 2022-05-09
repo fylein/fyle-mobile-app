@@ -157,7 +157,6 @@ export class ViewTeamAdvancePage implements OnInit {
             const details = this.getReceiptDetails(fileObj);
             fileObj.type = details?.type;
             fileObj.thumbnail = details?.thumbnail;
-            console.log(fileObj);
             return fileObj;
           })
         )

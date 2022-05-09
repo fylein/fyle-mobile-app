@@ -9,7 +9,7 @@
         <ion-icon class="fy-icon-close" src="../../../../assets/svg/fy-close.svg" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title mode="md" class="page-title" [ngClass]="{'view-advance-request--title-sm': isDeviceWidthSmall}">
+    <ion-title mode="md" class="page-title" [ngClass]="{'view-advances--title-sm': isDeviceWidthSmall}">
       View Advance Request
     </ion-title>
     <ion-buttons
@@ -32,6 +32,14 @@
 <ion-content>
   <div *ngIf="advanceRequest$|async as advanceRequest">
     <div class="view-advances--card">
+      <app-summary-tile
+        [purpose]="advanceRequest.areq_purpose || '-'"
+        [currency]="advanceRequest.areq_currency"
+        [amount]="advanceRequest.areq_amount || '0'"
+        [status]="advanceRequest.areq_state | snakeCaseToSpaceCase"
+        [approvals]="activeApprovals$ | async"
+        [actions]="actions$ | async"
+      ></app-summary-tile>
       <div *ngIf="attachedFiles$|async as attachedFiles">
         <div *ngIf="attachedFiles?.length > 0">
           <app-receipt-preview-thumbnail
@@ -53,97 +61,99 @@
         </div>
       </div>
 
-      <div class="view-advances--element">
-        <div class="view-advances--element-label">Created On</div>
-        <div class="view-advances--element-value">{{advanceRequest.areq_created_at | date: 'MMM dd, yyyy'}}</div>
+      <ion-grid class="view-advance-request--grid">
+        <ion-row>
+          <ion-col class="p-0" size="6">
+            <div class="view-advance-request--element">
+              <app-fy-statistic
+                [icon]="'../../../../assets/svg/calendar.svg'"
+                [type]="StatisticTypes.DATE"
+                [label]="'Created On'"
+                [value]="advanceRequest.areq_created_at | date: 'MMM dd, yyyy'"
+              ></app-fy-statistic>
+            </div>
+          </ion-col>
+          <ion-col class="p-0" size="6" *ngIf="advanceRequest.areq_approved_at">
+            <div class="view-advance-request--element">
+              <app-fy-statistic
+                [icon]="'../../../../assets/svg/calendar.svg'"
+                [type]="StatisticTypes.DATE"
+                [label]="'Approved On'"
+                [value]="advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'"
+              ></app-fy-statistic>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <div class="view-advances--divider"></div>
+      <div class="view-advance-request--element">
+        <app-fy-statistic
+          [icon]="'../../../../assets/svg/profile.svg'"
+          [type]="StatisticTypes.STRING"
+          [label]="'Employee'"
+          [value]="advanceRequest.us_full_name || '-'"
+        ></app-fy-statistic>
       </div>
 
-      <div class="view-advances--element" *ngIf="advanceRequest.areq_approved_at">
-        <div class="view-advances--element-label">Approved on</div>
-        <div class="view-advances--element-value">{{advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'}}</div>
+      <div class="view-advance-request--element">
+        <app-fy-statistic
+          [icon]="'../../../../assets/svg/list.svg'"
+          [type]="StatisticTypes.STRING"
+          [label]="'Additional Notes'"
+          [value]="advanceRequest.areq_notes || '-'"
+        ></app-fy-statistic>
       </div>
+      <div class="view-advances--divider"></div>
+      <!-- Custom Fields block -->
 
-      <div class="view-advances--element">
-        <div class="view-advances--element-label">State</div>
-        <div class="view-advances--element-value">{{advanceRequest.areq_state | snakeCaseToSpaceCase}}</div>
-      </div>
-
-      <div class="view-advances--element">
-        <div class="view-advances--element-label">Amount</div>
-        <div class="view-advances--element-value">
-          {{advanceRequest.areq_amount | currency: advanceRequest.areq_currency : 'symbol-narrow'}}
-        </div>
-      </div>
-
-      <div class="view-advances--element">
-        <div class="view-advances--element-label">Employee</div>
-        <div class="view-advances--element-value">{{advanceRequest.us_full_name || '-'}}</div>
-      </div>
-
-      <div class="view-advances--element">
-        <div class="view-advances--element-label">Purpose</div>
-        <div class="view-advances--element-value">{{advanceRequest.areq_purpose || '-'}}</div>
-      </div>
-
-      <div class="view-advances--element">
-        <div class="view-advances--element-label">Description</div>
-        <div class="view-advances--element-value">{{advanceRequest.areq_notes || '-'}}</div>
-      </div>
-
-      <div *ngIf="advanceRequest.project_name" class="view-advances--element">
-        <div class="view-advances--element-label">{{projectFieldName | titlecase}}</div>
-        <div class="view-advances--element-value">{{advanceRequest.project_name || '-'}}</div>
-      </div>
-
-      <div class="view-advances--element">
-        <div class="view-advances--element-label">Approvers</div>
-        <div class="view-advances--element-value">
-          <div *ngFor="let activeApproval of activeApprovals$ | async as list">
-            <span>{{activeApproval.approver_name}}</span>
-            <div class="view-advances--element-value-subheader">
-              {{activeApproval.state | advanceState | titlecase}}
+      <ng-container *ngIf="advanceRequestCustomFields$|async as advanceRequestCustomFields">
+        <div *ngIf="advanceRequestCustomFields.length > 0">
+          <div
+            class="view-advance-request--element"
+            *ngFor="let advanceRequestCustomField of advanceRequestCustomFields; index as i"
+          >
+            <div
+              *ngIf="advanceRequestCustomField.type === StatisticTypes.DATE.toUpperCase() && advanceRequestCustomField.value"
+            >
+              <app-fy-statistic
+                [icon]="'../../../../assets/svg/calendar.svg'"
+                [type]="StatisticTypes.DATE"
+                [label]="advanceRequestCustomField.name"
+                [value]="advanceRequestCustomField.value | date: 'MMM dd, yyyy'"
+              ></app-fy-statistic>
+            </div>
+            <div
+              *ngIf="advanceRequestCustomField.type === StatisticTypes.DATE.toUpperCase() && !advanceRequestCustomField.value"
+            >
+              <app-fy-statistic
+                [icon]="'../../../../assets/svg/calendar.svg'"
+                [type]="StatisticTypes.DATE"
+                [label]="advanceRequestCustomField.name"
+                [value]="'-'"
+              ></app-fy-statistic>
+            </div>
+            <div *ngIf="advanceRequestCustomField.type === StatisticTypes.BOOLEAN.toUpperCase()">
+              <app-fy-statistic
+                [icon]="'../../../../assets/svg/list.svg'"
+                [type]="StatisticTypes.BOOLEAN"
+                [label]="advanceRequestCustomField.name"
+                [value]="advanceRequestCustomField.value ? 'Yes' : 'No'"
+              ></app-fy-statistic>
+            </div>
+            <div
+              *ngIf="advanceRequestCustomField.type !== StatisticTypes.BOOLEAN.toUpperCase() && advanceRequestCustomField.type !== 'DATE'"
+            >
+              <app-fy-statistic
+                [icon]="'../../../../assets/svg/list.svg'"
+                [type]="StatisticTypes.BOOLEAN"
+                [label]="advanceRequestCustomField.name"
+                [value]="advanceRequestCustomField.value || '-'"
+              ></app-fy-statistic>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Custom Fields block -->
-      <div *ngIf="(advanceRequestCustomFields$|async)?.length > 0">
-        <div
-          class="view-advances--element"
-          *ngFor="let advanceRequestCustomField of advanceRequestCustomFields$ | async; index as i"
-        >
-          <div class="view-advances--element-label">{{advanceRequestCustomField.name}}</div>
-          <div class="view-advances--element-value">
-            <span *ngIf="advanceRequestCustomField.type === 'DATE'"
-              >{{(advanceRequestCustomField.value | date: 'MMM dd, yyyy') || '-'}}</span
-            >
-            <span *ngIf="advanceRequestCustomField.type === 'BOOLEAN'"
-              >{{advanceRequestCustomField.value ? 'Yes' : 'No'}}</span
-            >
-            <span *ngIf="advanceRequestCustomField.type !== 'BOOLEAN' && advanceRequestCustomField.type !== 'DATE'"
-              >{{advanceRequestCustomField.value || '-'}}</span
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-    <ng-container *ngIf="actions$|async as actions">
-      <ng-container *ngIf="actions.can_add_approver">
-        <ng-container *ngIf="activeApprovals$ | async as activeApprovals">
-          <div class="view-advances--card_external-component m-0">
-            <app-fy-approver
-              [approverEmailsList]="getApproverEmails(activeApprovals)"
-              [id]="advanceRequest.areq_id"
-              [ownerEmail]="advanceRequest.us_email"
-              [type]="'ADVANCE_REQUEST'"
-              (notify)="onUpdateApprover($event)"
-            >
-            </app-fy-approver>
-          </div>
-        </ng-container>
       </ng-container>
-    </ng-container>
+    </div>
   </div>
 </ion-content>
 
