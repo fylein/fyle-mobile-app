@@ -29,7 +29,7 @@
 
   <swiper
     #swiper
-    class="full-height ion-slides"
+    class="full-height"
     [centeredSlides]="true"
     [pagination]="false"
     (activeIndexChange)="getActiveIndex()"
@@ -42,8 +42,14 @@
         </pinch-zoom>
 
         <div class="view-attachments--container" *ngIf="attachment?.type === 'pdf'">
-          <pdf-viewer [page]="1" [src]="attachment?.url" [render-text]="true" [zoom]="zoomScale"></pdf-viewer>
-
+          <pdf-viewer
+            [src]="attachment?.url"
+            [fit-to-page]="true"
+            [original-size]="false"
+            [render-text]="true"
+            [zoom]="zoomScale"
+            zoom-scale="page-fit"
+          ></pdf-viewer>
           <div class="view-attachments--pdf-controls">
             <mat-icon class="view-attachments--seconady-action-icons" (click)="zoomIn()">add_circle</mat-icon>
             <mat-icon class="view-attachments--seconady-action-icons" (click)="zoomOut()">remove_circle</mat-icon>
