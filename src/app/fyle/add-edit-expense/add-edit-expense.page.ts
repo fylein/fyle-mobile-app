@@ -1427,7 +1427,7 @@ export class AddEditExpensePage implements OnInit {
               paymentModes
                 .map((res) => res.value)
                 .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Paid by Me') {
+                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
                     return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
                   } else {
                     return paymentMode.acc.id === etxn.tx.source_account_id;
@@ -1480,7 +1480,7 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return paymentModes
             .map((res) => res.value)
-            .find((paymentMode) => paymentMode.acc.displayName === 'Paid by Me');
+            .find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash');
         }
       })
     );
@@ -4021,6 +4021,12 @@ export class AddEditExpensePage implements OnInit {
       }
       if (receiptDetails && receiptDetails.dataUrl) {
         this.attachReceipts(receiptDetails);
+        const message = 'Receipt added to Expense successfully';
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
+        this.trackingService.showToastMessage({ ToastContent: message });
       }
     }
   }

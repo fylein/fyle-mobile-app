@@ -160,7 +160,7 @@ $sent-back-color: #da1e28;
     &__reported {
       color: $reported-color;
     }
-    &__fyled {
+    &__unreported {
       color: $fyled-color;
     }
     &__sent_back {
@@ -185,7 +185,7 @@ $sent-back-color: #da1e28;
     padding: 1px 16px;
     border-radius: 16px;
     float: right;
-    &__fyled {
+    &__unreported {
       background-color: #f90;
     }
 

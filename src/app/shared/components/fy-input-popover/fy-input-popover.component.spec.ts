@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FyInputPopoverComponent } from './fy-input-popover.component';
 
-describe('FyInputPopoverComponent', () => {
+xdescribe('FyInputPopoverComponent', () => {
   let component: FyInputPopoverComponent;
   let fixture: ComponentFixture<FyInputPopoverComponent>;
 

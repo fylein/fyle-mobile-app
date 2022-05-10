@@ -39,7 +39,7 @@ export class FyViewAttachmentComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.zoomScale = 0.5;
+    this.zoomScale = 1;
     this.sliderOptions = {
       zoom: {
         maxRatio: 1,
@@ -66,7 +66,7 @@ export class FyViewAttachmentComponent implements OnInit {
   }
 
   resetZoom() {
-    this.zoomScale = 0.5;
+    this.zoomScale = 1;
   }
 
   onDoneClick() {

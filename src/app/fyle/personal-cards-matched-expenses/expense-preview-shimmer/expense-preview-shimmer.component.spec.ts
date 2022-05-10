@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ExpensePreviewShimmerComponent } from './expense-preview-shimmer.component';
 
-describe('ExpensePreviewShimmerComponent', () => {
+xdescribe('ExpensePreviewShimmerComponent', () => {
   let component: ExpensePreviewShimmerComponent;
   let fixture: ComponentFixture<ExpensePreviewShimmerComponent>;
 

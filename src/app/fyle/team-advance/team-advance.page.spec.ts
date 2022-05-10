@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { TeamAdvancePage } from './team-advance.page';
 
-describe('TeamAdvancePage', () => {
+xdescribe('TeamAdvancePage', () => {
   let component: TeamAdvancePage;
   let fixture: ComponentFixture<TeamAdvancePage>;
 

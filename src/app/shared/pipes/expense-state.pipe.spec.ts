@@ -1,6 +1,6 @@
 import { ExpenseState } from './expense-state.pipe';
 
-fdescribe('ExpenseStatePipe', () => {
+describe('ExpenseStatePipe', () => {
   const pipe = new ExpenseState();
 
   it('transforms "" state to ""', () => {
@@ -11,8 +11,8 @@ fdescribe('ExpenseStatePipe', () => {
     expect(pipe.transform('DRAFT')).toBe('incomplete');
   });
 
-  it('transforms "COMPLETE" state to "fyled"', () => {
-    expect(pipe.transform('COMPLETE')).toBe('fyled');
+  it('transforms "COMPLETE" state to "unreported"', () => {
+    expect(pipe.transform('COMPLETE')).toBe('unreported');
   });
 
   it('transforms "APPROVER_PENDING" state to "reported"', () => {

@@ -19,6 +19,10 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import * as moment from 'moment';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { TrackingService } from '../../../core/services/tracking.service';
+import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -127,7 +131,10 @@ export class ExpensesCardComponent implements OnInit {
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService,
     private modalController: ModalController,
-    private platform: Platform
+    private platform: Platform,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
+    private trackingService: TrackingService
   ) {}
 
   onGoToTransaction() {
@@ -439,6 +446,12 @@ export class ExpensesCardComponent implements OnInit {
         }
         if (receiptDetails && receiptDetails.dataUrl) {
           this.attachReceipt(receiptDetails);
+          const message = 'Receipt added to Expense successfully';
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success-with-camera-icon'],
+          });
+          this.trackingService.showToastMessage({ ToastContent: message });
         }
       }
     }

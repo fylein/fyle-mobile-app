@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ActionPopoverComponent } from './action-popover.component';
 
-describe('ActionPopoverComponent', () => {
+xdescribe('ActionPopoverComponent', () => {
   let component: ActionPopoverComponent;
   let fixture: ComponentFixture<ActionPopoverComponent>;
 

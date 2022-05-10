@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { DelegatedAccountsPage } from './delegated-accounts.page';
 
-describe('DelegatedAccountsPage', () => {
+xdescribe('DelegatedAccountsPage', () => {
   let component: DelegatedAccountsPage;
   let fixture: ComponentFixture<DelegatedAccountsPage>;
 

@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { TripRequestCustomFieldsService } from './trip-request-custom-fields.service';
 
-describe('TripRequestCustomFieldsService', () => {
+xdescribe('TripRequestCustomFieldsService', () => {
   let service: TripRequestCustomFieldsService;
 
   beforeEach(() => {

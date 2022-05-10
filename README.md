@@ -43,3 +43,51 @@ Please install node v14.17.2 or above via nvm.
   - npx cap sync
   - npx cap open ios
   - In Xcode, select the connected device from the top bar and click on run button.
+
+## Push Notifications
+  **iOS**
+  - Add this line `ios/App/Podfile` file (open via code editor, not xcode)
+    - (After this line -> # Add your Pods here)
+      - pod 'FirebaseCore'
+      - pod 'Firebase/Messaging'
+  - Run this from terminal 
+    - npx cap update ios
+  - Add these lines `ios/App/App/AppDelegate.swift` file
+    - (After this line -> import Capacitor)
+      - import FirebaseCore
+      - import FirebaseInstanceID
+      - import FirebaseMessaging 
+    - FirebaseApp.configure() (After this line -> // Override point for customization after application launch.)
+    - Update the application_ function after #if USE_PUSH as described below
+    ```bash
+      func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+            Messaging.messaging().apnsToken = deviceToken
+            InstanceID.instanceID().instanceID { (result, error) in
+                if let error = error {
+                    NotificationCenter.default.post(name: Notification.Name(CAPNotifications.DidFailToRegisterForRemoteNotificationsWithError.name()), object: error)
+                } else if let result = result {
+                    NotificationCenter.default.post(name: Notification.Name(CAPNotifications.DidRegisterForRemoteNotificationsWithDeviceToken.name()), object: result.token)
+                }
+            }
+        }
+    ```
+    - Now open Xcode and enable Push notifications from sigining and capabilites if it is not enabled.
+    - Follow these two articles if you face any issue
+      - https://devdactic.com/push-notifications-ionic-capacitor/
+      - https://capacitorjs.com/docs/guides/push-notifications-firebase
+
+## Running Appflow workflow manually on a private branch
+
+ - Click on [Actions](https://github.com/fylein/fyle-mobile-app2/actions) Tab
+ - From Workflows List, Select `Manual Workflow - Appflow`
+ - On the right hand side you can see the list of workflow run.
+ - In the list view you can see a `Run Workflow` button. Click on that button
+ - Select the branch on which you want to run the workflow from the dropdown available for `Use workflow from`
+ - Click on `Run Workflow`
+ - This will now run the workflow on your private branch and the diawi apk link and ipa links will be shared on slack
+
+ ## Troubleshooting
+ Some common issues and how to fix them
+
+ ### `Error: Cannot GET /`  on running the app locally in browser
+ This happens because some packages listed in `package.json` are not installed locally. Delete `node_modules` and run `npm i` to fix this issue.

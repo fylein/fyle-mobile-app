@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { HotelRequestService } from './hotel-request.service';
 
-describe('HotelRequestService', () => {
+xdescribe('HotelRequestService', () => {
   let service: HotelRequestService;
 
   beforeEach(() => {

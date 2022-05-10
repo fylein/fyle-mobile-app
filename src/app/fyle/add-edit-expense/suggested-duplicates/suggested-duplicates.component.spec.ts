@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { SuggestedDuplicatesComponent } from './suggested-duplicates.component';
 
-describe('SuggestedDuplicatesComponent', () => {
+xdescribe('SuggestedDuplicatesComponent', () => {
   let component: SuggestedDuplicatesComponent;
   let fixture: ComponentFixture<SuggestedDuplicatesComponent>;
 

@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyLoadingScreenComponent } from './fy-loading-screen.component';
 
-describe('FyLoadingScreenComponent', () => {
+xdescribe('FyLoadingScreenComponent', () => {
   let component: FyLoadingScreenComponent;
   let fixture: ComponentFixture<FyLoadingScreenComponent>;
 

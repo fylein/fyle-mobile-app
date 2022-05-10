@@ -170,7 +170,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     ) {
       account = paymentModes.find((res) => res.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
     } else {
-      account = paymentModes.find((res) => res.acc.displayName === 'Paid by Me');
+      account = paymentModes.find((res) => res.acc.displayName === 'Personal Card/Cash');
     }
     return account;
   }

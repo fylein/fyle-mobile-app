@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { DelegatedAccMessageComponent } from './delegated-acc-message.component';
 
-describe('DelegatedAccMessageComponent', () => {
+xdescribe('DelegatedAccMessageComponent', () => {
   let component: DelegatedAccMessageComponent;
   let fixture: ComponentFixture<DelegatedAccMessageComponent>;
 

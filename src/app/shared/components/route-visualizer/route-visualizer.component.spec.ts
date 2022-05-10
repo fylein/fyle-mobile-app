@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { RouteVisualizerComponent } from './route-visualizer.component';
 
-describe('RouteVisualizerComponent', () => {
+xdescribe('RouteVisualizerComponent', () => {
   let component: RouteVisualizerComponent;
   let fixture: ComponentFixture<RouteVisualizerComponent>;
 

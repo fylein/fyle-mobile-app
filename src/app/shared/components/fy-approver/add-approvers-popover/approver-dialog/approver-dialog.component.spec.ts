@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ApproverDialogComponent } from './approver-dialog.component';
 
-describe('ApproverDialogComponent', () => {
+xdescribe('ApproverDialogComponent', () => {
   let component: ApproverDialogComponent;
   let fixture: ComponentFixture<ApproverDialogComponent>;
 

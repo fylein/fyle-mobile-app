@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { AdvanceRequestsComponent } from './advance-requests.component';
 
-describe('AdvanceRequestsComponent', () => {
+xdescribe('AdvanceRequestsComponent', () => {
   let component: AdvanceRequestsComponent;
   let fixture: ComponentFixture<AdvanceRequestsComponent>;
 
