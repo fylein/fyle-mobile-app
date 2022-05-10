@@ -53,6 +53,24 @@ export class ExpenseFieldsService {
       updated_at: expenseField.updated_at,
     }));
 
+    oldExpenseField.forEach((item) => {
+      if (item.column_name === 'category_id') {
+        item.column_name = 'org_category_id';
+      }
+
+      if (item.column_name === 'merchant') {
+        item.column_name = 'vendor_id';
+      }
+
+      if (item.column_name === 'locations[0]') {
+        item.column_name = 'location1';
+      }
+
+      // TBD
+      // if (item.column_name === 'travel_classes[0]') {
+      //   item.column_name = 'bus_travel_class';
+      // }
+    });
     return oldExpenseField;
   }
 
@@ -147,16 +165,6 @@ export class ExpenseFieldsService {
           .filter((filteredField) => !!filteredField)
       ),
       switchMap((fields) => from(fields)),
-      // concatMap((field) =>
-      //   forkJoin({
-      //     canEdit: this.canEdit(field.roles_editable),
-      //   }).pipe(
-      //     map((res) => ({
-      //       ...field,
-      //       ...res,
-      //     }))
-      //   )
-      // ),
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;
