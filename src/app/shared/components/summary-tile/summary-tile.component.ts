@@ -2,14 +2,16 @@ import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { from, Subject, forkJoin } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
+import { AdvanceApprover } from 'src/app/core/models/approver.model';
 import { AddApproversPopoverComponent } from '../fy-approver/add-approvers-popover/add-approvers-popover.component';
+import { actionsObj } from 'src/app/core/models/actions.model';
 @Component({
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
   styleUrls: ['./summary-tile.component.scss'],
 })
 export class FySummaryTileComponent implements OnInit {
-  @Output() notify: EventEmitter<any> = new EventEmitter<any>();
+  @Output() notify: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   @Input() category: string;
 
@@ -31,7 +33,7 @@ export class FySummaryTileComponent implements OnInit {
 
   @Input() orig_currency: string;
 
-  @Input() actions: Object;
+  @Input() actions: actionsObj;
 
   @Input() approverEmailsList: string[];
 
@@ -43,7 +45,7 @@ export class FySummaryTileComponent implements OnInit {
 
   refreshApprovers$ = new Subject();
 
-  approverList$: Observable<any>;
+  approverList$: Observable<AdvanceApprover>;
 
   constructor(private popoverController: PopoverController) {}
 
