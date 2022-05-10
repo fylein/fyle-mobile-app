@@ -78,7 +78,7 @@ describe('CostCentersService', () => {
     expect(costCenterService).toBeTruthy();
   });
 
-  fit('should return proper response from api and transform it into proper model', (done) => {
+  it('should return proper response from api and transform it into proper model', (done) => {
     spenderPlatformApiService.get.and.returnValue(of(costcenterPlatformResponse));
 
     costCenterService.getAllActive().subscribe((costCenters) => {
