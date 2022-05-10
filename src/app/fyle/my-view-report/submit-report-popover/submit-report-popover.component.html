@@ -40,12 +40,6 @@
       </div>
     </div>
 
-    <div class="submit-report--trip-request-warning" *ngIf="showTripRequestWarning">
-      There are trip requests that can be associated with this report.
-      <div>
-        <strong> Do you wish to submit the report without associating a trip request? </strong>
-      </div>
-    </div>
     <div
       class="submit-report--approver-notif"
       *ngIf="!(numCriticalPolicies > 0 && erpt.rp_num_transactions - numCriticalPolicies === 0)"

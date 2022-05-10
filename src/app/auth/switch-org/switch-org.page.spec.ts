@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { SwitchOrgPage } from './switch-org.page';
 
-describe('SwithOrgPage', () => {
+xdescribe('SwithOrgPage', () => {
   let component: SwitchOrgPage;
   let fixture: ComponentFixture<SwitchOrgPage>;
 

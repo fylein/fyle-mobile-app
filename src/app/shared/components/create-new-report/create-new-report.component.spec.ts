@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { CreateNewReportComponent } from './create-new-report.component';
 
-describe('CreateNewReportComponent', () => {
+xdescribe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
   let fixture: ComponentFixture<CreateNewReportComponent>;
 

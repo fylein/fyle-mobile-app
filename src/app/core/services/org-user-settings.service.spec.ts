@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { OrgUserSettingsService } from './org-user-settings.service';
 
-describe('OrgUserSettingsService', () => {
+xdescribe('OrgUserSettingsService', () => {
   let service: OrgUserSettingsService;
 
   beforeEach(() => {

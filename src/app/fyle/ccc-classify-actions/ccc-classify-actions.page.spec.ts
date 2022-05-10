@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { CccClassifyActionsPage } from './ccc-classify-actions.page';
 
-describe('CccClassifyActionsPage', () => {
+xdescribe('CccClassifyActionsPage', () => {
   let component: CccClassifyActionsPage;
   let fixture: ComponentFixture<CccClassifyActionsPage>;
 

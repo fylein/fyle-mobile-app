@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SidemenuContentComponent } from './sidemenu-content.component';
 
-describe('SidemenuContentComponent', () => {
+xdescribe('SidemenuContentComponent', () => {
   let component: SidemenuContentComponent;
   let fixture: ComponentFixture<SidemenuContentComponent>;
 

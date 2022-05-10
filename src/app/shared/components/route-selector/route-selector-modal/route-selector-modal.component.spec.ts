@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { RouteSelectorModalComponent } from './route-selector-modal.component';
 
-describe('RouteSelectorModalComponent', () => {
+xdescribe('RouteSelectorModalComponent', () => {
   let component: RouteSelectorModalComponent;
   let fixture: ComponentFixture<RouteSelectorModalComponent>;
 

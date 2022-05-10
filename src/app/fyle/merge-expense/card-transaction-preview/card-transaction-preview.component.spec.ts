@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { CardTransactionPreviewComponent } from './card-transaction-preview.component';
 
-describe('CardTransactionPreviewComponent', () => {
+xdescribe('CardTransactionPreviewComponent', () => {
   let component: CardTransactionPreviewComponent;
   let fixture: ComponentFixture<CardTransactionPreviewComponent>;
 

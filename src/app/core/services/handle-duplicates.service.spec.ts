@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { HandleDuplicatesService } from './handle-duplicates.service';
 
-describe('HandleDuplicatesService', () => {
+xdescribe('HandleDuplicatesService', () => {
   let service: HandleDuplicatesService;
 
   beforeEach(() => {

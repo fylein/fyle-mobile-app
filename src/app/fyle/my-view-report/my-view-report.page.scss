@@ -67,7 +67,7 @@
     &__reported {
       color: $reported-color;
     }
-    &__fyled {
+    &__unreported {
       color: $fyled-color;
     }
     &_sent_back {
@@ -89,7 +89,7 @@
     font-size: 12px;
     float: right;
 
-    &__fyled {
+    &__unreported {
       background-color: $fyled-color;
     }
 

@@ -15,12 +15,8 @@ export class AccountsService {
     private currencyPipe: CurrencyPipe
   ) {}
 
-  getEMyAccounts(filters?) {
-    const data = {
-      params: filters,
-    };
-
-    return this.apiService.get('/eaccounts/', data).pipe(
+  getEMyAccounts() {
+    return this.apiService.get('/eaccounts/').pipe(
       map((accountsRaw: any[]) => {
         const accounts = [];
 
@@ -48,7 +44,7 @@ export class AccountsService {
     const that = this;
     const accountsMap = {
       PERSONAL_ACCOUNT(account) {
-        account.acc.displayName = 'Paid by Me';
+        account.acc.displayName = 'Personal Card/Cash';
         if (isNotOwner) {
           account.acc.displayName = 'Paid by Employee';
         }
@@ -63,13 +59,13 @@ export class AccountsService {
           currency = account.orig.currency;
         }
 
-        account.acc.displayName = 'Paid from Advance (Balance: ' + that.currencyPipe.transform(balance, currency) + ')';
+        account.acc.displayName = 'Advance (Balance: ' + that.currencyPipe.transform(balance, currency) + ')';
 
         account.acc.isReimbursable = false;
         return account;
       },
       PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT(account) {
-        account.acc.displayName = 'Paid via Corporate Card';
+        account.acc.displayName = 'Corporate Card';
         account.acc.isReimbursable = false;
         return account;
       },

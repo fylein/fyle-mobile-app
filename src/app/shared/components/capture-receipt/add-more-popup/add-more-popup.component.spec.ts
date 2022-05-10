@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { AddMorePopupComponent } from './add-more-popup.component';
 
-describe('AddMorePopupComponent', () => {
+xdescribe('AddMorePopupComponent', () => {
   let component: AddMorePopupComponent;
   let fixture: ComponentFixture<AddMorePopupComponent>;
 

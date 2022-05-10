@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { DisabledPage } from './disabled.page';
 
-describe('DisabledPage', () => {
+xdescribe('DisabledPage', () => {
   let component: DisabledPage;
   let fixture: ComponentFixture<DisabledPage>;
 

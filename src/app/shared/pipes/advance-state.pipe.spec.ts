@@ -1,6 +1,6 @@
 import { AdvanceState } from './advance-state.pipe';
 
-fdescribe('AdvanceStatePipe', () => {
+describe('AdvanceStatePipe', () => {
   const pipe = new AdvanceState();
 
   it('transforms "" state to ""', () => {

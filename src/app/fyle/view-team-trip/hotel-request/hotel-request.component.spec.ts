@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { HotelRequestComponent } from './hotel-request.component';
 
-describe('HotelRequestComponent', () => {
+xdescribe('HotelRequestComponent', () => {
   let component: HotelRequestComponent;
   let fixture: ComponentFixture<HotelRequestComponent>;
 

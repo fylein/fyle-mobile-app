@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ToastMessageComponent } from './toast-message.component';
 
-describe('ToastMessageComponent', () => {
+xdescribe('ToastMessageComponent', () => {
   let component: ToastMessageComponent;
   let fixture: ComponentFixture<ToastMessageComponent>;
 

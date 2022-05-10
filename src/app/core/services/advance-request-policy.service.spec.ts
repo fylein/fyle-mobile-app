@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 
-describe('AdvanceRequestPolicyService', () => {
+xdescribe('AdvanceRequestPolicyService', () => {
   let service: AdvanceRequestPolicyService;
 
   beforeEach(() => {

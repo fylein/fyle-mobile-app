@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { SavePopoverComponent } from './save-popover.component';
 
-describe('SavePopoverComponent', () => {
+xdescribe('SavePopoverComponent', () => {
   let component: SavePopoverComponent;
   let fixture: ComponentFixture<SavePopoverComponent>;
 

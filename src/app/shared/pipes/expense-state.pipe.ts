@@ -11,7 +11,7 @@ export class ExpenseState implements PipeTransform {
 
     const states = {
       DRAFT: 'incomplete',
-      COMPLETE: 'fyled',
+      COMPLETE: 'unreported',
       APPROVER_PENDING: 'reported',
       APPROVED: 'approved',
       PAYMENT_PENDING: 'payment_pending',
