@@ -28,9 +28,9 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { FileObject } from 'src/app/core/models/file_obj.model';
 
 @Component({
-  selector: 'app-view-team-advance',
-  templateUrl: './view-team-advance.page.html',
-  styleUrls: ['./view-team-advance.page.scss'],
+  selector: 'app-view-team-advance-request',
+  templateUrl: './view-team-advance-request.page.html',
+  styleUrls: ['./view-team-advance-request.page.scss'],
 })
 export class ViewTeamAdvancePage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;

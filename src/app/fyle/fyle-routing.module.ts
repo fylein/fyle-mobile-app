@@ -78,7 +78,8 @@ const routes: Routes = [
   },
   {
     path: 'view_team_advance',
-    loadChildren: () => import('./view-team-advance/view-team-advance.module').then((m) => m.ViewTeamAdvancePageModule),
+    loadChildren: () =>
+      import('./view-team-advance/view-team-advance-request.module').then((m) => m.ViewTeamAdvancePageModule),
   },
   {
     path: 'notifications',
