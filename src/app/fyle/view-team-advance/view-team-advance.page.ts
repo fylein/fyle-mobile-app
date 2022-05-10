@@ -150,7 +150,7 @@ export class ViewTeamAdvancePage implements OnInit {
 
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap((res) => from(res)),
-      concatMap((fileObj: any) =>
+      concatMap((fileObj: File) =>
         this.fileService.downloadUrl(fileObj?.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;

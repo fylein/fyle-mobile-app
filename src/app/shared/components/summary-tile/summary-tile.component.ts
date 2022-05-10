@@ -31,15 +31,15 @@ export class FySummaryTileComponent implements OnInit {
 
   @Input() orig_currency: string;
 
-  @Input() actions: any;
+  @Input() actions: Object;
 
-  @Input() approverEmailsList: any;
+  @Input() approverEmailsList: string[];
 
   @Input() id: string;
 
   @Input() ownerEmail: string;
 
-  @Input() type: any;
+  @Input() type: string;
 
   refreshApprovers$ = new Subject();
 
