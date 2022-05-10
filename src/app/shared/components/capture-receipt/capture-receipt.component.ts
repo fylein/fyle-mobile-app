@@ -179,8 +179,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  async close() {
-    await this.stopCamera();
+  close() {
+    this.stopCamera();
     if (this.isModal) {
       this.modalController.dismiss();
     } else {
@@ -297,7 +297,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async review() {
-    await this.stopCamera();
+    this.stopCamera();
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
@@ -366,7 +366,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       const base64PictureData = 'data:image/jpeg;base64,' + result.value;
       this.lastImage = base64PictureData;
       if (!this.isBulkMode) {
-        await this.stopCamera();
+        this.stopCamera();
         this.base64ImagesWithSource.push({
           source: 'MOBILE_DASHCAM_SINGLE',
           base64Image: base64PictureData,
@@ -382,10 +382,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  async galleryUpload() {
+  galleryUpload() {
     this.trackingService.instafyleGalleryUploadOpened({});
+    this.stopCamera();
 
-    await this.stopCamera();
     this.imagePicker.hasReadPermission().then((permission) => {
       if (permission) {
         const options = {
@@ -439,7 +439,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.setUpAndStartCamera();
   }
 
-  async ngOnDestroy() {
-    await this.stopCamera();
+  ngOnDestroy() {
+    this.stopCamera();
   }
 }
