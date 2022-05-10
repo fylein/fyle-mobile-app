@@ -271,6 +271,7 @@ export class OfflineService {
         if (isOnline) {
           return this.projectsService.getAllActive().pipe(
             tap((projects) => {
+              console.log('check existing projects', projects);
               this.storageService.set('cachedProjects', projects);
             })
           );

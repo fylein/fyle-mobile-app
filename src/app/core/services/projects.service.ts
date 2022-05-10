@@ -1,23 +1,25 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
-import { ApiV2Service } from './api-v2.service';
 import { map } from 'rxjs/operators';
-import { DataTransformService } from './data-transform.service';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
 import { ExtendedProject } from '../models/v2/extended-project.model';
+import { PlatformProjectData } from '../models/platform/platform-project-data.model';
+import { Project } from '../models/v1/project.model';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { PlatformProject } from '../models/platform/platform-project.model';
+import { OfflineService } from './offline.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(private apiService: ApiService, private apiV2Service: ApiV2Service) {}
+  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
 
   @Cacheable()
   getByParamsUnformatted(
     projectParams: Partial<{
       orgId;
-      active;
+      is_enabled;
       orgCategoryIds;
       searchNameText;
       limit;
@@ -28,20 +30,20 @@ export class ProjectsService {
     }>
   ): Observable<ExtendedProject[]> {
     // eslint-disable-next-line prefer-const
-    let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
+    let { orgId, is_enabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
       projectParams;
-    sortOrder = sortOrder || 'project_updated_at';
+    sortOrder = sortOrder || 'updated_at';
     sortDirection = sortDirection || 'desc';
 
     const params: any = {
-      project_org_id: 'eq.' + orgId,
+      org_id: 'eq.' + orgId,
       order: sortOrder + '.' + sortDirection,
       limit: limit || 200,
       offset: offset || 0,
     };
 
     // `active` can be optional
-    this.addActiveFilter(active, params);
+    this.addActiveFilter(is_enabled, params);
 
     // `orgCategoryIds` can be optional
     this.addOrgCategoryIdsFilter(orgCategoryIds, params);
@@ -52,13 +54,14 @@ export class ProjectsService {
     // `searchNameText` can be optional
     this.addNameSearchFilter(searchNameText, params);
 
-    return this.apiV2Service
+    return this.spenderPlatformApiService
       .get('/projects', {
         params,
       })
       .pipe(
+        map((res: PlatformProject) => this.transformFromPlatfromToApiV2(res.data)),
         map((res) =>
-          res.data.map((datum) => ({
+          res.map((datum) => ({
             ...datum,
             project_created_at: new Date(datum.project_created_at),
             project_updated_at: new Date(datum.project_updated_at),
@@ -75,7 +78,7 @@ export class ProjectsService {
 
   addProjectIdsFilter(projectIds: any, params: any) {
     if (typeof projectIds !== 'undefined' && projectIds !== null) {
-      params.project_id = 'in.(' + projectIds.join(',') + ')';
+      params.id = 'in.(' + projectIds.join(',') + ')';
     }
   }
 
@@ -87,7 +90,7 @@ export class ProjectsService {
 
   addActiveFilter(active: any, params: any) {
     if (typeof active !== 'undefined' && active !== null) {
-      params.project_active = 'eq.' + active;
+      params.is_enabled = 'eq.' + active;
     }
   }
 
@@ -117,28 +120,65 @@ export class ProjectsService {
     return categoryList;
   }
 
-  // TODO: We should remove this from being used and replace with transform
+  transformFromPlatfromToApiV1(platformProject: PlatformProjectData[]): Project[] {
+    let oldV1Project = [];
+    oldV1Project = platformProject.map((project) => ({
+      active: project.is_enabled,
+      code: project.code,
+      created_at: project.created_at,
+      description: project.description,
+      id: project.id,
+      name: project.name,
+      org_id: project.org_id,
+      sub_project: project.sub_project,
+      updated_at: project.updated_at,
+    }));
+
+    return oldV1Project;
+  }
+
+  transformFromPlatfromToApiV2(platformProject: PlatformProjectData[]): ExtendedProject[] {
+    let oldV2Project = [];
+    oldV2Project = platformProject.map((project) => ({
+      project_active: project.is_enabled,
+      project_code: project.code,
+      project_created_at: project.created_at,
+      project_description: project.description,
+      project_id: project.id,
+      project_name: project.name,
+      project_org_id: project.org_id,
+      project_updated_at: project.updated_at,
+      projectv2_name: project.name,
+      sub_project_name: project.sub_project,
+    }));
+
+    return oldV2Project;
+  }
+
   getAllActive() {
     const data = {
       params: {
-        active_only: true,
+        is_enabled: 'eq.' + true,
       },
     };
 
-    return this.apiService.get('/projects', data);
+    return this.spenderPlatformApiService
+      .get('/projects', data)
+      .pipe(map((res: PlatformProject) => this.transformFromPlatfromToApiV1(res.data)));
   }
 
   getbyId(projectId: number): Observable<ExtendedProject> {
-    return this.apiV2Service
+    return this.spenderPlatformApiService
       .get('/projects', {
         params: {
-          project_id: `eq.${projectId}`,
+          id: 'eq.' + projectId,
         },
       })
       .pipe(
+        map((res: PlatformProject) => this.transformFromPlatfromToApiV2(res.data)),
         map(
           (res) =>
-            res.data.map((datum) => ({
+            res.map((datum) => ({
               ...datum,
               project_created_at: new Date(datum.project_created_at),
               project_updated_at: new Date(datum.project_updated_at),
