@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { CostCenter } from '../models/v1/cost-center.model';
 import { PlatformCostCenterData } from '../models/platform/platform-cost-center-data.model';
@@ -18,28 +18,28 @@ export class CostCentersService {
   @Cacheable({
     cacheBusterObserver: costCentersCacheBuster$,
   })
-  getAllActive() {
+  getAllActive(): Observable<CostCenter[]> {
     const data = {
       params: {
-        is_enabled: 'eq.' + true,
+        is_enabled: 'eq.true',
       },
     };
     return this.spenderPlatformApiService
-      .get('/cost_centers', data)
-      .pipe(map((res: PlatformCostCenter) => this.transformFrom(res.data)));
+      .get<PlatformCostCenter>('/cost_centers', data)
+      .pipe(map((res) => this.transformFrom(res.data)));
   }
 
-  transformFrom(platformCostCenter: PlatformCostCenterData[]): CostCenter[] {
-    let oldCostCenter = [];
+  private transformFrom(platformCostCenter: PlatformCostCenterData[]): CostCenter[] {
+    let oldCostCenter: CostCenter[] = [];
     oldCostCenter = platformCostCenter.map((costCenter) => ({
       active: costCenter.is_enabled,
       code: costCenter.code,
-      created_at: costCenter.created_at,
+      created_at: new Date(costCenter.created_at),
       description: costCenter.description,
       id: costCenter.id,
       name: costCenter.name,
       org_id: costCenter.org_id,
-      updated_at: costCenter.updated_at,
+      updated_at: new Date(costCenter.updated_at),
     }));
 
     return oldCostCenter;
