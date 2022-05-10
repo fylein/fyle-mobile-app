@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-fy-critical-policy-violation',
@@ -9,15 +9,15 @@ import { PopoverController } from '@ionic/angular';
 export class FyCriticalPolicyViolationComponent implements OnInit {
   @Input() criticalViolationMessages = [];
 
-  constructor(private popoverController: PopoverController) {}
+  constructor(private modalController: ModalController) {}
 
   ngOnInit() {}
 
   cancel() {
-    this.popoverController.dismiss(false);
+    this.modalController.dismiss(false);
   }
 
   continue() {
-    this.popoverController.dismiss(true);
+    this.modalController.dismiss(true);
   }
 }

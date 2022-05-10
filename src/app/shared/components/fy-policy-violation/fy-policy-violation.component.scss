@@ -4,7 +4,6 @@
   &--toolbar {
     &__title {
       color: $black;
-      padding-left: 15px;
     }
   }
 
@@ -48,5 +47,7 @@
 
   &--additional-details-comment-length {
     float: right;
+    color: $text-button-grey;
+    font-size: 12px;
   }
 }

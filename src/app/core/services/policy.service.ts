@@ -58,7 +58,7 @@ export class PolicyService {
   }
 
   needAdditionalApproval(policyActionDescription: string): boolean {
-    return policyActionDescription.toLowerCase().includes('expense will need additional approval from');
+    return policyActionDescription.toLowerCase().includes('expense will need approval from');
   }
 
   isExpenseCapped(policyActionDescription: string): boolean {
