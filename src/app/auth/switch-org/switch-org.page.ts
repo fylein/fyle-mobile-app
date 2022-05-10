@@ -166,9 +166,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             email: eou.us.email,
             orgUserId: eou.ou.id,
           });
-
-          this.launchDarklyService.changeUser();
         }
+
+        this.launchDarklyService.updateIdentity();
 
         if (pendingDetails) {
           if (roles.indexOf('OWNER') > -1) {

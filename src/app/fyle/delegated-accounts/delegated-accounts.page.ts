@@ -56,7 +56,7 @@ export class DelegatedAccountsPage implements OnInit {
         })
       )
       .subscribe(() => {
-        this.launchDarklyService.changeUser();
+        this.launchDarklyService.updateIdentity();
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       });
   }
@@ -78,7 +78,7 @@ export class DelegatedAccountsPage implements OnInit {
         .subscribe(() => {
           globalCacheBusterNotifier.next();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-          this.launchDarklyService.changeUser();
+          this.launchDarklyService.updateIdentity();
           this.router.navigate(['/', 'enterprise', 'my_dashboard']);
         });
     } else {

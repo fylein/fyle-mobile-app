@@ -1,13 +1,17 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
-import { AuthService } from './auth.service';
 import { NetworkService } from './network.service';
 import { DeviceService } from './device.service';
 import { OrgService } from './org.service';
+import { UserEventService } from './user-event.service';
+import { RouterAuthService } from './router-auth.service';
+import { OrgUserService } from './org-user.service';
 
-import { concat, forkJoin, from, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { concat, EMPTY, forkJoin, from, Observable, of } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs/operators';
+
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
@@ -15,62 +19,89 @@ import * as LDClient from 'launchdarkly-js-client-sdk';
   providedIn: 'root',
 })
 export class LaunchDarklyService {
+  private ldClient: LDClient.LDClient;
   private isOnline: boolean;
 
   constructor(
-    private authService: AuthService,
+    private routerAuthService: RouterAuthService,
+    private orgUserService: OrgUserService,
     private orgService: OrgService,
     private networkService: NetworkService,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
+    private userEventService: UserEventService
   ) {
     this.setupNetworkWatcher();
+    this.userEventService.onLogout(this.shutDownClient.bind(this));
+    (window as any).addEventListener('beforeunload', () => {
+      console.log('Unload');
+    });
+  }
+
+  getVariation(key: string, defaultValue: boolean) {
+    if (!this.ldClient) return;
+    return this.ldClient.variation(key, defaultValue);
+  }
+
+  getAllFlags() {
+    if (!this.ldClient) return;
+    return this.ldClient.allFlags();
   }
 
   shutDownClient() {
-    if ((window as any).ldClient) {
-      (window as any).ldClient.off('initialized', this.onLDInitialized, this);
-      (window as any).ldClient.off('change', this.onLDChange, this);
+    if (!this.isOnline || !this.ldClient) return;
 
-      (window as any).ldClient.close();
+    this.ldClient.off('initialized', this.onLDInitialized, this);
+    this.ldClient.close();
+
+    this.ldClient = null;
+  }
+
+  updateIdentity() {
+    if (this.ldClient) {
+      this.changeUser();
+    } else {
+      this.initializeUser();
     }
   }
 
-  changeUser() {
-    this.getCurrentUser().subscribe((user) => {
-      if (this.isOnline && (window as any).ldClient) {
-        (window as any).ldClient.identify(user);
-      }
-    });
+  private changeUser() {
+    if (!this.isOnline) return;
+
+    this.getCurrentUser()
+      .pipe(filter((user) => !!user))
+      .subscribe((user) => {
+        this.ldClient.identify(user);
+      });
   }
 
   private initializeUser() {
-    this.getCurrentUser().subscribe((user) => {
-      if (this.isOnline && (window as any).ldClient) {
-        (window as any).ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
+    if (!this.isOnline) return;
 
-        (window as any).ldClient.on('initialized', this.onLDInitialized, this);
-        (window as any).ldClient.on('change', this.onLDChange, this);
-      }
-    });
+    this.getCurrentUser()
+      .pipe(filter((user) => !!user))
+      .subscribe((user) => {
+        this.ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
+
+        this.ldClient.on('initialized', this.onLDInitialized, this);
+      });
   }
 
   private onLDInitialized() {
-    (window as any).addEventListener('beforeunload', this.shutDownClient);
+    console.log('Initialized User');
   }
 
-  private onLDChange() {}
-
   private getCurrentUser(): Observable<LDClient.LDUser> {
-    const eou$ = from(this.authService.getEou());
+    const isLoggedIn$ = from(this.routerAuthService.isLoggedIn());
 
-    return eou$.pipe(
-      switchMap((eou) => {
-        if (eou) {
+    return isLoggedIn$.pipe(
+      switchMap((isLoggedIn) => {
+        if (isLoggedIn) {
+          const currentEou$ = this.orgUserService.getCurrent() as Observable<ExtendedOrgUser>;
           const currentOrg$ = this.orgService.getCurrentOrg();
-          const devicePlatform$ = this.getDevicePlatform();
+          const devicePlatform$ = this.deviceService.getDeviceInfo().pipe(map((device) => device.platform));
 
-          return forkJoin([currentOrg$, devicePlatform$]).pipe(
-            switchMap(([org, platform]) => {
+          return forkJoin([currentEou$, currentOrg$, devicePlatform$]).pipe(
+            switchMap(([eou, org, platform]) => {
               // HACK ALERT - Added (currentOrg as any).created_at because created_at is typed as a date but internally is a string
               // Typescript complains when passed date to LaunchDarkly, only primitive types and arrays are accepted
               // But since created_at is a string we have to convert currentOrg to any.
@@ -90,14 +121,9 @@ export class LaunchDarklyService {
               return of(user);
             })
           );
-        } else {
-          // Launch Darkly will figure out how to uniquely identify this anonymous user
-          const anonymousUser = {
-            anonymous: true,
-          };
-
-          return of(anonymousUser);
         }
+
+        return EMPTY;
       })
     );
   }
@@ -109,9 +135,5 @@ export class LaunchDarklyService {
       this.isOnline = isOnline;
       this.initializeUser();
     });
-  }
-
-  private getDevicePlatform() {
-    return this.deviceService.getDeviceInfo().pipe(map((device) => device.platform));
   }
 }

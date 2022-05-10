@@ -92,7 +92,6 @@ export class MyProfilePage implements OnInit {
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
-            this.launchDarklyService.changeUser();
           })
         )
         .subscribe(noop);
