@@ -25,9 +25,9 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 
 @Component({
-  selector: 'app-view-team-advance-request',
-  templateUrl: './view-team-advance-request.page.html',
-  styleUrls: ['./view-team-advance-request.page.scss'],
+  selector: 'app-view-team-advance',
+  templateUrl: './view-team-advance.page.html',
+  styleUrls: ['./view-team-advance.page.scss'],
 })
 export class ViewTeamAdvancePage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;

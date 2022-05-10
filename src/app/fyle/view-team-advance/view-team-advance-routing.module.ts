@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { ViewTeamAdvancePage } from './view-team-advance-request.page';
+import { ViewTeamAdvancePage } from './view-team-advance.page';
 
 const routes: Routes = [
   {
