@@ -72,7 +72,7 @@ export class ProjectsService {
 
   addNameSearchFilter(searchNameText: any, params: any) {
     if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
-      params.project_name = 'ilike.%' + searchNameText + '%';
+      params.name = 'ilike.%' + searchNameText + '%';
     }
   }
 
