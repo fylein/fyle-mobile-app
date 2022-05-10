@@ -638,11 +638,12 @@ export class AddEditMileagePage implements OnInit {
     return this.offlineService.getAllEnabledCategories().pipe(
       map((categories) => {
         const parentCategoryName = 'mileage';
-        return categories.filter(
-          (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.name.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()
-        );
+        return categories.filter((orgCategory) => {
+          if (orgCategory) {
+            parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
+              parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase();
+          }
+        });
       }),
       shareReplay(1)
     );
@@ -1333,8 +1334,8 @@ export class AddEditMileagePage implements OnInit {
             .pipe(
               map((subCategories) =>
                 subCategories
-                  .filter((subCategory) => subCategory.sub_category.toLowerCase() !== subCategory.name.toLowerCase())
-                  .find((subCategory) => subCategory.id === etxn.tx.org_category_id)
+                  .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory?.name.toLowerCase())
+                  .find((subCategory) => subCategory?.id === etxn.tx.org_category_id)
               )
             ),
           of(null)
