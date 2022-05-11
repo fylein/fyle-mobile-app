@@ -46,6 +46,7 @@ export class LaunchDarklyService {
   shutDownClient() {
     if (this.isOnline && this.ldClient) {
       this.ldClient.off('initialized', this.onLDInitialized, this);
+      this.ldClient.off('change', this.onLDChange, this);
       this.ldClient.close();
 
       this.ldClient = null;
@@ -77,11 +78,14 @@ export class LaunchDarklyService {
         .subscribe((user) => {
           this.ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
           this.ldClient.on('initialized', this.onLDInitialized, this);
+          this.ldClient.on('change', this.onLDChange, this);
         });
     }
   }
 
   private onLDInitialized() {}
+
+  private onLDChange() {}
 
   private getCurrentUser(): Observable<LDClient.LDUser> {
     const isLoggedIn$ = from(this.routerAuthService.isLoggedIn());
