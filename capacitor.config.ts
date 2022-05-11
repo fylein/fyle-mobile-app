@@ -10,6 +10,9 @@ const config: CapacitorConfig = {
       launchAutoHide: false,
       androidScaleType: 'CENTER_CROP',
     },
+    Keyboard: {
+      style: 'light',
+    },
   },
 };
 
