@@ -26,13 +26,14 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { FileObject } from 'src/app/core/models/file_obj.model';
+import { List } from 'lodash';
 
 @Component({
   selector: 'app-view-team-advance-request',
   templateUrl: './view-team-advance-request.page.html',
   styleUrls: ['./view-team-advance-request.page.scss'],
 })
-export class ViewTeamAdvancePage implements OnInit {
+export class viewTeamAdvanceRequestPage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
 
   actions$: Observable<any>;
@@ -91,10 +92,10 @@ export class ViewTeamAdvancePage implements OnInit {
 
     if (name) {
       const filename = name.toLowerCase();
-      const idx = filename.lastIndexOf('.');
+      const index = filename.lastIndexOf('.');
 
-      if (idx > -1) {
-        ReceiptExtension = filename.substring(idx + 1, filename.length);
+      if (index > -1) {
+        ReceiptExtension = filename.substring(index + 1, filename.length);
       }
     }
 
@@ -102,20 +103,20 @@ export class ViewTeamAdvancePage implements OnInit {
   }
 
   getReceiptDetails(file: FileObject) {
-    const ReceiptExtn = this.getReceiptExtension(file.name);
-    const ReceiptInfo = {
+    const receiptExtn = this.getReceiptExtension(file.name);
+    const receiptInfo = {
       type: 'unknown',
       thumbnail: 'img/fy-receipt.svg',
     };
 
-    if (ReceiptExtn && ['pdf'].indexOf(ReceiptExtn) > -1) {
-      ReceiptInfo.type = 'pdf';
-      ReceiptInfo.thumbnail = 'img/fy-pdf.svg';
-    } else if (ReceiptExtn && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ReceiptExtn) > -1) {
-      ReceiptInfo.type = 'image';
-      ReceiptInfo.thumbnail = file.url;
+    if (receiptExtn && ['pdf'].indexOf(receiptExtn) > -1) {
+      receiptInfo.type = 'pdf';
+      receiptInfo.thumbnail = 'img/fy-pdf.svg';
+    } else if (receiptExtn && ['png', 'jpg', 'jpeg', 'gif'].indexOf(receiptExtn) > -1) {
+      receiptInfo.type = 'image';
+      receiptInfo.thumbnail = file.url;
     }
-    return ReceiptInfo;
+    return receiptInfo;
   }
 
   async getAndUpdateProjectName() {
@@ -418,7 +419,7 @@ export class ViewTeamAdvancePage implements OnInit {
     }
   }
 
-  async viewAttachments(attachments) {
+  async viewAttachments(attachments: FileObject) {
     const attachmentsModal = await this.modalController.create({
       component: FyViewAttachmentComponent,
       componentProps: {

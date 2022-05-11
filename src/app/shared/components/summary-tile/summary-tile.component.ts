@@ -4,7 +4,7 @@ import { from, Subject, forkJoin } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { AdvanceApprover } from 'src/app/core/models/approver.model';
 import { AddApproversPopoverComponent } from '../fy-approver/add-approvers-popover/add-approvers-popover.component';
-import { actionsObj } from 'src/app/core/models/actions.model';
+import { Actions } from 'src/app/core/models/actions.model';
 @Component({
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
@@ -33,7 +33,7 @@ export class FySummaryTileComponent implements OnInit {
 
   @Input() orig_currency: string;
 
-  @Input() actions: actionsObj;
+  @Input() actions: Actions;
 
   @Input() approverEmailsList: string[];
 

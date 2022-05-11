@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { ViewTeamAdvancePage } from './view-team-advance-request.page';
+import { viewTeamAdvanceRequestPage } from './view-team-advance-request.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: ViewTeamAdvancePage,
+    component: viewTeamAdvanceRequestPage,
   },
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class ViewTeamAdvancePageRoutingModule {}
+export class viewTeamAdvanceRequestPageRoutingModule {}

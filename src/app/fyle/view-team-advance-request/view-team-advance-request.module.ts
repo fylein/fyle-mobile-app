@@ -2,8 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { ViewTeamAdvancePageRoutingModule } from './view-team-advance-request-routing.module';
-import { ViewTeamAdvancePage } from './view-team-advance-request.page';
+import { viewTeamAdvanceRequestPageRoutingModule } from './view-team-advance-request-routing.module';
+import { viewTeamAdvanceRequestPage } from './view-team-advance-request.page';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -15,12 +15,12 @@ import { AdvanceActionsComponent } from './advance-actions/advance-actions.compo
     CommonModule,
     FormsModule,
     IonicModule,
-    ViewTeamAdvancePageRoutingModule,
+    viewTeamAdvanceRequestPageRoutingModule,
     MatIconModule,
     MatButtonModule,
     MatRippleModule,
     SharedModule,
   ],
-  declarations: [ViewTeamAdvancePage, AdvanceActionsComponent],
+  declarations: [viewTeamAdvanceRequestPage, AdvanceActionsComponent],
 })
-export class ViewTeamAdvancePageModule {}
+export class viewTeamAdvanceRequestPageModule {}

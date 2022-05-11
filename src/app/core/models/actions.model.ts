@@ -1,4 +1,4 @@
-export interface actionsObj {
+export interface Actions {
   id: string;
   can_add_approver: boolean;
   can_approve: boolean;
