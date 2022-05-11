@@ -638,12 +638,11 @@ export class AddEditMileagePage implements OnInit {
     return this.offlineService.getAllEnabledCategories().pipe(
       map((categories) => {
         const parentCategoryName = 'mileage';
-        return categories.filter((orgCategory) => {
-          if (orgCategory) {
+        return categories.filter(
+          (orgCategory) =>
             parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
-              parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase();
-          }
-        });
+            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
+        );
       }),
       shareReplay(1)
     );
