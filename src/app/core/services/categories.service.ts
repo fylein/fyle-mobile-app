@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
+import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Subject } from 'rxjs';
-import { SpenderPlatformApiService } from './spender-platform-api.service';
-import { PlatformCategory } from '../models/platform/platform-category.model';
-import { PlatformCategoryData } from '../models/platform/platform-category-data.model';
-import { OrgCategory } from '../models/v1/org-category.model';
 
 const categoriesCacheBuster$ = new Subject<void>();
 
@@ -15,35 +12,13 @@ const categoriesCacheBuster$ = new Subject<void>();
 export class CategoriesService {
   skipCategories = ['activity', 'mileage', 'per diem', 'unspecified'];
 
-  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
+  constructor(private apiService: ApiService) {}
 
   @Cacheable({
     cacheBusterObserver: categoriesCacheBuster$,
   })
   getAll() {
-    return this.spenderPlatformApiService.get('/categories').pipe(
-      map((res: PlatformCategory) => this.transformFrom(res.data)),
-      map(this.sortCategories),
-      map(this.addDisplayName)
-    );
-  }
-
-  transformFrom(platformCategory: PlatformCategoryData[]): OrgCategory[] {
-    let oldCategory = [];
-    oldCategory = platformCategory.map((category) => ({
-      code: category.code,
-      created_at: category.created_at,
-      displayName: category.display_name,
-      enabled: category.is_enabled,
-      fyle_category: category.system_category,
-      id: category.id,
-      name: category.name,
-      org_id: category.org_id,
-      sub_category: category.sub_category,
-      updated_at: category.updated_at,
-    }));
-
-    return oldCategory;
+    return this.apiService.get('/org_categories').pipe(map(this.sortCategories), map(this.addDisplayName));
   }
 
   sortCategories(categories) {
