@@ -40,11 +40,11 @@ export class LaunchDarklyService {
   getVariation(key: string, defaultValue: boolean): Observable<boolean> {
     if (this.ldClient && this.isOnline) {
       return of(this.ldClient.variation(key, defaultValue));
-    } else {
-      return from(this.storageService.get('cachedLDFlags')).pipe(
-        map((cachedFlags) => (cachedFlags[key] === undefined ? defaultValue : cachedFlags[key]))
-      );
     }
+
+    return from(this.storageService.get('cachedLDFlags')).pipe(
+      map((cachedFlags) => (cachedFlags[key] === undefined ? defaultValue : cachedFlags[key]))
+    );
   }
 
   shutDownClient() {
