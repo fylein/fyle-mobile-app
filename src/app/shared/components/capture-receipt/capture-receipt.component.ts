@@ -215,7 +215,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  setUpAndStartCamera() {
+  async setUpAndStartCamera() {
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -225,9 +225,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         parent: 'cameraPreview',
       };
 
-      CameraPreview.start(cameraPreviewOptions).then((res) => {
+      await this.loaderService.showLoader('Please wait...', 5000);
+      CameraPreview.start(cameraPreviewOptions).then(async (res) => {
         this.isCameraShown = true;
         this.getFlashModes();
+        await this.loaderService.hideLoader();
       });
     }
   }
@@ -295,7 +297,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async review() {
-    await this.stopCamera();
+    this.stopCamera();
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
@@ -333,7 +335,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   onBulkCapture() {
     this.captureCount += 1;
-    this.setUpAndStartCamera();
   }
 
   async showLimitMessage() {
@@ -362,10 +363,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       };
 
       const result = await CameraPreview.capture(cameraPreviewPictureOptions);
-      await this.stopCamera();
       const base64PictureData = 'data:image/jpeg;base64,' + result.value;
       this.lastImage = base64PictureData;
       if (!this.isBulkMode) {
+        this.stopCamera();
         this.base64ImagesWithSource.push({
           source: 'MOBILE_DASHCAM_SINGLE',
           base64Image: base64PictureData,
@@ -383,8 +384,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   galleryUpload() {
     this.trackingService.instafyleGalleryUploadOpened({});
-
     this.stopCamera();
+
     this.imagePicker.hasReadPermission().then((permission) => {
       if (permission) {
         const options = {
