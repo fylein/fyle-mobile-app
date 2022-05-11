@@ -17,7 +17,6 @@ import { environment } from 'src/environments/environment';
 import { Currency } from 'src/app/core/models/currency.model';
 import { Org } from 'src/app/core/models/org.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -70,8 +69,7 @@ export class MyProfilePage implements OnInit {
     private deviceService: DeviceService,
     private loaderService: LoaderService,
     private tokenService: TokenService,
-    private trackingService: TrackingService,
-    private launchDarklyService: LaunchDarklyService
+    private trackingService: TrackingService
   ) {}
 
   signOut() {
