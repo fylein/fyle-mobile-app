@@ -20,6 +20,7 @@ import * as LDClient from 'launchdarkly-js-client-sdk';
 })
 export class LaunchDarklyService {
   private ldClient: LDClient.LDClient;
+
   private isOnline: boolean;
 
   constructor(
@@ -32,28 +33,23 @@ export class LaunchDarklyService {
   ) {
     this.setupNetworkWatcher();
     this.userEventService.onLogout(this.shutDownClient.bind(this));
-    (window as any).addEventListener('beforeunload', () => {
-      console.log('Unload');
-    });
   }
 
   getVariation(key: string, defaultValue: boolean) {
-    if (!this.ldClient) return;
-    return this.ldClient.variation(key, defaultValue);
+    return this.ldClient?.variation(key, defaultValue);
   }
 
   getAllFlags() {
-    if (!this.ldClient) return;
-    return this.ldClient.allFlags();
+    return this.ldClient?.allFlags();
   }
 
   shutDownClient() {
-    if (!this.isOnline || !this.ldClient) return;
+    if (this.isOnline && this.ldClient) {
+      this.ldClient.off('initialized', this.onLDInitialized, this);
+      this.ldClient.close();
 
-    this.ldClient.off('initialized', this.onLDInitialized, this);
-    this.ldClient.close();
-
-    this.ldClient = null;
+      this.ldClient = null;
+    }
   }
 
   updateIdentity() {
@@ -65,30 +61,27 @@ export class LaunchDarklyService {
   }
 
   private changeUser() {
-    if (!this.isOnline) return;
-
-    this.getCurrentUser()
-      .pipe(filter((user) => !!user))
-      .subscribe((user) => {
-        this.ldClient.identify(user);
-      });
+    if (this.isOnline) {
+      this.getCurrentUser()
+        .pipe(filter((user) => !!user))
+        .subscribe((user) => {
+          this.ldClient.identify(user);
+        });
+    }
   }
 
   private initializeUser() {
-    if (!this.isOnline) return;
-
-    this.getCurrentUser()
-      .pipe(filter((user) => !!user))
-      .subscribe((user) => {
-        this.ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
-
-        this.ldClient.on('initialized', this.onLDInitialized, this);
-      });
+    if (this.isOnline) {
+      this.getCurrentUser()
+        .pipe(filter((user) => !!user))
+        .subscribe((user) => {
+          this.ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
+          this.ldClient.on('initialized', this.onLDInitialized, this);
+        });
+    }
   }
 
-  private onLDInitialized() {
-    console.log('Initialized User');
-  }
+  private onLDInitialized() {}
 
   private getCurrentUser(): Observable<LDClient.LDUser> {
     const isLoggedIn$ = from(this.routerAuthService.isLoggedIn());
