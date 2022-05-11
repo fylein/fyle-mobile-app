@@ -25,7 +25,6 @@ import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { TaxGroupService } from './tax_group.service';
-// import { LaunchDarklyService } from './launch-darkly.service';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -52,24 +51,7 @@ export class OfflineService {
     private deviceService: DeviceService,
     private expenseFieldsService: ExpenseFieldsService,
     private taxGroupService: TaxGroupService
-  ) // private launchDarklyService: LaunchDarklyService,
-  {}
-
-  // getAllLDFlags() {
-  //   return this.networkService.isOnline().pipe(
-  //     switchMap((isOnline) => {
-  //       if (isOnline) {
-  //         return of(this.launchDarklyService.getAllFlags()).pipe(
-  //           tap((ldFlags) => {
-  //             this.storageService.set('ldFlags', ldFlags);
-  //           })
-  //         );
-  //       } else {
-  //         return from(this.storageService.get('ldFlags'));
-  //       }
-  //     })
-  //   )
-  // }
+  ) {}
 
   @Cacheable()
   getDelegatedAccounts() {
@@ -503,7 +485,6 @@ export class OfflineService {
     const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
     const taxGroups$ = this.getEnabledTaxGroups();
-    // const allLdFlags$ = this.getAllLDFlags();
 
     this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
       if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
@@ -529,7 +510,6 @@ export class OfflineService {
       homeCurrency$,
       delegatedAccounts$,
       taxGroups$,
-      // allLdFlags$,
     ]);
   }
 
