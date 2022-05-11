@@ -7,6 +7,7 @@ import { OrgService } from './org.service';
 import { UserEventService } from './user-event.service';
 import { RouterAuthService } from './router-auth.service';
 import { OrgUserService } from './org-user.service';
+import { StorageService } from './storage.service';
 
 import { concat, EMPTY, forkJoin, from, Observable, of } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
@@ -29,18 +30,19 @@ export class LaunchDarklyService {
     private orgService: OrgService,
     private networkService: NetworkService,
     private deviceService: DeviceService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private storageService: StorageService
   ) {
     this.setupNetworkWatcher();
     this.userEventService.onLogout(this.shutDownClient.bind(this));
   }
 
   getVariation(key: string, defaultValue: boolean) {
-    return this.ldClient?.variation(key, defaultValue);
-  }
-
-  getAllFlags() {
-    return this.ldClient?.allFlags();
+    if (this.ldClient && this.isOnline) {
+      return of(this.ldClient.variation(key, defaultValue));
+    } else {
+      return from(this.storageService.get('cachedLDFlags')).pipe(map((cachedFlags) => cachedFlags[key]));
+    }
   }
 
   shutDownClient() {
@@ -83,9 +85,20 @@ export class LaunchDarklyService {
     }
   }
 
-  private onLDInitialized() {}
+  private updateCache() {
+    if (this.ldClient && this.isOnline) {
+      const latestFlags = this.ldClient.allFlags();
+      this.storageService.set('cachedLDFlags', latestFlags);
+    }
+  }
 
-  private onLDChange() {}
+  private onLDInitialized() {
+    this.updateCache();
+  }
+
+  private onLDChange() {
+    this.updateCache();
+  }
 
   private getCurrentUser(): Observable<LDClient.LDUser> {
     const isLoggedIn$ = from(this.routerAuthService.isLoggedIn());
