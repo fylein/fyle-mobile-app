@@ -41,7 +41,9 @@ export class LaunchDarklyService {
     if (this.ldClient && this.isOnline) {
       return of(this.ldClient.variation(key, defaultValue));
     } else {
-      return from(this.storageService.get('cachedLDFlags')).pipe(map((cachedFlags) => cachedFlags[key]));
+      return from(this.storageService.get('cachedLDFlags')).pipe(
+        map((cachedFlags) => (cachedFlags[key] === undefined ? defaultValue : cachedFlags[key]))
+      );
     }
   }
 
