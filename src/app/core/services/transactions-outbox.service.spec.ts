@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { TransactionsOutboxService } from './transactions-outbox.service';
 
-describe('TransactionsOutboxService', () => {
+xdescribe('TransactionsOutboxService', () => {
   let service: TransactionsOutboxService;
 
   beforeEach(() => {

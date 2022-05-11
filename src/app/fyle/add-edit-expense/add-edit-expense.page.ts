@@ -312,7 +312,9 @@ export class AddEditExpensePage implements OnInit {
 
   taxGroupsOptions$: Observable<{ label: string; value: any }[]>;
 
-  canDeleteExpense = true;
+  isRedirectedFromReport = false;
+
+  canRemoveFromReport = false;
 
   isUnifyCcceExpensesSettingsEnabled: boolean;
 
@@ -962,9 +964,8 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ngOnInit() {
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
-    }
+    this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
+    this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
   }
 
   getFormValidationErrors() {
@@ -1426,7 +1427,7 @@ export class AddEditExpensePage implements OnInit {
               paymentModes
                 .map((res) => res.value)
                 .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Paid by Me') {
+                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
                     return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
                   } else {
                     return paymentMode.acc.id === etxn.tx.source_account_id;
@@ -1479,7 +1480,7 @@ export class AddEditExpensePage implements OnInit {
         } else {
           return paymentModes
             .map((res) => res.value)
-            .find((paymentMode) => paymentMode.acc.displayName === 'Paid by Me');
+            .find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash');
         }
       })
     );
@@ -4018,6 +4019,12 @@ export class AddEditExpensePage implements OnInit {
       }
       if (receiptDetails && receiptDetails.dataUrl) {
         this.attachReceipts(receiptDetails);
+        const message = 'Receipt added to Expense successfully';
+        this.matSnackBar.openFromComponent(ToastMessageComponent, {
+          ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+          panelClass: ['msb-success-with-camera-icon'],
+        });
+        this.trackingService.showToastMessage({ ToastContent: message });
       }
     }
   }
@@ -4128,15 +4135,13 @@ export class AddEditExpensePage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
-    const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
-
-    const header = reportId && removeExpenseFromReport ? 'Remove Expense' : 'Delete Expense';
+    const header = reportId && this.isRedirectedFromReport ? 'Remove Expense' : 'Delete Expense';
     const body =
-      reportId && removeExpenseFromReport
+      reportId && this.isRedirectedFromReport
         ? 'Are you sure you want to remove this expense from this report?'
         : 'Are you sure you want to delete this expense?';
-    const ctaText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = reportId && removeExpenseFromReport ? 'Removing' : 'Deleting';
+    const ctaText = reportId && this.isRedirectedFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = reportId && this.isRedirectedFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -4148,7 +4153,7 @@ export class AddEditExpensePage implements OnInit {
         ctaText,
         ctaLoadingText,
         deleteMethod: () => {
-          if (reportId && removeExpenseFromReport) {
+          if (reportId && this.isRedirectedFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);

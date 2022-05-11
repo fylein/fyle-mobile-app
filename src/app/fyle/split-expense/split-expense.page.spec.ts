@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { SplitExpensePage } from './split-expense.page';
 
-describe('SplitExpensePage', () => {
+xdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
 

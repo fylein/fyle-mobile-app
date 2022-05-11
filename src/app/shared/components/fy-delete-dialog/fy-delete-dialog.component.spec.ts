@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyDeleteDialogComponent } from './fy-delete-dialog.component';
 
-describe('FyDeleteDialogComponent', () => {
+xdescribe('FyDeleteDialogComponent', () => {
   let component: FyDeleteDialogComponent;
   let fixture: ComponentFixture<FyDeleteDialogComponent>;
 

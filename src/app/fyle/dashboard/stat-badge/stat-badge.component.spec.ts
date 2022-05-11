@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { StatBadgeComponent } from './stat-badge.component';
 
-describe('StatBadgeComponent', () => {
+xdescribe('StatBadgeComponent', () => {
   let component: StatBadgeComponent;
   let fixture: ComponentFixture<StatBadgeComponent>;
 

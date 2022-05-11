@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ViewExpenseSkeletonLoaderComponent } from './view-expense-skeleton-loader.component';
 
-describe('ViewExpenseSkeletonLoaderComponent', () => {
+xdescribe('ViewExpenseSkeletonLoaderComponent', () => {
   let component: ViewExpenseSkeletonLoaderComponent;
   let fixture: ComponentFixture<ViewExpenseSkeletonLoaderComponent>;
 

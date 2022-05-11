@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { RecentlyUsedItemsService } from './recently-used-items.service';
 
-describe('RecentlyUsedItemsService', () => {
+xdescribe('RecentlyUsedItemsService', () => {
   let service: RecentlyUsedItemsService;
 
   beforeEach(() => {

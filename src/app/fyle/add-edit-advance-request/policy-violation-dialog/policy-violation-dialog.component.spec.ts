@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { PolicyViolationDialogComponent } from './policy-violation-dialog.component';
 
-describe('PolicyViolationDialogComponent', () => {
+xdescribe('PolicyViolationDialogComponent', () => {
   let component: PolicyViolationDialogComponent;
   let fixture: ComponentFixture<PolicyViolationDialogComponent>;
 

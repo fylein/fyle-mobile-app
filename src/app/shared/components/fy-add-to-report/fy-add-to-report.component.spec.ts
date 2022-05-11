@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyAddToReportComponent } from './fy-add-to-report.component';
 
-describe('FyAddToReportComponent', () => {
+xdescribe('FyAddToReportComponent', () => {
   let component: FyAddToReportComponent;
   let fixture: ComponentFixture<FyAddToReportComponent>;
 
