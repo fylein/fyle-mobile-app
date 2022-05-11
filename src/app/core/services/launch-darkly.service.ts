@@ -37,7 +37,7 @@ export class LaunchDarklyService {
     this.userEventService.onLogout(this.shutDownClient.bind(this));
   }
 
-  getVariation(key: string, defaultValue: boolean) {
+  getVariation(key: string, defaultValue: boolean): Observable<boolean> {
     if (this.ldClient && this.isOnline) {
       return of(this.ldClient.variation(key, defaultValue));
     } else {
