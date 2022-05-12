@@ -8,7 +8,9 @@ jobs:
     steps:
       - name: Run pull request stats
         uses: flowwer-dev/pull-request-stats@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.PR_STATS_TOKEN }}
         with:
-          token: ${{secrets.PERSONAL_ACCESS_TOKEN}}
+          token: $GITHUB_TOKEN
           charts: true
           sort-by: 'REVIEWS'
