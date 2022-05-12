@@ -1,0 +1,14 @@
+name: Pull Request Stats
+
+on: pull_request
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run pull request stats
+        uses: flowwer-dev/pull-request-stats@master
+        with:
+          token: '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'
+          charts: true
+          sort-by: 'REVIEWS'
