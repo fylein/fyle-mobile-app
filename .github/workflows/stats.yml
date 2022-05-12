@@ -12,5 +12,6 @@ jobs:
           GITHUB_TOKEN: ${{secrets.PR_STATS_TOKEN}}
         with:
           token: $GITHUB_TOKEN
+          organization: 'fylein'
           charts: true
           sort-by: 'REVIEWS'
