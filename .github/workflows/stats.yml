@@ -9,7 +9,7 @@ jobs:
       - name: Run pull request stats
         uses: flowwer-dev/pull-request-stats@master
         env:
-          GITHUB_TOKEN: ${{secrets.PR_STATS_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.PR_STATS_TOKEN }}
         with:
           token: $GITHUB_TOKEN
           organization: 'fylein'
