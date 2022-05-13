@@ -915,7 +915,7 @@
                     <app-fy-number
                       formControlName="value"
                       *ngIf="customInput.type === 'NUMBER'"
-                      [placeholder]="customInput.placeholder"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-number>
 
@@ -941,7 +941,7 @@
                       [label]="customInput.name  | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       formControlName="value"
-                      [placeholder]="customInput.placeholder"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-location>
                   </div>
@@ -951,9 +951,9 @@
                       [label]="customInput.name  | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
-                      [selectModalHeader]="customInput.placeholder"
+                      [selectModalHeader]="customInput.placeholder | ellipsis: 30"
                       [label]="customInput.name"
-                      [placeholder]="customInput.placeholder"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                       formControlName="value"
                     >
                     </app-fy-select>
@@ -964,10 +964,10 @@
                       [label]="customInput.name  | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
-                      [selectModalHeader]="customInput.placeholder"
+                      [selectModalHeader]="customInput.placeholder | ellipsis: 30"
                       [subheader]="customInput.name"
                       formControlName="value"
-                      [placeholder]="customInput.placeholder"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-multiselect>
                   </div>
@@ -978,7 +978,7 @@
                       [mandatory]="customInput.mandatory"
                       [allowCustomValues]="true"
                       formControlName="value"
-                      [placeholder]="customInput.placeholder"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-userlist>
                   </div>

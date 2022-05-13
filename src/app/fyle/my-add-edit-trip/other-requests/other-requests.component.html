@@ -172,13 +172,13 @@
                           type="text"
                           formControlName="value"
                           *ngIf="customInput.input_type === 'TEXT'"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         />
 
                         <app-fy-number
                           *ngIf="customInput.input_type === 'NUMBER'"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         >
                         </app-fy-number>
 
@@ -188,7 +188,7 @@
                           *ngIf="customInput.input_type === 'DATE'"
                           type="date"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         />
                       </div>
 
@@ -217,7 +217,7 @@
                           [mandatory]="customInput.mandatory"
                           [label]="customInput.input_name | ellipsis: 11"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         >
                         </app-fy-location>
                       </div>
@@ -231,7 +231,7 @@
                           [label]="customInput.input_name | ellipsis: 11"
                           [options]="customInput.input_options"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         >
                         </app-fy-select>
                       </div>
@@ -245,7 +245,7 @@
                           [label]="customInput.input_name | ellipsis: 11"
                           [options]="customInput.input_options"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         >
                         </app-fy-multiselect>
                       </div>
@@ -258,7 +258,7 @@
                           [mandatory]="customInput.mandatory"
                           [label]="customInput.input_name | ellipsis: 11"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         >
                         </app-fy-userlist>
                       </div>
@@ -421,13 +421,13 @@
                           type="text"
                           formControlName="value"
                           *ngIf="customInput.input_type === 'TEXT'"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         />
 
                         <app-fy-number
                           *ngIf="customInput.input_type === 'NUMBER'"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         >
                         </app-fy-number>
 
@@ -437,7 +437,7 @@
                           *ngIf="customInput.input_type === 'DATE'"
                           type="date"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         />
                       </div>
 
@@ -463,7 +463,7 @@
                         <app-fy-location
                           [label]="customInput.input_name | ellipsis: 30"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         ></app-fy-location>
                       </div>
 
@@ -475,7 +475,7 @@
                           [label]="customInput.input_name | ellipsis: 30"
                           [options]="customInput.input_options"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         ></app-fy-select>
                       </div>
 
@@ -487,7 +487,7 @@
                           [label]="customInput.input_name | ellipsis: 30"
                           [options]="customInput.input_options"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         ></app-fy-multiselect>
                       </div>
 
@@ -498,7 +498,7 @@
                         <app-fy-userlist
                           [label]="customInput.input_name | ellipsis: 30"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         ></app-fy-userlist>
                       </div>
 
@@ -651,13 +651,13 @@
                           type="text"
                           formControlName="value"
                           *ngIf="customInput.type === 'TEXT'"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         />
 
                         <app-fy-number
                           *ngIf="customInput.type === 'NUMBER'"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         >
                         </app-fy-number>
 
@@ -667,7 +667,7 @@
                           *ngIf="customInput.type === 'DATE'"
                           type="date"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         />
                       </div>
 
@@ -690,7 +690,7 @@
                         <app-fy-location
                           [label]="customInput.name | ellipsis: 30"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         ></app-fy-location>
                       </div>
 
@@ -699,7 +699,7 @@
                           [label]="customInput.name | ellipsis: 30"
                           [options]="customInput.options"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         ></app-fy-select>
                       </div>
 
@@ -711,7 +711,7 @@
                           [label]="customInput.name | ellipsis: 30"
                           [options]="customInput.options"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         ></app-fy-multiselect>
                       </div>
 
@@ -719,7 +719,7 @@
                         <app-fy-userlist
                           [label]="customInput.name | ellipsis: 30"
                           formControlName="value"
-                          [placeholder]="customInput.placeholder"
+                          [placeholder]="customInput.placeholder | ellipsis: 30"
                         ></app-fy-userlist>
                       </div>
 
