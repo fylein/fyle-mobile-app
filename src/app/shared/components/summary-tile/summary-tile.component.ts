@@ -11,7 +11,7 @@ import { Actions } from 'src/app/core/models/actions.model';
   templateUrl: './summary-tile.component.html',
   styleUrls: ['./summary-tile.component.scss'],
 })
-export class FySummaryTileComponent implements OnInit {
+export class FySummaryTileComponent implements OnInit, OnChanges {
   @Input() currency: string;
 
   @Input() amount: number;
