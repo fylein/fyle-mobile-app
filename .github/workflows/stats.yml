@@ -9,4 +9,4 @@ jobs:
       - name: Run pull request stats
         uses: flowwer-dev/pull-request-stats@master
         with:
-          sort-by: 'COMMENTS'
+          sort-by: 'REVIEWS'
