@@ -1,10 +1,11 @@
-import { Component, Input, Output, OnInit, EventEmitter, SimpleChange } from '@angular/core';
+import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { AdvanceApprover } from 'src/app/core/models/approver.model';
 import { AddApproversPopoverComponent } from '../fy-approver/add-approvers-popover/add-approvers-popover.component';
 import { Actions } from 'src/app/core/models/actions.model';
+
 @Component({
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
@@ -60,7 +61,7 @@ export class FySummaryTileComponent implements OnInit {
     const { data } = await addApproversPopover.onWillDismiss();
   }
 
-  ngOnChanges(changes: SimpleChange) {
+  ngOnChanges() {
     this.status = this.status === 'APPROVAL PENDING' ? 'Pending' : this.status;
   }
 
