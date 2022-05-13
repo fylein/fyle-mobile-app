@@ -16,6 +16,7 @@ import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from '
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OpenNativeSettings } from '@awesome-cordova-plugins/open-native-settings/ngx';
+import { Diagnostic } from '@awesome-cordova-plugins/diagnostic/ngx';
 
 type Image = Partial<{
   source: string;
@@ -69,7 +70,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private openNativeSettings: OpenNativeSettings,
-    private platform: Platform
+    private platform: Platform,
+    private diagnostic: Diagnostic
   ) {}
 
   setupNetworkWatcher() {
@@ -230,7 +232,21 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         height: window.innerHeight,
         parent: 'cameraPreview',
       };
-      await this.loaderService.showLoader('Please wait...', 5000);
+
+      this.diagnostic
+        .getCameraAuthorizationStatus(false)
+        .then(async (res) => {
+          if (res !== 'GRANTED') {
+            await this.deniedMessage();
+          } else {
+            await this.loaderService.showLoader('Please wait...', 5000);
+          }
+        })
+        .catch(async (err) => {
+          console.log('err ', err);
+          await this.loaderService.showLoader('Err Occured....', 5000);
+        });
+
       CameraPreview.start(cameraPreviewOptions)
         .then(async (res) => {
           this.isCameraShown = true;
@@ -238,7 +254,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           await this.loaderService.hideLoader();
         })
         .catch(async (err) => {
-          await this.deniedMessage();
           console.log('Error Ouccred', JSON.stringify(err.message));
           console.log('PLEASE ENABLE CAMERA PERMISSION');
         });

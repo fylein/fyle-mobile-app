@@ -20,6 +20,7 @@ import { StorageService } from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { OpenNativeSettings } from '@awesome-cordova-plugins/open-native-settings/ngx';
+import { Diagnostic } from '@awesome-cordova-plugins/diagnostic/ngx';
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
     pinch: { enable: false },
@@ -87,6 +88,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     },
     TitleCasePipe,
     OpenNativeSettings,
+    Diagnostic,
   ],
   bootstrap: [AppComponent],
 })
