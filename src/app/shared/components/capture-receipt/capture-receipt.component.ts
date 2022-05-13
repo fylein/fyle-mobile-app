@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit } from '@angular/core';
 import { CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor } from '@capacitor/core';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -15,6 +15,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { OpenNativeSettings } from '@awesome-cordova-plugins/open-native-settings/ngx';
 
 type Image = Partial<{
   source: string;
@@ -53,6 +54,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
+  isIos: boolean;
+
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -64,7 +67,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private openNativeSettings: OpenNativeSettings,
+    private platform: Platform
   ) {}
 
   setupNetworkWatcher() {
@@ -91,6 +96,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       this.isInstafyleEnabled =
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
+    this.isIos = this.platform.is('ios');
   }
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
@@ -224,13 +230,18 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         height: window.innerHeight,
         parent: 'cameraPreview',
       };
-
       await this.loaderService.showLoader('Please wait...', 5000);
-      CameraPreview.start(cameraPreviewOptions).then(async (res) => {
-        this.isCameraShown = true;
-        this.getFlashModes();
-        await this.loaderService.hideLoader();
-      });
+      CameraPreview.start(cameraPreviewOptions)
+        .then(async (res) => {
+          this.isCameraShown = true;
+          this.getFlashModes();
+          await this.loaderService.hideLoader();
+        })
+        .catch(async (err) => {
+          await this.deniedMessage();
+          console.log('Error Ouccred', JSON.stringify(err.message));
+          console.log('PLEASE ENABLE CAMERA PERMISSION');
+        });
     }
   }
 
@@ -354,6 +365,35 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     await limitPopover.present();
   }
 
+  async showPermissionDeniedMessage(message: string) {
+    const permission = await this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title: 'Camera Permission',
+        message,
+        primaryCta: {
+          text: 'Settings',
+          action: 'settings',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'close',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await permission.present();
+
+    const { data } = await permission.onWillDismiss();
+
+    if (data && data.action === 'close') {
+      this.close();
+    } else if (data && data.action === 'settings') {
+      this.openDeviceSettings();
+    }
+  }
+
   async onCapture() {
     if (this.captureCount >= 20) {
       await this.showLimitMessage();
@@ -384,54 +424,88 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   galleryUpload() {
     this.trackingService.instafyleGalleryUploadOpened({});
+
     this.stopCamera();
-
-    this.imagePicker.hasReadPermission().then((permission) => {
-      if (permission) {
-        const options = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
-        // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
-        from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
-          if (imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String, key) => {
-              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-              this.base64ImagesWithSource.push({
-                source: 'MOBILE_DASHCAM_GALLERY',
-                base64Image: base64PictureData,
+    this.imagePicker
+      .hasReadPermission()
+      .then((permission) => {
+        if (permission) {
+          const options = {
+            maximumImagesCount: 10,
+            outputType: 1,
+            quality: 70,
+          };
+          // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
+          from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
+            if (imageBase64Strings.length > 0) {
+              imageBase64Strings.forEach((base64String, key) => {
+                const base64PictureData = 'data:image/jpeg;base64,' + base64String;
+                this.base64ImagesWithSource.push({
+                  source: 'MOBILE_DASHCAM_GALLERY',
+                  base64Image: base64PictureData,
+                });
               });
-            });
 
-            const modal = await this.modalController.create({
-              component: ReceiptPreviewComponent,
-              componentProps: {
-                base64ImagesWithSource: this.base64ImagesWithSource,
-                mode: 'bulk',
-              },
-            });
-            await modal.present();
+              const modal = await this.modalController.create({
+                component: ReceiptPreviewComponent,
+                componentProps: {
+                  base64ImagesWithSource: this.base64ImagesWithSource,
+                  mode: 'bulk',
+                },
+              });
+              await modal.present();
 
-            const { data } = await modal.onWillDismiss();
-            if (data) {
-              if (data.base64ImagesWithSource.length === 0) {
-                this.base64ImagesWithSource = [];
-                this.setUpAndStartCamera();
-              } else {
-                this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
-                  .pipe(finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses'])))
-                  .subscribe(noop);
+              const { data } = await modal.onWillDismiss();
+              if (data) {
+                if (data.base64ImagesWithSource.length === 0) {
+                  this.base64ImagesWithSource = [];
+                  this.setUpAndStartCamera();
+                } else {
+                  this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+                    .pipe(finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses'])))
+                    .subscribe(noop);
+                }
               }
+            } else {
+              this.setUpAndStartCamera();
             }
-          } else {
-            this.setUpAndStartCamera();
-          }
-        });
-      } else {
-        this.imagePicker.requestReadPermission();
-        this.galleryUpload();
-      }
+          });
+        } else {
+          this.imagePicker
+            .requestReadPermission()
+            .then(async (res) => {
+              if (res) {
+                this.galleryUpload();
+              } else if (!res) {
+                this.deniedMessage();
+              }
+            })
+            .catch(async (err) => {
+              await this.deniedMessage();
+            });
+        }
+      })
+      .catch(async (err) => {
+        await this.deniedMessage();
+      });
+  }
+
+  async deniedMessage() {
+    if (this.isIos) {
+      await this.showPermissionDeniedMessage(
+        'To capture and attach photos, please allow Fyle to access your camera and your device’s photos, media, and files. Tap Settings and turn on camera and give access to files & media.'
+      );
+    } else if (!this.isIos) {
+      await this.showPermissionDeniedMessage(
+        'To capture and attach photos, please allow Fyle to access your camera and your device’s photos, media, and files. Tap Settings > Permissions, and allow camera access and files & media access.'
+      );
+    }
+  }
+
+  openDeviceSettings() {
+    this.openNativeSettings.open('application_details').then((res) => {
+      console.log(JSON.stringify(res));
+      console.log('Setting opened');
     });
   }
 
