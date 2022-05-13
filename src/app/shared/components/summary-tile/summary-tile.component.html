@@ -28,7 +28,7 @@
             status | lowercase
           }}"
         >
-          {{ status === 'APPROVAL PENDING' ? 'Pending' : (status | snakeCaseToSpaceCase | titlecase) }}
+          {{ status | snakeCaseToSpaceCase | titlecase }}
         </div>
       </div>
     </div>

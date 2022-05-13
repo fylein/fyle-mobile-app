@@ -13,6 +13,7 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { PopoverController, ModalController, ActionSheetController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+import { AdvanceRequestReceiptExtensionService } from 'src/app/core/services/advance-request-receipt-extension.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -74,6 +75,7 @@ export class viewTeamAdvanceRequestPage implements OnInit {
     private actionSheetController: ActionSheetController,
     private loaderService: LoaderService,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
+    private AdvanceRequestReceiptExtensionService: AdvanceRequestReceiptExtensionService,
     private authService: AuthService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
@@ -85,38 +87,6 @@ export class viewTeamAdvanceRequestPage implements OnInit {
 
   get StatisticTypes() {
     return StatisticTypes;
-  }
-
-  getReceiptExtension(name: string) {
-    let ReceiptExtension = null;
-
-    if (name) {
-      const filename = name.toLowerCase();
-      const index = filename.lastIndexOf('.');
-
-      if (index > -1) {
-        ReceiptExtension = filename.substring(index + 1, filename.length);
-      }
-    }
-
-    return ReceiptExtension;
-  }
-
-  getReceiptDetails(file: FileObject) {
-    const receiptExtn = this.getReceiptExtension(file.name);
-    const receiptInfo = {
-      type: 'unknown',
-      thumbnail: 'img/fy-receipt.svg',
-    };
-
-    if (receiptExtn && ['pdf'].indexOf(receiptExtn) > -1) {
-      receiptInfo.type = 'pdf';
-      receiptInfo.thumbnail = 'img/fy-pdf.svg';
-    } else if (receiptExtn && ['png', 'jpg', 'jpeg', 'gif'].indexOf(receiptExtn) > -1) {
-      receiptInfo.type = 'image';
-      receiptInfo.thumbnail = file.url;
-    }
-    return receiptInfo;
   }
 
   async getAndUpdateProjectName() {
@@ -155,7 +125,7 @@ export class viewTeamAdvanceRequestPage implements OnInit {
         this.fileService.downloadUrl(fileObj?.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
+            const details = this.AdvanceRequestReceiptExtensionService.getReceiptDetails(fileObj);
             fileObj.type = details?.type;
             fileObj.thumbnail = details?.thumbnail;
             return fileObj;

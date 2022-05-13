@@ -1,6 +1,6 @@
-import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter, SimpleChange } from '@angular/core';
 import { Observable } from 'rxjs';
-import { from, Subject, forkJoin } from 'rxjs';
+import { Subject } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { AdvanceApprover } from 'src/app/core/models/approver.model';
 import { AddApproversPopoverComponent } from '../fy-approver/add-approvers-popover/add-approvers-popover.component';
@@ -11,19 +11,9 @@ import { Actions } from 'src/app/core/models/actions.model';
   styleUrls: ['./summary-tile.component.scss'],
 })
 export class FySummaryTileComponent implements OnInit {
-  @Output() notify: EventEmitter<boolean> = new EventEmitter<boolean>();
-
-  @Input() category: string;
-
-  @Input() merchant: string;
-
-  @Input() project: string;
-
   @Input() currency: string;
 
   @Input() amount: number;
-
-  @Input() paymentModeIcon: string;
 
   @Input() purpose: string;
 
@@ -34,10 +24,6 @@ export class FySummaryTileComponent implements OnInit {
   @Input() orig_currency: string;
 
   @Input() actions: Actions;
-
-  @Input() approverEmailsList: string[];
-
-  @Input() id: string;
 
   @Input() ownerEmail: string;
 
@@ -63,8 +49,6 @@ export class FySummaryTileComponent implements OnInit {
     const addApproversPopover = await this.popoverController.create({
       component: AddApproversPopoverComponent,
       componentProps: {
-        approverEmailsList: this.approverEmailsList,
-        id: this.id,
         type: this.type,
         ownerEmail: this.ownerEmail,
       },
@@ -74,10 +58,10 @@ export class FySummaryTileComponent implements OnInit {
 
     await addApproversPopover.present();
     const { data } = await addApproversPopover.onWillDismiss();
+  }
 
-    if (data) {
-      this.notify.emit(data);
-    }
+  ngOnChanges(changes: SimpleChange) {
+    this.status = this.status === 'APPROVAL PENDING' ? 'Pending' : this.status;
   }
 
   ngOnInit() {}
