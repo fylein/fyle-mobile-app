@@ -9,5 +9,4 @@ jobs:
       - name: Run pull request stats
         uses: flowwer-dev/pull-request-stats@master
         with:
-          charts: true
           sort-by: 'REVIEWS'
