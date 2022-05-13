@@ -17,6 +17,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OpenNativeSettings } from '@awesome-cordova-plugins/open-native-settings/ngx';
 import { Diagnostic } from '@awesome-cordova-plugins/diagnostic/ngx';
+import { I } from '@angular/cdk/keycodes';
 
 type Image = Partial<{
   source: string;
@@ -56,6 +57,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   isOffline$: Observable<boolean>;
 
   isIos: boolean;
+
+  isPermissionDenied: boolean;
 
   constructor(
     private modalController: ModalController,
@@ -99,6 +102,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
     this.isIos = this.platform.is('ios');
+    this.isPermissionDenied = false;
   }
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
@@ -234,12 +238,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       };
 
       this.diagnostic
-        .getCameraAuthorizationStatus(false)
+        .getCameraAuthorizationStatus(true)
         .then(async (res) => {
-          if (res !== 'GRANTED') {
+          if (res === 'GRANTED' || res === 'NOT_REQUESTED') {
+            this.isPermissionDenied = false;
+            await this.loaderService.showLoader('Please Wait....', 5000);
+          } else if (res === 'DENIED_ONCE' || res === 'DENIED_ALWAYS') {
+            this.isPermissionDenied = true;
             await this.deniedMessage();
-          } else {
-            await this.loaderService.showLoader('Please wait...', 5000);
           }
         })
         .catch(async (err) => {
@@ -247,16 +253,19 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           await this.loaderService.showLoader('Err Occured....', 5000);
         });
 
-      CameraPreview.start(cameraPreviewOptions)
-        .then(async (res) => {
-          this.isCameraShown = true;
-          this.getFlashModes();
-          await this.loaderService.hideLoader();
-        })
-        .catch(async (err) => {
-          console.log('Error Ouccred', JSON.stringify(err.message));
-          console.log('PLEASE ENABLE CAMERA PERMISSION');
-        });
+      if (!this.isPermissionDenied) {
+        CameraPreview.start(cameraPreviewOptions)
+          .then(async (res) => {
+            this.isCameraShown = true;
+            this.getFlashModes();
+            await this.loaderService.hideLoader();
+          })
+          .catch(async (err) => {
+            await this.deniedMessage();
+            console.log('Error Ouccred', JSON.stringify(err.message));
+            console.log('PLEASE ENABLE CAMERA PERMISSION');
+          });
+      }
     }
   }
 
