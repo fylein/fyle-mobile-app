@@ -3,15 +3,17 @@
 .fy-number {
   &--input {
     border: 0;
-    font-size: 14px;
-    font-weight: 400;
+    font-size: 20px;
+    font-weight: 600;
     height: 24px;
     line-height: 18px;
     color: $blue-black;
     width: 100%;
     margin: 4px 0;
     padding: 0;
-
+    &::placeholder {
+      color: $blue-black !important;
+    }
     &__disabled {
       background-color: $off-white;
       margin-bottom: 0;
