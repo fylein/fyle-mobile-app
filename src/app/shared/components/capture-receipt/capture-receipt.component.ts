@@ -159,7 +159,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       userAccounts,
       isMultipleAdvanceEnabled,
       false,
-      true
+      this.hidePaidByCompany
     );
     const isCCCEnabled =
       orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;

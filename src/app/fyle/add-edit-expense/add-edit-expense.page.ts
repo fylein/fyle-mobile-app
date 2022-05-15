@@ -1071,7 +1071,12 @@ export class AddEditExpensePage implements OnInit {
           this.showCardTransaction = false;
         }
         const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled, false, true);
+        return this.accountsService.constructPaymentModes(
+          userAccounts,
+          isMultipleAdvanceEnabled,
+          false,
+          this.hidePaidByCompany
+        );
       }),
       map((paymentModes) =>
         paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))

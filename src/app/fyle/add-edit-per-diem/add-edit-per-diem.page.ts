@@ -614,7 +614,12 @@ export class AddEditPerDiemPage implements OnInit {
           )
           .filter((userAccount) => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
 
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled, false, true);
+        return this.accountsService.constructPaymentModes(
+          userAccounts,
+          isMultipleAdvanceEnabled,
+          false,
+          this.hidePaidByCompany
+        );
       }),
       map((paymentModes) =>
         paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
