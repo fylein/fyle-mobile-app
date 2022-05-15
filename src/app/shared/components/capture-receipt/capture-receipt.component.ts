@@ -81,7 +81,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnInit() {
-    console.log('Init');
     this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
       this.hidePaidByCompany = hidePaidByCompany;
     });
