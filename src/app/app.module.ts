@@ -50,7 +50,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
   providers: [
     GooglePlus,
     InAppBrowser,
-    HttpClientModule,
+    ScreenOrientation,
     {
       provide: HAMMER_GESTURE_CONFIG,
       useClass: MyHammerConfig,
