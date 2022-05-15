@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { LaunchDarklyService } from './launch-darkly.service';
 
-describe('LaunchDarklyService', () => {
+xdescribe('LaunchDarklyService', () => {
   let service: LaunchDarklyService;
 
   beforeEach(() => {
