@@ -206,6 +206,8 @@ export class AddEditMileagePage implements OnInit {
 
   canRemoveFromReport = false;
 
+  private hidePaidByCompany: boolean = false;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -626,7 +628,7 @@ export class AddEditMileagePage implements OnInit {
           )
           .filter((userAccount) => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
 
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled, false, true);
       }),
       map((paymentModes) =>
         paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
@@ -1963,7 +1965,9 @@ export class AddEditMileagePage implements OnInit {
         const calculatedDistance = +res.calculatedDistance;
         const amount = res.amount;
         const skipReimbursement =
-          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
+          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
+          !this.fg.value.paymentMode.acc.isReimbursable &&
+          !this.hidePaidByCompany;
         const rate = res.rate;
 
         const formValue = this.fg.value;

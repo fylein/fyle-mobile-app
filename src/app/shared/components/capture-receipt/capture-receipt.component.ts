@@ -53,6 +53,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
+  private hidePaidByCompany: boolean = false;
+
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -153,13 +155,18 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
     const isMultipleAdvanceEnabled =
       orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
-    const paymentModes = this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+    const paymentModes = this.accountsService.constructPaymentModes(
+      userAccounts,
+      isMultipleAdvanceEnabled,
+      false,
+      true
+    );
     const isCCCEnabled =
       orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
 
     let account;
 
-    if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
+    if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT' && !this.hidePaidByCompany) {
       account = paymentModes.find((res) => res.acc.displayName === 'Paid by Company');
     } else if (
       isCCCEnabled &&

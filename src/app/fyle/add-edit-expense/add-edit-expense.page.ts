@@ -338,6 +338,8 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
+  private hidePaidByCompany: boolean = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1069,7 +1071,7 @@ export class AddEditExpensePage implements OnInit {
           this.showCardTransaction = false;
         }
         const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled, false, true);
       }),
       map((paymentModes) =>
         paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
@@ -1468,7 +1470,8 @@ export class AddEditExpensePage implements OnInit {
             .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
         } else if (
           orgUserSettings.preferences &&
-          orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT'
+          orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT' &&
+          !this.hidePaidByCompany
         ) {
           return paymentModes
             .map((res) => res.value)
@@ -2922,7 +2925,8 @@ export class AddEditExpensePage implements OnInit {
             skip_reimbursement:
               this.fg.value.paymentMode &&
               this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
-              !this.fg.value.paymentMode.acc.isReimbursable,
+              !this.fg.value.paymentMode.acc.isReimbursable &&
+              !this.hidePaidByCompany,
             txn_dt: this.fg.value.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value.dateOfSpend)),
             currency: this.fg.value.currencyObj && this.fg.value.currencyObj.currency,
             amount: this.fg.value.currencyObj && this.fg.value.currencyObj.amount,

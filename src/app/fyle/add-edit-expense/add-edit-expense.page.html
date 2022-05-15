@@ -247,7 +247,9 @@
         <div class="add-edit-expense--primary-block">
           <ion-grid class="ion-grid-no-padding">
             <ion-row>
-              <ion-col [size]="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) ? 6 : 12">
+              <ion-col
+                [size]="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && (paymentModes$ | async)?.length > 1 ? 6 : 12"
+              >
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
                     *ngIf="txnFields?.txn_dt"

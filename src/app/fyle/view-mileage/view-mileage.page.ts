@@ -80,6 +80,8 @@ export class ViewMileagePage implements OnInit {
 
   projectFieldName: string;
 
+  private hidePaidByCompany: boolean = false;
+
   get ExpenseView() {
     return ExpenseView;
   }
@@ -250,7 +252,7 @@ export class ViewMileagePage implements OnInit {
       if (extendedMileage.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (extendedMileage.tx_skip_reimbursement) {
+      } else if (extendedMileage.tx_skip_reimbursement && !this.hidePaidByCompany) {
         this.paymentMode = 'Paid by Company';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else {

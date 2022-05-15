@@ -168,7 +168,7 @@
 
             <ion-grid class="ion-grid-no-padding">
               <ion-row>
-                <ion-col size="6">
+                <ion-col [size]="(paymentModes$ | async)?.length > 1 ? 6 : 12">
                   <ng-container *ngIf="txnFields$|async as txnFields">
                     <div
                       *ngIf="txnFields?.txn_dt"

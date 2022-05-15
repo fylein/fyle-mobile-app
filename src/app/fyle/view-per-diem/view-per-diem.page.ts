@@ -76,6 +76,8 @@ export class ViewPerDiemPage implements OnInit {
 
   projectFieldName: string;
 
+  private hidePaidByCompany: boolean;
+
   get ExpenseView() {
     return ExpenseView;
   }
@@ -158,7 +160,7 @@ export class ViewPerDiemPage implements OnInit {
       if (extendedPerDiem.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (extendedPerDiem.tx_skip_reimbursement) {
+      } else if (extendedPerDiem.tx_skip_reimbursement && !this.hidePaidByCompany) {
         this.paymentMode = 'Paid by Company';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else {

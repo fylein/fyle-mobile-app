@@ -102,6 +102,8 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
+  private hidePaidByCompany: boolean = false;
+
   get ExpenseView() {
     return ExpenseView;
   }
@@ -242,7 +244,7 @@ export class ViewExpensePage implements OnInit {
         this.paymentMode = 'Corporate Card';
         this.paymentModeIcon = 'fy-unmatched';
         this.isCCCTransaction = true;
-      } else if (etxn.tx_skip_reimbursement) {
+      } else if (etxn.tx_skip_reimbursement && !this.hidePaidByCompany) {
         this.paymentMode = 'Paid by Company';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else {

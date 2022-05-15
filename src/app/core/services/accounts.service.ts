@@ -40,7 +40,7 @@ export class AccountsService {
     );
   }
 
-  constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?) {
+  constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?, hidePaidByCompany?) {
     const that = this;
     const accountsMap = {
       PERSONAL_ACCOUNT(account) {
@@ -72,12 +72,15 @@ export class AccountsService {
     };
 
     const mappedAccouts = accounts.map((account) => accountsMap[account.acc.type](account));
-    const personalAccount = accounts.find((account) => account.acc.type === 'PERSONAL_ACCOUNT');
-    if (personalAccount) {
-      const personalNonreimbursableAccount = cloneDeep(personalAccount);
-      personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
-      personalNonreimbursableAccount.acc.isReimbursable = false;
-      mappedAccouts.push(personalNonreimbursableAccount);
+
+    if (!hidePaidByCompany) {
+      const personalAccount = accounts.find((account) => account.acc.type === 'PERSONAL_ACCOUNT');
+      if (personalAccount) {
+        const personalNonreimbursableAccount = cloneDeep(personalAccount);
+        personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
+        personalNonreimbursableAccount.acc.isReimbursable = false;
+        mappedAccouts.push(personalNonreimbursableAccount);
+      }
     }
 
     return mappedAccouts;

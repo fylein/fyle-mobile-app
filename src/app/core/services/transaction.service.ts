@@ -28,6 +28,8 @@ type PaymentMode = {
   providedIn: 'root',
 })
 export class TransactionService {
+  private hidePaidByCompany: boolean = false;
+
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
@@ -607,7 +609,7 @@ export class TransactionService {
     if (paymentMode === 'reimbursable') {
       //Paid by Employee: reimbursable
       etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'nonReimbursable') {
+    } else if (paymentMode === 'nonReimbursable' && !this.hidePaidByCompany) {
       //Paid by Company: not reimbursable
       etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
     } else if (paymentMode === 'advance') {
@@ -627,10 +629,6 @@ export class TransactionService {
         key: 'reimbursable',
       },
       {
-        name: 'Non-Reimbursable',
-        key: 'nonReimbursable',
-      },
-      {
         name: 'Advance',
         key: 'advance',
       },
@@ -639,6 +637,13 @@ export class TransactionService {
         key: 'ccc',
       },
     ];
+
+    if (!this.hidePaidByCompany) {
+      paymentModes.push({
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      });
+    }
 
     return etxns
       .map((etxn) => ({

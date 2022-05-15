@@ -190,6 +190,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   canRemoveFromReport = false;
 
+  private hidePaidByCompany: boolean = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -612,7 +614,7 @@ export class AddEditPerDiemPage implements OnInit {
           )
           .filter((userAccount) => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
 
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled, false, true);
       }),
       map((paymentModes) =>
         paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
@@ -1565,7 +1567,9 @@ export class AddEditPerDiemPage implements OnInit {
           return customProperty;
         });
         const skipReimbursement =
-          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
+          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
+          !this.fg.value.paymentMode.acc.isReimbursable &&
+          !this.hidePaidByCompany;
 
         const formValue = this.fg.value;
         const currencyObj = this.fg.controls.currencyObj.value;
