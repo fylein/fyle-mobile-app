@@ -40,7 +40,7 @@ export class AccountsService {
     );
   }
 
-  constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?, hidePaidByCompany?) {
+  constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?, hidePaidByCompany?: boolean) {
     const that = this;
     const accountsMap = {
       PERSONAL_ACCOUNT(account) {

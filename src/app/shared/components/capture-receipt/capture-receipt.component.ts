@@ -15,6 +15,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type Image = Partial<{
   source: string;
@@ -53,7 +54,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
-  private hidePaidByCompany: boolean = false;
+  private hidePaidByCompany = false;
 
   constructor(
     private modalController: ModalController,
@@ -66,7 +67,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   setupNetworkWatcher() {
@@ -79,6 +81,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnInit() {
+    console.log('Init');
+    this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
+      this.hidePaidByCompany = hidePaidByCompany;
+    });
+
     this.setupNetworkWatcher();
     this.isCameraShown = false;
     this.isBulkMode = false;

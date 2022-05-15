@@ -25,6 +25,7 @@ import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -102,7 +103,7 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
-  private hidePaidByCompany: boolean = false;
+  private hidePaidByCompany = false;
 
   get ExpenseView() {
     return ExpenseView;
@@ -124,7 +125,8 @@ export class ViewExpensePage implements OnInit {
     private policyService: PolicyService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ionViewWillLeave() {
@@ -202,6 +204,10 @@ export class ViewExpensePage implements OnInit {
   ngOnInit() {}
 
   ionViewWillEnter() {
+    this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
+      this.hidePaidByCompany = hidePaidByCompany;
+    });
+
     this.setupNetworkWatcher();
     const txId = this.activatedRoute.snapshot.params.id;
 

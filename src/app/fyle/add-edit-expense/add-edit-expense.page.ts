@@ -100,6 +100,7 @@ import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -338,7 +339,7 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
-  private hidePaidByCompany: boolean = false;
+  private hidePaidByCompany = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -383,7 +384,8 @@ export class AddEditExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
-    private handleDuplicates: HandleDuplicatesService
+    private handleDuplicates: HandleDuplicatesService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   @HostListener('keydown')
@@ -2485,6 +2487,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
+      this.hidePaidByCompany = hidePaidByCompany;
+    });
+
     this.newExpenseDataUrls = [];
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {

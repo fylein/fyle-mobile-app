@@ -11,6 +11,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type AmountDetails = {
   'Total Amount': number;
@@ -58,6 +59,8 @@ export class FyViewReportInfoComponent implements OnInit {
 
   isSwipe = false;
 
+  private hidePaidByCompany = false;
+
   get ExpenseView() {
     return ExpenseView;
   }
@@ -71,12 +74,17 @@ export class FyViewReportInfoComponent implements OnInit {
     private elementRef: ElementRef,
     private trackingService: TrackingService,
     private offlineService: OfflineService,
-    private authService: AuthService
+    private authService: AuthService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ngOnInit(): void {}
 
   ionViewWillEnter() {
+    this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
+      this.hidePaidByCompany = hidePaidByCompany;
+    });
+
     this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt) => {
       this.reportDetails = {
         'Report Name': erpt.rp_purpose,
@@ -93,7 +101,10 @@ export class FyViewReportInfoComponent implements OnInit {
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     combineLatest([this.etxns$, this.erpt$, orgSettings$]).subscribe(([etxns, erpt, orgSettings]) => {
-      const paymentModeWiseData: PaymentMode = this.transactionService.getPaymentModeWiseSummary(etxns);
+      const paymentModeWiseData: PaymentMode = this.transactionService.getPaymentModeWiseSummary(
+        etxns,
+        this.hidePaidByCompany
+      );
       this.amountComponentWiseDetails = {
         'Total Amount': erpt.rp_amount,
         Reimbursable: paymentModeWiseData.reimbursable?.amount || 0,

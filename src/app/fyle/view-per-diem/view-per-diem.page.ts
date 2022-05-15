@@ -21,6 +21,7 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -76,7 +77,7 @@ export class ViewPerDiemPage implements OnInit {
 
   projectFieldName: string;
 
-  private hidePaidByCompany: boolean;
+  private hidePaidByCompany = false;
 
   get ExpenseView() {
     return ExpenseView;
@@ -96,7 +97,8 @@ export class ViewPerDiemPage implements OnInit {
     private statusService: StatusService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   isNumber(val) {
@@ -144,6 +146,10 @@ export class ViewPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
+      this.hidePaidByCompany = hidePaidByCompany;
+    });
+
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedPerDiem$ = this.updateFlag$.pipe(

@@ -28,8 +28,6 @@ type PaymentMode = {
   providedIn: 'root',
 })
 export class TransactionService {
-  private hidePaidByCompany: boolean = false;
-
   constructor(
     private networkService: NetworkService,
     private storageService: StorageService,
@@ -596,11 +594,11 @@ export class TransactionService {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 
-  getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]) {
-    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key));
+  getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[], hidePaidByCompany?: boolean) {
+    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key, hidePaidByCompany));
   }
 
-  isEtxnInPaymentMode(etxn: Expense, paymentMode: string) {
+  isEtxnInPaymentMode(etxn: Expense, paymentMode: string, hidePaidByCompany?: boolean) {
     let etxnInPaymentMode = false;
     const isAdvanceOrCCCEtxn =
       etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' ||
@@ -609,7 +607,7 @@ export class TransactionService {
     if (paymentMode === 'reimbursable') {
       //Paid by Employee: reimbursable
       etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'nonReimbursable' && !this.hidePaidByCompany) {
+    } else if (paymentMode === 'nonReimbursable' && !hidePaidByCompany) {
       //Paid by Company: not reimbursable
       etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
     } else if (paymentMode === 'advance') {
@@ -622,7 +620,7 @@ export class TransactionService {
     return etxnInPaymentMode;
   }
 
-  getPaymentModeWiseSummary(etxns: Expense[]) {
+  getPaymentModeWiseSummary(etxns: Expense[], hidePaidByCompany?: boolean) {
     const paymentModes = [
       {
         name: 'Reimbursable',
@@ -638,7 +636,7 @@ export class TransactionService {
       },
     ];
 
-    if (!this.hidePaidByCompany) {
+    if (!hidePaidByCompany) {
       paymentModes.push({
         name: 'Non-Reimbursable',
         key: 'nonReimbursable',
