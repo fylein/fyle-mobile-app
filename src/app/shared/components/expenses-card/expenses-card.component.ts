@@ -154,9 +154,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getReceipt() {
-    if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
+    if (this.expense?.tx_fyle_category && this.expense?.tx_fyle_category.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem') {
+    } else if (this.expense?.tx_fyle_category && this.expense?.tx_fyle_category.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
       if (!this.expense.tx_file_ids) {
@@ -283,8 +283,9 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
-    this.isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
+    this.isMileageExpense =
+      this.expense?.tx_fyle_category && this.expense?.tx_fyle_category.toLowerCase() === 'mileage';
+    this.isPerDiem = this.expense?.tx_fyle_category && this.expense?.tx_fyle_category.toLowerCase() === 'per diem';
 
     this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
@@ -354,8 +355,8 @@ export class ExpensesCardComponent implements OnInit {
 
   getScanningReceiptCard(expense: Expense): boolean {
     if (
-      expense.tx_fyle_category &&
-      (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')
+      expense?.tx_fyle_category &&
+      (expense?.tx_fyle_category.toLowerCase() === 'mileage' || expense?.tx_fyle_category.toLowerCase() === 'per diem')
     ) {
       return false;
     } else {
