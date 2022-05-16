@@ -6,6 +6,7 @@ import { YodleeAccessToken } from '../models/yoodle-token.model';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
+import { ISODateString } from '@capacitor/core';
 import { Expense } from '../models/expense.model';
 import { DateService } from './date.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
@@ -91,7 +92,7 @@ export class PersonalCardsService {
       .pipe(map((res) => res.count));
   }
 
-  getMatchedExpenses(amount: number, txnDate: string): Observable<Expense[]> {
+  getMatchedExpenses(amount: number, txnDate: ISODateString): Observable<Expense[]> {
     return this.apiService.get('/expense_suggestions/personal_cards', {
       params: {
         amount,
@@ -120,7 +121,7 @@ export class PersonalCardsService {
     });
   }
 
-  getMatchedExpensesCount(amount: number, txnDate: string): Observable<number> {
+  getMatchedExpensesCount(amount: number, txnDate: ISODateString): Observable<number> {
     return this.getMatchedExpenses(amount, txnDate).pipe(map((res) => res.length));
   }
 

@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { Browser } from '@capacitor/browser';
+import { Plugins } from '@capacitor/core';
 import { Platform } from '@ionic/angular';
+
+const { Browser } = Plugins;
 
 @Component({
   selector: 'app-app-version',

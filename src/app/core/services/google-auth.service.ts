@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
+import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { environment } from 'src/environments/environment';
 
 @Injectable({

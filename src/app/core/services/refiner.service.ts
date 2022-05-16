@@ -2,7 +2,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { OfflineService } from './offline.service';
 import { AuthService } from './auth.service';
-import { Device } from '@capacitor/device';
+import { Plugins } from '@capacitor/core';
 import { NetworkService } from './network.service';
 import { concat, forkJoin, from, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -10,6 +10,8 @@ import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { filter, map, switchMap, take } from 'rxjs/operators';
 import { OrgUserService } from './org-user.service';
 import { RefinerProperties } from '../models/refiner_properties.model';
+
+const { Device } = Plugins;
 
 @Injectable({
   providedIn: 'root',

@@ -1,8 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { Plugins } from '@capacitor/core';
 import { TransactionsOutboxService } from '../../../core/services/transactions-outbox.service';
 import { TrackingService } from '../../../core/services/tracking.service';
+
+const { Camera } = Plugins;
 
 @Component({
   selector: 'app-add-expense-popover',

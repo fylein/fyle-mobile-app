@@ -14,11 +14,12 @@ import { Observable, fromEvent, of, from, forkJoin, noop, throwError } from 'rxj
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { Geolocation } from '@capacitor/geolocation';
+import { PermissionType, Plugins } from '@capacitor/core';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { MapGeocoderResponse } from '@angular/google-maps';
 import { GmapsService } from 'src/app/core/services/gmaps.service';
 
+const { Permissions, Geolocation } = Plugins;
 @Component({
   selector: 'app-fy-location-modal',
   templateUrl: './fy-location-modal.component.html',
@@ -79,8 +80,11 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   async checkPermissionStatus() {
-    const permission = await Geolocation.checkPermissions();
-    this.currentGeolocationPermissionGranted = permission.location === 'granted';
+    const permissionResult = await Permissions.query({
+      name: PermissionType.Geolocation,
+    });
+
+    this.currentGeolocationPermissionGranted = permissionResult.state === 'granted';
   }
 
   async askForCurrentLocationPermission() {

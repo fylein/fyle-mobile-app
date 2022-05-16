@@ -6,5 +6,5 @@
   "type": "angular",
   "hooks": {
     "build:before": "./hooks/prebuild.js"
-  }
+  } 
 }

@@ -1,13 +1,14 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit } from '@angular/core';
-import { CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
-import { Capacitor } from '@capacitor/core';
+import { CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
+import { Capacitor, Plugins } from '@capacitor/core';
+import '@capacitor-community/camera-preview';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -15,6 +16,8 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
+
+const { CameraPreview } = Plugins;
 
 type Image = Partial<{
   source: string;
@@ -189,7 +192,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   toggleFlashMode() {
-    if (Capacitor.getPlatform() !== 'web') {
+    if (Capacitor.platform !== 'web') {
       let nextActiveFlashMode = 'on';
       if (this.flashMode === 'on') {
         nextActiveFlashMode = 'off';
@@ -205,7 +208,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async getFlashModes() {
-    if (Capacitor.getPlatform() !== 'web') {
+    if (Capacitor.platform !== 'web') {
       CameraPreview.getSupportedFlashModes().then((flashModes) => {
         if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
           this.flashMode = this.flashMode || 'off';
@@ -215,7 +218,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  async setUpAndStartCamera() {
+  setUpAndStartCamera() {
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -225,11 +228,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         parent: 'cameraPreview',
       };
 
-      await this.loaderService.showLoader('Please wait...', 5000);
-      CameraPreview.start(cameraPreviewOptions).then(async (res) => {
+      CameraPreview.start(cameraPreviewOptions).then((res) => {
         this.isCameraShown = true;
         this.getFlashModes();
-        await this.loaderService.hideLoader();
       });
     }
   }
@@ -297,7 +298,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async review() {
-    this.stopCamera();
+    await this.stopCamera();
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
@@ -335,6 +336,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   onBulkCapture() {
     this.captureCount += 1;
+    this.setUpAndStartCamera();
   }
 
   async showLimitMessage() {
@@ -363,10 +365,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       };
 
       const result = await CameraPreview.capture(cameraPreviewPictureOptions);
+      await this.stopCamera();
       const base64PictureData = 'data:image/jpeg;base64,' + result.value;
       this.lastImage = base64PictureData;
       if (!this.isBulkMode) {
-        this.stopCamera();
         this.base64ImagesWithSource.push({
           source: 'MOBILE_DASHCAM_SINGLE',
           base64Image: base64PictureData,
@@ -384,8 +386,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   galleryUpload() {
     this.trackingService.instafyleGalleryUploadOpened({});
-    this.stopCamera();
 
+    this.stopCamera();
     this.imagePicker.hasReadPermission().then((permission) => {
       if (permission) {
         const options = {

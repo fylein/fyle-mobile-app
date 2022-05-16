@@ -1,5 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+import { Plugins, CameraResultType, CameraSource, CameraDirection } from '@capacitor/core';
+const { Camera } = Plugins;
+import { from } from 'rxjs';
+import { LoaderService } from 'src/app/core/services/loader.service';
 import { FileService } from 'src/app/core/services/file.service';
 
 @Component({
@@ -10,7 +14,11 @@ import { FileService } from 'src/app/core/services/file.service';
 export class CameraOptionsPopupComponent implements OnInit {
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
-  constructor(private popoverController: PopoverController, private fileService: FileService) {}
+  constructor(
+    private popoverController: PopoverController,
+    private loaderService: LoaderService,
+    private fileService: FileService
+  ) {}
 
   ngOnInit() {}
 
