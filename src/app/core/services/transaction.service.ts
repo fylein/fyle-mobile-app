@@ -631,12 +631,12 @@ export class TransactionService {
         key: 'advance',
       },
       {
-        name: 'CCC',
-        key: 'ccc',
-      },
-      {
         name: 'Non-Reimbursable',
         key: 'nonReimbursable',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
       },
     ];
 
