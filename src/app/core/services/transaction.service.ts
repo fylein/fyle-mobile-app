@@ -627,12 +627,12 @@ export class TransactionService {
         key: 'reimbursable',
       },
       {
-        name: 'Advance',
-        key: 'advance',
-      },
-      {
         name: 'Non-Reimbursable',
         key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
       },
       {
         name: 'CCC',
