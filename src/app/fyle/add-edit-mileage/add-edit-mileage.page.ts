@@ -1977,7 +1977,6 @@ export class AddEditMileagePage implements OnInit {
         const amount = res.amount;
         const skipReimbursement =
           this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
-
         const rate = res.rate;
         const formValue = this.fg.value;
 
