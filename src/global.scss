@@ -1223,6 +1223,14 @@ ion-toggle.toggle-checked::before {
 }
 
 .hide-modal {
+  &::part(content) {
+    background: transparent !important;
+  }
+
+  &::part(backdrop) {
+    --backdrop-opacity: 0 !important;
+  }
+
   --backdrop-opacity: 0 !important;
 
   & > div {
