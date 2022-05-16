@@ -61,11 +61,7 @@ export class LaunchDarklyService {
   updateIdentity() {
     if (this.isOnline) {
       this.getCurrentUser().subscribe((user) => {
-        if (this.ldClient) {
-          this.changeUser(user);
-        } else {
-          this.initializeUser(user);
-        }
+        return this.ldClient ? this.changeUser(user) : this.initializeUser(user);
       });
     }
   }
