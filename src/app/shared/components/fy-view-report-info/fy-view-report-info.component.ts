@@ -11,7 +11,6 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type AmountDetails = {
   'Total Amount': number;

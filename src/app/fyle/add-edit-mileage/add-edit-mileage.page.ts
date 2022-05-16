@@ -1976,11 +1976,9 @@ export class AddEditMileagePage implements OnInit {
         const calculatedDistance = +res.calculatedDistance;
         const amount = res.amount;
         const skipReimbursement =
-          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
-          !this.fg.value.paymentMode.acc.isReimbursable &&
-          !this.hidePaidByCompany;
-        const rate = res.rate;
+          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
 
+        const rate = res.rate;
         const formValue = this.fg.value;
 
         return {

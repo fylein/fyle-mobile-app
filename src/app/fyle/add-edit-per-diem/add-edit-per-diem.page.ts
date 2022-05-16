@@ -1578,9 +1578,7 @@ export class AddEditPerDiemPage implements OnInit {
           return customProperty;
         });
         const skipReimbursement =
-          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
-          !this.fg.value.paymentMode.acc.isReimbursable &&
-          !this.hidePaidByCompany;
+          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
 
         const formValue = this.fg.value;
         const currencyObj = this.fg.controls.currencyObj.value;

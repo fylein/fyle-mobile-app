@@ -1477,8 +1477,7 @@ export class AddEditExpensePage implements OnInit {
             .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
         } else if (
           orgUserSettings.preferences &&
-          orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT' &&
-          !this.hidePaidByCompany
+          orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT'
         ) {
           return paymentModes
             .map((res) => res.value)
@@ -2936,8 +2935,7 @@ export class AddEditExpensePage implements OnInit {
             skip_reimbursement:
               this.fg.value.paymentMode &&
               this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
-              !this.fg.value.paymentMode.acc.isReimbursable &&
-              !this.hidePaidByCompany,
+              !this.fg.value.paymentMode.acc.isReimbursable,
             txn_dt: this.fg.value.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value.dateOfSpend)),
             currency: this.fg.value.currencyObj && this.fg.value.currencyObj.currency,
             amount: this.fg.value.currencyObj && this.fg.value.currencyObj.amount,
