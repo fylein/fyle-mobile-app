@@ -103,8 +103,6 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
-  private hidePaidByCompany = false;
-
   get ExpenseView() {
     return ExpenseView;
   }
@@ -204,10 +202,6 @@ export class ViewExpensePage implements OnInit {
   ngOnInit() {}
 
   ionViewWillEnter() {
-    this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
-      this.hidePaidByCompany = hidePaidByCompany;
-    });
-
     this.setupNetworkWatcher();
     const txId = this.activatedRoute.snapshot.params.id;
 
@@ -250,7 +244,7 @@ export class ViewExpensePage implements OnInit {
         this.paymentMode = 'Corporate Card';
         this.paymentModeIcon = 'fy-unmatched';
         this.isCCCTransaction = true;
-      } else if (etxn.tx_skip_reimbursement && !this.hidePaidByCompany) {
+      } else if (etxn.tx_skip_reimbursement) {
         this.paymentMode = 'Paid by Company';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else {

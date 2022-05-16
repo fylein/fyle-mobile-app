@@ -594,11 +594,11 @@ export class TransactionService {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 
-  getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[], hidePaidByCompany?: boolean) {
-    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key, hidePaidByCompany));
+  getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]) {
+    return paymentModes.find((paymentMode) => this.isEtxnInPaymentMode(etxn, paymentMode.key));
   }
 
-  isEtxnInPaymentMode(etxn: Expense, paymentMode: string, hidePaidByCompany?: boolean) {
+  isEtxnInPaymentMode(etxn: Expense, paymentMode: string) {
     let etxnInPaymentMode = false;
     const isAdvanceOrCCCEtxn =
       etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' ||
@@ -607,7 +607,7 @@ export class TransactionService {
     if (paymentMode === 'reimbursable') {
       //Paid by Employee: reimbursable
       etxnInPaymentMode = !etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
-    } else if (paymentMode === 'nonReimbursable' && !hidePaidByCompany) {
+    } else if (paymentMode === 'nonReimbursable') {
       //Paid by Company: not reimbursable
       etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
     } else if (paymentMode === 'advance') {
@@ -620,7 +620,7 @@ export class TransactionService {
     return etxnInPaymentMode;
   }
 
-  getPaymentModeWiseSummary(etxns: Expense[], hidePaidByCompany?: boolean) {
+  getPaymentModeWiseSummary(etxns: Expense[]) {
     const paymentModes = [
       {
         name: 'Reimbursable',
@@ -634,14 +634,11 @@ export class TransactionService {
         name: 'CCC',
         key: 'ccc',
       },
-    ];
-
-    if (!hidePaidByCompany) {
-      paymentModes.push({
+      {
         name: 'Non-Reimbursable',
         key: 'nonReimbursable',
-      });
-    }
+      },
+    ];
 
     return etxns
       .map((etxn) => ({

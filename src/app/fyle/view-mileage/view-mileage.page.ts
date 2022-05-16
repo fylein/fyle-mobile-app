@@ -81,8 +81,6 @@ export class ViewMileagePage implements OnInit {
 
   projectFieldName: string;
 
-  private hidePaidByCompany = false;
-
   get ExpenseView() {
     return ExpenseView;
   }
@@ -237,10 +235,6 @@ export class ViewMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
-      this.hidePaidByCompany = hidePaidByCompany;
-    });
-
     this.setupNetworkWatcher();
     const id = this.activatedRoute.snapshot.params.id;
 
@@ -258,7 +252,7 @@ export class ViewMileagePage implements OnInit {
       if (extendedMileage.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (extendedMileage.tx_skip_reimbursement && !this.hidePaidByCompany) {
+      } else if (extendedMileage.tx_skip_reimbursement) {
         this.paymentMode = 'Paid by Company';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else {

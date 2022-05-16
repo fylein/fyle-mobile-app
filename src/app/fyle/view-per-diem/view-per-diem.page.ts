@@ -77,8 +77,6 @@ export class ViewPerDiemPage implements OnInit {
 
   projectFieldName: string;
 
-  private hidePaidByCompany = false;
-
   get ExpenseView() {
     return ExpenseView;
   }
@@ -146,10 +144,6 @@ export class ViewPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
-      this.hidePaidByCompany = hidePaidByCompany;
-    });
-
     const id = this.activatedRoute.snapshot.params.id;
 
     this.extendedPerDiem$ = this.updateFlag$.pipe(
@@ -166,7 +160,7 @@ export class ViewPerDiemPage implements OnInit {
       if (extendedPerDiem.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (extendedPerDiem.tx_skip_reimbursement && !this.hidePaidByCompany) {
+      } else if (extendedPerDiem.tx_skip_reimbursement) {
         this.paymentMode = 'Paid by Company';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else {
