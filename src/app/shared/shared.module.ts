@@ -121,6 +121,9 @@ import { ViewExpenseSkeletonLoaderComponent } from './components/view-expense-sk
 import { SpentCardsComponent } from './components/spent-cards/spent-cards.component';
 import { CardDetailComponent } from './components/spent-cards/card-detail/card-detail.component';
 import { MaskNumber } from './pipes/mask-number.pipe';
+import { FyCurrencyComponent } from './components/fy-currency/fy-currency.component';
+import { FyCurrencyChooseCurrencyComponent } from './components/fy-currency/fy-currency-choose-currency/fy-currency-choose-currency.component';
+import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 
 @NgModule({
   declarations: [
@@ -221,6 +224,9 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     SpentCardsComponent,
     CardDetailComponent,
     MaskNumber,
+    FyCurrencyComponent,
+    FyCurrencyChooseCurrencyComponent,
+    FyCurrencyExchangeRateComponent,
   ],
   imports: [
     CommonModule,
@@ -326,6 +332,9 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     SpentCardsComponent,
     CardDetailComponent,
     MaskNumber,
+    FyCurrencyComponent,
+    FyCurrencyChooseCurrencyComponent,
+    FyCurrencyExchangeRateComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })
