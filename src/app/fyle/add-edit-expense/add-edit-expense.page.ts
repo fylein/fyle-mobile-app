@@ -836,8 +836,7 @@ export class AddEditExpensePage implements OnInit {
   async unlinkCorporateCardExpense() {
     const id = this.activatedRoute.snapshot.params.id;
     const header = 'Unlink Card Details';
-    const body =
-      "If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on Confirm.\nIt removes the card details from the expense and results in two expenses which you can find on the Expenses page.";
+    const body = this.transactionService.getUnlinkDialogBody();
     const ctaText = 'Confirm';
     const ctaLoadingText = 'Confirming';
     const deletePopover = await this.popoverController.create({
@@ -863,11 +862,20 @@ export class AddEditExpensePage implements OnInit {
       this.etxn$.subscribe((etxn) => (txnDetails = etxn));
       const properties = {
         Type: 'unlink corporate card expense',
-        transaction: txnDetails,
+        transaction: txnDetails?.tx,
       };
       this.trackingService.unlinkCorporateCardExpense(properties);
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: txnDetails.tx.id }]);
-      const toastMessage = 'Unlinked card details successfully.';
+      if (txnDetails?.tx?.report_id) {
+        this.router.navigate([
+          '/',
+          'enterprise',
+          'my_view_report',
+          { id: txnDetails?.tx?.report_id, navigateBack: true },
+        ]);
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+      const toastMessage = 'Successfully removed the card details from the expense.';
       const toastMessageData = {
         message: toastMessage,
       };
@@ -2904,8 +2912,8 @@ export class AddEditExpensePage implements OnInit {
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
       this.canUnlinkCCCE =
         !!etxn?.tx?.corporate_credit_card_expense_group_id &&
-        etxn.creator_id === 'SYSTEM_CORPORATE_CARD' &&
-        ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].indexOf(etxn.state) > -1;
+        etxn?.tx?.creator_id === 'SYSTEM_CORPORATE_CARD' &&
+        ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].indexOf(etxn?.tx?.state) > -1;
     });
 
     this.getPolicyDetails();
