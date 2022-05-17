@@ -53,6 +53,10 @@
     justify-content: space-around;
   }
 
+  &--footer-box {
+    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+  }
+
   &--footer-container {
     &::before {
       content: none;
