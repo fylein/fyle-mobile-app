@@ -848,9 +848,7 @@ export class AddEditExpensePage implements OnInit {
         body,
         ctaText,
         ctaLoadingText,
-        deleteMethod: () => {
-          return this.transactionService.unlinkCorporateCardExpense(id);
-        },
+        deleteMethod: () => this.transactionService.unlinkCorporateCardExpense(id),
       },
     });
 

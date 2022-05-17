@@ -746,9 +746,7 @@ export class TransactionService {
   }
 
   getUnlinkDialogBody() {
-    let dialogBody: string;
-
-    dialogBody = `<ul class="text-left">
+    const dialogBody = `<ul class="text-left">
     <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
     <li>It removes the card details from the expense and results in two expenses. Your expense will be inside the Report, and the card expense will be moved to the Expenses page.</li>
     </ul>`;
