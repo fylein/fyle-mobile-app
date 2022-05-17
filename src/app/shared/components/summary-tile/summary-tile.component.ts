@@ -36,10 +36,6 @@ export class FySummaryTileComponent implements OnInit, OnChanges {
 
   constructor(private popoverController: PopoverController) {}
 
-  getApproverEmails(activeApprovals) {
-    return activeApprovals.map((approver) => approver.approver_email);
-  }
-
   onUpdateApprover(message: boolean) {
     if (message) {
       this.refreshApprovers$.next();
@@ -58,7 +54,6 @@ export class FySummaryTileComponent implements OnInit, OnChanges {
     });
 
     await addApproversPopover.present();
-    const { data } = await addApproversPopover.onWillDismiss();
   }
 
   ngOnChanges() {

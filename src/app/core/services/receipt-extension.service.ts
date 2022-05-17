@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root',
 })
-export class AdvanceRequestReceiptExtensionService {
+export class ReceiptExtensionService {
   constructor() {}
 
   getReceiptExtension(name: string) {
