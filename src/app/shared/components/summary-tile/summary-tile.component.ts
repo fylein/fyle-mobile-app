@@ -1,11 +1,6 @@
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Subject } from 'rxjs';
-import { PopoverController } from '@ionic/angular';
-import { AdvanceApprover } from 'src/app/core/models/approver.model';
-import { AddApproversPopoverComponent } from '../fy-approver/add-approvers-popover/add-approvers-popover.component';
 import { Actions } from 'src/app/core/models/actions.model';
-
+import { openApproverListDialog } from 'src/app/core/services/openApproverListDialog.service';
 @Component({
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
@@ -26,28 +21,10 @@ export class FySummaryTileComponent implements OnInit, OnChanges {
 
   @Input() actions: Actions;
 
-  @Input() ownerEmail: string;
+  constructor(private openApproverListDialog: openApproverListDialog) {}
 
-  @Input() type: string;
-
-  refreshApprovers$ = new Subject();
-
-  approverList$: Observable<AdvanceApprover>;
-
-  constructor(private popoverController: PopoverController) {}
-
-  async openApproverListDialog() {
-    const addApproversPopover = await this.popoverController.create({
-      component: AddApproversPopoverComponent,
-      componentProps: {
-        type: this.type,
-        ownerEmail: this.ownerEmail,
-      },
-      cssClass: 'fy-dialog-popover',
-      backdropDismiss: false,
-    });
-
-    await addApproversPopover.present();
+  openApproverListDialogFunction() {
+    this.openApproverListDialog.openApproverListDialog();
   }
 
   ngOnChanges() {
