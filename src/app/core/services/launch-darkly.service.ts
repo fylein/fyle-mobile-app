@@ -1,19 +1,15 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-
 import { NetworkService } from './network.service';
 import { DeviceService } from './device.service';
 import { UserEventService } from './user-event.service';
 import { RouterAuthService } from './router-auth.service';
 import { StorageService } from './storage.service';
 import { OfflineService } from './offline.service';
-
 import { concat, forkJoin, from, Observable, of } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
-
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { Org } from '../models/org.model';
-
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
 @Injectable({
@@ -46,12 +42,12 @@ export class LaunchDarklyService {
     );
   }
 
-  // https://launchdarkly.github.io/js-client-sdk/interfaces/_launchdarkly_js_client_sdk_.ldclient.html#off
-  // https://launchdarkly.github.io/js-client-sdk/interfaces/_launchdarkly_js_client_sdk_.ldclient.html#close
+  /* https://launchdarkly.github.io/js-client-sdk/interfaces/_launchdarkly_js_client_sdk_.ldclient.html#off
+  https://launchdarkly.github.io/js-client-sdk/interfaces/_launchdarkly_js_client_sdk_.ldclient.html#close */
   shutDownClient() {
     if (this.ldClient && this.isOnline) {
-      this.ldClient.off('initialized', this.onLDInitialized, this);
-      this.ldClient.off('change', this.onLDChange, this);
+      this.ldClient.off('initialized', this.updateCache, this);
+      this.ldClient.off('change', this.updateCache, this);
       this.ldClient.close();
 
       this.ldClient = null;
@@ -72,8 +68,8 @@ export class LaunchDarklyService {
 
   private initializeUser(user: LDClient.LDUser) {
     this.ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
-    this.ldClient.on('initialized', this.onLDInitialized, this);
-    this.ldClient.on('change', this.onLDChange, this);
+    this.ldClient.on('initialized', this.updateCache, this);
+    this.ldClient.on('change', this.updateCache, this);
   }
 
   private updateCache() {
@@ -83,46 +79,37 @@ export class LaunchDarklyService {
     }
   }
 
-  private onLDInitialized() {
-    this.updateCache();
-  }
-
-  private onLDChange() {
-    this.updateCache();
-  }
-
   private getCurrentUser(): Observable<LDClient.LDUser> {
     const isLoggedIn$ = from(this.routerAuthService.isLoggedIn());
 
     return isLoggedIn$.pipe(
       filter((isLoggedIn) => isLoggedIn),
       switchMap(() => {
-        const currentEou$ = this.offlineService.getCurrentUser() as Observable<ExtendedOrgUser>;
-        const currentOrg$ = this.offlineService.getCurrentOrg() as Observable<Org>;
-        const devicePlatform$ = this.deviceService.getDeviceInfo().pipe(map((device) => device.platform));
+        const currentEou$: Observable<ExtendedOrgUser> = this.offlineService.getCurrentUser();
+        const currentOrg$: Observable<Org> = this.offlineService.getCurrentOrg();
+        const devicePlatform$ = this.deviceService.getDeviceInfo().pipe(map((device) => device?.platform));
 
         return forkJoin({ currentEou$, currentOrg$, devicePlatform$ }).pipe(
           switchMap((res) => {
-            const eou = res.currentEou$;
-            const org = res.currentOrg$;
-            const platform = res.devicePlatform$;
+            const eou = res?.currentEou$;
+            const org = res?.currentOrg$;
+            const platform = res?.devicePlatform$;
 
-            // HACK ALERT - Added (currentOrg as any).created_at because created_at is typed as a date but internally is a string
-            // Typescript complains when passed date to LaunchDarkly, only primitive types and arrays are accepted
-            // But since created_at is a string we have to convert currentOrg to any.
-            // TODO - REMOVE THIS AFTER THE ORG MODEL IS FIXED
+            /* HACK ALERT - Added (currentOrg as any).created_at because created_at is typed as a date but internally is a string
+            Typescript complains when passed date to LaunchDarkly, only primitive types and arrays are accepted
+            But since created_at is a string we have to convert currentOrg to any.
+            TODO - REMOVE THIS AFTER THE ORG MODEL IS FIXED */
 
             const user = {
-              key: eou.ou.user_id,
+              key: eou?.ou.user_id,
               custom: {
-                org_id: eou.ou.org_id,
-                org_user_id: eou.ou.id,
-                org_currency: org.currency,
-                org_created_at: (org as any).created_at,
-                asset: `MOBILE - ${platform.toUpperCase()}`,
+                org_id: eou?.ou.org_id,
+                org_user_id: eou?.ou.id,
+                org_currency: org?.currency,
+                org_created_at: (org as any)?.created_at,
+                asset: `MOBILE - ${platform?.toUpperCase()}`,
               },
             };
-
             return of(user);
           })
         );
