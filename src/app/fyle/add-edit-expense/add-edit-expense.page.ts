@@ -2911,9 +2911,7 @@ export class AddEditExpensePage implements OnInit {
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
       this.canUnlinkCCCE =
-        !!etxn?.tx?.corporate_credit_card_expense_group_id &&
-        etxn?.tx?.creator_id === 'SYSTEM_CORPORATE_CARD' &&
-        ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].indexOf(etxn?.tx?.state) > -1;
+        etxn?.tx?.is_implicitly_merged && ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].indexOf(etxn?.tx?.state) > -1;
     });
 
     this.getPolicyDetails();
