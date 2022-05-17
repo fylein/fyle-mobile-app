@@ -36,12 +36,6 @@ export class FySummaryTileComponent implements OnInit, OnChanges {
 
   constructor(private popoverController: PopoverController) {}
 
-  onUpdateApprover(message: boolean) {
-    if (message) {
-      this.refreshApprovers$.next();
-    }
-  }
-
   async openApproverListDialog() {
     const addApproversPopover = await this.popoverController.create({
       component: AddApproversPopoverComponent,
