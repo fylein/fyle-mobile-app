@@ -744,4 +744,8 @@ export class TransactionService {
 
     return dialogBody;
   }
+
+  unlinkCorporateCardExpense(txnId: string) {
+    return this.apiService.post('/transactions/' + txnId + '/unlink');
+  }
 }

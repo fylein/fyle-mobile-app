@@ -336,6 +336,10 @@ export class AddEditExpensePage implements OnInit {
 
   canDismissCCCE: boolean;
 
+  canUnlinkCCCE: boolean;
+
+  isCorporateCreditCardEnabled: boolean;
+
   corporateCreditCardExpenseGroupId: string;
 
   constructor(
@@ -829,6 +833,52 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  async unlinkCorporateCardExpense() {
+    const id = this.activatedRoute.snapshot.params.id;
+    const header = 'Unlink Card Details';
+    const body =
+      "If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on Confirm.\nIt removes the card details from the expense and results in two expenses which you can find on the Expenses page.";
+    const ctaText = 'Confirm';
+    const ctaLoadingText = 'Confirming';
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header,
+        body,
+        ctaText,
+        ctaLoadingText,
+        deleteMethod: () => {
+          return this.transactionService.unlinkCorporateCardExpense(id);
+        },
+      },
+    });
+
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data && data.status === 'success') {
+      let txnDetails;
+      this.etxn$.subscribe((etxn) => (txnDetails = etxn));
+      const properties = {
+        Type: 'unlink corporate card expense',
+        transaction: txnDetails,
+      };
+      this.trackingService.unlinkCorporateCardExpense(properties);
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: txnDetails.tx.id }]);
+      const toastMessage = 'Unlinked card details successfully.';
+      const toastMessageData = {
+        message: toastMessage,
+      };
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
+        panelClass: ['msb-info'],
+      });
+      this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+    }
+  }
+
   async markPeronsalOrDismiss(type: string) {
     const id = this.activatedRoute.snapshot.params.id;
     this.etxn$.subscribe(
@@ -937,6 +987,15 @@ export class AddEditExpensePage implements OnInit {
             text: 'Dimiss as Card Payment',
             handler: () => {
               this.markPeronsalOrDismiss('dismiss');
+            },
+          });
+        }
+
+        if (this.isCorporateCreditCardEnabled && this.canUnlinkCCCE) {
+          this.actionSheetButtons.push({
+            text: 'Unlink Card Details',
+            handler: () => {
+              this.unlinkCorporateCardExpense();
             },
           });
         }
@@ -2570,6 +2629,9 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.unify_ccce_expenses_settings.allowed &&
         orgSettings.unify_ccce_expenses_settings.enabled;
 
+      this.isCorporateCreditCardEnabled =
+        orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&
         orgSettings.ccc_draft_expense_settings.allowed &&
@@ -2840,6 +2902,10 @@ export class AddEditExpensePage implements OnInit {
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
+      this.canUnlinkCCCE =
+        !!etxn?.tx?.corporate_credit_card_expense_group_id &&
+        etxn.creator_id === 'SYSTEM_CORPORATE_CARD' &&
+        ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].indexOf(etxn.state) > -1;
     });
 
     this.getPolicyDetails();
