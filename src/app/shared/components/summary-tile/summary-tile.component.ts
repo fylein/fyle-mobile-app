@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Actions } from 'src/app/core/models/actions.model';
-import { openApproverListDialog } from 'src/app/core/services/openApproverListDialog.service';
 @Component({
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
@@ -21,11 +20,7 @@ export class FySummaryTileComponent implements OnInit, OnChanges {
 
   @Input() actions: Actions;
 
-  constructor(private openApproverListDialog: openApproverListDialog) {}
-
-  openApproverListDialogFunction() {
-    this.openApproverListDialog.openApproverListDialog();
-  }
+  constructor() {}
 
   ngOnChanges() {
     this.status = this.status === 'APPROVAL PENDING' ? 'Pending' : this.status;

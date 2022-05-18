@@ -40,12 +40,15 @@
     <div class="summary-tile--approval-state-block-header">
       <div class="summary-tile--approvers">Approvers</div>
       <div *ngIf="actions">
-        <div
-          *ngIf="actions.can_add_approver"
-          class="summary-tile--approvers-add-approver"
-          (click)="openApproverListDialogFunction()"
-        >
-          <img [src]="'../../../../assets/svg/fy-edit-gradient.svg'" class="approver--icon" />
+        <div class="summary-tile--approvers-add-approver">
+          <app-fy-approver
+            *ngIf="actions.can_add_approver"
+            [id]="advanceRequest?.areq_id"
+            [ownerEmail]="advanceRequest?.us_email"
+            [type]="'ADVANCE_REQUEST'"
+            (notify)="onUpdateApprover($event)"
+          >
+          </app-fy-approver>
         </div>
       </div>
     </div>
