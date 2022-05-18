@@ -1,5 +1,3 @@
-import { List } from 'lodash';
-
 export interface Transaction {
   activity_details: string;
   activity_policy_pending: boolean;
