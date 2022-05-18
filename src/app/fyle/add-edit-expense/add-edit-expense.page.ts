@@ -855,7 +855,7 @@ export class AddEditExpensePage implements OnInit {
     await deletePopover.present();
     const { data } = await deletePopover.onDidDismiss();
 
-    if (data && data.status === 'success') {
+    if (data?.status === 'success') {
       let txnDetails;
       this.etxn$.subscribe((etxn) => (txnDetails = etxn));
       const properties = {
@@ -868,7 +868,7 @@ export class AddEditExpensePage implements OnInit {
           '/',
           'enterprise',
           'my_view_report',
-          { id: txnDetails?.tx?.report_id, navigateBack: true },
+          { id: txnDetails.tx.report_id, navigateBack: true },
         ]);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
@@ -2909,7 +2909,7 @@ export class AddEditExpensePage implements OnInit {
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
       this.canUnlinkCCCE =
-        etxn?.tx?.is_implicitly_merged && ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].indexOf(etxn?.tx?.state) > -1;
+        etxn?.tx?.is_implicitly_merged && ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn?.tx?.state);
     });
 
     this.getPolicyDetails();
