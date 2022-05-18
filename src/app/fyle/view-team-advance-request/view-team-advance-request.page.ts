@@ -74,7 +74,7 @@ export class viewTeamAdvanceRequestPage implements OnInit {
     private actionSheetController: ActionSheetController,
     private loaderService: LoaderService,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
-    private ReceiptExtensionService: ReceiptExtensionService,
+    private receiptExtensionService: ReceiptExtensionService,
     private authService: AuthService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
@@ -124,7 +124,7 @@ export class viewTeamAdvanceRequestPage implements OnInit {
         this.fileService.downloadUrl(fileObj?.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
-            const details = this.ReceiptExtensionService.getReceiptDetails(fileObj);
+            const details = this.receiptExtensionService.getReceiptDetails(fileObj);
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
