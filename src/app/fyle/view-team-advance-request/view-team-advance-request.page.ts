@@ -27,7 +27,6 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { FileObject } from 'src/app/core/models/file_obj.model';
-import { List } from 'lodash';
 
 @Component({
   selector: 'app-view-team-advance-request',
@@ -126,8 +125,8 @@ export class viewTeamAdvanceRequestPage implements OnInit {
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
             const details = this.ReceiptExtensionService.getReceiptDetails(fileObj);
-            fileObj.type = details?.type;
-            fileObj.thumbnail = details?.thumbnail;
+            fileObj.type = details.type;
+            fileObj.thumbnail = details.thumbnail;
             return fileObj;
           })
         )
