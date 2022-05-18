@@ -20,7 +20,7 @@ export class FyApproverComponent {
 
   @Input() actions: Actions;
 
-  @Output() notify?: EventEmitter<any> = new EventEmitter<any>();
+  @Output() notify: EventEmitter<string> = new EventEmitter<string>();
 
   approverList$: Observable<any>;
 

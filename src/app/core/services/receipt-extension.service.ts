@@ -7,19 +7,19 @@ import { Injectable } from '@angular/core';
 export class ReceiptExtensionService {
   constructor() {}
 
-  getReceiptExtension(name: string) {
-    let ReceiptExtension = null;
+  getReceiptExtension(name: string): string {
+    let receiptExtension = null;
 
     if (name) {
       const filename = name.toLowerCase();
       const index = filename.lastIndexOf('.');
 
       if (index > -1) {
-        ReceiptExtension = filename.substring(index + 1, filename.length);
+        receiptExtension = filename.substring(index + 1, filename.length);
       }
     }
 
-    return ReceiptExtension;
+    return receiptExtension;
   }
 
   getReceiptDetails(file: FileObject) {
@@ -29,7 +29,7 @@ export class ReceiptExtensionService {
       thumbnail: 'img/fy-receipt.svg',
     };
 
-    if (receiptExtn && ['pdf'].indexOf(receiptExtn) > -1) {
+    if (receiptExtn === 'pdf') {
       receiptInfo.type = 'pdf';
       receiptInfo.thumbnail = 'img/fy-pdf.svg';
     } else if (receiptExtn && ['png', 'jpg', 'jpeg', 'gif'].indexOf(receiptExtn) > -1) {
