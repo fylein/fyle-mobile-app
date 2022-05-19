@@ -17,6 +17,21 @@ export class CategoriesService {
 
   constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
 
+  @Cacheable({
+    cacheBusterObserver: categoriesCacheBuster$,
+  })
+  getAll() {
+    return this.getActiveCategoriesCount().pipe(
+      switchMap((count) => {
+        count = count > 50 ? count / 50 : 1;
+        return range(0, count);
+      }),
+      concatMap((page) => this.getCategories({ offset: 50 * page, limit: 50 })),
+      map((res) => res),
+      reduce((acc, curr) => acc.concat(curr), [] as any[])
+    );
+  }
+
   getActiveCategoriesCount(): Observable<number> {
     const data = {
       params: {
@@ -59,21 +74,6 @@ export class CategoriesService {
     }));
 
     return oldCategory;
-  }
-
-  @Cacheable({
-    cacheBusterObserver: categoriesCacheBuster$,
-  })
-  getAll() {
-    return this.getActiveCategoriesCount().pipe(
-      switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
-        return range(0, count);
-      }),
-      concatMap((page) => this.getCategories({ offset: 50 * page, limit: 50 })),
-      map((res) => res),
-      reduce((acc, curr) => acc.concat(curr), [] as any[])
-    );
   }
 
   sortCategories(categories) {
