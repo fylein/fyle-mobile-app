@@ -59,6 +59,7 @@
 
   &--currency-block {
     margin-right: 8px;
+    width: 30%;
 
     &__disabled {
       padding-bottom: 0 !important;
@@ -67,6 +68,7 @@
 
   &--amount-block {
     margin-left: 8px;
+    width: 70%;
   }
 
   &__invalid {
