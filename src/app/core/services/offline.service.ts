@@ -140,10 +140,7 @@ export class OfflineService {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
-          const params = {
-            is_enabled: 'eq.true',
-          };
-          return this.taxGroupService.get(params).pipe(
+          return this.taxGroupService.get().pipe(
             tap((taxGroups) => {
               this.storageService.set('cachedTaxGroups', taxGroups);
             })
