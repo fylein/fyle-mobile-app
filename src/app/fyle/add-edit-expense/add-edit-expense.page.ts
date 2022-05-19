@@ -100,7 +100,6 @@ import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -339,8 +338,6 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
-  private hidePaidByCompany = false;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -384,8 +381,7 @@ export class AddEditExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
-    private handleDuplicates: HandleDuplicatesService,
-    private launchDarklyService: LaunchDarklyService
+    private handleDuplicates: HandleDuplicatesService
   ) {}
 
   @HostListener('keydown')
@@ -1030,7 +1026,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getPaymentModes() {
+  getPaymentModes(): Observable<any[]> {
     const accounts$ = this.isConnected$.pipe(
       take(1),
       switchMap((isConnected) => {
@@ -1048,7 +1044,7 @@ export class AddEditExpensePage implements OnInit {
       orgSettings: orgSettings$,
       etxn: this.etxn$,
     }).pipe(
-      map(({ accounts, orgSettings, etxn }) => {
+      switchMap(({ accounts, orgSettings, etxn }) => {
         const isAdvanceEnabled =
           (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
@@ -1073,12 +1069,7 @@ export class AddEditExpensePage implements OnInit {
           this.showCardTransaction = false;
         }
         const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-        return this.accountsService.constructPaymentModes(
-          userAccounts,
-          isMultipleAdvanceEnabled,
-          false,
-          this.hidePaidByCompany
-        );
+        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
       map((paymentModes) =>
         paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
@@ -2486,10 +2477,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
-      this.hidePaidByCompany = hidePaidByCompany;
-    });
-
     this.newExpenseDataUrls = [];
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {

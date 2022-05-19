@@ -3,13 +3,11 @@ import { environment } from 'src/environments/environment';
 import { NetworkService } from './network.service';
 import { DeviceService } from './device.service';
 import { UserEventService } from './user-event.service';
-import { RouterAuthService } from './router-auth.service';
+import { OrgService } from './org.service';
+import { AuthService } from './auth.service';
 import { StorageService } from './storage.service';
-import { OfflineService } from './offline.service';
 import { concat, forkJoin, from, Observable, of } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
-import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { Org } from '../models/org.model';
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
 @Injectable({
@@ -21,8 +19,8 @@ export class LaunchDarklyService {
   private isOnline: boolean;
 
   constructor(
-    private routerAuthService: RouterAuthService,
-    private offlineService: OfflineService,
+    private orgService: OrgService,
+    private authService: AuthService,
     private networkService: NetworkService,
     private deviceService: DeviceService,
     private userEventService: UserEventService,
@@ -80,18 +78,16 @@ export class LaunchDarklyService {
   }
 
   private getCurrentUser(): Observable<LDClient.LDUser> {
-    const isLoggedIn$ = from(this.routerAuthService.isLoggedIn());
+    const currentEou$ = from(this.authService.getEou());
 
-    return isLoggedIn$.pipe(
-      filter((isLoggedIn) => isLoggedIn),
-      switchMap(() => {
-        const currentEou$: Observable<ExtendedOrgUser> = this.offlineService.getCurrentUser();
-        const currentOrg$: Observable<Org> = this.offlineService.getCurrentOrg();
+    return currentEou$.pipe(
+      filter((eou) => !!eou),
+      switchMap((eou) => {
+        const currentOrg$ = this.orgService.getCurrentOrg();
         const devicePlatform$ = this.deviceService.getDeviceInfo().pipe(map((device) => device?.platform));
 
-        return forkJoin({ currentEou$, currentOrg$, devicePlatform$ }).pipe(
+        return forkJoin({ currentOrg$, devicePlatform$ }).pipe(
           switchMap((res) => {
-            const eou = res?.currentEou$;
             const org = res?.currentOrg$;
             const platform = res?.devicePlatform$;
 

@@ -60,7 +60,6 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -207,8 +206,6 @@ export class AddEditMileagePage implements OnInit {
 
   canRemoveFromReport = false;
 
-  private hidePaidByCompany = false;
-
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -241,8 +238,7 @@ export class AddEditMileagePage implements OnInit {
     private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private launchDarklyService: LaunchDarklyService
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   get showSaveAndNext() {
@@ -610,14 +606,14 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  getPaymentModes() {
+  getPaymentModes(): Observable<any[]> {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const accounts$ = this.offlineService.getAccounts();
     return forkJoin({
       accounts: accounts$,
       orgSettings: orgSettings$,
     }).pipe(
-      map(({ accounts, orgSettings }) => {
+      switchMap(({ accounts, orgSettings }) => {
         const isAdvanceEnabled =
           (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
@@ -630,12 +626,7 @@ export class AddEditMileagePage implements OnInit {
           )
           .filter((userAccount) => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
 
-        return this.accountsService.constructPaymentModes(
-          userAccounts,
-          isMultipleAdvanceEnabled,
-          false,
-          this.hidePaidByCompany
-        );
+        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
       map((paymentModes) =>
         paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
@@ -976,10 +967,6 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.launchDarklyService.getVariation('hide_paid_by_company', false).subscribe((hidePaidByCompany) => {
-      this.hidePaidByCompany = hidePaidByCompany;
-    });
-
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
     });
