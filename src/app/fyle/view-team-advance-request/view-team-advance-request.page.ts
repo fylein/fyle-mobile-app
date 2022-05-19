@@ -13,7 +13,6 @@ import { PopupService } from 'src/app/core/services/popup.service';
 import { PopoverController, ModalController, ActionSheetController } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
-import { ReceiptExtensionService } from 'src/app/core/services/receipt-extension.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -74,7 +73,6 @@ export class viewTeamAdvanceRequestPage implements OnInit {
     private actionSheetController: ActionSheetController,
     private loaderService: LoaderService,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
-    private receiptExtensionService: ReceiptExtensionService,
     private authService: AuthService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
@@ -121,10 +119,10 @@ export class viewTeamAdvanceRequestPage implements OnInit {
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap((res) => from(res)),
       concatMap((fileObj: File) =>
-        this.fileService.downloadUrl(fileObj?.id).pipe(
+        this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
-            const details = this.receiptExtensionService.getReceiptDetails(fileObj);
+            const details = this.fileService.getReceiptsDetails(fileObj);
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
@@ -388,7 +386,7 @@ export class viewTeamAdvanceRequestPage implements OnInit {
     }
   }
 
-  async viewAttachments(attachments: FileObject) {
+  async viewAttachments(attachments: FileObject): Promise<void> {
     const attachmentsModal = await this.modalController.create({
       component: FyViewAttachmentComponent,
       componentProps: {
