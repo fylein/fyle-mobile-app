@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
+import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
-import { Subject } from 'rxjs';
+import { Observable, range, Subject } from 'rxjs';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformCategory } from '../models/platform/platform-category.model';
 import { PlatformCategoryData } from '../models/platform/platform-category-data.model';
@@ -17,11 +17,26 @@ export class CategoriesService {
 
   constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
 
-  @Cacheable({
-    cacheBusterObserver: categoriesCacheBuster$,
-  })
-  getAll() {
-    return this.spenderPlatformApiService.get('/categories').pipe(
+  getActiveCategoriesCount(): Observable<number> {
+    const data = {
+      params: {
+        is_enabled: 'eq.' + true,
+        offset: 0,
+        limit: 1,
+      },
+    };
+    return this.spenderPlatformApiService.get('/categories', data).pipe(map((res: PlatformCategory) => res.count));
+  }
+
+  getCategories(config: { offset: number; limit: number }): Observable<OrgCategory[]> {
+    const data = {
+      params: {
+        is_enabled: 'eq.' + true,
+        offset: config.offset,
+        limit: config.limit,
+      },
+    };
+    return this.spenderPlatformApiService.get('/categories', data).pipe(
       map((res: PlatformCategory) => this.transformFrom(res.data)),
       map(this.sortCategories),
       map(this.addDisplayName)
@@ -44,6 +59,21 @@ export class CategoriesService {
     }));
 
     return oldCategory;
+  }
+
+  @Cacheable({
+    cacheBusterObserver: categoriesCacheBuster$,
+  })
+  getAll() {
+    return this.getActiveCategoriesCount().pipe(
+      switchMap((count) => {
+        count = count > 50 ? count / 50 : 1;
+        return range(0, count);
+      }),
+      concatMap((page) => this.getCategories({ offset: 50 * page, limit: 50 })),
+      map((res) => res),
+      reduce((acc, curr) => acc.concat(curr), [] as any[])
+    );
   }
 
   sortCategories(categories) {
