@@ -8,8 +8,8 @@ export interface OrgCategory {
   fyle_category: string;
   sub_category: string;
   enabled: boolean;
-  creator_id?: string;
-  last_updated_by?: string;
+  creator_id: string;
+  last_updated_by: string;
   displayName?: string;
 }
 
