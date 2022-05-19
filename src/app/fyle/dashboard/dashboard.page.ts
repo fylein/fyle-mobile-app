@@ -14,6 +14,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { HttpClient } from '@angular/common/http';
+import { HTTP } from '@ionic-native/http/ngx';
 
 enum DashboardState {
   home,
@@ -69,7 +70,8 @@ export class DashboardPage implements OnInit {
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
     private tasksService: TasksService,
-    private http: HttpClient
+    private http: HttpClient,
+    private httpSSL: HTTP
   ) {}
 
   ionViewWillLeave() {
@@ -129,6 +131,11 @@ export class DashboardPage implements OnInit {
     this.dummyData$ = this.http.get<{ title: string; id: number; userId: number; completed: boolean }[]>(
       'http://jsonplaceholder.typicode.com/posts'
     );
+
+    this.httpSSL
+      .get('http://jsonplaceholder.typicode.com/posts', {}, {})
+      .then((data) => console.log('Valid API call', data))
+      .catch((err) => console.log('INVALID_CALL', err));
   }
 
   ngOnInit() {

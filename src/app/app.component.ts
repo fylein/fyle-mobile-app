@@ -73,7 +73,7 @@ export class AppComponent implements OnInit {
     private popupService: PopupService,
     private navController: NavController,
     private popoverController: PopoverController,
-    private http: HTTP
+    private httpSSL: HTTP
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -142,10 +142,12 @@ export class AppComponent implements OnInit {
       });
       this.splashScreen.hide();
 
-      this.http
+      this.httpSSL
         .setServerTrustMode('pinned')
-        .then(() => console.log('Mutual fund sahi hai!'))
-        .catch((err) => console.log('Yeh galat hai :('));
+        .then(() => {
+          console.log('The certificate is valid');
+        })
+        .catch((err) => console.log('INVALID_CERTIFICATE', err));
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;

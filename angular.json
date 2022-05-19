@@ -31,9 +31,9 @@
                 "output": "./svg"
               },
               {
-                "glob": "**/*",
+                "glob": "*.cer",
                 "input": "src/certificates",
-                "output": "certificates"
+                "output": "./certificates"
               }
             ],
             "styles": [
