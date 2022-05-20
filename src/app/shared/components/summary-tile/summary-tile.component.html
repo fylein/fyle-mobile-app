@@ -1,15 +1,9 @@
 <div class="summary-tile--card-container">
   <div class="d-flex">
     <div class="summary-tile--card-container__block">
-      <div *ngIf="category" class="summary-tile--card-container__category">{{ category }}</div>
       <div *ngIf="purpose" class="summary-tile--card-container__purpose">
         {{ purpose | ellipsis: 25 }}
       </div>
-
-      <div *ngIf="merchant" class="summary-tile--card-container__merchant">
-        {{ merchant }}
-      </div>
-      <div *ngIf="project" class="summary-tile--card-container__project">Project: {{ project }}</div>
     </div>
     <div class="ion-text-right summary-tile--card-container__block">
       <div>
@@ -18,18 +12,12 @@
           {{ amount | humanizeCurrency: currency:2:true }}
         </span>
       </div>
-
       <div
-        class="ion-text-right"
-        [ngClass]="{ 'summary-tile--card-container__no-exchange': !orig_currency && project }"
+        class="summary-tile--card-container__state-pill summary-tile--card-container__state-pill__{{
+          status | lowercase
+        }}"
       >
-        <div
-          class="summary-tile--card-container__state-pill summary-tile--card-container__state-pill__{{
-            status | lowercase
-          }}"
-        >
-          {{ status | snakeCaseToSpaceCase | titlecase }}
-        </div>
+        {{ status | snakeCaseToSpaceCase | titlecase }}
       </div>
     </div>
   </div>
@@ -40,14 +28,7 @@
     <div class="summary-tile--approval-state-block-header">
       <div class="summary-tile--approvers">Approvers</div>
       <div class="summary-tile--approvers-add-approver">
-        <app-fy-approver
-          *ngIf="actions.can_add_approver"
-          [id]="advanceRequest?.areq_id"
-          [ownerEmail]="advanceRequest?.us_email"
-          [type]="'ADVANCE_REQUEST'"
-          (notify)="onUpdateApprover($event)"
-        >
-        </app-fy-approver>
+        <app-fy-approver *ngIf="actions.can_add_approver" [type]="'ADVANCE_REQUEST'"> </app-fy-approver>
       </div>
     </div>
     <div *ngFor="let ap of approvals">

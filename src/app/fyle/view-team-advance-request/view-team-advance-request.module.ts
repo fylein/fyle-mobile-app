@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { SharedModule } from '../../shared/shared.module';
-import { AdvanceActionsComponent } from './advance-actions/advance-actions.component';
+import { AdvanceActionsComponent } from './advance-actions/Advance-actions.component';
 
 @NgModule({
   imports: [
