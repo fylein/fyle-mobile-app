@@ -1,12 +1,22 @@
 package com.ionicframework.fyle595781;
-import com.ahm.capacitor.camera.preview.CameraPreview;
-import android.os.Bundle;
 
 import com.getcapacitor.BridgeActivity;
-import com.getcapacitor.Plugin;
-import com.whitestein.securestorage.SecureStoragePlugin;
-
-import java.util.ArrayList;
+import com.getcapacitor.Bridge;
+import com.getcapacitor.BridgeWebViewClient;
+import android.webkit.WebView;
+import android.webkit.SslErrorHandler;
+import android.net.http.SslError;
+import android.util.Log;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 public class MainActivity extends BridgeActivity {
+  public static void enable(Bridge bridge) {
+    bridge.getWebView().setWebViewClient(new BridgeWebViewClient(bridge) {
+      @Override
+      public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+        handler.cancel();
+      }
+    });
+  }
 }
