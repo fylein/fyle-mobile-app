@@ -163,10 +163,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         const isCCCEnabled =
           orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
 
+        const paidByCompanyAccount = paymentModes
+          .map((res) => res.value)
+          .find((paymentMode) => paymentMode.acc.displayName === 'Paid by Company');
+
         let account;
 
-        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
-          account = paymentModes.find((res) => res.acc.displayName === 'Paid by Company');
+        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT' && paidByCompanyAccount) {
+          account = paidByCompanyAccount;
         } else if (
           isCCCEnabled &&
           orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'

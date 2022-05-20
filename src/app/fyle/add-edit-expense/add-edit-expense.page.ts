@@ -1457,6 +1457,11 @@ export class AddEditExpensePage implements OnInit {
         const hasCCCAccount = paymentModes
           .map((res) => res.value)
           .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+
+        const paidByCompanyAccount = paymentModes
+          .map((res) => res.value)
+          .find((paymentMode) => paymentMode.acc.displayName === 'Paid by Company');
+
         if (
           hasCCCAccount &&
           orgUserSettings.preferences &&
@@ -1467,12 +1472,11 @@ export class AddEditExpensePage implements OnInit {
             .map((res) => res.value)
             .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
         } else if (
+          paidByCompanyAccount &&
           orgUserSettings.preferences &&
           orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT'
         ) {
-          return paymentModes
-            .map((res) => res.value)
-            .find((paymentMode) => paymentMode.acc.displayName === 'Paid by Company');
+          return paidByCompanyAccount;
         } else if (this.isCreatedFromCCC) {
           return paymentModes
             .map((res) => res.value)
