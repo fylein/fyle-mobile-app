@@ -32,7 +32,7 @@ import { FileObject } from 'src/app/core/models/file_obj.model';
   templateUrl: './view-team-advance-request.page.html',
   styleUrls: ['./view-team-advance-request.page.scss'],
 })
-export class viewTeamAdvanceRequestPage implements OnInit {
+export class ViewTeamAdvanceRequestPage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
 
   actions$: Observable<any>;

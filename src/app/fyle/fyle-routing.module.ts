@@ -80,7 +80,7 @@ const routes: Routes = [
     path: 'view_team_advance',
     loadChildren: () =>
       import('./view-team-advance-request/view-team-advance-request.module').then(
-        (m) => m.viewTeamAdvanceRequestPageModule
+        (m) => m.ViewTeamAdvanceRequestPageModule
       ),
   },
   {
