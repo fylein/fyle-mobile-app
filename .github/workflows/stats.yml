@@ -9,7 +9,7 @@ jobs:
       - run: 'echo "$PR_STATS_TOKEN" > key'
          shell: bash
          env:
-         PR_STATS_TOKEN: ${{secrets. PR_STATS_TOKEN}}
+         PR_STATS_TOKEN: ${{secrets.PR_STATS_TOKEN}}
       - name: Run pull request stats
         uses: flowwer-dev/pull-request-stats@master
         with:
