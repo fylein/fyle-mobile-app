@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
-import { TaxGroup } from '../models/tax_group.model';
+import { TaxGroup } from '../models/tax-group.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformTaxGroup } from '../models/platform/platform-tax-group.model';
-import { PlatformTaxGroupData } from '../models/platform/platform-tax-group-data.model';
 import { Observable, range } from 'rxjs';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +21,9 @@ export class TaxGroupService {
         limit: 1,
       },
     };
-    return this.spenderPlatformApiService.get('/tax_groups', data).pipe(map((res: PlatformTaxGroup) => res.count));
+    return this.spenderPlatformApiService
+      .get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data)
+      .pipe(map((res) => res.count));
   }
 
   getTaxGroups(config: { offset: number; limit: number }): Observable<TaxGroup[]> {
@@ -33,13 +35,12 @@ export class TaxGroupService {
       },
     };
     return this.spenderPlatformApiService
-      .get('/tax_groups', data)
-      .pipe(map((res: PlatformTaxGroup) => this.transformFrom(res.data)));
+      .get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data)
+      .pipe(map((res) => this.transformFrom(res.data)));
   }
 
-  transformFrom(platformTaxGroup: PlatformTaxGroupData[]): TaxGroup[] {
-    let oldTaxGroup = [];
-    oldTaxGroup = platformTaxGroup.map((taxGroup) => ({
+  transformFrom(platformTaxGroup: PlatformTaxGroup[]): TaxGroup[] {
+    const oldTaxGroup = platformTaxGroup.map((taxGroup) => ({
       id: taxGroup.id,
       name: taxGroup.name,
       percentage: taxGroup.percentage,
@@ -60,7 +61,7 @@ export class TaxGroupService {
       }),
       concatMap((page) => this.getTaxGroups({ offset: 50 * page, limit: 50 })),
       map((res) => res),
-      reduce((acc, curr) => acc.concat(curr), [] as any[])
+      reduce((acc, curr) => acc.concat(curr), [] as TaxGroup[])
     );
   }
 
