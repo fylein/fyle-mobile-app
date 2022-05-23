@@ -17,6 +17,7 @@ import {
 } from 'rxjs/operators';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -38,7 +39,8 @@ export class DelegatedAccountsPage implements OnInit {
     private router: Router,
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService
+    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   switchToDelegatee(eou) {
@@ -54,6 +56,7 @@ export class DelegatedAccountsPage implements OnInit {
         })
       )
       .subscribe(() => {
+        this.launchDarklyService.updateIdentity();
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       });
   }
@@ -75,6 +78,7 @@ export class DelegatedAccountsPage implements OnInit {
         .subscribe(() => {
           globalCacheBusterNotifier.next();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          this.launchDarklyService.updateIdentity();
           this.router.navigate(['/', 'enterprise', 'my_dashboard']);
         });
     } else {
