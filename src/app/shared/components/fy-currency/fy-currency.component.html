@@ -2,14 +2,14 @@
   <form [formGroup]="fg" class="fy-currency--form">
     <div
       class="fy-currency--input-container fy-currency--currency-block"
-      [ngClass]="{ 'fy-currency--currency-block__disabled': disabled }"
+      [ngClass]="componentInUse === 'expense-filing' ? null : { 'fy-currency--currency-block__disabled': disabled }"
     >
       <div class="fy-currency--label">
         Currency
         <span class="fy-currency--mandatory"> * </span>
       </div>
       <input
-        [ngClass]="{ 'fy-currency--input__disabled': disabled }"
+        [ngClass]="componentInUse === 'expense-filing' ? null : { 'fy-currency--input__disabled': disabled }"
         class="fy-currency--input"
         (click)="openCurrencyModal()"
         formControlName="currency"
@@ -18,17 +18,26 @@
     </div>
     <div
       class="fy-currency--input-container fy-currency--amount-block"
-      [ngClass]="{ 'fy-currency__invalid': !valid, 'fy-currency--currency-block__disabled': disabled }"
+      [ngClass]="
+        componentInUse === 'expense-filing'
+          ? null
+          : { 'fy-currency__invalid': !valid, 'fy-currency--currency-block__disabled': disabled }
+      "
     >
       <div class="fy-currency--label">
         Amount
         <span class="fy-currency--mandatory"> * </span>
       </div>
-      <app-fy-number placeholder="00.00" formControlName="amount" [disabled]="disabled"> </app-fy-number>
+      <app-fy-number
+        placeholder="00.00"
+        formControlName="amount"
+        [disabled]="componentInUse === 'expense-filing' ? null : disabled"
+      >
+      </app-fy-number>
     </div>
   </form>
 </div>
-<ng-container *ngIf="value?.currency && value?.orig_currency">
+<ng-container *ngIf="value?.currency && value?.orig_currency && componentInUse === 'expense-filing'">
   <div
     class="fy-currency--exchange-rate-container"
     [ngClass]="{ expanded: expanded, 'fy-currency--exchange-rate-container__disabled': disabled }"
