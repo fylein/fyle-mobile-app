@@ -515,6 +515,10 @@ export class TrackingService {
 
   // Corporate Cards section related Events
 
+  unlinkCorporateCardExpense(properties) {
+    this.eventTrack('unlink corporate card expense', properties);
+  }
+
   // When admin sends reminders to users for matching their CCCExpenses
   numberOfCCCMatchRemindersSentAtOnce(properties) {
     this.eventTrack('Number of users sent CCCMatch Reminders at once', properties);
