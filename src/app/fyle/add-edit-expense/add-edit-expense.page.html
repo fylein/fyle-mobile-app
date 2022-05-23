@@ -53,7 +53,7 @@
         <ng-container *ngIf="isConnected$|async as isConnected">
           <ng-container *ngIf="isSplitExpenseAllowed$|async as isSplitExpenseAllowed">
             <ng-container
-              *ngIf="(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)"
+              *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canUnlinkCCCE)"
             >
               <ion-button class="add-edit-expense--header-btn-container__btn" (click)="moreActions()">
                 <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
@@ -267,7 +267,7 @@
                       (keydown)="$event.preventDefault()"
                       [max]="maxDate"
                       [min]="minDate"
-                      [placeholder]="'Select ' + txnFields.txn_dt?.field_name || 'Date of Spend'"
+                      [placeholder]="'Select ' + txnFields.txn_dt?.placeholder || 'Date of Spend'"
                       class="add-edit-expense--date-input date-input__format"
                       formControlName="dateOfSpend"
                       type="date"
@@ -907,7 +907,7 @@
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       *ngIf="customInput.type === 'TEXT'"
-                      [placeholder]="'Enter ' + customInput.name | ellipsis: 30"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                       class="add-edit-expense--text-input"
                       formControlName="value"
                       type="text"
@@ -916,7 +916,7 @@
                     <app-fy-number
                       formControlName="value"
                       *ngIf="customInput.type === 'NUMBER'"
-                      [placeholder]="'Enter ' + customInput.name"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-number>
 
@@ -926,7 +926,7 @@
                       class="add-edit-expense--date-input date-input__format"
                       formControlName="value"
                       type="date"
-                      [placeholder]="'Select ' + customInput.name"
+                      placeholder="customInput.placeholder | ellipsis: 30"
                       [name]="customInput.name"
                     />
                   </div>
@@ -942,6 +942,7 @@
                       [label]="customInput.name  | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-location>
                   </div>
@@ -951,8 +952,9 @@
                       [label]="customInput.name  | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
-                      [selectModalHeader]="'Select '+customInput.name"
+                      [selectModalHeader]="customInput.placeholder | ellipsis: 30"
                       [label]="customInput.name"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                       formControlName="value"
                     >
                     </app-fy-select>
@@ -963,9 +965,10 @@
                       [label]="customInput.name  | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
-                      [selectModalHeader]="'Select '+customInput.name"
+                      [selectModalHeader]="customInput.placeholder | ellipsis: 30"
                       [subheader]="customInput.name"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-multiselect>
                   </div>
@@ -976,6 +979,7 @@
                       [mandatory]="customInput.mandatory"
                       [allowCustomValues]="true"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-userlist>
                   </div>
@@ -1179,7 +1183,11 @@
     class="add-edit-expense--footer-container"
     *ngIf="!reviewList?.length"
   >
-    <ion-toolbar mode="md" [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}">
+    <ion-toolbar
+      class="add-edit-expense--footer-box"
+      mode="md"
+      [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}"
+    >
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">
           <ion-button
