@@ -105,9 +105,9 @@ export class LaunchDarklyService {
               custom: {
                 org_id: eou?.ou.org_id,
                 org_user_id: eou?.ou.id,
-                org_currency: org.currency,
-                org_created_at: (org as any).created_at,
-                asset: `MOBILE - ${platform.toUpperCase()}`,
+                org_currency: org?.currency,
+                org_created_at: (org as any)?.created_at,
+                asset: `MOBILE - ${platform?.toUpperCase()}`,
               },
             };
             return of(user);
