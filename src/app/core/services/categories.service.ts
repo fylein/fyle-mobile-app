@@ -61,8 +61,7 @@ export class CategoriesService {
   }
 
   transformFrom(platformCategory: PlatformCategory[]): OrgCategory[] {
-    let oldCategory = [];
-    oldCategory = platformCategory.map((category) => ({
+    const oldCategory = platformCategory.map((category) => ({
       code: category.code,
       created_at: category.created_at,
       displayName: category.display_name,
