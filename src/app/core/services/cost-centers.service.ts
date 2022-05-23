@@ -3,9 +3,9 @@ import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { CostCenter } from '../models/v1/cost-center.model';
-import { PlatformCostCenterData } from '../models/platform/platform-cost-center-data.model';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 const costCentersCacheBuster$ = new Subject<void>();
 
@@ -26,7 +26,7 @@ export class CostCentersService {
       }),
       concatMap((page) => this.getCostCenters({ offset: 50 * page, limit: 50 })),
       map((res) => res),
-      reduce((acc, curr) => acc.concat(curr), [] as any[])
+      reduce((acc, curr) => acc.concat(curr), [] as CostCenter[])
     );
   }
 
@@ -38,7 +38,9 @@ export class CostCentersService {
         limit: 1,
       },
     };
-    return this.spenderPlatformApiService.get('/cost_centers', data).pipe(map((res: PlatformCostCenter) => res.count));
+    return this.spenderPlatformApiService
+      .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
+      .pipe(map((res) => res.count));
   }
 
   getCostCenters(config: { offset: number; limit: number }): Observable<CostCenter[]> {
@@ -50,11 +52,11 @@ export class CostCentersService {
       },
     };
     return this.spenderPlatformApiService
-      .get('/cost_centers', data)
-      .pipe(map((res: PlatformCostCenter) => this.transformFrom(res.data)));
+      .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
+      .pipe(map((res) => this.transformFrom(res.data)));
   }
 
-  transformFrom(platformCostCenter: PlatformCostCenterData[]): CostCenter[] {
+  transformFrom(platformCostCenter: PlatformCostCenter[]): CostCenter[] {
     let oldCostCenter = [];
     oldCostCenter = platformCostCenter.map((costCenter) => ({
       active: costCenter.is_enabled,
