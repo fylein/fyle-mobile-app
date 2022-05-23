@@ -1180,7 +1180,11 @@
     class="add-edit-expense--footer-container"
     *ngIf="!reviewList?.length"
   >
-    <ion-toolbar mode="md" [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}">
+    <ion-toolbar
+      class="add-edit-expense--footer-box"
+      mode="md"
+      [ngClass]="{'add-edit-expense--footer-toolbar__offline': !(isConnected$|async)}"
+    >
       <div class="add-edit-expense--footer-toolbar">
         <ion-buttons *ngIf="!reviewList">
           <ion-button

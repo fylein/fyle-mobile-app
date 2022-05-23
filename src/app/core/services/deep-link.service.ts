@@ -8,10 +8,10 @@ export class DeepLinkService {
   constructor(private router: Router) {}
 
   getJsonFromUrl(url) {
-    const query = url.split('?')[1];
+    const query = url?.split('?')[1];
     const result = {};
     query.split('&').forEach((part) => {
-      const item = part.split('=');
+      const item = part?.split('=');
       result[item[0]] = decodeURIComponent(item[1]);
     });
     return result;
@@ -41,8 +41,8 @@ export class DeepLinkService {
             refreshToken,
           },
         ]);
-      } else if (redirectUri.match('/reports/rp') && redirectUri.split('/reports/').pop().length === 12) {
-        const reportId = redirectUri.split('/reports/').pop();
+      } else if (redirectUri.match('/reports/rp') && redirectUri?.split('/reports/').pop().length === 12) {
+        const reportId = redirectUri?.split('/reports/').pop();
         const subModule = 'report';
         this.router.navigate([
           '/',
@@ -52,8 +52,8 @@ export class DeepLinkService {
             id: reportId,
           },
         ]);
-      } else if (redirectUri.match('/view_expense/tx') && redirectUri.split('/view_expense/').pop().length === 12) {
-        const txnId = redirectUri.split('/view_expense/').pop();
+      } else if (redirectUri.match('/view_expense/tx') && redirectUri?.split('/view_expense/').pop().length === 12) {
+        const txnId = redirectUri?.split('/view_expense/').pop();
         const subModule = 'expense';
         this.router.navigate([
           '/',
@@ -65,9 +65,9 @@ export class DeepLinkService {
         ]);
       } else if (
         redirectUri.match('/advance_request/areq') &&
-        redirectUri.split('/advance_request/').pop().length === 14
+        redirectUri?.split('/advance_request/').pop().length === 14
       ) {
-        const advReqId = redirectUri.split('/advance_request/').pop();
+        const advReqId = redirectUri?.split('/advance_request/').pop();
         const subModule = 'advReq';
         this.router.navigate([
           '/',
