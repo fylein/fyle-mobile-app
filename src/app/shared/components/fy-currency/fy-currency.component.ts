@@ -6,7 +6,7 @@ import { ModalController } from '@ionic/angular';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { isEqual } from 'lodash';
-import { concatMap, map, switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
@@ -32,6 +32,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   @Input() expanded: boolean;
 
   @Input() disabled: boolean;
+
+  @Input() componentInUse: string;
 
   exchangeRate = 1;
 
@@ -69,72 +71,100 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
 
-    this.fg = this.fb.group({
-      currency: [], // currency which is currently shown
-      amount: [], // amount which is currently shown
-      homeCurrencyAmount: [], // Amount converted to home currency
-    });
+    if (this.componentInUse === 'expense-filing') {
+      this.fg = this.fb.group({
+        currency: [], // currency which is currently shown
+        amount: [], // amount which is currently shown
+        homeCurrencyAmount: [], // Amount converted to home currency
+      });
 
-    this.fg.valueChanges
-      .pipe(
-        switchMap((formValue) => {
-          if (!formValue.amount && !formValue.homeCurrencyAmount && formValue.currency !== this.homeCurrency) {
-            return this.currencyService
-              .getExchangeRate(formValue.currency, this.homeCurrency, this.txnDt || new Date())
-              .pipe(map((exchangeRate) => ({ formValue, exchangeRate })));
-          } else {
-            return of({ formValue, exchangeRate: null });
+      this.fg.valueChanges
+        .pipe(
+          switchMap((formValue) => {
+            if (!formValue.amount && !formValue.homeCurrencyAmount && formValue.currency !== this.homeCurrency) {
+              return this.currencyService
+                .getExchangeRate(formValue.currency, this.homeCurrency, this.txnDt || new Date())
+                .pipe(map((exchangeRate) => ({ formValue, exchangeRate })));
+            } else {
+              return of({ formValue, exchangeRate: null });
+            }
+          })
+        )
+        .subscribe(({ formValue, exchangeRate }) => {
+          if (exchangeRate) {
+            this.exchangeRate = exchangeRate;
           }
-        })
-      )
-      .subscribe(({ formValue, exchangeRate }) => {
-        if (exchangeRate) {
-          this.exchangeRate = exchangeRate;
-        }
 
+          const value = {
+            amount: null,
+            currency: null,
+            orig_amount: null,
+            orig_currency: null,
+          };
+
+          if (formValue.amount === null) {
+            if (formValue.currency !== this.homeCurrency) {
+              value.currency = this.homeCurrency;
+              value.orig_currency = formValue.currency;
+            } else {
+              value.currency = this.homeCurrency;
+            }
+          } else {
+            if (formValue.currency !== this.homeCurrency) {
+              if (this.value.amount && this.value.orig_amount) {
+                this.exchangeRate = this.value.amount / this.value.orig_amount;
+              }
+              value.currency = this.homeCurrency;
+              value.orig_amount = +formValue.amount;
+              value.orig_currency = formValue.currency;
+              value.amount = +formValue.homeCurrencyAmount;
+              if (value.orig_currency === this.value.orig_currency) {
+                value.amount = value.orig_amount * this.exchangeRate;
+              } else {
+                value.amount = +formValue.homeCurrencyAmount;
+              }
+            } else {
+              this.exchangeRate = 1;
+              value.currency = this.homeCurrency;
+              value.amount = formValue.amount && +formValue.amount;
+            }
+          }
+
+          if (!isEqual(value, this.innerValue)) {
+            this.value = value;
+          }
+        });
+    } else {
+      this.fg = this.fb.group({
+        currency: [], // currency which is currently shown
+        amount: [], // amount which is currently shown
+      });
+
+      this.fg.valueChanges.subscribe((formValue) => {
         const value = {
           amount: null,
           currency: null,
-          orig_amount: null,
-          orig_currency: null,
         };
 
-        if (formValue.amount === null) {
-          if (formValue.currency !== this.homeCurrency) {
-            value.currency = this.homeCurrency;
-            value.orig_currency = formValue.currency;
-          } else {
-            value.currency = this.homeCurrency;
-          }
-        } else {
-          if (formValue.currency !== this.homeCurrency) {
-            if (this.value.amount && this.value.orig_amount) {
-              this.exchangeRate = this.value.amount / this.value.orig_amount;
-            }
-            value.currency = this.homeCurrency;
-            value.orig_amount = +formValue.amount;
-            value.orig_currency = formValue.currency;
-            value.amount = +formValue.homeCurrencyAmount;
-            if (value.orig_currency === this.value.orig_currency) {
-              value.amount = value.orig_amount * this.exchangeRate;
-            } else {
-              value.amount = +formValue.homeCurrencyAmount;
-            }
-          } else {
-            this.exchangeRate = 1;
-            value.currency = this.homeCurrency;
-            value.amount = formValue.amount && +formValue.amount;
-          }
+        if (formValue.amount !== null) {
+          value.amount = +formValue.amount;
         }
+        value.currency = formValue.currency;
 
-        if (!isEqual(value, this.innerValue)) {
+        if (!this.checkIfSameValue(value, this.innerValue)) {
           this.value = value;
         }
       });
+    }
+  }
+
+  checkIfSameValue(amount1, amount2) {
+    return amount1 && amount2 && amount1.amount === amount2.amount && amount1.currency === amount2.currency;
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (
+      this.componentInUse === 'expense-filing' &&
       this.fg &&
       changes.txnDt &&
       changes.txnDt.previousValue &&
@@ -155,7 +185,12 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   }
 
   convertInnerValueToFormValue(innerVal) {
-    if (innerVal && innerVal.orig_currency && innerVal.orig_currency !== this.homeCurrency) {
+    if (
+      this.componentInUse === 'expense-filing' &&
+      innerVal &&
+      innerVal.orig_currency &&
+      innerVal.orig_currency !== this.homeCurrency
+    ) {
       return {
         amount: innerVal.orig_amount,
         currency: innerVal.orig_currency,
@@ -280,14 +315,19 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     const { data } = await currencyModal.onWillDismiss();
     if (data) {
       const shortCode = data.currency.shortCode;
-      if (shortCode === this.homeCurrency) {
-        this.fg.controls.currency.patchValue(shortCode);
-      } else {
-        if (shortCode !== this.value.orig_currency) {
-          await this.setExchangeRate(shortCode);
+
+      if (this.componentInUse === 'expense-filing') {
+        if (shortCode === this.homeCurrency) {
+          this.fg.controls.currency.patchValue(shortCode);
         } else {
-          await this.setExchangeRate();
+          if (shortCode !== this.value.orig_currency) {
+            await this.setExchangeRate(shortCode);
+          } else {
+            await this.setExchangeRate();
+          }
         }
+      } else {
+        this.fg.controls.currency.setValue(shortCode);
       }
     }
   }
