@@ -4,8 +4,8 @@ import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformCategory } from '../models/platform/platform-category.model';
-import { PlatformCategoryData } from '../models/platform/platform-category-data.model';
 import { OrgCategory } from '../models/v1/org-category.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 const categoriesCacheBuster$ = new Subject<void>();
 
@@ -20,7 +20,7 @@ export class CategoriesService {
   @Cacheable({
     cacheBusterObserver: categoriesCacheBuster$,
   })
-  getAll() {
+  getAll(): Observable<OrgCategory[]> {
     return this.getActiveCategoriesCount().pipe(
       switchMap((count) => {
         count = count > 50 ? count / 50 : 1;
@@ -28,7 +28,7 @@ export class CategoriesService {
       }),
       concatMap((page) => this.getCategories({ offset: 50 * page, limit: 50 })),
       map((res) => res),
-      reduce((acc, curr) => acc.concat(curr), [] as any[])
+      reduce((acc, curr) => acc.concat(curr), [] as OrgCategory[])
     );
   }
 
@@ -40,7 +40,9 @@ export class CategoriesService {
         limit: 1,
       },
     };
-    return this.spenderPlatformApiService.get('/categories', data).pipe(map((res: PlatformCategory) => res.count));
+    return this.spenderPlatformApiService
+      .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
+      .pipe(map((res) => res.count));
   }
 
   getCategories(config: { offset: number; limit: number }): Observable<OrgCategory[]> {
@@ -51,14 +53,14 @@ export class CategoriesService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformApiService.get('/categories', data).pipe(
-      map((res: PlatformCategory) => this.transformFrom(res.data)),
+    return this.spenderPlatformApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
+      map((res) => this.transformFrom(res.data)),
       map(this.sortCategories),
       map(this.addDisplayName)
     );
   }
 
-  transformFrom(platformCategory: PlatformCategoryData[]): OrgCategory[] {
+  transformFrom(platformCategory: PlatformCategory[]): OrgCategory[] {
     let oldCategory = [];
     oldCategory = platformCategory.map((category) => ({
       code: category.code,
