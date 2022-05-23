@@ -57,8 +57,7 @@ export class CostCentersService {
   }
 
   transformFrom(platformCostCenter: PlatformCostCenter[]): CostCenter[] {
-    let oldCostCenter = [];
-    oldCostCenter = platformCostCenter.map((costCenter) => ({
+    const oldCostCenter = platformCostCenter.map((costCenter) => ({
       active: costCenter.is_enabled,
       code: costCenter.code,
       created_at: costCenter.created_at,
