@@ -1,6 +1,6 @@
 @import '../../../theme/colors.scss';
 
-.view-advances {
+.view-team-advance-request {
   &--toolbar {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   }
@@ -10,9 +10,7 @@
   }
 
   &--card {
-    padding: 0 16px;
-    margin: 16px;
-    border: 1px solid #e5e5e5;
+    padding: 0 16px 16px;
     border-radius: 4px;
 
     &__modified-padding {
@@ -32,6 +30,11 @@
   &--title-sm {
     padding-left: 0;
     font-size: 17px;
+  }
+
+  &--divider {
+    margin: 24px 0px;
+    border-bottom: 1px solid $grey-lighter;
   }
 
   &--header-btn-container {
