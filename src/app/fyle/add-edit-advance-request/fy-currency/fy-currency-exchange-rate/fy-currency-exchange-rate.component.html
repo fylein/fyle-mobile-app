@@ -1,0 +1,54 @@
+<ion-header mode="md">
+  <ion-toolbar mode="md">
+    <ion-title mode="md"> Currency </ion-title>
+    <ion-buttons mode="md" slot="end">
+      <ion-button (click)="onDoneClick()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="exchange-rate-modal">
+    <form [formGroup]="fg">
+      <div class="exchange-rate-modal--form-control">
+        <div class="exchange-rate-modal--label">
+          {{ newCurrency }}
+        </div>
+        <app-fy-number placeholder="e.g. 9.99" formControlName="newCurrencyAmount"> </app-fy-number>
+      </div>
+      <div class="exchange-rate-modal--form-control">
+        <div class="exchange-rate-modal--label">Rate</div>
+        <app-fy-number placeholder="e.g. 9.99" formControlName="exchangeRate"> </app-fy-number>
+      </div>
+      <div class="exchange-rate-modal--form-control">
+        <div class="exchange-rate-modal--label">
+          {{ currentCurrency }}
+        </div>
+        <app-fy-number placeholder="e.g. 9.99" formControlName="homeCurrencyAmount"> </app-fy-number>
+      </div>
+    </form>
+  </div>
+  <div class="exchange-rate-modal--description">
+    {{ newCurrency }} {{ fg.controls.newCurrencyAmount.value }} will be converted to {{ currentCurrency }}
+    {{ fg.controls.homeCurrencyAmount.value }} at {{ fg.controls.exchangeRate.value }} {{ newCurrency }}/{{
+      currentCurrency
+    }}
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar mode="md">
+    <ion-button
+      class="exchange-rate-modal--save"
+      [disabled]="!fg.valid"
+      fill="solid"
+      color="fyle-primary"
+      expand="full"
+      (click)="save()"
+    >
+      Save
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
