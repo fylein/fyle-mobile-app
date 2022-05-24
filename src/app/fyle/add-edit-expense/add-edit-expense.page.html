@@ -248,7 +248,7 @@
           <ion-grid class="ion-grid-no-padding">
             <ion-row>
               <ion-col
-                [size]="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && (paymentModes$ | async)?.length > 1 ? 6 : 12"
+                [size]="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && (paymentModes$ | async)?.length > 0 ? 6 : 12"
               >
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
@@ -287,7 +287,7 @@
               <ion-col size="6" *ngIf="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense)">
                 <ng-container *ngIf="paymentModes$|async as paymentModes">
                   <div
-                    *ngIf="paymentModes.length > 1"
+                    *ngIf="paymentModes.length > 0"
                     [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}"
                     class="add-edit-expense--payment-modes add-edit-expense--internal-block"
                   >
