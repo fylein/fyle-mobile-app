@@ -33,7 +33,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   @Input() disabled: boolean;
 
-  @Input() componentInUse: string;
+  @Input() showExchangeRate: boolean;
 
   exchangeRate = 1;
 
@@ -71,7 +71,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
 
-    if (this.componentInUse === 'expense-filing') {
+    if (this.showExchangeRate) {
       this.fg = this.fb.group({
         currency: [], // currency which is currently shown
         amount: [], // amount which is currently shown
@@ -164,7 +164,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   ngOnChanges(changes: SimpleChanges) {
     if (
-      this.componentInUse === 'expense-filing' &&
+      this.showExchangeRate &&
       this.fg &&
       changes.txnDt &&
       changes.txnDt.previousValue &&
@@ -185,12 +185,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   }
 
   convertInnerValueToFormValue(innerVal) {
-    if (
-      this.componentInUse === 'expense-filing' &&
-      innerVal &&
-      innerVal.orig_currency &&
-      innerVal.orig_currency !== this.homeCurrency
-    ) {
+    if (this.showExchangeRate && innerVal && innerVal.orig_currency && innerVal.orig_currency !== this.homeCurrency) {
       return {
         amount: innerVal.orig_amount,
         currency: innerVal.orig_currency,
@@ -316,7 +311,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     if (data) {
       const shortCode = data.currency.shortCode;
 
-      if (this.componentInUse === 'expense-filing') {
+      if (this.showExchangeRate) {
         if (shortCode === this.homeCurrency) {
           this.fg.controls.currency.patchValue(shortCode);
         } else {
