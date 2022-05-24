@@ -200,7 +200,7 @@
           <div>
             <div *ngIf="etxn$|async as etxn" class="add-edit-expense--currency">
               <ng-container *ngIf="homeCurrency$|async as homeCurrency">
-                <app-fy-currency
+                <app-new-fy-currency
                   [formControl]="fg?.controls?.currencyObj"
                   [homeCurrency]="homeCurrency"
                   [recentlyUsed]="recentCurrencies"
@@ -208,7 +208,7 @@
                   [expanded]="attachedReceiptsCount === 0"
                   [disabled]="isUnifyCcceExpensesSettingsEnabled && isCccExpense"
                 >
-                </app-fy-currency>
+                </app-new-fy-currency>
                 <div
                   *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
                   class="add-edit-expense--amount-error"
