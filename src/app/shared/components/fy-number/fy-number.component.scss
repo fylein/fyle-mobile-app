@@ -14,12 +14,5 @@
     &::placeholder {
       color: $blue-black !important;
     }
-    &__disabled {
-      background-color: $off-white;
-      margin-bottom: 0;
-      height: 28px;
-      border-radius: 4px;
-      pointer-events: none;
-    }
   }
 }
