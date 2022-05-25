@@ -1471,11 +1471,7 @@ export class AddEditExpensePage implements OnInit {
           return paymentModes
             .map((res) => res.value)
             .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-        } else if (
-          paidByCompanyAccount &&
-          orgUserSettings.preferences &&
-          orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT'
-        ) {
+        } else if (paidByCompanyAccount && orgUserSettings?.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
           return paidByCompanyAccount;
         } else if (this.isCreatedFromCCC) {
           return paymentModes
