@@ -1,7 +1,4 @@
 import UIKit
-import UIBlurEffect
-import UIBlurEffectStyle
-import UIVisualEffectView
 import Capacitor
 import FirebaseCore
 import FirebaseInstanceID
