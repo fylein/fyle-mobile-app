@@ -15,4 +15,7 @@ export interface File {
   transportation_booking_id?: string;
   file_download_url?: string;
   file_type?: string;
+  url?: string;
+  type?: string;
+  thumbnail?: string;
 }

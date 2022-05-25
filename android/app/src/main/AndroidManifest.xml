@@ -16,7 +16,9 @@
             android:name="com.ionicframework.fyle595781.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            >
 
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />

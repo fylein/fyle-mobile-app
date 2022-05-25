@@ -238,9 +238,9 @@ export class MyViewReportPage implements OnInit {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.erpt$.subscribe((erpt) => {
-      this.reportCurrencySymbol = getCurrencySymbol(erpt.rp_currency, 'wide');
-      this.reportName = erpt.rp_purpose;
-      this.reportId = erpt.rp_id;
+      this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
+      this.reportName = erpt?.rp_purpose;
+      this.reportId = erpt?.rp_id;
     });
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(

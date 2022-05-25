@@ -77,6 +77,12 @@ export class StatusService {
           icon: 'edit',
         };
         break;
+      case lowerCaseComment.indexOf('policy violation will trigger the following action') > -1:
+        statusCategory = {
+          category: 'Policy Violation',
+          icon: 'danger',
+        };
+        break;
       case lowerCaseComment.indexOf('added') > -1:
         statusCategory = {
           category: 'Receipt Attached',
@@ -111,12 +117,6 @@ export class StatusService {
         statusCategory = {
           category: 'Flagged',
           icon: 'flag',
-        };
-        break;
-      case lowerCaseComment.indexOf('the following action(s) will be taken') > -1:
-        statusCategory = {
-          category: 'Policy Violation',
-          icon: 'danger',
         };
         break;
       case lowerCaseComment.indexOf('additional approvers are not present') > -1:

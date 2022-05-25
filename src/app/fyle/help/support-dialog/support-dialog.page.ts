@@ -1,10 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { NavParams } from '@ionic/angular';
-import { Plugins } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import { TrackingService } from '../../../core/services/tracking.service';
-
-const { Browser } = Plugins;
 
 @Component({
   selector: 'app-support-dialog',

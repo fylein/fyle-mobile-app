@@ -4,7 +4,7 @@ export interface FileObject {
   created_at: Date;
   name: string;
   s3url: string;
-  transaction_id: string;
+  transaction_id?: string;
   invoice_id?: any;
   advance_request_id?: any;
   transportation_booking_id?: any;

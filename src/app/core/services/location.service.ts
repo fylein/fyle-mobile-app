@@ -3,9 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { catchError, map, timeout } from 'rxjs/operators';
 import { from, Observable, of, Subject, OperatorFunction } from 'rxjs';
-import { GeolocationPosition, Plugins } from '@capacitor/core';
+import { Geolocation, Position } from '@capacitor/geolocation';
 import { Cacheable } from 'ts-cacheable';
-const { Geolocation } = Plugins;
 
 const currentLocationCacheBuster$ = new Subject<void>();
 
@@ -23,9 +22,7 @@ export class LocationService {
     cacheBusterObserver: currentLocationCacheBuster$,
     maxAge: 10 * 60 * 1000, // 10 minutes
   })
-  getCurrentLocation(
-    config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false }
-  ): Observable<GeolocationPosition> {
+  getCurrentLocation(config: { enableHighAccuracy: boolean } = { enableHighAccuracy: false }): Observable<Position> {
     return from(
       Geolocation.getCurrentPosition({
         timeout: 5000,
