@@ -53,7 +53,7 @@
         <ng-container *ngIf="isConnected$|async as isConnected">
           <ng-container *ngIf="isSplitExpenseAllowed$|async as isSplitExpenseAllowed">
             <ng-container
-              *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canUnlinkCCCE)"
+              *ngIf="(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)"
             >
               <ion-button class="add-edit-expense--header-btn-container__btn" (click)="moreActions()">
                 <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
@@ -130,22 +130,22 @@
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend Date</div>
                 <div class="add-edit-expense--card-container__value">
-                  {{ fg?.controls?.dateOfSpend?.value | date: 'MMM dd, yyyy' }}
+                  {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, yyyy' }}
                 </div>
               </ion-col>
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend Amount</div>
-                <div *ngIf="fg?.controls?.currencyObj?.value?.amount > 0">
+                <div *ngIf="selectedCCCTransaction?.amount > 0">
                   <span class="add-edit-expense--card-container__value"
-                    >{{ fg?.controls?.currencyObj?.value?.amount | humanizeCurrency:
-                    fg?.controls?.currencyObj?.value?.currency:2:true }}</span
+                    >{{ selectedCCCTransaction?.amount | humanizeCurrency: selectedCCCTransaction?.currency:2:true
+                    }}</span
                   >
                   <span class="add-edit-expense--card-container__txn-type">DR</span>
                 </div>
-                <div *ngIf="fg?.controls?.currencyObj?.value?.amount < 0">
+                <div *ngIf="selectedCCCTransaction?.amount < 0">
                   <span class="add-edit-expense--card-container__value add-edit-expense--card-container__credit"
-                    >{{ fg?.controls?.currencyObj?.value?.amount * -1 | humanizeCurrency:
-                    fg?.controls?.currencyObj?.value?.currency:2:true }}</span
+                    >{{ selectedCCCTransaction?.amount * -1 | humanizeCurrency: selectedCCCTransaction?.currency:2:true
+                    }}</span
                   >
                   <span class="add-edit-expense--card-container__txn-type add-edit-expense--card-container__credit"
                     >CR</span
@@ -154,10 +154,6 @@
               </ion-col>
             </ion-row>
           </ion-grid>
-          <app-fy-alert-info
-            [type]="'information'"
-            [message]="'You won\'t be able to change the Amount, Spend Date and Currency for the corporate card expenses.'"
-          ></app-fy-alert-info>
         </ng-container>
 
         <div class="add-edit-expense--receipt-currency-container">
@@ -206,7 +202,6 @@
                   [recentlyUsed]="recentCurrencies"
                   [txnDt]="fg?.controls?.dateOfSpend?.value"
                   [expanded]="attachedReceiptsCount === 0"
-                  [disabled]="isUnifyCcceExpensesSettingsEnabled && isCccExpense"
                 >
                 </app-fy-currency>
                 <div
@@ -251,7 +246,7 @@
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
                     *ngIf="txnFields?.txn_dt"
-                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid, 'add-edit-expense--date-block-disabled': isUnifyCcceExpensesSettingsEnabled && isCccExpense}"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                     class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin"
                   >
                     <div
@@ -271,7 +266,6 @@
                       formControlName="dateOfSpend"
                       type="date"
                       [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
-                      [ngClass]="{'add-edit-expense--date-disabled': isUnifyCcceExpensesSettingsEnabled && isCccExpense}"
                     />
                   </div>
                   <div
