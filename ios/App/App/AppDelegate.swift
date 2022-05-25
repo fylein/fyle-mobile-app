@@ -32,7 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.light)
     let blurEffectView = UIVisualEffectView(effect: blurEffect)
-    blurEffectView.alpha = 0.8
     blurEffectView.frame = window!.frame
     blurEffectView.tag = 221122
 
