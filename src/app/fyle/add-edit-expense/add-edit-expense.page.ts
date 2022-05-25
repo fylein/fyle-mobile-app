@@ -1459,8 +1459,8 @@ export class AddEditExpensePage implements OnInit {
           .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
 
         const paidByCompanyAccount = paymentModes
-          .map((res) => res.value)
-          .find((paymentMode) => paymentMode.acc.displayName === 'Paid by Company');
+          .map((res) => res?.value)
+          .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
 
         if (
           hasCCCAccount &&
