@@ -672,17 +672,4 @@
       font-weight: 500;
     }
   }
-
-  &--date-block-disabled {
-    padding-bottom: 0 !important;
-    margin-right: 0 !important;
-  }
-
-  &--date-disabled {
-    background-color: $off-white;
-    margin-bottom: 0;
-    height: 28px;
-    border-radius: 4px;
-    pointer-events: none;
-  }
 }
