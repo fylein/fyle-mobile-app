@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     //Ref: https://stackoverflow.com/questions/31982270/blurring-app-screen-in-switch-mode-on-ios
     
-    let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.Dark)
+    let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.light)
     let blurEffectView = UIVisualEffectView(effect: blurEffect)
     blurEffectView.frame = window!.frame
     blurEffectView.tag = 221122
