@@ -27,26 +27,6 @@
     <div class="my-edit-report--error-message" *ngIf="showReportNameError">Please enter report name.</div>
 
     <div
-      class="my-edit-report--report-card"
-      *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)  && extendedReport.rp_state === 'DRAFT'"
-    >
-      <span>Select a trip to associate with report:</span>
-      <div class="my-edit-report--select-trip">
-        <app-fy-select [label]="'Trip'" [options]="tripRequests" [(ngModel)]="selectedTripRequest"> </app-fy-select>
-      </div>
-    </div>
-
-    <div class="my-edit-report--report-card" *ngIf="!isTripRequestsEnabled && extendedReport.rp_state === 'DRAFT'">
-      <p class="my-edit-report--report-title">Trip Request ID</p>
-      <input
-        class="my-edit-report--text-trip"
-        type="text"
-        placeholder="Enter Trip Request ID"
-        [(ngModel)]="tripRequestId"
-      />
-    </div>
-
-    <div
       class="my-edit-report--add-expense-container"
       (click)="showAddExpensesToReportModal()"
       *ngIf="(extendedReport.rp_state === 'DRAFT' || extendedReport.rp_state === 'APPROVER_PENDING') && (unReportedEtxns && unReportedEtxns.length > 0)"

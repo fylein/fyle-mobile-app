@@ -53,6 +53,10 @@
     justify-content: space-around;
   }
 
+  &--footer-box {
+    box-shadow: 0px -2px 40px rgba(215, 215, 215, 0.4);
+  }
+
   &--footer-container {
     &::before {
       content: none;
@@ -613,7 +617,7 @@
   &--amount-error {
     color: $red;
     font-size: 12px;
-    margin: -8px 0 0 52%;
+    margin: -8px 0 0 33%;
   }
 
   &--orig-amount-error {
@@ -667,18 +671,5 @@
       color: $green;
       font-weight: 500;
     }
-  }
-
-  &--date-block-disabled {
-    padding-bottom: 0 !important;
-    margin-right: 0 !important;
-  }
-
-  &--date-disabled {
-    background-color: $off-white;
-    margin-bottom: 0;
-    height: 28px;
-    border-radius: 4px;
-    pointer-events: none;
   }
 }
