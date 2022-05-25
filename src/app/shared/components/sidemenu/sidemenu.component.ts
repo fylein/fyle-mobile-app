@@ -127,7 +127,7 @@ export class SidemenuComponent implements OnInit {
           });
 
           this.launchDarklyService.initializeUser({
-            key: eou.us.id,
+            key: eou.ou.user_id,
             custom: {
               org_id: eou.ou.org_id,
               org_user_id: eou.ou.id,
