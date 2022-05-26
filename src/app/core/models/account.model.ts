@@ -21,7 +21,7 @@ export interface AccountDetail {
 export interface ExtendedAccount {
   acc: AccountDetail;
   ou: Pick<OrgUser, 'id' | 'org_id'>;
-  org: Org;
+  org: Pick<Org, 'id' | 'domain'>;
   advance: Pick<ExtendedAdvance, 'adv_id' | 'adv_purpose' | 'adv_advance_number'>;
   orig: {
     currency: string;
