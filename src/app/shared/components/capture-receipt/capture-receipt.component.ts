@@ -12,7 +12,7 @@ import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
+import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedAccount } from 'src/app/core/models/account.model';
@@ -112,6 +112,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }).pipe(
       switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) => {
         return this.getAccount(orgSettings, accounts, orgUserSettings).pipe(
+          filter((account) => !!account),
           switchMap((account) => {
             if (!isConnected) {
               source += '_OFFLINE';
@@ -174,9 +175,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           isCCCEnabled &&
           orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
         ) {
-          account = paymentModes.find((res) => res.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          account = paymentModes.find(
+            (paymentMode) => paymentMode?.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+          );
         } else {
-          account = paymentModes.find((res) => res.acc.displayName === 'Personal Card/Cash');
+          account = paymentModes.find((paymentMode) => paymentMode?.acc.displayName === 'Personal Card/Cash');
         }
         return account;
       })
