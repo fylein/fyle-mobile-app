@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { Observable, from, noop, Subject, concat } from 'rxjs';
+import { Observable, from, noop, Subject, concat, forkJoin } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -27,6 +27,25 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
+
+type Approver = {
+  id: number;
+  created_at: Date;
+  updated_at: Date;
+  report_id: string;
+  approver_id: string;
+  request_id: string;
+  state: string;
+  added_by: string;
+  disabled_by: string;
+  last_updated_by: Date;
+  rank: number;
+  approver_name: string;
+  approver_email: string;
+  comment: string;
+};
 
 @Component({
   selector: 'app-view-team-report',
@@ -108,6 +127,18 @@ export class ViewTeamReportPage implements OnInit {
 
   isExpensesLoading: boolean;
 
+  orgUserId: string;
+
+  approvers: Approver[];
+
+  isSequentialApprovalEnabled: boolean;
+
+  isTopInSequentialApproval: boolean;
+
+  eou$: Observable<ExtendedOrgUser>;
+
+  showApproveDisabledTooltip: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -124,7 +155,8 @@ export class ViewTeamReportPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private refinerService: RefinerService,
     private statusService: StatusService,
-    private humanizeCurrency: HumanizeCurrencyPipe
+    private humanizeCurrency: HumanizeCurrencyPipe,
+    private offlineService: OfflineService
   ) {}
 
   ngOnInit() {
@@ -132,11 +164,11 @@ export class ViewTeamReportPage implements OnInit {
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
       finalize(() => from(this.loaderService.hideLoader()))
     );
-    const eou$ = from(this.authService.getEou());
+    this.eou$ = from(this.authService.getEou());
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
       startWith(0),
-      switchMap(() => eou$),
+      switchMap(() => this.eou$),
       switchMap((eou) =>
         this.statusService.find(this.objectType, this.objectId).pipe(
           map((estatus) =>
@@ -301,8 +333,51 @@ export class ViewTeamReportPage implements OnInit {
     this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
-    this.etxns$.subscribe((etxns) => (this.reportEtxnIds = etxns.map((etxn) => etxn.tx_id)));
+    this.etxns$.subscribe((etxns) => {
+      this.reportEtxnIds = etxns.map((etxn) => etxn.tx_id);
+      this.orgUserId = etxns.map((etxn) => etxn.ou_id)[0];
+      this.reportApprovals$.subscribe((approvals) => {
+        this.approvers = approvals;
+      });
+    });
+
+    forkJoin({
+      eou: this.eou$.pipe(take(1)),
+      approvals: this.reportApprovals$.pipe(take(1)),
+      orgSettings: this.offlineService.getOrgSettings().pipe(take(1)),
+    }).subscribe((res) => {
+      this.isSequentialApprovalEnabled =
+        res.orgSettings.approval_settings && res.orgSettings.approval_settings.enable_sequential_approvers;
+      this.isTopInSequentialApproval = this.isSequentialApprovalEnabled
+        ? this.checkIsTopInSequentialApproval(res.eou, res.approvals)
+        : true;
+      this.showApproveDisabledTooltip = true;
+    });
+
     this.refreshApprovals$.next();
+  }
+
+  closeApproceDisabledTooltip() {
+    this.showApproveDisabledTooltip = false;
+  }
+
+  openApproveDisabledTooltip() {
+    this.showApproveDisabledTooltip = true;
+  }
+
+  checkIsTopInSequentialApproval(eou, approvals) {
+    var minRank = 100;
+    var currentApproverRank = 100;
+
+    approvals.forEach(function (approver) {
+      if (approver.approver_id === eou.ou.id) {
+        currentApproverRank = approver.rank;
+      }
+      if (approver.state === 'APPROVAL_PENDING' && approver.rank < minRank) {
+        minRank = approver.rank;
+      }
+    });
+    return currentApproverRank === minRank;
   }
 
   async deleteReport() {
