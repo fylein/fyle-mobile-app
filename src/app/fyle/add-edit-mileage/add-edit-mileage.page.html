@@ -415,13 +415,13 @@
                         class="add-edit-mileage--text-input"
                         formControlName="value"
                         type="text"
-                        [placeholder]="customInput.placeholder | ellipsis: 30"
+                        [placeholder]="'Enter ' + customInput.name"
                       />
 
                       <app-fy-number
                         formControlName="value"
                         *ngIf="customInput.type === 'NUMBER'"
-                        [placeholder]="customInput.placeholder | ellipsis: 30"
+                        [placeholder]="'Enter ' + customInput.name"
                       ></app-fy-number>
 
                       <input
@@ -430,7 +430,7 @@
                         class="add-edit-mileage--date-input date-input__format"
                         formControlName="value"
                         type="date"
-                        [placeholder]="customInput.placeholder | ellipsis: 30"
+                        [placeholder]="'Select ' + customInput.name"
                         [name]="customInput.name"
                       />
                     </div>
@@ -449,7 +449,6 @@
                         [label]="customInput.name | ellipsis: 30"
                         [mandatory]="customInput.mandatory"
                         formControlName="value"
-                        [placeholder]="customInput.placeholder | ellipsis: 30"
                       >
                       </app-fy-location>
                     </div>
@@ -459,9 +458,8 @@
                         [label]="customInput.name | ellipsis: 30"
                         [mandatory]="customInput.mandatory"
                         [options]="customInput.options"
-                        [selectModalHeader]="customInput.placeholder | ellipsis: 30"
+                        [selectModalHeader]="'Select '+customInput.name"
                         formControlName="value"
-                        [placeholder]="customInput.placeholder | ellipsis: 30"
                       >
                       </app-fy-select>
                     </div>
@@ -471,10 +469,9 @@
                         [label]="customInput.name | ellipsis: 30"
                         [mandatory]="customInput.mandatory"
                         [options]="customInput.options"
-                        [selectModalHeader]="customInput.placeholder | ellipsis: 30"
+                        [selectModalHeader]="'Select '+customInput.name"
                         [subheader]="customInput.name"
                         formControlName="value"
-                        [placeholder]="customInput.placeholder | ellipsis: 30"
                       >
                       </app-fy-multiselect>
                     </div>
