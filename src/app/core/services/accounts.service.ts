@@ -51,7 +51,6 @@ export class AccountsService {
 
     return hidePaidByCompany$.pipe(
       map((hidePaidByCompany) => {
-        console.log(hidePaidByCompany);
         const accountsMap = {
           PERSONAL_ACCOUNT(account) {
             account.acc.displayName = 'Personal Card/Cash';
