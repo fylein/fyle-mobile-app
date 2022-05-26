@@ -100,7 +100,7 @@ import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
-import { AccountOption } from 'src/app/core/models/account.model';
+import { AccountOption } from 'src/app/core/models/account_option.model';
 
 @Component({
   selector: 'app-add-edit-expense',

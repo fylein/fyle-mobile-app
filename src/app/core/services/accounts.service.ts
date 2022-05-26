@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 import { CurrencyPipe } from '@angular/common';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { Observable } from 'rxjs';
-import { ExtendedAccount } from '../models/account.model';
+import { ExtendedAccount } from '../models/extended_account.model';
 
 @Injectable({
   providedIn: 'root',
@@ -81,7 +81,7 @@ export class AccountsService {
           },
         };
 
-        const mappedAccouts = accounts.map((account) => account && accountsMap[account.acc.type](account));
+        const mappedAccounts = accounts.map((account) => account && accountsMap[account.acc.type](account));
 
         if (!hidePaidByCompany) {
           const personalAccount = accounts.find((account) => account.acc.type === 'PERSONAL_ACCOUNT');
@@ -89,11 +89,11 @@ export class AccountsService {
             const personalNonreimbursableAccount = cloneDeep(personalAccount);
             personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
             personalNonreimbursableAccount.acc.isReimbursable = false;
-            mappedAccouts.push(personalNonreimbursableAccount);
+            mappedAccounts.push(personalNonreimbursableAccount);
           }
         }
 
-        return mappedAccouts;
+        return mappedAccounts;
       })
     );
   }

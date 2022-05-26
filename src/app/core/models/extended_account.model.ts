@@ -1,22 +1,8 @@
+import { User } from '@sentry/angular';
+import { AccountDetail } from './account_detail.model';
 import { ExtendedAdvance } from './extended_advance.model';
 import { OrgUser } from './org-user.model';
 import { Org } from './org.model';
-import { User } from './user.model';
-
-export interface AccountDetail {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  name: string;
-  type: string;
-  currency: string;
-  target_balance_amout: number;
-  current_balance_amount: number;
-  tentative_balance_amount: number;
-  category: string;
-  displayName: string;
-  isReimbursable: boolean;
-}
 
 export interface ExtendedAccount {
   acc: AccountDetail;
@@ -30,9 +16,4 @@ export interface ExtendedAccount {
   us: Pick<User, 'email' | 'full_name'>;
   currency: string;
   amount: number;
-}
-
-export interface AccountOption {
-  label: string;
-  value: ExtendedAccount;
 }

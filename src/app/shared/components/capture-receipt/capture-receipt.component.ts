@@ -15,7 +15,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ExtendedAccount } from 'src/app/core/models/account.model';
+import { ExtendedAccount } from 'src/app/core/models/extended_account.model';
 
 type Image = Partial<{
   source: string;
