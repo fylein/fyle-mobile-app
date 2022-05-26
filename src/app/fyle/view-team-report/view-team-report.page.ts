@@ -366,8 +366,8 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   checkIsTopInSequentialApproval(eou, approvals) {
-    var minRank = 100;
-    var currentApproverRank = 100;
+    let minRank = 100;
+    let currentApproverRank = 100;
 
     approvals.forEach(function (approver) {
       if (approver.approver_id === eou.ou.id) {
