@@ -126,16 +126,18 @@ export class SidemenuComponent implements OnInit {
             orgUserId: eou.ou.id,
           });
 
-          this.launchDarklyService.initializeUser({
-            key: eou.ou.user_id,
-            custom: {
-              org_id: eou.ou.org_id,
-              org_user_id: eou.ou.id,
-              org_currency: currentOrg?.currency,
-              org_created_at: currentOrg?.created_at,
-              asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
-            },
-          });
+          if (isConnected) {
+            this.launchDarklyService.initializeUser({
+              key: eou.ou.user_id,
+              custom: {
+                org_id: eou.ou.org_id,
+                org_user_id: eou.ou.id,
+                org_currency: currentOrg?.currency,
+                org_created_at: currentOrg?.created_at,
+                asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
+              },
+            });
+          }
         }
 
         this.switchDelegator.emit(this.isSwitchedToDelegator);

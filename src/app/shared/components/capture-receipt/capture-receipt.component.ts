@@ -15,6 +15,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { ExtendedAccount } from 'src/app/core/models/account.model';
 
 type Image = Partial<{
   source: string;
@@ -149,7 +150,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     );
   }
 
-  getAccount(orgSettings: any, accounts: any, orgUserSettings: OrgUserSettings): Observable<any> {
+  getAccount(orgSettings: any, accounts: any, orgUserSettings: OrgUserSettings): Observable<ExtendedAccount> {
     const isAdvanceEnabled =
       (orgSettings.advances && orgSettings.advances.enabled) ||
       (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
@@ -163,9 +164,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         const isCCCEnabled =
           orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
 
-        const paidByCompanyAccount = paymentModes
-          .map((res) => res?.value)
-          .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
+        const paidByCompanyAccount = paymentModes.find(
+          (paymentMode) => paymentMode?.acc.displayName === 'Paid by Company'
+        );
 
         let account;
 

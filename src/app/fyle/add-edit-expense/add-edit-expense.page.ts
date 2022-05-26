@@ -100,6 +100,7 @@ import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
+import { AccountOption } from 'src/app/core/models/account.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -1026,7 +1027,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getPaymentModes(): Observable<any[]> {
+  getPaymentModes(): Observable<AccountOption[]> {
     const accounts$ = this.isConnected$.pipe(
       take(1),
       switchMap((isConnected) => {

@@ -6,6 +6,7 @@ import { cloneDeep } from 'lodash';
 import { CurrencyPipe } from '@angular/common';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { Observable } from 'rxjs';
+import { ExtendedAccount } from '../models/account.model';
 
 @Injectable({
   providedIn: 'root',
@@ -43,13 +44,14 @@ export class AccountsService {
     );
   }
 
-  constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?): Observable<any[]> {
+  constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?): Observable<ExtendedAccount[]> {
     const that = this;
 
     const hidePaidByCompany$ = that.launchDarklyService.getVariation('hide_paid_by_company', false);
 
     return hidePaidByCompany$.pipe(
       map((hidePaidByCompany) => {
+        console.log(hidePaidByCompany);
         const accountsMap = {
           PERSONAL_ACCOUNT(account) {
             account.acc.displayName = 'Personal Card/Cash';
@@ -80,7 +82,7 @@ export class AccountsService {
           },
         };
 
-        const mappedAccouts = accounts.map((account) => accountsMap[account.acc.type](account));
+        const mappedAccouts = accounts.map((account) => account && accountsMap[account.acc.type](account));
 
         if (!hidePaidByCompany) {
           const personalAccount = accounts.find((account) => account.acc.type === 'PERSONAL_ACCOUNT');

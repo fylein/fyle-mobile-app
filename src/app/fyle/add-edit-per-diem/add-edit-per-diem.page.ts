@@ -58,6 +58,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { AccountOption } from 'src/app/core/models/account.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -591,7 +592,7 @@ export class AddEditPerDiemPage implements OnInit {
     });
   }
 
-  getPaymentModes(): Observable<any[]> {
+  getPaymentModes(): Observable<AccountOption[]> {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const accounts$ = this.offlineService.getAccounts();
 
