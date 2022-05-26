@@ -40,8 +40,6 @@ export class MyCreateReportPage implements OnInit {
 
   selectedTxnIds: string[];
 
-  selectedTripRequest: any;
-
   saveDraftReportLoading = false;
 
   saveReportLoading = false;
