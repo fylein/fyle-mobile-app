@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, from, Observable, of } from 'rxjs';
-import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
-import { PlatformExpenseFieldsData } from '../models/platform/platform-expense-fields-data.model';
+import { from, Observable, of } from 'rxjs';
+import { map, reduce, switchMap } from 'rxjs/operators';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformExpenseFields } from '../models/platform/platform-expense-fields.model';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
-import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 
@@ -20,19 +19,19 @@ export class ExpenseFieldsService {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.spenderPlatformApiService
-          .get('/expense_fields', {
+          .get<PlatformApiResponse<PlatformExpenseFields>>('/expense_fields', {
             params: {
               org_id: 'eq.' + eou.ou.org_id,
               is_enabled: 'eq.' + true,
               is_custom: 'eq.' + false,
             },
           })
-          .pipe(map((res: PlatformExpenseFields) => this.transformFrom(res.data)))
+          .pipe(map((res) => this.transformFrom(res.data)))
       )
     );
   }
 
-  transformFrom(platformExpenseField: PlatformExpenseFieldsData[]): ExpenseField[] {
+  transformFrom(platformExpenseField: PlatformExpenseFields[]): ExpenseField[] {
     let oldExpenseField = [];
     oldExpenseField = platformExpenseField.map((expenseField) => ({
       code: expenseField.code,
@@ -54,6 +53,7 @@ export class ExpenseFieldsService {
     }));
 
     oldExpenseField.forEach((item) => {
+      console.log('check the column name-->', item.column_name);
       if (item.column_name === 'category_id') {
         item.column_name = 'org_category_id';
       }
@@ -62,14 +62,41 @@ export class ExpenseFieldsService {
         item.column_name = 'vendor_id';
       }
 
+      if (item.column_name === 'spent_at') {
+        item.column_name = 'txn_dt';
+      }
+
       if (item.column_name === 'locations[0]') {
         item.column_name = 'location1';
       }
 
-      // TBD
-      // if (item.column_name === 'travel_classes[0]') {
-      //   item.column_name = 'bus_travel_class';
-      // }
+      if (item.column_name === 'locations[1]') {
+        item.column_name = 'location2';
+      }
+
+      if (item.column_name === 'travel_classes[0]' && item.seq === 1) {
+        item.column_name = 'flight_journey_travel_class';
+      }
+
+      if (item.column_name === 'travel_classes[0]' && item.seq === 2) {
+        item.column_name = 'bus_travel_class';
+      }
+
+      if (item.column_name === 'travel_classes[0]' && item.seq === 3) {
+        item.column_name = 'train_travel_class';
+      }
+
+      if (item.column_name === 'started_at') {
+        item.column_name = 'from_dt';
+      }
+
+      if (item.column_name === 'ended_at') {
+        item.column_name = 'to_dt';
+      }
+
+      if (item.column_name === 'is_billable') {
+        item.column_name = 'billable';
+      }
     });
     return oldExpenseField;
   }
