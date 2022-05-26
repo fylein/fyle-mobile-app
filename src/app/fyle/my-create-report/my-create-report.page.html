@@ -34,20 +34,6 @@
     </div>
     <div class="my-create-report--error-message" *ngIf="showReportNameError">Please enter report name.</div>
 
-    <div
-      class="my-create-report--report-card my-create-report--report-card__trips"
-      *ngIf="canAssociateTripRequests && (tripRequests && tripRequests.length > 0)"
-    >
-      <span class="my-create-report--trip-label">Select a trip to associate with report:</span>
-      <app-fy-select
-        [options]="tripRequests"
-        [(ngModel)]="selectedTripRequest"
-        [selectModalHeader]="'Select a Trip Request'"
-        [cacheName]="'recentTripRequestsList'"
-      >
-      </app-fy-select>
-    </div>
-
     <div *ngIf="readyToReportEtxns?.length === 0" class="my-create-report--zero-state">
       <img
         alt="Create First Expenses"
@@ -59,16 +45,6 @@
         <mat-icon class="my-create-report--add-more-icon" svgIcon="plus"></mat-icon>
         <div class="my-create-report--add-more-text">Add Expenses</div>
       </div>
-    </div>
-
-    <div class="my-create-report--report-card" *ngIf="!isTripRequestsEnabled && readyToReportEtxns?.length > 0">
-      <p class="my-create-report--report-title">Trip Request ID</p>
-      <input
-        class="my-create-report--text-trip"
-        type="text"
-        placeholder="Enter Trip Request ID"
-        [(ngModel)]="tripRequestId"
-      />
     </div>
 
     <div *ngIf="readyToReportEtxns?.length > 0" class="my-create-report--heading">EXPENSES</div>

@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { SupportDialogPage } from 'src/app/fyle/help/support-dialog/support-dialog.page';
-import { Plugins } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { filter, tap, map, switchMap, finalize, take } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { from, of } from 'rxjs';
 import { TrackingService } from '../../core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-
-const { Browser } = Plugins;
 
 @Component({
   selector: 'app-help',
