@@ -54,8 +54,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
-  private hidePaidByCompany = false;
-
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
