@@ -5,7 +5,7 @@ import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, switchMap, tap, toArray } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -397,17 +397,12 @@ export class SplitExpensePage implements OnInit {
   }
 
   checkForPolicyViolations(txnIds) {
-    console.log('txnIds : ', txnIds);
-
-    const promises$ = from(txnIds).pipe(concatMap((txnId) => this.transactionService.getEtxn(txnId)));
-
-    // return forkJoin(promises$).pipe(
-    //   switchMap((etxns) => {
-    //     return this.runPolicyCheck(etxns)
-    //   })
-    // );
-
-    promises$.subscribe((res) => console.log('etxns : ', res));
+    return from(txnIds).pipe(
+      concatMap((txnId) => this.transactionService.getEtxn(txnId)),
+      toArray(),
+      tap((val) => console.log('ETXNS IS ', val)),
+      map((etxns) => this.runPolicyCheck(etxns))
+    );
   }
 
   save() {
@@ -465,12 +460,15 @@ export class SplitExpensePage implements OnInit {
                 observables$.push(of(true));
               }
 
-              console.log('policyViolations : ', this.checkForPolicyViolations(res));
+              // this.checkForPolicyViolations(res).subscribe((resp) => console.log('resp : ', resp));
+
+              observables$.push(this.checkForPolicyViolations(res));
 
               return forkJoin(observables$);
             }),
-            tap((res) => {
-              console.log('res : ', res);
+            tap((violations) => {
+              const violationsResp = violations[1];
+              // violationsResp.subscribe((violations) => console.log('violations : ', violations));
               this.showSuccessToast();
             }),
             catchError((err) => {

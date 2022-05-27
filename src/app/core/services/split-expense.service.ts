@@ -1,7 +1,7 @@
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { forkJoin, from, Observable, of } from 'rxjs';
+import { concatMap, map, switchMap, tap, toArray } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
 import { TransactionService } from './transaction.service';
@@ -69,30 +69,30 @@ export class SplitExpenseService {
   }
 
   runApiCallSerially(payload) {
-    console.log('runApiCallSerially()');
+    console.log('runApiCallSerially() - payload : ', payload);
     const response$ = [];
 
-    for (var i = 0; i < payload.length; i++) {
-      var apiPayload = payload[i];
-      console.log('apiPayload : ', apiPayload);
-      response$.push(this.testPolicyForATxn(apiPayload));
-    }
-
-    return forkJoin(response$).pipe(map((response) => response));
+    return from(payload).pipe(
+      concatMap((apiPayload) => this.testPolicyForATxn(apiPayload)),
+      toArray(),
+      tap((val) => console.log('ETXNS IS ', val)),
+      map((violations) => violations)
+    );
   }
 
   runPolicyCheck(etxns, fileObjs) {
     console.log('called runPolicyCheck in service');
     const txnsPayload = [];
-
+    const that = this;
     etxns.forEach(function (etxn) {
-      etxn.tx.num_files = fileObjs ? fileObjs.length : 0;
+      etxn.tx_num_files = fileObjs ? fileObjs.length : 0;
 
-      var formattedEtxn = this.dataTransformService.etxnRaw(etxn);
-      txnsPayload.push(formattedEtxn);
+      console.log('calling dataTransformService with etxn : ', etxn);
+      // const formattedEtxn = that.dataTransformService.etxnRaw(etxn);
+      // txnsPayload.push(formattedEtxn);
     });
 
-    return this.runApiCallSerially(txnsPayload);
+    return this.runApiCallSerially(etxns);
   }
 
   createSplitTxns(sourceTxn, totalSplitAmount, splitExpenses) {
