@@ -71,6 +71,8 @@ export class SplitExpensePage implements OnInit {
 
   completeTxnIds: string[];
 
+  categoryList = [];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -240,7 +242,32 @@ export class SplitExpensePage implements OnInit {
     }
   }
 
+  getCategories() {
+    // Retrieve list of all enabled categories
+
+    return this.categoriesService.getAll().pipe(
+      switchMap((categories) => {
+        const allEnabledCategories = this.categoriesService.filterEnabled(categories);
+        this.categoryList = this.categoriesService.filterRequired(allEnabledCategories);
+
+        // after getting the list, check if vm.transaction.org_category_id exists
+        // if exists, set vm.splitExpenses[0].category
+        if (this.categoryList && this.transaction.org_category_id) {
+          this.categoryList.some(function (category) {
+            if (category.id === this.transaction.org_category_id) {
+              this.splitExpenses[0].category = category;
+              return true;
+            }
+          });
+        }
+
+        return this.categoryList;
+      })
+    );
+  }
+
   createAndLinkTxnsWithFiles(splitExpenses) {
+    console.log('splitExpensesParams : ', splitExpenses);
     const splitExpense$: any = {
       txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses),
     };
@@ -250,6 +277,7 @@ export class SplitExpensePage implements OnInit {
     }
 
     return forkJoin(splitExpense$).pipe(
+      tap((data) => console.log('splitExpense$ : ', data)),
       switchMap((data: any) => {
         this.splitExpenseTxn = data.txns.map((txn) => txn);
         this.completeTxnIds = this.splitExpenseTxn.filter((tx) => tx.state === 'COMPLETE').map((txn) => txn.id);
@@ -259,9 +287,14 @@ export class SplitExpensePage implements OnInit {
           return of(data);
         }
       }),
+      tap((data) => console.log('data : ', data)),
       switchMap((data: any) => {
         const txnIds = data.txns.map((txn) => txn.id);
-        return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
+        console.log('txnIds : ', txnIds);
+        // return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
+
+        this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
+        return of(txnIds);
       })
     );
   }
@@ -325,6 +358,58 @@ export class SplitExpensePage implements OnInit {
     );
   }
 
+  formatDisplayName(model) {
+    let category;
+
+    // If model is defined and
+    // if category list is available
+    if (model && this.categoryList) {
+      category = this.categoriesService.filterByOrgCategoryId(model, this.categoryList);
+
+      // If a matching category is found return the display name
+      // this is needed where the vm.transaction.org_category_id
+      // is set due to vendor selection function outside of the directive
+      // in that case matching category may not be present
+      if (category) {
+        return category.displayName;
+      }
+    }
+  }
+
+  runPolicyCheck(etxns) {
+    console.log('calling runPolicyCheck in page');
+    return this.splitExpenseService.runPolicyCheck(etxns, this.fileObjs).pipe(
+      switchMap((data) => {
+        etxns.forEach(function (etxn) {
+          for (var key in data) {
+            if (data.hasOwnProperty(key) && key === etxn.tx.id) {
+              data[key]['amount'] = etxn.tx.orig_amount || etxn.tx.amount;
+              data[key]['currency'] = etxn.tx.orig_currency || etxn.tx.currency;
+              data[key]['name'] = this.formatDisplayName(etxn.tx.org_category_id);
+              data[key]['type'] = 'category';
+              break;
+            }
+          }
+        });
+        return data;
+      })
+    );
+  }
+
+  checkForPolicyViolations(txnIds) {
+    console.log('txnIds : ', txnIds);
+
+    const promises$ = from(txnIds).pipe(concatMap((txnId) => this.transactionService.getEtxn(txnId)));
+
+    // return forkJoin(promises$).pipe(
+    //   switchMap((etxns) => {
+    //     return this.runPolicyCheck(etxns)
+    //   })
+    // );
+
+    promises$.subscribe((res) => console.log('etxns : ', res));
+  }
+
   save() {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
@@ -367,6 +452,7 @@ export class SplitExpensePage implements OnInit {
           .pipe(
             concatMap(() => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
             concatMap((res) => {
+              console.log('resConcatMap : ', res);
               const observables$ = [];
               if (this.transaction.id) {
                 observables$.push(this.transactionService.delete(this.transaction.id));
@@ -378,9 +464,13 @@ export class SplitExpensePage implements OnInit {
               if (observables$.length === 0) {
                 observables$.push(of(true));
               }
+
+              console.log('policyViolations : ', this.checkForPolicyViolations(res));
+
               return forkJoin(observables$);
             }),
             tap((res) => {
+              console.log('res : ', res);
               this.showSuccessToast();
             }),
             catchError((err) => {
@@ -458,6 +548,8 @@ export class SplitExpensePage implements OnInit {
       this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
         this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
       });
+
+      this.getCategories();
     });
   }
 

@@ -1,6 +1,8 @@
+import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
+import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
 import { TransactionService } from './transaction.service';
 
@@ -8,7 +10,11 @@ import { TransactionService } from './transaction.service';
   providedIn: 'root',
 })
 export class SplitExpenseService {
-  constructor(private transactionService: TransactionService, private fileService: FileService) {}
+  constructor(
+    private transactionService: TransactionService,
+    private fileService: FileService,
+    private dataTransformService: DataTransformService
+  ) {}
 
   linkTxnWithFiles(data) {
     const observables = [];
@@ -49,6 +55,44 @@ export class SplitExpenseService {
         return newFileObjs;
       })
     );
+  }
+
+  testPolicyForATxn(etxn) {
+    console.log('testPolicyForATxn');
+    let policyResponse = {};
+    return this.transactionService.testPolicy(etxn).pipe(
+      map((response) => {
+        policyResponse[etxn.tx_id] = response;
+        return policyResponse;
+      })
+    );
+  }
+
+  runApiCallSerially(payload) {
+    console.log('runApiCallSerially()');
+    const response$ = [];
+
+    for (var i = 0; i < payload.length; i++) {
+      var apiPayload = payload[i];
+      console.log('apiPayload : ', apiPayload);
+      response$.push(this.testPolicyForATxn(apiPayload));
+    }
+
+    return forkJoin(response$).pipe(map((response) => response));
+  }
+
+  runPolicyCheck(etxns, fileObjs) {
+    console.log('called runPolicyCheck in service');
+    const txnsPayload = [];
+
+    etxns.forEach(function (etxn) {
+      etxn.tx.num_files = fileObjs ? fileObjs.length : 0;
+
+      var formattedEtxn = this.dataTransformService.etxnRaw(etxn);
+      txnsPayload.push(formattedEtxn);
+    });
+
+    return this.runApiCallSerially(txnsPayload);
   }
 
   createSplitTxns(sourceTxn, totalSplitAmount, splitExpenses) {
