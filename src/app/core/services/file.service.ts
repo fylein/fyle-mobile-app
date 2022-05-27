@@ -157,38 +157,21 @@ export class FileService {
   }
 
   getReceiptExtension(url: string) {
-    let receiptExtension = null;
+    let res = null;
     const name = url.split('?')[0];
     if (name) {
       const filename = name.toLowerCase();
-      const index = filename.lastIndexOf('.');
+      const idx = filename.lastIndexOf('.');
 
-      if (index > -1) {
-        receiptExtension = filename.substring(index + 1, filename.length);
+      if (idx > -1) {
+        res = filename.substring(idx + 1, filename.length);
       }
     }
 
-    return receiptExtension;
+    return res;
   }
 
   getImageTypeFromDataUrl(dataUrl: string) {
     return dataUrl.split(';')[0].split(':')[1];
-  }
-
-  getReceiptsDetails(file: FileObject) {
-    const receiptExtn = this.getReceiptExtension(file.name);
-    const receiptInfo = {
-      type: 'unknown',
-      thumbnail: 'img/fy-receipt.svg',
-    };
-
-    if (receiptExtn === 'pdf') {
-      receiptInfo.type = 'pdf';
-      receiptInfo.thumbnail = 'img/fy-pdf.svg';
-    } else if (receiptExtn && ['png', 'jpg', 'jpeg', 'gif'].indexOf(receiptExtn) > -1) {
-      receiptInfo.type = 'image';
-      receiptInfo.thumbnail = file.url;
-    }
-    return receiptInfo;
   }
 }

@@ -23,16 +23,13 @@ import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
-import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
-import { FileObject } from 'src/app/core/models/file_obj.model';
 
 @Component({
-  selector: 'app-view-team-advance-request',
-  templateUrl: './view-team-advance-request.page.html',
-  styleUrls: ['./view-team-advance-request.page.scss'],
+  selector: 'app-view-team-advance',
+  templateUrl: './view-team-advance.page.html',
+  styleUrls: ['./view-team-advance.page.scss'],
 })
-export class ViewTeamAdvanceRequestPage implements OnInit {
+export class ViewTeamAdvancePage implements OnInit {
   advanceRequest$: Observable<ExtendedAdvanceRequest>;
 
   actions$: Observable<any>;
@@ -82,10 +79,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
-  get StatisticTypes() {
-    return StatisticTypes;
-  }
-
   async getAndUpdateProjectName() {
     const expenseFields = await this.offlineService.getAllEnabledExpenseFields().toPromise();
     return expenseFields.filter((expenseField) => expenseField.column_name === 'project_id')[0];
@@ -118,14 +111,11 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap((res) => from(res)),
-      concatMap((fileObj: File) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.fileService.getReceiptsDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
+      concatMap((file) =>
+        this.fileService.downloadUrl(file.id).pipe(
+          map((url) => {
+            file.file_download_url = url;
+            return file as File;
           })
         )
       ),
@@ -384,20 +374,6 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     } else {
       this.trackingService.viewComment();
     }
-  }
-
-  async viewAttachments(attachments: FileObject): Promise<void> {
-    const attachmentsModal = await this.modalController.create({
-      component: FyViewAttachmentComponent,
-      componentProps: {
-        attachments,
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties(),
-    });
-
-    await attachmentsModal.present();
   }
 
   ngOnInit() {}

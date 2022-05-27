@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ViewTeamAdvanceRequestPage } from './view-team-advance-request.page';
+import { ViewTeamAdvancePage } from './view-team-advance.page';
 
-xdescribe('ViewTeamAdvanceRequestPage', () => {
-  let component: ViewTeamAdvanceRequestPage;
-  let fixture: ComponentFixture<ViewTeamAdvanceRequestPage>;
+xdescribe('ViewTeamAdvancePage', () => {
+  let component: ViewTeamAdvancePage;
+  let fixture: ComponentFixture<ViewTeamAdvancePage>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [ViewTeamAdvanceRequestPage],
+        declarations: [ViewTeamAdvancePage],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(ViewTeamAdvanceRequestPage);
+      fixture = TestBed.createComponent(ViewTeamAdvancePage);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })
