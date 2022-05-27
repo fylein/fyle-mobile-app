@@ -2,9 +2,7 @@
   <div class="d-flex">
     <div class="summary-tile--card-container__block">
       <div *ngIf="category" class="summary-tile--card-container__category">{{ category }}</div>
-      <div *ngIf="purpose" class="summary-tile--card-container__purpose">
-        {{ purpose | ellipsis: 25 }}
-      </div>
+      <div *ngIf="purpose" class="summary-tile--card-container__purpose">{{ purpose }}</div>
 
       <div *ngIf="merchant" class="summary-tile--card-container__merchant">
         {{ merchant }}
@@ -37,19 +35,7 @@
 
 <div *ngIf="approvals?.length > 0" class="summary-tile--approval-container">
   <div class="summary-tile--approval-state-block">
-    <div class="summary-tile--approval-state-block-header">
-      <div class="summary-tile--approvers">Approvers</div>
-      <div class="summary-tile--approvers-add-approver">
-        <app-fy-approver
-          *ngIf="actions.can_add_approver"
-          [id]="advanceRequest?.areq_id"
-          [ownerEmail]="advanceRequest?.us_email"
-          [type]="'ADVANCE_REQUEST'"
-          (notify)="onUpdateApprover($event)"
-        >
-        </app-fy-approver>
-      </div>
-    </div>
+    <div class="summary-tile--approvers">Approvers</div>
     <div *ngFor="let ap of approvals">
       <div class="summary-tile--approvers-list">
         <div class="summary-tile--approver-name">{{ ap.approver_name }}</div>
