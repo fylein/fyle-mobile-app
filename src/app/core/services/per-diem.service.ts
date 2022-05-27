@@ -18,7 +18,7 @@ export class PerDiemService {
   @Cacheable({
     cacheBusterObserver: perDiemsCacheBuster$,
   })
-  getRates() {
+  getRates(): Observable<PerDiemRates[]> {
     return this.getActivePerDiemRatesCount().pipe(
       switchMap((count) => {
         count = count > 50 ? count / 50 : 1;
