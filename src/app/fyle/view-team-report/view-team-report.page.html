@@ -308,11 +308,14 @@
 
 <ng-container *ngIf="actions$|async as actions">
   <ion-footer *ngIf="!isCommentsView && isReportReported && actions.can_approve" class="cta-footer">
-    <div *ngIf="showApproveDisabledTooltip && !isTopInSequentialApproval" class="view-reports--disabled-info">
+    <div
+      *ngIf="showApproveDisabledTooltip && !isTopInSequentialApproval"
+      class="view-reports--disabled-info text-center"
+    >
       <div class="view-reports--disabled-info-content">
         Waiting for other approvers to approve this expense report
         <ion-icon
-          (click)="closeApproceDisabledTooltip()"
+          (click)="closeApproveDisabledTooltip()"
           class="vire-reports--icon-close"
           src="../../../../assets/svg/fy-close.svg"
           slot="icon-only"

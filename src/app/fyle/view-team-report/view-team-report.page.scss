@@ -47,7 +47,6 @@ $sent-back-color: #da1e28;
     bottom: 72px;
     z-index: 999;
     width: 100%;
-    text-align: center;
     font-size: 12px;
   }
 
@@ -71,7 +70,7 @@ $sent-back-color: #da1e28;
   &--icon-close {
     height: 12px !important;
     width: 22px !important;
-    color: #fff;
+    color: $pure-white;
   }
 
   &--view-info {

@@ -346,8 +346,7 @@ export class ViewTeamReportPage implements OnInit {
       approvals: this.reportApprovals$.pipe(take(1)),
       orgSettings: this.offlineService.getOrgSettings().pipe(take(1)),
     }).subscribe((res) => {
-      this.isSequentialApprovalEnabled =
-        res.orgSettings.approval_settings && res.orgSettings.approval_settings.enable_sequential_approvers;
+      this.isSequentialApprovalEnabled = res?.orgSettings.approval_settings?.enable_sequential_approvers;
       this.isTopInSequentialApproval = this.isSequentialApprovalEnabled
         ? this.checkIsTopInSequentialApproval(res.eou, res.approvals)
         : true;
@@ -357,7 +356,7 @@ export class ViewTeamReportPage implements OnInit {
     this.refreshApprovals$.next();
   }
 
-  closeApproceDisabledTooltip() {
+  closeApproveDisabledTooltip() {
     this.showApproveDisabledTooltip = false;
   }
 
