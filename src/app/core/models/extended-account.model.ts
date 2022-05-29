@@ -1,8 +1,8 @@
-import { User } from '@sentry/angular';
-import { AccountDetail } from './account_detail.model';
+import { AccountDetail } from './account-detail.model';
 import { ExtendedAdvance } from './extended_advance.model';
 import { OrgUser } from './org-user.model';
 import { Org } from './org.model';
+import { User } from './user.model';
 
 export interface ExtendedAccount {
   acc: AccountDetail;

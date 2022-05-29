@@ -1,4 +1,4 @@
-import { ExtendedAccount } from './extended_account.model';
+import { ExtendedAccount } from './extended-account.model';
 
 export interface AccountOption {
   label: string;

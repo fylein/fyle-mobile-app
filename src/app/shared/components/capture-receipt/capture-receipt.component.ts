@@ -15,7 +15,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ExtendedAccount } from 'src/app/core/models/extended_account.model';
+import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 
 type Image = Partial<{
   source: string;
@@ -149,19 +149,20 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     );
   }
 
-  getAccount(orgSettings: any, accounts: any, orgUserSettings: OrgUserSettings): Observable<ExtendedAccount> {
-    const isAdvanceEnabled =
-      (orgSettings.advances && orgSettings.advances.enabled) ||
-      (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+  getAccount(
+    orgSettings: any,
+    accounts: ExtendedAccount[],
+    orgUserSettings: OrgUserSettings
+  ): Observable<ExtendedAccount> {
+    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
 
     const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-    const isMultipleAdvanceEnabled =
-      orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
+    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
 
     return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
       map((paymentModes) => {
         const isCCCEnabled =
-          orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
+          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
         const paidByCompanyAccount = paymentModes.find(
           (paymentMode) => paymentMode?.acc.displayName === 'Paid by Company'

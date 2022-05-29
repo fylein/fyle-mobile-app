@@ -58,7 +58,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { AccountOption } from 'src/app/core/models/account_option.model';
+import { AccountOption } from 'src/app/core/models/account-option.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -601,11 +601,8 @@ export class AddEditPerDiemPage implements OnInit {
       orgSettings: orgSettings$,
     }).pipe(
       switchMap(({ accounts, orgSettings }) => {
-        const isAdvanceEnabled =
-          (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
-        const isMultipleAdvanceEnabled =
-          orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
+        const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
+        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
         const userAccounts = this.accountsService
           .filterAccountsWithSufficientBalance(
             accounts.filter((account) => account.acc.type),

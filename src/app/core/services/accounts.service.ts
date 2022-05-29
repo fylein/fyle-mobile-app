@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 import { CurrencyPipe } from '@angular/common';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { Observable } from 'rxjs';
-import { ExtendedAccount } from '../models/extended_account.model';
+import { ExtendedAccount } from '../models/extended-account.model';
 
 @Injectable({
   providedIn: 'root',
@@ -44,7 +44,11 @@ export class AccountsService {
     );
   }
 
-  constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?): Observable<ExtendedAccount[]> {
+  constructPaymentModes(
+    accounts: ExtendedAccount[],
+    isMultipleAdvanceEnabled: boolean,
+    isNotOwner?: boolean
+  ): Observable<ExtendedAccount[]> {
     const that = this;
 
     const hidePaidByCompany$ = that.launchDarklyService.getVariation('hide_paid_by_company', false);

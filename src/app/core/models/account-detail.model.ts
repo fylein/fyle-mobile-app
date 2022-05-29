@@ -9,6 +9,6 @@ export interface AccountDetail {
   current_balance_amount: number;
   tentative_balance_amount: number;
   category: string;
-  displayName: string;
-  isReimbursable: boolean;
+  displayName?: string;
+  isReimbursable?: boolean;
 }
