@@ -613,7 +613,7 @@ export class AddEditPerDiemPage implements OnInit {
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
       map((paymentModes) =>
-        paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
+        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
       )
     );
   }

@@ -56,7 +56,7 @@ export class AccountsService {
     return hidePaidByCompany$.pipe(
       map((hidePaidByCompany) => {
         const accountsMap = {
-          PERSONAL_ACCOUNT(account) {
+          PERSONAL_ACCOUNT(account: ExtendedAccount) {
             account.acc.displayName = 'Personal Card/Cash';
             if (isNotOwner) {
               account.acc.displayName = 'Paid by Employee';
@@ -64,7 +64,7 @@ export class AccountsService {
             account.acc.isReimbursable = true;
             return account;
           },
-          PERSONAL_ADVANCE_ACCOUNT(account) {
+          PERSONAL_ADVANCE_ACCOUNT(account: ExtendedAccount) {
             let currency = account.currency;
             let balance = account.acc.tentative_balance_amount;
             if (isMultipleAdvanceEnabled && account.orig && account.orig.amount) {
@@ -78,7 +78,7 @@ export class AccountsService {
             account.acc.isReimbursable = false;
             return account;
           },
-          PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT(account) {
+          PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT(account: ExtendedAccount) {
             account.acc.displayName = 'Corporate Card';
             account.acc.isReimbursable = false;
             return account;
