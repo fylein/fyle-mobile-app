@@ -236,7 +236,7 @@ ion-popover.pop-up-in-center {
   }
 }
 
-iob-popover.split-expense-popover {
+ion-popover.split-expense-popover {
   &::part(content) {
     top: auto !important;
     left: 0 !important;
@@ -246,7 +246,7 @@ iob-popover.split-expense-popover {
   }
 }
 
-ion-popver.gallery-upload-success-popover {
+ion-popover.gallery-upload-success-popover {
   &::part(content) {
     top: 78% !important;
     left: 0 !important;
