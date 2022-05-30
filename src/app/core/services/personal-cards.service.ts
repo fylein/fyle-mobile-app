@@ -13,8 +13,6 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import * as moment from 'moment';
 
-const tripRequestsCacheBuster$ = new Subject<void>();
-
 type matchExpenseResponse = Partial<{
   external_expense_id: string;
   id: string;

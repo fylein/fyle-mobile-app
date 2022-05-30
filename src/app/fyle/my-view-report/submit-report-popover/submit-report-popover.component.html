@@ -19,10 +19,7 @@
       </div>
       <div>
         <div class="submit-report--expense-card-count">Contains {{ erpt.rp_num_transactions }} expense(s)</div>
-        <div
-          class="submit-report--expense-card-critical"
-          *ngIf="numCriticalPolicies > 0 && erpt.rp_num_transactions - numCriticalPolicies > 0"
-        >
+        <div *ngIf="numCriticalPolicies > 0 && erpt.rp_num_transactions - numCriticalPolicies > 0">
           <mat-icon> warning </mat-icon>
           <strong>
             This report has {{ numCriticalPolicies }} expense(s) with critical policy violation(s). To go ahead and
@@ -30,10 +27,7 @@
           </strong>
         </div>
 
-        <div
-          class="submit-report--expense-card-all-critical"
-          *ngIf="numCriticalPolicies > 0 && erpt.rp_num_transactions - numCriticalPolicies === 0"
-        >
+        <div *ngIf="numCriticalPolicies > 0 && erpt.rp_num_transactions - numCriticalPolicies === 0">
           <mat-icon> warning </mat-icon>
           <strong> All expenses in this report have critical policy violation(s). Cannot submit report. </strong>
         </div>
