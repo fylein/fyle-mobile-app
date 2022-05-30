@@ -380,9 +380,10 @@ export class SplitExpensePage implements OnInit {
     console.log('calling runPolicyCheck in page');
     return this.splitExpenseService.runPolicyCheck(etxns, this.fileObjs).pipe(
       switchMap((data) => {
+        console.log('RUNPOLICYCHECKm Data is', data);
         etxns.forEach(function (etxn) {
           for (var key in data) {
-            if (data.hasOwnProperty(key) && key === etxn.tx.id) {
+            if (data.hasOwnProperty(key) && key === etxn?.tx?.id) {
               data[key]['amount'] = etxn.tx.orig_amount || etxn.tx.amount;
               data[key]['currency'] = etxn.tx.orig_currency || etxn.tx.currency;
               data[key]['name'] = this.formatDisplayName(etxn.tx.org_category_id);
@@ -392,17 +393,32 @@ export class SplitExpensePage implements OnInit {
           }
         });
         return data;
-      })
+      }),
+      toArray()
     );
+
+    // obs$.subscribe(val => console.log('VAL INSIDE page RUN POLICY CHECK IS', val));
+
+    // return obs$;
   }
 
   checkForPolicyViolations(txnIds) {
+    //Returns an observable of observables
     return from(txnIds).pipe(
+      //Returns an observable array
       concatMap((txnId) => this.transactionService.getEtxn(txnId)),
       toArray(),
       tap((val) => console.log('ETXNS IS ', val)),
-      map((etxns) => this.runPolicyCheck(etxns))
+      switchMap((etxns) => this.runPolicyCheck(etxns))
     );
+
+    //Returns an array of observables
+    // return from(txnIds.map((txnId) => this.transactionService.getEtxn(txnId)))
+    // .pipe(
+    //   toArray(),
+    //   tap((val) => console.log('ETXNS IS ', val)),
+    //   map((etxns) => this.runPolicyCheck(etxns))
+    // );
   }
 
   save() {
@@ -460,13 +476,17 @@ export class SplitExpensePage implements OnInit {
                 observables$.push(of(true));
               }
 
-              // this.checkForPolicyViolations(res).subscribe((resp) => console.log('resp : ', resp));
+              // this.checkForPolicyViolations(res).subscribe((resp) => {
+              //   console.log('REsp is', resp);
+              //   // resp.subscribe((nested) => console.log('NESTED is', nested));
+              // }, (data) => console.log('CHECK FOR POLICY VIOLATIONS COMPLETED'));
 
               observables$.push(this.checkForPolicyViolations(res));
 
               return forkJoin(observables$);
             }),
             tap((violations) => {
+              console.log('VIOLATIONS IS', violations);
               const violationsResp = violations[1];
               // violationsResp.subscribe((violations) => console.log('violations : ', violations));
               this.showSuccessToast();
