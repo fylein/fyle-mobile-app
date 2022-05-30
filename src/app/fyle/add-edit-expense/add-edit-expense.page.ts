@@ -100,6 +100,7 @@ import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -341,6 +342,8 @@ export class AddEditExpensePage implements OnInit {
   isCorporateCreditCardEnabled: boolean;
 
   corporateCreditCardExpenseGroupId: string;
+
+  cardCurrencySymbol = '';
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2820,6 +2823,7 @@ export class AddEditExpensePage implements OnInit {
           this.matchedCCCTransaction = matchedExpense[0].ccce;
           this.matchingCCCTransactions = matchingTransactions;
           this.selectedCCCTransaction = this.matchedCCCTransaction;
+          this.cardCurrencySymbol = getCurrencySymbol(this.selectedCCCTransaction?.currency, 'wide');
           this.cardEndingDigits = (
             this.selectedCCCTransaction.cxorporate_credit_card_account_number
               ? this.selectedCCCTransaction.corporate_credit_card_account_number
