@@ -72,15 +72,13 @@ textarea:focus {
   --ion-safe-area-bottom: 0;
 }
 
-.error-popover {
-  .popover-wrapper {
-    .popover-content {
-      top: 72% !important;
-      left: 0 !important;
-      height: 28%;
-      width: 100%;
-      border-radius: 0;
-    }
+ion-popover.error-popover {
+  &::part(content) {
+    top: 72% !important;
+    left: 0 !important;
+    height: 28%;
+    width: 100%;
+    border-radius: 0;
   }
 }
 
@@ -167,16 +165,14 @@ textarea:focus {
   stroke: $black-light;
 }
 
-.dialog-popover {
-  .popover-wrapper {
-    .popover-content {
-      bottom: 0 !important;
-      top: auto !important;
-      left: 0 !important;
-      height: auto;
-      width: 100%;
-      border-radius: 0;
-    }
+ion-popover.dialog-popover {
+  &::part(content) {
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    height: auto;
+    width: 100%;
+    border-radius: 0;
   }
 
   .popover-viewport {
@@ -187,16 +183,14 @@ textarea:focus {
   }
 }
 
-.fy-dialog-popover {
-  .popover-wrapper {
-    .popover-content {
-      bottom: 0 !important;
-      top: auto !important;
-      left: 0 !important;
-      height: auto;
-      width: 100%;
-      border-radius: 16px 16px 0 0;
-    }
+ion-popover.fy-dialog-popover {
+  &::part(content) {
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    height: auto;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
   }
 
   .popover-viewport {
@@ -207,38 +201,34 @@ textarea:focus {
   }
 }
 
-.modal-wrapper {
+ion-modal::part(content) {
   &.sc-ion-modal-ios {
     margin-bottom: env(safe-area-inset-bottom);
   }
 }
 
-.search-sort-popover {
-  .popover-wrapper {
-    .popover-content {
-      top: 20% !important;
-      left: 0 !important;
-      height: 80%;
-      width: 100%;
-      border-radius: 0;
-    }
+ion-popover.search-sort-popover {
+  &::part(content) {
+    top: 20% !important;
+    left: 0 !important;
+    height: 80%;
+    width: 100%;
+    border-radius: 0;
   }
 }
 
-.get-started-popup {
-  .popover-wrapper {
-    .popover-content {
-      top: 25% !important;
-      left: 15% !important;
-      width: 280px;
-      background: #fff;
-    }
+ion-popover.get-started-popup {
+  &::part(content) {
+    top: 25% !important;
+    left: 15% !important;
+    width: 280px;
+    background: #fff;
   }
 }
 
-.pop-up-in-center {
+ion-popover.pop-up-in-center {
   background: rgba(22, 21, 40, 0.5);
-  .popover-content {
+  &::part(content) {
     border-radius: 16px;
     --max-height: 80%;
     --width: 80%;
@@ -246,27 +236,23 @@ textarea:focus {
   }
 }
 
-.split-expense-popover {
-  .popover-wrapper {
-    .popover-content {
-      top: auto !important;
-      left: 0 !important;
-      width: 100%;
-      bottom: 0;
-      background: #fff;
-    }
+ion-popover.split-expense-popover {
+  &::part(content) {
+    top: auto !important;
+    left: 0 !important;
+    width: 100%;
+    bottom: 0;
+    background: #fff;
   }
 }
 
-.gallery-upload-success-popover {
-  .popover-wrapper {
-    .popover-content {
-      top: 78% !important;
-      left: 0 !important;
-      height: 22%;
-      width: 100%;
-      border-radius: 0;
-    }
+ion-popover.gallery-upload-success-popover {
+  &::part(content) {
+    top: 78% !important;
+    left: 0 !important;
+    height: 22%;
+    width: 100%;
+    border-radius: 0;
   }
 
   .popover-viewport {
@@ -274,15 +260,13 @@ textarea:focus {
   }
 }
 
-.camera-options-popover {
-  .popover-wrapper {
-    .popover-content {
-      top: 75% !important;
-      left: 0 !important;
-      height: 25%;
-      width: 100%;
-      border-radius: 16px 16px 0 0;
-    }
+ion-popover.camera-options-popover {
+  &::part(content) {
+    top: 75% !important;
+    left: 0 !important;
+    height: 25%;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
   }
 
   .popover-viewport {
@@ -754,7 +738,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .ios .fy-action-sheet {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 
 .ios .action-sheet-wrapper {
@@ -861,50 +845,38 @@ ref - https://stackoverflow.com/a/31162426
   background-image: none !important;
 }
 
-.fy-modal {
-  .modal-wrapper {
+ion-modal.fy-modal {
+  &::part(content) {
     --border-radius: 16px 16px 0 0 !important;
     max-height: 90%;
     position: absolute;
     top: 10%;
   }
-
-  .modal-shadow {
-    display: none;
-  }
 }
 
-.share-report-modal {
-  .modal-wrapper {
+ion-modal.share-report-modal {
+  &::part(content) {
     --border-radius: 16px 16px 0 0 !important;
     height: 182px;
     position: absolute;
     bottom: 0 !important;
   }
-
-  .modal-shadow {
-    display: none;
-  }
 }
 
 .stack-modal {
-  ion-backdrop {
+  &::part(backdrop) {
     box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4) !important;
     opacity: 0.4 !important;
     pointer-events: all !important;
   }
 }
 
-.flag-unflag-modal {
-  .modal-wrapper {
+ion-modal.flag-unflag-modal {
+  &::part(content) {
     --border-radius: 16px 16px 0 0 !important;
     height: 190px;
     position: absolute;
     bottom: 0 !important;
-  }
-
-  .modal-shadow {
-    display: none;
   }
 }
 
@@ -927,10 +899,10 @@ ref - https://stackoverflow.com/a/31162426
   padding-top: 0 !important;
 }
 
-.delete-dialog {
+ion-popover.delete-dialog {
   --width: 296px;
   --max-height: 326px;
-  .popover-content {
+  &::part(content) {
     border-radius: 16px;
   }
   background: rgba(0, 0, 0, 0.6);
@@ -983,16 +955,12 @@ ref - https://stackoverflow.com/a/31162426
   border-radius: 8px;
 }
 
-.payment-mode-modal {
-  .modal-wrapper {
+ion-modal.payment-mode-modal {
+  &::part(content) {
     --border-radius: 16px 16px 0 0 !important;
     position: absolute;
     max-height: 60%;
     bottom: 0;
-  }
-
-  .modal-shadow {
-    display: none;
   }
 }
 
@@ -1031,7 +999,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 ion-modal.auto-height {
-  .modal-wrapper {
+  &::part(content) {
     --border-radius: 16px 16px 0 0 !important;
     position: absolute;
     bottom: 0;
@@ -1058,21 +1026,18 @@ ion-modal.auto-height {
 .no-pointer-events {
   pointer-events: none;
 }
-.expense-preview-modal {
-  .modal-wrapper {
+
+ion-modal.expense-preview-modal {
+  &::part(content) {
     --border-radius: 16px 16px 0 0 !important;
     max-height: 90%;
     position: absolute;
     top: 10%;
   }
-
-  .modal-shadow {
-    display: none;
-  }
 }
 
-.delete-button-class {
-  .popover-content {
+ion-popover.delete-button-class {
+  &::part(content) {
     border-radius: 4px;
     margin-left: -31px;
     margin-top: -19px;
@@ -1082,7 +1047,7 @@ ion-modal.auto-height {
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
 
-  .popover-arrow {
+  &::part(arrow) {
     display: none;
   }
 }
@@ -1156,8 +1121,8 @@ ion-modal.auto-height {
   z-index: 99;
 }
 
-.personal-cards-range-modal {
-  .modal-wrapper {
+ion-modal.personal-cards-range-modal {
+  &::part(content) {
     --border-radius: 16px 16px 0 0 !important;
     position: absolute;
     bottom: 0;
@@ -1252,6 +1217,14 @@ ion-toggle.toggle-checked::before {
 }
 
 .hide-modal {
+  &::part(content) {
+    --background: transparent !important;
+  }
+
+  &::part(backdrop) {
+    --backdrop-opacity: 0 !important;
+  }
+
   --backdrop-opacity: 0 !important;
 
   & > div {
