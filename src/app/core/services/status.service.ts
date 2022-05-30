@@ -197,6 +197,12 @@ export class StatusService {
           icon: 'duplicate',
         };
         break;
+      case lowerCaseComment.indexOf('card details unlinked') > -1:
+        statusCategory = {
+          category: 'Card details unlinked',
+          icon: 'fy-corporate-card',
+        };
+        break;
       default:
         statusCategory = {
           category: 'Others',

@@ -749,7 +749,7 @@ export class TransactionService {
   getUnlinkDialogBody(): string {
     const dialogBody = `<ul class="text-left">
     <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
-    <li>It removes the card details from the expense and results in two expenses. Your expense will be inside the Report, and the card expense will be moved to the Expenses page.</li>
+    <li>It removes the card details from the expense and results in two expenses which you can find on the Expenses page.</li>
     </ul>`;
 
     return dialogBody;
@@ -759,6 +759,6 @@ export class TransactionService {
     const data: Object = {
       txn_id: txnId,
     };
-    return this.apiService.post('/transactions/undo_implicit_merge', data);
+    return this.apiService.post('/transactions/unlink_card_expense', data);
   }
 }
