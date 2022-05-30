@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { MatchExpensePopoverComponent } from './match-expense-popover.component';
 
-describe('MatchExpensePopoverComponent', () => {
+xdescribe('MatchExpensePopoverComponent', () => {
   let component: MatchExpensePopoverComponent;
   let fixture: ComponentFixture<MatchExpensePopoverComponent>;
 

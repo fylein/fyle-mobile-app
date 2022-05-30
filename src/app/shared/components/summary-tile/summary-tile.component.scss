@@ -3,7 +3,6 @@
 $advance_pulled_back_color: #979797;
 $advance_pending_approval_color: #1ab6bb;
 $advance_paid_color: darken(#5cb85c, 15%);
-$advance_rejected_color: #d50000;
 
 .summary-tile {
   &--card-container {
@@ -75,7 +74,7 @@ $advance_rejected_color: #d50000;
         background: $draft-color;
       }
 
-      &__pulledBack {
+      &__pulled {
         background: $advance_pulled_back_color;
       }
 
@@ -83,11 +82,7 @@ $advance_rejected_color: #d50000;
         background: $sent-back-color;
       }
 
-      &__sent_back {
-        background: $sent-back-color;
-      }
-
-      &__approval_pending {
+      &__pending {
         background: $advance_pending_approval_color;
       }
 
@@ -100,7 +95,7 @@ $advance_rejected_color: #d50000;
       }
 
       &__rejected {
-        background: $advance_rejected_color;
+        background: $rejected-color;
       }
     }
   }
@@ -120,13 +115,14 @@ $advance_rejected_color: #d50000;
     white-space: nowrap;
     overflow: hidden;
     width: 35%;
+    font-weight: 500;
   }
 
   &--approval-state {
     &__reported {
       color: $reported-color;
     }
-    &__fyled {
+    &__unreported {
       color: $fyled-color;
     }
     &_sent_back {
@@ -143,6 +139,7 @@ $advance_rejected_color: #d50000;
   &--approvers {
     color: $black-light;
     padding: 18px 10px 0;
+    font-weight: 500;
   }
 
   &--approvers-list {
@@ -154,6 +151,7 @@ $advance_rejected_color: #d50000;
   &--approver-state-section {
     display: flex;
     align-items: center;
+    font-weight: 500;
 
     &__date {
       margin: 0 4px;
@@ -178,6 +176,10 @@ $advance_rejected_color: #d50000;
 
     &__approval_disabled {
       background-color: $gray-3;
+    }
+
+    &__approval_rejected {
+      background-color: $rejected-color;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -98,6 +98,16 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService
   ) {}
+
+  @HostListener('keydown')
+  scrollInputIntoView() {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
+    }
+  }
 
   currencyObjValidator(c: FormControl): ValidationErrors {
     if (c.value && c.value.amount && c.value.currency) {
@@ -651,24 +661,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
         });
       })
     );
-
     this.setupNetworkWatcher();
-
-    document.addEventListener('keydown', this.scrollInputIntoView);
   }
-
-  ionViewWillLeave() {
-    document.removeEventListener('keydown', this.scrollInputIntoView);
-  }
-
-  scrollInputIntoView = () => {
-    const el = document.activeElement;
-    if (el && el instanceof HTMLInputElement) {
-      el.scrollIntoView({
-        block: 'center',
-      });
-    }
-  };
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();

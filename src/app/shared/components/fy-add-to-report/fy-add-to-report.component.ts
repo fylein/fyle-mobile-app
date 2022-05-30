@@ -127,11 +127,14 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
     }
 
     if (data && data.createDraftReport) {
+      const reportTitle = await this.reportService.getReportPurpose({ ids: null }).toPromise();
+
       const draftReportPopover = await this.popoverController.create({
         component: FyInputPopoverComponent,
         componentProps: {
           title: 'New Draft Report',
           ctaText: 'Save',
+          inputValue: reportTitle,
           inputLabel: 'Report Name',
           isRequired: true,
         },

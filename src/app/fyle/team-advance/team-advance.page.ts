@@ -1,11 +1,13 @@
 import { AfterViewChecked, ChangeDetectorRef, Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { Observable, Subject, from, noop } from 'rxjs';
-import { concatMap, switchMap, finalize, map, scan, shareReplay, take } from 'rxjs/operators';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
+import { Params, Router } from '@angular/router';
+import { TasksService } from 'src/app/core/services/tasks.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { Observable, Subject, noop } from 'rxjs';
+import { concatMap, switchMap, finalize, map, scan, shareReplay, take } from 'rxjs/operators';
 import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
-import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
@@ -36,6 +38,8 @@ export class TeamAdvancePage implements AfterViewChecked {
 
   count$: Observable<number>;
 
+  totalTaskCount = 0;
+
   currentPageNumber = 1;
 
   isInfiniteScrollRequired$: Observable<boolean>;
@@ -50,6 +54,8 @@ export class TeamAdvancePage implements AfterViewChecked {
 
   constructor(
     private advanceRequestService: AdvanceRequestService,
+    private tasksService: TasksService,
+    private trackingService: TrackingService,
     private cdRef: ChangeDetectorRef,
     private router: Router,
     private filtersHelperService: FiltersHelperService,
@@ -58,6 +64,8 @@ export class TeamAdvancePage implements AfterViewChecked {
   ) {}
 
   ionViewWillEnter() {
+    this.tasksService.getTotalTaskCount().subscribe((totalTaskCount) => (this.totalTaskCount = totalTaskCount));
+
     this.setupDefaultFilters();
     this.currentPageNumber = 1;
     this.isLoading = true;
@@ -256,7 +264,6 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     if (isPending && isApproved) {
       extraParams = {
-        areq_trip_request_id: ['is.null'],
         areq_state: ['not.eq.DRAFT'],
         areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
         or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
@@ -264,21 +271,40 @@ export class TeamAdvancePage implements AfterViewChecked {
     } else if (isPending) {
       extraParams = {
         areq_state: ['eq.APPROVAL_PENDING'],
-        areq_trip_request_id: ['is.null'],
         or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
       };
     } else if (isApproved) {
       extraParams = {
-        areq_trip_request_id: ['is.null'],
         areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
       };
     } else {
       extraParams = {
-        areq_trip_request_id: ['is.null'],
         areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}'],
       };
     }
 
     return extraParams;
+  }
+
+  onHomeClicked() {
+    const queryParams: Params = { state: 'home' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+  }
+
+  onTaskClicked() {
+    const queryParams: Params = { state: 'tasks' };
+    this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
+      queryParams,
+    });
+    this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
+      from: 'Team Advances',
+    });
+  }
+
+  onCameraClicked() {
+    this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 }

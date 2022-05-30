@@ -391,6 +391,11 @@ export class SplitExpensePage implements OnInit {
             }),
             finalize(() => {
               this.saveSplitExpenseLoading = false;
+
+              const splitTrackingProps = {
+                'Split Type': this.splitType,
+              };
+              this.trackingService.splittingExpense(splitTrackingProps);
             })
           )
           .subscribe(noop);
@@ -507,7 +512,7 @@ export class SplitExpensePage implements OnInit {
     const fg = this.formBuilder.group({
       amount: [amount, Validators.required],
       currency: [currency],
-      percentage: [percentage, [Validators.required, Validators.min(0.00001)]],
+      percentage: [percentage],
       txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])],
     });
 

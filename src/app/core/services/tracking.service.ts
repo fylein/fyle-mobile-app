@@ -95,6 +95,10 @@ export class TrackingService {
     this.eventTrack('Create Expense', properties);
   }
 
+  splittingExpense(properties) {
+    this.eventTrack('Splitting Expense', properties);
+  }
+
   bulkAddExpenses(properties) {
     this.eventTrack('Create Bulk Expenses', properties);
   }
@@ -603,19 +607,6 @@ export class TrackingService {
     this.eventTrack('Analytics - Number Of Days Booked In Advance Hotel', properties);
   }
 
-  // Trips Graph Events
-  tripExpensesBrokenAgainstBookingSourceForFlight(properties) {
-    this.eventTrack('Analytics - Type of Booking for Flight', properties);
-  }
-
-  tripExpensesBrokenAgainstBookingSourceForHotel(properties) {
-    this.eventTrack('Analytics - Type of Booking for Hotel', properties);
-  }
-
-  tripExpensesBrokenAgainstBookingSourceForTrain(properties) {
-    this.eventTrack('Analytics - Type of Booking for Train', properties);
-  }
-
   // Track sidenav toggle
   onSideNavToggle(properties) {
     this.eventTrack('Toggle sidebar', properties);
@@ -758,6 +749,14 @@ export class TrackingService {
 
   dashboardOnIncompleteExpensesClick(properties = {}) {
     this.eventTrack('dashboard incomplete expenses clicked', properties);
+  }
+
+  dashboardOnIncompleteCardExpensesClick(properties = {}) {
+    this.eventTrack('dashboard incomplete corporate card expenses clicked', properties);
+  }
+
+  dashboardOnTotalCardExpensesClick(properties = {}) {
+    this.eventTrack('dashboard total corporate card expenses clicked', properties);
   }
 
   dashboardOnReportPillClick(properties) {
@@ -957,5 +956,30 @@ export class TrackingService {
 
   cropReceipt(properties = {}) {
     this.eventTrack('Receipt Cropped', properties);
+  }
+
+  saveReceiptWithInvalidForm(properties = {}) {
+    this.eventTrack('Save receipt with invalid form', properties);
+  }
+
+  // Merge related trackings
+  expensesMerged(properties = {}) {
+    this.eventTrack('Expenses merged successfully', properties);
+  }
+
+  duplicateTaskClicked(properties = {}) {
+    this.eventTrack('potential duplicate task clicked from dashboard', properties);
+  }
+
+  dismissedDuplicateSet(properties = {}) {
+    this.eventTrack('duplicate set dismissed', properties);
+  }
+
+  dismissedIndividualExpenses(properties = {}) {
+    this.eventTrack('individual expense dismissed as not duplicate', properties);
+  }
+
+  visitedMergeExpensesPageFromTask(properties = {}) {
+    this.eventTrack('visited merged expense page from tasks', properties);
   }
 }

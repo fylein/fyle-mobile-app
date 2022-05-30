@@ -26,33 +26,39 @@
       <mat-icon class="view-attachments--go-forward__btn"> arrow_forward_ios </mat-icon>
     </div>
   </div>
-  <ion-slides
-    #slides
-    [options]="sliderOptions"
-    zoom
-    (ionSlidesDidLoad)="getActiveIndex()"
-    (ionSlideDidChange)="getActiveIndex()"
+
+  <swiper
+    #swiper
+    class="full-height"
+    [centeredSlides]="true"
+    [pagination]="false"
+    (activeIndexChange)="getActiveIndex()"
+    (onSwiper)="getActiveIndex()"
   >
-    <ng-container *ngFor="let attachment of attachments">
-      <ion-slide>
-        <div>
-          <pinch-zoom *ngIf="attachment?.type !== 'pdf'" class="view-attachments--container">
-            <img [src]="attachment?.url" />
-          </pinch-zoom>
+    <ng-template *ngFor="let attachment of attachments" swiperSlide>
+      <div>
+        <pinch-zoom *ngIf="attachment?.type !== 'pdf'" class="view-attachments--container">
+          <img [src]="attachment?.url" />
+        </pinch-zoom>
 
-          <div class="view-attachments--container" *ngIf="attachment?.type === 'pdf'">
-            <pdf-viewer [page]="1" [src]="attachment?.url" [render-text]="true" [zoom]="zoomScale"></pdf-viewer>
-
-            <div class="view-attachments--pdf-controls">
-              <mat-icon class="view-attachments--seconady-action-icons" (click)="zoomIn()">add_circle</mat-icon>
-              <mat-icon class="view-attachments--seconady-action-icons" (click)="zoomOut()">remove_circle</mat-icon>
-              <mat-icon class="view-attachments--seconady-action-icons" (click)="resetZoom()">zoom_out_map</mat-icon>
-            </div>
+        <div class="view-attachments--container" *ngIf="attachment?.type === 'pdf'">
+          <pdf-viewer
+            [src]="attachment?.url"
+            [fit-to-page]="true"
+            [original-size]="false"
+            [render-text]="true"
+            [zoom]="zoomScale"
+            zoom-scale="page-fit"
+          ></pdf-viewer>
+          <div class="view-attachments--pdf-controls">
+            <mat-icon class="view-attachments--seconady-action-icons" (click)="zoomIn()">add_circle</mat-icon>
+            <mat-icon class="view-attachments--seconady-action-icons" (click)="zoomOut()">remove_circle</mat-icon>
+            <mat-icon class="view-attachments--seconady-action-icons" (click)="resetZoom()">zoom_out_map</mat-icon>
           </div>
         </div>
-      </ion-slide>
-    </ng-container>
-  </ion-slides>
+      </div>
+    </ng-template>
+  </swiper>
 </ion-content>
 
 <ion-footer class="view-attachments--footer-container"></ion-footer>

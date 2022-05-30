@@ -11,12 +11,12 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { ReportSummaryComponent } from './report-summary/report-summary.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { StorageService } from '../../core/services/storage.service';
 import { NgModel } from '@angular/forms';
 import { getCurrencySymbol } from '@angular/common';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 
 @Component({
   selector: 'app-my-create-report',
@@ -40,16 +40,6 @@ export class MyCreateReportPage implements OnInit {
 
   selectedTxnIds: string[];
 
-  isTripRequestsEnabled: boolean;
-
-  canAssociateTripRequests: boolean;
-
-  tripRequests: any[];
-
-  selectedTripRequest: any;
-
-  tripRequestId: string;
-
   saveDraftReportLoading = false;
 
   saveReportLoading = false;
@@ -72,9 +62,9 @@ export class MyCreateReportPage implements OnInit {
     private popoverController: PopoverController,
     private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private tripRequestsService: TripRequestsService,
     private trackingService: TrackingService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private refinerService: RefinerService
   ) {}
 
   cancel() {
@@ -117,7 +107,6 @@ export class MyCreateReportPage implements OnInit {
     const report = {
       purpose: this.reportTitle,
       source: 'MOBILE',
-      trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId,
     };
 
     this.sendFirstReportCreated();
@@ -162,6 +151,8 @@ export class MyCreateReportPage implements OnInit {
           finalize(() => {
             this.saveReportLoading = false;
             this.router.navigate(['/', 'enterprise', 'my_reports']);
+
+            this.refinerService.startSurvey({ actionName: 'Submit Report' });
           })
         )
         .subscribe(noop);
@@ -198,8 +189,7 @@ export class MyCreateReportPage implements OnInit {
       const report = {
         purpose: this.reportTitle,
         source: 'MOBILE',
-        type: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId ? 'TRIP' : 'EXPENSE',
-        trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId,
+        type: 'EXPENSE',
       };
       const etxns = this.readyToReportEtxns.filter((etxn) => etxn.isSelected);
       const txnIds = etxns.map((etxn) => etxn.tx_id);
@@ -290,44 +280,15 @@ export class MyCreateReportPage implements OnInit {
     );
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
-      return this.reportService
-        .getReportPurpose({ ids: txnIds })
-        .pipe(map((res) => res))
-        .subscribe((res) => {
-          this.reportTitle = res;
-        });
+      return this.reportService.getReportPurpose({ ids: txnIds }).subscribe((res) => {
+        this.reportTitle = res;
+      });
     }
   }
 
   toggleTransaction(etxn) {
     etxn.isSelected = !etxn.isSelected;
     this.getReportTitle();
-  }
-
-  getTripRequests() {
-    return this.tripRequestsService.findMyUnreportedRequests().pipe(
-      map((res) => res.filter((request) => request.state === 'APPROVED')),
-      map((tripRequests: any) =>
-        tripRequests.sort((tripA, tripB) => {
-          const tripATime = new Date(tripA.created_at).getTime();
-          const tripBTime = new Date(tripB.created_at).getTime();
-          /**
-           * If tripA's time is larger than tripB's time we keep it before tripB
-           * in the array because latest trip has to be shown at the top.
-           * Else we keep it after tripB cause it was fyled earlier.
-           * If both the dates are same (which may not be possible in the real world)
-           * we maintain the order in which tripA and tripB are present in the array.
-           */
-          return tripATime > tripBTime ? -1 : tripATime < tripBTime ? 1 : 0;
-        })
-      ),
-      map((tripRequests: any) =>
-        tripRequests.map((tripRequest) => ({
-          label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose,
-          value: tripRequest,
-        }))
-      )
-    );
   }
 
   ionViewWillEnter() {
@@ -344,20 +305,6 @@ export class MyCreateReportPage implements OnInit {
 
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
     const orgUserSettings$ = this.orgUserSettingsService.get();
-
-    forkJoin({
-      orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$,
-      tripRequests: this.getTripRequests(),
-    }).subscribe(({ orgSettings, orgUserSettings, tripRequests }) => {
-      this.isTripRequestsEnabled = orgSettings.trip_requests.enabled;
-      this.canAssociateTripRequests =
-        orgSettings.trip_requests.enabled &&
-        (!orgSettings.trip_requests.enable_for_certain_employee ||
-          (orgSettings.trip_requests.enable_for_certain_employee &&
-            orgUserSettings.trip_request_org_user_settings.enabled));
-      this.tripRequests = tripRequests;
-    });
 
     from(this.loaderService.showLoader())
       .pipe(

@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { CameraOverlayPage } from './camera-overlay.page';
 
-describe('CameraOverlayPage', () => {
+xdescribe('CameraOverlayPage', () => {
   let component: CameraOverlayPage;
   let fixture: ComponentFixture<CameraOverlayPage>;
 

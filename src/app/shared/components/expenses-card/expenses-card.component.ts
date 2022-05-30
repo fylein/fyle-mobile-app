@@ -19,6 +19,10 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import * as moment from 'moment';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { TrackingService } from '../../../core/services/tracking.service';
+import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -53,13 +57,21 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isFromViewReports: boolean;
 
+  @Input() isFromPotentialDuplicates: boolean;
+
   @Input() etxnIndex: number;
+
+  @Input() isDismissable: boolean;
+
+  @Input() showDt = true;
 
   @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter();
 
   @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
 
   @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
+
+  @Output() dismissed: EventEmitter<Expense> = new EventEmitter();
 
   @Output() showCamera = new EventEmitter<boolean>();
 
@@ -70,8 +82,6 @@ export class ExpensesCardComponent implements OnInit {
   receiptIcon: string;
 
   receipt: string;
-
-  showDt = true;
 
   isPolicyViolated: boolean;
 
@@ -107,6 +117,10 @@ export class ExpensesCardComponent implements OnInit {
 
   isPerDiem: boolean;
 
+  isUnifyCcceExpensesSettings: boolean;
+
+  showPaymentModeIcon: boolean;
+
   isIos = false;
 
   constructor(
@@ -117,7 +131,10 @@ export class ExpensesCardComponent implements OnInit {
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService,
     private modalController: ModalController,
-    private platform: Platform
+    private platform: Platform,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
+    private trackingService: TrackingService
   ) {}
 
   get isSelected() {
@@ -137,13 +154,16 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getReceipt() {
-    if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
+    if (this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem') {
+    } else if (this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
       if (!this.expense.tx_file_ids) {
         this.receiptIcon = 'assets/svg/add-receipt.svg';
+        if (this.isFromPotentialDuplicates || this.isFromViewReports) {
+          this.receiptIcon = 'assets/svg/fy-expense.svg';
+        }
       } else {
         this.fileService
           .getFilesWithThumbnail(this.expense.tx_id)
@@ -250,14 +270,22 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
+  canShowPaymentModeIcon() {
+    this.showPaymentModeIcon =
+      this.expense.source_account_type === 'PERSONAL_ACCOUNT' && !this.expense.tx_skip_reimbursement;
+  }
+
   ngOnInit() {
     this.setupNetworkWatcher();
+    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+
     this.isSycing$ = this.isConnected$.pipe(
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
-    this.isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
+    this.isMileageExpense =
+      this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'mileage';
+    this.isPerDiem = this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'per diem';
 
     this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
@@ -277,9 +305,17 @@ export class ExpensesCardComponent implements OnInit {
       )
       .subscribe(noop);
 
-    this.isProjectEnabled$ = this.offlineService.getOrgSettings().pipe(
+    this.isProjectEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
       shareReplay(1)
+    );
+
+    orgSettings$.subscribe(
+      (orgSettings) =>
+        (this.isUnifyCcceExpensesSettings =
+          orgSettings.unify_ccce_expenses_settings &&
+          orgSettings.unify_ccce_expenses_settings.allowed &&
+          orgSettings.unify_ccce_expenses_settings.enabled)
     );
 
     if (!this.expense.tx_id) {
@@ -289,6 +325,8 @@ export class ExpensesCardComponent implements OnInit {
       const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
       this.showDt = currentDate !== previousDate;
     }
+
+    this.canShowPaymentModeIcon();
 
     this.getReceipt();
 
@@ -317,8 +355,9 @@ export class ExpensesCardComponent implements OnInit {
 
   getScanningReceiptCard(expense: Expense): boolean {
     if (
-      expense.tx_fyle_category &&
-      (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')
+      expense?.tx_fyle_category &&
+      (expense?.tx_fyle_category?.toLowerCase() === 'mileage' ||
+        expense?.tx_fyle_category?.toLowerCase() === 'per diem')
     ) {
       return false;
     } else {
@@ -346,7 +385,7 @@ export class ExpensesCardComponent implements OnInit {
   canAddAttachment() {
     return (
       !this.isFromViewReports &&
-      !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids) &&
+      !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids || this.isFromPotentialDuplicates) &&
       !this.isSelectionModeEnabled
     );
   }
@@ -409,6 +448,12 @@ export class ExpensesCardComponent implements OnInit {
         }
         if (receiptDetails && receiptDetails.dataUrl) {
           this.attachReceipt(receiptDetails);
+          const message = 'Receipt added to Expense successfully';
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success-with-camera-icon'],
+          });
+          this.trackingService.showToastMessage({ ToastContent: message });
         }
       }
     }
@@ -456,5 +501,11 @@ export class ExpensesCardComponent implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       startWith(true)
     );
+  }
+
+  dismiss(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.dismissed.emit(this.expense);
   }
 }

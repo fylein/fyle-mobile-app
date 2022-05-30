@@ -23,7 +23,7 @@ export class FySummaryTileComponent implements OnInit {
 
   @Input() approvals: [];
 
-  @Input() tx_orig_currency: string;
+  @Input() orig_currency: string;
 
   constructor() {}
 

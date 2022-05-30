@@ -1,6 +1,6 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -47,7 +47,7 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { LocationService } from 'src/app/core/services/location.service';
-import { GeolocationPosition } from '@capacitor/core';
+import { Position } from '@capacitor/geolocation';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
@@ -202,7 +202,9 @@ export class AddEditMileagePage implements OnInit {
 
   billableDefaultValue: boolean;
 
-  canDeleteExpense = true;
+  isRedirectedFromReport = false;
+
+  canRemoveFromReport = false;
 
   constructor(
     private router: Router,
@@ -247,10 +249,19 @@ export class AddEditMileagePage implements OnInit {
     return this.fg.controls.route;
   }
 
-  ngOnInit() {
-    if (this.activatedRoute.snapshot.params.remove_from_report) {
-      this.canDeleteExpense = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+  @HostListener('keydown')
+  scrollInputIntoView() {
+    const el = document.activeElement;
+    if (el && el instanceof HTMLInputElement) {
+      el.scrollIntoView({
+        block: 'center',
+      });
     }
+  }
+
+  ngOnInit() {
+    this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
+    this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
   }
 
   goToPrev() {
@@ -629,8 +640,8 @@ export class AddEditMileagePage implements OnInit {
         const parentCategoryName = 'mileage';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.name.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()
+            parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
+            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
         );
       }),
       shareReplay(1)
@@ -781,7 +792,7 @@ export class AddEditMileagePage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
     }).pipe(map(({ defaultVehicle, orgSettings }) => orgSettings.mileage[defaultVehicle]));
 
-    type locationInfo = { recentStartLocation: string; eou: ExtendedOrgUser; currentLocation: GeolocationPosition };
+    type locationInfo = { recentStartLocation: string; eou: ExtendedOrgUser; currentLocation: Position };
 
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
@@ -1280,7 +1291,7 @@ export class AddEditMileagePage implements OnInit {
               paymentModes
                 .map((res) => res.value)
                 .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Paid by Me') {
+                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
                     return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
                   } else {
                     return paymentMode.acc.id === etxn.tx.source_account_id;
@@ -1295,7 +1306,7 @@ export class AddEditMileagePage implements OnInit {
 
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
-        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Paid by Me')
+        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash')
       )
     );
 
@@ -1322,8 +1333,8 @@ export class AddEditMileagePage implements OnInit {
             .pipe(
               map((subCategories) =>
                 subCategories
-                  .filter((subCategory) => subCategory.sub_category.toLowerCase() !== subCategory.name.toLowerCase())
-                  .find((subCategory) => subCategory.id === etxn.tx.org_category_id)
+                  .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory?.name.toLowerCase())
+                  .find((subCategory) => subCategory?.id === etxn.tx.org_category_id)
               )
             ),
           of(null)
@@ -1556,22 +1567,7 @@ export class AddEditMileagePage implements OnInit {
           }, 1000);
         }
       );
-
-    document.addEventListener('keydown', this.scrollInputIntoView);
   }
-
-  ionViewWillLeave() {
-    document.removeEventListener('keydown', this.scrollInputIntoView);
-  }
-
-  scrollInputIntoView = () => {
-    const el = document.activeElement;
-    if (el && el instanceof HTMLInputElement) {
-      el.scrollIntoView({
-        block: 'center',
-      });
-    }
-  };
 
   async showClosePopup() {
     const isAutofilled =
@@ -2437,15 +2433,14 @@ export class AddEditMileagePage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
-    const removeExpenseFromReport = this.activatedRoute.snapshot.params.remove_from_report;
 
-    const header = reportId && removeExpenseFromReport ? 'Remove Mileage' : 'Delete Mileage';
+    const header = reportId && this.isRedirectedFromReport ? 'Remove Mileage' : 'Delete Mileage';
     const body =
-      reportId && removeExpenseFromReport
+      reportId && this.isRedirectedFromReport
         ? 'Are you sure you want to remove this mileage expense from this report?'
         : 'Are you sure you want to delete this mileage expense?';
-    const ctaText = reportId && removeExpenseFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = reportId && removeExpenseFromReport ? 'Removing' : 'Deleting';
+    const ctaText = reportId && this.isRedirectedFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = reportId && this.isRedirectedFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -2457,7 +2452,7 @@ export class AddEditMileagePage implements OnInit {
         ctaText,
         ctaLoadingText,
         deleteMethod: () => {
-          if (reportId && removeExpenseFromReport) {
+          if (reportId && this.isRedirectedFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);

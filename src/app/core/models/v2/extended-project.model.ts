@@ -12,4 +12,8 @@ export interface ExtendedProject {
   project_id: number;
   project_name: string;
   project_org_category_ids: number[];
+  project_org_id: string;
+  project_updated_at: Date;
+  projectv2_name: string;
+  sub_project_name: string;
 }

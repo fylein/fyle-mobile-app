@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FySummaryTileComponent } from './summary-tile.component';
 
-describe('FySummaryTileComponent', () => {
+xdescribe('FySummaryTileComponent', () => {
   let component: FySummaryTileComponent;
   let fixture: ComponentFixture<FySummaryTileComponent>;
 

@@ -8,12 +8,10 @@ import { shareReplay, catchError, filter, finalize, switchMap, map, concatMap, t
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { AppVersionService } from '../../core/services/app-version.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
 
@@ -62,11 +60,11 @@ export class SignInPage implements OnInit {
       this.handleError(err);
     } else {
       // Login Success
-      await this.routerAuthService.handleSignInResponse(data);
-      const samlNewRefreshToken$ = this.authService.newRefreshToken(data.refresh_token);
 
-      samlNewRefreshToken$
+      from(this.routerAuthService.handleSignInResponse(data))
         .pipe(
+          take(1),
+          switchMap(() => this.authService.refreshEou()),
           tap(async () => {
             await this.trackLoginInfo();
             this.trackingService.onSignin(this.fg.value.email, {
@@ -148,12 +146,6 @@ export class SignInPage implements OnInit {
     if (error.status === 400) {
       this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value }]);
       return;
-    } else if (error.status === 401) {
-      header = 'Unauthorized';
-
-      if (error.error && error.error.message) {
-        header = "Account doesn't exist";
-      }
     } else if (error.status === 500) {
       header = 'Sorry... Something went wrong!';
     } else if (error.status === 433) {
@@ -185,7 +177,7 @@ export class SignInPage implements OnInit {
             this.handleError(err);
             return throwError(err);
           }),
-          switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
+          switchMap(() => this.authService.refreshEou()),
           tap(async () => {
             await this.trackLoginInfo();
             this.trackingService.onSignin(this.fg.value.email, {
@@ -225,7 +217,7 @@ export class SignInPage implements OnInit {
               this.handleError(err);
               return throwError(err);
             }),
-            switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
+            switchMap((res) => this.authService.refreshEou()),
             tap(async () => {
               await this.trackLoginInfo();
               this.trackingService.onSignin(this.fg.value.email, {

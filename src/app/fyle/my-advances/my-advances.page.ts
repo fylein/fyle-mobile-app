@@ -20,6 +20,8 @@ import { concatMap, map, reduce, shareReplay, startWith, switchMap, takeUntil, t
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NetworkService } from '../../core/services/network.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FiltersHelperService } from 'src/app/core/services/filters-helper.service';
@@ -32,8 +34,6 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
-import { TrackingService } from 'src/app/core/services/tracking.service';
-import { TasksService } from 'src/app/core/services/tasks.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -56,6 +56,8 @@ export class MyAdvancesPage implements AfterViewChecked {
   isLoading = false;
 
   navigateBack = false;
+
+  totalTaskCount = 0;
 
   refreshAdvances$: Subject<void> = new Subject();
 
@@ -122,6 +124,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     });
 
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.tasksService.getTotalTaskCount().subscribe((totalTaskCount) => (this.totalTaskCount = totalTaskCount));
 
     const oldFilters = this.activatedRoute.snapshot.queryParams.filters;
     if (oldFilters) {
@@ -133,7 +136,6 @@ export class MyAdvancesPage implements AfterViewChecked {
 
     this.myAdvancerequests$ = this.advanceRequestService
       .getMyAdvanceRequestsCount({
-        areq_trip_request_id: 'is.null',
         areq_advance_id: 'is.null',
       })
       .pipe(
@@ -146,7 +148,6 @@ export class MyAdvancesPage implements AfterViewChecked {
             offset: 10 * count,
             limit: 10,
             queryParams: {
-              areq_trip_request_id: 'is.null',
               areq_advance_id: 'is.null',
               order: 'areq_created_at.desc,areq_id.desc',
             },
@@ -306,6 +307,7 @@ export class MyAdvancesPage implements AfterViewChecked {
       queryParams,
     });
     this.trackingService.tasksPageOpened({
+      Asset: 'Mobile',
       from: 'My Advances',
     });
   }

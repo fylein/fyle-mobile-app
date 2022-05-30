@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FySelectProjectComponent } from './fy-select-project.component';
 
-describe('FySelectProjectComponent', () => {
+xdescribe('FySelectProjectComponent', () => {
   let component: FySelectProjectComponent;
   let fixture: ComponentFixture<FySelectProjectComponent>;
 

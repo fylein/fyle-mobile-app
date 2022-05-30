@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyCriticalPolicyViolationComponent } from './fy-critical-policy-violation.component';
 
-describe('FyCriticalPolicyViolationComponent', () => {
+xdescribe('FyCriticalPolicyViolationComponent', () => {
   let component: FyCriticalPolicyViolationComponent;
   let fixture: ComponentFixture<FyCriticalPolicyViolationComponent>;
 

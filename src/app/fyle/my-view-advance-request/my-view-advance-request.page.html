@@ -43,9 +43,9 @@
     <div class="view-advance-request--container">
       <app-summary-tile
         [purpose]="advanceRequest.areq_purpose || '-'"
-        [currency]="advanceRequest.areq_currency"
+        [currency]="currencySymbol"
         [amount]="advanceRequest.areq_amount || 0"
-        [status]="advanceRequest.areq_state"
+        [status]="internalState.name"
         [approvals]="activeApprovals$ | async"
       ></app-summary-tile>
 
@@ -185,7 +185,7 @@
           </div>
         </ng-container>
 
-        <div class="view-advance-request--divider"></div>
+        <div *ngIf="advanceRequest?.areq_advance_id" class="view-advance-request--divider"></div>
       </div>
 
       <div *ngIf="advanceRequest?.areq_advance_id" class="view-advance-request--view-advance">

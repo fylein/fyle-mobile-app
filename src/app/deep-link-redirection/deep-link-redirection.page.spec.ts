@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { DeepLinkRedirectionPage } from './deep-link-redirection.page';
 
-describe('DeepLinkRedirectionPage', () => {
+xdescribe('DeepLinkRedirectionPage', () => {
   let component: DeepLinkRedirectionPage;
   let fixture: ComponentFixture<DeepLinkRedirectionPage>;
 

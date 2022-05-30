@@ -103,17 +103,6 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$,
   })
-  getMyETxnc(params: { offset: number; limit: number; tx_org_user_id: string }) {
-    return this.apiV2Service
-      .get('/expenses', {
-        params,
-      })
-      .pipe(map((etxns) => etxns.data));
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
-  })
   getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
       switchMap((res) => {
@@ -122,24 +111,6 @@ export class TransactionService {
       }),
       concatMap((page) => this.getETxnc({ offset: 50 * page, limit: 50, params })),
       reduce((acc, curr) => acc.concat(curr))
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
-  })
-  getAllMyETxnc() {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.getMyETxncCount('eq.' + eou.ou.id).pipe(
-          switchMap((res) => {
-            const count = res.count > 50 ? res.count / 50 : 1;
-            return range(0, count);
-          }),
-          concatMap((page) => this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id })),
-          reduce((acc, curr) => acc.concat(curr))
-        )
-      )
     );
   }
 
@@ -408,10 +379,6 @@ export class TransactionService {
     return stateMap[state];
   }
 
-  getPaginatedETxncStats(params) {
-    return this.apiService.get('/etxns/stats', { params });
-  }
-
   getPaginatedETxncCount(params?) {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -426,12 +393,6 @@ export class TransactionService {
         }
       })
     );
-  }
-
-  getMyETxncCount(tx_org_user_id: string): Observable<{ count: number }> {
-    return this.apiV2Service
-      .get('/expenses', { params: { offset: 0, limit: 1, tx_org_user_id } })
-      .pipe(map((res) => res as { count: number }));
   }
 
   getETxnc(params: { offset: number; limit: number; params: any }) {
@@ -731,5 +692,56 @@ export class TransactionService {
     return Object.keys(currencyMap)
       .map((currency) => currencyMap[currency])
       .sort((a, b) => (a.amount < b.amount ? 1 : -1));
+  }
+
+  excludeCCCExpenses(expenses: Expense[]) {
+    return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
+  }
+
+  getDeletableTxns(expenses: Expense[]) {
+    return expenses.filter((expense) => expense && expense.tx_user_can_delete);
+  }
+
+  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]) {
+    return `You are about to permanently delete ${
+      expensesToBeDeleted?.length === 1 ? '1 selected expense.' : expensesToBeDeleted?.length + ' selected expenses.'
+    }`;
+  }
+
+  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number) {
+    return `There ${cccExpenses > 1 ? ' are ' : ' is '} ${cccExpenses} corporate card ${
+      cccExpenses > 1 ? 'expenses' : 'expense'
+    } from the selection which can\'t be deleted. ${
+      expensesToBeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
+    }`;
+  }
+
+  getDeleteDialogBody(
+    expensesToBeDeleted: Expense[],
+    cccExpenses: number,
+    expenseDeletionMessage: string,
+    cccExpensesMessage: string
+  ) {
+    let dialogBody: string;
+
+    if (expensesToBeDeleted?.length > 0 && cccExpenses > 0) {
+      dialogBody = `<ul class="text-left">
+        <li>${cccExpensesMessage}</li>
+        <li>Once deleted, the action can't be reversed.</li>
+        </ul>
+        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+    } else if (expensesToBeDeleted?.length > 0 && cccExpenses === 0) {
+      dialogBody = `<ul class="text-left">
+      <li>${expenseDeletionMessage}</li>
+      <li>Once deleted, the action can't be reversed.</li>
+      </ul>
+      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+    } else if (expensesToBeDeleted?.length === 0 && cccExpenses > 0) {
+      dialogBody = `<ul class="text-left">
+      <li>${cccExpensesMessage}</li>
+      </ul>`;
+    }
+
+    return dialogBody;
   }
 }

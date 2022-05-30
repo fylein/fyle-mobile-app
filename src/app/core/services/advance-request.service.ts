@@ -41,7 +41,6 @@ type Config = Partial<{
 
 type advanceRequestStat = {
   aggregates: string;
-  areq_trip_request_id: string;
   areq_state: string;
   areq_is_sent_back: string;
   scalar: boolean;
@@ -338,16 +337,16 @@ export class AdvanceRequestService {
   }
 
   fixDates(data: ExtendedAdvanceRequest) {
-    if (data.areq_created_at) {
-      data.areq_created_at = new Date(data.areq_created_at);
+    if (data?.areq_created_at) {
+      data.areq_created_at = new Date(data?.areq_created_at);
     }
 
     if (data.areq_updated_at) {
-      data.areq_updated_at = new Date(data.areq_updated_at);
+      data.areq_updated_at = new Date(data?.areq_updated_at);
     }
 
     if (data.areq_approved_at) {
-      data.areq_approved_at = new Date(data.areq_approved_at);
+      data.areq_approved_at = new Date(data?.areq_approved_at);
     }
 
     return data;

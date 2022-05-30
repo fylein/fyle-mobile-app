@@ -46,9 +46,16 @@ export class StatusService {
           icon: 'fy-merge',
         };
         break;
-      case lowerCaseComment.indexOf('you merged') > -1:
+      case /(merged (\d+) expenses)/.test(lowerCaseComment):
+        const regexMatch = lowerCaseComment.match(/merged (\d+) expenses/);
         statusCategory = {
-          category: 'Expense merged by user',
+          category: regexMatch[1] + ' expenses merged to this expense',
+          icon: 'fy-merge',
+        };
+        break;
+      case lowerCaseComment.indexOf('merged') > -1:
+        statusCategory = {
+          category: 'Expense merged',
           icon: 'fy-merge',
         };
         break;
@@ -68,6 +75,12 @@ export class StatusService {
         statusCategory = {
           category: type + ' Edited',
           icon: 'edit',
+        };
+        break;
+      case lowerCaseComment.indexOf('policy violation will trigger the following action') > -1:
+        statusCategory = {
+          category: 'Policy Violation',
+          icon: 'danger',
         };
         break;
       case lowerCaseComment.indexOf('added') > -1:
@@ -104,12 +117,6 @@ export class StatusService {
         statusCategory = {
           category: 'Flagged',
           icon: 'flag',
-        };
-        break;
-      case lowerCaseComment.indexOf('the following action(s) will be taken') > -1:
-        statusCategory = {
-          category: 'Policy Violation',
-          icon: 'danger',
         };
         break;
       case lowerCaseComment.indexOf('additional approvers are not present') > -1:

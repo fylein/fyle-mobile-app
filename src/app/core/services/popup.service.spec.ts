@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { PopupService } from './popup.service';
 
-describe('PopupService', () => {
+xdescribe('PopupService', () => {
   let service: PopupService;
 
   beforeEach(() => {

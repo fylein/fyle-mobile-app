@@ -1,14 +1,12 @@
 {
 	"appId": "com.ionicframework.fyle595781",
 	"appName": "Fyle",
-	"bundledWebRuntime": false,
-	"npmClient": "npm",
 	"webDir": "www",
+	"bundledWebRuntime": false,
 	"plugins": {
 		"SplashScreen": {
-		"launchShowDuration": 5000,
-		"androidScaleType": "CENTER_CROP"
+			"launchAutoHide": false,
+			"androidScaleType": "CENTER_CROP"
 		}
-	},
-	"cordova": {}
+	}
 }

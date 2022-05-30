@@ -36,10 +36,12 @@
       <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="openCommentsModal()">
         <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
       </ion-button>
-      <ng-container *ngIf="canDeleteExpense && etxn$|async as etxn">
-        <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
-          <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
-        </ion-button>
+      <ng-container *ngIf="etxn$|async as etxn">
+        <ng-container *ngIf="canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)">
+          <ion-button class="add-edit-per-diem--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
+            <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ng-container>
       </ng-container>
     </ion-buttons>
   </ion-toolbar>
@@ -156,9 +158,7 @@
                         <div class="add-edit-per-diem--date-block">
                           <div
                             [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
-                            class="
-                              add-edit-per-diem--date add-edit-per-diem--internal-block add-edit-per-diem--from-date
-                            "
+                            class="add-edit-per-diem--date add-edit-per-diem--internal-block add-edit-per-diem--from-date"
                           >
                             <div
                               [ngClass]="{'add-edit-per-diem--date-label__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid}"
@@ -215,9 +215,7 @@
                           </div>
                           <div
                             *ngIf="fg.controls.to_dt.touched && !fg.controls.to_dt.valid"
-                            class="
-                              add-edit-per-diem--error add-edit-per-diem--date-error add-edit-per-diem--to-date-error
-                            "
+                            class="add-edit-per-diem--error add-edit-per-diem--date-error add-edit-per-diem--to-date-error"
                           >
                             Please select {{ txnFields?.to_dt.field_name ? txnFields?.to_dt.field_name : 'To Date' }}
                           </div>
@@ -620,11 +618,6 @@
                       </div>
                     </ng-template>
                   </div>
-
-                  <!-- This is very helpful for debugging - Angular will remove this when compiling so lets have this here -->
-                  <!-- <ion-button (click)="getFormValidationErrors()">
-                    Click me for errors!
-                  </ion-button> -->
                 </div>
               </div>
             </ng-container>
