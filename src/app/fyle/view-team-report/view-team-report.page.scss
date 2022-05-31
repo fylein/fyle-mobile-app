@@ -41,7 +41,7 @@ $sent-back-color: #da1e28;
 
   &--disabled-info {
     position: absolute;
-    background: $info-tooltip-color;
+    background: $blue-black;
     color: $pure-white;
     padding: 20px;
     bottom: 72px;
@@ -55,7 +55,7 @@ $sent-back-color: #da1e28;
     position: absolute;
     top: 98%;
     left: calc(50% - 10px);
-    background: $info-tooltip-color;
+    background: $blue-black;
     width: 18px;
     height: 10px;
     clip-path: polygon(0 0, 100% 0, 50% 100%);

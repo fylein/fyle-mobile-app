@@ -29,24 +29,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
-
-type Approver = {
-  id: number;
-  created_at: Date;
-  updated_at: Date;
-  report_id: string;
-  approver_id: string;
-  request_id: string;
-  state: string;
-  added_by: string;
-  disabled_by: string;
-  last_updated_by: Date;
-  rank: number;
-  approver_name: string;
-  approver_email: string;
-  comment: string;
-};
-
+import { Approver } from 'src/app/core/models/v2/approver.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -131,13 +114,13 @@ export class ViewTeamReportPage implements OnInit {
 
   approvers: Approver[];
 
-  isSequentialApprovalEnabled: boolean;
+  isSequentialApprovalEnabled = false;
 
-  isTopInSequentialApproval: boolean;
+  isTopInSequentialApproval = true;
 
   eou$: Observable<ExtendedOrgUser>;
 
-  showApproveDisabledTooltip: boolean;
+  canShowTooltip = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -333,12 +316,13 @@ export class ViewTeamReportPage implements OnInit {
     this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
-    this.etxns$.subscribe((etxns) => {
-      this.reportEtxnIds = etxns.map((etxn) => etxn.tx_id);
-      this.orgUserId = etxns.map((etxn) => etxn.ou_id)[0];
-      this.reportApprovals$.subscribe((approvals) => {
-        this.approvers = approvals;
-      });
+    forkJoin({
+      etxns: this.etxns$,
+      approvals: this.reportApprovals$,
+    }).subscribe((response) => {
+      this.reportEtxnIds = response.etxns.map((etxn) => etxn.tx_id);
+      this.orgUserId = response.etxns.map((etxn) => etxn.ou_id)[0];
+      this.approvers = response.approvals;
     });
 
     forkJoin({
@@ -348,23 +332,23 @@ export class ViewTeamReportPage implements OnInit {
     }).subscribe((res) => {
       this.isSequentialApprovalEnabled = res?.orgSettings.approval_settings?.enable_sequential_approvers;
       this.isTopInSequentialApproval = this.isSequentialApprovalEnabled
-        ? this.checkIsTopInSequentialApproval(res.eou, res.approvals)
+        ? this.isTopInSeqApproval(res.eou, res.approvals)
         : true;
-      this.showApproveDisabledTooltip = true;
+      this.canShowTooltip = true;
     });
 
     this.refreshApprovals$.next();
   }
 
-  closeApproveDisabledTooltip() {
-    this.showApproveDisabledTooltip = false;
+  hideTooltip() {
+    this.canShowTooltip = false;
   }
 
-  openApproveDisabledTooltip() {
-    this.showApproveDisabledTooltip = true;
+  showTooltip() {
+    this.canShowTooltip = true;
   }
 
-  checkIsTopInSequentialApproval(eou, approvals) {
+  isTopInSeqApproval(eou, approvals) {
     let minRank = 100;
     let currentApproverRank = 100;
 
