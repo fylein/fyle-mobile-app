@@ -746,10 +746,16 @@ export class TransactionService {
     return dialogBody;
   }
 
-  getUnlinkDialogBody(): string {
-    const dialogBody = `<ul class="text-left">
+  getUnlinkDialogBody(isSplitExpensesPresent: boolean): string {
+    const dialogBody = isSplitExpensesPresent
+      ? `<ul class="text-left">
     <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
-    <li>It removes the card details from the expense and results in two expenses which you can find on the Expenses page.</li>
+    <li>It removes the card details from the expense and creates a new card expense under the Expenses section.</li>
+    <li>Since this is a split expense, clicking on Confirm will remove the card details from all the related split expenses.</li>
+    </ul>`
+      : `<ul class="text-left">
+    <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
+    <li>It removes the card details from the expense and creates a new card expense under the Expenses section.</li>
     </ul>`;
 
     return dialogBody;

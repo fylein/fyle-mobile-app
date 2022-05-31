@@ -839,7 +839,7 @@ export class AddEditExpensePage implements OnInit {
   async unlinkCorporateCardExpense() {
     const id = this.activatedRoute.snapshot.params.id;
     const header = 'Unlink Card Details';
-    const body = this.transactionService.getUnlinkDialogBody();
+    const body = this.transactionService.getUnlinkDialogBody(this.isSplitExpensesPresent);
     const ctaText = 'Confirm';
     const ctaLoadingText = 'Confirming';
     const deletePopover = await this.popoverController.create({
