@@ -121,9 +121,12 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
       modalProperties = {
         cssClass: 'payment-mode-modal',
         showBackdrop: true,
-        swipeToClose: true,
+        canDismiss: true,
         backdropDismiss: true,
         animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
       };
     } else {
       modalProperties = this.modalProperties.getModalDefaultProperties();
@@ -148,7 +151,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
         label: this.label,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...modalProperties,
     });
 

@@ -168,7 +168,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
           currentSelection: this.fg.controls.currency.value,
         },
         mode: 'ios',
-        presentingElement: await this.modalController.getTop(),
         ...this.modalProperties.getModalDefaultProperties(),
       });
 
@@ -189,7 +188,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
               txnDt: this.txnDt,
             },
             mode: 'ios',
-            presentingElement: await this.modalController.getTop(),
             ...this.modalProperties.getModalDefaultProperties(),
           });
 
