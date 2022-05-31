@@ -1,0 +1,174 @@
+<ion-header mode="md">
+  <ion-toolbar class="view-trip--toolbar">
+    <ion-buttons mode="md" slot="end">
+      <ng-container *ngIf="showTripActionCta">
+        <ion-button class="view-trip--edit" fill="clear" *ngIf="canEdit$|async" (click)="editTrip()"> EDIT </ion-button>
+      </ng-container>
+      <ion-button [routerLink]="['/','enterprise','my_trips']" routerLinkActive="router-link-active">
+        <mat-icon>close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title mode="md" class="page-title">View Trip Request</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="deprecationMsg$|async as deprecationMsg">
+    <app-fy-alert-info [message]="deprecationMsg" type="warning" class="deprecate-msg"></app-fy-alert-info>
+  </ng-container>
+  <div *ngIf="tripRequest$|async as tripRequest">
+    <div *ngIf="tripExtraInfo$| async as tripExtraInfo">
+      <div class="view-trip--header">Trip Information</div>
+      <div class="view-trip--card">
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">ID</div>
+          <div class="view-trip--element-value">{{tripRequest.trp_request_number}}</div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">State</div>
+          <div class="view-trip--element-value">{{tripRequest.internalStateDisplayName}}</div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">Submitted By</div>
+          <div class="view-trip--element-value">{{tripExtraInfo.submittedBy.fullName}}</div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">Travellers</div>
+          <div class="view-trip--element-value">{{tripExtraInfo.travellers}}</div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">Start Date</div>
+          <div class="view-trip--element-value">{{tripRequest.trp_start_date | date: 'MMM dd, yyyy'}}</div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">End Date</div>
+          <div class="view-trip--element-value">{{tripRequest.trp_end_date | date: 'MMM dd, yyyy'}}</div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">Approvals</div>
+          <div class="view-trip--element-value">
+            <span *ngFor="let activeApproval of activeApprovals$ | async as list">
+              <span> {{activeApproval.approver_name}} </span>
+
+              <span class="text-capitalize"> ({{activeApproval.state | tripState}}) </span>
+            </span>
+          </div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">Trip Type</div>
+          <div class="view-trip--element-value text-capitalize">
+            {{tripRequest.trp_trip_type | lowercase | snakeCaseToSpaceCase}}
+          </div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">Locations</div>
+          <div class="view-trip--element-value">{{tripExtraInfo.tripLocations.join(', ')}}</div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">Purpose</div>
+          <div class="view-trip--element-value">{{tripRequest.trp_purpose || '-'}}</div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">Project</div>
+          <div class="view-trip--element-value">{{tripExtraInfo.projectName || '-'}}</div>
+        </div>
+        <div class="view-trip--element">
+          <div class="view-trip--element-label">Notes</div>
+          <div class="view-trip--element-value">{{tripRequest.trp_notes || '-'}}</div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="tripRequest.trp_custom_field_values.length > 0">
+        <div class="view-trip--header">Additional Information</div>
+        <div class="view-trip--card">
+          <div *ngFor="let customField of tripRequest.trp_custom_field_values" class="view-trip--element">
+            <div class="view-trip--element-label">{{customField.name}}</div>
+            <div *ngIf="customField.type === 'DATE'" class="view-trip--element-value">
+              {{customField.value | date: 'MMM dd, yyyy' || '-'}}
+            </div>
+            <div *ngIf="customField.type === 'BOOLEAN'" class="view-trip--element-value">
+              {{customField.value ? 'Yes' : 'No' || '-'}}
+            </div>
+            <div *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'" class="view-trip--element-value">
+              {{customField?.value?.display || customField.value || '-'}}
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="view-trip--card" *ngIf="transportationRequests$|async as transportationRequests">
+        <div class="view-trip--element view-trip--element__single" (click)="openTransportationRequests()">
+          <div class="view-trip--element-label">Transportation</div>
+          <div class="view-trip--element-value">{{transportationRequests.length}} Request</div>
+        </div>
+      </div>
+
+      <div class="view-trip--card" *ngIf="hotelRequests$|async as hotelRequests">
+        <div class="view-trip--element view-trip--element__single" (click)="openHotelRequests()">
+          <div class="view-trip--element-label">Hotel</div>
+          <div class="view-trip--element-value">{{hotelRequests.length}} Request</div>
+        </div>
+      </div>
+
+      <div class="view-trip--card" *ngIf="transformedAdvanceRequests$|async as advanceRequests">
+        <div class="view-trip--element view-trip--element__single" (click)="openAdvanceRequests()">
+          <div class="view-trip--element-label">Advance</div>
+          <div class="view-trip--element-value">{{advanceRequests.length}} Request</div>
+        </div>
+      </div>
+      <!--
+      <div class="element-container" ng-if="vm.actions.can_add_approver && vm.allApprovers.length">
+        <enterprise-fy-approver-list name="tripsApproverList" class="element-block m-0" list="vm.allApprovers"
+          on-selection="vm.selectedApprovers(email, comment)" required title="Choose Approvers" sub-title="approvers"
+          from-source="trip"></enterprise-fy-approver-list>
+      </div> -->
+
+      <div class="view-trip--card">
+        <div class="view-trip--card-action">
+          <app-comments-history
+            objectType="trip_requests"
+            [objectId]="tripRequest.trp_id"
+            text="Comments"
+            [showCommentsCount]="true"
+          ></app-comments-history>
+        </div>
+      </div>
+
+      <ng-container *ngIf="showTripActionCta">
+        <div class="view-trip--card" *ngIf="canDelete$|async" (click)="deleteTrip()">
+          <div class="view-trip--card-action" appFormButtonValidation [loading]="deleteLoading">
+            <mat-icon class="view-trip--card-action-icon">delete</mat-icon>
+            <div class="view-trip--card-action-text view-trip--card-action-text__delete">Delete Trip</div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</ion-content>
+
+<ng-container *ngIf="showTripActionCta">
+  <ion-footer *ngIf="(canCloseTrip$|async)||(canPullBack$|async)">
+    <ion-toolbar class="fy-footer-cta-container" mode="md">
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        [disabled]="pullbackLoading || closeLoading || deleteLoading"
+        appFormButtonValidation
+        [loading]="pullbackLoading"
+        *ngIf="canPullBack$|async"
+        (click)="pullBack()"
+      >
+        Pull Back
+      </ion-button>
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        [disabled]="pullbackLoading || closeLoading || deleteLoading"
+        appFormButtonValidation
+        [loading]="closeLoading"
+        *ngIf="canCloseTrip$|async"
+        (click)="closeTrip()"
+      >
+        Close Trip
+      </ion-button>
+    </ion-toolbar>
+  </ion-footer>
+</ng-container>

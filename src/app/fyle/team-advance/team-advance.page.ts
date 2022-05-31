@@ -264,6 +264,7 @@ export class TeamAdvancePage implements AfterViewChecked {
 
     if (isPending && isApproved) {
       extraParams = {
+        areq_trip_request_id: ['is.null'],
         areq_state: ['not.eq.DRAFT'],
         areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
         or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
@@ -271,14 +272,17 @@ export class TeamAdvancePage implements AfterViewChecked {
     } else if (isPending) {
       extraParams = {
         areq_state: ['eq.APPROVAL_PENDING'],
+        areq_trip_request_id: ['is.null'],
         or: ['(areq_is_sent_back.is.null,areq_is_sent_back.is.false)'],
       };
     } else if (isApproved) {
       extraParams = {
+        areq_trip_request_id: ['is.null'],
         areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE}'],
       };
     } else {
       extraParams = {
+        areq_trip_request_id: ['is.null'],
         areq_approval_state: ['ov.{APPROVAL_PENDING,APPROVAL_DONE,APPROVAL_REJECTED}'],
       };
     }

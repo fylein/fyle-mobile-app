@@ -189,4 +189,15 @@ $background-color: #fff;
     text-transform: uppercase;
     border-radius: 4px;
   }
+
+  &--select-trip {
+    margin: 10px 0;
+  }
+
+  &--text-trip {
+    width: 100%;
+    font-size: 12px;
+    color: #4a4a4a;
+    border: 0;
+  }
 }

@@ -59,6 +59,7 @@ export class SetupAccountPreferencesPage implements OnInit {
       mileage: [true],
       per_diem: [false],
       ccc: [true],
+      trip: [false],
       advances: [true],
     });
   }
@@ -70,6 +71,7 @@ export class SetupAccountPreferencesPage implements OnInit {
           orgSettings.mileage.enabled = this.fg.controls.mileage.value;
           orgSettings.per_diem.enabled = this.fg.controls.per_diem.value;
           orgSettings.corporate_credit_card_settings.enabled = this.fg.controls.ccc.value;
+          orgSettings.trip_requests.enabled = this.fg.controls.trip.value;
           orgSettings.advance_requests.enabled = this.fg.controls.advances.value;
 
           return this.orgSettingsService.post(orgSettings).pipe(
@@ -81,6 +83,7 @@ export class SetupAccountPreferencesPage implements OnInit {
                 'Enable Per Diem': this.fg.controls.per_diem.value,
                 'Enable Corporate Cards': this.fg.controls.ccc.value,
                 'Enable Advances': this.fg.controls.advances.value,
+                'Enable Trips': this.fg.controls.trip.value,
               });
             })
           );

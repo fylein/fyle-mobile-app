@@ -44,6 +44,10 @@ export class RecentLocalStorageItemsService {
     this.clear('perDiemCostCenterCache');
     this.clear('perDiemSubCategoryCache');
 
+    this.clear('tripProjectCache');
+    this.clear('tripsRecentPurposeList');
+    this.clear('recentTripRequestsList');
+
     this.clear('splitExpenseProjectCache');
     this.clear('splitExpenseCategoryCache');
     this.clear('splitExpenseCostCenterCache');

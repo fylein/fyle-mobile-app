@@ -1,0 +1,112 @@
+<ion-header mode="md">
+  <ion-toolbar class="hotel-requests--toolbar">
+    <ion-title> Hotel Requests </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="closeModal()">
+        <mat-icon>close</mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngFor="let eHotelRequest of hotelRequests">
+    <div class="hotel-requests--card">
+      <div (click)="eHotelRequest.isOpened = !eHotelRequest.isOpened" class="hotel-requests--header">
+        <div class="hotel-requests--hotel-city">
+          Hotel in {{ eHotelRequest.hr.city.city || eHotelRequest.hr.city.display }}
+        </div>
+        <div class="hotel-requests--booking-date">
+          {{ eHotelRequest.hr.check_in_dt | date: 'MMMM dd, yyyy' }} -
+          {{ eHotelRequest.hr.check_out_dt | date: 'MMMM dd, yyyy' }}
+        </div>
+      </div>
+
+      <div class="hotel-requests--content" *ngIf="eHotelRequest.isOpened">
+        <div class="hotel-requests--element">
+          <div class="hotel-requests--element-label">ID</div>
+          <div class="hotel-requests--element-value">
+            {{ eHotelRequest.hr.request_number || '-' }}
+          </div>
+        </div>
+
+        <div class="hotel-requests--element">
+          <div class="hotel-requests--element-label">Status</div>
+          <div class="hotel-requests--element-value">
+            {{ eHotelRequest.internalStateDisplayName || '-' }}
+          </div>
+        </div>
+
+        <div class="hotel-requests--element">
+          <div class="hotel-requests--element-label">No of Rooms</div>
+          <div class="hotel-requests--element-value">
+            {{ eHotelRequest.hr.rooms || '-' }}
+          </div>
+        </div>
+
+        <div class="hotel-requests--element">
+          <div class="hotel-requests--element-label">Budget</div>
+          <div class="hotel-requests--element-value" *ngIf="eHotelRequest.hr.currency && eHotelRequest.hr.amount">
+            {{ eHotelRequest.hr.currency }} {{ eHotelRequest.hr.amount }}
+          </div>
+          <div *ngIf="!eHotelRequest.hr.currency && !eHotelRequest.hr.amount">-</div>
+        </div>
+
+        <div class="hotel-requests--element">
+          <div class="hotel-requests--element-label">Notes</div>
+          <div class="hotel-requests--element-value">
+            {{ eHotelRequest.hr.notes || '-' }}
+          </div>
+        </div>
+
+        <div class="hotel-requests--element">
+          <div class="hotel-requests--element-label">Booking Number</div>
+          <div class="hotel-requests--element-value">
+            {{ eHotelRequest.hb.booking_number || '-' }}
+          </div>
+        </div>
+
+        <div class="hotel-requests--element">
+          <div class="hotel-requests--element-label">Cancellation Number</div>
+          <div class="hotel-requests--element-value">
+            {{ eHotelRequest.hr.cancellation_number || '-' }}
+          </div>
+        </div>
+
+        <div class="hotel-requests--element">
+          <div class="hotel-requests--element-label">Booking Expense</div>
+          <div class="hotel-requests--element-value">
+            {{ eHotelRequest.hb.transaction_number || '-' }}
+          </div>
+        </div>
+
+        <div class="hotel-requests--element">
+          <div class="hotel-requests--element-label">Cancellation Expense</div>
+          <div class="hotel-requests--element-value">
+            {{ eHotelRequest.hc.transaction_number || '-' }}
+          </div>
+        </div>
+
+        <div class="hotel-requests--element" *ngFor="let customField of eHotelRequest.hr.custom_field_values">
+          <div class="hotel-requests--element-label">
+            {{ customField.name }}
+          </div>
+
+          <div class="hotel-requests--element-value" *ngIf="customField.type === 'DATE'">
+            {{ customField.value | date: 'MMM dd, yyyy' }}
+          </div>
+          <div class="hotel-requests--element-value" *ngIf="customField.type === 'BOOLEAN'">
+            {{ customField.value ? 'Yes' : 'No' }}
+          </div>
+          <div
+            class="hotel-requests--element-value"
+            *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'"
+          >
+            {{ customField?.value?.display || customField.value || '-' }}
+          </div>
+        </div>
+        <!-- Custom Fields -->
+      </div>
+    </div>
+  </div>
+</ion-content>

@@ -607,6 +607,19 @@ export class TrackingService {
     this.eventTrack('Analytics - Number Of Days Booked In Advance Hotel', properties);
   }
 
+  // Trips Graph Events
+  tripExpensesBrokenAgainstBookingSourceForFlight(properties) {
+    this.eventTrack('Analytics - Type of Booking for Flight', properties);
+  }
+
+  tripExpensesBrokenAgainstBookingSourceForHotel(properties) {
+    this.eventTrack('Analytics - Type of Booking for Hotel', properties);
+  }
+
+  tripExpensesBrokenAgainstBookingSourceForTrain(properties) {
+    this.eventTrack('Analytics - Type of Booking for Train', properties);
+  }
+
   // Track sidenav toggle
   onSideNavToggle(properties) {
     this.eventTrack('Toggle sidebar', properties);

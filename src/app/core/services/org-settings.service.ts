@@ -144,6 +144,22 @@ export class OrgSettingsService {
         enable_individual_projects:
           incoming.advanced_project_settings && incoming.advanced_project_settings.enable_individual_projects,
       },
+      trip_requests: {
+        allowed: incoming.trip_request_settings && incoming.trip_request_settings.allowed,
+        enabled: incoming.trip_request_settings && incoming.trip_request_settings.enable_trip_requests,
+        enable_for_certain_employee:
+          incoming.trip_request_settings &&
+          incoming.trip_request_settings.allowed &&
+          incoming.trip_request_settings.enable_trip_requests_for_certain_employees,
+        enabled_hotel_requests:
+          incoming.trip_request_settings &&
+          incoming.trip_request_settings.allowed &&
+          incoming.trip_request_settings.enable_hotel_requests,
+        enabled_transportation_requests:
+          incoming.trip_request_settings &&
+          incoming.trip_request_settings.allowed &&
+          incoming.trip_request_settings.enable_transportation_requests,
+      },
       advance_requests: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
         enabled: incoming.advances_settings && incoming.advances_settings.advance_requests_enabled,
@@ -159,6 +175,10 @@ export class OrgSettingsService {
           incoming.policy_settings &&
           incoming.policy_settings.allowed &&
           incoming.policy_settings.is_self_serve_enabled,
+        trip_request_policy_enabled:
+          incoming.policy_settings &&
+          incoming.policy_settings.allowed &&
+          incoming.policy_settings.is_trip_request_policy_enabled,
         advance_request_policy_enabled:
           incoming.policy_settings &&
           incoming.policy_settings.allowed &&
@@ -212,11 +232,16 @@ export class OrgSettingsService {
           incoming.approval_settings &&
           incoming.approval_settings.allowed &&
           incoming.approval_settings.enable_sequential_approvers,
+        allow_user_add_trip_request_approvers:
+          incoming.approval_settings &&
+          incoming.approval_settings.allowed &&
+          incoming.approval_settings.allow_user_add_trip_request_approvers,
       },
       accounting: this.getIncomingAccountingObject(incoming.accounting_export_settings),
       transaction_fields_settings: incoming.transaction_fields_settings,
       org_user_fields_settings: incoming.org_user_fields_settings,
       advance_request_fields_settings: incoming.advance_request_fields_settings,
+      trip_request_fields_settings: incoming.trip_request_fields_settings,
       org_logo_settings: incoming.org_logo_settings,
       org_branding_settings: {
         allowed: incoming.org_branding_settings && incoming.org_branding_settings.allowed,
@@ -397,6 +422,13 @@ export class OrgSettingsService {
         allowed: outgoing.xe_provider_settings.allowed,
         enabled: outgoing.xe_provider_settings.enabled,
       },
+      trip_request_settings: {
+        allowed: outgoing.trip_requests.allowed,
+        enable_trip_requests: outgoing.trip_requests.enabled,
+        enable_trip_requests_for_certain_employees: outgoing.trip_requests.enable_for_certain_employee,
+        enable_hotel_requests: outgoing.trip_requests.enabled_hotel_requests,
+        enable_transportation_requests: outgoing.trip_requests.enabled_transportation_requests,
+      },
       advances_settings: {
         allowed: outgoing.advances.allowed,
         enabled: outgoing.advances.enabled,
@@ -469,6 +501,7 @@ export class OrgSettingsService {
       transaction_fields_settings: outgoing.transaction_fields_settings,
       org_user_fields_settings: outgoing.org_user_fields_settings,
       advance_request_fields_settings: outgoing.advance_request_fields_settings,
+      trip_request_fields_settings: outgoing.trip_request_fields_settings,
       org_logo_settings: outgoing.org_logo_settings,
       org_branding_settings: outgoing.org_branding_settings,
       advance_account_settings: outgoing.advance_account_settings,
