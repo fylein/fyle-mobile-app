@@ -16,7 +16,6 @@ import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
-import { UndoMerge } from '../models/undo-merge.model';
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -744,27 +743,5 @@ export class TransactionService {
     }
 
     return dialogBody;
-  }
-
-  getUnlinkDialogBody(isSplitExpensesPresent: boolean): string {
-    const dialogBody = isSplitExpensesPresent
-      ? `<ul class="text-left">
-    <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
-    <li>It removes the card details from the expense and creates a new card expense under the Expenses section.</li>
-    <li>Since this is a split expense, clicking on Confirm will remove the card details from all the related split expenses.</li>
-    </ul>`
-      : `<ul class="text-left">
-    <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
-    <li>It removes the card details from the expense and creates a new card expense under the Expenses section.</li>
-    </ul>`;
-
-    return dialogBody;
-  }
-
-  unlinkCorporateCardExpense(txnId: string): Observable<UndoMerge> {
-    const data: Object = {
-      txn_id: txnId,
-    };
-    return this.apiService.post('/transactions/unlink_card_expense', data);
   }
 }
