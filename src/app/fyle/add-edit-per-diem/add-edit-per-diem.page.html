@@ -338,10 +338,14 @@
                         </ng-container>
                       </ng-container>
 
-                      <div *ngIf="fg.controls.project.value" class="add-edit-per-diem--internal-block">
-                        <mat-checkbox formControlName="billable">
-                          <span class="add-edit-per-diem--checkbox"> Billable </span>
-                        </mat-checkbox>
+                      <div
+                        *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+                      >
+                        <div *ngIf="fg.controls.project.value" class="add-edit-per-diem--internal-block">
+                          <mat-checkbox formControlName="billable">
+                            <span class="add-edit-per-diem--checkbox"> Billable </span>
+                          </mat-checkbox>
+                        </div>
                       </div>
                     </div>
 
