@@ -100,6 +100,7 @@ import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -336,7 +337,13 @@ export class AddEditExpensePage implements OnInit {
 
   canDismissCCCE: boolean;
 
+  canUnlinkCCCE: boolean;
+
+  isCorporateCreditCardEnabled: boolean;
+
   corporateCreditCardExpenseGroupId: string;
+
+  cardCurrencySymbol = '';
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -829,6 +836,58 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  async unlinkCorporateCardExpense() {
+    const id = this.activatedRoute.snapshot.params.id;
+    const header = 'Unlink Card Details';
+    const body = this.transactionService.getUnlinkDialogBody(this.isSplitExpensesPresent);
+    const ctaText = 'Confirm';
+    const ctaLoadingText = 'Confirming';
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header,
+        body,
+        ctaText,
+        ctaLoadingText,
+        deleteMethod: () => this.transactionService.unlinkCorporateCardExpense(id),
+      },
+    });
+
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data?.status === 'success') {
+      let txnDetails;
+      this.etxn$.subscribe((etxn) => (txnDetails = etxn));
+      const properties = {
+        Type: 'unlink corporate card expense',
+        transaction: txnDetails?.tx,
+      };
+      this.trackingService.unlinkCorporateCardExpense(properties);
+      if (txnDetails?.tx?.report_id) {
+        this.router.navigate([
+          '/',
+          'enterprise',
+          'my_view_report',
+          { id: txnDetails.tx.report_id, navigateBack: true },
+        ]);
+      } else {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      }
+      const toastMessage = 'Successfully removed the card details from the expense.';
+      const toastMessageData = {
+        message: toastMessage,
+      };
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
+        panelClass: ['msb-info'],
+      });
+      this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+    }
+  }
+
   async markPeronsalOrDismiss(type: string) {
     const id = this.activatedRoute.snapshot.params.id;
     this.etxn$.subscribe(
@@ -937,6 +996,15 @@ export class AddEditExpensePage implements OnInit {
             text: 'Dimiss as Card Payment',
             handler: () => {
               this.markPeronsalOrDismiss('dismiss');
+            },
+          });
+        }
+
+        if (this.isCorporateCreditCardEnabled && this.canUnlinkCCCE) {
+          this.actionSheetButtons.push({
+            text: 'Unlink Card Details',
+            handler: () => {
+              this.unlinkCorporateCardExpense();
             },
           });
         }
@@ -2570,6 +2638,9 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.unify_ccce_expenses_settings.allowed &&
         orgSettings.unify_ccce_expenses_settings.enabled;
 
+      this.isCorporateCreditCardEnabled =
+        orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&
         orgSettings.ccc_draft_expense_settings.allowed &&
@@ -2752,6 +2823,7 @@ export class AddEditExpensePage implements OnInit {
           this.matchedCCCTransaction = matchedExpense[0].ccce;
           this.matchingCCCTransactions = matchingTransactions;
           this.selectedCCCTransaction = this.matchedCCCTransaction;
+          this.cardCurrencySymbol = getCurrencySymbol(this.selectedCCCTransaction?.currency, 'wide');
           this.cardEndingDigits = (
             this.selectedCCCTransaction.cxorporate_credit_card_account_number
               ? this.selectedCCCTransaction.corporate_credit_card_account_number
@@ -2840,6 +2912,9 @@ export class AddEditExpensePage implements OnInit {
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
+      this.canUnlinkCCCE =
+        !!etxn?.tx?.corporate_credit_card_expense_group_id &&
+        ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn?.tx?.state);
     });
 
     this.getPolicyDetails();
