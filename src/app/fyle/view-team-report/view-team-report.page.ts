@@ -1,7 +1,6 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { Observable, from, noop, Subject, concat, forkJoin } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -49,8 +48,6 @@ export class ViewTeamReportPage implements OnInit {
   reportApprovals$: Observable<any>;
 
   refreshApprovals$ = new Subject();
-
-  tripRequest$: Observable<ExtendedTripRequest>;
 
   actions$: Observable<any>;
 

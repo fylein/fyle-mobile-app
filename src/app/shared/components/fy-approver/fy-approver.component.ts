@@ -2,7 +2,6 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { AddApproversPopoverComponent } from './add-approvers-popover/add-approvers-popover.component';
-import { Actions } from 'src/app/core/models/actions.model';
 
 @Component({
   selector: 'app-fy-approver',
@@ -18,9 +17,7 @@ export class FyApproverComponent {
 
   @Input() type;
 
-  @Input() actions: Actions;
-
-  @Output() notify: EventEmitter<string> = new EventEmitter<string>();
+  @Output() notify: EventEmitter<any> = new EventEmitter<any>();
 
   approverList$: Observable<any>;
 

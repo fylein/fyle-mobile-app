@@ -136,7 +136,6 @@ export class MyAdvancesPage implements AfterViewChecked {
 
     this.myAdvancerequests$ = this.advanceRequestService
       .getMyAdvanceRequestsCount({
-        areq_trip_request_id: 'is.null',
         areq_advance_id: 'is.null',
       })
       .pipe(
@@ -149,7 +148,6 @@ export class MyAdvancesPage implements AfterViewChecked {
             offset: 10 * count,
             limit: 10,
             queryParams: {
-              areq_trip_request_id: 'is.null',
               areq_advance_id: 'is.null',
               order: 'areq_created_at.desc,areq_id.desc',
             },

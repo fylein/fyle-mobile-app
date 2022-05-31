@@ -13,7 +13,6 @@ import { LocationService } from './location.service';
 import { PolicyApiService } from './policy-api.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
-import { TripRequestPolicyService } from './trip-request-policy.service';
 import { PushNotificationService } from './push-notification.service';
 
 @Injectable({
@@ -32,7 +31,6 @@ export class RouterAuthService {
     private policyApiService: PolicyApiService,
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
-    private tripRequestPolicyService: TripRequestPolicyService,
     private pushNotificationService: PushNotificationService
   ) {}
 
@@ -56,7 +54,6 @@ export class RouterAuthService {
     this.apiService.setRoot(domain);
     this.advanceRequestPolicyService.setRoot(domain);
     this.apiv2Service.setRoot(domain);
-    this.tripRequestPolicyService.setRoot(domain);
     this.duplicateDetectionService.setRoot(domain);
     this.locationService.setRoot(domain);
     this.policyApiService.setRoot(domain);
