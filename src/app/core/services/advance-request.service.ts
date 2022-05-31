@@ -41,6 +41,7 @@ type Config = Partial<{
 
 type advanceRequestStat = {
   aggregates: string;
+  areq_trip_request_id: string;
   areq_state: string;
   areq_is_sent_back: string;
   scalar: boolean;

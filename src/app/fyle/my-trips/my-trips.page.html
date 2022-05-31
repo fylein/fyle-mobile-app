@@ -1,0 +1,56 @@
+<ion-header mode="md">
+  <ion-toolbar class="my-trips--toolbar">
+    <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
+      <app-fy-menu-icon></app-fy-menu-icon>
+    </ion-buttons>
+    <ion-title mode="md" class="page-title"> Trips </ion-title>
+    <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
+      <ion-back-button mode="md"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="deprecationMsg$|async as  deprecationMsg">
+    <app-fy-alert-info [message]="deprecationMsg" type="warning" class="deprecate-msg"></app-fy-alert-info>
+  </ng-container>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="(count$ | async) === 0" class="my-trips--zero-state">
+    <img
+      class="my-trips--zero-state-img"
+      src="../../../assets/images/zero-states/reports.svg"
+      alt="Create First Advance Request"
+    />
+    <div class="my-trips--zero-state-header">This is the home to all your trip requests</div>
+    <div class="my-trips--zero-state-subheader">
+      Your trip request logs will show up here. Request your first trip to see how it looks.
+    </div>
+    <div class="my-trips--zero-state-action-button-container">
+      <div class="my-trips--zero-state-action-button">Request first trip</div>
+    </div>
+  </div>
+  <div *ngFor="let tripRequest of myTripRequests$ | async">
+    <app-my-trips-card [tripRequest]="tripRequest" (tripClick)="onTripClick($event)"></app-my-trips-card>
+  </div>
+
+  <ion-infinite-scroll *ngIf="isInfiniteScrollRequired$ | async" threshold="100px" (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>
+
+<ion-footer *ngIf="showTripActionCta">
+  <ion-toolbar class="fy-footer-cta-container" mode="md">
+    <ion-button
+      class="fy-footer-cta fy-footer-cta--primary"
+      [routerLink]="['/', 'enterprise', 'my_add_edit_trip']"
+      routerLinkActive="router-link-active"
+      [disabled]="true"
+    >
+      Request new trip
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

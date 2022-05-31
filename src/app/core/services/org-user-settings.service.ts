@@ -54,6 +54,10 @@ export class OrgUserSettingsService {
           textLabel: 'Expenses and Reports',
           selected: true,
         },
+        trips: {
+          textLabel: 'Trips',
+          selected: true,
+        },
         advances: {
           textLabel: 'Advances',
           selected: true,
@@ -149,6 +153,112 @@ export class OrgUserSettingsService {
           push: {
             selected: true,
           },
+        },
+      },
+      trips: {
+        trip_requests_created: {
+          textLabel: 'When a trip request is submitted',
+          selected: true,
+          email: {
+            selected: true,
+          },
+          push: {
+            selected: true,
+          },
+        },
+        trip_requests_add_approver: {
+          textLabel: 'When an approver is added to the trip request',
+          selected: true,
+          email: {
+            selected: true,
+          },
+          push: {
+            selected: true,
+          },
+        },
+        estatuses_trip_request_comments: {
+          textLabel: 'When someone comments on trip request',
+          selected: true,
+          email: {
+            selected: true,
+          },
+          push: {
+            selected: true,
+          },
+        },
+        trip_requests_inquiry: {
+          textLabel: 'When a trip request is sent back',
+          selected: true,
+          email: {
+            selected: true,
+          },
+          push: {
+            selected: true,
+          },
+        },
+        trip_requests_approved: {
+          textLabel: 'When a trip request is approved',
+          selected: true,
+          email: {
+            selected: true,
+          },
+          push: {
+            selected: true,
+          },
+        },
+        trip_requests_rejected: {
+          textLabel: 'When a trip request is rejected',
+          selected: true,
+          email: {
+            selected: true,
+          },
+          push: {
+            selected: true,
+          },
+        },
+        transportation_requests_booked: {
+          textLabel: 'When a transport is booked by travel desk/agent',
+          selected: true,
+          email: {
+            selected: true,
+          },
+          push: {
+            selected: true,
+          },
+          profile: 'transport_requests',
+        },
+        hotel_requests_booked: {
+          textLabel: 'When a hotel is booked by travel desk/agent',
+          selected: true,
+          email: {
+            selected: true,
+          },
+          push: {
+            selected: true,
+          },
+          profile: 'hotel_requests',
+        },
+        transportation_bookings_cancelled: {
+          textLabel: 'When a transport booking is cancelled',
+          selected: true,
+          email: {
+            selected: true,
+          },
+          push: {
+            selected: true,
+          },
+          profile: 'transport_requests',
+        },
+        hotel_bookings_cancelled: {
+          textLabel: 'When a hotel booking is cancelled',
+          selected: true,
+          email: {
+            selected: true,
+          },
+          push: {
+            selected: true,
+          },
+          profile: 'hotel_requests',
         },
       },
       advances: {

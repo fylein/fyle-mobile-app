@@ -1,8 +1,10 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { isNumber } from 'lodash';
 import { PopoverController } from '@ionic/angular';
-import { iif, of } from 'rxjs';
-import { concatMap, finalize } from 'rxjs/operators';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { Observable, forkJoin, iif, of } from 'rxjs';
+import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
+import { map, tap, concatMap, finalize } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
@@ -21,10 +23,14 @@ export class SubmitReportPopoverComponent implements OnInit {
 
   numCriticalPolicies = 0;
 
+  showTripRequestWarning = false;
+
   submitReportLoading = false;
 
   constructor(
     private popoverController: PopoverController,
+    private offlineService: OfflineService,
+    private tripRequestService: TripRequestsService,
     private transactionService: TransactionService,
     private reportService: ReportService,
     private refinerService: RefinerService
@@ -33,6 +39,25 @@ export class SubmitReportPopoverComponent implements OnInit {
   ngOnInit() {
     this.numCriticalPolicies = this.getCriticalPolicyViolations(this.etxns);
     this.numIssues = this.getNumIssues(this.etxns);
+    forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      approvedButUnreportedTripRequests: this.tripRequestService
+        .findMyUnreportedRequests()
+        .pipe(map((requests) => requests.filter((request) => request.state === 'APPROVED'))),
+    }).subscribe(({ orgSettings, orgUserSettings, approvedButUnreportedTripRequests }) => {
+      const canAssociateTripRequests =
+        orgSettings.trip_requests.enabled &&
+        (!orgSettings.trip_requests.enable_for_certain_employee ||
+          (orgSettings.trip_requests.enable_for_certain_employee &&
+            orgUserSettings.trip_request_org_user_settings.enabled));
+      const isTripRequestsEnabled = orgSettings.trip_requests.enabled;
+      this.showTripRequestWarning =
+        (canAssociateTripRequests || !isTripRequestsEnabled) &&
+        !this.erpt.rp_trip_request_id &&
+        approvedButUnreportedTripRequests &&
+        approvedButUnreportedTripRequests.length > 0;
+    });
   }
 
   getCriticalPolicyViolations(etxns) {
