@@ -202,7 +202,7 @@
                 <ion-col size="6">
                   <ng-container *ngIf="paymentModes$|async as paymentModes">
                     <div
-                      *ngIf="paymentModes.length > 1"
+                      *ngIf="paymentModes.length > 0"
                       class="add-edit-mileage--payment-modes add-edit-mileage--internal-block"
                       [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
                     >
