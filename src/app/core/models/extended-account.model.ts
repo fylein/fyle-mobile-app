@@ -11,7 +11,7 @@ export interface ExtendedAccount {
   advance: {
     id: string;
     purpose: string;
-    advance_number: string;
+    number: string;
   };
   orig: {
     currency: string;
