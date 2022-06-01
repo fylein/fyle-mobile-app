@@ -238,6 +238,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         width: window.innerWidth,
         height: window.innerHeight,
         parent: 'cameraPreview',
+        disableAudio: true,
       };
 
       await this.loaderService.showLoader('Please wait...', 5000);

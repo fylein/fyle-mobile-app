@@ -5,6 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Fyle',
   webDir: 'www',
   bundledWebRuntime: false,
+  loggingBehavior: 'debug',
   plugins: {
     SplashScreen: {
       launchAutoHide: false,
@@ -13,6 +14,9 @@ const config: CapacitorConfig = {
     Keyboard: {
       style: 'light',
     },
+  },
+  cordova: {
+    accessOrigins: ['https://app.fylehq.com'],
   },
 };
 

@@ -624,8 +624,8 @@ export class AddEditPerDiemPage implements OnInit {
         const parentCategoryName = 'per diem';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.name.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()
+            parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
+            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
         );
       }),
       shareReplay(1)
