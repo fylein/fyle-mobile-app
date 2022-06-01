@@ -223,12 +223,14 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
             : null,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       cssClass: 'fy-modal stack-modal',
       showBackdrop: true,
-      swipeToClose: true,
+      canDismiss: true,
       backdropDismiss: true,
       animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
     });
     await exchangeRateModal.present();
     const { data } = await exchangeRateModal.onWillDismiss();
@@ -269,7 +271,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
         recentlyUsed: this.recentlyUsed,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

@@ -113,7 +113,6 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
         enableSearch: this.enableSearch,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

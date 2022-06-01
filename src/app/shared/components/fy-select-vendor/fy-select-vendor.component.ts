@@ -79,7 +79,6 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
         currentSelection: this.value,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
