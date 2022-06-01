@@ -1,0 +1,140 @@
+<ion-header class="ion-no-border">
+  <div class="transportation-requests--header">
+    <ion-toolbar mode="md">
+      <ion-buttons slot="end" mode="md">
+        <ion-button mode="md" class="transportation-requests--header_close-button" (click)="closeModal()">
+          <mat-icon>close</mat-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-title mode="md" class="transportation-requests--header-title text-capitalize"
+        >Transportation Requests</ion-title
+      >
+    </ion-toolbar>
+  </div>
+</ion-header>
+
+<ion-content>
+  <div *ngFor="let eTransportationRequest of transportationRequests">
+    <div class="transportation-requests--card">
+      <div
+        class="transportation-requests--header"
+        (click)="eTransportationRequest.isOpened = !eTransportationRequest.isOpened"
+        matRipple
+      >
+        <div class="transportation-requests--transport-mode">
+          {{ eTransportationRequest.tr.transport_mode }} from
+          {{ eTransportationRequest.tr.from_city.city || eTransportationRequest.tr.from_city.display }} to
+          {{ eTransportationRequest.tr.to_city.city || eTransportationRequest.tr.to_city.display }}
+        </div>
+        <div class="transportation-requests--transport-date">
+          on {{ eTransportationRequest.tr.onward_dt | date: 'MMMM dd, yyyy' }}
+        </div>
+      </div>
+
+      <div class="transportation-requests--content">
+        <div *ngIf="eTransportationRequest.isOpened">
+          <div class="transportation-requests--element">
+            <div class="transportation-requests--element-label">ID</div>
+            <div class="transportation-requests--element-value">
+              {{ eTransportationRequest.tr.request_number || '-' }}
+            </div>
+          </div>
+
+          <div class="transportation-requests--element">
+            <div class="transportation-requests--element-label">Status</div>
+            <div class="transportation-requests--element-value">
+              {{ eTransportationRequest.internalStateDisplayName || '-' }}
+            </div>
+          </div>
+
+          <div class="transportation-requests--element">
+            <div class="transportation-requests--element-label">Travel Date</div>
+            <div class="transportation-requests--element-value">
+              {{ (eTransportationRequest.tr.onward_dt | date: 'MMM dd, yyyy') || '-' }}
+            </div>
+          </div>
+
+          <div class="transportation-requests--element">
+            <div class="transportation-requests--element-label">Preferred timing</div>
+            <div class="transportation-requests--element-value">
+              {{
+                eTransportationRequest.tr &&
+                eTransportationRequest.tr.preferred_timing_formatted &&
+                eTransportationRequest.tr.preferred_timing_formatted.length > 0
+                  ? eTransportationRequest.tr.preferred_timing_formatted[0]?.label
+                  : '-'
+              }}
+            </div>
+          </div>
+
+          <div class="transportation-requests--element">
+            <div class="transportation-requests--element-label">Budget</div>
+            <td *ngIf="eTransportationRequest.tr.currency && eTransportationRequest.tr.amount">
+              <div class="transportation-requests--element-value">
+                {{ eTransportationRequest.tr.currency }} {{ eTransportationRequest.tr.amount }}
+              </div>
+            </td>
+            <td *ngIf="!eTransportationRequest.tr.currency || !eTransportationRequest.tr.amount">-</td>
+          </div>
+
+          <div class="transportation-requests--element">
+            <div class="transportation-requests--element-label">Notes</div>
+            <div class="transportation-requests--element-value">
+              {{ eTransportationRequest.tr.notes || '-' }}
+            </div>
+          </div>
+
+          <div class="transportation-requests--element">
+            <div class="transportation-requests--element-label">Booking Number</div>
+            <div class="transportation-requests--element-value">
+              {{ eTransportationRequest.tb.booking_number || '-' }}
+            </div>
+          </div>
+
+          <div class="transportation-requests--element">
+            <div class="transportation-requests--element-label">Cancellation Number</div>
+            <div class="transportation-requests--element-value">
+              {{ eTransportationRequest.tr.cancellation_number || '-' }}
+            </div>
+          </div>
+
+          <div class="transportation-requests--element">
+            <div class="transportation-requests--element-label">Booking Expense</div>
+            <div class="transportation-requests--element-value">
+              {{ eTransportationRequest.tb.transaction_number || '-' }}
+            </div>
+          </div>
+
+          <div class="transportation-requests--element">
+            <div class="transportation-requests--element-label">Cancellation Expense</div>
+            <div class="transportation-requests--element-value">
+              {{ eTransportationRequest.tc.transaction_number || '-' }}
+            </div>
+          </div>
+
+          <div
+            class="transportation-requests--element"
+            *ngFor="let customField of eTransportationRequest.tr.custom_field_values"
+          >
+            <div class="transportation-requests--element-label">
+              {{ customField.name }}
+            </div>
+
+            <div *ngIf="customField.type === 'DATE'" class="transportation-requests--element-value">
+              {{ customField.value | date: 'MMM dd, yyyy' }}
+            </div>
+            <div *ngIf="customField.type === 'BOOLEAN'" class="transportation-requests--element-value">
+              {{ customField.value ? 'Yes' : 'No' }}
+            </div>
+            <div
+              *ngIf="customField.type !== 'BOOLEAN' && customField.type !== 'DATE'"
+              class="transportation-requests--element-value"
+            >
+              {{ customField?.value?.display || customField.value || '-' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

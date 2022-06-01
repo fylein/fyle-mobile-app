@@ -427,6 +427,7 @@ export class TasksService {
   private getSentBackAdvancesStats() {
     return this.advancesRequestService.getMyAdvanceRequestStats({
       aggregates: 'count(areq_id),sum(areq_amount)',
+      areq_trip_request_id: 'is.null',
       areq_state: 'in.(DRAFT)',
       areq_is_sent_back: 'is.true',
       scalar: true,

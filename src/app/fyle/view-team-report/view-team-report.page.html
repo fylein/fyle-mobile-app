@@ -127,6 +127,23 @@
         </div>
       </div>
 
+      <!-- Display Associated trip request info, if there is one. Otherwise don't display this block at all -->
+      <div class="view-reports" *ngIf="erpt.rp_trip_request_id">
+        <!-- Display this block if trip requests are handled with T&A module of Fyle -->
+        <div class="view-reports--card-body" *ngIf="tripRequest$|async as tripRequest; else showOnlyId">
+          <div>Request number is {{tripRequest.trp_request_number}}</div>
+          <div>Created on {{tripRequest.trp_created_at | date: 'MMM dd, yyyy'}}</div>
+          <div>Purpose: {{tripRequest.trp_purpose}}</div>
+        </div>
+        <!-- If trip requests are handled externally by the clients, display only the associated trip request ID -->
+        <ng-template #showOnlyId>
+          <app-fy-alert-info
+            [type]="'information'"
+            [message]="'Associated Trip Request ID is ' + erpt.rp_trip_request_id"
+          ></app-fy-alert-info>
+        </ng-template>
+      </div>
+
       <div class="view-reports--segment-block-container">
         <ion-segment
           class="segment-block view-reports--segment-block-container__segment"

@@ -12,6 +12,7 @@ import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 import { HighlightPipe } from './pipes/highlight.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake-case-to-space-case.pipe';
+import { TripState } from './pipes/trip-state.pipe';
 import { FySelectComponent } from './components/fy-select/fy-select.component';
 import { FySelectModalComponent } from './components/fy-select/fy-select-modal/fy-select-modal.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -130,6 +131,7 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
+    TripState,
     DateFormatPipe,
     FySelectComponent,
     FySelectModalComponent,
@@ -260,6 +262,7 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     FyDuplicateDetectionComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
+    TripState,
     InitialsPipe,
     DelegatedAccMessageComponent,
     IconModule,

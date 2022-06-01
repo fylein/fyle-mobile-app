@@ -1,0 +1,58 @@
+<div class="trip-card">
+  <div class="trip-card--header">
+    <span class="day">{{ tripRequest.trp_created_at | date: 'EEEE' }}</span
+    >,
+    <span class="month-year">{{ tripRequest.trp_created_at | date: 'MMM dd, yyyy' }}</span>
+  </div>
+  <div class="trip-card--body" matRipple (click)="onTripClick()">
+    <div class="trip-card--cities">
+      <div class="trip-card--cities-container" *ngIf="tripRequest.trp_trip_type !== 'MULTI_CITY'">
+        <div class="trip-card--cities-container-city">
+          {{
+            tripRequest.trp_trip_cities[0]?.from_city?.city || tripRequest.trp_trip_cities[0]?.from_city?.display
+              | ellipsis: 8
+          }}
+        </div>
+        <div class="trip-card--cities-container-city">
+          {{
+            tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1]?.to_city?.city ||
+              tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1]?.to_city?.display | ellipsis: 8
+          }}
+        </div>
+      </div>
+      <div class="trip-card--cities-container" *ngIf="tripRequest.trp_trip_type === 'MULTI_CITY'">
+        <div class="trip-card--cities-container-city">
+          {{
+            tripRequest.trp_trip_cities[0]?.from_city?.city || tripRequest.trp_trip_cities[0]?.from_city?.display
+              | ellipsis: 8
+          }}
+        </div>
+        <div class="trip-card--cities-container-count">+{{ tripRequest.trp_trip_cities.length - 2 }}</div>
+        <div class="trip-card--cities-container-city">
+          {{
+            tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1]?.from_city?.city ||
+              tripRequest.trp_trip_cities[tripRequest.trp_trip_cities.length - 1]?.from_city?.display | ellipsis: 8
+          }}
+        </div>
+      </div>
+    </div>
+    <div class="trip-card--details">
+      <div class="trip-card--duration">
+        <span>
+          {{ tripRequest.trp_start_date | date: 'MMM dd, yyyy' }}
+        </span>
+        <span> - </span>
+        <span>
+          {{ tripRequest.trp_end_date | date: 'MMM dd, yyyy' }}
+        </span>
+      </div>
+      <div class="trip-card--trip-type">
+        {{ tripTypesMap[tripRequest.trp_trip_type] }}
+      </div>
+      <div class="trip-card--pill" [class]="'trip-card--pill__' + internalState.state">
+        {{ internalState.name }}
+      </div>
+    </div>
+  </div>
+  <!-- Full Card -->
+</div>

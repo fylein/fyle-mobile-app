@@ -90,8 +90,8 @@ import { FileObject } from 'src/app/core/models/file_obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
-import { TaxGroupService } from 'src/app/core/services/tax-group.service';
-import { TaxGroup } from 'src/app/core/models/tax-group.model';
+import { TaxGroupService } from 'src/app/core/services/tax_group.service';
+import { TaxGroup } from 'src/app/core/models/tax_group.model';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -100,6 +100,7 @@ import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
+import { AccountOption } from 'src/app/core/models/account-option.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -1026,7 +1027,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getPaymentModes() {
+  getPaymentModes(): Observable<AccountOption[]> {
     const accounts$ = this.isConnected$.pipe(
       take(1),
       switchMap((isConnected) => {
@@ -1044,7 +1045,7 @@ export class AddEditExpensePage implements OnInit {
       orgSettings: orgSettings$,
       etxn: this.etxn$,
     }).pipe(
-      map(({ accounts, orgSettings, etxn }) => {
+      switchMap(({ accounts, orgSettings, etxn }) => {
         const isAdvanceEnabled =
           (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
@@ -1072,7 +1073,7 @@ export class AddEditExpensePage implements OnInit {
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
       map((paymentModes) =>
-        paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
+        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
       )
     );
   }
@@ -1457,6 +1458,11 @@ export class AddEditExpensePage implements OnInit {
         const hasCCCAccount = paymentModes
           .map((res) => res.value)
           .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+
+        const paidByCompanyAccount = paymentModes
+          .map((res) => res?.value)
+          .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
+
         if (
           hasCCCAccount &&
           orgUserSettings.preferences &&
@@ -1466,13 +1472,8 @@ export class AddEditExpensePage implements OnInit {
           return paymentModes
             .map((res) => res.value)
             .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-        } else if (
-          orgUserSettings.preferences &&
-          orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT'
-        ) {
-          return paymentModes
-            .map((res) => res.value)
-            .find((paymentMode) => paymentMode.acc.displayName === 'Paid by Company');
+        } else if (paidByCompanyAccount && orgUserSettings?.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
+          return paidByCompanyAccount;
         } else if (this.isCreatedFromCCC) {
           return paymentModes
             .map((res) => res.value)
