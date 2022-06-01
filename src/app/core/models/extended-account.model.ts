@@ -10,6 +10,7 @@ export interface ExtendedAccount {
   advance: {
     id: string;
     purpose: string;
+    // eslint-disable-next-line id-blacklist
     number: string;
   };
   orig: {

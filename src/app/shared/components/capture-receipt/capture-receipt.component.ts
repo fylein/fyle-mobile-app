@@ -110,8 +110,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       accounts: this.offlineService.getAccounts(),
       orgSettings: this.offlineService.getOrgSettings(),
     }).pipe(
-      switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) => {
-        return this.getAccount(orgSettings, accounts, orgUserSettings).pipe(
+      switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) =>
+        this.getAccount(orgSettings, accounts, orgUserSettings).pipe(
           filter((account) => !!account),
           switchMap((account) => {
             if (!isConnected) {
@@ -144,8 +144,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
               return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
             }
           })
-        );
-      })
+        )
+      )
     );
   }
 

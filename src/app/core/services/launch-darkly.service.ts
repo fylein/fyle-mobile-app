@@ -26,8 +26,10 @@ export class LaunchDarklyService {
     );
   }
 
-  /* https://launchdarkly.github.io/js-client-sdk/interfaces/_launchdarkly_js_client_sdk_.ldclient.html#off
-  https://launchdarkly.github.io/js-client-sdk/interfaces/_launchdarkly_js_client_sdk_.ldclient.html#close */
+  /**
+   * https://launchdarkly.github.io/js-client-sdk/interfaces/_launchdarkly_js_client_sdk_.ldclient.html#off
+   * https://launchdarkly.github.io/js-client-sdk/interfaces/_launchdarkly_js_client_sdk_.ldclient.html#close
+   */
   shutDownClient() {
     if (this.ldClient) {
       this.ldClient.off('initialized', this.updateCache, this);
