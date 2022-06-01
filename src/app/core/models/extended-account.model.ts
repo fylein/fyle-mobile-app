@@ -1,5 +1,4 @@
 import { AccountDetail } from './account-detail.model';
-import { ExtendedAdvance } from './extended_advance.model';
 import { OrgUser } from './org-user.model';
 import { Org } from './org.model';
 import { User } from './user.model';
