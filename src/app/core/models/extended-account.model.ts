@@ -8,7 +8,11 @@ export interface ExtendedAccount {
   acc: AccountDetail;
   ou: Pick<OrgUser, 'id' | 'org_id'>;
   org: Pick<Org, 'id' | 'domain'>;
-  advance: Pick<ExtendedAdvance, 'adv_id' | 'adv_purpose' | 'adv_advance_number'>;
+  advance: {
+    id: string;
+    purpose: string;
+    advance_number: string;
+  };
   orig: {
     currency: string;
     amount: number;
