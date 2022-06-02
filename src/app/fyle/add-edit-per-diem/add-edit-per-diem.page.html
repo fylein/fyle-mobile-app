@@ -255,6 +255,7 @@
 
                   <ng-container *ngIf="paymentModes$|async as paymentModes">
                     <div
+                      *ngIf="paymentModes.length > 0"
                       [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
                       class="add-edit-per-diem--internal-block"
                     >
@@ -483,14 +484,14 @@
                               *ngIf="customInput.type === 'TEXT'"
                               class="add-edit-per-diem--text-input"
                               formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
+                              [placeholder]="'Enter ' + customInput.name"
                               type="text"
                             />
 
                             <app-fy-number
                               *ngIf="customInput.type === 'NUMBER'"
                               formControlName="value"
-                              [placeholder]="customInput.placeholder || 'Select ' + customInput.name | ellipsis: 30"
+                              [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                             ></app-fy-number>
 
                             <input
@@ -498,7 +499,7 @@
                               *ngIf="customInput.type === 'DATE'"
                               class="add-edit-per-diem--date-input date-input__format"
                               formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
+                              [placeholder]="'Select ' + customInput.name"
                               type="date"
                               [name]="customInput.name"
                             />
@@ -518,7 +519,6 @@
                               [label]="customInput.name | ellipsis: 30"
                               [mandatory]="customInput.mandatory"
                               formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
                             >
                             </app-fy-location>
                           </div>
@@ -528,9 +528,8 @@
                               [label]="customInput.name | ellipsis: 30"
                               [mandatory]="customInput.mandatory"
                               [options]="customInput.options"
-                              [selectModalHeader]="customInput.placeholder | ellipsis: 30"
+                              [selectModalHeader]="'Select '+customInput.name"
                               formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
                             >
                             </app-fy-select>
                           </div>
@@ -540,10 +539,9 @@
                               [label]="customInput.name | ellipsis: 30"
                               [mandatory]="customInput.mandatory"
                               [options]="customInput.options"
-                              [selectModalHeader]="customInput.placeholder | ellipsis: 30"
+                              [selectModalHeader]="'Select '+customInput.name"
                               [subheader]="customInput.name"
                               formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
                             >
                             </app-fy-multiselect>
                           </div>

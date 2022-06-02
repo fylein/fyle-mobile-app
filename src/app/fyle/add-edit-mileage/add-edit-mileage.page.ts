@@ -60,6 +60,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { AccountOption } from 'src/app/core/models/account-option.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -606,14 +607,14 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  getPaymentModes() {
+  getPaymentModes(): Observable<AccountOption[]> {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const accounts$ = this.offlineService.getAccounts();
     return forkJoin({
       accounts: accounts$,
       orgSettings: orgSettings$,
     }).pipe(
-      map(({ accounts, orgSettings }) => {
+      switchMap(({ accounts, orgSettings }) => {
         const isAdvanceEnabled =
           (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
@@ -629,7 +630,7 @@ export class AddEditMileagePage implements OnInit {
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
       map((paymentModes) =>
-        paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
+        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
       )
     );
   }
@@ -640,8 +641,8 @@ export class AddEditMileagePage implements OnInit {
         const parentCategoryName = 'mileage';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.name.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()
+            parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
+            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
         );
       }),
       shareReplay(1)
@@ -1333,8 +1334,8 @@ export class AddEditMileagePage implements OnInit {
             .pipe(
               map((subCategories) =>
                 subCategories
-                  .filter((subCategory) => subCategory.sub_category.toLowerCase() !== subCategory.name.toLowerCase())
-                  .find((subCategory) => subCategory.id === etxn.tx.org_category_id)
+                  .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory?.name.toLowerCase())
+                  .find((subCategory) => subCategory?.id === etxn.tx.org_category_id)
               )
             ),
           of(null)
@@ -1965,7 +1966,6 @@ export class AddEditMileagePage implements OnInit {
         const skipReimbursement =
           this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
         const rate = res.rate;
-
         const formValue = this.fg.value;
 
         return {
