@@ -12,7 +12,6 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { NetworkService } from '../../core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -42,16 +41,6 @@ export class MyEditReportPage implements OnInit {
 
   isPurposeChanged = false;
 
-  isTripRequestsEnabled: boolean;
-
-  canAssociateTripRequests: boolean;
-
-  tripRequests: any[];
-
-  selectedTripRequest: any;
-
-  tripRequestId: string;
-
   isConnected$: Observable<boolean>;
 
   onPageExit = new Subject();
@@ -80,7 +69,6 @@ export class MyEditReportPage implements OnInit {
     private modalController: ModalController,
     private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private tripRequestsService: TripRequestsService,
     private networkService: NetworkService,
     private popupService: PopupService,
     private trackingService: TrackingService,
@@ -214,7 +202,6 @@ export class MyEditReportPage implements OnInit {
     const report = {
       purpose: this.reportTitle,
       id: this.activatedRoute.snapshot.params.id,
-      trip_request_id: (this.selectedTripRequest && this.selectedTripRequest.id) || this.tripRequestId,
     };
 
     // method body is same as update
@@ -271,47 +258,6 @@ export class MyEditReportPage implements OnInit {
     }
   }
 
-  getTripRequests() {
-    return this.tripRequestsService.findMyUnreportedRequests().pipe(
-      map((res) => res.filter((request) => request.state === 'APPROVED')),
-      map((tripRequests: any) =>
-        tripRequests.sort((tripA, tripB) => {
-          const tripATime = new Date(tripA.created_at).getTime();
-          const tripBTime = new Date(tripB.created_at).getTime();
-          /**
-           * If tripA's time is larger than tripB's time we keep it before tripB
-           * in the array because latest trip has to be shown at the top.
-           * Else we keep it after tripB cause it was fyled earlier.
-           * If both the dates are same (which may not be possible in the real world)
-           * we maintain the order in which tripA and tripB are present in the array.
-           */
-          return tripATime > tripBTime ? -1 : tripATime < tripBTime ? 1 : 0;
-        })
-      ),
-      map((tripRequests: any) =>
-        tripRequests.map((tripRequest) => ({
-          label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose,
-          value: tripRequest,
-        }))
-      )
-    );
-  }
-
-  getSelectedTripInfo(tripRequestId) {
-    if (this.canAssociateTripRequests) {
-      this.tripRequestsService.get(tripRequestId).subscribe((tripRequest: any) => {
-        this.selectedTripRequest = tripRequest;
-        const selectedTripRequest = {
-          label: moment(tripRequest.created_at).format('MMM Do YYYY') + ', ' + tripRequest.purpose,
-          value: tripRequest,
-        };
-        this.tripRequests.push(selectedTripRequest);
-      });
-    } else {
-      this.tripRequestId = tripRequestId;
-    }
-  }
-
   ionViewWillEnter() {
     this.setupNetworkWatcher();
     this.selectedTotalAmount = 0;
@@ -319,29 +265,12 @@ export class MyEditReportPage implements OnInit {
     this.deleteExpensesIdList = [];
     this.addedExpensesIdList = [];
     this.extendedReport$ = this.reportService.getReport(this.activatedRoute.snapshot.params.id);
-    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
-    const orgUserSettings$ = this.orgUserSettingsService.get();
 
-    forkJoin({
-      extendedReport: this.extendedReport$,
-      orgSettings: orgSettings$,
-      orgUserSettings: orgUserSettings$,
-      tripRequests: this.getTripRequests(),
-    }).subscribe(({ extendedReport, orgSettings, orgUserSettings, tripRequests }) => {
+    this.extendedReport$.subscribe((extendedReport) => {
       this.reportTitle = extendedReport.rp_purpose;
       this.reportAmount = extendedReport.rp_amount;
       this.reportState = extendedReport.rp_state;
       this.noOfTxnsInReport = extendedReport.rp_num_transactions;
-      this.isTripRequestsEnabled = orgSettings.trip_requests.enabled;
-      this.canAssociateTripRequests =
-        orgSettings.trip_requests.enabled &&
-        (!orgSettings.trip_requests.enable_for_certain_employee ||
-          (orgSettings.trip_requests.enable_for_certain_employee &&
-            orgUserSettings.trip_request_org_user_settings.enabled));
-      this.tripRequests = tripRequests;
-      if (extendedReport.rp_trip_request_id) {
-        this.getSelectedTripInfo(extendedReport.rp_trip_request_id);
-      }
     });
 
     this.reportedEtxns$ = from(this.loaderService.showLoader()).pipe(
