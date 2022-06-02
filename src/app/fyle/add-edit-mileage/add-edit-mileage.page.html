@@ -188,7 +188,7 @@
                         [name]="txnFields?.txn_dt?.field_name"
                         formControlName="dateOfSpend"
                         type="date"
-                        [placeholder]="'Select ' + txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'"
+                        [placeholder]="txnFields?.txn_dt?.placeholder || 'Select ' + txnFields?.txn_dt?.field_name || 'Date of Travel'"
                       />
                     </div>
                     <div
@@ -215,6 +215,7 @@
                         [selectModalHeader]="'Select Payment Mode'"
                         [selectionElement]="paymentMode"
                         formControlName="paymentMode"
+                        [placeholder]="'Select Payment Mode'"
                       >
                       </app-fy-select>
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -313,6 +314,7 @@
                   [options]="subCategories"
                   [selectModalHeader]="'Select Sub Category'"
                   formControlName="sub_category"
+                  [placeholder]="'Sub Category'"
                 >
                 </app-fy-select>
               </div>
@@ -342,6 +344,7 @@
                       [selectModalHeader]="'Select Cost Center'"
                       [recentlyUsed]="recentCostCenters"
                       formControlName="costCenter"
+                      [placeholder]="txnFields.cost_center_id?.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -369,7 +372,7 @@
                     </div>
                     <input
                       [disabled]="!txnFields.purpose?.canEdit"
-                      [placeholder]="'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
+                      [placeholder]="txnFields.purpose?.placeholder || 'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
                       [required]="txnFields.purpose?.is_mandatory"
                       [title]="'Enter'+txnFields.purpose?.field_name"
                       class="add-edit-mileage--text-input"
@@ -384,6 +387,7 @@
                       [options]="txnFields.purpose?.options"
                       [selectModalHeader]="'Enter ' + txnFields.purpose?.field_name"
                       formControlName="purpose"
+                      [placeholder]="txnFields.purpose?.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -421,7 +425,7 @@
                       <app-fy-number
                         formControlName="value"
                         *ngIf="customInput.type === 'NUMBER'"
-                        [placeholder]="customInput.placeholder | ellipsis: 30"
+                        [placeholder]="customInput.placeholder || 'Select ' + customInput.name | ellipsis: 30"
                       ></app-fy-number>
 
                       <input

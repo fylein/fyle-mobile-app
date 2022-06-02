@@ -301,7 +301,12 @@
                     type="text"
                   />
 
-                  <app-fy-number *ngIf="customInput.input_type === 'NUMBER'" formControlName="value"> </app-fy-number>
+                  <app-fy-number
+                    *ngIf="customInput.input_type === 'NUMBER'"
+                    formControlName="value"
+                    [placeholder]="customInput.placeholder || 'Select ' + customInput.name"
+                  >
+                  </app-fy-number>
 
                   <input
                     appFormatDate

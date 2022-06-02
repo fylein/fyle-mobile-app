@@ -490,7 +490,7 @@
                             <app-fy-number
                               *ngIf="customInput.type === 'NUMBER'"
                               formControlName="value"
-                              [placeholder]="customInput.placeholder | ellipsis: 30"
+                              [placeholder]="customInput.placeholder || 'Select ' + customInput.name | ellipsis: 30"
                             ></app-fy-number>
 
                             <input
