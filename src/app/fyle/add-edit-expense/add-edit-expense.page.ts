@@ -875,7 +875,7 @@ export class AddEditExpensePage implements OnInit {
           { id: txnDetails.tx.report_id, navigateBack: true },
         ]);
       } else {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.goBack();
       }
       const toastMessage = 'Successfully removed the card details from the expense.';
       const toastMessageData = {
