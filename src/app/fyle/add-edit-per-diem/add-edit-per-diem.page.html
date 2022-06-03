@@ -174,7 +174,7 @@
                               class="add-edit-per-diem--date-input date-input__format"
                               [placeholder]="'Select ' + txnFields?.from_dt"
                               formControlName="from_dt"
-                              [name]="txnFields?.from_dt.placeholder || txnFields?.from_dt.field_name"
+                              [name]="txnFields.from_dt.placeholder || txnFields.from_dt.field_name"
                               type="date"
                             />
                           </div>
@@ -209,7 +209,7 @@
                               class="add-edit-per-diem--date-input date-input__format"
                               formControlName="to_dt"
                               [placeholder]="'Select ' + txnFields?.to_dt"
-                              [name]="txnFields?.to_dt.placeholder || txnFields?.to_dt.field_name"
+                              [name]="txnFields.to_dt.placeholder || txnFields.to_dt.field_name"
                               type="date"
                             />
                           </div>
@@ -241,7 +241,7 @@
                           formControlName="num_days"
                           [min]="0"
                           [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
-                          [placeholder]="txnFields?.num_days.placeholder || 'Enter ' + txnFields?.num_days.field_name | ellipsis: 30"
+                          [placeholder]="txnFields.num_days.placeholder || 'Enter ' + txnFields.num_days.field_name | ellipsis: 30"
                         ></app-fy-number>
                       </div>
                       <div
@@ -432,7 +432,7 @@
                             </div>
                             <input
                               [disabled]="!txnFields.purpose?.canEdit"
-                              [placeholder]="txnFields.purpose?.placeholder || 'Enter '+txnFields.purpose?.field_name | ellipsis: 30"
+                              [placeholder]="txnFields.purpose.placeholder || 'Enter ' + txnFields.purpose.field_name | ellipsis: 30"
                               [required]="txnFields.purpose?.is_mandatory"
                               [title]="'Enter'+txnFields.purpose?.field_name"
                               class="add-edit-per-diem--text-input"
@@ -449,7 +449,7 @@
                             [selectModalHeader]="'Enter Purpose'"
                             class="add-edit-per-diem--text-input"
                             formControlName="purpose"
-                            [placeholder]="txnFields.purpose?.placeholder | ellipsis: 30"
+                            [placeholder]="txnFields.purpose.placeholder | ellipsis: 30"
                           >
                           </app-fy-select>
                         </div>
