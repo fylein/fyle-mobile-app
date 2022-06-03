@@ -419,7 +419,7 @@
                         class="add-edit-mileage--text-input"
                         formControlName="value"
                         type="text"
-                        [placeholder]="'Enter ' + customInput.name"
+                        [placeholder]="customInput.placeholder || 'Enter ' + customInput.name| ellipsis: 30"
                       />
 
                       <app-fy-number
@@ -434,8 +434,7 @@
                         class="add-edit-mileage--date-input date-input__format"
                         formControlName="value"
                         type="date"
-                        [placeholder]="'Select ' + customInput.name"
-                        [name]="customInput.name"
+                        [name]="customInput.placeholder || customInput.name"
                       />
                     </div>
 
@@ -453,6 +452,7 @@
                         [label]="customInput.name | ellipsis: 30"
                         [mandatory]="customInput.mandatory"
                         formControlName="value"
+                        [placeholder]="customInput.placeholder | ellipsis: 30"
                       >
                       </app-fy-location>
                     </div>
@@ -464,6 +464,7 @@
                         [options]="customInput.options"
                         [selectModalHeader]="'Select '+customInput.name"
                         formControlName="value"
+                        [placeholder]="customInput.placeholder | ellipsis: 30"
                       >
                       </app-fy-select>
                     </div>
@@ -476,6 +477,7 @@
                         [selectModalHeader]="'Select '+customInput.name"
                         [subheader]="customInput.name"
                         formControlName="value"
+                        [placeholder]="customInput.placeholder | ellipsis: 30"
                       >
                       </app-fy-multiselect>
                     </div>
@@ -530,6 +532,7 @@
                           [options]="duplicateDetectionReasons"
                           [selectModalHeader]="'Select Reason'"
                           formControlName="duplicate_detection_reason"
+                          [placeholder]="'Select Reason'"
                         >
                         </app-fy-select>
                       </div>

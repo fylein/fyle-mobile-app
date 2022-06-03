@@ -466,7 +466,7 @@
                       [selectModalHeader]="'Select Category'"
                       [recentlyUsed]="recentCategories"
                       formControlName="category"
-                      [placeholder]="txnFields?.org_category_id?.placeholder"
+                      [placeholder]="txnFields.org_category_id.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -677,7 +677,7 @@
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       [disabled]="!txnFields.train_travel_class?.canEdit"
-                      [placeholder]="txnFields.train_travel_class?.placeholder || 'Enter ' + txnFields.train_travel_class?.field_name"
+                      [placeholder]="txnFields.train_travel_class.placeholder || 'Enter ' + txnFields.train_travel_class.field_name"
                       class="add-edit-expense--text-input add-edit-expense--text-input__large"
                       formControlName="train_travel_class"
                       type="text"
@@ -913,7 +913,7 @@
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       *ngIf="customInput.type === 'TEXT'"
-                      [placeholder]="'Enter ' + customInput.name | ellipsis: 30"
+                      [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                       class="add-edit-expense--text-input"
                       formControlName="value"
                       type="text"
@@ -932,8 +932,7 @@
                       class="add-edit-expense--date-input date-input__format"
                       formControlName="value"
                       type="date"
-                      [placeholder]="'Select ' + customInput.name"
-                      [name]="customInput.name"
+                      [name]="customInput.placeholder || customInput.name"
                     />
                   </div>
 
@@ -948,6 +947,7 @@
                       [label]="customInput.name  | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-location>
                   </div>
@@ -960,6 +960,7 @@
                       [selectModalHeader]="'Select '+customInput.name"
                       [label]="customInput.name"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-select>
                   </div>
@@ -972,6 +973,7 @@
                       [selectModalHeader]="'Select '+customInput.name"
                       [subheader]="customInput.name"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-multiselect>
                   </div>
@@ -982,6 +984,7 @@
                       [mandatory]="customInput.mandatory"
                       [allowCustomValues]="true"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-userlist>
                   </div>
