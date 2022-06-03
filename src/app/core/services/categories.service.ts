@@ -70,7 +70,7 @@ export class CategoriesService {
       id: category.id,
       name: category.name,
       org_id: category.org_id,
-      sub_category: category.sub_category,
+      sub_category: category.sub_category || category.name,
       updated_at: category.updated_at,
     }));
 
