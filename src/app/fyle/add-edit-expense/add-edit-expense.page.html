@@ -53,7 +53,7 @@
         <ng-container *ngIf="isConnected$|async as isConnected">
           <ng-container *ngIf="isSplitExpenseAllowed$|async as isSplitExpenseAllowed">
             <ng-container
-              *ngIf="(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)"
+              *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canUnlinkCCCE)"
             >
               <ion-button class="add-edit-expense--header-btn-container__btn" (click)="moreActions()">
                 <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
@@ -137,15 +137,15 @@
                 <div class="add-edit-expense--card-container__label">Spend Amount</div>
                 <div *ngIf="selectedCCCTransaction?.amount > 0">
                   <span class="add-edit-expense--card-container__value"
-                    >{{ selectedCCCTransaction?.amount | humanizeCurrency: selectedCCCTransaction?.currency:2:true
-                    }}</span
+                    >{{ cardCurrencySymbol }}{{ selectedCCCTransaction?.amount | humanizeCurrency:
+                    selectedCCCTransaction?.currency:2:true }}</span
                   >
                   <span class="add-edit-expense--card-container__txn-type">DR</span>
                 </div>
                 <div *ngIf="selectedCCCTransaction?.amount < 0">
                   <span class="add-edit-expense--card-container__value add-edit-expense--card-container__credit"
-                    >{{ selectedCCCTransaction?.amount * -1 | humanizeCurrency: selectedCCCTransaction?.currency:2:true
-                    }}</span
+                    >{{ cardCurrencySymbol }}{{ selectedCCCTransaction?.amount * -1 | humanizeCurrency:
+                    selectedCCCTransaction?.currency:2:true }}</span
                   >
                   <span class="add-edit-expense--card-container__txn-type add-edit-expense--card-container__credit"
                     >CR</span
@@ -154,6 +154,10 @@
               </ion-col>
             </ion-row>
           </ion-grid>
+          <app-fy-alert-info
+            [type]="'information'"
+            [message]="'If the expense is linked with incorrect card details, click on Options to unlink the card details.'"
+          ></app-fy-alert-info>
         </ng-container>
 
         <div class="add-edit-expense--receipt-currency-container">
