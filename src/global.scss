@@ -708,7 +708,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .fy-action-sheet {
-  --background: none;
+  --background: $white;
   .action-sheet-button {
     background: $white;
     min-height: 73px;
