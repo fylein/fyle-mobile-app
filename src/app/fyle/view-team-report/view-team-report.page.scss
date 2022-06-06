@@ -51,14 +51,14 @@ $sent-back-color: #da1e28;
   }
 
   &--disabled-info:after {
-    content: '';
-    position: absolute;
     top: 98%;
     left: calc(50% - 10px);
-    background: $blue-black;
-    width: 18px;
-    height: 10px;
-    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    border: solid transparent;
+    content: ' ';
+    position: absolute;
+    border-bottom-color: $blue-black;
+    border-width: 8px;
+    transform: rotate(180deg);
   }
 
   &--disabled-info-content {

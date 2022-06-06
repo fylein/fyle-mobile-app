@@ -345,11 +345,11 @@ export class ViewTeamReportPage implements OnInit {
     this.canShowTooltip = true;
   }
 
-  isTopInSeqApproval(eou, approvals) {
+  isTopInSeqApproval(eou: ExtendedOrgUser, approvers: Approver[]) {
     let minRank = 100;
     let currentApproverRank = 100;
 
-    approvals.forEach(function (approver) {
+    approvers.forEach(function (approver) {
       if (approver.approver_id === eou.ou.id) {
         currentApproverRank = approver.rank;
       }
