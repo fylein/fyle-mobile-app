@@ -5,6 +5,7 @@ import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
+import { LoaderService } from 'src/app/core/services/loader.service';
 
 @Component({
   selector: 'app-sidemenu-content',
@@ -20,7 +21,8 @@ export class SidemenuContentComponent implements OnInit {
     private router: Router,
     private userEventService: UserEventService,
     private menuController: MenuController,
-    private freshChatService: FreshChatService
+    private freshChatService: FreshChatService,
+    private loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {}
@@ -33,7 +35,17 @@ export class SidemenuContentComponent implements OnInit {
     this.menuController.close();
 
     if (!!sidemenuItem.openLiveChat) {
-      this.freshChatService.openLiveChatSupport();
+      if (!(window as any).fcWidget?.isInitialized()) {
+        this.loaderService.showLoader('Please wait...', 5000);
+        this.freshChatService.setupNetworkWatcher();
+        (window as any).fcWidget.on('widget:loaded', () => {
+          this.freshChatService.openLiveChatSupport();
+          this.loaderService.hideLoader();
+        });
+      } else {
+        this.freshChatService.openLiveChatSupport();
+      }
+
       return;
     }
 

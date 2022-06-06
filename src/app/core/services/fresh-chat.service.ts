@@ -47,9 +47,7 @@ export class FreshChatService {
   }
 
   destory() {
-    if ((window as any) && (window as any).fcWidget && (window as any).fcWidget.destory) {
-      (window as any).fcWidget.destory();
-    }
+    (window as any).fcWidget?.destroy();
   }
 
   private getOrgUserSettings() {

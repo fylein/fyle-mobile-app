@@ -140,8 +140,11 @@ export class SidemenuComponent implements OnInit {
           }
         }
 
+        if ((window as any).fcWidget?.isInitialized()) {
+          this.freshChatService.destory();
+        }
+
         this.switchDelegator.emit(this.isSwitchedToDelegator);
-        this.freshChatService.setupNetworkWatcher();
         this.setupSideMenu(isConnected, orgs, isDelegatee);
       }
     );
