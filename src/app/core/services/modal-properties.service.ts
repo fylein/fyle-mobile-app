@@ -11,12 +11,9 @@ export class ModalPropertiesService {
     const properties = {
       cssClass: 'fy-modal',
       showBackdrop: true,
-      canDismiss: true,
+      swipeToClose: true,
       backdropDismiss: true,
       animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
     };
     return properties;
   }

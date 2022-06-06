@@ -86,6 +86,7 @@ export class FyUserlistComponent implements OnInit {
         allowCustomValues: this.allowCustomValues,
       },
       mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

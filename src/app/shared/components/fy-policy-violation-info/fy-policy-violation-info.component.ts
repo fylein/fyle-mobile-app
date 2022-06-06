@@ -16,12 +16,13 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   showPolicyInfo: boolean;
 
-  constructor(private modalController: ModalController) {}
+  constructor(
+    private modalController: ModalController
+  ) { }
 
   ngOnInit() {
     this.policyViolations = [];
-    this.policyViolations =
-      this.policyDetails && this.policyDetails.map((details) => details.transaction_policy_rule.description);
+    this.policyViolations = this.policyDetails && this.policyDetails.map(details => details.transaction_policy_rule.description);
     this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated;
   }
 
@@ -29,16 +30,13 @@ export class FyPolicyViolationInfoComponent implements OnInit {
     const policyDetailsModal = await this.modalController.create({
       component: PolicyViolationDetailsComponent,
       componentProps: {
-        policyViolations: this.policyViolations,
+        policyViolations: this.policyViolations
       },
       cssClass: 'payment-mode-modal',
       showBackdrop: true,
-      canDismiss: true,
+      swipeToClose: true,
       backdropDismiss: true,
-      animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
+      animated: true
     });
 
     await policyDetailsModal.present();

@@ -127,6 +127,7 @@ export class MyEditReportPage implements OnInit {
         unReportedEtxns: this.unReportedEtxns,
       },
       mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

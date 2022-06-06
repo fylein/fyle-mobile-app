@@ -1932,6 +1932,7 @@ export class AddEditMileagePage implements OnInit {
         policyActionDescription,
       },
       mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -2502,6 +2503,7 @@ export class AddEditMileagePage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx.id,
       },
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

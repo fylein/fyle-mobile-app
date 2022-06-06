@@ -581,11 +581,9 @@ export class AddEditExpensePage implements OnInit {
       const modalProperties = {
         cssClass: 'auto-height',
         showBackdrop: true,
-        canDismiss: true,
+        swipeToClose: true,
         backdropDismiss: true,
-        initialBreakpoint: 1,
-        breakpoints: [0, 1],
-        handle: false,
+        animated: true,
       };
 
       const matchExpensesModal = await this.modalController.create({
@@ -596,6 +594,7 @@ export class AddEditExpensePage implements OnInit {
           selectedCCCTransaction: this.selectedCCCTransaction,
         },
         mode: 'ios',
+        presentingElement: await this.modalController.getTop(),
         ...modalProperties,
       });
 
@@ -3284,6 +3283,7 @@ export class AddEditExpensePage implements OnInit {
         policyActionDescription,
       },
       mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -4103,6 +4103,7 @@ export class AddEditExpensePage implements OnInit {
             canEdit: true,
           },
           mode: 'ios',
+          presentingElement: await this.modalController.getTop(),
         });
 
         await attachmentsModal.present();
@@ -4185,6 +4186,7 @@ export class AddEditExpensePage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx.id,
       },
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -4439,6 +4441,7 @@ export class AddEditExpensePage implements OnInit {
         duplicateExpenses,
       },
       mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

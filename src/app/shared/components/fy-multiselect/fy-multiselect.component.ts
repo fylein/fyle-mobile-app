@@ -90,6 +90,7 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
         subheader: this.subheader,
       },
       mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

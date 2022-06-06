@@ -482,6 +482,7 @@ export class MyViewReportPage implements OnInit {
     const shareReportModal = await this.modalController.create({
       component: ShareReportComponent,
       mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
       cssClass: 'share-report-modal',
     });
@@ -514,6 +515,7 @@ export class MyViewReportPage implements OnInit {
         etxns$: this.etxns$,
         view: ExpenseView.individual,
       },
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

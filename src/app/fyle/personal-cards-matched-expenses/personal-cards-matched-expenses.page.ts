@@ -54,12 +54,9 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
       },
       cssClass: 'expense-preview-modal',
       showBackdrop: true,
-      canDismiss: true,
+      swipeToClose: true,
       backdropDismiss: true,
       animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
     });
 
     await expenseDetailsModal.present();

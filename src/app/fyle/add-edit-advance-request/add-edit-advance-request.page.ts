@@ -189,6 +189,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
           policyViolationActionDescription,
         },
         mode: 'ios',
+        presentingElement: await this.modalController.getTop(),
         ...this.modalProperties.getModalDefaultProperties(),
       });
 
@@ -429,6 +430,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         canEdit: true,
       },
       mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
     });
 
     await attachmentsModal.present();
@@ -498,6 +500,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         objectType: 'advance_requests',
         objectId: this.id,
       },
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

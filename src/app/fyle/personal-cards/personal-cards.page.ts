@@ -717,12 +717,9 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       },
       cssClass: 'expense-preview-modal',
       showBackdrop: true,
-      canDismiss: true,
+      swipeToClose: true,
       backdropDismiss: true,
       animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
     });
 
     await expenseDetailsModal.present();
@@ -737,17 +734,15 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     const modalProperties = {
       cssClass: 'personal-cards-range-modal',
       showBackdrop: true,
-      canDismiss: true,
+      swipeToClose: true,
       backdropDismiss: true,
       animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
     };
 
     const selectionModal = await this.modalController.create({
       component: DateRangeModalComponent,
       mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
       ...modalProperties,
     });
 

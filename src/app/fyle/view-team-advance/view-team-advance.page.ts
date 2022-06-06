@@ -362,6 +362,7 @@ export class ViewTeamAdvancePage implements OnInit {
         objectType: 'advance_requests',
         objectId: advanceRequestId,
       },
+      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
