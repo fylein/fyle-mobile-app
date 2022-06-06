@@ -265,7 +265,7 @@
                       (keydown)="$event.preventDefault()"
                       [max]="maxDate"
                       [min]="minDate"
-                      [placeholder]="'Select ' + txnFields.txn_dt?.field_name || 'Date of Spend'"
+                      [placeholder]="txnFields.txn_dt?.placeholder || 'Date of Spend'"
                       class="add-edit-expense--date-input date-input__format"
                       formControlName="dateOfSpend"
                       type="date"
@@ -297,6 +297,7 @@
                       [selectModalHeader]="'Select Payment Mode'"
                       [selectionElement]="paymentMode"
                       formControlName="paymentMode"
+                      [placeholder]="'Payment Mode'"
                     >
                     </app-fy-select>
                     <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -469,6 +470,7 @@
                       [selectModalHeader]="'Select Category'"
                       [recentlyUsed]="recentCategories"
                       formControlName="category"
+                      [placeholder]="txnFields.org_category_id.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -494,6 +496,7 @@
                       [mandatory]="txnFields.tax_group_id.is_mandatory"
                       [selectModalHeader]="'Select ' + (txnFields.tax_group_id.field_name || 'Tax Group')"
                       formControlName="tax_group"
+                      [placeholder]="txnFields.tax_group_id.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -536,6 +539,7 @@
                           [label]="txnFields.location1?.field_name"
                           [mandatory]="txnFields.location1?.is_mandatory"
                           formControlName="location_1"
+                          [placeholder]="txnFields.location1?.placeholder"
                         >
                         </app-fy-location>
                       </div>
@@ -551,6 +555,7 @@
                           [label]="txnFields.location2?.field_name"
                           [mandatory]="txnFields.location2?.is_mandatory"
                           formControlName="location_2"
+                          [placeholder]="txnFields.location2?.placeholder"
                         >
                         </app-fy-location>
                       </div>
@@ -581,7 +586,7 @@
                           formControlName="from_dt"
                           [name]="txnFields.from_dt?.field_name"
                           type="date"
-                          [placeholder]="'Select '+ txnFields.from_dt?.field_name"
+                          [placeholder]="txnFields.from_dt?.placeholder || 'Select '+ txnFields.from_dt?.field_name"
                         />
                       </div>
                     </ion-col>
@@ -606,7 +611,7 @@
                           formControlName="to_dt"
                           [name]="txnFields.to_dt?.field_name"
                           type="date"
-                          [placeholder]="'Select '+ txnFields.to_dt?.field_name"
+                          [placeholder]="txnFields.from_dt?.placeholder || 'Select '+ txnFields.to_dt?.field_name"
                         />
                       </div>
                     </ion-col>
@@ -630,6 +635,7 @@
                           [options]="txnFields.flight_journey_travel_class?.options"
                           [selectModalHeader]="'Select Travel Class'"
                           formControlName="flight_journey_travel_class"
+                          [placeholder]="txnFields.flight_journey_travel_class?.placeholder"
                         >
                         </app-fy-select>
                       </div>
@@ -650,6 +656,7 @@
                           [selectModalHeader]="'Select Travel Class'"
                           formControlName="flight_return_travel_class"
                           name="flightReturnClass"
+                          [placeholder]="txnFields.flight_return_travel_class?.placeholder"
                         >
                         </app-fy-select>
                       </div>
@@ -674,7 +681,7 @@
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       [disabled]="!txnFields.train_travel_class?.canEdit"
-                      [placeholder]="'Enter ' + txnFields.train_travel_class?.field_name"
+                      [placeholder]="txnFields.train_travel_class.placeholder || 'Enter ' + txnFields.train_travel_class.field_name"
                       class="add-edit-expense--text-input add-edit-expense--text-input__large"
                       formControlName="train_travel_class"
                       type="text"
@@ -688,6 +695,7 @@
                     [mandatory]="txnFields.train_travel_class?.is_mandatory"
                     [options]="txnFields.train_travel_class?.options"
                     formControlName="train_travel_class"
+                    [placeholder]="txnFields.train_travel_class?.placeholder"
                   >
                   </app-fy-select>
                 </div>
@@ -708,7 +716,7 @@
                   <input
                     (blur)="focusState = false"
                     (focus)="focusState = true"
-                    [placeholder]="'Enter ' + txnFields.bus_travel_class?.field_name"
+                    [placeholder]="txnFields.bus_travel_class?.placeholder || 'Enter ' + txnFields.bus_travel_class?.field_name"
                     *ngIf="txnFields.bus_travel_class?.type === 'TEXT'"
                     [disabled]="!txnFields.bus_travel_class?.canEdit"
                     class="add-edit-expense--text-input add-edit-expense--text-input__large"
@@ -724,6 +732,7 @@
                     [selectModalHeader]="'Select Travel Class'"
                     formControlName="bus_travel_class"
                     hide-none="true"
+                    [placeholder]="txnFields.bus_travel_class?.placeholder"
                   >
                   </app-fy-select>
                 </div>
@@ -751,7 +760,7 @@
                     </div>
                     <app-fy-number
                       formControlName="distance"
-                      [placeholder]="'Enter ' + txnFields.distance?.field_name"
+                      [placeholder]="txnFields.distance?.placeholder || 'Enter ' + txnFields.distance?.field_name"
                     ></app-fy-number>
                   </div>
 
@@ -764,6 +773,7 @@
                       name="taxiDistanceUnit"
                       sub-title="Units"
                       title="Select Unit"
+                      [placeholder]="txnFields.distance_unit?.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -784,6 +794,7 @@
                 [label]="txnFields.vendor_id?.field_name"
                 [mandatory]="txnFields?.vendor_id?.is_mandatory"
                 formControlName="vendor_id"
+                [placeholder]="txnFields.vendor_id?.placeholder"
               >
               </app-fy-select-vendor>
               <app-fy-select
@@ -794,6 +805,7 @@
                 [options]="txnFields.vendor_id?.options"
                 [nullOption]="!txnFields.vendor_id?.is_mandatory"
                 formControlName="vendor_id"
+                [placeholder]="txnFields.vendor_id?.placeholder"
               >
               </app-fy-select>
             </div>
@@ -801,7 +813,6 @@
               Please select a merchant
             </div>
           </ng-container>
-
           <ng-container *ngIf="costCenters$|async as costCenters">
             <ng-container *ngIf="txnFields$|async as txnFields">
               <ng-container *ngIf="txnFields.cost_center_id?.is_mandatory || isExpandedView">
@@ -818,6 +829,7 @@
                       [selectModalHeader]="'Select Cost Center'"
                       [recentlyUsed]="recentCostCenters"
                       formControlName="costCenter"
+                      [placeholder]="txnFields.cost_center_id?.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -846,7 +858,7 @@
                   </div>
                   <input
                     [disabled]="!txnFields.purpose?.canEdit"
-                    [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:15"
+                    [placeholder]="txnFields.purpose?.placeholder || 'Enter '+txnFields.purpose?.field_name | slice: 0:30"
                     [required]="txnFields.purpose?.is_mandatory"
                     [title]="'Enter'+txnFields.purpose?.field_name"
                     class="add-edit-expense--text-input"
@@ -867,6 +879,7 @@
                     [options]="txnFields.purpose?.options"
                     [selectModalHeader]="'Enter '+ txnFields.purpose?.field_name"
                     formControlName="purpose"
+                    [placeholder]="txnFields.purpose?.placeholder"
                   >
                   </app-fy-select>
                 </div>
@@ -904,7 +917,7 @@
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       *ngIf="customInput.type === 'TEXT'"
-                      [placeholder]="'Enter ' + customInput.name | ellipsis: 30"
+                      [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                       class="add-edit-expense--text-input"
                       formControlName="value"
                       type="text"
@@ -913,7 +926,7 @@
                     <app-fy-number
                       formControlName="value"
                       *ngIf="customInput.type === 'NUMBER'"
-                      [placeholder]="'Enter ' + customInput.name"
+                      [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                     >
                     </app-fy-number>
 
@@ -923,8 +936,7 @@
                       class="add-edit-expense--date-input date-input__format"
                       formControlName="value"
                       type="date"
-                      [placeholder]="'Select ' + customInput.name"
-                      [name]="customInput.name"
+                      [name]="customInput.placeholder || customInput.name"
                     />
                   </div>
 
@@ -939,6 +951,7 @@
                       [label]="customInput.name  | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-location>
                   </div>
@@ -951,6 +964,7 @@
                       [selectModalHeader]="'Select '+customInput.name"
                       [label]="customInput.name"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-select>
                   </div>
@@ -963,6 +977,7 @@
                       [selectModalHeader]="'Select '+customInput.name"
                       [subheader]="customInput.name"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-multiselect>
                   </div>
@@ -973,6 +988,7 @@
                       [mandatory]="customInput.mandatory"
                       [allowCustomValues]="true"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-userlist>
                   </div>

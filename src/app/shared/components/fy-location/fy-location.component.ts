@@ -32,6 +32,8 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   @Input() cacheName;
 
+  @Input() placeholder: string;
+
   displayValue;
 
   private ngControl: NgControl;

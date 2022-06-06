@@ -32,6 +32,8 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
 
   @Input() subheader = 'All Items';
 
+  @Input() placeholder: string;
+
   displayValue;
 
   get valid() {
