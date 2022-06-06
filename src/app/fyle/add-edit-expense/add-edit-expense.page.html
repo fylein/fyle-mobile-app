@@ -439,15 +439,21 @@
                 </ng-container>
               </ng-container>
 
-              <div *ngIf="fg.controls.project.value">
-                <mat-checkbox formControlName="billable">
-                  <span class="add-edit-expense--checkbox"> Billable </span>
-                </mat-checkbox>
+              <div *ngIf="isProjectsEnabled$|async">
+                <div *ngIf="isProjectsVisible$|async">
+                  <div *ngIf="fg.controls.project.value">
+                    <mat-checkbox formControlName="billable">
+                      <span class="add-edit-expense--checkbox"> Billable </span>
+                    </mat-checkbox>
+                  </div>
+                </div>
               </div>
             </div>
-            <div *ngIf="isProjectsVisible$|async">
-              <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
-                Please select a project.
+            <div *ngIf="isProjectsEnabled$|async">
+              <div *ngIf="isProjectsVisible$|async">
+                <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
+                  Please select a project.
+                </div>
               </div>
             </div>
           </ng-container>
