@@ -295,7 +295,7 @@
       <div class="view-reports--disabled-info-content">
         Waiting for other approvers to approve this expense report
         <ion-icon
-          (click)="hideTooltip()"
+          (click)="toggleTooltip()"
           class="view-reports--icon-close"
           src="../../../../assets/svg/fy-close.svg"
           slot="icon-only"
@@ -309,7 +309,7 @@
       <ion-button
         *ngIf="!isTopInSequentialApproval"
         class="view-reports--primary-cta view-reports--primary-cta__disabled"
-        (click)="showTooltip()"
+        (click)="toggleTooltip()"
       >
         Approve Report
       </ion-button>

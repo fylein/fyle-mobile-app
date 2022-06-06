@@ -28,7 +28,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { Approver } from 'src/app/core/models/v2/approver.model';
+import { Approver } from 'src/app/core/models/v1/approver.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -337,12 +337,8 @@ export class ViewTeamReportPage implements OnInit {
     this.refreshApprovals$.next();
   }
 
-  hideTooltip() {
-    this.canShowTooltip = false;
-  }
-
-  showTooltip() {
-    this.canShowTooltip = true;
+  toggleTooltip() {
+    this.canShowTooltip = !this.canShowTooltip;
   }
 
   isTopInSeqApproval(eou: ExtendedOrgUser, approvers: Approver[]) {
