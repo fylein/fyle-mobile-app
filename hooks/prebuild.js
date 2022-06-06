@@ -7,12 +7,13 @@ dotenv.config();
 const secrets = require('./secrets');
 
 module.exports = function (ctx) {
-  if (!process.env.NATIVE_CONFIG) {
-    return;
-  }
   // Creating environment.prod.ts file
   fs.writeFileSync(`${ctx.project.dir}` + "/src/environments/environment.prod.ts", secrets.prodEnviroinent);
 
+  if (!process.env.NATIVE_CONFIG) {
+    return;
+  }
+  
   const platformRoot = path.join(ctx.project.dir, 'android');
   FILE_PATHS = {
     "android.cameraPreview": `${ctx.project.dir}` + "/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraPreview.java"
