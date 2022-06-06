@@ -18,6 +18,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -89,7 +90,8 @@ export class SplitExpensePage implements OnInit {
     private reportService: ReportService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private policyService: PolicyService
   ) {}
 
   ngOnInit() {}
@@ -421,6 +423,23 @@ export class SplitExpensePage implements OnInit {
     // );
   }
 
+  handleSplitExpensePolicyViolations(violations) {
+    console.log('handleSplitExpensePolicyViolationsPayload : ', violations);
+    const doViolationsExist = this.policyService.checkIfViolationsExist(violations);
+
+    console.log('doViolationsExist : ', doViolationsExist);
+    if (doViolationsExist) {
+      var formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);
+
+      console.log('formattedViolations : ', formattedViolations);
+
+      // return openSplitExpensePolicyDialog(event, formattedViolations);
+      this.showSuccessToast();
+    } else {
+      this.showSuccessToast();
+    }
+  }
+
   save() {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
@@ -487,9 +506,9 @@ export class SplitExpensePage implements OnInit {
             }),
             tap((violations) => {
               console.log('VIOLATIONS IS', violations);
-              const violationsResp = violations[1];
-              // violationsResp.subscribe((violations) => console.log('violations : ', violations));
-              this.showSuccessToast();
+              // const violationsResp = violations[1];
+              // this.showSuccessToast();
+              this.handleSplitExpensePolicyViolations(violations[1]);
             }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';

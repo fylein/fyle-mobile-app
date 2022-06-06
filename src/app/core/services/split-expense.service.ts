@@ -4,6 +4,7 @@ import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, switchMap, tap, toArray } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
+import { PolicyService } from './policy.service';
 import { TransactionService } from './transaction.service';
 
 @Injectable({
@@ -13,7 +14,7 @@ export class SplitExpenseService {
   constructor(
     private transactionService: TransactionService,
     private fileService: FileService,
-    private dataTransformService: DataTransformService
+    private policyService: PolicyService
   ) {}
 
   linkTxnWithFiles(data) {
@@ -66,6 +67,28 @@ export class SplitExpenseService {
         return policyResponse;
       })
     );
+  }
+
+  formatPolicyViolations(violations) {
+    var formattedViolations = {};
+
+    for (var key in violations) {
+      if (violations.hasOwnProperty(key)) {
+        // check for popup field for all polices
+        var rules = this.policyService.getPolicyRules(violations[key]);
+
+        formattedViolations[key] = {
+          rules: rules,
+          action: violations[key].transaction_desired_state.action_description,
+          type: violations[key].type,
+          name: violations[key].name,
+          currency: violations[key].currency,
+          amount: violations[key].amount,
+        };
+      }
+    }
+
+    return formattedViolations;
   }
 
   runApiCallSerially(payload) {

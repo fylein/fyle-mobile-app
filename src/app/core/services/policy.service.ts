@@ -38,6 +38,25 @@ export class PolicyService {
     return this.policyApiService.get('/policy/violating_transactions', { params });
   }
 
+  checkIfViolationsExist(violations) {
+    let doViolationsExist = false;
+
+    for (const key in violations) {
+      if (violations.hasOwnProperty(key)) {
+        // check for popup field for all polices
+        let rules = this.getPolicyRules(violations[key]);
+
+        if (rules && rules.length > 0) {
+          doViolationsExist = true;
+
+          break;
+        }
+      }
+    }
+
+    return doViolationsExist;
+  }
+
   getApprovalString(emails) {
     let additionalApprovalString = 'Expense will need additional approval from ';
     emails.forEach((email, index) => {
