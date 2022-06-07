@@ -22,7 +22,7 @@ import { LoginInfoService } from './core/services/login-info.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
-import { codePush } from 'capacitor-codepush';
+import { codePush, InstallMode } from 'capacitor-codepush';
 
 @Component({
   selector: 'app-root',
@@ -132,7 +132,9 @@ export class AppComponent implements OnInit {
       setTimeout(async () => await SplashScreen.hide(), 1000);
 
       //If an update is available, it'll be installed next time user opens the app
-      codePush.sync();
+      codePush.sync({
+        installMode: InstallMode.ON_NEXT_RESUME,
+      });
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
