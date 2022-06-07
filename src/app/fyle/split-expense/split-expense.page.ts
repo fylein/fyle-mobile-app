@@ -5,7 +5,7 @@ import { NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap, tap, toArray } from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -379,7 +379,7 @@ export class SplitExpensePage implements OnInit {
   }
 
   runPolicyCheck(etxns) {
-    console.log('calling runPolicyCheck in page');
+    console.log('calling runPolicyCheck in page', etxns);
     return this.splitExpenseService.runPolicyCheck(etxns, this.fileObjs).pipe(
       switchMap((data) => {
         console.log('RUNPOLICYCHECKm Data is', data);
@@ -408,10 +408,10 @@ export class SplitExpensePage implements OnInit {
     //Returns an observable of observables
     return from(txnIds).pipe(
       //Returns an observable array
-      concatMap((txnId) => this.transactionService.getEtxn(txnId)),
+      mergeMap((txnId) => this.transactionService.getEtxn(txnId)),
       toArray(),
       tap((val) => console.log('ETXNS IS ', val)),
-      switchMap((etxns) => this.runPolicyCheck(etxns))
+      map((etxns) => this.runPolicyCheck(etxns))
     );
 
     //Returns an array of observables

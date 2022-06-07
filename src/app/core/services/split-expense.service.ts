@@ -1,7 +1,7 @@
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { Injectable } from '@angular/core';
-import { forkJoin, from, Observable, of } from 'rxjs';
-import { concatMap, map, switchMap, tap, toArray } from 'rxjs/operators';
+import { forkJoin, from, of } from 'rxjs';
+import { last, map, mergeMap, scan, switchMap } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
 import { PolicyService } from './policy.service';
@@ -91,16 +91,18 @@ export class SplitExpenseService {
     return formattedViolations;
   }
 
-  runApiCallSerially(payload) {
-    console.log('runApiCallSerially() - payload : ', payload);
-    const response$ = [];
+  runApiCallSerially(etxns) {
+    console.log('runApiCallSerially() - payload : ', etxns);
 
-    return from(payload).pipe(
-      concatMap((apiPayload) => this.testPolicyForATxn(apiPayload)),
-      toArray(),
-      tap((val) => console.log('ETXNS IS ', val)),
-      map((violations) => violations)
+    //This returns an object with txnIds as key and policyViolations as value
+    const policyViolations$ = from(etxns).pipe(
+      mergeMap((etxn) => this.testPolicyForATxn(etxn)),
+      scan((acc, curr) => ({ ...curr, ...acc }), {}),
+      last()
     );
+
+    policyViolations$.subscribe((val) => console.log('POLICY VIOLATIONS', val));
+    return policyViolations$;
   }
 
   runPolicyCheck(etxns, fileObjs) {
