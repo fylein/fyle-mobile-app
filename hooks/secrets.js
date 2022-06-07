@@ -178,6 +178,18 @@ try {
       </array>
       <key>UIViewControllerBasedStatusBarAppearance</key>
       <false/>
+      <key>IonAppId</key>
+        <string>32316914</string>
+      <key>IonChannelName</key>
+        <string>Staging</string>
+      <key>IonUpdateMethod</key>
+        <string>background</string>
+      <key>IonMaxVersions</key>
+        <string>2</string>
+      <key>IonMinBackgroundDuration</key>
+        <string>30</string>
+      <key>IonApi</key>
+        <string>https://api.ionicjs.com</string>
   </dict>
   </plist>    
                   `,
