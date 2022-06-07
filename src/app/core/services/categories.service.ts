@@ -27,7 +27,6 @@ export class CategoriesService {
         return range(0, count);
       }),
       concatMap((page) => this.getCategories({ offset: 50 * page, limit: 50 })),
-      map((res) => res),
       reduce((acc, curr) => acc.concat(curr), [] as OrgCategory[])
     );
   }
@@ -55,8 +54,8 @@ export class CategoriesService {
     };
     return this.spenderPlatformApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
       map((res) => this.transformFrom(res.data)),
-      map(this.sortCategories),
-      map(this.addDisplayName)
+      map((res) => this.sortCategories(res)),
+      map((res) => this.addDisplayName(res))
     );
   }
 
