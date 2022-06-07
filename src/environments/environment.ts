@@ -15,6 +15,7 @@ export const environment = {
   SENTRY_DSN: '',
   REFINER_NPS_FORM_ID: '',
   LAUNCH_DARKLY_CLIENT_ID: '',
+  ANDROID_DEPLOY_KEY: '',
 };
 
 /*

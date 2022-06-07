@@ -16,6 +16,12 @@
 
     <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
 
+    <!-- This ensures our app can access CodePush on CSP compliant platforms -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src https://codepush.appcenter.ms 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *"
+    />
+
     <!-- add to homescreen for ios -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />

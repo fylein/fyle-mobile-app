@@ -14,9 +14,6 @@ project(':capacitor-browser').projectDir = new File('../node_modules/@capacitor/
 include ':capacitor-camera'
 project(':capacitor-camera').projectDir = new File('../node_modules/@capacitor/camera/android')
 
-include ':capacitor-device'
-project(':capacitor-device').projectDir = new File('../node_modules/@capacitor/device/android')
-
 include ':capacitor-geolocation'
 project(':capacitor-geolocation').projectDir = new File('../node_modules/@capacitor/geolocation/android')
 
@@ -43,3 +40,18 @@ project(':capacitor-storage').projectDir = new File('../node_modules/@capacitor/
 
 include ':capacitor-secure-storage-plugin'
 project(':capacitor-secure-storage-plugin').projectDir = new File('../node_modules/capacitor-secure-storage-plugin/android')
+
+include ':capacitor-community-http'
+project(':capacitor-community-http').projectDir = new File('../node_modules/@capacitor-community/http/android')
+
+include ':capacitor-device'
+project(':capacitor-device').projectDir = new File('../node_modules/@capacitor/device/android')
+
+include ':capacitor-dialog'
+project(':capacitor-dialog').projectDir = new File('../node_modules/@capacitor/dialog/android')
+
+include ':capacitor-filesystem'
+project(':capacitor-filesystem').projectDir = new File('../node_modules/@capacitor/filesystem/android')
+
+include ':capacitor-codepush'
+project(':capacitor-codepush').projectDir = new File('../node_modules/capacitor-codepush/android')
