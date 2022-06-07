@@ -174,7 +174,7 @@
                               class="add-edit-per-diem--date-input date-input__format"
                               [placeholder]="'Select ' + txnFields?.from_dt"
                               formControlName="from_dt"
-                              [name]="txnFields?.from_dt.field_name"
+                              [name]="txnFields.from_dt.placeholder || txnFields.from_dt.field_name"
                               type="date"
                             />
                           </div>
@@ -209,7 +209,7 @@
                               class="add-edit-per-diem--date-input date-input__format"
                               formControlName="to_dt"
                               [placeholder]="'Select ' + txnFields?.to_dt"
-                              [name]="txnFields?.to_dt.field_name"
+                              [name]="txnFields.to_dt.placeholder || txnFields.to_dt.field_name"
                               type="date"
                             />
                           </div>
@@ -241,7 +241,7 @@
                           formControlName="num_days"
                           [min]="0"
                           [disabled]="isAmountDisabled || !txnFields?.num_days.canEdit"
-                          [placeholder]="'Enter ' + txnFields?.num_days.field_name"
+                          [placeholder]="txnFields.num_days.placeholder || 'Enter ' + txnFields.num_days.field_name | ellipsis: 30"
                         ></app-fy-number>
                       </div>
                       <div
@@ -339,10 +339,14 @@
                         </ng-container>
                       </ng-container>
 
-                      <div *ngIf="fg.controls.project.value" class="add-edit-per-diem--internal-block">
-                        <mat-checkbox formControlName="billable">
-                          <span class="add-edit-per-diem--checkbox"> Billable </span>
-                        </mat-checkbox>
+                      <div
+                        *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+                      >
+                        <div *ngIf="fg.controls.project.value" class="add-edit-per-diem--internal-block">
+                          <mat-checkbox formControlName="billable">
+                            <span class="add-edit-per-diem--checkbox"> Billable </span>
+                          </mat-checkbox>
+                        </div>
                       </div>
                     </div>
 
@@ -396,12 +400,13 @@
                         >
                           <app-fy-select
                             [cacheName]="'perDiemCostCenterCache'"
-                            [label]="txnFields.cost_center_id.field_name"
+                            [label]="txnFields.cost_center_id.field_name  | ellipsis: 30"
                             [mandatory]="txnFields.cost_center_id.is_mandatory"
                             [options]="costCenters"
                             [selectModalHeader]="'Select Cost Center'"
                             [recentlyUsed]="recentCostCenters"
                             formControlName="costCenter"
+                            [placeholder]="txnFields.cost_center_id.placeholder | ellipsis: 30"
                           >
                           </app-fy-select>
                         </div>
@@ -431,7 +436,7 @@
                             </div>
                             <input
                               [disabled]="!txnFields.purpose?.canEdit"
-                              [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:30"
+                              [placeholder]="txnFields.purpose.placeholder || 'Enter ' + txnFields.purpose.field_name | ellipsis: 30"
                               [required]="txnFields.purpose?.is_mandatory"
                               [title]="'Enter'+txnFields.purpose?.field_name"
                               class="add-edit-per-diem--text-input"
@@ -448,6 +453,7 @@
                             [selectModalHeader]="'Enter Purpose'"
                             class="add-edit-per-diem--text-input"
                             formControlName="purpose"
+                            [placeholder]="txnFields.purpose.placeholder | ellipsis: 30"
                           >
                           </app-fy-select>
                         </div>
@@ -484,14 +490,14 @@
                               *ngIf="customInput.type === 'TEXT'"
                               class="add-edit-per-diem--text-input"
                               formControlName="value"
-                              [placeholder]="'Enter ' + customInput.name"
+                              [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                               type="text"
                             />
 
                             <app-fy-number
                               *ngIf="customInput.type === 'NUMBER'"
                               formControlName="value"
-                              [placeholder]="'Enter ' + customInput.name"
+                              [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                             ></app-fy-number>
 
                             <input
@@ -501,7 +507,7 @@
                               formControlName="value"
                               [placeholder]="'Select ' + customInput.name"
                               type="date"
-                              [name]="customInput.name"
+                              [name]="customInput.placeholder || customInput.name"
                             />
                           </div>
 
@@ -519,6 +525,7 @@
                               [label]="customInput.name | ellipsis: 30"
                               [mandatory]="customInput.mandatory"
                               formControlName="value"
+                              [placeholder]="customInput.placeholder | ellipsis: 30"
                             >
                             </app-fy-location>
                           </div>
@@ -530,6 +537,7 @@
                               [options]="customInput.options"
                               [selectModalHeader]="'Select '+customInput.name"
                               formControlName="value"
+                              [placeholder]="customInput.placeholder | ellipsis: 30"
                             >
                             </app-fy-select>
                           </div>
@@ -542,6 +550,7 @@
                               [selectModalHeader]="'Select '+customInput.name"
                               [subheader]="customInput.name"
                               formControlName="value"
+                              [placeholder]="customInput.placeholder | ellipsis: 30"
                             >
                             </app-fy-multiselect>
                           </div>
