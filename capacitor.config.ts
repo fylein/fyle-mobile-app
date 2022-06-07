@@ -1,5 +1,4 @@
 import { CapacitorConfig } from '@capacitor/cli';
-import { environment } from 'src/environments/environment';
 
 const config: CapacitorConfig = {
   appId: 'com.ionicframework.fyle595781',
@@ -16,7 +15,7 @@ const config: CapacitorConfig = {
       style: 'light',
     },
     CodePush: {
-      ANDROID_DEPLOY_KEY: environment.CODEPUSH_ANDROID_DEPLOY_KEY,
+      ANDROID_DEPLOY_KEY: 'CODEPUSH_ANDROID_DEPLOY_KEY',
       SERVER_URL: 'https://codepush.appcenter.ms/',
     },
   },

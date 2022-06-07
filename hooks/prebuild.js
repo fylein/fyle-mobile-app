@@ -10,6 +10,12 @@ module.exports = function (ctx) {
   // Creating environment.prod.ts file
   fs.writeFileSync(`${ctx.project.dir}` + "/src/environments/environment.prod.ts", secrets.prodEnviroinent);
 
+  // Replace codePush env var in capacitor.config.ts
+  const capConfigPath = path.resolve(process.cwd(), "capacitor.config.ts");
+  const capConfig = fs.readFileSync(capConfigPath).toString();
+  const res = capConfig.replace('CODEPUSH_ANDROID_DEPLOY_KEY', process.env.CODEPUSH_ANDROID_DEPLOY_KEY);
+  fs.writeFileSync(capConfigPath, res, 'utf8');
+
   const platformRoot = path.join(ctx.project.dir, 'android');
   FILE_PATHS = {
     "android.cameraPreview": `${ctx.project.dir}` + "/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraPreview.java"
