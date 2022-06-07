@@ -16,7 +16,7 @@ const config: CapacitorConfig = {
       style: 'light',
     },
     CodePush: {
-      ANDROID_DEPLOY_KEY: environment.ANDROID_DEPLOY_KEY,
+      ANDROID_DEPLOY_KEY: environment.CODEPUSH_ANDROID_DEPLOY_KEY,
       SERVER_URL: 'https://codepush.appcenter.ms/',
     },
   },
