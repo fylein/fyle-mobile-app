@@ -107,13 +107,9 @@ export class ViewTeamReportPage implements OnInit {
 
   isExpensesLoading: boolean;
 
-  orgUserId: string;
-
-  approvers: Approver[];
-
   isSequentialApprovalEnabled = false;
 
-  isTopInSequentialApproval = true;
+  isHeadOfSequentialApproval = true;
 
   eou$: Observable<ExtendedOrgUser>;
 
@@ -313,22 +309,23 @@ export class ViewTeamReportPage implements OnInit {
     this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
-    forkJoin({
-      etxns: this.etxns$,
-      approvals: this.reportApprovals$,
-    }).subscribe((response) => {
-      this.reportEtxnIds = response.etxns.map((etxn) => etxn.tx_id);
-      this.orgUserId = response.etxns.map((etxn) => etxn.ou_id)[0];
-      this.approvers = response.approvals;
-    });
+    // forkJoin({
+    //   etxns: this.etxns$,
+    //   approvals: this.reportApprovals$,
+    // }).subscribe((response) => {
+    //   this.reportEtxnIds = response.etxns.map((etxn) => etxn.tx_id);
+    //   this.approvers = response.approvals;
+    // });
 
     forkJoin({
+      etxns: this.etxns$,
       eou: this.eou$.pipe(take(1)),
       approvals: this.reportApprovals$.pipe(take(1)),
       orgSettings: this.offlineService.getOrgSettings().pipe(take(1)),
     }).subscribe((res) => {
+      this.reportEtxnIds = res.etxns.map((etxn) => etxn.tx_id);
       this.isSequentialApprovalEnabled = res?.orgSettings.approval_settings?.enable_sequential_approvers;
-      this.isTopInSequentialApproval = this.isSequentialApprovalEnabled
+      this.isHeadOfSequentialApproval = this.isSequentialApprovalEnabled
         ? this.isTopInSeqApproval(res.eou, res.approvals)
         : true;
       this.canShowTooltip = true;
@@ -341,11 +338,11 @@ export class ViewTeamReportPage implements OnInit {
     this.canShowTooltip = !this.canShowTooltip;
   }
 
-  isTopInSeqApproval(eou: ExtendedOrgUser, approvers: Approver[]) {
+  isTopInSeqApproval(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
     let minRank = 100;
     let currentApproverRank = 100;
 
-    approvers.forEach(function (approver) {
+    approvers.forEach((approver) => {
       if (approver.approver_id === eou.ou.id) {
         currentApproverRank = approver.rank;
       }
