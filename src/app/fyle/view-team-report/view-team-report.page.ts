@@ -309,14 +309,6 @@ export class ViewTeamReportPage implements OnInit {
     this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
-    // forkJoin({
-    //   etxns: this.etxns$,
-    //   approvals: this.reportApprovals$,
-    // }).subscribe((response) => {
-    //   this.reportEtxnIds = response.etxns.map((etxn) => etxn.tx_id);
-    //   this.approvers = response.approvals;
-    // });
-
     forkJoin({
       etxns: this.etxns$,
       eou: this.eou$.pipe(take(1)),
