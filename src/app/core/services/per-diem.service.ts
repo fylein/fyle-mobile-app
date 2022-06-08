@@ -25,7 +25,6 @@ export class PerDiemService {
         return range(0, count);
       }),
       concatMap((page) => this.getPerDiemRates({ offset: 50 * page, limit: 50 })),
-      map((res) => res),
       reduce((acc, curr) => acc.concat(curr), [] as PerDiemRates[])
     );
   }
