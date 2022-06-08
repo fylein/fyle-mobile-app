@@ -12,7 +12,7 @@ module.exports = function (ctx) {
 
   var androidStringsPath = path.resolve(process.cwd(),'android/app/src/main/res/values/strings.xml');
   var androidStrings = fs.readFileSync(androidStringsPath).toString();
-  fs.writeFileSync(androidStringsPath, androidStrings.replace(LIVEUPDATE_CHANNEL, process.env.LIVEUPDATE_CHANNEL), 'utf8');
+  fs.writeFileSync(androidStringsPath, androidStrings.replace('LIVEUPDATE_CHANNEL', process.env.LIVEUPDATE_CHANNEL), 'utf8');
 
   if (!process.env.NATIVE_CONFIG) {
     return;
