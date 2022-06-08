@@ -20,6 +20,8 @@ export class FyPolicyViolationComponent implements OnInit {
 
   @Input() showCTA = true;
 
+  @Input() showHeader = true;
+
   isExpenseFlagged: boolean;
 
   isPrimaryApproverSkipped: boolean;

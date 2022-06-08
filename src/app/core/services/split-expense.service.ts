@@ -59,7 +59,6 @@ export class SplitExpenseService {
   }
 
   testPolicyForATxn(etxn) {
-    console.log('testPolicyForATxn');
     let policyResponse = {};
     return this.transactionService.testPolicy(etxn).pipe(
       map((response) => {
@@ -70,12 +69,14 @@ export class SplitExpenseService {
   }
 
   formatPolicyViolations(violations) {
-    var formattedViolations = {};
+    let formattedViolations = {};
 
-    for (var key in violations) {
+    for (const key in violations) {
       if (violations.hasOwnProperty(key)) {
         // check for popup field for all polices
-        var rules = this.policyService.getPolicyRules(violations[key]);
+        const rules = this.policyService.getPolicyRules(violations[key]);
+        const criticalPolicyRules = this.policyService.getCriticalPolicyRules(violations[key]);
+        const isCriticalPolicyViolation = criticalPolicyRules && criticalPolicyRules.length > 0;
 
         formattedViolations[key] = {
           rules: rules,
@@ -84,6 +85,8 @@ export class SplitExpenseService {
           name: violations[key].name,
           currency: violations[key].currency,
           amount: violations[key].amount,
+          isCriticalPolicyViolation: isCriticalPolicyViolation,
+          isExpanded: false,
         };
       }
     }
@@ -92,25 +95,21 @@ export class SplitExpenseService {
   }
 
   runApiCallSerially(payload) {
-    console.log('runApiCallSerially() - payload : ', payload);
     const response$ = [];
 
     return from(payload).pipe(
       concatMap((apiPayload) => this.testPolicyForATxn(apiPayload)),
       toArray(),
-      tap((val) => console.log('ETXNS IS ', val)),
       map((violations) => violations)
     );
   }
 
   runPolicyCheck(etxns, fileObjs) {
-    console.log('called runPolicyCheck in service');
     const txnsPayload = [];
     const that = this;
     etxns.forEach(function (etxn) {
       etxn.tx_num_files = fileObjs ? fileObjs.length : 0;
 
-      console.log('calling dataTransformService with etxn : ', etxn);
       // const formattedEtxn = that.dataTransformService.etxnRaw(etxn);
       // txnsPayload.push(formattedEtxn);
     });

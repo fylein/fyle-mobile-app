@@ -125,6 +125,7 @@ import { MaskNumber } from './pipes/mask-number.pipe';
 import { PolicyViolationMessageComponent } from './components/fy-policy-violation/policy-violation-message/policy-violation-message.component';
 import { PolicyViolationActionComponent } from './components/fy-policy-violation/policy-violation-action/policy-violation-action.component';
 import { FyCriticalPolicyViolationMessageComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation-message/fy-critical-policy-violation-message.component';
+import { SplitExpensePolicyViolationComponent } from './components/split-expense-policy-violation/split-expense-policy-violation.component';
 
 @NgModule({
   declarations: [
@@ -229,6 +230,7 @@ import { FyCriticalPolicyViolationMessageComponent } from './components/fy-criti
     PolicyViolationMessageComponent,
     PolicyViolationActionComponent,
     FyCriticalPolicyViolationMessageComponent,
+    SplitExpensePolicyViolationComponent,
   ],
   imports: [
     CommonModule,
@@ -338,6 +340,7 @@ import { FyCriticalPolicyViolationMessageComponent } from './components/fy-criti
     PolicyViolationMessageComponent,
     PolicyViolationActionComponent,
     FyCriticalPolicyViolationMessageComponent,
+    SplitExpensePolicyViolationComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })

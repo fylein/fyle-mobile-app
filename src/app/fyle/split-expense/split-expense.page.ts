@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
@@ -19,6 +19,8 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
+import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -91,7 +93,9 @@ export class SplitExpensePage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private trackingService: TrackingService,
-    private policyService: PolicyService
+    private policyService: PolicyService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService
   ) {}
 
   ngOnInit() {}
@@ -379,11 +383,9 @@ export class SplitExpensePage implements OnInit {
   }
 
   runPolicyCheck(etxns) {
-    console.log('calling runPolicyCheck in page');
     return this.splitExpenseService.runPolicyCheck(etxns, this.fileObjs).pipe(
       switchMap((data) => {
-        console.log('RUNPOLICYCHECKm Data is', data);
-        etxns.forEach(function (etxn) {
+        etxns.forEach((etxn) => {
           for (var key in data) {
             if (data.hasOwnProperty(key) && key === etxn?.tx?.id) {
               data[key]['amount'] = etxn.tx.orig_amount || etxn.tx.amount;
@@ -421,6 +423,23 @@ export class SplitExpensePage implements OnInit {
     //   tap((val) => console.log('ETXNS IS ', val)),
     //   map((etxns) => this.runPolicyCheck(etxns))
     // );
+  }
+
+  async showSplitExpenseViolations(violations) {
+    const currencyModal = await this.modalController.create({
+      component: SplitExpensePolicyViolationComponent,
+      componentProps: {
+        policyViolations: violations,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await currencyModal.present();
+
+    const { data } = await currencyModal.onWillDismiss();
+    return data;
   }
 
   handleSplitExpensePolicyViolations(violations) {

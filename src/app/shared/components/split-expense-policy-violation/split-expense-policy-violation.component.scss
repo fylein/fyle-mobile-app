@@ -1,0 +1,136 @@
+@import '../../../../theme/colors.scss';
+
+.split-expense-policy-violation {
+  &--accordion {
+    padding: 8px;
+    border-bottom: 1px solid #f0f0f2;
+    margin-bottom: 8px;
+  }
+
+  &--header-slot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0px 10px;
+  }
+
+  &--sub-header-slot {
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 14px;
+    margin-top: 16px;
+  }
+
+  &--placeholder {
+    font-size: 12px;
+    line-height: 15px;
+    color: $grey-light;
+  }
+
+  &--value {
+    margin-top: 2px;
+    font-weight: 500;
+  }
+
+  &--violations-count {
+    padding: 6px 10px;
+    gap: 4px;
+    height: 27px;
+    background: $light-pink;
+    border-radius: 35px;
+    color: $red;
+  }
+
+  &--disabled {
+    opacity: 0.2;
+  }
+
+  &--active {
+    border-left: 3px solid $brand-primary;
+    --background: #{$blue-3};
+  }
+
+  &__divider {
+    margin: 8px 20px;
+    border-bottom: 1px solid $border-translucent-grey;
+  }
+
+  &__content {
+    width: 100%;
+    border: 0;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    background: transparent;
+    color: $grey-light;
+    text-decoration: none;
+    font-size: 14px;
+
+    &__block {
+      padding-left: 12px;
+    }
+
+    &--active {
+      color: $pure-white;
+
+      ion-icon {
+        fill: $pure-white !important;
+      }
+
+      & > ion-grid {
+        padding-left: 9px;
+      }
+    }
+  }
+
+  &__icon-container {
+    max-width: 32px;
+    padding-left: 8px;
+
+    &__icon {
+      height: 24px;
+      width: 24px;
+      fill: $grey-light;
+      vertical-align: text-bottom;
+
+      &--sm {
+        width: 20px;
+        padding-left: 2px;
+      }
+    }
+  }
+
+  &__label-container {
+    max-width: calc(100% - 64px);
+
+    &__label {
+      padding: 4px 0 0 16px;
+    }
+  }
+
+  &__dropdown-container {
+    max-width: 32px;
+
+    &__icon {
+      height: 22px;
+      width: 22px;
+      color: $grey-light;
+      vertical-align: text-bottom;
+      transform: rotate(180deg);
+      transition: 0.3s all ease;
+
+      &--rotate {
+        transform: rotate(0deg);
+      }
+    }
+  }
+
+  &__dropdown-items {
+    opacity: 1;
+    transition: all 0.1s ease-in-out;
+
+    &--hide {
+      height: 0 !important;
+      opacity: 0 !important;
+    }
+  }
+}
