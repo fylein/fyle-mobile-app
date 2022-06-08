@@ -60,7 +60,6 @@ export class TaxGroupService {
         return range(0, count);
       }),
       concatMap((page) => this.getTaxGroups({ offset: 50 * page, limit: 50 })),
-      map((res) => res),
       reduce((acc, curr) => acc.concat(curr), [] as TaxGroup[])
     );
   }
