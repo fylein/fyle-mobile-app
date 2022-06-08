@@ -181,7 +181,7 @@ try {
       <key>IonAppId</key>
         <string>32316914</string>
       <key>IonChannelName</key>
-        <string>Staging</string>
+        <string>${process.env.LIVEUPDATE_CHANNEL}</string>
       <key>IonUpdateMethod</key>
         <string>background</string>
       <key>IonMaxVersions</key>
