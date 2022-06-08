@@ -58,6 +58,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
+import { AccountOption } from 'src/app/core/models/account-option.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -591,7 +592,7 @@ export class AddEditPerDiemPage implements OnInit {
     });
   }
 
-  getPaymentModes() {
+  getPaymentModes(): Observable<AccountOption[]> {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const accounts$ = this.offlineService.getAccounts();
 
@@ -599,12 +600,9 @@ export class AddEditPerDiemPage implements OnInit {
       accounts: accounts$,
       orgSettings: orgSettings$,
     }).pipe(
-      map(({ accounts, orgSettings }) => {
-        const isAdvanceEnabled =
-          (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
-        const isMultipleAdvanceEnabled =
-          orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
+      switchMap(({ accounts, orgSettings }) => {
+        const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
+        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
         const userAccounts = this.accountsService
           .filterAccountsWithSufficientBalance(
             accounts.filter((account) => account.acc.type),
@@ -615,7 +613,7 @@ export class AddEditPerDiemPage implements OnInit {
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
       map((paymentModes) =>
-        paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
+        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
       )
     );
   }
