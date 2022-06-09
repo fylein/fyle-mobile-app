@@ -133,10 +133,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   invalidPaymentMode = false;
 
-  duplicateBoxOpen = false;
-
-  pointToDuplicates = false;
-
   isAdvancesEnabled$: Observable<boolean>;
 
   comments$: Observable<any>;
@@ -176,11 +172,6 @@ export class AddEditPerDiemPage implements OnInit {
   isExpandedView = false;
 
   isProjectVisible$: Observable<boolean>;
-
-  duplicateDetectionReasons = [
-    { label: 'Different expense', value: 'Different expense' },
-    { label: 'Other', value: 'Other' },
-  ];
 
   billableDefaultValue: boolean;
 
@@ -294,35 +285,6 @@ export class AddEditPerDiemPage implements OnInit {
       this.navController.back();
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    }
-  }
-
-  async trackDuplicatesShown(duplicates, etxn) {
-    try {
-      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
-      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
-
-      await this.trackingService.duplicateDetectionAlertShown({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
-        ExpenseId: etxn.tx.id,
-        DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields,
-      });
-    } catch (err) {
-      // Ignore event tracking errors
-    }
-  }
-
-  showDuplicates() {
-    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
-    if (duplicateInputContainer) {
-      duplicateInputContainer.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start',
-      });
-
-      this.pointToDuplicates = false;
     }
   }
 
@@ -2250,20 +2212,6 @@ export class AddEditPerDiemPage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
-    }
-  }
-
-  async setDuplicateBoxOpen(value) {
-    this.duplicateBoxOpen = value;
-
-    if (value) {
-      await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
-      });
-    } else {
-      await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
-      });
     }
   }
 

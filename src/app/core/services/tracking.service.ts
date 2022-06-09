@@ -814,21 +814,6 @@ export class TrackingService {
   }
 
   // Duplicates
-  async duplicateDetectionAlertShown(properties: {}) {
-    Object.assign(properties, await this.getUserProperties());
-    this.eventTrack('Duplicate Detection User Alert Shown', properties);
-  }
-
-  async duplicateDetectionUserActionExpand(properties: {}) {
-    Object.assign(properties, await this.getUserProperties());
-    this.eventTrack('Duplicate Detection User Action Expand', properties);
-  }
-
-  async duplicateDetectionUserActionCollapse(properties: {}) {
-    Object.assign(properties, await this.getUserProperties());
-    this.eventTrack('Duplicate Detection User Action Collapse', properties);
-  }
-
   showMoreClicked(properties) {
     this.eventTrack('show more clicked', properties);
   }

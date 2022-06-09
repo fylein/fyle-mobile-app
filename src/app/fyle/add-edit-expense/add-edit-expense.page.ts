@@ -184,8 +184,6 @@ export class AddEditExpensePage implements OnInit {
 
   receiptsData: any;
 
-  duplicateBoxOpen = false;
-
   isAmountCapped$: Observable<boolean>;
 
   isAmountDisabled$: Observable<boolean>;
@@ -211,8 +209,6 @@ export class AddEditExpensePage implements OnInit {
   isConnected$: Observable<boolean>;
 
   invalidPaymentMode = false;
-
-  pointToDuplicates = false;
 
   isAdvancesEnabled$: Observable<boolean>;
 
@@ -257,8 +253,6 @@ export class AddEditExpensePage implements OnInit {
   saveAndPrevExpenseLoader = false;
 
   canAttachReceipts: boolean;
-
-  duplicateDetectionReasons = [];
 
   tfcDefaultValues$: Observable<any>;
 
@@ -699,35 +693,6 @@ export class AddEditExpensePage implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       shareReplay(1)
     );
-  }
-
-  async trackDuplicatesShown(duplicates, etxn) {
-    try {
-      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
-      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
-
-      await this.trackingService.duplicateDetectionAlertShown({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
-        ExpenseId: etxn.tx.id,
-        DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields,
-      });
-    } catch (err) {
-      // Ignore event tracking errors
-    }
-  }
-
-  showDuplicates() {
-    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
-    if (duplicateInputContainer) {
-      duplicateInputContainer.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start',
-      });
-
-      this.pointToDuplicates = false;
-    }
   }
 
   openSplitExpenseModal(splitType) {
@@ -2522,11 +2487,6 @@ export class AddEditExpensePage implements OnInit {
       hotel_is_breakfast_provided: [],
     });
 
-    this.duplicateDetectionReasons = [
-      { label: 'Different expense', value: 'Different expense' },
-      { label: 'Other', value: 'Other' },
-    ];
-
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
         this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
@@ -2648,7 +2608,6 @@ export class AddEditExpensePage implements OnInit {
     this.title = 'Add Expense';
     this.title =
       this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
-    this.duplicateBoxOpen = false;
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
@@ -4194,20 +4153,6 @@ export class AddEditExpensePage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
-    }
-  }
-
-  async setDuplicateBoxOpen(value) {
-    this.duplicateBoxOpen = value;
-
-    if (value) {
-      await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
-      });
-    } else {
-      await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
-      });
     }
   }
 

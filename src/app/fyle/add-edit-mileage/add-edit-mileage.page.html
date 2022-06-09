@@ -50,14 +50,6 @@
 
 <ion-content>
   <div>
-    <div class="add-edit-mileage--duplicate-pointer-container">
-      <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-mileage--duplicate-pointer">
-        <div class="add-edit-mileage--duplicate-pointer-text">Possible Duplicates Detected !</div>
-        <div class="add-edit-mileage--duplicate-pointer-icon">
-          <mat-icon class="add-edit-mileage--duplicate-pointer-icon-internal"> expand_more </mat-icon>
-        </div>
-      </div>
-    </div>
     <ng-container *ngIf="etxn$|async as etxn">
       <ng-container *ngIf="fg">
         <ng-container *ngIf="(isAmountCapped$|async) || (etxn.tx.policy_flag && mode === 'edit')">

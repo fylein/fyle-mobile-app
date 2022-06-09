@@ -128,13 +128,9 @@ export class AddEditMileagePage implements OnInit {
 
   projectCategoryIds$: Observable<string[]>;
 
-  duplicateBoxOpen = false;
-
   isConnected$: Observable<boolean>;
 
   connectionStatus$: Observable<{ connected: boolean }>;
-
-  pointToDuplicates = false;
 
   isAdvancesEnabled$: Observable<boolean>;
 
@@ -189,11 +185,6 @@ export class AddEditMileagePage implements OnInit {
   formInitializedFlag = false;
 
   invalidPaymentMode = false;
-
-  duplicateDetectionReasons = [
-    { label: 'Different expense', value: 'Different expense' },
-    { label: 'Other', value: 'Other' },
-  ];
 
   billableDefaultValue: boolean;
 
@@ -368,35 +359,6 @@ export class AddEditMileagePage implements OnInit {
       }),
       shareReplay(1)
     );
-  }
-
-  async trackDuplicatesShown(duplicates, etxn) {
-    try {
-      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
-      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
-
-      await this.trackingService.duplicateDetectionAlertShown({
-        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage',
-        ExpenseId: etxn.tx.id,
-        DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields,
-      });
-    } catch (err) {
-      // Ignore event tracking errors
-    }
-  }
-
-  showDuplicates() {
-    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
-    if (duplicateInputContainer) {
-      duplicateInputContainer.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start',
-      });
-
-      this.pointToDuplicates = false;
-    }
   }
 
   setupFilteredCategories(activeCategories$: Observable<any>) {
@@ -2452,20 +2414,6 @@ export class AddEditMileagePage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
-    }
-  }
-
-  async setDuplicateBoxOpen(value) {
-    this.duplicateBoxOpen = value;
-
-    if (value) {
-      await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mielage',
-      });
-    } else {
-      await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage',
-      });
     }
   }
 

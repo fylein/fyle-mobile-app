@@ -49,14 +49,6 @@
 
 <ion-content>
   <div>
-    <div class="add-edit-per-diem--duplicate-pointer-container">
-      <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-per-diem--duplicate-pointer">
-        <div class="add-edit-per-diem--duplicate-pointer-text">Possible Duplicates Detected !</div>
-        <div class="add-edit-per-diem--duplicate-pointer-icon">
-          <mat-icon class="add-edit-per-diem--duplicate-pointer-icon-internal"> expand_more </mat-icon>
-        </div>
-      </div>
-    </div>
     <ng-container *ngIf="fg">
       <form #formContainer [formGroup]="fg" class="add-edit-per-diem--form">
         <ng-container *ngIf="(canCreatePerDiem$|async); else NothingToSee">
