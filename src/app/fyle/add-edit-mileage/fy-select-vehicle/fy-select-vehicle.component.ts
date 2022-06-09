@@ -33,7 +33,7 @@ export class FySelectVehicleComponent implements OnInit, ControlValueAccessor {
 
   constructor(private injector: Injector) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.ngControl.touched) {
       return this.ngControl.valid;
     } else {
