@@ -813,7 +813,6 @@ export class TrackingService {
     this.eventTrack('team reports filters applied', properties);
   }
 
-  // Duplicates
   showMoreClicked(properties) {
     this.eventTrack('show more clicked', properties);
   }
