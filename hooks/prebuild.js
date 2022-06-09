@@ -8,8 +8,9 @@ const secrets = require('./secrets');
 
 module.exports = function (ctx) {
   // Creating environment.prod.ts file
-  fs.writeFileSync(`${ctx.project.dir}` + "/src/environments/environment.prod.ts", secrets.prodEnviroinent);
+  fs.writeFileSync(`${ctx.project.dir}` + "/src/environments/environment.prod.ts", secrets.prodEnvironment);
 
+  // Adding LIVEUPDATE_CHANNEL in strings.xml
   var androidStringsPath = path.resolve(process.cwd(),'android/app/src/main/res/values/strings.xml');
   var androidStrings = fs.readFileSync(androidStringsPath).toString();
   fs.writeFileSync(androidStringsPath, androidStrings.replace('LIVEUPDATE_CHANNEL', process.env.LIVEUPDATE_CHANNEL), 'utf8');
