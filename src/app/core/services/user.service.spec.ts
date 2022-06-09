@@ -181,7 +181,7 @@ const userPropertiesNew: UserProperty = {
   expense_form_beta: null,
 };
 
-fdescribe('UserService', () => {
+describe('UserService', () => {
   let userService: UserService;
   let authService: jasmine.SpyObj<AuthService>;
   let apiService: jasmine.SpyObj<ApiService>;
