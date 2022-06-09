@@ -9,6 +9,7 @@
     "build": "ng build",
     "appflow": "sh build_appflow.sh",
     "test": "ng test --watch=false --browsers=ChromeHeadless",
+    "test-basic": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "postinstall": "npx jetify",
