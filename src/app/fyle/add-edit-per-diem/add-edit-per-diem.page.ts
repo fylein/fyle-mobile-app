@@ -301,51 +301,6 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
-  canGetDuplicates() {
-    return this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-        const isAmountPresent = isNumber(
-          this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount
-        );
-        return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountPresent;
-      })
-    );
-  }
-
-  checkForDuplicates() {
-    const customFields$ = this.customInputs$.pipe(
-      take(1),
-      map((customInputs) =>
-        customInputs.map((customInput, i) => ({
-          id: customInput.id,
-          mandatory: customInput.mandatory,
-          name: customInput.name,
-          options: customInput.options,
-          placeholder: customInput.placeholder,
-          prefix: customInput.prefix,
-          type: customInput.type,
-          value: this.fg.value.custom_inputs[i].value,
-        }))
-      )
-    );
-
-    return this.canGetDuplicates().pipe(
-      switchMap((canGetDuplicates) =>
-        iif(
-          () => canGetDuplicates,
-          this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-            switchMap((etxn) => this.duplicateDetectionService.getPossibleDuplicates(etxn.tx))
-          ),
-          of(null)
-        )
-      )
-    );
-  }
-
-  getPossibleDuplicates() {
-    return this.checkForDuplicates();
-  }
-
   async trackDuplicatesShown(duplicates, etxn) {
     try {
       const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
@@ -360,28 +315,6 @@ export class AddEditPerDiemPage implements OnInit {
     } catch (err) {
       // Ignore event tracking errors
     }
-  }
-
-  setupDuplicateDetection() {
-    this.duplicates$ = this.fg.valueChanges.pipe(
-      debounceTime(1000),
-      distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => this.getPossibleDuplicates())
-    );
-
-    this.duplicates$
-      .pipe(
-        filter((duplicates) => duplicates && duplicates.length),
-        take(1)
-      )
-      .subscribe((res) => {
-        this.pointToDuplicates = true;
-        setTimeout(() => {
-          this.pointToDuplicates = false;
-        }, 3000);
-
-        this.etxn$.pipe(take(1)).subscribe(async (etxn) => await this.trackDuplicatesShown(res, etxn));
-      });
   }
 
   showDuplicates() {
@@ -1196,8 +1129,6 @@ export class AddEditPerDiemPage implements OnInit {
           orig_amount: (perDiemRate.rate * numDays).toFixed(2),
         });
       });
-
-    this.setupDuplicateDetection();
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {

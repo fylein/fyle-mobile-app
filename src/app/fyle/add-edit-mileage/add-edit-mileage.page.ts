@@ -377,38 +377,6 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  canGetDuplicates() {
-    return this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-        const isAmountCurrencyTxnDtPresent =
-          this.fg.value.distance &&
-          !!this.fg.value.dateOfSpend &&
-          this.fg.value.route &&
-          this.fg.value.route?.mileageLocations.filter((l) => !!l).length;
-        return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountCurrencyTxnDtPresent;
-      })
-    );
-  }
-
-  checkForDuplicates() {
-    return this.canGetDuplicates().pipe(
-      switchMap((canGetDuplicates) => {
-        const customFields$ = this.getCustomFields();
-        return iif(
-          () => canGetDuplicates,
-          this.generateEtxnFromFg(this.etxn$, customFields$, this.getCalculateDistance()).pipe(
-            switchMap((etxn) => this.duplicateDetectionService.getPossibleDuplicates(etxn.tx))
-          ),
-          of(null)
-        );
-      })
-    );
-  }
-
-  getPossibleDuplicates() {
-    return this.checkForDuplicates();
-  }
-
   async trackDuplicatesShown(duplicates, etxn) {
     try {
       const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
@@ -423,28 +391,6 @@ export class AddEditMileagePage implements OnInit {
     } catch (err) {
       // Ignore event tracking errors
     }
-  }
-
-  setupDuplicateDetection() {
-    this.duplicates$ = this.fg.valueChanges.pipe(
-      debounceTime(1000),
-      distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => this.getPossibleDuplicates())
-    );
-
-    this.duplicates$
-      .pipe(
-        filter((duplicates) => duplicates && duplicates.length),
-        take(1)
-      )
-      .subscribe((res) => {
-        this.pointToDuplicates = true;
-        setTimeout(() => {
-          this.pointToDuplicates = false;
-        }, 3000);
-
-        this.etxn$.pipe(take(1)).subscribe(async (etxn) => await this.trackDuplicatesShown(res, etxn));
-      });
   }
 
   showDuplicates() {
@@ -992,8 +938,6 @@ export class AddEditMileagePage implements OnInit {
 
     const today = new Date();
     this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
-
-    this.setupDuplicateDetection();
 
     this.fg.reset();
     this.title = 'Add Mileage';

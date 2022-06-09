@@ -496,33 +496,6 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  canGetDuplicates() {
-    return this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-        const isAmountCurrencyTxnDtPresent =
-          isNumber(this.fg.value.currencyObj && this.fg.value.currencyObj.amount) &&
-          !!this.fg.value.dateOfSpend &&
-          !!(this.fg.value.currencyObj && this.fg.value.currencyObj.currency);
-        return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountCurrencyTxnDtPresent;
-      })
-    );
-  }
-
-  checkForDuplicates() {
-    return this.canGetDuplicates().pipe(
-      switchMap((canGetDuplicates) => {
-        const customFields$ = this.getCustomFields();
-        return iif(
-          () => canGetDuplicates,
-          this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-            switchMap((etxn) => this.duplicateDetectionService.getPossibleDuplicates(etxn.tx))
-          ),
-          of(null)
-        );
-      })
-    );
-  }
-
   getDuplicates() {
     return this.etxn$.pipe(switchMap((etxn) => this.duplicateDetectionService.getDuplicates(etxn.tx.id)));
   }
@@ -736,10 +709,6 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getPossibleDuplicates() {
-    return this.checkForDuplicates();
-  }
-
   async trackDuplicatesShown(duplicates, etxn) {
     try {
       const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
@@ -754,28 +723,6 @@ export class AddEditExpensePage implements OnInit {
     } catch (err) {
       // Ignore event tracking errors
     }
-  }
-
-  setupDuplicateDetection() {
-    this.duplicates$ = this.fg.valueChanges.pipe(
-      debounceTime(1000),
-      distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => this.getPossibleDuplicates())
-    );
-
-    this.duplicates$
-      .pipe(
-        filter((duplicates) => duplicates && duplicates.length),
-        take(1)
-      )
-      .subscribe((res) => {
-        this.pointToDuplicates = true;
-        setTimeout(() => {
-          this.pointToDuplicates = false;
-        }, 3000);
-
-        this.etxn$.pipe(take(1)).subscribe(async (etxn) => this.trackDuplicatesShown(res, etxn));
-      });
   }
 
   showDuplicates() {
@@ -2616,7 +2563,6 @@ export class AddEditExpensePage implements OnInit {
 
     this.setupExpenseSuggestions();
 
-    this.setupDuplicateDetection();
     this.setUpTaxCalculations();
 
     const orgSettings$ = this.offlineService.getOrgSettings();
@@ -3105,23 +3051,6 @@ export class AddEditExpensePage implements OnInit {
       )
     );
   }
-
-  // public findInvalidControlsRecursive(formToInvestigate:FormGroup|FormArray):string[] {
-  //   var invalidControls:string[] = [];
-  //   let recursiveFunc = (form:FormGroup|FormArray) => {
-  //     Object.keys(form.controls).forEach(field => {
-  //       const control = form.get(field);
-  //       if (control.invalid) invalidControls.push(field);
-  //       if (control instanceof FormGroup) {
-  //         recursiveFunc(control);
-  //       } else if (control instanceof FormArray) {
-  //         recursiveFunc(control);
-  //       }
-  //     });
-  //   }
-  //   recursiveFunc(formToInvestigate);
-  //   return invalidControls;
-  // }
 
   async reloadCurrentRoute() {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
