@@ -631,50 +631,6 @@
                 </div>
               </div>
             </ng-container>
-
-            <ng-container *ngIf="duplicates$|async as duplicates">
-              <ng-container *ngIf="duplicates.length > 0">
-                <div
-                  #duplicateInputContainer
-                  class="add-edit-per-diem--duplicates-box add-edit-per-diem--primary-block"
-                >
-                  <div class="add-edit-per-diem--duplicate-header">
-                    <div class="add-edit-per-diem--duplicate-info">
-                      <mat-icon class="add-edit-per-diem--duplicate-warning-icon"> warning </mat-icon>
-                      <div>{{duplicates.length}} Duplicates Detected</div>
-                    </div>
-                    <div
-                      (click)="setDuplicateBoxOpen(false)"
-                      *ngIf="duplicateBoxOpen"
-                      class="add-edit-per-diem--duplicate-cta"
-                    >
-                      Collapse
-                    </div>
-                    <div
-                      (click)="setDuplicateBoxOpen(true)"
-                      *ngIf="!duplicateBoxOpen"
-                      class="add-edit-per-diem--duplicate-cta"
-                    >
-                      Expand
-                    </div>
-                  </div>
-                  <div *ngIf="duplicateBoxOpen" class="add-edit-per-diem--duplicate-sub-box">
-                    <div *ngFor="let duplicate of duplicates" class="add-edit-per-diem--duplicate-reason">
-                      {{duplicate.reason}}
-                    </div>
-                    <div class="add-edit-per-diem--duplicate-reason-select">
-                      <app-fy-select
-                        [label]="'Reason'"
-                        [options]="duplicateDetectionReasons"
-                        [selectModalHeader]="'Select Reason'"
-                        formControlName="duplicate_detection_reason"
-                      >
-                      </app-fy-select>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-            </ng-container>
           </ng-container>
           <ng-template #AdminKoBoloPerDiemAssignKare>
             <div class="add-edit-per-diem--zero-state">

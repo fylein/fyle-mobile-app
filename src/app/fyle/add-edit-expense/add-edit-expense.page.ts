@@ -184,8 +184,6 @@ export class AddEditExpensePage implements OnInit {
 
   receiptsData: any;
 
-  duplicates$: Observable<any>;
-
   duplicateBoxOpen = false;
 
   isAmountCapped$: Observable<boolean>;

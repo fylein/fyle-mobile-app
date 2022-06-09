@@ -9,9 +9,7 @@ import { combineLatest, concat, forkJoin, from, iif, Observable, of, throwError 
 import {
   catchError,
   concatMap,
-  debounceTime,
   distinctUntilChanged,
-  filter,
   finalize,
   map,
   shareReplay,
@@ -19,7 +17,6 @@ import {
   switchMap,
   take,
   tap,
-  withLatestFrom,
 } from 'rxjs/operators';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import * as moment from 'moment';
@@ -130,8 +127,6 @@ export class AddEditMileagePage implements OnInit {
   rate$: Observable<number>;
 
   projectCategoryIds$: Observable<string[]>;
-
-  duplicates$: Observable<any>;
 
   duplicateBoxOpen = false;
 

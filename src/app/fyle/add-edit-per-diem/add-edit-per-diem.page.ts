@@ -133,8 +133,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   invalidPaymentMode = false;
 
-  duplicates$: Observable<any>;
-
   duplicateBoxOpen = false;
 
   pointToDuplicates = false;
