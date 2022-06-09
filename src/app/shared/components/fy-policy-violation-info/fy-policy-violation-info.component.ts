@@ -20,8 +20,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   ngOnInit() {
     this.policyViolations = [];
-    this.policyViolations =
-      this.policyDetails && this.policyDetails.map((details) => details.transaction_policy_rule.description);
+    this.policyViolations = this.policyDetails?.map((details) => details.transaction_policy_rule.description);
     this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated;
   }
 
