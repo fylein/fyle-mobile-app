@@ -59,7 +59,6 @@ import { DataTransformService } from 'src/app/core/services/data-transform.servi
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
@@ -363,7 +362,6 @@ export class AddEditExpensePage implements OnInit {
     private policyService: PolicyService,
     private transactionOutboxService: TransactionsOutboxService,
     private router: Router,
-    private duplicateDetectionService: DuplicateDetectionService,
     private loaderService: LoaderService,
     private modalController: ModalController,
     private statusService: StatusService,
@@ -494,10 +492,6 @@ export class AddEditExpensePage implements OnInit {
         this.fg.controls.tax_amount.setValue(null);
       }
     });
-  }
-
-  getDuplicates() {
-    return this.etxn$.pipe(switchMap((etxn) => this.duplicateDetectionService.getDuplicates(etxn.tx.id)));
   }
 
   checkIfInvalidPaymentMode() {

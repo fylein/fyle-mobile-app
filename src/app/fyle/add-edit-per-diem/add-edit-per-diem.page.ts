@@ -42,7 +42,6 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
 import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { CurrencyPipe } from '@angular/common';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -213,7 +212,6 @@ export class AddEditPerDiemPage implements OnInit {
     private statusService: StatusService,
     private networkService: NetworkService,
     private popupService: PopupService,
-    private duplicateDetectionService: DuplicateDetectionService,
     private navController: NavController,
     private trackingService: TrackingService,
     private currencyPipe: CurrencyPipe,

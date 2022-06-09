@@ -38,7 +38,6 @@ import { DataTransformService } from 'src/app/core/services/data-transform.servi
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
-import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -225,7 +224,6 @@ export class AddEditMileagePage implements OnInit {
     private policyService: PolicyService,
     private statusService: StatusService,
     private dataTransformService: DataTransformService,
-    private duplicateDetectionService: DuplicateDetectionService,
     private modalController: ModalController,
     private networkService: NetworkService,
     private popupService: PopupService,
