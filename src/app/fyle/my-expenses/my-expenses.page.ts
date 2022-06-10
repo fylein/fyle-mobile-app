@@ -956,6 +956,8 @@ export class MyExpensesPage implements OnInit {
         .map((state) => {
           if (state === 'DRAFT') {
             return 'Incomplete';
+          } else if (state === 'READY_TO_REPORT') {
+            return 'Unreported';
           } else {
             return state.replace(/_/g, ' ').toLowerCase();
           }

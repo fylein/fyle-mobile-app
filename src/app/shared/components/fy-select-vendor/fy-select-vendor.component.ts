@@ -24,6 +24,8 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
 
   @Input() mandatory = false;
 
+  @Input() placeholder: string;
+
   displayValue;
 
   private innerValue;

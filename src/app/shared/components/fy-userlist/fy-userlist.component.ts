@@ -31,6 +31,8 @@ export class FyUserlistComponent implements OnInit {
 
   @Input() allowCustomValues: boolean;
 
+  @Input() placeholder: string;
+
   eouc$: Observable<Employee[]>;
 
   displayValue;

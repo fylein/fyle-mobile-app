@@ -3,7 +3,6 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, from, noop, concat, Subject, iif, of, forkJoin } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ExtendedTripRequest } from 'src/app/core/models/extended_trip_request.model';
 import { map, switchMap, finalize, shareReplay, takeUntil, tap, startWith } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -49,8 +48,6 @@ export class MyViewReportPage implements OnInit {
   sharedWith$: Observable<any[]>;
 
   reportApprovals$: Observable<any>;
-
-  tripRequest$: Observable<ExtendedTripRequest>;
 
   hideAllExpenses = true;
 
@@ -238,9 +235,9 @@ export class MyViewReportPage implements OnInit {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.erpt$.subscribe((erpt) => {
-      this.reportCurrencySymbol = getCurrencySymbol(erpt.rp_currency, 'wide');
-      this.reportName = erpt.rp_purpose;
-      this.reportId = erpt.rp_id;
+      this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
+      this.reportName = erpt?.rp_purpose;
+      this.reportId = erpt?.rp_id;
     });
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(

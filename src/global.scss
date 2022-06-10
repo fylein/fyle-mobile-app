@@ -392,12 +392,6 @@ ion-popover.camera-options-popover {
   border-radius: 4px;
 }
 
-.ios .trip-card--cities-container-city::before {
-  left: -18px !important;
-  top: -2px !important;
-  font-size: 28px !important;
-}
-
 .ios .stats--background {
   min-height: calc(360px + constant(safe-area-inset-top)) !important;
 }
@@ -907,7 +901,8 @@ ion-modal.flag-unflag-modal {
 
 ion-popover.delete-dialog {
   --width: 296px;
-  --max-height: 326px;
+  --max-height: 346px;
+
   &::part(content) {
     border-radius: 16px;
   }
