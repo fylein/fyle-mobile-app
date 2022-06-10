@@ -109,7 +109,7 @@ export class ViewTeamReportPage implements OnInit {
 
   isSequentialApprovalEnabled = false;
 
-  isHeadOfSequentialApproval = true;
+  canApprove = true;
 
   eou$: Observable<ExtendedOrgUser>;
 
@@ -310,15 +310,15 @@ export class ViewTeamReportPage implements OnInit {
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
     forkJoin({
-      etxns: this.etxns$.pipe(take(1)),
-      eou: this.eou$.pipe(take(1)),
+      etxns: this.etxns$,
+      eou: this.eou$,
       approvals: this.reportApprovals$.pipe(take(1)),
       orgSettings: this.offlineService.getOrgSettings(),
     }).subscribe((res) => {
       this.reportEtxnIds = res.etxns.map((etxn) => etxn.tx_id);
       this.isSequentialApprovalEnabled = res?.orgSettings.approval_settings?.enable_sequential_approvers;
-      this.isHeadOfSequentialApproval = this.isSequentialApprovalEnabled
-        ? this.isTopInSeqApproval(res.eou, res.approvals)
+      this.canApprove = this.isSequentialApprovalEnabled
+        ? this.isUserActiveInCurrentSeqApprovalQueue(res.eou, res.approvals)
         : true;
       this.canShowTooltip = true;
     });
@@ -330,7 +330,7 @@ export class ViewTeamReportPage implements OnInit {
     this.canShowTooltip = !this.canShowTooltip;
   }
 
-  isTopInSeqApproval(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
+  isUserActiveInCurrentSeqApprovalQueue(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
     const currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
 
     const minRank = approvers
@@ -370,7 +370,7 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   async approveReport() {
-    if (!this.isHeadOfSequentialApproval) {
+    if (!this.canApprove) {
       this.toggleTooltip();
     } else {
       const erpt = await this.erpt$.pipe(take(1)).toPromise();

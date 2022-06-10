@@ -291,7 +291,7 @@
 
 <ng-container *ngIf="actions$|async as actions">
   <ion-footer *ngIf="!isCommentsView && isReportReported && actions.can_approve" class="cta-footer">
-    <div *ngIf="canShowTooltip && !isHeadOfSequentialApproval" class="view-reports--disabled-info text-center">
+    <div *ngIf="canShowTooltip && !canApprove" class="view-reports--disabled-info text-center">
       <div class="view-reports--disabled-info-content">
         Waiting for other approvers to approve this expense report
         <ion-icon
@@ -307,7 +307,7 @@
         (click)="approveReport()"
         class="view-reports--primary-cta"
         [ngClass]="{
-          'view-reports--primary-cta__disabled': !isHeadOfSequentialApproval
+          'view-reports--primary-cta__disabled': !canApprove
         }"
       >
         Approve Report
