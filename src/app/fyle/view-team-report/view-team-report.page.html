@@ -303,13 +303,12 @@
       </div>
     </div>
     <ion-toolbar mode="md">
-      <ion-button *ngIf="isHeadOfSequentialApproval" class="view-reports--primary-cta" (click)="approveReport()">
-        Approve Report
-      </ion-button>
       <ion-button
-        *ngIf="!isHeadOfSequentialApproval"
-        class="view-reports--primary-cta view-reports--primary-cta__disabled"
-        (click)="toggleTooltip()"
+        (click)="approveReport()"
+        class="view-reports--primary-cta"
+        [ngClass]="{
+          'view-reports--primary-cta__disabled': !isHeadOfSequentialApproval
+        }"
       >
         Approve Report
       </ion-button>

@@ -135,7 +135,60 @@ export class ViewTeamReportPage implements OnInit {
     private offlineService: OfflineService
   ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  ionViewWillLeave() {
+    this.onPageExit.next();
+  }
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      }
+    });
+  }
+
+  getVendorName(etxn) {
+    const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
+    let vendorName = etxn.tx_vendor || 'Expense';
+
+    if (category === 'mileage') {
+      vendorName = etxn.tx_distance;
+      vendorName += ' ' + etxn.tx_distance_unit;
+    } else if (category === 'per diem') {
+      vendorName = etxn.tx_num_days;
+      vendorName += ' Days';
+    }
+
+    return vendorName;
+  }
+
+  getApproverEmails(reportApprovals) {
+    return reportApprovals.map((approver) => approver.approver_email);
+  }
+
+  getShowViolation(etxn) {
+    return (
+      etxn.tx_id &&
+      (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
+      !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
+    );
+  }
+
+  ionViewWillEnter() {
+    this.isExpensesLoading = true;
+    this.setupNetworkWatcher();
+
+    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
+
     this.erpt$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
       finalize(() => from(this.loaderService.hideLoader()))
@@ -190,59 +243,6 @@ export class ViewTeamReportPage implements OnInit {
     this.totalCommentsCount$ = this.estatuses$.pipe(
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
-  }
-
-  ionViewWillLeave() {
-    this.onPageExit.next();
-  }
-
-  setupNetworkWatcher() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      takeUntil(this.onPageExit),
-      shareReplay(1)
-    );
-
-    this.isConnected$.subscribe((isOnline) => {
-      if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-      }
-    });
-  }
-
-  getVendorName(etxn) {
-    const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
-    let vendorName = etxn.tx_vendor || 'Expense';
-
-    if (category === 'mileage') {
-      vendorName = etxn.tx_distance;
-      vendorName += ' ' + etxn.tx_distance_unit;
-    } else if (category === 'per diem') {
-      vendorName = etxn.tx_num_days;
-      vendorName += ' Days';
-    }
-
-    return vendorName;
-  }
-
-  getApproverEmails(reportApprovals) {
-    return reportApprovals.map((approver) => approver.approver_email);
-  }
-
-  getShowViolation(etxn) {
-    return (
-      etxn.tx_id &&
-      (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
-      !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
-    );
-  }
-
-  ionViewWillEnter() {
-    this.isExpensesLoading = true;
-    this.setupNetworkWatcher();
-
-    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
 
     this.erpt$ = this.refreshApprovals$.pipe(
       switchMap(() =>
@@ -310,10 +310,10 @@ export class ViewTeamReportPage implements OnInit {
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
     forkJoin({
-      etxns: this.etxns$,
+      etxns: this.etxns$.pipe(take(1)),
       eou: this.eou$.pipe(take(1)),
       approvals: this.reportApprovals$.pipe(take(1)),
-      orgSettings: this.offlineService.getOrgSettings().pipe(take(1)),
+      orgSettings: this.offlineService.getOrgSettings(),
     }).subscribe((res) => {
       this.reportEtxnIds = res.etxns.map((etxn) => etxn.tx_id);
       this.isSequentialApprovalEnabled = res?.orgSettings.approval_settings?.enable_sequential_approvers;
@@ -331,17 +331,15 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   isTopInSeqApproval(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
-    let minRank = 100;
-    let currentApproverRank = 100;
+    let currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
 
-    approvers.forEach((approver) => {
-      if (approver.approver_id === eou.ou.id) {
-        currentApproverRank = approver.rank;
-      }
-      if (approver.state === 'APPROVAL_PENDING' && approver.rank < minRank) {
-        minRank = approver.rank;
-      }
-    });
+    let minRank = approvers
+      .filter((approver) => approver.state === 'APPROVAL_PENDING')
+      .map((approver) => approver.rank)
+      .reduce((prev, curr) => {
+        return prev < curr ? prev : curr;
+      });
+
     return currentApproverRank === minRank;
   }
 
@@ -374,37 +372,41 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   async approveReport() {
-    const erpt = await this.erpt$.pipe(take(1)).toPromise();
-    const etxns = await this.etxns$.toPromise();
+    if (!this.isHeadOfSequentialApproval) {
+      this.toggleTooltip();
+    } else {
+      const erpt = await this.erpt$.pipe(take(1)).toPromise();
+      const etxns = await this.etxns$.toPromise();
 
-    const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, 2, false);
-    const popover = await this.popoverController.create({
-      componentProps: {
-        etxns,
-        title: 'Approve Report',
-        message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be approved',
-        primaryCta: {
-          text: 'Approve',
-          action: 'approve',
+      const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, 2, false);
+      const popover = await this.popoverController.create({
+        componentProps: {
+          etxns,
+          title: 'Approve Report',
+          message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be approved',
+          primaryCta: {
+            text: 'Approve',
+            action: 'approve',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
         },
-        secondaryCta: {
-          text: 'Cancel',
-          action: 'cancel',
-        },
-      },
-      component: PopupAlertComponentComponent,
-      cssClass: 'pop-up-in-center',
-    });
-
-    await popover.present();
-
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.action === 'approve') {
-      this.reportService.approve(erpt.rp_id).subscribe(() => {
-        this.refinerService.startSurvey({ actionName: 'Approve Report' });
-        this.router.navigate(['/', 'enterprise', 'team_reports']);
+        component: PopupAlertComponentComponent,
+        cssClass: 'pop-up-in-center',
       });
+
+      await popover.present();
+
+      const { data } = await popover.onWillDismiss();
+
+      if (data && data.action === 'approve') {
+        this.reportService.approve(erpt.rp_id).subscribe(() => {
+          this.refinerService.startSurvey({ actionName: 'Approve Report' });
+          this.router.navigate(['/', 'enterprise', 'team_reports']);
+        });
+      }
     }
   }
 
