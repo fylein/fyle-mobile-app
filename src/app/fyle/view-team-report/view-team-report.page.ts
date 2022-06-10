@@ -331,14 +331,12 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   isTopInSeqApproval(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
-    let currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
+    const currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
 
-    let minRank = approvers
+    const minRank = approvers
       .filter((approver) => approver.state === 'APPROVAL_PENDING')
       .map((approver) => approver.rank)
-      .reduce((prev, curr) => {
-        return prev < curr ? prev : curr;
-      });
+      .reduce((prev, curr) => (prev < curr ? prev : curr));
 
     return currentApproverRank === minRank;
   }
