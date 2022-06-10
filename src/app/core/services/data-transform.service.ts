@@ -27,18 +27,11 @@ export class DataTransformService {
   etxnRaw(data) {
     const res = {};
     Object.keys(data).forEach((key) => {
-      if (data.key) {
-        console.log('entered');
-        Object.keys(data[key]).forEach((key1) => {
-          if (data[key][key1]) {
-            console.log('entered1');
-            var newKey = key + '_' + key1;
-            res[newKey] = data[key][key1];
-          }
-        });
-      }
+      Object.keys(data[key]).forEach((key1) => {
+        const newKey = key + '_' + key1;
+        res[newKey] = data[key][key1];
+      });
     });
-    console.log('dataTransformRes : ', res);
     return res;
   }
 }

@@ -1,13 +1,13 @@
-<ion-header mode="md">
+<div *ngIf="showHeader" mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
     <ion-title>
       <div class="critical-policy-violation--toolbar__title">Expense Blocked</div>
     </ion-title>
   </ion-toolbar>
-</ion-header>
+</div>
 
-<ion-content>
+<div>
   <div class="critical-policy-violation--content">
     <div class="critical-policy-violation--info">You cannot report this expense due to the following violation(s):</div>
 
@@ -17,9 +17,9 @@
       </ng-container>
     </ng-container>
   </div>
-</ion-content>
+</div>
 
-<ion-footer class="critical-policy-violation--footer">
+<div *ngIf="showCTA" class="critical-policy-violation--footer">
   <div class="critical-policy-violation--cta-container">
     <ion-grid class="ion-no-padding">
       <ion-row>
@@ -44,4 +44,4 @@
       </ion-row>
     </ion-grid>
   </div>
-</ion-footer>
+</div>

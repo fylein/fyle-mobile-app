@@ -5,7 +5,7 @@ import { ModalController, NavController, PopoverController } from '@ionic/angula
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap, tap, toArray } from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -259,9 +259,8 @@ export class SplitExpensePage implements OnInit {
         // after getting the list, check if vm.transaction.org_category_id exists
         // if exists, set vm.splitExpenses[0].category
         if (this.categoryList && this.transaction.org_category_id) {
-          this.categoryList.some(function (category) {
+          this.categoryList.some((category) => {
             if (category.id === this.transaction.org_category_id) {
-              this.splitExpenses[0].category = category;
               return true;
             }
           });
@@ -273,7 +272,6 @@ export class SplitExpensePage implements OnInit {
   }
 
   createAndLinkTxnsWithFiles(splitExpenses) {
-    console.log('splitExpensesParams : ', splitExpenses);
     const splitExpense$: any = {
       txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses),
     };
@@ -283,7 +281,6 @@ export class SplitExpensePage implements OnInit {
     }
 
     return forkJoin(splitExpense$).pipe(
-      tap((data) => console.log('splitExpense$ : ', data)),
       switchMap((data: any) => {
         this.splitExpenseTxn = data.txns.map((txn) => txn);
         this.completeTxnIds = this.splitExpenseTxn.filter((tx) => tx.state === 'COMPLETE').map((txn) => txn.id);
@@ -293,12 +290,8 @@ export class SplitExpensePage implements OnInit {
           return of(data);
         }
       }),
-      tap((data) => console.log('data : ', data)),
       switchMap((data: any) => {
         const txnIds = data.txns.map((txn) => txn.id);
-        console.log('txnIds : ', txnIds);
-        // return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
-
         this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
         return of(txnIds);
       })
@@ -369,6 +362,7 @@ export class SplitExpensePage implements OnInit {
 
     // If model is defined and
     // if category list is available
+
     if (model && this.categoryList) {
       category = this.categoriesService.filterByOrgCategoryId(model, this.categoryList);
 
@@ -384,45 +378,29 @@ export class SplitExpensePage implements OnInit {
 
   runPolicyCheck(etxns) {
     return this.splitExpenseService.runPolicyCheck(etxns, this.fileObjs).pipe(
-      switchMap((data) => {
+      map((data) => {
         etxns.forEach((etxn) => {
           for (var key in data) {
-            if (data.hasOwnProperty(key) && key === etxn?.tx?.id) {
-              data[key]['amount'] = etxn.tx.orig_amount || etxn.tx.amount;
-              data[key]['currency'] = etxn.tx.orig_currency || etxn.tx.currency;
-              data[key]['name'] = this.formatDisplayName(etxn.tx.org_category_id);
+            if (data.hasOwnProperty(key) && key === etxn?.tx_id) {
+              data[key]['amount'] = etxn.tx_orig_amount || etxn.tx_amount;
+              data[key]['currency'] = etxn.tx_orig_currency || etxn.tx_currency;
+              data[key]['name'] = this.formatDisplayName(etxn.tx_org_category_id);
               data[key]['type'] = 'category';
               break;
             }
           }
         });
         return data;
-      }),
-      toArray()
+      })
     );
-
-    // obs$.subscribe(val => console.log('VAL INSIDE page RUN POLICY CHECK IS', val));
-
-    // return obs$;
   }
 
   checkForPolicyViolations(txnIds) {
-    //Returns an observable of observables
     return from(txnIds).pipe(
-      //Returns an observable array
-      concatMap((txnId) => this.transactionService.getEtxn(txnId)),
+      mergeMap((txnId) => this.transactionService.getEtxn(txnId)),
       toArray(),
-      tap((val) => console.log('ETXNS IS ', val)),
       switchMap((etxns) => this.runPolicyCheck(etxns))
     );
-
-    //Returns an array of observables
-    // return from(txnIds.map((txnId) => this.transactionService.getEtxn(txnId)))
-    // .pipe(
-    //   toArray(),
-    //   tap((val) => console.log('ETXNS IS ', val)),
-    //   map((etxns) => this.runPolicyCheck(etxns))
-    // );
   }
 
   async showSplitExpenseViolations(violations) {
@@ -439,21 +417,14 @@ export class SplitExpensePage implements OnInit {
     await currencyModal.present();
 
     const { data } = await currencyModal.onWillDismiss();
-    return data;
+    this.showSuccessToast();
   }
 
   handleSplitExpensePolicyViolations(violations) {
-    console.log('handleSplitExpensePolicyViolationsPayload : ', violations);
     const doViolationsExist = this.policyService.checkIfViolationsExist(violations);
-
-    console.log('doViolationsExist : ', doViolationsExist);
     if (doViolationsExist) {
       var formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);
-
-      console.log('formattedViolations : ', formattedViolations);
-
-      // return openSplitExpensePolicyDialog(event, formattedViolations);
-      this.showSuccessToast();
+      this.showSplitExpenseViolations(formattedViolations);
     } else {
       this.showSuccessToast();
     }
@@ -501,7 +472,6 @@ export class SplitExpensePage implements OnInit {
           .pipe(
             concatMap(() => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
             concatMap((res) => {
-              console.log('resConcatMap : ', res);
               const observables$ = [];
               if (this.transaction.id) {
                 observables$.push(this.transactionService.delete(this.transaction.id));
@@ -514,20 +484,12 @@ export class SplitExpensePage implements OnInit {
                 observables$.push(of(true));
               }
 
-              // this.checkForPolicyViolations(res).subscribe((resp) => {
-              //   console.log('REsp is', resp);
-              //   // resp.subscribe((nested) => console.log('NESTED is', nested));
-              // }, (data) => console.log('CHECK FOR POLICY VIOLATIONS COMPLETED'));
-
               observables$.push(this.checkForPolicyViolations(res));
 
               return forkJoin(observables$);
             }),
             tap((violations) => {
-              console.log('VIOLATIONS IS', violations);
-              // const violationsResp = violations[1];
-              // this.showSuccessToast();
-              this.handleSplitExpensePolicyViolations(violations[1]);
+              this.handleSplitExpensePolicyViolations(violations[violations.length - 1]);
             }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
@@ -567,6 +529,11 @@ export class SplitExpensePage implements OnInit {
       this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
       this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
+
+      if (this.transaction) {
+        this.getCategories().subscribe();
+      }
+
       if (this.splitType === 'categories') {
         this.categories$ = this.getActiveCategories().pipe(
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
@@ -601,11 +568,85 @@ export class SplitExpensePage implements OnInit {
         )
       );
 
+      //Remove this section
+      //   this.showSplitExpenseViolations({
+      //     "txYZQURj7yJ5": {
+      //         "rules": [
+      //             "test policy bus"
+      //         ],
+      //         "action": "The policy violation will trigger the following action(s): expense will be flagged for verification and approval",
+      //         "type": "category",
+      //         "name": "Bus",
+      //         "currency": "INR",
+      //         "amount": 6000,
+      //         "isCriticalPolicyViolation": false,
+      //         "isExpanded": false
+      //     },
+      //     "txYZQURj7yJf": {
+      //       "rules": [
+      //           "test policy bus"
+      //       ],
+      //       "action": "The policy violation will trigger the following action(s): expense will be flagged for verification and approval",
+      //       "type": "category",
+      //       "name": "Bus",
+      //       "currency": "INR",
+      //       "amount": 6000,
+      //       "isCriticalPolicyViolation": false,
+      //       "isExpanded": false
+      //     },
+      //     "txgOUbbTAivQ": {
+      //         "rules": [
+      //           "test policy bus"
+      //         ],
+      //         "action": null,
+      //         "type": "category",
+      //         "name": "Food",
+      //         "currency": "INR",
+      //         "amount": 0,
+      //         "isCriticalPolicyViolation": true,
+      //         "isExpanded": false
+      //     },
+      //     "txYZQURj7yJ6": {
+      //       "rules": [
+      //           "test policy bus"
+      //       ],
+      //       "action": "The policy violation will trigger the following action(s): expense will be flagged for verification and approval",
+      //       "type": "category",
+      //       "name": "Bus",
+      //       "currency": "INR",
+      //       "amount": 6000,
+      //       "isCriticalPolicyViolation": false,
+      //       "isExpanded": false
+      //     },
+      //     "txgOUbbTAivd": {
+      //       "rules": [
+      //         "test policy bus"
+      //       ],
+      //       "action": null,
+      //       "type": "category",
+      //       "name": "Food",
+      //       "currency": "INR",
+      //       "amount": 0,
+      //       "isCriticalPolicyViolation": true,
+      //       "isExpanded": false
+      //    },
+      //     "txgOUbbTAivw": {
+      //       "rules": [
+      //         "test policy bus"
+      //       ],
+      //       "action": null,
+      //       "type": "category",
+      //       "name": "Food",
+      //       "currency": "INR",
+      //       "amount": 0,
+      //       "isCriticalPolicyViolation": true,
+      //       "isExpanded": false
+      //     },
+      // });
+
       this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
         this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);
       });
-
-      this.getCategories();
     });
   }
 

@@ -32,6 +32,10 @@
     font-weight: 500;
   }
 
+  &--content-container {
+    margin: 0px -6px;
+  }
+
   &--violations-count {
     padding: 6px 10px;
     gap: 4px;
@@ -39,6 +43,26 @@
     background: $light-pink;
     border-radius: 35px;
     color: $red;
+  }
+
+  &--textarea {
+    width: 94%;
+    border: 1px solid #a9acbc;
+    border-radius: 4px;
+    min-height: 75px;
+    padding: 8px 11px;
+    margin: 0px 14px;
+  }
+
+  &--additional-details-header {
+    color: $black-light;
+    margin: 24px 16px 10px 16px;
+  }
+
+  &--additional-details-comment-length {
+    float: right;
+    color: $text-button-grey;
+    font-size: 12px;
   }
 
   &--disabled {

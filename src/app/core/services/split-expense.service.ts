@@ -1,7 +1,7 @@
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
-import { concatMap, map, switchMap, tap, toArray } from 'rxjs/operators';
+import { concatMap, last, map, mergeMap, scan, switchMap, tap, toArray } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
 import { PolicyService } from './policy.service';
@@ -90,17 +90,14 @@ export class SplitExpenseService {
         };
       }
     }
-
     return formattedViolations;
   }
 
-  runApiCallSerially(payload) {
-    const response$ = [];
-
-    return from(payload).pipe(
-      concatMap((apiPayload) => this.testPolicyForATxn(apiPayload)),
-      toArray(),
-      map((violations) => violations)
+  runApiCallSerially(etxns) {
+    return from(etxns).pipe(
+      mergeMap((etxn) => this.testPolicyForATxn(etxn)),
+      scan((acc, curr) => ({ ...curr, ...acc }), {}),
+      last()
     );
   }
 
@@ -109,9 +106,6 @@ export class SplitExpenseService {
     const that = this;
     etxns.forEach(function (etxn) {
       etxn.tx_num_files = fileObjs ? fileObjs.length : 0;
-
-      // const formattedEtxn = that.dataTransformService.etxnRaw(etxn);
-      // txnsPayload.push(formattedEtxn);
     });
 
     return this.runApiCallSerially(etxns);

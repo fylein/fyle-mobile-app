@@ -1,13 +1,13 @@
-<ion-header *ngIf="showHeader" mode="md">
+<div *ngIf="showHeader">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
-  <ion-toolbar class="text-center policy-violation--toolbar fy-modal-toolbar">
-    <ion-title>
+  <div class="text-center policy-violation--toolbar fy-modal-toolbar">
+    <div>
       <div class="policy-violation--toolbar__title">Policy Violations Found</div>
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+    </div>
+  </div>
+</div>
 
-<ion-content>
+<div class="policy-violation--content-section">
   <div class="policy-violation--body">
     <ng-container *ngFor="let violation of policyViolationMessages">
       <app-policy-violation-message [message]="violation"></app-policy-violation-message>
@@ -67,13 +67,13 @@
       ></textarea>
     </ng-container>
   </div>
-</ion-content>
+</div>
 
-<ion-footer *ngIf="showCTA">
-  <ion-toolbar mode="md">
+<div *ngIf="showCTA">
+  <div>
     <div class="fy-footer-cta-container">
       <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
       <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()"> Continue </ion-button>
     </div>
-  </ion-toolbar>
-</ion-footer>
+  </div>
+</div>
