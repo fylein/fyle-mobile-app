@@ -50,14 +50,6 @@
 
 <ion-content>
   <div>
-    <div class="add-edit-mileage--duplicate-pointer-container">
-      <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-mileage--duplicate-pointer">
-        <div class="add-edit-mileage--duplicate-pointer-text">Possible Duplicates Detected !</div>
-        <div class="add-edit-mileage--duplicate-pointer-icon">
-          <mat-icon class="add-edit-mileage--duplicate-pointer-icon-internal"> expand_more </mat-icon>
-        </div>
-      </div>
-    </div>
     <ng-container *ngIf="etxn$|async as etxn">
       <ng-container *ngIf="fg">
         <ng-container *ngIf="(isAmountCapped$|async) || (etxn.tx.policy_flag && mode === 'edit')">
@@ -509,39 +501,6 @@
                       ></app-fy-add-to-report>
                     </div>
                   </ng-container>
-                </ng-container>
-              </ng-container>
-            </ng-container>
-
-            <ng-container *ngIf="isConnected$|async">
-              <ng-container *ngIf="duplicates$|async as duplicates">
-                <ng-container *ngIf="duplicates.length > 0">
-                  <div
-                    #duplicateInputContainer
-                    class="add-edit-mileage--duplicates-box add-edit-mileage--primary-block"
-                  >
-                    <div class="add-edit-mileage--duplicate-header">
-                      <mat-icon> warning </mat-icon>
-                      <div>{{duplicates.length}} Duplicates Detected</div>
-                      <div (click)="setDuplicateBoxOpen(false)" *ngIf="duplicateBoxOpen">Collapse</div>
-                      <div (click)="setDuplicateBoxOpen(true)" *ngIf="!duplicateBoxOpen">Expand</div>
-                    </div>
-                    <div *ngIf="duplicateBoxOpen" class="add-edit-mileage--duplicate-sub-box">
-                      <div *ngFor="let duplicate of duplicates" class="add-edit-mileage--duplicate-reason">
-                        {{duplicate.reason}}
-                      </div>
-                      <div class="add-edit-mileage--duplicate-reason-select">
-                        <app-fy-select
-                          [label]="'Reason'"
-                          [options]="duplicateDetectionReasons"
-                          [selectModalHeader]="'Select Reason'"
-                          formControlName="duplicate_detection_reason"
-                          [placeholder]="'Select Reason'"
-                        >
-                        </app-fy-select>
-                      </div>
-                    </div>
-                  </div>
                 </ng-container>
               </ng-container>
             </ng-container>

@@ -42,7 +42,6 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
 import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { CurrencyPipe } from '@angular/common';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -134,12 +133,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   invalidPaymentMode = false;
 
-  duplicates$: Observable<any>;
-
-  duplicateBoxOpen = false;
-
-  pointToDuplicates = false;
-
   isAdvancesEnabled$: Observable<boolean>;
 
   comments$: Observable<any>;
@@ -180,11 +173,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   isProjectVisible$: Observable<boolean>;
 
-  duplicateDetectionReasons = [
-    { label: 'Different expense', value: 'Different expense' },
-    { label: 'Other', value: 'Other' },
-  ];
-
   billableDefaultValue: boolean;
 
   isRedirectedFromReport = false;
@@ -213,7 +201,6 @@ export class AddEditPerDiemPage implements OnInit {
     private statusService: StatusService,
     private networkService: NetworkService,
     private popupService: PopupService,
-    private duplicateDetectionService: DuplicateDetectionService,
     private navController: NavController,
     private trackingService: TrackingService,
     private currencyPipe: CurrencyPipe,
@@ -298,102 +285,6 @@ export class AddEditPerDiemPage implements OnInit {
       this.navController.back();
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    }
-  }
-
-  canGetDuplicates() {
-    return this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-        const isAmountPresent = isNumber(
-          this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount
-        );
-        return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountPresent;
-      })
-    );
-  }
-
-  checkForDuplicates() {
-    const customFields$ = this.customInputs$.pipe(
-      take(1),
-      map((customInputs) =>
-        customInputs.map((customInput, i) => ({
-          id: customInput.id,
-          mandatory: customInput.mandatory,
-          name: customInput.name,
-          options: customInput.options,
-          placeholder: customInput.placeholder,
-          prefix: customInput.prefix,
-          type: customInput.type,
-          value: this.fg.value.custom_inputs[i].value,
-        }))
-      )
-    );
-
-    return this.canGetDuplicates().pipe(
-      switchMap((canGetDuplicates) =>
-        iif(
-          () => canGetDuplicates,
-          this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-            switchMap((etxn) => this.duplicateDetectionService.getPossibleDuplicates(etxn.tx))
-          ),
-          of(null)
-        )
-      )
-    );
-  }
-
-  getPossibleDuplicates() {
-    return this.checkForDuplicates();
-  }
-
-  async trackDuplicatesShown(duplicates, etxn) {
-    try {
-      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
-      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
-
-      await this.trackingService.duplicateDetectionAlertShown({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
-        ExpenseId: etxn.tx.id,
-        DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields,
-      });
-    } catch (err) {
-      // Ignore event tracking errors
-    }
-  }
-
-  setupDuplicateDetection() {
-    this.duplicates$ = this.fg.valueChanges.pipe(
-      debounceTime(1000),
-      distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => this.getPossibleDuplicates())
-    );
-
-    this.duplicates$
-      .pipe(
-        filter((duplicates) => duplicates && duplicates.length),
-        take(1)
-      )
-      .subscribe((res) => {
-        this.pointToDuplicates = true;
-        setTimeout(() => {
-          this.pointToDuplicates = false;
-        }, 3000);
-
-        this.etxn$.pipe(take(1)).subscribe(async (etxn) => await this.trackDuplicatesShown(res, etxn));
-      });
-  }
-
-  showDuplicates() {
-    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
-    if (duplicateInputContainer) {
-      duplicateInputContainer.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start',
-      });
-
-      this.pointToDuplicates = false;
     }
   }
 
@@ -1196,8 +1087,6 @@ export class AddEditPerDiemPage implements OnInit {
           orig_amount: (perDiemRate.rate * numDays).toFixed(2),
         });
       });
-
-    this.setupDuplicateDetection();
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
@@ -2323,20 +2212,6 @@ export class AddEditPerDiemPage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
-    }
-  }
-
-  async setDuplicateBoxOpen(value) {
-    this.duplicateBoxOpen = value;
-
-    if (value) {
-      await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
-      });
-    } else {
-      await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
-      });
     }
   }
 
