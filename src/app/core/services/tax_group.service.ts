@@ -8,18 +8,13 @@ import { TaxGroup } from '../models/tax_group.model';
   providedIn: 'root',
 })
 export class TaxGroupService {
-  constructor(private apiService: ApiService, private apiV2Service: ApiV2Service) {}
+  constructor(private apiV2Service: ApiV2Service) {}
 
-  get(params) {
+  get(params: { is_enabled: string }) {
     const data = {
       params,
     };
 
     return this.apiV2Service.get('/tax_groups', data).pipe(map((res) => res.data));
-  }
-
-  post(taxGroup: TaxGroup) {
-    /** Only these fields will be of type text & custom fields */
-    return this.apiService.post('tax_groups', taxGroup);
   }
 }
