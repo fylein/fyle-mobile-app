@@ -12,9 +12,10 @@ import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
+import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 
 type Image = Partial<{
   source: string;
@@ -109,67 +110,81 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       accounts: this.offlineService.getAccounts(),
       orgSettings: this.offlineService.getOrgSettings(),
     }).pipe(
-      switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) => {
-        const account = this.getAccount(orgSettings, accounts, orgUserSettings);
+      switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) =>
+        this.getAccount(orgSettings, accounts, orgUserSettings).pipe(
+          filter((account) => !!account),
+          switchMap((account) => {
+            if (!isConnected) {
+              source += '_OFFLINE';
+            }
+            const transaction = {
+              source_account_id: account.acc.id,
+              skip_reimbursement: !account.acc.isReimbursable || false,
+              source,
+              txn_dt: new Date(),
+              currency: this.homeCurrency,
+            };
 
-        if (!isConnected) {
-          source += '_OFFLINE';
-        }
-        const transaction = {
-          source_account_id: account.acc.id,
-          skip_reimbursement: !account.acc.isReimbursable || false,
-          source,
-          txn_dt: new Date(),
-          currency: this.homeCurrency,
-        };
-
-        const attachmentUrls = [
-          {
-            thumbnail: base64ImagesWithSource.base64Image,
-            type: 'image',
-            url: base64ImagesWithSource.base64Image,
-          },
-        ];
-        if (!syncImmediately) {
-          return this.transactionsOutboxService.addEntry(
-            transaction,
-            attachmentUrls,
-            null,
-            null,
-            this.isInstafyleEnabled
-          );
-        } else {
-          return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
-        }
-      })
+            const attachmentUrls = [
+              {
+                thumbnail: base64ImagesWithSource.base64Image,
+                type: 'image',
+                url: base64ImagesWithSource.base64Image,
+              },
+            ];
+            if (!syncImmediately) {
+              return this.transactionsOutboxService.addEntry(
+                transaction,
+                attachmentUrls,
+                null,
+                null,
+                this.isInstafyleEnabled
+              );
+            } else {
+              return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
+            }
+          })
+        )
+      )
     );
   }
 
-  getAccount(orgSettings: any, accounts: any, orgUserSettings: OrgUserSettings) {
-    const isAdvanceEnabled =
-      (orgSettings.advances && orgSettings.advances.enabled) ||
-      (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
+  getAccount(
+    orgSettings: any,
+    accounts: ExtendedAccount[],
+    orgUserSettings: OrgUserSettings
+  ): Observable<ExtendedAccount> {
+    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
 
     const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-    const isMultipleAdvanceEnabled =
-      orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
-    const paymentModes = this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
-    const isCCCEnabled =
-      orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
+    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
 
-    let account;
+    return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
+      map((paymentModes) => {
+        const isCCCEnabled =
+          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
-    if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
-      account = paymentModes.find((res) => res.acc.displayName === 'Paid by Company');
-    } else if (
-      isCCCEnabled &&
-      orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-    ) {
-      account = paymentModes.find((res) => res.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-    } else {
-      account = paymentModes.find((res) => res.acc.displayName === 'Personal Card/Cash');
-    }
-    return account;
+        const paidByCompanyAccount = paymentModes.find(
+          (paymentMode) => paymentMode?.acc.displayName === 'Paid by Company'
+        );
+
+        let account;
+
+        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT' && paidByCompanyAccount) {
+          account = paidByCompanyAccount;
+        } else if (
+          isCCCEnabled &&
+          orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+        ) {
+          account = paymentModes.find(
+            (paymentMode) => paymentMode?.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+          );
+        } else {
+          account = paymentModes.find((paymentMode) => paymentMode?.acc.displayName === 'Personal Card/Cash');
+        }
+        return account;
+      })
+    );
   }
 
   async stopCamera() {
@@ -223,6 +238,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         width: window.innerWidth,
         height: window.innerHeight,
         parent: 'cameraPreview',
+        disableAudio: true,
       };
 
       await this.loaderService.showLoader('Please wait...', 5000);
