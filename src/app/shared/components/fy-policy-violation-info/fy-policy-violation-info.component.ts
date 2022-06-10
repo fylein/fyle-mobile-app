@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { PolicyViolationDetailsComponent } from '../policy-violation-details/policy-violation-details.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-fy-policy-violation-info',
@@ -16,7 +17,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   showPolicyInfo: boolean;
 
-  constructor(private modalController: ModalController) {}
+  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   ngOnInit() {
     this.policyViolations = [];
@@ -30,14 +31,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
       componentProps: {
         policyViolations: this.policyViolations,
       },
-      cssClass: 'payment-mode-modal',
-      showBackdrop: true,
-      canDismiss: true,
-      backdropDismiss: true,
-      animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
+      ...this.modalProperties.getModalDefaultProperties('payment-mode-modal'),
     });
 
     await policyDetailsModal.present();
