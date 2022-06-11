@@ -37,4 +37,50 @@ export class PolicyService {
     };
     return this.policyApiService.get('/policy/violating_transactions', { params });
   }
+
+  checkIfViolationsExist(violations) {
+    let doViolationsExist = false;
+
+    for (const key in violations) {
+      if (violations.hasOwnProperty(key)) {
+        // check for popup field for all polices
+        let rules = this.getPolicyRules(violations[key]);
+
+        if (rules && rules.length > 0) {
+          doViolationsExist = true;
+
+          break;
+        }
+      }
+    }
+
+    return doViolationsExist;
+  }
+
+  getApprovalString(emails) {
+    let additionalApprovalString = 'Expense will need additional approval from ';
+    emails.forEach((email, index) => {
+      additionalApprovalString += '<b>' + email + '</b>';
+      if (index < emails.length - 1) {
+        additionalApprovalString += ', ';
+      }
+    });
+    return additionalApprovalString;
+  }
+
+  isExpenseFlagged(policyActionDescription: string): boolean {
+    return policyActionDescription.toLowerCase().includes('expense will be flagged');
+  }
+
+  isPrimaryApproverSkipped(policyActionDescription: string): boolean {
+    return policyActionDescription.toLowerCase().includes('primary approver will be skipped');
+  }
+
+  needAdditionalApproval(policyActionDescription: string): boolean {
+    return policyActionDescription.toLowerCase().includes('expense will need approval from');
+  }
+
+  isExpenseCapped(policyActionDescription: string): boolean {
+    return policyActionDescription.toLowerCase().includes('expense will be capped to');
+  }
 }

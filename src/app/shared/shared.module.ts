@@ -46,6 +46,7 @@ import { ViewCommentComponent } from './components/comments-history/view-comment
 import { AuditHistoryComponent } from './components/comments-history/audit-history/audit-history.component';
 import { StatusesDiffComponent } from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
 import { FyApproverComponent } from './components/fy-approver/fy-approver.component';
+import { FyPolicyViolationComponent } from './components/fy-policy-violation/fy-policy-violation.component';
 import { PolicyViolationDetailsComponent } from './components/policy-violation-details/policy-violation-details.component';
 
 // directive imports
@@ -118,6 +119,10 @@ import { ViewExpenseSkeletonLoaderComponent } from './components/view-expense-sk
 import { SpentCardsComponent } from './components/spent-cards/spent-cards.component';
 import { CardDetailComponent } from './components/spent-cards/card-detail/card-detail.component';
 import { MaskNumber } from './pipes/mask-number.pipe';
+import { PolicyViolationMessageComponent } from './components/fy-policy-violation/policy-violation-message/policy-violation-message.component';
+import { PolicyViolationActionComponent } from './components/fy-policy-violation/policy-violation-action/policy-violation-action.component';
+import { FyCriticalPolicyViolationMessageComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation-message/fy-critical-policy-violation-message.component';
+import { SplitExpensePolicyViolationComponent } from './components/split-expense-policy-violation/split-expense-policy-violation.component';
 
 @NgModule({
   declarations: [
@@ -215,6 +220,11 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     SpentCardsComponent,
     CardDetailComponent,
     MaskNumber,
+    FyPolicyViolationComponent,
+    PolicyViolationMessageComponent,
+    PolicyViolationActionComponent,
+    FyCriticalPolicyViolationMessageComponent,
+    SplitExpensePolicyViolationComponent,
   ],
   imports: [
     CommonModule,
@@ -318,6 +328,11 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     SpentCardsComponent,
     CardDetailComponent,
     MaskNumber,
+    FyPolicyViolationComponent,
+    PolicyViolationMessageComponent,
+    PolicyViolationActionComponent,
+    FyCriticalPolicyViolationMessageComponent,
+    SplitExpensePolicyViolationComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })

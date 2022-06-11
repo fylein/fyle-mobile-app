@@ -111,6 +111,14 @@ export class UtilityService {
     });
   }
 
+  getEmailsFromString(text: String): String[] {
+    return text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi);
+  }
+
+  getAmountWithCurrencyFromString(text: String): String[] {
+    return text.match(/capped to ([a-zA-Z]{1,3} \d+)/i);
+  }
+
   private getSortingValue(advance: any, sortParam: SortingParam) {
     if (sortParam === SortingParam.creationDate) {
       return advance.areq_created_at ? moment(advance.areq_created_at) : moment(advance.adv_created_at);

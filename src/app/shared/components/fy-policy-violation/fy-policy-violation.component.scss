@@ -1,0 +1,61 @@
+@import '../../../../theme/colors.scss';
+
+.policy-violation {
+  &--toolbar {
+    &__title {
+      color: $black;
+      margin: 20px;
+      font-size: 20px;
+      font-weight: 500;
+    }
+  }
+
+  &--content-section {
+    height: 100%;
+    overflow-y: scroll;
+  }
+
+  &--body {
+    margin: 16px;
+  }
+
+  &--header {
+    margin-bottom: 10px;
+  }
+
+  &--list {
+    padding-left: 24px;
+    margin: 25px 0;
+  }
+
+  &--description {
+    margin-bottom: 25px;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: $grey-7;
+  }
+
+  &--textarea {
+    width: 100%;
+    border: 1px solid $grey-light;
+    border-radius: 4px;
+    min-height: 75px;
+    padding: 8px 11px;
+  }
+
+  &--action-header {
+    font-weight: 500;
+    margin-top: 24px;
+  }
+
+  &--additional-details-header {
+    color: $black-light;
+    margin: 24px 0px 10px 0px;
+  }
+
+  &--additional-details-comment-length {
+    float: right;
+    color: $text-button-grey;
+    font-size: 12px;
+  }
+}

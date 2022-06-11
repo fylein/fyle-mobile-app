@@ -125,6 +125,30 @@ export class CategoriesService {
     });
   }
 
+  filterByOrgCategoryId(orgCategoryId, categoryList) {
+    let matchingCategory;
+
+    categoryList.some((cat) => {
+      if (cat.id === orgCategoryId) {
+        matchingCategory = cat;
+
+        return true;
+      }
+    });
+
+    return matchingCategory;
+  }
+
+  filterEnabled(categories) {
+    let filteredCategories;
+
+    filteredCategories = categories.filter((category) => {
+      return category.enabled === true;
+    });
+
+    return filteredCategories;
+  }
+
   filterRequired(categoryList) {
     return categoryList.filter((category) => {
       if (!category.fyle_category) {

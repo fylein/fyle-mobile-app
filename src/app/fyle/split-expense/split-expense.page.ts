@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -18,6 +18,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
+import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -71,6 +74,8 @@ export class SplitExpensePage implements OnInit {
 
   completeTxnIds: string[];
 
+  categoryList = [];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -87,7 +92,10 @@ export class SplitExpensePage implements OnInit {
     private reportService: ReportService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private policyService: PolicyService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService
   ) {}
 
   ngOnInit() {}
@@ -240,6 +248,29 @@ export class SplitExpensePage implements OnInit {
     }
   }
 
+  getCategories() {
+    // Retrieve list of all enabled categories
+
+    return this.categoriesService.getAll().pipe(
+      switchMap((categories) => {
+        const allEnabledCategories = this.categoriesService.filterEnabled(categories);
+        this.categoryList = this.categoriesService.filterRequired(allEnabledCategories);
+
+        // after getting the list, check if vm.transaction.org_category_id exists
+        // if exists, set vm.splitExpenses[0].category
+        if (this.categoryList && this.transaction.org_category_id) {
+          this.categoryList.some((category) => {
+            if (category.id === this.transaction.org_category_id) {
+              return true;
+            }
+          });
+        }
+
+        return this.categoryList;
+      })
+    );
+  }
+
   createAndLinkTxnsWithFiles(splitExpenses) {
     const splitExpense$: any = {
       txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses),
@@ -261,7 +292,8 @@ export class SplitExpensePage implements OnInit {
       }),
       switchMap((data: any) => {
         const txnIds = data.txns.map((txn) => txn.id);
-        return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
+        this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
+        return of(txnIds);
       })
     );
   }
@@ -325,6 +357,79 @@ export class SplitExpensePage implements OnInit {
     );
   }
 
+  formatDisplayName(model) {
+    let category;
+
+    // If model is defined and
+    // if category list is available
+
+    if (model && this.categoryList) {
+      category = this.categoriesService.filterByOrgCategoryId(model, this.categoryList);
+
+      // If a matching category is found return the display name
+      // this is needed where the vm.transaction.org_category_id
+      // is set due to vendor selection function outside of the directive
+      // in that case matching category may not be present
+      if (category) {
+        return category.displayName;
+      }
+    }
+  }
+
+  runPolicyCheck(etxns) {
+    return this.splitExpenseService.runPolicyCheck(etxns, this.fileObjs).pipe(
+      map((data) => {
+        etxns.forEach((etxn) => {
+          for (var key in data) {
+            if (data.hasOwnProperty(key) && key === etxn?.tx_id) {
+              data[key]['amount'] = etxn.tx_orig_amount || etxn.tx_amount;
+              data[key]['currency'] = etxn.tx_orig_currency || etxn.tx_currency;
+              data[key]['name'] = this.formatDisplayName(etxn.tx_org_category_id);
+              data[key]['type'] = 'category';
+              break;
+            }
+          }
+        });
+        return data;
+      })
+    );
+  }
+
+  checkForPolicyViolations(txnIds) {
+    return from(txnIds).pipe(
+      mergeMap((txnId) => this.transactionService.getEtxn(txnId)),
+      toArray(),
+      switchMap((etxns) => this.runPolicyCheck(etxns))
+    );
+  }
+
+  async showSplitExpenseViolations(violations) {
+    const currencyModal = await this.modalController.create({
+      component: SplitExpensePolicyViolationComponent,
+      componentProps: {
+        policyViolations: violations,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await currencyModal.present();
+
+    const { data } = await currencyModal.onWillDismiss();
+    this.showSuccessToast();
+  }
+
+  handleSplitExpensePolicyViolations(violations) {
+    const doViolationsExist = this.policyService.checkIfViolationsExist(violations);
+    if (doViolationsExist) {
+      var formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);
+      this.showSplitExpenseViolations(formattedViolations);
+    } else {
+      this.showSuccessToast();
+    }
+  }
+
   save() {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
@@ -378,10 +483,13 @@ export class SplitExpensePage implements OnInit {
               if (observables$.length === 0) {
                 observables$.push(of(true));
               }
+
+              observables$.push(this.checkForPolicyViolations(res));
+
               return forkJoin(observables$);
             }),
-            tap((res) => {
-              this.showSuccessToast();
+            tap((violations) => {
+              this.handleSplitExpensePolicyViolations(violations[violations.length - 1]);
             }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
@@ -421,6 +529,11 @@ export class SplitExpensePage implements OnInit {
       this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
       this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
+
+      if (this.transaction) {
+        this.getCategories().subscribe();
+      }
+
       if (this.splitType === 'categories') {
         this.categories$ = this.getActiveCategories().pipe(
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
@@ -454,6 +567,82 @@ export class SplitExpensePage implements OnInit {
             orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
         )
       );
+
+      //Remove this section
+      //   this.showSplitExpenseViolations({
+      //     "txYZQURj7yJ5": {
+      //         "rules": [
+      //             "test policy bus"
+      //         ],
+      //         "action": "The policy violation will trigger the following action(s): expense will be flagged for verification and approval",
+      //         "type": "category",
+      //         "name": "Bus",
+      //         "currency": "INR",
+      //         "amount": 6000,
+      //         "isCriticalPolicyViolation": false,
+      //         "isExpanded": false
+      //     },
+      //     "txYZQURj7yJf": {
+      //       "rules": [
+      //           "test policy bus"
+      //       ],
+      //       "action": "The policy violation will trigger the following action(s): expense will be flagged for verification and approval",
+      //       "type": "category",
+      //       "name": "Bus",
+      //       "currency": "INR",
+      //       "amount": 6000,
+      //       "isCriticalPolicyViolation": false,
+      //       "isExpanded": false
+      //     },
+      //     "txgOUbbTAivQ": {
+      //         "rules": [
+      //           "test policy bus"
+      //         ],
+      //         "action": null,
+      //         "type": "category",
+      //         "name": "Food",
+      //         "currency": "INR",
+      //         "amount": 0,
+      //         "isCriticalPolicyViolation": true,
+      //         "isExpanded": false
+      //     },
+      //     "txYZQURj7yJ6": {
+      //       "rules": [
+      //           "test policy bus"
+      //       ],
+      //       "action": "The policy violation will trigger the following action(s): expense will be flagged for verification and approval",
+      //       "type": "category",
+      //       "name": "Bus",
+      //       "currency": "INR",
+      //       "amount": 6000,
+      //       "isCriticalPolicyViolation": false,
+      //       "isExpanded": false
+      //     },
+      //     "txgOUbbTAivd": {
+      //       "rules": [
+      //         "test policy bus"
+      //       ],
+      //       "action": null,
+      //       "type": "category",
+      //       "name": "Food",
+      //       "currency": "INR",
+      //       "amount": 0,
+      //       "isCriticalPolicyViolation": true,
+      //       "isExpanded": false
+      //    },
+      //     "txgOUbbTAivw": {
+      //       "rules": [
+      //         "test policy bus"
+      //       ],
+      //       "action": null,
+      //       "type": "category",
+      //       "name": "Food",
+      //       "currency": "INR",
+      //       "amount": 0,
+      //       "isCriticalPolicyViolation": true,
+      //       "isExpanded": false
+      //     },
+      // });
 
       this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
         this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);

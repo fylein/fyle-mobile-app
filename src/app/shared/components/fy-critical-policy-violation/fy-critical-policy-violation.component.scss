@@ -2,7 +2,20 @@
 $small-screen: 700px;
 
 .critical-policy-violation {
-  padding: 10px 15px 0 15px;
+  &--toolbar {
+    &__title {
+      color: $black;
+    }
+  }
+
+  &--content-section {
+    height: 100%;
+    overflow-y: scroll;
+  }
+
+  &--content {
+    padding: 16px;
+  }
 
   &--header {
     color: $black;
@@ -17,6 +30,7 @@ $small-screen: 700px;
     font-size: 14px;
     line-height: 17.92px;
     padding-bottom: 18px;
+    font-weight: 500;
   }
 
   &--body {

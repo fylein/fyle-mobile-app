@@ -1,14 +1,21 @@
+import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { forkJoin, from, Observable, of } from 'rxjs';
+import { concatMap, last, map, mergeMap, scan, switchMap, tap, toArray } from 'rxjs/operators';
+import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
+import { PolicyService } from './policy.service';
 import { TransactionService } from './transaction.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SplitExpenseService {
-  constructor(private transactionService: TransactionService, private fileService: FileService) {}
+  constructor(
+    private transactionService: TransactionService,
+    private fileService: FileService,
+    private policyService: PolicyService
+  ) {}
 
   linkTxnWithFiles(data) {
     const observables = [];
@@ -49,6 +56,59 @@ export class SplitExpenseService {
         return newFileObjs;
       })
     );
+  }
+
+  testPolicyForATxn(etxn) {
+    let policyResponse = {};
+    return this.transactionService.testPolicy(etxn).pipe(
+      map((response) => {
+        policyResponse[etxn.tx_id] = response;
+        return policyResponse;
+      })
+    );
+  }
+
+  formatPolicyViolations(violations) {
+    let formattedViolations = {};
+
+    for (const key in violations) {
+      if (violations.hasOwnProperty(key)) {
+        // check for popup field for all polices
+        const rules = this.policyService.getPolicyRules(violations[key]);
+        const criticalPolicyRules = this.policyService.getCriticalPolicyRules(violations[key]);
+        const isCriticalPolicyViolation = criticalPolicyRules && criticalPolicyRules.length > 0;
+
+        formattedViolations[key] = {
+          rules: rules,
+          action: violations[key].transaction_desired_state.action_description,
+          type: violations[key].type,
+          name: violations[key].name,
+          currency: violations[key].currency,
+          amount: violations[key].amount,
+          isCriticalPolicyViolation: isCriticalPolicyViolation,
+          isExpanded: false,
+        };
+      }
+    }
+    return formattedViolations;
+  }
+
+  runApiCallSerially(etxns) {
+    return from(etxns).pipe(
+      mergeMap((etxn) => this.testPolicyForATxn(etxn)),
+      scan((acc, curr) => ({ ...curr, ...acc }), {}),
+      last()
+    );
+  }
+
+  runPolicyCheck(etxns, fileObjs) {
+    const txnsPayload = [];
+    const that = this;
+    etxns.forEach(function (etxn) {
+      etxn.tx_num_files = fileObjs ? fileObjs.length : 0;
+    });
+
+    return this.runApiCallSerially(etxns);
   }
 
   createSplitTxns(sourceTxn, totalSplitAmount, splitExpenses) {
