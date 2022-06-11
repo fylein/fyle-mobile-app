@@ -8,7 +8,9 @@ import { ModalController } from '@ionic/angular';
 })
 export class FyCriticalPolicyViolationComponent implements OnInit {
   @Input() criticalViolationMessages = [];
+
   @Input() showHeader = true;
+
   @Input() showCTA = true;
 
   constructor(private modalController: ModalController) {}

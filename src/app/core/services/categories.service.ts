@@ -140,13 +140,7 @@ export class CategoriesService {
   }
 
   filterEnabled(categories) {
-    let filteredCategories;
-
-    filteredCategories = categories.filter((category) => {
-      return category.enabled === true;
-    });
-
-    return filteredCategories;
+    return categories.filter((category) => category.enabled === true);
   }
 
   filterRequired(categoryList) {

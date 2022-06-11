@@ -59,7 +59,7 @@ export class SplitExpenseService {
   }
 
   testPolicyForATxn(etxn) {
-    let policyResponse = {};
+    const policyResponse = {};
     return this.transactionService.testPolicy(etxn).pipe(
       map((response) => {
         policyResponse[etxn.tx_id] = response;
@@ -69,7 +69,7 @@ export class SplitExpenseService {
   }
 
   formatPolicyViolations(violations) {
-    let formattedViolations = {};
+    const formattedViolations = {};
 
     for (const key in violations) {
       if (violations.hasOwnProperty(key)) {

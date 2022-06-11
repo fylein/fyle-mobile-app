@@ -43,6 +43,29 @@ export class FyPolicyViolationComponent implements OnInit {
     private utilityService: UtilityService
   ) {}
 
+  constructAdditionalApproverAction() {
+    if (this.needAdditionalApproval) {
+      const emails = this.utilityService.getEmailsFromString(this.policyActionDescription);
+      if (emails?.length > 0) {
+        this.additionalApprovalString = this.policyService.getApprovalString(emails);
+      }
+    }
+  }
+
+  constructCappingAction() {
+    if (this.isExpenseCapped) {
+      const cappedAmountMatches = this.utilityService.getAmountWithCurrencyFromString(this.policyActionDescription);
+      if (cappedAmountMatches?.length > 0) {
+        const cappedAmount = cappedAmountMatches[1];
+        if (cappedAmount) {
+          const cappedAmountSplit = cappedAmount.split(' ');
+          this.cappedAmountString =
+            'Expense will be capped to ' + getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') + cappedAmountSplit[1];
+        }
+      }
+    }
+  }
+
   ngOnInit() {
     if (this.policyActionDescription) {
       this.isExpenseFlagged = this.policyService.isExpenseFlagged(this.policyActionDescription);
@@ -50,31 +73,22 @@ export class FyPolicyViolationComponent implements OnInit {
       this.needAdditionalApproval = this.policyService.needAdditionalApproval(this.policyActionDescription);
       this.isExpenseCapped = this.policyService.isExpenseCapped(this.policyActionDescription);
 
-      if (this.isExpenseFlagged) this.availableActionsCount += 1;
-      if (this.isPrimaryApproverSkipped) this.availableActionsCount += 1;
-      if (this.needAdditionalApproval) this.availableActionsCount += 1;
-      if (this.isExpenseCapped) this.availableActionsCount += 1;
-
+      if (this.isExpenseFlagged) {
+        this.availableActionsCount += 1;
+      }
+      if (this.isPrimaryApproverSkipped) {
+        this.availableActionsCount += 1;
+      }
       if (this.needAdditionalApproval) {
-        const emails = this.utilityService.getEmailsFromString(this.policyActionDescription);
-        if (emails?.length > 0) {
-          this.additionalApprovalString = this.policyService.getApprovalString(emails);
-        }
+        this.availableActionsCount += 1;
+      }
+      if (this.isExpenseCapped) {
+        this.availableActionsCount += 1;
       }
 
-      if (this.isExpenseCapped) {
-        const cappedAmountMatches = this.utilityService.getAmountWithCurrencyFromString(this.policyActionDescription);
-        if (cappedAmountMatches?.length > 0) {
-          const cappedAmount = cappedAmountMatches[1];
-          if (cappedAmount) {
-            const cappedAmountSplit = cappedAmount.split(' ');
-            this.cappedAmountString =
-              'Expense will be capped to ' +
-              getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') +
-              cappedAmountSplit[1];
-          }
-        }
-      }
+      this.constructAdditionalApproverAction();
+
+      this.constructCappingAction();
     }
   }
 

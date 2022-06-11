@@ -44,7 +44,7 @@ export class PolicyService {
     for (const key in violations) {
       if (violations.hasOwnProperty(key)) {
         // check for popup field for all polices
-        let rules = this.getPolicyRules(violations[key]);
+        const rules = this.getPolicyRules(violations[key]);
 
         if (rules && rules.length > 0) {
           doViolationsExist = true;

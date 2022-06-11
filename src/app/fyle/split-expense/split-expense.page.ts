@@ -380,12 +380,12 @@ export class SplitExpensePage implements OnInit {
     return this.splitExpenseService.runPolicyCheck(etxns, this.fileObjs).pipe(
       map((data) => {
         etxns.forEach((etxn) => {
-          for (var key in data) {
+          for (const key in data) {
             if (data.hasOwnProperty(key) && key === etxn?.tx_id) {
-              data[key]['amount'] = etxn.tx_orig_amount || etxn.tx_amount;
-              data[key]['currency'] = etxn.tx_orig_currency || etxn.tx_currency;
-              data[key]['name'] = this.formatDisplayName(etxn.tx_org_category_id);
-              data[key]['type'] = 'category';
+              data[key].amount = etxn.tx_orig_amount || etxn.tx_amount;
+              data[key].currency = etxn.tx_orig_currency || etxn.tx_currency;
+              data[key].name = this.formatDisplayName(etxn.tx_org_category_id);
+              data[key].type = 'category';
               break;
             }
           }
@@ -423,7 +423,7 @@ export class SplitExpensePage implements OnInit {
   handleSplitExpensePolicyViolations(violations) {
     const doViolationsExist = this.policyService.checkIfViolationsExist(violations);
     if (doViolationsExist) {
-      var formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);
+      const formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);
       this.showSplitExpenseViolations(formattedViolations);
     } else {
       this.showSuccessToast();
