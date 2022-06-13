@@ -22,6 +22,7 @@ import { LoginInfoService } from './core/services/login-info.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
+import { Deploy } from 'cordova-plugin-ionic/dist/ngx';
 
 @Component({
   selector: 'app-root',
@@ -62,7 +63,8 @@ export class AppComponent implements OnInit {
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private navController: NavController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private deploy: Deploy
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -129,6 +131,9 @@ export class AppComponent implements OnInit {
         style: Style.Default,
       });
       setTimeout(async () => await SplashScreen.hide(), 1000);
+
+      const currentVersionInfo = await this.deploy.getCurrentVersion();
+      console.log('CURRENT VERSION INFO', currentVersionInfo);
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
