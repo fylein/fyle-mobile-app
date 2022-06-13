@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { SplitExpensePolicyViolationComponent } from './split-expense-policy-violation.component';
 
-describe('SplitExpensePolicyViolationComponent', () => {
+xdescribe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
   let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
 
