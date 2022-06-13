@@ -134,4 +134,43 @@ export class CategoriesService {
       return this.skipCategories.indexOf(category.fyle_category.toLowerCase()) === -1;
     });
   }
+
+  getRestrictedCategoriesCount(projectIds: number[]): Observable<number> {
+    const data = {
+      params: {
+        is_enabled: 'eq.' + true,
+        offset: 0,
+        limit: 1,
+        restricted_project_ids: 'csn.{' + projectIds + '}',
+      },
+    };
+    return this.spenderPlatformApiService
+      .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
+      .pipe(map((res) => res.count));
+  }
+
+  getRestrictedCategories(config: { offset: number; limit: number; projectIds: number[] }): Observable<OrgCategory[]> {
+    const data = {
+      params: {
+        is_enabled: 'eq.' + true,
+        offset: config.offset,
+        limit: config.limit,
+        restricted_project_ids: 'csn.{' + config.projectIds + '}',
+      },
+    };
+    return this.spenderPlatformApiService
+      .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
+      .pipe(map((res) => this.transformFrom(res.data)));
+  }
+
+  getCategoriesByRestrictedProjectIds(projectIds: number[]): Observable<OrgCategory[]> {
+    return this.getRestrictedCategoriesCount(projectIds).pipe(
+      switchMap((count) => {
+        count = count > 50 ? count / 50 : 1;
+        return range(0, count);
+      }),
+      concatMap((page) => this.getRestrictedCategories({ offset: 50 * page, limit: 50, projectIds: projectIds })),
+      reduce((acc, curr) => acc.concat(curr), [] as OrgCategory[])
+    );
+  }
 }

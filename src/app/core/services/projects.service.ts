@@ -1,19 +1,25 @@
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
+import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
-import { Observable } from 'rxjs';
+import { Observable, range } from 'rxjs';
 import { ExtendedProject } from '../models/v2/extended-project.model';
-import { PlatformProjectData } from '../models/platform/platform-project-data.model';
 import { Project } from '../models/v1/project.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformProject } from '../models/platform/platform-project.model';
-import { OfflineService } from './offline.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { CategoriesService } from './categories.service';
+import { OrgCategory } from '../models/v1/org-category.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
+  restrictedCategories: number[];
+
+  constructor(
+    private spenderPlatformApiService: SpenderPlatformApiService,
+    private categoriesService: CategoriesService
+  ) {}
 
   @Cacheable()
   getByParamsUnformatted(
@@ -55,11 +61,11 @@ export class ProjectsService {
     this.addNameSearchFilter(searchNameText, params);
 
     return this.spenderPlatformApiService
-      .get('/projects', {
+      .get<PlatformApiResponse<PlatformProject>>('/projects', {
         params,
       })
       .pipe(
-        map((res: PlatformProject) => this.transformFromPlatfromToApiV2(res.data)),
+        map((res) => this.transformFromPlatfromToApiV2(res.data)),
         map((res) =>
           res.map((datum) => ({
             ...datum,
@@ -109,10 +115,21 @@ export class ProjectsService {
 
   getAllowedOrgCategoryIds(project, activeCategoryList) {
     let categoryList = [];
+    let restrictedList = [];
+
     if (project) {
-      categoryList = activeCategoryList.filter(
-        (category) => project.project_org_category_ids.indexOf(category.id) > -1
-      );
+      this.categoriesService
+        .getCategoriesByRestrictedProjectIds(project.project_id)
+        .pipe()
+        .subscribe((res) => {
+          console.log('check what is res->', res);
+          console.log('check res. list 1 -> ', restrictedList);
+          restrictedList = res.map((res) => res.id);
+          console.log('check res. list 2 -> ', restrictedList);
+          categoryList = activeCategoryList.filter(
+            (category: OrgCategory) => restrictedList?.indexOf(category.id) > -1
+          );
+        });
     } else {
       categoryList = activeCategoryList;
     }
@@ -120,7 +137,7 @@ export class ProjectsService {
     return categoryList;
   }
 
-  transformFromPlatfromToApiV1(platformProject: PlatformProjectData[]): Project[] {
+  transformFromPlatfromToApiV1(platformProject: PlatformProject[]): Project[] {
     let oldV1Project = [];
     oldV1Project = platformProject.map((project) => ({
       active: project.is_enabled,
@@ -137,7 +154,7 @@ export class ProjectsService {
     return oldV1Project;
   }
 
-  transformFromPlatfromToApiV2(platformProject: PlatformProjectData[]): ExtendedProject[] {
+  transformFromPlatfromToApiV2(platformProject: PlatformProject[]): ExtendedProject[] {
     let oldV2Project = [];
     oldV2Project = platformProject.map((project) => ({
       project_active: project.is_enabled,
@@ -155,27 +172,52 @@ export class ProjectsService {
     return oldV2Project;
   }
 
-  getAllActive() {
+  getAllActive(): Observable<Project[]> {
+    return this.getActiveProjectsCount().pipe(
+      switchMap((count) => {
+        count = count > 50 ? count / 50 : 1;
+        return range(0, count);
+      }),
+      concatMap((page) => this.getProjects({ offset: 50 * page, limit: 50 })),
+      reduce((acc, curr) => acc.concat(curr), [] as Project[])
+    );
+  }
+
+  getActiveProjectsCount(): Observable<number> {
     const data = {
       params: {
         is_enabled: 'eq.' + true,
+        offset: 0,
+        limit: 1,
       },
     };
-
     return this.spenderPlatformApiService
-      .get('/projects', data)
-      .pipe(map((res: PlatformProject) => this.transformFromPlatfromToApiV1(res.data)));
+      .get<PlatformApiResponse<PlatformProject>>('/projects', data)
+      .pipe(map((res) => res.count));
+  }
+
+  getProjects(config: { offset: number; limit: number }): Observable<Project[]> {
+    const data = {
+      params: {
+        is_enabled: 'eq.' + true,
+        offset: config.offset,
+        limit: config.limit,
+      },
+    };
+    return this.spenderPlatformApiService
+      .get<PlatformApiResponse<PlatformProject>>('/projects', data)
+      .pipe(map((res) => this.transformFromPlatfromToApiV1(res.data)));
   }
 
   getbyId(projectId: number): Observable<ExtendedProject> {
     return this.spenderPlatformApiService
-      .get('/projects', {
+      .get<PlatformApiResponse<PlatformProject>>('/projects', {
         params: {
           id: 'eq.' + projectId,
         },
       })
       .pipe(
-        map((res: PlatformProject) => this.transformFromPlatfromToApiV2(res.data)),
+        map((res) => this.transformFromPlatfromToApiV2(res.data)),
         map(
           (res) =>
             res.map((datum) => ({
