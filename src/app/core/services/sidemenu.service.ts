@@ -19,11 +19,6 @@ export class SidemenuService {
           ['approve', 'create', 'delete'],
           orgSettings
         );
-        const allowedTripsActions$ = this.permissionsService.allowedActions(
-          'trips',
-          ['approve', 'create', 'edit', 'cancel'],
-          orgSettings
-        );
 
         return forkJoin({
           allowedReportsActions: allowedReportsActions$,
@@ -32,7 +27,6 @@ export class SidemenuService {
             allowedAdvancesActions$,
             of(null)
           ),
-          allowedTripsActions: iif(() => orgSettings.trip_requests.enabled, allowedTripsActions$, of(null)),
         });
       })
     );

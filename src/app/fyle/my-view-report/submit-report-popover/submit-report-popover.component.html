@@ -19,10 +19,7 @@
       </div>
       <div>
         <div class="submit-report--expense-card-count">Contains {{ erpt.rp_num_transactions }} expense(s)</div>
-        <div
-          class="submit-report--expense-card-critical"
-          *ngIf="numCriticalPolicies > 0 && erpt.rp_num_transactions - numCriticalPolicies > 0"
-        >
+        <div *ngIf="numCriticalPolicies > 0 && erpt.rp_num_transactions - numCriticalPolicies > 0">
           <mat-icon> warning </mat-icon>
           <strong>
             This report has {{ numCriticalPolicies }} expense(s) with critical policy violation(s). To go ahead and
@@ -30,22 +27,13 @@
           </strong>
         </div>
 
-        <div
-          class="submit-report--expense-card-all-critical"
-          *ngIf="numCriticalPolicies > 0 && erpt.rp_num_transactions - numCriticalPolicies === 0"
-        >
+        <div *ngIf="numCriticalPolicies > 0 && erpt.rp_num_transactions - numCriticalPolicies === 0">
           <mat-icon> warning </mat-icon>
           <strong> All expenses in this report have critical policy violation(s). Cannot submit report. </strong>
         </div>
       </div>
     </div>
 
-    <div class="submit-report--trip-request-warning" *ngIf="showTripRequestWarning">
-      There are trip requests that can be associated with this report.
-      <div>
-        <strong> Do you wish to submit the report without associating a trip request? </strong>
-      </div>
-    </div>
     <div
       class="submit-report--approver-notif"
       *ngIf="!(numCriticalPolicies > 0 && erpt.rp_num_transactions - numCriticalPolicies === 0)"

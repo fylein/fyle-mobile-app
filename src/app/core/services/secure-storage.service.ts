@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import 'capacitor-secure-storage-plugin';
-import { Plugins } from '@capacitor/core';
-
-const { SecureStoragePlugin } = Plugins;
+import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 
 // This is used only for storing access token, refresh token and cluster domain in token service
 @Injectable({

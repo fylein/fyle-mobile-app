@@ -12,7 +12,6 @@ import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 import { HighlightPipe } from './pipes/highlight.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake-case-to-space-case.pipe';
-import { TripState } from './pipes/trip-state.pipe';
 import { FySelectComponent } from './components/fy-select/fy-select.component';
 import { FySelectModalComponent } from './components/fy-select/fy-select-modal/fy-select-modal.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,8 +27,6 @@ import { FyMultiselectModalComponent } from './components/fy-multiselect/fy-mult
 import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-modal/fy-userlist-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FyAlertComponent } from './components/fy-alert/fy-alert.component';
-import { FyDuplicateDetectionComponent } from './components/fy-duplicate-detection/fy-duplicate-detection.component';
-import { FyDuplicateDetectionModalComponent } from './components/fy-duplicate-detection/fy-duplicate-detection-modal/fy-duplicate-detection-modal.component';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { ApproverDialogComponent } from './components/fy-approver/add-approvers-popover/approver-dialog/approver-dialog.component';
@@ -111,7 +108,7 @@ import { CaptureReceiptComponent } from './components/capture-receipt/capture-re
 import { ReceiptPreviewComponent } from './components/capture-receipt/receipt-preview/receipt-preview.component';
 import { AddMorePopupComponent } from './components/capture-receipt/add-more-popup/add-more-popup.component';
 import { CropReceiptComponent } from './components/capture-receipt/crop-receipt/crop-receipt.component';
-import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
@@ -131,7 +128,6 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
-    TripState,
     DateFormatPipe,
     FySelectComponent,
     FySelectModalComponent,
@@ -144,8 +140,6 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     FyMultiselectModalComponent,
     FyUserlistModalComponent,
     FyAlertComponent,
-    FyDuplicateDetectionComponent,
-    FyDuplicateDetectionModalComponent,
     DelegatedAccMessageComponent,
     CurrencyComponent,
     CommentsHistoryComponent,
@@ -259,10 +253,8 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     FyMultiselectComponent,
     FyUserlistComponent,
     FyAlertComponent,
-    FyDuplicateDetectionComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
-    TripState,
     InitialsPipe,
     DelegatedAccMessageComponent,
     IconModule,

@@ -1,0 +1,18 @@
+name: Pull Request Stats
+
+on:
+  schedule:
+    - cron:  '30 4 * * *'
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run pull request stats
+        uses: flowwer-dev/pull-request-stats@master
+        with:
+          token: ${{secrets.PR_STATS_TOKEN}}
+          slack-webhook: ${{secrets.PR_STATS_SLACK_WEBHOOK}}
+          slack-channel: '#reviews'
+          period: 30
+          sort-by: 'REVIEWS'
