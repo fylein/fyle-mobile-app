@@ -79,13 +79,13 @@ export class SplitExpenseService {
         const isCriticalPolicyViolation = criticalPolicyRules && criticalPolicyRules.length > 0;
 
         formattedViolations[key] = {
-          rules: rules,
+          rules,
           action: violations[key].transaction_desired_state.action_description,
           type: violations[key].type,
           name: violations[key].name,
           currency: violations[key].currency,
           amount: violations[key].amount,
-          isCriticalPolicyViolation: isCriticalPolicyViolation,
+          isCriticalPolicyViolation,
           isExpanded: false,
         };
       }

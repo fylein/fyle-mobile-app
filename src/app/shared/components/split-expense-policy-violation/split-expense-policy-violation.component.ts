@@ -57,10 +57,10 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
         this.comments[transactionID] && this.comments[transactionID] !== ''
           ? this.prependPolicyViolationMessage + this.comments[transactionID]
           : this.defaultPolicyViolationMessage;
-      var apiPayload = {
+      const apiPayload = {
         objectType: 'transactions',
         txnId: transactionID,
-        comment: { comment: comment },
+        comment: { comment },
         notify: true,
       };
       payloadData.push(apiPayload);
