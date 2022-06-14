@@ -102,10 +102,6 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
-  get ExpenseView() {
-    return ExpenseView;
-  }
-
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -124,6 +120,10 @@ export class ViewExpensePage implements OnInit {
     private trackingService: TrackingService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
+
+  get ExpenseView() {
+    return ExpenseView;
+  }
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -156,7 +156,6 @@ export class ViewExpensePage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx_id,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

@@ -27,11 +27,11 @@ export class FyDeleteDialogComponent implements OnInit {
 
   deleteCallInProgress = false;
 
+  constructor(private popoverController: PopoverController) {}
+
   get LoaderPosition() {
     return LoaderPosition;
   }
-
-  constructor(private popoverController: PopoverController) {}
 
   ngOnInit() {}
 

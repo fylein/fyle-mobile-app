@@ -24,6 +24,12 @@ export class FooterComponent implements OnInit {
 
   connectionState$: Observable<ConnectionMessageStatus>;
 
+  constructor(
+    private networkService: NetworkService,
+    private trackingService: TrackingService,
+    private router: Router
+  ) {}
+
   get ConnectionMessageStatus() {
     return ConnectionMessageStatus;
   }
@@ -31,12 +37,6 @@ export class FooterComponent implements OnInit {
   get FooterState() {
     return FooterState;
   }
-
-  constructor(
-    private networkService: NetworkService,
-    private trackingService: TrackingService,
-    private router: Router
-  ) {}
 
   ngOnInit() {
     this.connectionState$ = this.networkService.getConnectionStatus();
