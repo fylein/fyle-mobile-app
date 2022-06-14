@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { SplitExpenseService } from './split-expense.service';
 
-describe('SplitExpenseService', () => {
+xdescribe('SplitExpenseService', () => {
   let service: SplitExpenseService;
 
   beforeEach(() => {

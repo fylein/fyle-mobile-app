@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { TeamReportsSearchFilterComponent } from './team-reports-search-filter.component';
 
-describe('TeamReportsSearchFilterComponent', () => {
+xdescribe('TeamReportsSearchFilterComponent', () => {
   let component: TeamReportsSearchFilterComponent;
   let fixture: ComponentFixture<TeamReportsSearchFilterComponent>;
 

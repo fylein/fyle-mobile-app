@@ -427,7 +427,6 @@ export class TasksService {
   private getSentBackAdvancesStats() {
     return this.advancesRequestService.getMyAdvanceRequestStats({
       aggregates: 'count(areq_id),sum(areq_amount)',
-      areq_trip_request_id: 'is.null',
       areq_state: 'in.(DRAFT)',
       areq_is_sent_back: 'is.true',
       scalar: true,
@@ -736,7 +735,7 @@ export class TasksService {
       const task = {
         amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
         count: aggregate.totalCount,
-        header: `Ready to Report`,
+        header: `Unreported`,
         subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(
           aggregate.totalAmount,
           homeCurrency

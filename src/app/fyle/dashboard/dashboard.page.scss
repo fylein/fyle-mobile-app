@@ -1,6 +1,11 @@
 @import '../../../theme/colors';
 
 .dashboard {
+  &--title {
+    padding: 18px 0 18px 12px;
+    color: $black;
+  }
+
   &--header {
     background: linear-gradient(27.66deg, #e1eeff 12.53%, #ffe4fb 83.29%);
   }

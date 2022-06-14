@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { CaptureReceiptComponent } from './capture-receipt.component';
 
-describe('CaptureReceiptComponent', () => {
+xdescribe('CaptureReceiptComponent', () => {
   let component: CaptureReceiptComponent;
   let fixture: ComponentFixture<CaptureReceiptComponent>;
 

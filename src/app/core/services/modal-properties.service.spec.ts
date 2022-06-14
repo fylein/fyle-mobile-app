@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { ModalPropertiesService } from './modal-properties.service';
 
-describe('ModalPropertiesService', () => {
+xdescribe('ModalPropertiesService', () => {
   let service: ModalPropertiesService;
 
   beforeEach(() => {

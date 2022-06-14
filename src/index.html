@@ -6,7 +6,7 @@
 
     <base href="/" />
 
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="light" />
     <meta
       name="viewport"
       content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -49,30 +49,35 @@
               'once',
               'off',
               'on',
+              'addSourceMiddleware',
+              'addIntegrationMiddleware',
+              'setAnonymousId',
+              'addDestinationMiddleware',
             ];
-            analytics.factory = function (t) {
+            analytics.factory = function (e) {
               return function () {
-                var e = Array.prototype.slice.call(arguments);
-                e.unshift(t);
-                analytics.push(e);
+                var t = Array.prototype.slice.call(arguments);
+                t.unshift(e);
+                analytics.push(t);
                 return analytics;
               };
             };
-            for (var t = 0; t < analytics.methods.length; t++) {
-              var e = analytics.methods[t];
-              analytics[e] = analytics.factory(e);
+            for (var e = 0; e < analytics.methods.length; e++) {
+              var key = analytics.methods[e];
+              analytics[key] = analytics.factory(key);
             }
-            analytics.load = function (t, e) {
-              var n = document.createElement('script');
-              n.type = 'text/javascript';
-              n.async = !0;
-              n.src = 'https://cdn.segment.com/analytics.js/v1/' + t + '/analytics.min.js';
-              var a = document.getElementsByTagName('script')[0];
-              a.parentNode.insertBefore(n, a);
+            analytics.load = function (key, e) {
+              var t = document.createElement('script');
+              t.type = 'text/javascript';
+              t.async = !0;
+              t.src = 'https://cdn.segment.com/analytics.js/v1/' + key + '/analytics.min.js';
+              var n = document.getElementsByTagName('script')[0];
+              n.parentNode.insertBefore(t, n);
               analytics._loadOptions = e;
             };
-            analytics.SNIPPET_VERSION = '4.1.0';
-            analytics.load('7qjsgnL7fUFk7L3yGUbRHsepubPrWhxw');
+            analytics._writeKey = 'HLAIx2uwpdglrMKhUV9rREAr9ADpeJ48';
+            analytics.SNIPPET_VERSION = '4.15.3';
+            analytics.load('HLAIx2uwpdglrMKhUV9rREAr9ADpeJ48');
             analytics.page();
           }
       })();

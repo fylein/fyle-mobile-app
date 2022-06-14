@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyUserlistModalComponent } from './fy-userlist-modal.component';
 
-describe('FyUserlistModalComponent', () => {
+xdescribe('FyUserlistModalComponent', () => {
   let component: FyUserlistModalComponent;
   let fixture: ComponentFixture<FyUserlistModalComponent>;
 

@@ -17,6 +17,7 @@ import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { UndoMerge } from '../models/undo-merge.model';
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -105,17 +106,6 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: transactionsCacheBuster$,
   })
-  getMyETxnc(params: { offset: number; limit: number; tx_org_user_id: string }) {
-    return this.apiV2Service
-      .get('/expenses', {
-        params,
-      })
-      .pipe(map((etxns) => etxns.data));
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
-  })
   getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
       switchMap((res) => {
@@ -124,24 +114,6 @@ export class TransactionService {
       }),
       concatMap((page) => this.getETxnc({ offset: 50 * page, limit: 50, params })),
       reduce((acc, curr) => acc.concat(curr))
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
-  })
-  getAllMyETxnc() {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.getMyETxncCount('eq.' + eou.ou.id).pipe(
-          switchMap((res) => {
-            const count = res.count > 50 ? res.count / 50 : 1;
-            return range(0, count);
-          }),
-          concatMap((page) => this.getMyETxnc({ offset: 50 * page, limit: 50, tx_org_user_id: 'eq.' + eou.ou.id })),
-          reduce((acc, curr) => acc.concat(curr))
-        )
-      )
     );
   }
 
@@ -412,10 +384,6 @@ export class TransactionService {
     return stateMap[state];
   }
 
-  getPaginatedETxncStats(params) {
-    return this.apiService.get('/etxns/stats', { params });
-  }
-
   getPaginatedETxncCount(params?) {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -430,12 +398,6 @@ export class TransactionService {
         }
       })
     );
-  }
-
-  getMyETxncCount(tx_org_user_id: string): Observable<{ count: number }> {
-    return this.apiV2Service
-      .get('/expenses', { params: { offset: 0, limit: 1, tx_org_user_id } })
-      .pipe(map((res) => res as { count: number }));
   }
 
   getETxnc(params: { offset: number; limit: number; params: any }) {
@@ -786,5 +748,27 @@ export class TransactionService {
     }
 
     return dialogBody;
+  }
+
+  getUnlinkDialogBody(isSplitExpensesPresent: boolean): string {
+    const dialogBody = isSplitExpensesPresent
+      ? `<ul class="text-left">
+    <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
+    <li>It removes the card details from the expense and creates a new card expense under the Expenses section.</li>
+    <li>Since this is a split expense, clicking on Confirm will remove the card details from all the related split expenses.</li>
+    </ul>`
+      : `<ul class="text-left">
+    <li>If you're sure that your expense is linked with the wrong card details, you can proceed to unlink the card details by clicking on <strong>Confirm.</strong></li>
+    <li>It removes the card details from the expense and creates a new card expense under the Expenses section.</li>
+    </ul>`;
+
+    return dialogBody;
+  }
+
+  unlinkCorporateCardExpense(txnId: string): Observable<UndoMerge> {
+    const data: Object = {
+      txn_id: txnId,
+    };
+    return this.apiService.post('/transactions/unlink_card_expense', data);
   }
 }

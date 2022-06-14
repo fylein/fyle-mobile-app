@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyAlertComponent } from './fy-alert.component';
 
-describe('FyAlertComponent', () => {
+xdescribe('FyAlertComponent', () => {
   let component: FyAlertComponent;
   let fixture: ComponentFixture<FyAlertComponent>;
 
