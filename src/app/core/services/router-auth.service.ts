@@ -8,12 +8,12 @@ import { AuthResponse } from '../models/auth-response.model';
 import { Observable, from } from 'rxjs';
 import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { ApiV2Service } from './api-v2.service';
-import { DuplicateDetectionService } from './duplicate-detection.service';
 import { LocationService } from './location.service';
 import { PolicyApiService } from './policy-api.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
 import { PushNotificationService } from './push-notification.service';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,12 +26,12 @@ export class RouterAuthService {
     private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private apiService: ApiService,
     private apiv2Service: ApiV2Service,
-    private duplicateDetectionService: DuplicateDetectionService,
     private locationService: LocationService,
     private policyApiService: PolicyApiService,
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
-    private pushNotificationService: PushNotificationService
+    private pushNotificationService: PushNotificationService,
+    private spenderPlatformApiService: SpenderPlatformApiService
   ) {}
 
   checkEmailExists(email) {
@@ -54,12 +54,12 @@ export class RouterAuthService {
     this.apiService.setRoot(domain);
     this.advanceRequestPolicyService.setRoot(domain);
     this.apiv2Service.setRoot(domain);
-    this.duplicateDetectionService.setRoot(domain);
     this.locationService.setRoot(domain);
     this.policyApiService.setRoot(domain);
     this.transactionOutboxService.setRoot(domain);
     this.vendorService.setRoot(domain);
     this.pushNotificationService.setRoot(domain);
+    this.spenderPlatformApiService.setRoot(domain);
 
     await this.tokenService.setClusterDomain(domain);
   }
