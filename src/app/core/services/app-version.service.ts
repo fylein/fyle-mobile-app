@@ -47,17 +47,13 @@ export class AppVersionService {
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     const platformOS$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.operatingSystem as string));
     const platformVersion$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.osVersion));
-
-    const liveUpdateVersion = environment.LIVEUPDATE_APP_VERSION;
-    const currentVersion$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.appVersion));
-
     const storedVersion$ = platformOS$.pipe(switchMap((os) => this.get(os)));
+    const liveUpdateVersion = environment.LIVEUPDATE_APP_VERSION;
 
-    //TODO: Remove currentVersion$ as it is no longer used
-    forkJoin([platformOS$, platformVersion$, currentVersion$, storedVersion$])
+    forkJoin([platformOS$, platformVersion$, storedVersion$])
       .pipe(
         switchMap((aggregatedResponses) => {
-          const [platformOS, platformVersion, currentVersion, storedVersion] = aggregatedResponses;
+          const [platformOS, platformVersion, storedVersion] = aggregatedResponses;
           const data = {
             app_version: liveUpdateVersion,
             device_platform: platformOS,
