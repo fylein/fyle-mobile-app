@@ -111,7 +111,6 @@ export class FyAddToReportComponent implements OnInit {
         enableSearch: this.enableSearch,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

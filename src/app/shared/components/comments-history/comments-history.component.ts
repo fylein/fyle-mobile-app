@@ -43,7 +43,6 @@ export class CommentsHistoryComponent implements OnInit {
         objectType: this.objectType,
         objectId: this.objectId,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

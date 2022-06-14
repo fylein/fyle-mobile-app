@@ -102,18 +102,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
   }
 
   async openModal() {
-    let modalProperties;
-    if (this.label === 'Payment Mode') {
-      modalProperties = {
-        cssClass: 'payment-mode-modal',
-        showBackdrop: true,
-        swipeToClose: true,
-        backdropDismiss: true,
-        animated: true,
-      };
-    } else {
-      modalProperties = this.modalProperties.getModalDefaultProperties();
-    }
+    const cssClass = this.label === 'Payment Mode' ? 'payment-mode-modal' : 'fy-modal';
 
     const selectionModal = await this.modalController.create({
       component: FySelectModalComponent,
@@ -134,8 +123,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
         label: this.label,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...modalProperties,
+      ...this.modalProperties.getModalDefaultProperties(cssClass),
     });
 
     await selectionModal.present();

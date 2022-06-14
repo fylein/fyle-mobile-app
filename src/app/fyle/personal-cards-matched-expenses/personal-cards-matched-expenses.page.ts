@@ -4,6 +4,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import * as moment from 'moment';
 @Component({
   selector: 'app-personal-cards-matched-expenses',
@@ -22,7 +23,8 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
   constructor(
     private personalCardsService: PersonalCardsService,
     private router: Router,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService
   ) {
     this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails;
   }
@@ -52,11 +54,7 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
         cardTxnId: this.txnDetails.btxn_id,
         type: 'match',
       },
-      cssClass: 'expense-preview-modal',
-      showBackdrop: true,
-      swipeToClose: true,
-      backdropDismiss: true,
-      animated: true,
+      ...this.modalProperties.getModalDefaultProperties('expense-preview-modal'),
     });
 
     await expenseDetailsModal.present();

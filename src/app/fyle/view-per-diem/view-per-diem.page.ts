@@ -127,7 +127,6 @@ export class ViewPerDiemPage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx_id,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

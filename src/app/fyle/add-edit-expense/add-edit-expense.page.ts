@@ -544,14 +544,6 @@ export class AddEditExpensePage implements OnInit {
     this.isChangeCCCSuggestionClicked = true;
     this.isCCCTransactionAutoSelected = false;
     this.etxn$.subscribe(async (etxn) => {
-      const modalProperties = {
-        cssClass: 'auto-height',
-        showBackdrop: true,
-        swipeToClose: true,
-        backdropDismiss: true,
-        animated: true,
-      };
-
       const matchExpensesModal = await this.modalController.create({
         component: MatchTransactionComponent,
         componentProps: {
@@ -560,8 +552,7 @@ export class AddEditExpensePage implements OnInit {
           selectedCCCTransaction: this.selectedCCCTransaction,
         },
         mode: 'ios',
-        presentingElement: await this.modalController.getTop(),
-        ...modalProperties,
+        ...this.modalProperties.getModalDefaultProperties('auto-height'),
       });
 
       await matchExpensesModal.present();
@@ -3238,7 +3229,6 @@ export class AddEditExpensePage implements OnInit {
         policyActionDescription,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -4058,7 +4048,6 @@ export class AddEditExpensePage implements OnInit {
             canEdit: true,
           },
           mode: 'ios',
-          presentingElement: await this.modalController.getTop(),
         });
 
         await attachmentsModal.present();
@@ -4141,7 +4130,6 @@ export class AddEditExpensePage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx.id,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -4382,7 +4370,6 @@ export class AddEditExpensePage implements OnInit {
         duplicateExpenses,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
