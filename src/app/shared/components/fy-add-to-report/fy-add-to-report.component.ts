@@ -1,4 +1,4 @@
-import { Component, forwardRef, Injector, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { Component, forwardRef, Injector, Input, OnInit, TemplateRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
@@ -23,7 +23,7 @@ import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model'
     },
   ],
 })
-export class FyAddToReportComponent implements OnInit, OnDestroy {
+export class FyAddToReportComponent implements OnInit {
   @Input() options: { label: string; value: UnflattenedReport }[] = [];
 
   @Input() disabled = false;
@@ -50,14 +50,6 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
 
   private innerValue;
 
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
-
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
@@ -71,11 +63,13 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
     private trackingService: TrackingService
   ) {}
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
-
-  ngOnDestroy(): void {}
 
   get value(): any {
     return this.innerValue;
@@ -97,6 +91,10 @@ export class FyAddToReportComponent implements OnInit, OnDestroy {
 
       this.onChangeCallback(v);
     }
+  }
+
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
   }
 
   async openModal() {

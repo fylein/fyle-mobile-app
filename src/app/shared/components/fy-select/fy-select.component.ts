@@ -1,21 +1,9 @@
-import {
-  Component,
-  OnInit,
-  forwardRef,
-  Input,
-  ContentChild,
-  TemplateRef,
-  ElementRef,
-  OnDestroy,
-  Injector,
-  Output,
-} from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NG_VALIDATORS, FormControl, NgControl } from '@angular/forms';
+import { Component, OnInit, forwardRef, Input, TemplateRef, Injector } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FySelectModalComponent } from './fy-select-modal/fy-select-modal.component';
 import { isEqual } from 'lodash';
-import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
@@ -30,7 +18,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
     },
   ],
 })
-export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class FySelectComponent implements ControlValueAccessor, OnInit {
   @Input() options: { label: string; value: any }[] = [];
 
   @Input() disabled = false;
@@ -65,14 +53,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
 
   private innerValue;
 
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
-
   private ngControl: NgControl;
 
   private onTouchedCallback: () => void = noop;
@@ -85,11 +65,13 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
     private modalProperties: ModalPropertiesService
   ) {}
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
-
-  ngOnDestroy(): void {}
 
   get value(): any {
     return this.innerValue;
@@ -113,6 +95,10 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
 
       this.onChangeCallback(v);
     }
+  }
+
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
   }
 
   async openModal() {
