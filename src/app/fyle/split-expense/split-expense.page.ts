@@ -21,6 +21,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -74,7 +75,7 @@ export class SplitExpensePage implements OnInit {
 
   completeTxnIds: string[];
 
-  categoryList = [];
+  categoryList: OrgCategory[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -248,16 +249,16 @@ export class SplitExpensePage implements OnInit {
     }
   }
 
-  getCategories() {
+  getCategories(): Observable<OrgCategory> {
     // Retrieve list of all enabled categories
 
     return this.categoriesService.getAll().pipe(
       switchMap((categories) => {
-        const allEnabledCategories = this.categoriesService.filterEnabled(categories);
-        this.categoryList = this.categoriesService.filterRequired(allEnabledCategories);
+        this.categoryList = this.categoriesService.filterRequired(categories);
 
-        // after getting the list, check if vm.transaction.org_category_id exists
-        // if exists, set vm.splitExpenses[0].category
+        /* after getting the list, check if vm.transaction.org_category_id exists
+        if exists, set vm.splitExpenses[0].category */
+
         if (this.categoryList && this.transaction.org_category_id) {
           this.categoryList.some((category) => {
             if (category.id === this.transaction.org_category_id) {
@@ -265,7 +266,6 @@ export class SplitExpensePage implements OnInit {
             }
           });
         }
-
         return this.categoryList;
       })
     );
@@ -292,8 +292,7 @@ export class SplitExpensePage implements OnInit {
       }),
       switchMap((data: any) => {
         const txnIds = data.txns.map((txn) => txn.id);
-        this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
-        return of(txnIds);
+        return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
       })
     );
   }
@@ -360,19 +359,18 @@ export class SplitExpensePage implements OnInit {
   formatDisplayName(model) {
     let category;
 
-    // If model is defined and
-    // if category list is available
+    /* If model is defined and
+    if category list is available */
 
     if (model && this.categoryList) {
       category = this.categoriesService.filterByOrgCategoryId(model, this.categoryList);
 
-      // If a matching category is found return the display name
-      // this is needed where the vm.transaction.org_category_id
-      // is set due to vendor selection function outside of the directive
-      // in that case matching category may not be present
-      if (category) {
-        return category.displayName;
-      }
+      /* If a matching category is found return the display name
+      this is needed where the vm.transaction.org_category_id
+      is set due to vendor selection function outside of the directive
+      in that case matching category may not be present */
+
+      return category?.displayName;
     }
   }
 
@@ -403,8 +401,8 @@ export class SplitExpensePage implements OnInit {
     );
   }
 
-  async showSplitExpenseViolations(violations) {
-    const currencyModal = await this.modalController.create({
+  async showSplitExpenseViolations(violations: Object) {
+    const splitExpenseViolationsModal = await this.modalController.create({
       component: SplitExpensePolicyViolationComponent,
       componentProps: {
         policyViolations: violations,
@@ -414,13 +412,13 @@ export class SplitExpensePage implements OnInit {
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
-    await currencyModal.present();
+    await splitExpenseViolationsModal.present();
 
-    const { data } = await currencyModal.onWillDismiss();
+    const { data } = await splitExpenseViolationsModal.onWillDismiss();
     this.showSuccessToast();
   }
 
-  handleSplitExpensePolicyViolations(violations) {
+  handleSplitExpensePolicyViolations(violations: Object) {
     const doViolationsExist = this.policyService.checkIfViolationsExist(violations);
     if (doViolationsExist) {
       const formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);

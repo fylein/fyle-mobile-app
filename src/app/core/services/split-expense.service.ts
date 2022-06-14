@@ -1,8 +1,6 @@
-import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
-import { concatMap, last, map, mergeMap, scan, switchMap, tap, toArray } from 'rxjs/operators';
-import { DataTransformService } from './data-transform.service';
+import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { FileService } from './file.service';
 import { PolicyService } from './policy.service';
 import { TransactionService } from './transaction.service';
@@ -58,7 +56,9 @@ export class SplitExpenseService {
     );
   }
 
-  testPolicyForATxn(etxn) {
+  checkPolicyForATransaction(etxn) {
+    //  Runs policy for each etxn and the response violation object is assigned to the etxn id
+
     const policyResponse = {};
     return this.transactionService.testPolicy(etxn).pipe(
       map((response) => {
@@ -93,22 +93,25 @@ export class SplitExpenseService {
     return formattedViolations;
   }
 
-  runApiCallSerially(etxns) {
+  checkPolicyForTransactions(etxns) {
     return from(etxns).pipe(
-      mergeMap((etxn) => this.testPolicyForATxn(etxn)),
-      scan((acc, curr) => ({ ...curr, ...acc }), {}),
-      last()
+      concatMap((etxn) => this.checkPolicyForATransaction(etxn)),
+      reduce((obj, violation) => {
+        obj[Object.keys(violation)[0]] = violation[Object.keys(violation)[0]];
+        return obj;
+      }, {})
     );
   }
 
   runPolicyCheck(etxns, fileObjs) {
-    const txnsPayload = [];
-    const that = this;
-    etxns.forEach(function (etxn) {
-      etxn.tx_num_files = fileObjs ? fileObjs.length : 0;
-    });
-
-    return this.runApiCallSerially(etxns);
+    if (etxns?.length > 0) {
+      etxns.forEach(function (etxn) {
+        etxn.tx_num_files = fileObjs ? fileObjs.length : 0;
+      });
+      return this.checkPolicyForTransactions(etxns);
+    } else {
+      return of([]);
+    }
   }
 
   createSplitTxns(sourceTxn, totalSplitAmount, splitExpenses) {

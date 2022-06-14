@@ -38,7 +38,7 @@ export class PolicyService {
     return this.policyApiService.get('/policy/violating_transactions', { params });
   }
 
-  checkIfViolationsExist(violations) {
+  checkIfViolationsExist(violations: Object): boolean {
     let doViolationsExist = false;
 
     for (const key in violations) {
@@ -46,7 +46,7 @@ export class PolicyService {
         // check for popup field for all polices
         const rules = this.getPolicyRules(violations[key]);
 
-        if (rules && rules.length > 0) {
+        if (rules?.length > 0) {
           doViolationsExist = true;
 
           break;
@@ -57,14 +57,10 @@ export class PolicyService {
     return doViolationsExist;
   }
 
-  getApprovalString(emails) {
+  getApprovalString(emails: string[]): string {
     let additionalApprovalString = 'Expense will need additional approval from ';
-    emails.forEach((email, index) => {
-      additionalApprovalString += '<b>' + email + '</b>';
-      if (index < emails.length - 1) {
-        additionalApprovalString += ', ';
-      }
-    });
+    additionalApprovalString += emails.map((email) => '<b>' + email + '</b>').join(', ');
+
     return additionalApprovalString;
   }
 

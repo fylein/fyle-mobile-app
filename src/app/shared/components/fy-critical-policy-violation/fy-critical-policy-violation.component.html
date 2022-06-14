@@ -1,4 +1,4 @@
-<div *ngIf="showHeader" mode="md">
+<div *ngIf="showHeader">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
     <ion-title>
@@ -19,29 +19,11 @@
   </div>
 </div>
 
-<div *ngIf="showCTA" class="critical-policy-violation--footer">
-  <div class="critical-policy-violation--cta-container">
-    <ion-grid class="ion-no-padding">
-      <ion-row>
-        <ion-col size="6" class="ion-no-padding">
-          <button
-            type="button"
-            class="critical-policy-violation--cta-button critical-policy-violation--secondary-cta text-center"
-            (click)="cancel()"
-          >
-            Cancel
-          </button>
-        </ion-col>
-        <ion-col size="6" class="ion-no-padding">
-          <button
-            type="submit"
-            class="critical-policy-violation--cta-button critical-policy-violation--primary-cta text-center"
-            (click)="continue()"
-          >
-            Continue
-          </button>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+<div *ngIf="showCTA">
+  <div>
+    <div class="fy-footer-cta-container">
+      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()"> Continue </ion-button>
+    </div>
   </div>
 </div>

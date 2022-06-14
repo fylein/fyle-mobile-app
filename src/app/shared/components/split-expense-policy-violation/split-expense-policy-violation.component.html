@@ -10,7 +10,7 @@
 <ion-content>
   <ng-container *ngIf="policyViolations && transactionIDs" class="policy-violation--body">
     <ng-container *ngFor="let transaction of transactionIDs; let i = index">
-      <div *ngIf="policyViolations[transaction].rules.length > 0" class="split-expense-policy-violation--accordion">
+      <div *ngIf="policyViolations[transaction]?.rules?.length > 0" class="split-expense-policy-violation--accordion">
         <div (click)="toggleExpansion(transaction)">
           <div class="split-expense-policy-violation--header-slot">
             <div class="split-expense-policy-violation--violations-count">
@@ -21,9 +21,9 @@
             </div>
             <span class="split-expense-policy-violation--dropdown-icon">
               <ion-icon
-                class="split-expense-policy-violation__dropdown-container__icon"
+                class="split-expense-policy-violation--dropdown-container__icon"
                 [ngClass]="{
-                  'split-expense-policy-violation__dropdown-container__icon--rotate':
+                  'split-expense-policy-violation--dropdown-container__icon--rotate':
                     !policyViolations[transaction].isExpanded
                 }"
                 [src]="'../../../../assets/svg/fy-arrow-down.svg'"
@@ -48,7 +48,7 @@
             </div>
           </div>
         </div>
-        <div class="split-expense-policy-violation__dropdown-items" *ngIf="policyViolations[transaction].isExpanded">
+        <div class="split-expense-policy-violation--dropdown-items" *ngIf="policyViolations[transaction].isExpanded">
           <ng-container>
             <ng-container *ngIf="!policyViolations[transaction].isCriticalPolicyViolation">
               <div class="split-expense-policy-violation--content-container">

@@ -10,9 +10,9 @@ import { StatusService } from 'src/app/core/services/status.service';
   styleUrls: ['./split-expense-policy-violation.component.scss'],
 })
 export class SplitExpensePolicyViolationComponent implements OnInit {
-  @Input() policyViolations: any;
+  @Input() policyViolations: Object;
 
-  transactionIDs = [];
+  transactionIDs: string[];
 
   comments = {};
 
@@ -24,6 +24,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
 
   ngOnInit() {
     if (this.policyViolations) {
+      this.transactionIDs = [];
       Object.keys(this.policyViolations).forEach((transactionsID) => {
         this.comments[transactionsID] = '';
         this.transactionIDs.push(transactionsID);
@@ -31,7 +32,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     }
   }
 
-  toggleExpansion(currentTransactionID) {
+  toggleExpansion(currentTransactionID: string) {
     this.transactionIDs.forEach((transactionID) => {
       if (transactionID !== currentTransactionID) {
         this.policyViolations[transactionID].isExpanded = false;

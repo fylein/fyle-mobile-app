@@ -10,7 +10,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
   styleUrls: ['./fy-policy-violation.component.scss'],
 })
 export class FyPolicyViolationComponent implements OnInit {
-  @Input() policyViolationMessages = [];
+  @Input() policyViolationMessages: string[];
 
   @Input() policyActionDescription: string;
 
@@ -22,19 +22,19 @@ export class FyPolicyViolationComponent implements OnInit {
 
   @Input() showHeader = true;
 
-  isExpenseFlagged: boolean;
+  isExpenseFlagged = false;
 
-  isPrimaryApproverSkipped: boolean;
+  isPrimaryApproverSkipped = false;
 
-  needAdditionalApproval: boolean;
+  needAdditionalApproval = false;
 
-  isExpenseCapped: boolean;
+  isExpenseCapped = false;
 
   additionalApprovalString: string;
 
   cappedAmountString: string;
 
-  //Remove this once the policy action description gets returned as an array while integrating platform API
+  //To do Remove this once the policy action description gets returned as an array while integrating platform API
   availableActionsCount = 0;
 
   constructor(

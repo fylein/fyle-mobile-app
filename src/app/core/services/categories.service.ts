@@ -125,25 +125,15 @@ export class CategoriesService {
     });
   }
 
-  filterByOrgCategoryId(orgCategoryId, categoryList) {
-    let matchingCategory;
-
-    categoryList.some((cat) => {
-      if (cat.id === orgCategoryId) {
-        matchingCategory = cat;
-
-        return true;
-      }
-    });
-
-    return matchingCategory;
+  filterByOrgCategoryId(orgCategoryId: number, categoryList: OrgCategory[]): OrgCategory {
+    return categoryList.filter((orgCategory) => orgCategory.id === orgCategoryId)[0];
   }
 
-  filterEnabled(categories) {
+  filterEnabled(categories: OrgCategory[]): OrgCategory[] {
     return categories.filter((category) => category.enabled === true);
   }
 
-  filterRequired(categoryList) {
+  filterRequired(categoryList: OrgCategory[]): OrgCategory[] {
     return categoryList.filter((category) => {
       if (!category.fyle_category) {
         return true;

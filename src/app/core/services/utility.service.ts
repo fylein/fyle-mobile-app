@@ -111,11 +111,11 @@ export class UtilityService {
     });
   }
 
-  getEmailsFromString(text: String): String[] {
+  getEmailsFromString(text: string): string[] {
     return text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi);
   }
 
-  getAmountWithCurrencyFromString(text: String): String[] {
+  getAmountWithCurrencyFromString(text: string): string[] {
     return text.match(/capped to ([a-zA-Z]{1,3} \d+)/i);
   }
 
