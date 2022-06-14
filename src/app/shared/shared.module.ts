@@ -27,8 +27,6 @@ import { FyMultiselectModalComponent } from './components/fy-multiselect/fy-mult
 import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-modal/fy-userlist-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FyAlertComponent } from './components/fy-alert/fy-alert.component';
-import { FyDuplicateDetectionComponent } from './components/fy-duplicate-detection/fy-duplicate-detection.component';
-import { FyDuplicateDetectionModalComponent } from './components/fy-duplicate-detection/fy-duplicate-detection-modal/fy-duplicate-detection-modal.component';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { ApproverDialogComponent } from './components/fy-approver/add-approvers-popover/approver-dialog/approver-dialog.component';
@@ -142,8 +140,6 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     FyMultiselectModalComponent,
     FyUserlistModalComponent,
     FyAlertComponent,
-    FyDuplicateDetectionComponent,
-    FyDuplicateDetectionModalComponent,
     DelegatedAccMessageComponent,
     CurrencyComponent,
     CommentsHistoryComponent,
@@ -257,7 +253,6 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     FyMultiselectComponent,
     FyUserlistComponent,
     FyAlertComponent,
-    FyDuplicateDetectionComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
     InitialsPipe,

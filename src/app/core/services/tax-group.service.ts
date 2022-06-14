@@ -63,9 +63,4 @@ export class TaxGroupService {
       reduce((acc, curr) => acc.concat(curr), [] as TaxGroup[])
     );
   }
-
-  post(taxGroup: TaxGroup) {
-    /** Only these fields will be of type text & custom fields */
-    return this.apiService.post('tax_groups', taxGroup);
-  }
 }
