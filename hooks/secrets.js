@@ -211,5 +211,6 @@ module.exports.prodEnvironment = `
         SENTRY_DSN: '${process.env.FYLE_MOBILE_SENTRY_DSN}',
         REFINER_NPS_FORM_ID: '${process.env.REFINER_NPS_FORM_ID}',
         LAUNCH_DARKLY_CLIENT_ID: '${process.env.LAUNCH_DARKLY_CLIENT_I}',
+        LIVEUPDATE_APP_VERSION: '${process.env.LIVEUPDATE_APP_VERSION}'
       };
     `
