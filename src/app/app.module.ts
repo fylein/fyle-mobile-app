@@ -9,7 +9,6 @@ import { HttpClientJsonpModule, HttpClientModule, HTTP_INTERCEPTORS } from '@ang
 import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
 import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-import { Deploy } from 'cordova-plugin-ionic/dist/ngx';
 import { SharedModule } from './shared/shared.module';
 import { CurrencyPipe, TitleCasePipe } from '@angular/common';
 import * as Sentry from '@sentry/angular';
@@ -51,7 +50,6 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
   providers: [
     GooglePlus,
     InAppBrowser,
-    Deploy,
     {
       provide: HAMMER_GESTURE_CONFIG,
       useClass: MyHammerConfig,
