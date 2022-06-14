@@ -53,14 +53,6 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
 
   private innerValue;
 
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
-
   private ngControl: NgControl;
 
   private onTouchedCallback: () => void = noop;
@@ -73,8 +65,12 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
     private modalProperties: ModalPropertiesService
   ) {}
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
 
   get value(): any {
@@ -99,6 +95,10 @@ export class FySelectComponent implements ControlValueAccessor, OnInit {
 
       this.onChangeCallback(v);
     }
+  }
+
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
   }
 
   async openModal() {

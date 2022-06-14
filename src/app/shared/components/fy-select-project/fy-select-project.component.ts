@@ -41,14 +41,6 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
 
   private innerValue;
 
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
-
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
@@ -59,11 +51,13 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
     private injector: Injector
   ) {}
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
-
-  ngOnDestroy(): void {}
 
   get value(): any {
     return this.innerValue;
@@ -82,6 +76,12 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
       this.onChangeCallback(v);
     }
   }
+
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
+  }
+
+  ngOnDestroy(): void {}
 
   async openModal() {
     const projectModal = await this.modalController.create({

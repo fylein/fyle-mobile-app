@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { Observable, from, noop, Subject, concat } from 'rxjs';
+import { Observable, from, noop, Subject, concat, forkJoin } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -26,7 +26,9 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
+import { Approver } from 'src/app/core/models/v1/approver.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -105,6 +107,14 @@ export class ViewTeamReportPage implements OnInit {
 
   isExpensesLoading: boolean;
 
+  isSequentialApprovalEnabled = false;
+
+  canApprove = true;
+
+  eou$: Observable<ExtendedOrgUser>;
+
+  canShowTooltip = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -121,65 +131,11 @@ export class ViewTeamReportPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private refinerService: RefinerService,
     private statusService: StatusService,
-    private humanizeCurrency: HumanizeCurrencyPipe
+    private humanizeCurrency: HumanizeCurrencyPipe,
+    private offlineService: OfflineService
   ) {}
 
-  ngOnInit() {
-    this.erpt$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
-      finalize(() => from(this.loaderService.hideLoader()))
-    );
-    const eou$ = from(this.authService.getEou());
-
-    this.estatuses$ = this.refreshEstatuses$.pipe(
-      startWith(0),
-      switchMap(() => eou$),
-      switchMap((eou) =>
-        this.statusService.find(this.objectType, this.objectId).pipe(
-          map((estatus) =>
-            estatus.map((status) => {
-              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
-              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
-              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
-              return status;
-            })
-          ),
-          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
-        )
-      )
-    );
-
-    this.estatuses$.subscribe((estatuses) => {
-      const reversalStatus = estatuses.filter(
-        (status) => status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1
-      );
-
-      this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
-
-      this.type =
-        this.objectType.toLowerCase() === 'transactions'
-          ? 'Expense'
-          : this.objectType.substring(0, this.objectType.length - 1);
-
-      this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
-
-      this.userComments = estatuses.filter((status) => status.us_full_name);
-
-      for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = moment(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
-        const currentCommentDt = moment(this.userComments[i] && this.userComments[i].st_created_at);
-        if (moment(prevCommentDt).isSame(currentCommentDt, 'day')) {
-          this.userComments[i].show_dt = false;
-        } else {
-          this.userComments[i].show_dt = true;
-        }
-      }
-    });
-
-    this.totalCommentsCount$ = this.estatuses$.pipe(
-      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
-    );
-  }
+  ngOnInit() {}
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -232,6 +188,61 @@ export class ViewTeamReportPage implements OnInit {
     this.setupNetworkWatcher();
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
+
+    this.erpt$ = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
+      finalize(() => from(this.loaderService.hideLoader()))
+    );
+    this.eou$ = from(this.authService.getEou());
+
+    this.estatuses$ = this.refreshEstatuses$.pipe(
+      startWith(0),
+      switchMap(() => this.eou$),
+      switchMap((eou) =>
+        this.statusService.find(this.objectType, this.objectId).pipe(
+          map((estatus) =>
+            estatus.map((status) => {
+              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
+              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
+              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
+              return status;
+            })
+          ),
+          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
+        )
+      )
+    );
+
+    this.estatuses$.subscribe((estatuses) => {
+      const reversalStatus = estatuses.filter(
+        (status) => status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1
+      );
+
+      this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
+
+      this.type =
+        this.objectType.toLowerCase() === 'transactions'
+          ? 'Expense'
+          : this.objectType.substring(0, this.objectType.length - 1);
+
+      this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
+
+      this.userComments = estatuses.filter((status) => status.us_full_name);
+
+      for (let i = 0; i < this.userComments.length; i++) {
+        const prevCommentDt = moment(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
+        const currentCommentDt = moment(this.userComments[i] && this.userComments[i].st_created_at);
+        if (moment(prevCommentDt).isSame(currentCommentDt, 'day')) {
+          this.userComments[i].show_dt = false;
+        } else {
+          this.userComments[i].show_dt = true;
+        }
+      }
+    });
+
+    this.totalCommentsCount$ = this.estatuses$.pipe(
+      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
+    );
 
     this.erpt$ = this.refreshApprovals$.pipe(
       switchMap(() =>
@@ -298,8 +309,36 @@ export class ViewTeamReportPage implements OnInit {
     this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
-    this.etxns$.subscribe((etxns) => (this.reportEtxnIds = etxns.map((etxn) => etxn.tx_id)));
+    forkJoin({
+      etxns: this.etxns$,
+      eou: this.eou$,
+      approvals: this.reportApprovals$.pipe(take(1)),
+      orgSettings: this.offlineService.getOrgSettings(),
+    }).subscribe((res) => {
+      this.reportEtxnIds = res.etxns.map((etxn) => etxn.tx_id);
+      this.isSequentialApprovalEnabled = res?.orgSettings.approval_settings?.enable_sequential_approvers;
+      this.canApprove = this.isSequentialApprovalEnabled
+        ? this.isUserActiveInCurrentSeqApprovalQueue(res.eou, res.approvals)
+        : true;
+      this.canShowTooltip = true;
+    });
+
     this.refreshApprovals$.next();
+  }
+
+  toggleTooltip() {
+    this.canShowTooltip = !this.canShowTooltip;
+  }
+
+  isUserActiveInCurrentSeqApprovalQueue(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
+    const currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
+
+    const minRank = approvers
+      .filter((approver) => approver.state === 'APPROVAL_PENDING')
+      .map((approver) => approver.rank)
+      .reduce((prev, curr) => (prev < curr ? prev : curr));
+
+    return currentApproverRank === minRank;
   }
 
   async deleteReport() {
@@ -331,37 +370,41 @@ export class ViewTeamReportPage implements OnInit {
   }
 
   async approveReport() {
-    const erpt = await this.erpt$.pipe(take(1)).toPromise();
-    const etxns = await this.etxns$.toPromise();
+    if (!this.canApprove) {
+      this.toggleTooltip();
+    } else {
+      const erpt = await this.erpt$.pipe(take(1)).toPromise();
+      const etxns = await this.etxns$.toPromise();
 
-    const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, 2, false);
-    const popover = await this.popoverController.create({
-      componentProps: {
-        etxns,
-        title: 'Approve Report',
-        message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be approved',
-        primaryCta: {
-          text: 'Approve',
-          action: 'approve',
+      const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, 2, false);
+      const popover = await this.popoverController.create({
+        componentProps: {
+          etxns,
+          title: 'Approve Report',
+          message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be approved',
+          primaryCta: {
+            text: 'Approve',
+            action: 'approve',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
         },
-        secondaryCta: {
-          text: 'Cancel',
-          action: 'cancel',
-        },
-      },
-      component: PopupAlertComponentComponent,
-      cssClass: 'pop-up-in-center',
-    });
-
-    await popover.present();
-
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.action === 'approve') {
-      this.reportService.approve(erpt.rp_id).subscribe(() => {
-        this.refinerService.startSurvey({ actionName: 'Approve Report' });
-        this.router.navigate(['/', 'enterprise', 'team_reports']);
+        component: PopupAlertComponentComponent,
+        cssClass: 'pop-up-in-center',
       });
+
+      await popover.present();
+
+      const { data } = await popover.onWillDismiss();
+
+      if (data && data.action === 'approve') {
+        this.reportService.approve(erpt.rp_id).subscribe(() => {
+          this.refinerService.startSurvey({ actionName: 'Approve Report' });
+          this.router.navigate(['/', 'enterprise', 'team_reports']);
+        });
+      }
     }
   }
 

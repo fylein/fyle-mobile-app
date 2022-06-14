@@ -41,14 +41,6 @@ export class FyUserlistComponent implements OnInit {
 
   private ngControl: NgControl;
 
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
-
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
@@ -59,8 +51,12 @@ export class FyUserlistComponent implements OnInit {
     private injector: Injector
   ) {}
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
 
   get value(): any {
@@ -78,6 +74,10 @@ export class FyUserlistComponent implements OnInit {
 
       this.onChangeCallback(v);
     }
+  }
+
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
   }
 
   async openModal() {
