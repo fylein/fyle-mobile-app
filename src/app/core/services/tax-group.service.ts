@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from './api.service';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { TaxGroup } from '../models/tax-group.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
@@ -11,7 +10,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
   providedIn: 'root',
 })
 export class TaxGroupService {
-  constructor(private apiService: ApiService, private spenderPlatformApiService: SpenderPlatformApiService) {}
+  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
 
   getEnabledTaxGroupsCount(): Observable<number> {
     const data = {
