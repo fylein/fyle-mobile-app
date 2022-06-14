@@ -31,8 +31,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   @Input() expanded: boolean;
 
-  @Input() disabled: boolean;
-
   exchangeRate = 1;
 
   fg: FormGroup;

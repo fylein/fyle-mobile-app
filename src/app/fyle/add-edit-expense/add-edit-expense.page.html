@@ -53,7 +53,7 @@
         <ng-container *ngIf="isConnected$|async as isConnected">
           <ng-container *ngIf="isSplitExpenseAllowed$|async as isSplitExpenseAllowed">
             <ng-container
-              *ngIf="(isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)"
+              *ngIf="((isUnifyCcceExpensesSettingsEnabled) && !(etxn?.tx?.report_id) && !(reviewList?.length > 1)) || (isCorporateCreditCardEnabled && canUnlinkCCCE)"
             >
               <ion-button class="add-edit-expense--header-btn-container__btn" (click)="moreActions()">
                 <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
@@ -68,15 +68,6 @@
 
 <ion-content [ngClass]="{'d-none': isCameraShown}">
   <ng-container *ngIf="fg">
-    <div class="add-edit-expense--duplicate-pointer-container">
-      <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-expense--duplicate-pointer">
-        <div class="add-edit-expense--duplicate-pointer-text">Possible Duplicates Detected !</div>
-        <div class="add-edit-expense--duplicate-pointer-icon">
-          <mat-icon class="add-edit-expense--duplicate-pointer-icon-internal"> expand_more </mat-icon>
-        </div>
-      </div>
-    </div>
-
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
         <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
@@ -130,22 +121,22 @@
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend Date</div>
                 <div class="add-edit-expense--card-container__value">
-                  {{ fg?.controls?.dateOfSpend?.value | date: 'MMM dd, yyyy' }}
+                  {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, yyyy' }}
                 </div>
               </ion-col>
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend Amount</div>
-                <div *ngIf="fg?.controls?.currencyObj?.value?.amount > 0">
+                <div *ngIf="selectedCCCTransaction?.amount > 0">
                   <span class="add-edit-expense--card-container__value"
-                    >{{ fg?.controls?.currencyObj?.value?.amount | humanizeCurrency:
-                    fg?.controls?.currencyObj?.value?.currency:2:true }}</span
+                    >{{ cardCurrencySymbol }}{{ selectedCCCTransaction?.amount | humanizeCurrency:
+                    selectedCCCTransaction?.currency:2:true }}</span
                   >
                   <span class="add-edit-expense--card-container__txn-type">DR</span>
                 </div>
-                <div *ngIf="fg?.controls?.currencyObj?.value?.amount < 0">
+                <div *ngIf="selectedCCCTransaction?.amount < 0">
                   <span class="add-edit-expense--card-container__value add-edit-expense--card-container__credit"
-                    >{{ fg?.controls?.currencyObj?.value?.amount * -1 | humanizeCurrency:
-                    fg?.controls?.currencyObj?.value?.currency:2:true }}</span
+                    >{{ cardCurrencySymbol }}{{ selectedCCCTransaction?.amount * -1 | humanizeCurrency:
+                    selectedCCCTransaction?.currency:2:true }}</span
                   >
                   <span class="add-edit-expense--card-container__txn-type add-edit-expense--card-container__credit"
                     >CR</span
@@ -154,10 +145,17 @@
               </ion-col>
             </ion-row>
           </ion-grid>
-          <app-fy-alert-info
-            [type]="'information'"
-            [message]="'You won\'t be able to change the Amount, Spend Date and Currency for the corporate card expenses.'"
-          ></app-fy-alert-info>
+          <div class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border">
+            <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
+            <div class="add-edit-expense--split-info-message">
+              If the expense is linked with incorrect card details, click on Options (<span
+                ><ion-icon
+                  class="add-edit-expense--icon-dots"
+                  [src]="'../../../assets/svg/dot-menu.svg'"
+                ></ion-icon></span
+              >) to unlink the card details.
+            </div>
+          </div>
         </ng-container>
 
         <div class="add-edit-expense--receipt-currency-container">
@@ -206,7 +204,6 @@
                   [recentlyUsed]="recentCurrencies"
                   [txnDt]="fg?.controls?.dateOfSpend?.value"
                   [expanded]="attachedReceiptsCount === 0"
-                  [disabled]="isUnifyCcceExpensesSettingsEnabled && isCccExpense"
                 >
                 </app-new-fy-currency>
                 <div
@@ -251,7 +248,7 @@
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
                     *ngIf="txnFields?.txn_dt"
-                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid, 'add-edit-expense--date-block-disabled': isUnifyCcceExpensesSettingsEnabled && isCccExpense}"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.dateOfSpend.touched && !fg.controls.dateOfSpend.valid}"
                     class="add-edit-expense--date add-edit-expense--internal-block add-edit-expense--internal-block__margin"
                   >
                     <div
@@ -266,12 +263,11 @@
                       (keydown)="$event.preventDefault()"
                       [max]="maxDate"
                       [min]="minDate"
-                      [placeholder]="'Select ' + txnFields.txn_dt?.placeholder || 'Date of Spend'"
+                      [placeholder]="txnFields.txn_dt?.placeholder || 'Date of Spend'"
                       class="add-edit-expense--date-input date-input__format"
                       formControlName="dateOfSpend"
                       type="date"
                       [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
-                      [ngClass]="{'add-edit-expense--date-disabled': isUnifyCcceExpensesSettingsEnabled && isCccExpense}"
                     />
                   </div>
                   <div
@@ -285,7 +281,7 @@
               <ion-col size="6" *ngIf="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense)">
                 <ng-container *ngIf="paymentModes$|async as paymentModes">
                   <div
-                    *ngIf="paymentModes.length > 1"
+                    *ngIf="paymentModes.length > 0"
                     [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}"
                     class="add-edit-expense--payment-modes add-edit-expense--internal-block"
                   >
@@ -299,6 +295,7 @@
                       [selectModalHeader]="'Select Payment Mode'"
                       [selectionElement]="paymentMode"
                       formControlName="paymentMode"
+                      [placeholder]="'Payment Mode'"
                     >
                     </app-fy-select>
                     <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -440,15 +437,21 @@
                 </ng-container>
               </ng-container>
 
-              <div *ngIf="fg.controls.project.value">
-                <mat-checkbox formControlName="billable">
-                  <span class="add-edit-expense--checkbox"> Billable </span>
-                </mat-checkbox>
+              <div *ngIf="isProjectsEnabled$|async">
+                <div *ngIf="isProjectsVisible$|async">
+                  <div *ngIf="fg.controls.project.value">
+                    <mat-checkbox formControlName="billable">
+                      <span class="add-edit-expense--checkbox"> Billable </span>
+                    </mat-checkbox>
+                  </div>
+                </div>
               </div>
             </div>
-            <div *ngIf="isProjectsVisible$|async">
-              <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
-                Please select a project.
+            <div *ngIf="isProjectsEnabled$|async">
+              <div *ngIf="isProjectsVisible$|async">
+                <div *ngIf="fg.controls.project.touched && !fg.controls.project.valid" class="add-edit-expense--error">
+                  Please select a project.
+                </div>
               </div>
             </div>
           </ng-container>
@@ -471,6 +474,7 @@
                       [selectModalHeader]="'Select Category'"
                       [recentlyUsed]="recentCategories"
                       formControlName="category"
+                      [placeholder]="txnFields.org_category_id.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -496,6 +500,7 @@
                       [mandatory]="txnFields.tax_group_id.is_mandatory"
                       [selectModalHeader]="'Select ' + (txnFields.tax_group_id.field_name || 'Tax Group')"
                       formControlName="tax_group"
+                      [placeholder]="txnFields.tax_group_id.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -538,6 +543,7 @@
                           [label]="txnFields.location1?.field_name"
                           [mandatory]="txnFields.location1?.is_mandatory"
                           formControlName="location_1"
+                          [placeholder]="txnFields.location1?.placeholder"
                         >
                         </app-fy-location>
                       </div>
@@ -553,6 +559,7 @@
                           [label]="txnFields.location2?.field_name"
                           [mandatory]="txnFields.location2?.is_mandatory"
                           formControlName="location_2"
+                          [placeholder]="txnFields.location2?.placeholder"
                         >
                         </app-fy-location>
                       </div>
@@ -583,7 +590,7 @@
                           formControlName="from_dt"
                           [name]="txnFields.from_dt?.field_name"
                           type="date"
-                          [placeholder]="'Select '+ txnFields.from_dt?.field_name"
+                          [placeholder]="txnFields.from_dt?.placeholder || 'Select '+ txnFields.from_dt?.field_name"
                         />
                       </div>
                     </ion-col>
@@ -608,7 +615,7 @@
                           formControlName="to_dt"
                           [name]="txnFields.to_dt?.field_name"
                           type="date"
-                          [placeholder]="'Select '+ txnFields.to_dt?.field_name"
+                          [placeholder]="txnFields.from_dt?.placeholder || 'Select '+ txnFields.to_dt?.field_name"
                         />
                       </div>
                     </ion-col>
@@ -632,6 +639,7 @@
                           [options]="txnFields.flight_journey_travel_class?.options"
                           [selectModalHeader]="'Select Travel Class'"
                           formControlName="flight_journey_travel_class"
+                          [placeholder]="txnFields.flight_journey_travel_class?.placeholder"
                         >
                         </app-fy-select>
                       </div>
@@ -652,6 +660,7 @@
                           [selectModalHeader]="'Select Travel Class'"
                           formControlName="flight_return_travel_class"
                           name="flightReturnClass"
+                          [placeholder]="txnFields.flight_return_travel_class?.placeholder"
                         >
                         </app-fy-select>
                       </div>
@@ -676,7 +685,7 @@
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       [disabled]="!txnFields.train_travel_class?.canEdit"
-                      [placeholder]="'Enter ' + txnFields.train_travel_class?.field_name"
+                      [placeholder]="txnFields.train_travel_class.placeholder || 'Enter ' + txnFields.train_travel_class.field_name"
                       class="add-edit-expense--text-input add-edit-expense--text-input__large"
                       formControlName="train_travel_class"
                       type="text"
@@ -690,6 +699,7 @@
                     [mandatory]="txnFields.train_travel_class?.is_mandatory"
                     [options]="txnFields.train_travel_class?.options"
                     formControlName="train_travel_class"
+                    [placeholder]="txnFields.train_travel_class?.placeholder"
                   >
                   </app-fy-select>
                 </div>
@@ -710,7 +720,7 @@
                   <input
                     (blur)="focusState = false"
                     (focus)="focusState = true"
-                    [placeholder]="'Enter ' + txnFields.bus_travel_class?.field_name"
+                    [placeholder]="txnFields.bus_travel_class?.placeholder || 'Enter ' + txnFields.bus_travel_class?.field_name"
                     *ngIf="txnFields.bus_travel_class?.type === 'TEXT'"
                     [disabled]="!txnFields.bus_travel_class?.canEdit"
                     class="add-edit-expense--text-input add-edit-expense--text-input__large"
@@ -726,6 +736,7 @@
                     [selectModalHeader]="'Select Travel Class'"
                     formControlName="bus_travel_class"
                     hide-none="true"
+                    [placeholder]="txnFields.bus_travel_class?.placeholder"
                   >
                   </app-fy-select>
                 </div>
@@ -753,7 +764,7 @@
                     </div>
                     <app-fy-number
                       formControlName="distance"
-                      [placeholder]="'Enter ' + txnFields.distance?.field_name"
+                      [placeholder]="txnFields.distance?.placeholder || 'Enter ' + txnFields.distance?.field_name"
                     ></app-fy-number>
                   </div>
 
@@ -766,6 +777,7 @@
                       name="taxiDistanceUnit"
                       sub-title="Units"
                       title="Select Unit"
+                      [placeholder]="txnFields.distance_unit?.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -786,6 +798,7 @@
                 [label]="txnFields.vendor_id?.field_name"
                 [mandatory]="txnFields?.vendor_id?.is_mandatory"
                 formControlName="vendor_id"
+                [placeholder]="txnFields.vendor_id?.placeholder"
               >
               </app-fy-select-vendor>
               <app-fy-select
@@ -796,6 +809,7 @@
                 [options]="txnFields.vendor_id?.options"
                 [nullOption]="!txnFields.vendor_id?.is_mandatory"
                 formControlName="vendor_id"
+                [placeholder]="txnFields.vendor_id?.placeholder"
               >
               </app-fy-select>
             </div>
@@ -803,7 +817,6 @@
               Please select a merchant
             </div>
           </ng-container>
-
           <ng-container *ngIf="costCenters$|async as costCenters">
             <ng-container *ngIf="txnFields$|async as txnFields">
               <ng-container *ngIf="txnFields.cost_center_id?.is_mandatory || isExpandedView">
@@ -820,6 +833,7 @@
                       [selectModalHeader]="'Select Cost Center'"
                       [recentlyUsed]="recentCostCenters"
                       formControlName="costCenter"
+                      [placeholder]="txnFields.cost_center_id?.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -848,7 +862,7 @@
                   </div>
                   <input
                     [disabled]="!txnFields.purpose?.canEdit"
-                    [placeholder]="'Enter '+txnFields.purpose?.field_name | slice: 0:15"
+                    [placeholder]="txnFields.purpose?.placeholder || 'Enter '+txnFields.purpose?.field_name | slice: 0:30"
                     [required]="txnFields.purpose?.is_mandatory"
                     [title]="'Enter'+txnFields.purpose?.field_name"
                     class="add-edit-expense--text-input"
@@ -869,6 +883,7 @@
                     [options]="txnFields.purpose?.options"
                     [selectModalHeader]="'Enter '+ txnFields.purpose?.field_name"
                     formControlName="purpose"
+                    [placeholder]="txnFields.purpose?.placeholder"
                   >
                   </app-fy-select>
                 </div>
@@ -906,7 +921,7 @@
                       (blur)="focusState = false"
                       (focus)="focusState = true"
                       *ngIf="customInput.type === 'TEXT'"
-                      [placeholder]="customInput.placeholder | ellipsis: 30"
+                      [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                       class="add-edit-expense--text-input"
                       formControlName="value"
                       type="text"
@@ -915,7 +930,7 @@
                     <app-fy-number
                       formControlName="value"
                       *ngIf="customInput.type === 'NUMBER'"
-                      [placeholder]="customInput.placeholder | ellipsis: 30"
+                      [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                     >
                     </app-fy-number>
 
@@ -925,8 +940,7 @@
                       class="add-edit-expense--date-input date-input__format"
                       formControlName="value"
                       type="date"
-                      placeholder="customInput.placeholder | ellipsis: 30"
-                      [name]="customInput.name"
+                      [name]="customInput.placeholder || customInput.name"
                     />
                   </div>
 
@@ -951,10 +965,10 @@
                       [label]="customInput.name  | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
-                      [selectModalHeader]="customInput.placeholder | ellipsis: 30"
+                      [selectModalHeader]="'Select '+customInput.name"
                       [label]="customInput.name"
-                      [placeholder]="customInput.placeholder | ellipsis: 30"
                       formControlName="value"
+                      [placeholder]="customInput.placeholder | ellipsis: 30"
                     >
                     </app-fy-select>
                   </div>
@@ -964,7 +978,7 @@
                       [label]="customInput.name  | ellipsis: 30"
                       [mandatory]="customInput.mandatory"
                       [options]="customInput.options"
-                      [selectModalHeader]="customInput.placeholder | ellipsis: 30"
+                      [selectModalHeader]="'Select '+customInput.name"
                       [subheader]="customInput.name"
                       formControlName="value"
                       [placeholder]="customInput.placeholder | ellipsis: 30"
@@ -1068,47 +1082,6 @@
         >
           <app-fy-alert [message]="'Expense created due to reversal of card transaction.'" [type]="'card'">
           </app-fy-alert>
-        </ng-container>
-      </ng-container>
-
-      <ng-container *ngIf="duplicates$|async as duplicates">
-        <ng-container *ngIf="duplicates.length > 0">
-          <div #duplicateInputContainer class="add-edit-expense--duplicates-box add-edit-expense--primary-block">
-            <div class="add-edit-expense--duplicate-header">
-              <div class="add-edit-expense--duplicate-info">
-                <mat-icon class="add-edit-expense--duplicate-warning-icon"> warning </mat-icon>
-                <div>{{duplicates.length}} Duplicates Detected</div>
-              </div>
-
-              <div
-                (click)="setDuplicateBoxOpen(false)"
-                *ngIf="duplicateBoxOpen"
-                class="add-edit-expense--duplicate-cta"
-              >
-                Collapse
-              </div>
-              <div
-                (click)="setDuplicateBoxOpen(true)"
-                *ngIf="!duplicateBoxOpen"
-                class="add-edit-expense--duplicate-cta"
-              >
-                Expand
-              </div>
-            </div>
-            <div *ngIf="duplicateBoxOpen" class="add-edit-expense--duplicate-sub-box">
-              <div *ngFor="let duplicate of duplicates" class="add-edit-expense--duplicate-reason">
-                {{duplicate.reason}}
-              </div>
-              <div class="add-edit-expense--duplicate-reason-select">
-                <app-fy-select
-                  [label]="'Reason'"
-                  [options]="duplicateDetectionReasons"
-                  formControlName="duplicate_detection_reason"
-                >
-                </app-fy-select>
-              </div>
-            </div>
-          </div>
         </ng-container>
       </ng-container>
 
