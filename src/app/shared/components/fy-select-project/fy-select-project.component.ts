@@ -96,7 +96,6 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
         label: this.label,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

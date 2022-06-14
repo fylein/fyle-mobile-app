@@ -463,7 +463,6 @@ export class ViewTeamReportPage implements OnInit {
         etxns$: this.etxns$,
         view: ExpenseView.team,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

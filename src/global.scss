@@ -702,7 +702,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .fy-action-sheet {
-  --background: none;
+  --background: $white;
   .action-sheet-button {
     background: $white;
     min-height: 73px;
@@ -847,7 +847,7 @@ ref - https://stackoverflow.com/a/31162426
 
 ion-modal.fy-modal {
   &::part(content) {
-    --border-radius: 16px 16px 0 0 !important;
+    border-radius: 16px 16px 0 0 !important;
     max-height: 90%;
     position: absolute;
     top: 10%;
@@ -856,7 +856,7 @@ ion-modal.fy-modal {
 
 ion-modal.share-report-modal {
   &::part(content) {
-    --border-radius: 16px 16px 0 0 !important;
+    border-radius: 16px 16px 0 0 !important;
     height: 182px;
     position: absolute;
     bottom: 0 !important;
@@ -873,7 +873,7 @@ ion-modal.share-report-modal {
 
 ion-modal.flag-unflag-modal {
   &::part(content) {
-    --border-radius: 16px 16px 0 0 !important;
+    border-radius: 16px 16px 0 0 !important;
     height: 190px;
     position: absolute;
     bottom: 0 !important;
@@ -958,7 +958,7 @@ ion-popover.delete-dialog {
 
 ion-modal.payment-mode-modal {
   &::part(content) {
-    --border-radius: 16px 16px 0 0 !important;
+    border-radius: 16px 16px 0 0 !important;
     position: absolute;
     max-height: 60%;
     bottom: 0;
@@ -1001,7 +1001,7 @@ ion-modal.payment-mode-modal {
 
 ion-modal.auto-height {
   &::part(content) {
-    --border-radius: 16px 16px 0 0 !important;
+    border-radius: 16px 16px 0 0 !important;
     position: absolute;
     bottom: 0;
   }
@@ -1030,7 +1030,7 @@ ion-modal.auto-height {
 
 ion-modal.expense-preview-modal {
   &::part(content) {
-    --border-radius: 16px 16px 0 0 !important;
+    border-radius: 16px 16px 0 0 !important;
     max-height: 90%;
     position: absolute;
     top: 10%;
@@ -1124,7 +1124,7 @@ ion-popover.delete-button-class {
 
 ion-modal.personal-cards-range-modal {
   &::part(content) {
-    --border-radius: 16px 16px 0 0 !important;
+    border-radius: 16px 16px 0 0 !important;
     position: absolute;
     bottom: 0;
     max-height: 90%;

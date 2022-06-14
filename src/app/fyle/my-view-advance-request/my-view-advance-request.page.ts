@@ -245,7 +245,6 @@ export class MyViewAdvanceRequestPage implements OnInit {
         objectType: 'advance_requests',
         objectId: advanceRequest.areq_id,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -266,7 +265,6 @@ export class MyViewAdvanceRequestPage implements OnInit {
         attachments,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
