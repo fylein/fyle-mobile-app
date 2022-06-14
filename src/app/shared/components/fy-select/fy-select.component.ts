@@ -55,7 +55,7 @@ export class FySelectComponent implements ControlValueAccessor, OnInit, OnDestro
 
   @Input() showSaveButton = false;
 
-  @Input() placeholder = '';
+  @Input() placeholder: string;
 
   @Input() defaultLabelProp;
 

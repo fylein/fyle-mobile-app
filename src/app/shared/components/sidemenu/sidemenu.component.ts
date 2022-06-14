@@ -13,6 +13,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { Org } from 'src/app/core/models/org.model';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-sidemenu',
@@ -24,7 +25,7 @@ export class SidemenuComponent implements OnInit {
 
   appVersion: string;
 
-  activeOrg: string;
+  activeOrg: Org;
 
   isConnected$: Observable<any>;
 
@@ -49,7 +50,8 @@ export class SidemenuComponent implements OnInit {
     private orgUserService: OrgUserService,
     private freshChatService: FreshChatService,
     private networkService: NetworkService,
-    private sidemenuService: SidemenuService
+    private sidemenuService: SidemenuService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ngOnInit(): void {
@@ -70,13 +72,13 @@ export class SidemenuComponent implements OnInit {
       return 0;
     }
     const orgs$ = this.offlineService.getOrgs();
-    const currentOrg$ = this.offlineService.getCurrentOrg();
+    const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const delegatedAccounts$ = this.offlineService
       .getDelegatedAccounts()
       .pipe(map((res) => this.orgUserService.excludeByStatus(res, 'DISABLED')));
-    const deviceInfo$ = this.deviceService.getDeviceInfo();
+    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());
     const allowedActions$ = this.sidemenuService.getAllowedActions();
 
@@ -123,6 +125,19 @@ export class SidemenuComponent implements OnInit {
             email: eou.us.email,
             orgUserId: eou.ou.id,
           });
+
+          if (isConnected) {
+            this.launchDarklyService.initializeUser({
+              key: eou.ou.user_id,
+              custom: {
+                org_id: eou.ou.org_id,
+                org_user_id: eou.ou.id,
+                org_currency: currentOrg?.currency,
+                org_created_at: currentOrg?.created_at,
+                asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
+              },
+            });
+          }
         }
 
         this.switchDelegator.emit(this.isSwitchedToDelegator);

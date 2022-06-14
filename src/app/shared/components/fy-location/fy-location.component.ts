@@ -20,8 +20,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() label = 'location';
 
-  @Input() placeholder: string;
-
   @Input() mandatory = false;
 
   @Input() disabled = false;
@@ -33,6 +31,8 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() recentLocations: string[] = [];
 
   @Input() cacheName;
+
+  @Input() placeholder: string;
 
   displayValue;
 
