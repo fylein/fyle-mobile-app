@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { MergeExpensesService } from './merge-expenses.service';
 
-describe('MergeExpensesService', () => {
+xdescribe('MergeExpensesService', () => {
   let service: MergeExpensesService;
 
   beforeEach(() => {

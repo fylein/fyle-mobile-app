@@ -42,7 +42,6 @@ import { PolicyViolationComponent } from './policy-violation/policy-violation.co
 import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
-import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { CurrencyPipe } from '@angular/common';
 import { TokenService } from 'src/app/core/services/token.service';
@@ -58,6 +57,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { AccountOption } from 'src/app/core/models/account-option.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -133,12 +133,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   invalidPaymentMode = false;
 
-  duplicates$: Observable<any>;
-
-  duplicateBoxOpen = false;
-
-  pointToDuplicates = false;
-
   isAdvancesEnabled$: Observable<boolean>;
 
   comments$: Observable<any>;
@@ -179,11 +173,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   isProjectVisible$: Observable<boolean>;
 
-  duplicateDetectionReasons = [
-    { label: 'Different expense', value: 'Different expense' },
-    { label: 'Other', value: 'Other' },
-  ];
-
   billableDefaultValue: boolean;
 
   isRedirectedFromReport = false;
@@ -212,7 +201,6 @@ export class AddEditPerDiemPage implements OnInit {
     private statusService: StatusService,
     private networkService: NetworkService,
     private popupService: PopupService,
-    private duplicateDetectionService: DuplicateDetectionService,
     private navController: NavController,
     private trackingService: TrackingService,
     private currencyPipe: CurrencyPipe,
@@ -297,102 +285,6 @@ export class AddEditPerDiemPage implements OnInit {
       this.navController.back();
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
-    }
-  }
-
-  canGetDuplicates() {
-    return this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-        const isAmountPresent = isNumber(
-          this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount
-        );
-        return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountPresent;
-      })
-    );
-  }
-
-  checkForDuplicates() {
-    const customFields$ = this.customInputs$.pipe(
-      take(1),
-      map((customInputs) =>
-        customInputs.map((customInput, i) => ({
-          id: customInput.id,
-          mandatory: customInput.mandatory,
-          name: customInput.name,
-          options: customInput.options,
-          placeholder: customInput.placeholder,
-          prefix: customInput.prefix,
-          type: customInput.type,
-          value: this.fg.value.custom_inputs[i].value,
-        }))
-      )
-    );
-
-    return this.canGetDuplicates().pipe(
-      switchMap((canGetDuplicates) =>
-        iif(
-          () => canGetDuplicates,
-          this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-            switchMap((etxn) => this.duplicateDetectionService.getPossibleDuplicates(etxn.tx))
-          ),
-          of(null)
-        )
-      )
-    );
-  }
-
-  getPossibleDuplicates() {
-    return this.checkForDuplicates();
-  }
-
-  async trackDuplicatesShown(duplicates, etxn) {
-    try {
-      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
-      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
-
-      await this.trackingService.duplicateDetectionAlertShown({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
-        ExpenseId: etxn.tx.id,
-        DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields,
-      });
-    } catch (err) {
-      // Ignore event tracking errors
-    }
-  }
-
-  setupDuplicateDetection() {
-    this.duplicates$ = this.fg.valueChanges.pipe(
-      debounceTime(1000),
-      distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => this.getPossibleDuplicates())
-    );
-
-    this.duplicates$
-      .pipe(
-        filter((duplicates) => duplicates && duplicates.length),
-        take(1)
-      )
-      .subscribe((res) => {
-        this.pointToDuplicates = true;
-        setTimeout(() => {
-          this.pointToDuplicates = false;
-        }, 3000);
-
-        this.etxn$.pipe(take(1)).subscribe(async (etxn) => await this.trackDuplicatesShown(res, etxn));
-      });
-  }
-
-  showDuplicates() {
-    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
-    if (duplicateInputContainer) {
-      duplicateInputContainer.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start',
-      });
-
-      this.pointToDuplicates = false;
     }
   }
 
@@ -591,7 +483,7 @@ export class AddEditPerDiemPage implements OnInit {
     });
   }
 
-  getPaymentModes() {
+  getPaymentModes(): Observable<AccountOption[]> {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const accounts$ = this.offlineService.getAccounts();
 
@@ -599,12 +491,9 @@ export class AddEditPerDiemPage implements OnInit {
       accounts: accounts$,
       orgSettings: orgSettings$,
     }).pipe(
-      map(({ accounts, orgSettings }) => {
-        const isAdvanceEnabled =
-          (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
-        const isMultipleAdvanceEnabled =
-          orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
+      switchMap(({ accounts, orgSettings }) => {
+        const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
+        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
         const userAccounts = this.accountsService
           .filterAccountsWithSufficientBalance(
             accounts.filter((account) => account.acc.type),
@@ -615,7 +504,7 @@ export class AddEditPerDiemPage implements OnInit {
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
       map((paymentModes) =>
-        paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
+        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
       )
     );
   }
@@ -626,8 +515,8 @@ export class AddEditPerDiemPage implements OnInit {
         const parentCategoryName = 'per diem';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.name.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()
+            parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
+            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
         );
       }),
       shareReplay(1)
@@ -1199,8 +1088,6 @@ export class AddEditPerDiemPage implements OnInit {
         });
       });
 
-    this.setupDuplicateDetection();
-
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
         if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
@@ -1258,7 +1145,7 @@ export class AddEditPerDiemPage implements OnInit {
               paymentModes
                 .map((res) => res.value)
                 .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Paid by Me') {
+                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
                     return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
                   } else {
                     return paymentMode.acc.id === etxn.tx.source_account_id;
@@ -1273,7 +1160,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
-        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Paid by Me')
+        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash')
       )
     );
 
@@ -1678,7 +1565,6 @@ export class AddEditPerDiemPage implements OnInit {
         policyActionDescription,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -2313,7 +2199,6 @@ export class AddEditPerDiemPage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx.id,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -2325,20 +2210,6 @@ export class AddEditPerDiemPage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
-    }
-  }
-
-  async setDuplicateBoxOpen(value) {
-    this.duplicateBoxOpen = value;
-
-    if (value) {
-      await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
-      });
-    } else {
-      await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Per Diem' : 'Edit Per Diem',
-      });
     }
   }
 

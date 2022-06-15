@@ -2,18 +2,15 @@ import { APP_INITIALIZER, ErrorHandler, InjectionToken, NgModule } from '@angula
 import { BrowserModule, HammerModule } from '@angular/platform-browser';
 import { Router, RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientJsonpModule, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
-import { GooglePlus } from '@ionic-native/google-plus/ngx';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { SharedModule } from './shared/shared.module';
 import { CurrencyPipe, TitleCasePipe } from '@angular/common';
-import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 import * as Sentry from '@sentry/angular';
 import { ConfigService } from './core/services/config.service';
 import { RouterAuthService } from './core/services/router-auth.service';
@@ -36,7 +33,6 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
 
 @NgModule({
   declarations: [AppComponent],
-  entryComponents: [],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
@@ -51,11 +47,8 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     HammerModule,
   ],
   providers: [
-    StatusBar,
-    SplashScreen,
     GooglePlus,
     InAppBrowser,
-    ScreenOrientation,
     {
       provide: HAMMER_GESTURE_CONFIG,
       useClass: MyHammerConfig,

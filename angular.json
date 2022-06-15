@@ -101,7 +101,6 @@
               "browserTarget": "app:build:staging"
             },
             "ci": {
-              "progress": false
             }
           }
         },
@@ -118,6 +117,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
+            "codeCoverage": true,
             "styles": [],
             "scripts": [],
             "assets": [

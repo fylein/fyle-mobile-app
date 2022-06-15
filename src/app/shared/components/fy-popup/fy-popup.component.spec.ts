@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyPopupComponent } from './fy-popup.component';
 
-describe('FyPopupComponent', () => {
+xdescribe('FyPopupComponent', () => {
   let component: FyPopupComponent;
   let fixture: ComponentFixture<FyPopupComponent>;
 

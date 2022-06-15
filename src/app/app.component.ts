@@ -1,7 +1,5 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController, PopoverController } from '@ionic/angular';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { from, concat, Observable, noop } from 'rxjs';
 import { switchMap, shareReplay } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
@@ -13,20 +11,18 @@ import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
 import { GlobalCacheConfig } from 'ts-cacheable';
 import { NetworkService } from './core/services/network.service';
-import { Plugins, StatusBarStyle } from '@capacitor/core';
+import { App } from '@capacitor/app';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { FreshChatService } from './core/services/fresh-chat.service';
 import { DeepLinkService } from './core/services/deep-link.service';
-import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 import { PushNotificationService } from './core/services/push-notification.service';
 import { TrackingService } from './core/services/tracking.service';
 import { LoginInfoService } from './core/services/login-info.service';
-import { PopupService } from './core/services/popup.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
-
-const { App } = Plugins;
-const CapStatusBar = Plugins.StatusBar;
+import { UserService } from './core/services/user.service';
 
 @Component({
   selector: 'app-root',
@@ -52,7 +48,6 @@ export class AppComponent implements OnInit {
 
   constructor(
     private platform: Platform,
-    private statusBar: StatusBar,
     private router: Router,
     private authService: AuthService,
     private userEventService: UserEventService,
@@ -64,12 +59,9 @@ export class AppComponent implements OnInit {
     private freshChatService: FreshChatService,
     private zone: NgZone,
     private deepLinkService: DeepLinkService,
-    private splashScreen: SplashScreen,
-    private screenOrientation: ScreenOrientation,
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
-    private popupService: PopupService,
     private navController: NavController,
     private popoverController: PopoverController
   ) {
@@ -133,12 +125,11 @@ export class AppComponent implements OnInit {
       });
     });
 
-    this.platform.ready().then(() => {
-      this.statusBar.styleDefault();
-      CapStatusBar.setStyle({
-        style: StatusBarStyle.Dark,
+    this.platform.ready().then(async () => {
+      await StatusBar.setStyle({
+        style: Style.Default,
       });
-      this.splashScreen.hide();
+      setTimeout(async () => await SplashScreen.hide(), 1000);
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
@@ -190,12 +181,6 @@ export class AppComponent implements OnInit {
         .filter((key) => key.match(/^fyle/))
         .forEach((key) => lstorage.removeItem(key));
     }
-
-    from(this.deviceService.getDeviceInfo()).subscribe((res) => {
-      if (res.platform === 'android' || res.platform === 'ios') {
-        this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
-      }
-    });
 
     this.checkAppSupportedVersion();
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {

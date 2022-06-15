@@ -3,13 +3,11 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { OfflineService } from './offline.service';
 import { AuthService } from './auth.service';
 import { StorageService } from './storage.service';
-import { Plugins } from '@capacitor/core';
+import { Device } from '@capacitor/device';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { NetworkService } from './network.service';
 import { concat } from 'rxjs';
 import { environment } from 'src/environments/environment';
-
-const { Device } = Plugins;
 
 @Injectable({
   providedIn: 'root',
@@ -73,6 +71,9 @@ export class FreshChatService {
     }
 
     (window as any).fcWidget.init({
+      config: {
+        disableNotifications: true,
+      },
       token: environment.FRESHCHAT_TOKEN,
       host: 'https://wchat.in.freshchat.com',
       externalId: eou.ou.id,

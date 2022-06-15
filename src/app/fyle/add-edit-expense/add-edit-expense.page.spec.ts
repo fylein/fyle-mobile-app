@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { AddEditExpensePage } from './add-edit-expense.page';
 
-describe('AddEditExpensePage', () => {
+xdescribe('AddEditExpensePage', () => {
   let component: AddEditExpensePage;
   let fixture: ComponentFixture<AddEditExpensePage>;
 

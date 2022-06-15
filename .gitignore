@@ -1,3 +1,4 @@
+/.angular/cache
 # Specifies intentionally untracked files to ignore when using Git
 # http://git-scm.com/docs/gitignore
 
@@ -35,7 +36,6 @@ src/environments/environment.staging.ts
 .gradle
 android/app/google-services.json
 ios/App/App/GoogleService-Info.plist
-ios/App/App/Info.plist
 package-lock.json
 setup.sh
 .env

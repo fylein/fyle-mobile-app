@@ -1,6 +1,6 @@
 import { SnakeCaseToSpaceCase } from './snake-case-to-space-case.pipe';
 
-fdescribe('SnakeCaseToSpaceCasePipe', () => {
+describe('SnakeCaseToSpaceCasePipe', () => {
   const pipe = new SnakeCaseToSpaceCase();
   const string1 = 'A_b_c_Defg_qr-AjkCamD';
   const string2 = '___xyz___';

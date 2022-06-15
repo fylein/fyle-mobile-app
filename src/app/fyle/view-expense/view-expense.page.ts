@@ -102,10 +102,6 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
-  get ExpenseView() {
-    return ExpenseView;
-  }
-
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -124,6 +120,10 @@ export class ViewExpensePage implements OnInit {
     private trackingService: TrackingService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
   ) {}
+
+  get ExpenseView() {
+    return ExpenseView;
+  }
 
   ionViewWillLeave() {
     this.onPageExit.next();
@@ -156,7 +156,6 @@ export class ViewExpensePage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx_id,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -236,10 +235,10 @@ export class ViewExpensePage implements OnInit {
       }
 
       if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
-        this.paymentMode = 'Paid from Advance';
+        this.paymentMode = 'Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else if (etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
-        this.paymentMode = 'Paid via Corporate Card';
+        this.paymentMode = 'Corporate Card';
         this.paymentModeIcon = 'fy-unmatched';
         this.isCCCTransaction = true;
       } else if (etxn.tx_skip_reimbursement) {

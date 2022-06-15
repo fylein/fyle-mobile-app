@@ -180,10 +180,6 @@ export class MyExpensesPage implements OnInit {
 
   allCardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned[]>;
 
-  get HeaderState() {
-    return HeaderState;
-  }
-
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -210,6 +206,10 @@ export class MyExpensesPage implements OnInit {
     private tasksService: TasksService,
     private corporateCreditCardService: CorporateCreditCardExpenseService
   ) {}
+
+  get HeaderState() {
+    return HeaderState;
+  }
 
   clearText(isFromCancel) {
     this.simpleSearchText = '';
@@ -941,7 +941,7 @@ export class MyExpensesPage implements OnInit {
   generateCardFilterPills(filterPills: FilterPill[], filter) {
     filterPills.push({
       label: 'Cards',
-      type: 'card',
+      type: 'cardNumbers',
       value: filter.cardNumbers
         .map((cardNumber) => this.maskNumber.transform(cardNumber))
         .reduce((state1, state2) => `${state1}, ${state2}`),
@@ -956,6 +956,8 @@ export class MyExpensesPage implements OnInit {
         .map((state) => {
           if (state === 'DRAFT') {
             return 'Incomplete';
+          } else if (state === 'READY_TO_REPORT') {
+            return 'Unreported';
           } else {
             return state.replace(/_/g, ' ').toLowerCase();
           }
@@ -1255,7 +1257,7 @@ export class MyExpensesPage implements OnInit {
         optionType: FilterOptionType.multiselect,
         options: [
           {
-            label: 'Ready To Report',
+            label: 'Unreported',
             value: 'READY_TO_REPORT',
           },
           {
@@ -1640,7 +1642,6 @@ export class MyExpensesPage implements OnInit {
         selectedExpensesToReport: reportAbleExpenses,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
     await addExpenseToNewReportModal.present();
@@ -1765,7 +1766,6 @@ export class MyExpensesPage implements OnInit {
         txId: event.tx_id,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
     await addExpenseToReportModal.present();
@@ -1999,7 +1999,12 @@ export class MyExpensesPage implements OnInit {
   }
 
   onFilterClose(filterType: string) {
-    delete this.filters[filterType];
+    if (filterType === 'sort') {
+      delete this.filters.sortDir;
+      delete this.filters.sortParam;
+    } else {
+      delete this.filters[filterType];
+    }
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);

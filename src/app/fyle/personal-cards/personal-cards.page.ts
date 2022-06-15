@@ -4,7 +4,7 @@ import { BehaviorSubject, concat, from, fromEvent, noop, Observable, of, Subject
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
@@ -24,8 +24,9 @@ import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
-import { SpinnerDialog } from '@ionic-native/spinner-dialog/ngx';
+import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 type Filters = Partial<{
   amount: number;
@@ -139,7 +140,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private apiV2Service: ApiV2Service,
     private platform: Platform,
     private spinnerDialog: SpinnerDialog,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private modalProperties: ModalPropertiesService
   ) {}
 
   ngOnInit() {
@@ -715,11 +717,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         cardTxnId: txnDetails.btxn_id,
         type: 'unmatch',
       },
-      cssClass: 'expense-preview-modal',
-      showBackdrop: true,
-      swipeToClose: true,
-      backdropDismiss: true,
-      animated: true,
+      ...this.modalProperties.getModalDefaultProperties('expense-preview-modal'),
     });
 
     await expenseDetailsModal.present();
@@ -731,19 +729,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   async openDateRangeModal() {
-    const modalProperties = {
-      cssClass: 'personal-cards-range-modal',
-      showBackdrop: true,
-      swipeToClose: true,
-      backdropDismiss: true,
-      animated: true,
-    };
-
     const selectionModal = await this.modalController.create({
       component: DateRangeModalComponent,
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...modalProperties,
+      ...this.modalProperties.getModalDefaultProperties('personal-cards-range-modal'),
     });
 
     await selectionModal.present();

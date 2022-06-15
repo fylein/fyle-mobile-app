@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate.component';
 
-describe('FyCurrencyExchangeRateComponent', () => {
+xdescribe('FyCurrencyExchangeRateComponent', () => {
   let component: FyCurrencyExchangeRateComponent;
   let fixture: ComponentFixture<FyCurrencyExchangeRateComponent>;
 

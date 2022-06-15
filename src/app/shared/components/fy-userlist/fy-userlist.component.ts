@@ -31,6 +31,8 @@ export class FyUserlistComponent implements OnInit {
 
   @Input() allowCustomValues: boolean;
 
+  @Input() placeholder: string;
+
   eouc$: Observable<Employee[]>;
 
   displayValue;
@@ -38,14 +40,6 @@ export class FyUserlistComponent implements OnInit {
   private innerValue;
 
   private ngControl: NgControl;
-
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
 
   private onTouchedCallback: () => void = noop;
 
@@ -57,8 +51,12 @@ export class FyUserlistComponent implements OnInit {
     private injector: Injector
   ) {}
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
 
   get value(): any {
@@ -78,6 +76,10 @@ export class FyUserlistComponent implements OnInit {
     }
   }
 
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
+  }
+
   async openModal() {
     const currencyModal = await this.modalController.create({
       component: FyUserlistModalComponent,
@@ -86,7 +88,6 @@ export class FyUserlistComponent implements OnInit {
         allowCustomValues: this.allowCustomValues,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

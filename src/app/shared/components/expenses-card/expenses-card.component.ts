@@ -19,6 +19,10 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import * as moment from 'moment';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { TrackingService } from '../../../core/services/tracking.service';
+import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -127,14 +131,11 @@ export class ExpensesCardComponent implements OnInit {
     private networkService: NetworkService,
     private transactionOutboxService: TransactionsOutboxService,
     private modalController: ModalController,
-    private platform: Platform
+    private platform: Platform,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
+    private trackingService: TrackingService
   ) {}
-
-  onGoToTransaction() {
-    if (!this.isSelectionModeEnabled) {
-      this.goToTransaction.emit({ etxn: this.expense, etxnIndex: this.etxnIndex });
-    }
-  }
 
   get isSelected() {
     if (this.selectedElements) {
@@ -146,10 +147,16 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
+  onGoToTransaction() {
+    if (!this.isSelectionModeEnabled) {
+      this.goToTransaction.emit({ etxn: this.expense, etxnIndex: this.etxnIndex });
+    }
+  }
+
   getReceipt() {
-    if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage') {
+    if (this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem') {
+    } else if (this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
       if (!this.expense.tx_file_ids) {
@@ -276,8 +283,9 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'mileage';
-    this.isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category.toLowerCase() === 'per diem';
+    this.isMileageExpense =
+      this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'mileage';
+    this.isPerDiem = this.expense?.tx_fyle_category && this.expense?.tx_fyle_category?.toLowerCase() === 'per diem';
 
     this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
@@ -347,8 +355,9 @@ export class ExpensesCardComponent implements OnInit {
 
   getScanningReceiptCard(expense: Expense): boolean {
     if (
-      expense.tx_fyle_category &&
-      (expense.tx_fyle_category.toLowerCase() === 'mileage' || expense.tx_fyle_category.toLowerCase() === 'per diem')
+      expense?.tx_fyle_category &&
+      (expense?.tx_fyle_category?.toLowerCase() === 'mileage' ||
+        expense?.tx_fyle_category?.toLowerCase() === 'per diem')
     ) {
       return false;
     } else {
@@ -439,6 +448,12 @@ export class ExpensesCardComponent implements OnInit {
         }
         if (receiptDetails && receiptDetails.dataUrl) {
           this.attachReceipt(receiptDetails);
+          const message = 'Receipt added to Expense successfully';
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+            panelClass: ['msb-success-with-camera-icon'],
+          });
+          this.trackingService.showToastMessage({ ToastContent: message });
         }
       }
     }

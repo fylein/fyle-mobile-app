@@ -50,14 +50,6 @@
 
 <ion-content>
   <div>
-    <div class="add-edit-mileage--duplicate-pointer-container">
-      <div (click)="showDuplicates()" *ngIf="pointToDuplicates" class="add-edit-mileage--duplicate-pointer">
-        <div class="add-edit-mileage--duplicate-pointer-text">Possible Duplicates Detected !</div>
-        <div class="add-edit-mileage--duplicate-pointer-icon">
-          <mat-icon class="add-edit-mileage--duplicate-pointer-icon-internal"> expand_more </mat-icon>
-        </div>
-      </div>
-    </div>
     <ng-container *ngIf="etxn$|async as etxn">
       <ng-container *ngIf="fg">
         <ng-container *ngIf="(isAmountCapped$|async) || (etxn.tx.policy_flag && mode === 'edit')">
@@ -188,7 +180,7 @@
                         [name]="txnFields?.txn_dt?.field_name"
                         formControlName="dateOfSpend"
                         type="date"
-                        [placeholder]="'Select ' + txnFields?.txn_dt?.field_name ? txnFields?.txn_dt?.field_name : 'Date of Travel'"
+                        [placeholder]="txnFields?.txn_dt?.placeholder || 'Select ' + txnFields?.txn_dt?.field_name || 'Date of Travel'"
                       />
                     </div>
                     <div
@@ -202,7 +194,7 @@
                 <ion-col size="6">
                   <ng-container *ngIf="paymentModes$|async as paymentModes">
                     <div
-                      *ngIf="paymentModes.length > 1"
+                      *ngIf="paymentModes.length > 0"
                       class="add-edit-mileage--payment-modes add-edit-mileage--internal-block"
                       [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
                     >
@@ -215,6 +207,7 @@
                         [selectModalHeader]="'Select Payment Mode'"
                         [selectionElement]="paymentMode"
                         formControlName="paymentMode"
+                        [placeholder]="'Select Payment Mode'"
                       >
                       </app-fy-select>
                       <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
@@ -284,10 +277,14 @@
                 </ng-container>
               </ng-container>
 
-              <div *ngIf="fg.controls.project.value">
-                <mat-checkbox formControlName="billable">
-                  <span class="add-edit-mileage--checkbox"> Billable </span>
-                </mat-checkbox>
+              <div
+                *ngIf="(isProjectsEnabled$|async) && (((isIndividualProjectsEnabled$|async) && (individualProjectIds$|async)?.length > 0) || !(isIndividualProjectsEnabled$|async))"
+              >
+                <div *ngIf="fg.controls.project.value">
+                  <mat-checkbox formControlName="billable">
+                    <span class="add-edit-mileage--checkbox"> Billable </span>
+                  </mat-checkbox>
+                </div>
               </div>
             </div>
 
@@ -313,6 +310,7 @@
                   [options]="subCategories"
                   [selectModalHeader]="'Select Sub Category'"
                   formControlName="sub_category"
+                  [placeholder]="'Sub Category'"
                 >
                 </app-fy-select>
               </div>
@@ -342,6 +340,7 @@
                       [selectModalHeader]="'Select Cost Center'"
                       [recentlyUsed]="recentCostCenters"
                       formControlName="costCenter"
+                      [placeholder]="txnFields.cost_center_id?.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -369,7 +368,7 @@
                     </div>
                     <input
                       [disabled]="!txnFields.purpose?.canEdit"
-                      [placeholder]="'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
+                      [placeholder]="txnFields.purpose?.placeholder || 'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
                       [required]="txnFields.purpose?.is_mandatory"
                       [title]="'Enter'+txnFields.purpose?.field_name"
                       class="add-edit-mileage--text-input"
@@ -384,6 +383,7 @@
                       [options]="txnFields.purpose?.options"
                       [selectModalHeader]="'Enter ' + txnFields.purpose?.field_name"
                       formControlName="purpose"
+                      [placeholder]="txnFields.purpose?.placeholder"
                     >
                     </app-fy-select>
                   </div>
@@ -415,13 +415,13 @@
                         class="add-edit-mileage--text-input"
                         formControlName="value"
                         type="text"
-                        [placeholder]="'Enter ' + customInput.name"
+                        [placeholder]="customInput.placeholder || 'Enter ' + customInput.name| ellipsis: 30"
                       />
 
                       <app-fy-number
                         formControlName="value"
                         *ngIf="customInput.type === 'NUMBER'"
-                        [placeholder]="'Enter ' + customInput.name"
+                        [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                       ></app-fy-number>
 
                       <input
@@ -430,8 +430,7 @@
                         class="add-edit-mileage--date-input date-input__format"
                         formControlName="value"
                         type="date"
-                        [placeholder]="'Select ' + customInput.name"
-                        [name]="customInput.name"
+                        [name]="customInput.placeholder || customInput.name"
                       />
                     </div>
 
@@ -449,6 +448,7 @@
                         [label]="customInput.name | ellipsis: 30"
                         [mandatory]="customInput.mandatory"
                         formControlName="value"
+                        [placeholder]="customInput.placeholder | ellipsis: 30"
                       >
                       </app-fy-location>
                     </div>
@@ -460,6 +460,7 @@
                         [options]="customInput.options"
                         [selectModalHeader]="'Select '+customInput.name"
                         formControlName="value"
+                        [placeholder]="customInput.placeholder | ellipsis: 30"
                       >
                       </app-fy-select>
                     </div>
@@ -472,6 +473,7 @@
                         [selectModalHeader]="'Select '+customInput.name"
                         [subheader]="customInput.name"
                         formControlName="value"
+                        [placeholder]="customInput.placeholder | ellipsis: 30"
                       >
                       </app-fy-multiselect>
                     </div>
@@ -499,38 +501,6 @@
                       ></app-fy-add-to-report>
                     </div>
                   </ng-container>
-                </ng-container>
-              </ng-container>
-            </ng-container>
-
-            <ng-container *ngIf="isConnected$|async">
-              <ng-container *ngIf="duplicates$|async as duplicates">
-                <ng-container *ngIf="duplicates.length > 0">
-                  <div
-                    #duplicateInputContainer
-                    class="add-edit-mileage--duplicates-box add-edit-mileage--primary-block"
-                  >
-                    <div class="add-edit-mileage--duplicate-header">
-                      <mat-icon> warning </mat-icon>
-                      <div>{{duplicates.length}} Duplicates Detected</div>
-                      <div (click)="setDuplicateBoxOpen(false)" *ngIf="duplicateBoxOpen">Collapse</div>
-                      <div (click)="setDuplicateBoxOpen(true)" *ngIf="!duplicateBoxOpen">Expand</div>
-                    </div>
-                    <div *ngIf="duplicateBoxOpen" class="add-edit-mileage--duplicate-sub-box">
-                      <div *ngFor="let duplicate of duplicates" class="add-edit-mileage--duplicate-reason">
-                        {{duplicate.reason}}
-                      </div>
-                      <div class="add-edit-mileage--duplicate-reason-select">
-                        <app-fy-select
-                          [label]="'Reason'"
-                          [options]="duplicateDetectionReasons"
-                          [selectModalHeader]="'Select Reason'"
-                          formControlName="duplicate_detection_reason"
-                        >
-                        </app-fy-select>
-                      </div>
-                    </div>
-                  </div>
                 </ng-container>
               </ng-container>
             </ng-container>

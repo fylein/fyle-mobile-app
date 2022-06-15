@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ReceiptPreviewComponent } from './receipt-preview.component';
 
-describe('ReceiptPreviewComponent', () => {
+xdescribe('ReceiptPreviewComponent', () => {
   let component: ReceiptPreviewComponent;
   let fixture: ComponentFixture<ReceiptPreviewComponent>;
 
