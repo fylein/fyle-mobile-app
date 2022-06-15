@@ -71,6 +71,7 @@ export class CategoriesService {
       org_id: category.org_id,
       sub_category: category.sub_category || category.name,
       updated_at: category.updated_at,
+      restricted_project_ids: category.restricted_project_ids,
     }));
 
     return oldCategory;

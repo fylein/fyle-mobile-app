@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 
 @Component({
   selector: 'app-fy-select-project',
@@ -34,6 +35,8 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
   @Input() defaultValue = false;
 
   @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
+
+  @Input() allCategories: OrgCategory[];
 
   displayValue;
 
@@ -94,6 +97,7 @@ export class FySelectProjectComponent implements OnInit, ControlValueAccessor, O
         defaultValue: this.defaultValue,
         recentlyUsed: this.recentlyUsed,
         label: this.label,
+        allCategories: this.allCategories,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),

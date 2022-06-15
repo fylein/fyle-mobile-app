@@ -11,6 +11,7 @@ export interface OrgCategory {
   creator_id?: string;
   last_updated_by?: string;
   displayName?: string;
+  restricted_project_ids?: number[];
 }
 
 export interface OrgCategoryListItem {
