@@ -198,14 +198,14 @@
           <div>
             <div *ngIf="etxn$|async as etxn" class="add-edit-expense--currency">
               <ng-container *ngIf="homeCurrency$|async as homeCurrency">
-                <app-new-fy-currency
+                <app-currency
                   [formControl]="fg?.controls?.currencyObj"
                   [homeCurrency]="homeCurrency"
                   [recentlyUsed]="recentCurrencies"
                   [txnDt]="fg?.controls?.dateOfSpend?.value"
                   [expanded]="attachedReceiptsCount === 0"
                 >
-                </app-new-fy-currency>
+                </app-currency>
                 <div
                   *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
                   class="add-edit-expense--amount-error"

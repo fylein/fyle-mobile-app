@@ -40,7 +40,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
 import { IconModule } from './icon/icon.module';
-import { CurrencyComponent } from './components/currency/currency.component';
 import { CommentsHistoryComponent } from './components/comments-history/comments-history.component';
 import { ViewCommentComponent } from './components/comments-history/view-comment/view-comment.component';
 import { AuditHistoryComponent } from './components/comments-history/audit-history/audit-history.component';
@@ -144,7 +143,6 @@ import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-cur
     FyUserlistModalComponent,
     FyAlertComponent,
     DelegatedAccMessageComponent,
-    CurrencyComponent,
     CommentsHistoryComponent,
     ViewCommentComponent,
     AuditHistoryComponent,
@@ -264,7 +262,6 @@ import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-cur
     InitialsPipe,
     DelegatedAccMessageComponent,
     IconModule,
-    CurrencyComponent,
     CommentsHistoryComponent,
     AuditHistoryComponent,
     StatusesDiffComponent,
