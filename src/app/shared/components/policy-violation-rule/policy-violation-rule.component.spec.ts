@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { PolicyViolationMessageComponent } from './policy-violation-message.component';
+import { PolicyViolationRuleComponent } from './policy-violation-rule.component';
 
-describe('PolicyViolationMessageComponent', () => {
-  let component: PolicyViolationMessageComponent;
-  let fixture: ComponentFixture<PolicyViolationMessageComponent>;
+describe('PolicyViolationRuleComponent', () => {
+  let component: PolicyViolationRuleComponent;
+  let fixture: ComponentFixture<PolicyViolationRuleComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [PolicyViolationMessageComponent],
+        declarations: [PolicyViolationRuleComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(PolicyViolationMessageComponent);
+      fixture = TestBed.createComponent(PolicyViolationRuleComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })

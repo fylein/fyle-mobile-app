@@ -3,6 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { getCurrencySymbol } from '@angular/common';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-fy-policy-violation',
@@ -10,13 +11,13 @@ import { UtilityService } from 'src/app/core/services/utility.service';
   styleUrls: ['./fy-policy-violation.component.scss'],
 })
 export class FyPolicyViolationComponent implements OnInit {
+  form: FormGroup;
+
   @Input() policyViolationMessages: string[];
 
   @Input() policyActionDescription: string;
 
   @Input() showComment = true;
-
-  @Input() comment = '';
 
   @Input() showCTA = true;
 
@@ -30,7 +31,7 @@ export class FyPolicyViolationComponent implements OnInit {
 
   isExpenseCapped = false;
 
-  additionalApprovalString: string;
+  approverEmailsRequiredMsg: string;
 
   cappedAmountString: string;
 
@@ -47,7 +48,7 @@ export class FyPolicyViolationComponent implements OnInit {
     if (this.needAdditionalApproval) {
       const emails = this.utilityService.getEmailsFromString(this.policyActionDescription);
       if (emails?.length > 0) {
-        this.additionalApprovalString = this.policyService.getApprovalString(emails);
+        this.approverEmailsRequiredMsg = this.policyService.getApprovalString(emails);
       }
     }
   }
@@ -67,24 +68,26 @@ export class FyPolicyViolationComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.form = new FormGroup({
+      comment: new FormControl(''),
+    });
+
     if (this.policyActionDescription) {
       this.isExpenseFlagged = this.policyService.isExpenseFlagged(this.policyActionDescription);
       this.isPrimaryApproverSkipped = this.policyService.isPrimaryApproverSkipped(this.policyActionDescription);
       this.needAdditionalApproval = this.policyService.needAdditionalApproval(this.policyActionDescription);
       this.isExpenseCapped = this.policyService.isExpenseCapped(this.policyActionDescription);
 
-      if (this.isExpenseFlagged) {
-        this.availableActionsCount += 1;
-      }
-      if (this.isPrimaryApproverSkipped) {
-        this.availableActionsCount += 1;
-      }
-      if (this.needAdditionalApproval) {
-        this.availableActionsCount += 1;
-      }
-      if (this.isExpenseCapped) {
-        this.availableActionsCount += 1;
-      }
+      const fns = [
+        this.policyService.isExpenseFlagged,
+        this.policyService.isPrimaryApproverSkipped,
+        this.policyService.needAdditionalApproval,
+        this.policyService.isExpenseCapped,
+      ];
+
+      const statuses = fns.map((fn) => fn(this.policyActionDescription));
+      const [isExpenseFlagged, isPrimaryApproverSkipped, needAdditionalApproval, isExpenseCapped] = statuses;
+      this.availableActionsCount = statuses.reduce((acc, curr) => (curr ? acc + 1 : acc), 0);
 
       this.constructAdditionalApproverAction();
 
@@ -98,7 +101,7 @@ export class FyPolicyViolationComponent implements OnInit {
 
   continue() {
     this.modalController.dismiss({
-      comment: this.comment,
+      comment: this.form.value.comment,
     });
   }
 }

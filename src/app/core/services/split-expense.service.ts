@@ -1,18 +1,26 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
+import { PolicyViolationComment } from '../models/v1/policy-violation-comment.model';
+import { PolicyViolation } from '../models/v1/policy-violation.model';
 import { FileService } from './file.service';
 import { PolicyService } from './policy.service';
+import { StatusService } from './status.service';
 import { TransactionService } from './transaction.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SplitExpenseService {
+  defaultPolicyViolationMessage = 'No policy violation explanation provided';
+
+  prependPolicyViolationMessage = 'Policy violation explanation: ';
+
   constructor(
     private transactionService: TransactionService,
     private fileService: FileService,
-    private policyService: PolicyService
+    private policyService: PolicyService,
+    private statusService: StatusService
   ) {}
 
   linkTxnWithFiles(data) {
@@ -68,7 +76,30 @@ export class SplitExpenseService {
     );
   }
 
-  formatPolicyViolations(violations) {
+  postComment(apiPayload: PolicyViolationComment): Observable<any> {
+    return this.statusService.post(apiPayload.objectType, apiPayload.txnId, apiPayload.comment, apiPayload.notify);
+  }
+
+  postCommentsFromUsers(transactionIDs: string[], comments): Observable<any> {
+    const payloadData = [];
+    transactionIDs.forEach((transactionID) => {
+      const comment =
+        comments[transactionID] && comments[transactionID] !== ''
+          ? this.prependPolicyViolationMessage + comments[transactionID]
+          : this.defaultPolicyViolationMessage;
+      const apiPayload = {
+        objectType: 'transactions',
+        txnId: transactionID,
+        comment: { comment },
+        notify: true,
+      };
+      payloadData.push(apiPayload);
+    });
+
+    return from(payloadData).pipe(concatMap((payload) => this.postComment(payload)));
+  }
+
+  formatPolicyViolations(violations: { [id: string]: PolicyViolation }) {
     const formattedViolations = {};
 
     for (const key in violations) {

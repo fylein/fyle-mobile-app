@@ -1,0 +1,19 @@
+@import '../../../../theme/colors.scss';
+
+.policy-violation-rule {
+  &--container {
+    padding: 16px;
+    border-radius: 3px;
+    margin-bottom: 12px;
+
+    &__normal-violation {
+      background: $floral-white;
+      border: 1px solid $pale-orange;
+    }
+
+    &__critical-violation {
+      background: $snow-white;
+      border: 1px solid $pale-pink;
+    }
+  }
+}

@@ -10,7 +10,7 @@
 <div class="policy-violation--content-section">
   <div class="policy-violation--body">
     <ng-container *ngFor="let violation of policyViolationMessages">
-      <app-policy-violation-message [message]="violation"></app-policy-violation-message>
+      <app-policy-violation-rule [message]="violation" [violationType]="'normal'"></app-policy-violation-rule>
     </ng-container>
 
     <ng-container *ngIf="policyActionDescription">
@@ -42,29 +42,31 @@
         ></app-policy-violation-action>
       </ng-container>
 
-      <ng-container *ngIf="needAdditionalApproval && additionalApprovalString">
+      <ng-container *ngIf="needAdditionalApproval && approverEmailsRequiredMsg">
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/2-users.svg'"
-          [message]="additionalApprovalString"
+          [message]="approverEmailsRequiredMsg"
           [actionsCount]="availableActionsCount"
         ></app-policy-violation-action>
       </ng-container>
     </ng-container>
 
     <ng-container *ngIf="showComment">
-      <div>
-        <p class="policy-violation--additional-details-header">
-          Please provide additional details for approval
-          <span class="policy-violation--additional-details-comment-length">{{ comment.length }}/250</span>
-        </p>
-      </div>
+      <form [formGroup]="form">
+        <div>
+          <p class="policy-violation--additional-details-header">
+            Please provide additional details for approval
+            <span class="policy-violation--additional-details-comment-length">{{ form.value.comment.length }}/250</span>
+          </p>
+        </div>
 
-      <textarea
-        maxlength="250"
-        class="policy-violation--textarea"
-        [(ngModel)]="comment"
-        placeholder="Enter the details here"
-      ></textarea>
+        <textarea
+          maxlength="250"
+          class="policy-violation--textarea"
+          formControlName="comment"
+          placeholder="Enter the details here"
+        ></textarea>
+      </form>
     </ng-container>
   </div>
 </div>

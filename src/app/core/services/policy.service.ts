@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { PolicyViolation } from '../models/v1/policy-violation.model';
 import { PolicyApiService } from './policy-api.service';
 
 @Injectable({
@@ -38,7 +39,7 @@ export class PolicyService {
     return this.policyApiService.get('/policy/violating_transactions', { params });
   }
 
-  checkIfViolationsExist(violations: Object): boolean {
+  checkIfViolationsExist(violations: { [id: string]: PolicyViolation }): boolean {
     let doViolationsExist = false;
 
     for (const key in violations) {
@@ -58,10 +59,10 @@ export class PolicyService {
   }
 
   getApprovalString(emails: string[]): string {
-    let additionalApprovalString = 'Expense will need additional approval from ';
-    additionalApprovalString += emails.map((email) => '<b>' + email + '</b>').join(', ');
+    let approverEmailsRequiredMsg = 'Expense will need additional approval from ';
+    approverEmailsRequiredMsg += emails.map((email) => '<b>' + email + '</b>').join(', ');
 
-    return additionalApprovalString;
+    return approverEmailsRequiredMsg;
   }
 
   isExpenseFlagged(policyActionDescription: string): boolean {

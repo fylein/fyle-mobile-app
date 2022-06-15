@@ -1,10 +1,10 @@
 <div *ngIf="showHeader">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
-  <ion-toolbar class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
-    <ion-title>
+  <div class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
+    <div>
       <div class="critical-policy-violation--toolbar__title">Expense Blocked</div>
-    </ion-title>
-  </ion-toolbar>
+    </div>
+  </div>
 </div>
 
 <div class="critical-policy-violation--content-section">
@@ -13,7 +13,7 @@
 
     <ng-container *ngIf="criticalViolationMessages">
       <ng-container *ngFor="let violation of criticalViolationMessages">
-        <app-fy-critical-policy-violation-message [message]="violation"></app-fy-critical-policy-violation-message>
+        <app-policy-violation-rule [message]="violation" [violationType]="'critical'"></app-policy-violation-rule>
       </ng-container>
     </ng-container>
   </div>

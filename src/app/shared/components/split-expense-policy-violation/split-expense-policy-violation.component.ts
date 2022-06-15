@@ -1,7 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { FormArray, FormBuilder } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { from } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
+import { FormattedPolicyViolation } from 'src/app/core/models/v1/formatted-policy-violation.model';
+import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
@@ -10,26 +13,33 @@ import { StatusService } from 'src/app/core/services/status.service';
   styleUrls: ['./split-expense-policy-violation.component.scss'],
 })
 export class SplitExpensePolicyViolationComponent implements OnInit {
-  @Input() policyViolations: Object;
+  @Input() policyViolations: { [id: string]: FormattedPolicyViolation };
 
   transactionIDs: string[];
 
-  comments = {};
+  form = this.fb.group({
+    comments: this.fb.array([]),
+  });
 
-  defaultPolicyViolationMessage = 'No policy violation explanation provided';
-
-  prependPolicyViolationMessage = 'Policy violation explanation: ';
-
-  constructor(private modalController: ModalController, private statusService: StatusService) {}
+  constructor(
+    private modalController: ModalController,
+    private fb: FormBuilder,
+    private splitExpenseService: SplitExpenseService
+  ) {}
 
   ngOnInit() {
-    if (this.policyViolations) {
-      this.transactionIDs = [];
-      Object.keys(this.policyViolations).forEach((transactionsID) => {
-        this.comments[transactionsID] = '';
-        this.transactionIDs.push(transactionsID);
+    this.transactionIDs = [];
+    Object.keys(this.policyViolations).forEach((transactionsID) => {
+      const comment = this.fb.group({
+        comment: [''],
       });
-    }
+      this.formComments.push(comment);
+      this.transactionIDs.push(transactionsID);
+    });
+  }
+
+  get formComments() {
+    return this.form.controls['comments'] as FormArray;
   }
 
   toggleExpansion(currentTransactionID: string) {
@@ -45,32 +55,13 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     this.modalController.dismiss();
   }
 
-  postComment(apiPayload) {
-    return this.statusService
-      .post(apiPayload.objectType, apiPayload.txnId, apiPayload.comment, apiPayload.notify)
-      .pipe(map((res) => res));
-  }
-
   continue() {
-    const payloadData = [];
-    this.transactionIDs.forEach((transactionID) => {
-      const comment =
-        this.comments[transactionID] && this.comments[transactionID] !== ''
-          ? this.prependPolicyViolationMessage + this.comments[transactionID]
-          : this.defaultPolicyViolationMessage;
-      const apiPayload = {
-        objectType: 'transactions',
-        txnId: transactionID,
-        comment: { comment },
-        notify: true,
-      };
-      payloadData.push(apiPayload);
+    let comments = {};
+    this.transactionIDs.map((transaction, index) => {
+      comments[transaction] = this.form.value.comments[index].comment;
     });
-
-    from(payloadData)
-      .pipe(concatMap((payload) => this.postComment(payload)))
-      .subscribe((res) => {
-        this.modalController.dismiss();
-      });
+    this.splitExpenseService.postCommentsFromUsers(this.transactionIDs, comments).subscribe((res) => {
+      this.modalController.dismiss();
+    });
   }
 }

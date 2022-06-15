@@ -60,21 +60,26 @@
                   [policyActionDescription]="policyViolations[transaction].action"
                 ></app-fy-policy-violation>
                 <ng-container>
-                  <div>
-                    <p class="split-expense-policy-violation--additional-details-header">
-                      Please provide additional details for approval
-                      <span class="split-expense-policy-violation--additional-details-comment-length"
-                        >{{ comments[transaction].length }}/250</span
-                      >
-                    </p>
-                  </div>
-
-                  <textarea
-                    maxlength="250"
-                    class="split-expense-policy-violation--textarea"
-                    [(ngModel)]="comments[transaction]"
-                    placeholder="Enter the details here"
-                  ></textarea>
+                  <form [formGroup]="form">
+                    <div formArrayName="comments">
+                      <div [formGroup]="formComments.controls[i]">
+                        <div>
+                          <p class="split-expense-policy-violation--additional-details-header">
+                            Please provide additional details for approval
+                            <span class="split-expense-policy-violation--additional-details-comment-length">
+                              {{ form.controls['comments'].controls[i].controls.comment.value.length }}
+                            </span>
+                          </p>
+                        </div>
+                        <textarea
+                          maxlength="250"
+                          class="split-expense-policy-violation--textarea"
+                          formControlName="comment"
+                          placeholder="Enter the details here"
+                        ></textarea>
+                      </div>
+                    </div>
+                  </form>
                 </ng-container>
               </div>
             </ng-container>

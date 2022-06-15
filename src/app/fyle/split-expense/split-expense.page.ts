@@ -22,6 +22,8 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { FormattedPolicyViolation } from 'src/app/core/models/v1/formatted-policy-violation.model';
+import { PolicyViolation } from 'src/app/core/models/v1/policy-violation.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -249,26 +251,10 @@ export class SplitExpensePage implements OnInit {
     }
   }
 
-  getCategories(): Observable<OrgCategory> {
-    // Retrieve list of all enabled categories
-
-    return this.categoriesService.getAll().pipe(
-      switchMap((categories) => {
-        this.categoryList = this.categoriesService.filterRequired(categories);
-
-        /* after getting the list, check if vm.transaction.org_category_id exists
-        if exists, set vm.splitExpenses[0].category */
-
-        if (this.categoryList && this.transaction.org_category_id) {
-          this.categoryList.some((category) => {
-            if (category.id === this.transaction.org_category_id) {
-              return true;
-            }
-          });
-        }
-        return this.categoryList;
-      })
-    );
+  getCategoryList() {
+    this.categories$.subscribe((categories) => {
+      this.categoryList = categories.map((cat) => cat.value);
+    });
   }
 
   createAndLinkTxnsWithFiles(splitExpenses) {
@@ -358,20 +344,8 @@ export class SplitExpensePage implements OnInit {
 
   formatDisplayName(model) {
     let category;
-
-    /* If model is defined and
-    if category list is available */
-
-    if (model && this.categoryList) {
-      category = this.categoriesService.filterByOrgCategoryId(model, this.categoryList);
-
-      /* If a matching category is found return the display name
-      this is needed where the vm.transaction.org_category_id
-      is set due to vendor selection function outside of the directive
-      in that case matching category may not be present */
-
-      return category?.displayName;
-    }
+    category = this.categoriesService.filterByOrgCategoryId(model, this.categoryList);
+    return category?.displayName;
   }
 
   runPolicyCheck(etxns) {
@@ -393,7 +367,7 @@ export class SplitExpensePage implements OnInit {
     );
   }
 
-  checkForPolicyViolations(txnIds) {
+  checkForPolicyViolations(txnIds): Observable<{ [id: string]: PolicyViolation }> {
     return from(txnIds).pipe(
       mergeMap((txnId) => this.transactionService.getEtxn(txnId)),
       toArray(),
@@ -401,7 +375,7 @@ export class SplitExpensePage implements OnInit {
     );
   }
 
-  async showSplitExpenseViolations(violations: Object) {
+  async showSplitExpenseViolations(violations: { [id: string]: FormattedPolicyViolation }) {
     const splitExpenseViolationsModal = await this.modalController.create({
       component: SplitExpensePolicyViolationComponent,
       componentProps: {
@@ -418,7 +392,7 @@ export class SplitExpensePage implements OnInit {
     this.showSuccessToast();
   }
 
-  handleSplitExpensePolicyViolations(violations: Object) {
+  handleSplitExpensePolicyViolations(violations) {
     const doViolationsExist = this.policyService.checkIfViolationsExist(violations);
     if (doViolationsExist) {
       const formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);
@@ -528,14 +502,11 @@ export class SplitExpensePage implements OnInit {
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
       this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
 
-      if (this.transaction) {
-        this.getCategories().subscribe();
-      }
-
       if (this.splitType === 'categories') {
         this.categories$ = this.getActiveCategories().pipe(
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
         );
+        this.getCategoryList();
       } else if (this.splitType === 'cost centers') {
         const orgSettings$ = this.offlineService.getOrgSettings();
         const orgUserSettings$ = this.offlineService.getOrgUserSettings();
@@ -565,82 +536,6 @@ export class SplitExpensePage implements OnInit {
             orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
         )
       );
-
-      //Remove this section
-      //   this.showSplitExpenseViolations({
-      //     "txYZQURj7yJ5": {
-      //         "rules": [
-      //             "test policy bus"
-      //         ],
-      //         "action": "The policy violation will trigger the following action(s): expense will be flagged for verification and approval",
-      //         "type": "category",
-      //         "name": "Bus",
-      //         "currency": "INR",
-      //         "amount": 6000,
-      //         "isCriticalPolicyViolation": false,
-      //         "isExpanded": false
-      //     },
-      //     "txYZQURj7yJf": {
-      //       "rules": [
-      //           "test policy bus"
-      //       ],
-      //       "action": "The policy violation will trigger the following action(s): expense will be flagged for verification and approval",
-      //       "type": "category",
-      //       "name": "Bus",
-      //       "currency": "INR",
-      //       "amount": 6000,
-      //       "isCriticalPolicyViolation": false,
-      //       "isExpanded": false
-      //     },
-      //     "txgOUbbTAivQ": {
-      //         "rules": [
-      //           "test policy bus"
-      //         ],
-      //         "action": null,
-      //         "type": "category",
-      //         "name": "Food",
-      //         "currency": "INR",
-      //         "amount": 0,
-      //         "isCriticalPolicyViolation": true,
-      //         "isExpanded": false
-      //     },
-      //     "txYZQURj7yJ6": {
-      //       "rules": [
-      //           "test policy bus"
-      //       ],
-      //       "action": "The policy violation will trigger the following action(s): expense will be flagged for verification and approval",
-      //       "type": "category",
-      //       "name": "Bus",
-      //       "currency": "INR",
-      //       "amount": 6000,
-      //       "isCriticalPolicyViolation": false,
-      //       "isExpanded": false
-      //     },
-      //     "txgOUbbTAivd": {
-      //       "rules": [
-      //         "test policy bus"
-      //       ],
-      //       "action": null,
-      //       "type": "category",
-      //       "name": "Food",
-      //       "currency": "INR",
-      //       "amount": 0,
-      //       "isCriticalPolicyViolation": true,
-      //       "isExpanded": false
-      //    },
-      //     "txgOUbbTAivw": {
-      //       "rules": [
-      //         "test policy bus"
-      //       ],
-      //       "action": null,
-      //       "type": "category",
-      //       "name": "Food",
-      //       "currency": "INR",
-      //       "amount": 0,
-      //       "isCriticalPolicyViolation": true,
-      //       "isExpanded": false
-      //     },
-      // });
 
       this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
         this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled);

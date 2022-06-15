@@ -5,6 +5,9 @@ $small-screen: 700px;
   &--toolbar {
     &__title {
       color: $black;
+      margin: 20px;
+      font-size: 20px;
+      font-weight: 500;
     }
   }
 
