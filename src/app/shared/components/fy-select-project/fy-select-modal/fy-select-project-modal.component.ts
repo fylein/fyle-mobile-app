@@ -18,6 +18,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -42,6 +43,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
 
   @Input() label: string;
+
+  @Input() allCategories: OrgCategory[];
 
   recentrecentlyUsedItems$: Observable<any[]>;
 
@@ -70,7 +73,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     const defaultProject$ = this.offlineService.getOrgUserSettings().pipe(
       switchMap((orgUserSettings) => {
         if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
-          return this.projectService.getbyId(orgUserSettings.preferences.default_project_id);
+          return this.projectService.getbyId(orgUserSettings.preferences.default_project_id, this.allCategories);
         } else {
           return of(null);
         }
@@ -90,17 +93,20 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       concatMap((allowedProjectIds) =>
         from(this.authService.getEou()).pipe(
           switchMap((eou) =>
-            this.projectService.getByParamsUnformatted({
-              orgId: eou.ou.org_id,
-              active: true,
-              sortDirection: 'asc',
-              sortOrder: 'project_name',
-              orgCategoryIds: this.categoryIds,
-              projectIds: allowedProjectIds,
-              searchNameText,
-              offset: 0,
-              limit: 20,
-            })
+            this.projectService.getByParamsUnformatted(
+              {
+                orgId: eou.ou.org_id,
+                is_enabled: true,
+                sortDirection: 'asc',
+                sortOrder: 'name',
+                orgCategoryIds: this.categoryIds,
+                projectIds: allowedProjectIds,
+                searchNameText,
+                offset: 0,
+                limit: 20,
+              },
+              this.allCategories
+            )
           )
         )
       ),

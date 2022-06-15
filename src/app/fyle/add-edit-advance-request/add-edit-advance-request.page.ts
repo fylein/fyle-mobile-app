@@ -28,6 +28,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -76,6 +77,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
 
   isCameraShown = false;
+
+  allCategories: OrgCategory[];
 
   constructor(
     private offlineService: OfflineService,
@@ -567,7 +570,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
         if (res.areq.project_id) {
           const projectId = res.areq.project_id;
-          this.projectService.getbyId(projectId).subscribe((selectedProject) => {
+          this.offlineService.getAllCategories().subscribe((categories) => (this.allCategories = categories));
+          this.projectService.getbyId(projectId, this.allCategories).subscribe((selectedProject) => {
             this.fg.patchValue({
               project: selectedProject,
             });

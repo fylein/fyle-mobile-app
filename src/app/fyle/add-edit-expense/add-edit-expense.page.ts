@@ -337,6 +337,8 @@ export class AddEditExpensePage implements OnInit {
 
   cardCurrencySymbol = '';
 
+  allCategories: OrgCategory[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1337,7 +1339,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectService.getbyId(projectId);
+          return this.projectService.getbyId(projectId, this.allCategories);
         } else {
           return of(null);
         }
@@ -1468,6 +1470,7 @@ export class AddEditExpensePage implements OnInit {
           recentValues,
           eou,
           categoryIds: categoryId,
+          allCategories: this.allCategories,
         });
       })
     );
@@ -2265,11 +2268,12 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  setupFilteredCategories(activeCategories$: Observable<any>) {
+  setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>) {
+    activeCategories$.subscribe((categories) => (this.allCategories = categories));
     this.filteredCategories$ = this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
-          return this.projectService.getbyId(etxn.tx.project_id);
+          return this.projectService.getbyId(etxn.tx.project_id, this.allCategories);
         } else {
           return of(null);
         }

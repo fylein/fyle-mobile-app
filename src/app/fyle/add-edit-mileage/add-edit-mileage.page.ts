@@ -57,6 +57,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { AccountOption } from 'src/app/core/models/account-option.model';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -191,6 +192,8 @@ export class AddEditMileagePage implements OnInit {
   isRedirectedFromReport = false;
 
   canRemoveFromReport = false;
+
+  allCategories: OrgCategory[];
 
   constructor(
     private router: Router,
@@ -380,6 +383,7 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.filteredCategories$.subscribe((categories) => {
+      this.allCategories = categories;
       if (
         this.fg.value.sub_category &&
         this.fg.value.sub_category.id &&
@@ -1175,7 +1179,7 @@ export class AddEditMileagePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectService.getbyId(projectId);
+          return this.projectService.getbyId(projectId, this.allCategories);
         } else {
           return of(null);
         }
@@ -1220,6 +1224,7 @@ export class AddEditMileagePage implements OnInit {
           recentValues,
           eou,
           categoryIds: mileageCategoryIds,
+          allCategories: this.allCategories,
         })
       )
     );

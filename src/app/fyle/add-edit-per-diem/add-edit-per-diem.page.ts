@@ -58,6 +58,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { AccountOption } from 'src/app/core/models/account-option.model';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -178,6 +179,8 @@ export class AddEditPerDiemPage implements OnInit {
   isRedirectedFromReport = false;
 
   canRemoveFromReport = false;
+
+  allCategories: OrgCategory[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -606,6 +609,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     this.filteredCategories$.subscribe((categories) => {
+      this.allCategories = categories;
       if (
         this.fg.value.sub_category &&
         this.fg.value.sub_category.id &&
@@ -1129,7 +1133,7 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectService.getbyId(projectId);
+          return this.projectService.getbyId(projectId, this.allCategories);
         } else {
           return of(null);
         }
@@ -1174,6 +1178,7 @@ export class AddEditPerDiemPage implements OnInit {
           recentValues,
           eou,
           categoryIds: perDiemCategoryIds,
+          allCategories: this.allCategories,
         })
       )
     );
