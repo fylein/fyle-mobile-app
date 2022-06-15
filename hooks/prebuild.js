@@ -8,17 +8,17 @@ module.exports = function (ctx) {
   // Creating environment.prod.ts file
   fs.writeFileSync(`${ctx.project.dir}` + "/src/environments/environment.prod.ts", secrets.prodEnvironment);
 
-  // Adding LIVEUPDATE_CHANNEL in strings.xml
+  // Adding LIVE_UPDATE_CHANNEL in strings.xml
   var androidStringsPath = path.resolve(process.cwd(),'android/app/src/main/res/values/strings.xml');
   var androidStrings = fs.readFileSync(androidStringsPath).toString();
-  fs.writeFileSync(androidStringsPath, androidStrings.replace('LIVEUPDATE_CHANNEL', process.env.LIVEUPDATE_CHANNEL), 'utf8');
+  fs.writeFileSync(androidStringsPath, androidStrings.replace('LIVE_UPDATE_CHANNEL', process.env.LIVE_UPDATE_CHANNEL), 'utf8');
 
   if (!process.env.NATIVE_CONFIG) {
     return;
   }
 
   //Check if live update and actual app version have same major and minor versions
-  compareAppVersion(process.env.LIVEUPDATE_APP_VERSION, ctx.env.FYLE_MOBILE_RELEASE_VERSION);
+  compareAppVersion(process.env.LIVE_UPDATE_APP_VERSION, ctx.env.FYLE_MOBILE_RELEASE_VERSION);
   
   const platformRoot = path.join(ctx.project.dir, 'android');
   FILE_PATHS = {

@@ -182,7 +182,7 @@ if(nativeConfig) {
       <key>IonAppId</key>
         <string>32316914</string>
       <key>IonChannelName</key>
-        <string>${process.env.LIVEUPDATE_CHANNEL}</string>
+        <string>${process.env.LIVE_UPDATE_CHANNEL}</string>
       <key>IonUpdateMethod</key>
         <string>background</string>
       <key>IonMaxVersions</key>
@@ -211,6 +211,6 @@ module.exports.prodEnvironment = `
         SENTRY_DSN: '${process.env.FYLE_MOBILE_SENTRY_DSN}',
         REFINER_NPS_FORM_ID: '${process.env.REFINER_NPS_FORM_ID}',
         LAUNCH_DARKLY_CLIENT_ID: '${process.env.LAUNCH_DARKLY_CLIENT_I}',
-        LIVEUPDATE_APP_VERSION: '${process.env.LIVEUPDATE_APP_VERSION}'
+        LIVE_UPDATE_APP_VERSION: '${process.env.LIVE_UPDATE_APP_VERSION}'
       };
     `

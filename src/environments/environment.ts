@@ -15,7 +15,7 @@ export const environment = {
   SENTRY_DSN: '',
   REFINER_NPS_FORM_ID: '',
   LAUNCH_DARKLY_CLIENT_ID: '',
-  LIVEUPDATE_APP_VERSION: '',
+  LIVE_UPDATE_APP_VERSION: '',
 };
 
 /*

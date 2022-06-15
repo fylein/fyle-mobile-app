@@ -48,7 +48,7 @@ export class AppVersionService {
     const platformOS$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.operatingSystem as string));
     const platformVersion$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.osVersion));
     const storedVersion$ = platformOS$.pipe(switchMap((os) => this.get(os)));
-    const liveUpdateVersion = environment.LIVEUPDATE_APP_VERSION;
+    const liveUpdateVersion = environment.LIVE_UPDATE_APP_VERSION;
 
     forkJoin([platformOS$, platformVersion$, storedVersion$])
       .pipe(
