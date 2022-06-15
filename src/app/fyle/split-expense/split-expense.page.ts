@@ -343,8 +343,7 @@ export class SplitExpensePage implements OnInit {
   }
 
   formatDisplayName(model) {
-    let category;
-    category = this.categoriesService.filterByOrgCategoryId(model, this.categoryList);
+    const category = this.categoriesService.filterByOrgCategoryId(model, this.categoryList);
     return category?.displayName;
   }
 

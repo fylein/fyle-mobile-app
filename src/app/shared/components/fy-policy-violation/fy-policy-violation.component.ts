@@ -11,8 +11,6 @@ import { FormControl, FormGroup } from '@angular/forms';
   styleUrls: ['./fy-policy-violation.component.scss'],
 })
 export class FyPolicyViolationComponent implements OnInit {
-  form: FormGroup;
-
   @Input() policyViolationMessages: string[];
 
   @Input() policyActionDescription: string;
@@ -22,6 +20,8 @@ export class FyPolicyViolationComponent implements OnInit {
   @Input() showCTA = true;
 
   @Input() showHeader = true;
+
+  form: FormGroup;
 
   isExpenseFlagged = false;
 

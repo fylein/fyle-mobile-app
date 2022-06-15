@@ -27,6 +27,10 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     private splitExpenseService: SplitExpenseService
   ) {}
 
+  get formComments() {
+    return this.form.controls.comments as FormArray;
+  }
+
   ngOnInit() {
     this.transactionIDs = [];
     Object.keys(this.policyViolations).forEach((transactionsID) => {
@@ -36,10 +40,6 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
       this.formComments.push(comment);
       this.transactionIDs.push(transactionsID);
     });
-  }
-
-  get formComments() {
-    return this.form.controls['comments'] as FormArray;
   }
 
   toggleExpansion(currentTransactionID: string) {
@@ -56,7 +56,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
   }
 
   continue() {
-    let comments = {};
+    const comments = {};
     this.transactionIDs.map((transaction, index) => {
       comments[transaction] = this.form.value.comments[index].comment;
     });
