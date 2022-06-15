@@ -119,7 +119,7 @@ export class ProjectsService {
     let categoryList = [];
     if (project) {
       categoryList = activeCategoryList.filter(
-        (category) => project.project_org_category_ids.indexOf(category.id) > -1
+        (category) => project.project_org_category_ids?.indexOf(category.id) > -1
       );
     } else {
       categoryList = activeCategoryList;
