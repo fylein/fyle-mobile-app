@@ -9,8 +9,8 @@ const taxGroupPlatformResponse = {
     {
       id: 'tgwfjbgqo32',
       org_id: 'orwruogwnngg',
-      created_at: new Date('2020-06-01T13:14:54.804+00:00'),
-      updated_at: new Date('2020-06-11T13:14:55.201598+00:00'),
+      created_at: '2020-06-01T13:14:54.804+00:00',
+      updated_at: '2020-06-11T13:14:55.201598+00:00',
       name: 'GST',
       percentage: 18,
       is_enabled: true,
@@ -19,8 +19,8 @@ const taxGroupPlatformResponse = {
     {
       id: 'tgwfjbgqo35',
       org_id: 'orwruogwnngg',
-      created_at: new Date('2020-06-01T13:14:54.804+00:00'),
-      updated_at: new Date('2020-06-11T13:14:55.201598+00:00'),
+      created_at: '2020-06-01T13:14:54.804+00:00',
+      updated_at: '2020-06-11T13:14:55.201598+00:00',
       name: 'VAT',
       percentage: 20,
       is_enabled: true,
@@ -35,8 +35,8 @@ const transformedTaxGroupData = [
     id: 'tgwfjbgqo32',
     name: 'GST',
     percentage: 18,
-    created_at: new Date('2020-06-01T13:14:54.804+00:00'),
-    updated_at: new Date('2020-06-11T13:14:55.201598+00:00'),
+    created_at: '2020-06-01T13:14:54.804+00:00',
+    updated_at: '2020-06-11T13:14:55.201598+00:00',
     org_id: 'orwruogwnngg',
     is_enabled: true,
   },
@@ -44,12 +44,19 @@ const transformedTaxGroupData = [
     id: 'tgwfjbgqo35',
     name: 'VAT',
     percentage: 20,
-    created_at: new Date('2020-06-01T13:14:54.804+00:00'),
-    updated_at: new Date('2020-06-11T13:14:55.201598+00:00'),
+    created_at: '2020-06-01T13:14:54.804+00:00',
+    updated_at: '2020-06-11T13:14:55.201598+00:00',
     org_id: 'orwruogwnngg',
     is_enabled: true,
   },
 ];
+
+const fixDate = (data) =>
+  data.map((data) => ({
+    ...data,
+    created_at: new Date(data.created_at),
+    updated_at: new Date(data.updated_at),
+  }));
 
 describe('TaxGroupService', () => {
   let taxGroupService: TaxGroupService;
@@ -79,7 +86,7 @@ describe('TaxGroupService', () => {
     spenderPlatformApiService.get.and.returnValue(of(taxGroupPlatformResponse));
 
     taxGroupService.get().subscribe((taxGroups) => {
-      expect(taxGroups).toEqual(transformedTaxGroupData);
+      expect(taxGroups).toEqual(fixDate(transformedTaxGroupData));
       done();
     });
   });
