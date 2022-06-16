@@ -1,121 +1,147 @@
 <ion-content>
-  <ion-grid class="sign-in--header-container">
-    <ion-row class="sign-in--header ion-align-items-center">
-      <ion-col class="sign-in--header-logo-container">
-        <img class="sign-in--header-logo" src="../../../assets/svg/logo-white.svg" alt="fyle-logo" />
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-  <div class="sign-in--form">
-    <div id="sign-in--header" class="sign-in--form-header">Sign In</div>
-    <div class="sign-in--form-subheader">Enter your details below</div>
-    <form [formGroup]="fg">
-      <mat-form-field
-        class="signin-signup-fields sign-in--form-field mat-form-field-no-padding"
-        appearance="outline"
-        *ngIf="!emailSet"
-      >
-        <input
-          id="sign-in--email"
-          (keyup.enter)="checkIfEmailExists()"
-          formControlName="email"
-          type="email"
-          matInput
-          placeholder="Work Email"
-        />
-      </mat-form-field>
-      <div
-        class="sign-in--error"
-        *ngIf="fg.controls.email.touched && !fg.controls.email.valid && !fg.controls.email.value"
-      >
-        Please enter an email.
+  <div class="sign-in--page">
+    <div class="sign-in--logo-container">
+      <app-new-header></app-new-header>
+    </div>
+    <div class="sign-in--container-jumbotron">
+      <div class="sign-in--form">
+        <div class="sign-in--form-header">Sign In</div>
+        <p class="sign-in--hero-sub-title">Please enter your credentials to access your account</p>
+        <form [formGroup]="fg" class="sign-in--form">
+          <mat-label class="p-0 m-0">
+            <div class="input-label">Work Email</div>
+            <div class="astrick-color">*</div>
+          </mat-label>
+          <mat-form-field
+            class="signin-signup-fields sign-in--form-field mat-form-field-no-padding"
+            appearance="outline"
+            *ngIf="!emailSet"
+          >
+            <input
+              id="sign-in--email"
+              name="email"
+              (keyup.enter)="checkIfEmailExists()"
+              formControlName="email"
+              type="email"
+              matInput
+              placeholder="Enter your business email here"
+            />
+            <div class="action-wrapper" *ngIf="fg.controls.email.valid">
+              <span class="action-text">
+                <img
+                  class="new-password--header-logo"
+                  src="../../../assets/svg/green-check.svg"
+                  alt="fyle-green-check"
+                />
+              </span>
+            </div>
+          </mat-form-field>
+          <div
+            class="sign-in--error"
+            *ngIf="fg.controls.email.touched && !fg.controls.email.valid && !fg.controls.email.value"
+          >
+            Please enter an email.
+          </div>
+          <div
+            class="sign-in--error"
+            *ngIf="fg.controls.email.touched && !fg.controls.email.valid && fg.controls.email.value"
+          >
+            Please enter a valid email.
+          </div>
+          <div *ngIf="emailSet">
+            <ion-grid fixed>
+              <ion-row>
+                <ion-col size="9">
+                  <div class="sign-in--email-frozen-text" id="sign-in--email-label">{{fg.controls.email.value}}</div>
+                </ion-col>
+                <ion-col size="3" class="sign-in--edit-email">
+                  <a id="sign-in--change" (click)="emailSet = false"> Change </a>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+
+          <mat-form-field
+            class="signin-signup-fields sign-in--form-field mat-form-field-no-padding"
+            appearance="outline"
+            *ngIf="emailSet"
+          >
+            <input
+              id="sign-in--password"
+              (keyup.enter)="signInUser()"
+              [disabled]="passwordLoading"
+              formControlName="password"
+              [type]="hide ? 'password': 'text'"
+              matInput
+              placeholder="Password"
+            />
+            <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
+              {{hide ? 'visibility' : 'visibility_off'}}
+            </mat-icon>
+          </mat-form-field>
+          <div
+            class="sign-in--error"
+            *ngIf="fg.controls.password.touched && !fg.controls.password.valid && !fg.controls.password.value && emailSet"
+          >
+            Please enter your password
+          </div>
+        </form>
       </div>
-      <div
-        class="sign-in--error"
-        *ngIf="fg.controls.email.touched && !fg.controls.email.valid && fg.controls.email.value"
-      >
-        Please enter a valid email.
-      </div>
-      <div *ngIf="emailSet">
-        <ion-grid fixed>
-          <ion-row>
-            <ion-col size="9">
-              <div class="sign-in--email-frozen-text" id="sign-in--email-label">{{fg.controls.email.value}}</div>
-            </ion-col>
-            <ion-col size="3" class="sign-in--edit-email">
-              <a id="sign-in--change" (click)="emailSet = false"> Change </a>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
+      <div class="sign-in--primary-cta">
+        <button
+          id="sign-in--continue"
+          *ngIf="!emailSet"
+          mat-flat-button
+          color="primary"
+          (click)="checkIfEmailExists()"
+          appFormButtonValidation
+          [loading]="emailLoading"
+          [loadingText]="'CONTINUING'"
+        >
+          Next
+        </button>
       </div>
 
-      <mat-form-field
-        class="signin-signup-fields sign-in--form-field mat-form-field-no-padding"
-        appearance="outline"
-        *ngIf="emailSet"
-      >
-        <input
-          id="sign-in--password"
-          (keyup.enter)="signInUser()"
-          [disabled]="passwordLoading"
-          formControlName="password"
-          [type]="hide ? 'password': 'text'"
-          matInput
-          placeholder="Password"
-        />
-        <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
-          {{hide ? 'visibility' : 'visibility_off'}}
-        </mat-icon>
-      </mat-form-field>
-      <div
-        class="sign-in--error"
-        *ngIf="fg.controls.password.touched && !fg.controls.password.valid && !fg.controls.password.value && emailSet"
-      >
-        Please enter your password
+      <div class="sign-in--primary-cta">
+        <button
+          id="sign-in--btn-sign-in"
+          *ngIf="emailSet"
+          mat-flat-button
+          color="primary"
+          (click)="signInUser()"
+          appFormButtonValidation
+          [loading]="passwordLoading"
+          [loadingText]="'SIGNING IN'"
+        >
+          SIGN IN
+        </button>
       </div>
-    </form>
-    <div class="sign-in--primary-cta">
-      <button
-        id="sign-in--continue"
-        *ngIf="!emailSet"
-        mat-flat-button
-        color="primary"
-        (click)="checkIfEmailExists()"
-        appFormButtonValidation
-        [loading]="emailLoading"
-        [loadingText]="'CONTINUING'"
-      >
-        CONTINUE
-      </button>
+      <div class="signin-divider text-center" ng-if="!vm.hideGoogleLogin">
+        <span class="signin-divider-text text-center text-capitalize"> Or </span>
+      </div>
+      <div *ngIf="emailSet" class="sign-in--redirect">
+        <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password ?</a>
+      </div>
+      <div *ngIf="!emailSet" class="sign-in--secondary-cta">
+        <button
+          layout="row"
+          layout-align="center center"
+          class="btn btn-login-google p-0"
+          ng-click="vm.continueWithGoogle()"
+          ng-if="!vm.hideGoogleLogin"
+        >
+          <div class="icon-container">
+            <img
+              src=".../../../assets/images/google_logo_36x36.png"
+              aria-label="Sign in with Google"
+              alt="Google"
+              class="icon-google"
+            />
+          </div>
+          <div class="text-label text-capitalize m-0 font-weight-semi-bold">Sign in with Google</div>
+        </button>
+      </div>
     </div>
-
-    <div class="sign-in--primary-cta">
-      <button
-        id="sign-in--btn-sign-in"
-        *ngIf="emailSet"
-        mat-flat-button
-        color="primary"
-        (click)="signInUser()"
-        appFormButtonValidation
-        [loading]="passwordLoading"
-        [loadingText]="'SIGNING IN'"
-      >
-        SIGN IN
-      </button>
-    </div>
-    <div *ngIf="emailSet" class="sign-in--redirect">
-      <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password ?</a>
-    </div>
-    <div *ngIf="!emailSet" class="sign-in--secondary-cta">
-      <button
-        mat-flat-button
-        color="accent"
-        (click)="googleSignIn()"
-        appFormButtonValidation
-        [loading]="googleSignInLoading"
-      >
-        SIGN IN WITH GOOGLE
-      </button>
-    </div>
+    <div class="footer">Never lose track</div>
   </div>
 </ion-content>
