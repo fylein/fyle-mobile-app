@@ -74,14 +74,14 @@
     "launchdarkly-js-client-sdk": "^2.22.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.3",
-    "ng2-pdf-viewer": "^6.3.2",
-    "ngx-image-cropper": "^5.0.1",
-    "ngx-pinch-zoom": "^2.5.4",
+    "ng2-pdf-viewer": "^9.0.0",
+    "ngx-image-cropper": "^6.1.0",
+    "ngx-pinch-zoom": "^2.6.2",
     "rxjs": "^6.6.7",
-    "swiper": "^7.0.6",
-    "ts-cacheable": "^1.0.1",
-    "tslib": "^2.0.0",
-    "zone.js": "~0.11.4"
+    "swiper": "^8.2.4",
+    "ts-cacheable": "^1.0.6",
+    "tslib": "^2.4.0",
+    "zone.js": "^0.11.6"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^13.3.7",
