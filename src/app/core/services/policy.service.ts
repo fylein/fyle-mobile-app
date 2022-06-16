@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { PolicyViolation } from '../models/v1/policy-violation.model';
+import { PolicyViolation } from '../models/policy-violation.model';
 import { PolicyApiService } from './policy-api.service';
 
 @Injectable({
@@ -40,22 +40,7 @@ export class PolicyService {
   }
 
   checkIfViolationsExist(violations: { [id: string]: PolicyViolation }): boolean {
-    let doViolationsExist = false;
-
-    for (const key in violations) {
-      if (violations.hasOwnProperty(key)) {
-        // check for popup field for all polices
-        const rules = this.getPolicyRules(violations[key]);
-
-        if (rules?.length > 0) {
-          doViolationsExist = true;
-
-          break;
-        }
-      }
-    }
-
-    return doViolationsExist;
+    return Object.keys(violations).some((transactionID) => this.getPolicyRules(violations[transactionID]).length > 0);
   }
 
   getApprovalString(emails: string[]): string {

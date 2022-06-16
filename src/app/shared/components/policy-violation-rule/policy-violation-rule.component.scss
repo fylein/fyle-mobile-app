@@ -7,12 +7,12 @@
     margin-bottom: 12px;
 
     &__normal-violation {
-      background: $floral-white;
+      background-color: $floral-white;
       border: 1px solid $pale-orange;
     }
 
     &__critical-violation {
-      background: $snow-white;
+      background-color: $snow-white;
       border: 1px solid $pale-pink;
     }
   }

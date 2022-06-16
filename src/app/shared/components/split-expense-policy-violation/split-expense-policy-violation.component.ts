@@ -1,11 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormBuilder } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { from } from 'rxjs';
-import { concatMap, map } from 'rxjs/operators';
-import { FormattedPolicyViolation } from 'src/app/core/models/v1/formatted-policy-violation.model';
+import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
-import { StatusService } from 'src/app/core/services/status.service';
 
 @Component({
   selector: 'app-split-expense-policy-violation',

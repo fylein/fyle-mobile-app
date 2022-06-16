@@ -126,7 +126,7 @@ export class CategoriesService {
   }
 
   filterByOrgCategoryId(orgCategoryId: number, categoryList: OrgCategory[]): OrgCategory {
-    return categoryList.filter((orgCategory) => orgCategory.id === orgCategoryId)[0];
+    return categoryList.find((orgCategory) => orgCategory.id === orgCategoryId);
   }
 
   filterEnabled(categories: OrgCategory[]): OrgCategory[] {

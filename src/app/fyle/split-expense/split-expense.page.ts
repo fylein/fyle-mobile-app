@@ -22,8 +22,8 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
-import { FormattedPolicyViolation } from 'src/app/core/models/v1/formatted-policy-violation.model';
-import { PolicyViolation } from 'src/app/core/models/v1/policy-violation.model';
+import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
+import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -342,38 +342,6 @@ export class SplitExpensePage implements OnInit {
     );
   }
 
-  formatDisplayName(model) {
-    const category = this.categoriesService.filterByOrgCategoryId(model, this.categoryList);
-    return category?.displayName;
-  }
-
-  runPolicyCheck(etxns) {
-    return this.splitExpenseService.runPolicyCheck(etxns, this.fileObjs).pipe(
-      map((data) => {
-        etxns.forEach((etxn) => {
-          for (const key in data) {
-            if (data.hasOwnProperty(key) && key === etxn?.tx_id) {
-              data[key].amount = etxn.tx_orig_amount || etxn.tx_amount;
-              data[key].currency = etxn.tx_orig_currency || etxn.tx_currency;
-              data[key].name = this.formatDisplayName(etxn.tx_org_category_id);
-              data[key].type = 'category';
-              break;
-            }
-          }
-        });
-        return data;
-      })
-    );
-  }
-
-  checkForPolicyViolations(txnIds): Observable<{ [id: string]: PolicyViolation }> {
-    return from(txnIds).pipe(
-      mergeMap((txnId) => this.transactionService.getEtxn(txnId)),
-      toArray(),
-      switchMap((etxns) => this.runPolicyCheck(etxns))
-    );
-  }
-
   async showSplitExpenseViolations(violations: { [id: string]: FormattedPolicyViolation }) {
     const splitExpenseViolationsModal = await this.modalController.create({
       component: SplitExpensePolicyViolationComponent,
@@ -391,7 +359,7 @@ export class SplitExpensePage implements OnInit {
     this.showSuccessToast();
   }
 
-  handleSplitExpensePolicyViolations(violations) {
+  handleSplitExpensePolicyViolations(violations: { [transactionID: string]: PolicyViolation }) {
     const doViolationsExist = this.policyService.checkIfViolationsExist(violations);
     if (doViolationsExist) {
       const formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);
@@ -443,24 +411,21 @@ export class SplitExpensePage implements OnInit {
           .pipe(
             concatMap(() => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
             concatMap((res) => {
-              const observables$ = [];
+              const observables: { [id: string]: Observable<any> } = {};
               if (this.transaction.id) {
-                observables$.push(this.transactionService.delete(this.transaction.id));
+                observables.delete = this.transactionService.delete(this.transaction.id);
               }
               if (this.transaction.corporate_credit_card_expense_group_id) {
-                observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id));
+                observables.matchCCC = this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id);
               }
 
-              if (observables$.length === 0) {
-                observables$.push(of(true));
-              }
+              observables.violations = this.splitExpenseService.checkForPolicyViolations(
+                res,
+                this.fileObjs,
+                this.categoryList
+              );
 
-              observables$.push(this.checkForPolicyViolations(res));
-
-              return forkJoin(observables$);
-            }),
-            tap((violations) => {
-              this.handleSplitExpensePolicyViolations(violations[violations.length - 1]);
+              return forkJoin(observables);
             }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
@@ -477,7 +442,9 @@ export class SplitExpensePage implements OnInit {
               this.trackingService.splittingExpense(splitTrackingProps);
             })
           )
-          .subscribe(noop);
+          .subscribe((response: { [id: string]: any }) => {
+            this.handleSplitExpensePolicyViolations(response.violations as { [id: string]: PolicyViolation });
+          });
       });
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
