@@ -250,7 +250,7 @@ export class ViewPerDiemPage implements OnInit {
       this.isExpenseFlagged = etxn.tx_manual_flag;
     });
 
-    this.updateFlag$.next();
+    this.updateFlag$.next(null);
 
     const etxnIds =
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
@@ -316,7 +316,7 @@ export class ViewPerDiemPage implements OnInit {
               : this.transactionService.manualFlag(etxn.tx_id)
           ),
           finalize(() => {
-            this.updateFlag$.next();
+            this.updateFlag$.next(null);
             this.loaderService.hideLoader();
           })
         )

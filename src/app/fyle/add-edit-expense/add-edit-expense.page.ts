@@ -2903,7 +2903,7 @@ export class AddEditExpensePage implements OnInit {
             locations: locations || [],
             custom_properties: customProperties || [],
             num_files: isPolicyEtxn
-              ? res.attachments && res.attachments.length
+              ? (res.attachments as Array<FileObject>)?.length
               : this.activatedRoute.snapshot.params.dataUrl
               ? 1
               : 0,
