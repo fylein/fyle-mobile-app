@@ -156,6 +156,14 @@ export class MergeExpensePage implements OnInit {
     private trackingService: TrackingService
   ) {}
 
+  get genericFieldsForm() {
+    return this.fg.controls.genericFields;
+  }
+
+  get categoryDependentForm() {
+    return this.fg.controls.categoryDependent;
+  }
+
   ngOnInit() {
     this.expenses = JSON.parse(this.activatedRoute.snapshot.params?.selectedElements);
     this.redirectedFrom = this.activatedRoute.snapshot.params.from;
@@ -265,14 +273,6 @@ export class MergeExpensePage implements OnInit {
     this.subscribeExpenseChange();
 
     this.combinedCustomProperties = this.generateCustomInputOptions();
-  }
-
-  get genericFieldsForm() {
-    return this.fg.controls.genericFields;
-  }
-
-  get categoryDependentForm() {
-    return this.fg.controls.categoryDependent;
   }
 
   loadGenericFieldsOptions() {

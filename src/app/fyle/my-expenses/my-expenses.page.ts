@@ -180,10 +180,6 @@ export class MyExpensesPage implements OnInit {
 
   allCardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned[]>;
 
-  get HeaderState() {
-    return HeaderState;
-  }
-
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -210,6 +206,10 @@ export class MyExpensesPage implements OnInit {
     private tasksService: TasksService,
     private corporateCreditCardService: CorporateCreditCardExpenseService
   ) {}
+
+  get HeaderState() {
+    return HeaderState;
+  }
 
   clearText(isFromCancel) {
     this.simpleSearchText = '';
@@ -1642,7 +1642,6 @@ export class MyExpensesPage implements OnInit {
         selectedExpensesToReport: reportAbleExpenses,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
     await addExpenseToNewReportModal.present();
@@ -1767,7 +1766,6 @@ export class MyExpensesPage implements OnInit {
         txId: event.tx_id,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
     await addExpenseToReportModal.present();
