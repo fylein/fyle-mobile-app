@@ -9,9 +9,7 @@ import { combineLatest, concat, forkJoin, from, iif, Observable, of, throwError 
 import {
   catchError,
   concatMap,
-  debounceTime,
   distinctUntilChanged,
-  filter,
   finalize,
   map,
   shareReplay,
@@ -19,7 +17,6 @@ import {
   switchMap,
   take,
   tap,
-  withLatestFrom,
 } from 'rxjs/operators';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import * as moment from 'moment';
@@ -38,7 +35,6 @@ import { DataTransformService } from 'src/app/core/services/data-transform.servi
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
-import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { DateService } from 'src/app/core/services/date.service';
@@ -60,6 +56,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { AccountOption } from 'src/app/core/models/account-option.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -131,15 +128,9 @@ export class AddEditMileagePage implements OnInit {
 
   projectCategoryIds$: Observable<string[]>;
 
-  duplicates$: Observable<any>;
-
-  duplicateBoxOpen = false;
-
   isConnected$: Observable<boolean>;
 
   connectionStatus$: Observable<{ connected: boolean }>;
-
-  pointToDuplicates = false;
 
   isAdvancesEnabled$: Observable<boolean>;
 
@@ -195,11 +186,6 @@ export class AddEditMileagePage implements OnInit {
 
   invalidPaymentMode = false;
 
-  duplicateDetectionReasons = [
-    { label: 'Different expense', value: 'Different expense' },
-    { label: 'Other', value: 'Other' },
-  ];
-
   billableDefaultValue: boolean;
 
   isRedirectedFromReport = false;
@@ -224,7 +210,6 @@ export class AddEditMileagePage implements OnInit {
     private policyService: PolicyService,
     private statusService: StatusService,
     private dataTransformService: DataTransformService,
-    private duplicateDetectionService: DuplicateDetectionService,
     private modalController: ModalController,
     private networkService: NetworkService,
     private popupService: PopupService,
@@ -376,89 +361,6 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  canGetDuplicates() {
-    return this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-        const isAmountCurrencyTxnDtPresent =
-          this.fg.value.distance &&
-          !!this.fg.value.dateOfSpend &&
-          this.fg.value.route &&
-          this.fg.value.route?.mileageLocations.filter((l) => !!l).length;
-        return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountCurrencyTxnDtPresent;
-      })
-    );
-  }
-
-  checkForDuplicates() {
-    return this.canGetDuplicates().pipe(
-      switchMap((canGetDuplicates) => {
-        const customFields$ = this.getCustomFields();
-        return iif(
-          () => canGetDuplicates,
-          this.generateEtxnFromFg(this.etxn$, customFields$, this.getCalculateDistance()).pipe(
-            switchMap((etxn) => this.duplicateDetectionService.getPossibleDuplicates(etxn.tx))
-          ),
-          of(null)
-        );
-      })
-    );
-  }
-
-  getPossibleDuplicates() {
-    return this.checkForDuplicates();
-  }
-
-  async trackDuplicatesShown(duplicates, etxn) {
-    try {
-      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
-      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
-
-      await this.trackingService.duplicateDetectionAlertShown({
-        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage',
-        ExpenseId: etxn.tx.id,
-        DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields,
-      });
-    } catch (err) {
-      // Ignore event tracking errors
-    }
-  }
-
-  setupDuplicateDetection() {
-    this.duplicates$ = this.fg.valueChanges.pipe(
-      debounceTime(1000),
-      distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => this.getPossibleDuplicates())
-    );
-
-    this.duplicates$
-      .pipe(
-        filter((duplicates) => duplicates && duplicates.length),
-        take(1)
-      )
-      .subscribe((res) => {
-        this.pointToDuplicates = true;
-        setTimeout(() => {
-          this.pointToDuplicates = false;
-        }, 3000);
-
-        this.etxn$.pipe(take(1)).subscribe(async (etxn) => await this.trackDuplicatesShown(res, etxn));
-      });
-  }
-
-  showDuplicates() {
-    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
-    if (duplicateInputContainer) {
-      duplicateInputContainer.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start',
-      });
-
-      this.pointToDuplicates = false;
-    }
-  }
-
   setupFilteredCategories(activeCategories$: Observable<any>) {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
@@ -606,14 +508,14 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  getPaymentModes() {
+  getPaymentModes(): Observable<AccountOption[]> {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const accounts$ = this.offlineService.getAccounts();
     return forkJoin({
       accounts: accounts$,
       orgSettings: orgSettings$,
     }).pipe(
-      map(({ accounts, orgSettings }) => {
+      switchMap(({ accounts, orgSettings }) => {
         const isAdvanceEnabled =
           (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
@@ -629,7 +531,7 @@ export class AddEditMileagePage implements OnInit {
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
       map((paymentModes) =>
-        paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
+        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
       )
     );
   }
@@ -640,8 +542,8 @@ export class AddEditMileagePage implements OnInit {
         const parentCategoryName = 'mileage';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.name.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category.toLowerCase()
+            parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
+            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
         );
       }),
       shareReplay(1)
@@ -992,8 +894,6 @@ export class AddEditMileagePage implements OnInit {
     const today = new Date();
     this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
 
-    this.setupDuplicateDetection();
-
     this.fg.reset();
     this.title = 'Add Mileage';
 
@@ -1333,8 +1233,8 @@ export class AddEditMileagePage implements OnInit {
             .pipe(
               map((subCategories) =>
                 subCategories
-                  .filter((subCategory) => subCategory.sub_category.toLowerCase() !== subCategory.name.toLowerCase())
-                  .find((subCategory) => subCategory.id === etxn.tx.org_category_id)
+                  .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory?.name.toLowerCase())
+                  .find((subCategory) => subCategory?.id === etxn.tx.org_category_id)
               )
             ),
           of(null)
@@ -1931,7 +1831,6 @@ export class AddEditMileagePage implements OnInit {
         policyActionDescription,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -1965,7 +1864,6 @@ export class AddEditMileagePage implements OnInit {
         const skipReimbursement =
           this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
         const rate = res.rate;
-
         const formValue = this.fg.value;
 
         return {
@@ -2503,7 +2401,6 @@ export class AddEditMileagePage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx.id,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -2515,20 +2412,6 @@ export class AddEditMileagePage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
-    }
-  }
-
-  async setDuplicateBoxOpen(value) {
-    this.duplicateBoxOpen = value;
-
-    if (value) {
-      await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mielage',
-      });
-    } else {
-      await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Mileage' : 'Edit Mileage',
-      });
     }
   }
 
