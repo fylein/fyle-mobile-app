@@ -515,6 +515,10 @@ export class TrackingService {
 
   // Corporate Cards section related Events
 
+  unlinkCorporateCardExpense(properties) {
+    this.eventTrack('unlink corporate card expense', properties);
+  }
+
   // When admin sends reminders to users for matching their CCCExpenses
   numberOfCCCMatchRemindersSentAtOnce(properties) {
     this.eventTrack('Number of users sent CCCMatch Reminders at once', properties);
@@ -605,19 +609,6 @@ export class TrackingService {
 
   numberOfDaysBookedInAdvanceHotel(properties) {
     this.eventTrack('Analytics - Number Of Days Booked In Advance Hotel', properties);
-  }
-
-  // Trips Graph Events
-  tripExpensesBrokenAgainstBookingSourceForFlight(properties) {
-    this.eventTrack('Analytics - Type of Booking for Flight', properties);
-  }
-
-  tripExpensesBrokenAgainstBookingSourceForHotel(properties) {
-    this.eventTrack('Analytics - Type of Booking for Hotel', properties);
-  }
-
-  tripExpensesBrokenAgainstBookingSourceForTrain(properties) {
-    this.eventTrack('Analytics - Type of Booking for Train', properties);
   }
 
   // Track sidenav toggle
@@ -820,22 +811,6 @@ export class TrackingService {
 
   TeamReportsFilterApplied(properties) {
     this.eventTrack('team reports filters applied', properties);
-  }
-
-  // Duplicates
-  async duplicateDetectionAlertShown(properties: {}) {
-    Object.assign(properties, await this.getUserProperties());
-    this.eventTrack('Duplicate Detection User Alert Shown', properties);
-  }
-
-  async duplicateDetectionUserActionExpand(properties: {}) {
-    Object.assign(properties, await this.getUserProperties());
-    this.eventTrack('Duplicate Detection User Action Expand', properties);
-  }
-
-  async duplicateDetectionUserActionCollapse(properties: {}) {
-    Object.assign(properties, await this.getUserProperties());
-    this.eventTrack('Duplicate Detection User Action Collapse', properties);
   }
 
   showMoreClicked(properties) {

@@ -71,6 +71,9 @@ export class FreshChatService {
     }
 
     (window as any).fcWidget.init({
+      config: {
+        disableNotifications: true,
+      },
       token: environment.FRESHCHAT_TOKEN,
       host: 'https://wchat.in.freshchat.com',
       externalId: eou.ou.id,

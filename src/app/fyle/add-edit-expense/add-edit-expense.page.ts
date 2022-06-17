@@ -59,7 +59,6 @@ import { DataTransformService } from 'src/app/core/services/data-transform.servi
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
@@ -100,6 +99,8 @@ import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
+import { AccountOption } from 'src/app/core/models/account-option.model';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -183,10 +184,6 @@ export class AddEditExpensePage implements OnInit {
 
   receiptsData: any;
 
-  duplicates$: Observable<any>;
-
-  duplicateBoxOpen = false;
-
   isAmountCapped$: Observable<boolean>;
 
   isAmountDisabled$: Observable<boolean>;
@@ -212,8 +209,6 @@ export class AddEditExpensePage implements OnInit {
   isConnected$: Observable<boolean>;
 
   invalidPaymentMode = false;
-
-  pointToDuplicates = false;
 
   isAdvancesEnabled$: Observable<boolean>;
 
@@ -258,8 +253,6 @@ export class AddEditExpensePage implements OnInit {
   saveAndPrevExpenseLoader = false;
 
   canAttachReceipts: boolean;
-
-  duplicateDetectionReasons = [];
 
   tfcDefaultValues$: Observable<any>;
 
@@ -336,7 +329,13 @@ export class AddEditExpensePage implements OnInit {
 
   canDismissCCCE: boolean;
 
+  canUnlinkCCCE: boolean;
+
+  isCorporateCreditCardEnabled: boolean;
+
   corporateCreditCardExpenseGroupId: string;
+
+  cardCurrencySymbol = '';
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -355,7 +354,6 @@ export class AddEditExpensePage implements OnInit {
     private policyService: PolicyService,
     private transactionOutboxService: TransactionsOutboxService,
     private router: Router,
-    private duplicateDetectionService: DuplicateDetectionService,
     private loaderService: LoaderService,
     private modalController: ModalController,
     private statusService: StatusService,
@@ -488,37 +486,6 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  canGetDuplicates() {
-    return this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-        const isAmountCurrencyTxnDtPresent =
-          isNumber(this.fg.value.currencyObj && this.fg.value.currencyObj.amount) &&
-          !!this.fg.value.dateOfSpend &&
-          !!(this.fg.value.currencyObj && this.fg.value.currencyObj.currency);
-        return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountCurrencyTxnDtPresent;
-      })
-    );
-  }
-
-  checkForDuplicates() {
-    return this.canGetDuplicates().pipe(
-      switchMap((canGetDuplicates) => {
-        const customFields$ = this.getCustomFields();
-        return iif(
-          () => canGetDuplicates,
-          this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-            switchMap((etxn) => this.duplicateDetectionService.getPossibleDuplicates(etxn.tx))
-          ),
-          of(null)
-        );
-      })
-    );
-  }
-
-  getDuplicates() {
-    return this.etxn$.pipe(switchMap((etxn) => this.duplicateDetectionService.getDuplicates(etxn.tx.id)));
-  }
-
   checkIfInvalidPaymentMode() {
     return this.etxn$.pipe(
       map((etxn) => {
@@ -577,14 +544,6 @@ export class AddEditExpensePage implements OnInit {
     this.isChangeCCCSuggestionClicked = true;
     this.isCCCTransactionAutoSelected = false;
     this.etxn$.subscribe(async (etxn) => {
-      const modalProperties = {
-        cssClass: 'auto-height',
-        showBackdrop: true,
-        swipeToClose: true,
-        backdropDismiss: true,
-        animated: true,
-      };
-
       const matchExpensesModal = await this.modalController.create({
         component: MatchTransactionComponent,
         componentProps: {
@@ -593,8 +552,7 @@ export class AddEditExpensePage implements OnInit {
           selectedCCCTransaction: this.selectedCCCTransaction,
         },
         mode: 'ios',
-        presentingElement: await this.modalController.getTop(),
-        ...modalProperties,
+        ...this.modalProperties.getModalDefaultProperties('auto-height'),
       });
 
       await matchExpensesModal.present();
@@ -728,61 +686,6 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getPossibleDuplicates() {
-    return this.checkForDuplicates();
-  }
-
-  async trackDuplicatesShown(duplicates, etxn) {
-    try {
-      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
-      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
-
-      await this.trackingService.duplicateDetectionAlertShown({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
-        ExpenseId: etxn.tx.id,
-        DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields,
-      });
-    } catch (err) {
-      // Ignore event tracking errors
-    }
-  }
-
-  setupDuplicateDetection() {
-    this.duplicates$ = this.fg.valueChanges.pipe(
-      debounceTime(1000),
-      distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => this.getPossibleDuplicates())
-    );
-
-    this.duplicates$
-      .pipe(
-        filter((duplicates) => duplicates && duplicates.length),
-        take(1)
-      )
-      .subscribe((res) => {
-        this.pointToDuplicates = true;
-        setTimeout(() => {
-          this.pointToDuplicates = false;
-        }, 3000);
-
-        this.etxn$.pipe(take(1)).subscribe(async (etxn) => this.trackDuplicatesShown(res, etxn));
-      });
-  }
-
-  showDuplicates() {
-    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
-    if (duplicateInputContainer) {
-      duplicateInputContainer.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start',
-      });
-
-      this.pointToDuplicates = false;
-    }
-  }
-
   openSplitExpenseModal(splitType) {
     const customFields$ = this.getCustomFields();
 
@@ -827,6 +730,58 @@ export class AddEditExpensePage implements OnInit {
         }
       })
     );
+  }
+
+  async unlinkCorporateCardExpense() {
+    const id = this.activatedRoute.snapshot.params.id;
+    const header = 'Unlink Card Details';
+    const body = this.transactionService.getUnlinkDialogBody(this.isSplitExpensesPresent);
+    const ctaText = 'Confirm';
+    const ctaLoadingText = 'Confirming';
+    const deletePopover = await this.popoverController.create({
+      component: FyDeleteDialogComponent,
+      cssClass: 'delete-dialog',
+      backdropDismiss: false,
+      componentProps: {
+        header,
+        body,
+        ctaText,
+        ctaLoadingText,
+        deleteMethod: () => this.transactionService.unlinkCorporateCardExpense(id),
+      },
+    });
+
+    await deletePopover.present();
+    const { data } = await deletePopover.onDidDismiss();
+
+    if (data?.status === 'success') {
+      let txnDetails;
+      this.etxn$.subscribe((etxn) => (txnDetails = etxn));
+      const properties = {
+        Type: 'unlink corporate card expense',
+        transaction: txnDetails?.tx,
+      };
+      this.trackingService.unlinkCorporateCardExpense(properties);
+      if (txnDetails?.tx?.report_id) {
+        this.router.navigate([
+          '/',
+          'enterprise',
+          'my_view_report',
+          { id: txnDetails.tx.report_id, navigateBack: true },
+        ]);
+      } else {
+        this.goBack();
+      }
+      const toastMessage = 'Successfully removed the card details from the expense.';
+      const toastMessageData = {
+        message: toastMessage,
+      };
+      this.matSnackBar.openFromComponent(ToastMessageComponent, {
+        ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
+        panelClass: ['msb-info'],
+      });
+      this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+    }
   }
 
   async markPeronsalOrDismiss(type: string) {
@@ -941,6 +896,15 @@ export class AddEditExpensePage implements OnInit {
           });
         }
 
+        if (this.isCorporateCreditCardEnabled && this.canUnlinkCCCE) {
+          this.actionSheetButtons.push({
+            text: 'Unlink Card Details',
+            handler: () => {
+              this.unlinkCorporateCardExpense();
+            },
+          });
+        }
+
         const actionSheet = await this.actionSheetController.create({
           header: 'MORE ACTIONS',
           mode: 'md',
@@ -1026,7 +990,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getPaymentModes() {
+  getPaymentModes(): Observable<AccountOption[]> {
     const accounts$ = this.isConnected$.pipe(
       take(1),
       switchMap((isConnected) => {
@@ -1044,7 +1008,7 @@ export class AddEditExpensePage implements OnInit {
       orgSettings: orgSettings$,
       etxn: this.etxn$,
     }).pipe(
-      map(({ accounts, orgSettings, etxn }) => {
+      switchMap(({ accounts, orgSettings, etxn }) => {
         const isAdvanceEnabled =
           (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
@@ -1072,7 +1036,7 @@ export class AddEditExpensePage implements OnInit {
         return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
       }),
       map((paymentModes) =>
-        paymentModes.map((paymentMode: any) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
+        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
       )
     );
   }
@@ -1457,6 +1421,11 @@ export class AddEditExpensePage implements OnInit {
         const hasCCCAccount = paymentModes
           .map((res) => res.value)
           .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+
+        const paidByCompanyAccount = paymentModes
+          .map((res) => res?.value)
+          .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
+
         if (
           hasCCCAccount &&
           orgUserSettings.preferences &&
@@ -1466,13 +1435,8 @@ export class AddEditExpensePage implements OnInit {
           return paymentModes
             .map((res) => res.value)
             .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-        } else if (
-          orgUserSettings.preferences &&
-          orgUserSettings.preferences.default_payment_mode === 'COMPANY_ACCOUNT'
-        ) {
-          return paymentModes
-            .map((res) => res.value)
-            .find((paymentMode) => paymentMode.acc.displayName === 'Paid by Company');
+        } else if (paidByCompanyAccount && orgUserSettings?.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
+          return paidByCompanyAccount;
         } else if (this.isCreatedFromCCC) {
           return paymentModes
             .map((res) => res.value)
@@ -2514,11 +2478,6 @@ export class AddEditExpensePage implements OnInit {
       hotel_is_breakfast_provided: [],
     });
 
-    this.duplicateDetectionReasons = [
-      { label: 'Different expense', value: 'Different expense' },
-      { label: 'Other', value: 'Other' },
-    ];
-
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
         this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
@@ -2547,7 +2506,6 @@ export class AddEditExpensePage implements OnInit {
 
     this.setupExpenseSuggestions();
 
-    this.setupDuplicateDetection();
     this.setUpTaxCalculations();
 
     const orgSettings$ = this.offlineService.getOrgSettings();
@@ -2569,6 +2527,9 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.unify_ccce_expenses_settings &&
         orgSettings.unify_ccce_expenses_settings.allowed &&
         orgSettings.unify_ccce_expenses_settings.enabled;
+
+      this.isCorporateCreditCardEnabled =
+        orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
       this.isDraftExpenseEnabled =
         orgSettings.ccc_draft_expense_settings &&
@@ -2638,7 +2599,6 @@ export class AddEditExpensePage implements OnInit {
     this.title = 'Add Expense';
     this.title =
       this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
-    this.duplicateBoxOpen = false;
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
@@ -2752,6 +2712,7 @@ export class AddEditExpensePage implements OnInit {
           this.matchedCCCTransaction = matchedExpense[0].ccce;
           this.matchingCCCTransactions = matchingTransactions;
           this.selectedCCCTransaction = this.matchedCCCTransaction;
+          this.cardCurrencySymbol = getCurrencySymbol(this.selectedCCCTransaction?.currency, 'wide');
           this.cardEndingDigits = (
             this.selectedCCCTransaction.cxorporate_credit_card_account_number
               ? this.selectedCCCTransaction.corporate_credit_card_account_number
@@ -2840,6 +2801,9 @@ export class AddEditExpensePage implements OnInit {
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
       this.isExpenseMatchedForDebitCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
       this.canDismissCCCE = !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
+      this.canUnlinkCCCE =
+        !!etxn?.tx?.corporate_credit_card_expense_group_id &&
+        ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn?.tx?.state);
     });
 
     this.getPolicyDetails();
@@ -3029,23 +2993,6 @@ export class AddEditExpensePage implements OnInit {
       )
     );
   }
-
-  // public findInvalidControlsRecursive(formToInvestigate:FormGroup|FormArray):string[] {
-  //   var invalidControls:string[] = [];
-  //   let recursiveFunc = (form:FormGroup|FormArray) => {
-  //     Object.keys(form.controls).forEach(field => {
-  //       const control = form.get(field);
-  //       if (control.invalid) invalidControls.push(field);
-  //       if (control instanceof FormGroup) {
-  //         recursiveFunc(control);
-  //       } else if (control instanceof FormArray) {
-  //         recursiveFunc(control);
-  //       }
-  //     });
-  //   }
-  //   recursiveFunc(formToInvestigate);
-  //   return invalidControls;
-  // }
 
   async reloadCurrentRoute() {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
@@ -3282,7 +3229,6 @@ export class AddEditExpensePage implements OnInit {
         policyActionDescription,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -4102,7 +4048,6 @@ export class AddEditExpensePage implements OnInit {
             canEdit: true,
           },
           mode: 'ios',
-          presentingElement: await this.modalController.getTop(),
         });
 
         await attachmentsModal.present();
@@ -4185,7 +4130,6 @@ export class AddEditExpensePage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx.id,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -4197,20 +4141,6 @@ export class AddEditExpensePage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
-    }
-  }
-
-  async setDuplicateBoxOpen(value) {
-    this.duplicateBoxOpen = value;
-
-    if (value) {
-      await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
-      });
-    } else {
-      await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
-      });
     }
   }
 
@@ -4440,7 +4370,6 @@ export class AddEditExpensePage implements OnInit {
         duplicateExpenses,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
