@@ -95,12 +95,11 @@ $btn-google-border: #8c8fa6;
   text-transform: uppercase;
   text-align: center;
   font-size: 16px;
-  // line-height: 15px;
-  // margin: 0px;
-  // width: 80%;
-  // align-items: flex-end;
-  bottom: 30px;
-  // border: 1px solid black;
+  bottom: 50px;
+
+  @media screen and (max-height: 610px) {
+    position: unset;
+  }
 }
 
 .sign-in {
@@ -116,12 +115,9 @@ $btn-google-border: #8c8fa6;
   &--page {
     background: linear-gradient(277.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
     width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+    min-height: 100vh;
+    // height: ;
     // text-align: center;
-    align-items: center;
-    justify-content: center;
     padding: 16px;
 
     @media screen and (min-width: 600px) {
