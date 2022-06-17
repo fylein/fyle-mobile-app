@@ -55,6 +55,7 @@
     &__amount-section {
       display: flex;
       justify-content: end;
+      width: 90%;
       margin-left: 16px;
       align-items: center;
     }
@@ -109,25 +110,12 @@
       display: inline-block;
       margin-top: 6px;
       white-space: nowrap;
-      font-size: 12px;
-      line-height: 1.25;
-      color: $pure-white;
 
-      &__approved,
-      &__payment_pending {
-        background-color: #66bb6a;
-        border-radius: 16px;
-        padding: 5px 15px;
-      }
-
-      &__payment_processing {
-        background-color: #47a447;
-        border-radius: 16px;
-        padding: 5px 15px;
-      }
-
-      &__paid {
-        background-color: #3d8b3d;
+      &__state {
+        font-size: 12px;
+        line-height: 1.25;
+        color: $pure-white;
+        background-color: $highlight-black;
         border-radius: 16px;
         padding: 5px 15px;
       }
