@@ -104,6 +104,10 @@ $btn-google-border: #8c8fa6;
 }
 
 .sign-in {
+  &--content-container {
+    --keyboard-offset: 0 !important;
+  }
+
   &--logo-container {
     text-align: center;
     padding-bottom: 32px;
