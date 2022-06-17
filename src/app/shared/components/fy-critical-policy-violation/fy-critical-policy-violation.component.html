@@ -1,8 +1,13 @@
 <div *ngIf="showHeader">
-  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <mat-icon *ngIf="showDragBar" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <div class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
     <div>
-      <div class="critical-policy-violation--toolbar__title">Expense Blocked</div>
+      <div class="critical-policy-violation--toolbar__title">
+        <span class="critical-policy-violation--toolbar__close-icon" *ngIf="showCloseIcon" slot="start">
+          <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+        </span>
+        Expense Blocked
+      </div>
     </div>
   </div>
 </div>
@@ -10,12 +15,13 @@
 <div class="critical-policy-violation--content-section">
   <div class="critical-policy-violation--content">
     <div class="critical-policy-violation--info">You cannot report this expense due to the following violation(s):</div>
-
-    <ng-container *ngIf="criticalViolationMessages">
-      <ng-container *ngFor="let violation of criticalViolationMessages">
-        <app-policy-violation-rule [message]="violation" [violationType]="'critical'"></app-policy-violation-rule>
+    <div class="inner-content">
+      <ng-container *ngIf="criticalViolationMessages">
+        <ng-container *ngFor="let violation of criticalViolationMessages">
+          <app-policy-violation-rule [message]="violation" [violationType]="'critical'"></app-policy-violation-rule>
+        </ng-container>
       </ng-container>
-    </ng-container>
+    </div>
   </div>
 </div>
 

@@ -8,6 +8,11 @@
       font-size: 20px;
       font-weight: 500;
     }
+    &__close-icon {
+      margin-top: 2px;
+      position: absolute;
+      left: 4%;
+    }
   }
 
   &--content-section {

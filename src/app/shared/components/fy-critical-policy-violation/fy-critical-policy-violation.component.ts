@@ -13,6 +13,10 @@ export class FyCriticalPolicyViolationComponent implements OnInit {
 
   @Input() showCTA = true;
 
+  @Input() showDragBar = true;
+
+  @Input() showCloseIcon = false;
+
   constructor(private modalController: ModalController) {}
 
   ngOnInit() {}

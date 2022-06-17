@@ -29,12 +29,18 @@ export class FyPolicyViolationInfoComponent implements OnInit {
 
   async openPolicyViolationDetails() {
     const componentProperties = this.criticalPolicyViolated
-      ? { criticalViolationMessages: this.policyViolations, showCTA: false }
-      : { policyViolationMessages: this.policyViolations, showComment: false, showCTA: false };
+      ? { criticalViolationMessages: this.policyViolations, showCTA: false, showDragBar: false, showCloseIcon: true }
+      : {
+          policyViolationMessages: this.policyViolations,
+          showComment: false,
+          showCTA: false,
+          showDragBar: false,
+          showCloseIcon: true,
+        };
     const policyDetailsModal = await this.modalController.create({
       component: this.criticalPolicyViolated ? FyCriticalPolicyViolationComponent : FyPolicyViolationComponent,
       componentProps: componentProperties,
-      ...this.modalProperties.getModalDefaultProperties('payment-mode-modal'),
+      ...this.modalProperties.getModalDefaultProperties('auto-height'),
     });
 
     await policyDetailsModal.present();

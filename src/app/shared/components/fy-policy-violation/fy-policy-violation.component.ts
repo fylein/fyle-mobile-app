@@ -21,6 +21,10 @@ export class FyPolicyViolationComponent implements OnInit {
 
   @Input() showHeader = true;
 
+  @Input() showDragBar = true;
+
+  @Input() showCloseIcon = false;
+
   form: FormGroup;
 
   isExpenseFlagged = false;
