@@ -242,9 +242,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       };
 
       await this.loaderService.showLoader('Please wait...', 5000);
+      this.getFlashModes();
       CameraPreview.start(cameraPreviewOptions).then(async (res) => {
+        console.log('Camera started');
         this.isCameraShown = true;
-        this.getFlashModes();
         await this.loaderService.hideLoader();
       });
     }
@@ -452,6 +453,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngAfterViewInit() {
+    console.log('ngAfterViewInit -> Inside child component - capture receipt');
     this.setUpAndStartCamera();
   }
 
