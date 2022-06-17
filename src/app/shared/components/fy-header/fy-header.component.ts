@@ -19,11 +19,11 @@ export class FyHeaderComponent implements OnInit {
 
   @Output() multiselectBack = new EventEmitter();
 
+  constructor() {}
+
   get HeaderState() {
     return HeaderState;
   }
-
-  constructor() {}
 
   ngOnInit() {}
 

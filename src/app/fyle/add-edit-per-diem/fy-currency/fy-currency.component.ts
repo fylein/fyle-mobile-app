@@ -39,6 +39,13 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
 
   private onChangeCallback: (_: any) => void = noop;
 
+  constructor(
+    private fb: FormBuilder,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private injector: Injector
+  ) {}
+
   get valid() {
     if (this.ngControl.touched) {
       return this.ngControl.valid;
@@ -51,12 +58,17 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     return this.fg.disabled;
   }
 
-  constructor(
-    private fb: FormBuilder,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector
-  ) {}
+  get value(): any {
+    return this.innerValue;
+  }
+
+  set value(v: any) {
+    if (v !== this.innerValue) {
+      this.innerValue = v;
+      this.fg.setValue(this.convertInnerValueToFormValue(this.innerValue));
+      this.onChangeCallback(v);
+    }
+  }
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
@@ -129,18 +141,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  get value(): any {
-    return this.innerValue;
-  }
-
-  set value(v: any) {
-    if (v !== this.innerValue) {
-      this.innerValue = v;
-      this.fg.setValue(this.convertInnerValueToFormValue(this.innerValue));
-      this.onChangeCallback(v);
-    }
-  }
-
   onBlur() {
     this.onTouchedCallback();
   }
@@ -168,7 +168,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
           currentSelection: this.fg.controls.currency.value,
         },
         mode: 'ios',
-        presentingElement: await this.modalController.getTop(),
         ...this.modalProperties.getModalDefaultProperties(),
       });
 
@@ -189,7 +188,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
               txnDt: this.txnDt,
             },
             mode: 'ios',
-            presentingElement: await this.modalController.getTop(),
             ...this.modalProperties.getModalDefaultProperties(),
           });
 
