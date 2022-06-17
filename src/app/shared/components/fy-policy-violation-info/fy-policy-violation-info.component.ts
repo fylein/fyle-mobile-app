@@ -3,6 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-violation.component';
 import { PolicyViolationDetailsComponent } from '../policy-violation-details/policy-violation-details.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
 
 @Component({
   selector: 'app-fy-policy-violation-info',
@@ -27,11 +28,12 @@ export class FyPolicyViolationInfoComponent implements OnInit {
   }
 
   async openPolicyViolationDetails() {
+    const componentProperties = this.criticalPolicyViolated
+      ? { criticalViolationMessages: this.policyViolations, showCTA: false }
+      : { policyViolationMessages: this.policyViolations, showComment: false, showCTA: false };
     const policyDetailsModal = await this.modalController.create({
-      component: FyPolicyViolationComponent,
-      componentProps: {
-        policyViolations: this.policyViolations,
-      },
+      component: this.criticalPolicyViolated ? FyCriticalPolicyViolationComponent : FyPolicyViolationComponent,
+      componentProps: componentProperties,
       ...this.modalProperties.getModalDefaultProperties('payment-mode-modal'),
     });
 

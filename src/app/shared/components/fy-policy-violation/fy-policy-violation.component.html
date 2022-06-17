@@ -2,7 +2,9 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <div class="text-center policy-violation--toolbar fy-modal-toolbar">
     <div>
-      <div class="policy-violation--toolbar__title">Policy Violations Found</div>
+      <div class="policy-violation--toolbar__title">
+        Policy Violation<span *ngIf="policyViolationMessages?.length > 1">s</span> Found
+      </div>
     </div>
   </div>
 </div>
