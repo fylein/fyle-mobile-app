@@ -4,9 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AddEditPerDiemPageRoutingModule } from './add-edit-per-diem-routing.module';
 import { AddEditPerDiemPage } from './add-edit-per-diem.page';
-import { FyCurrencyComponent } from './fy-currency/fy-currency.component';
-import { FyCurrencyChooseCurrencyComponent } from './fy-currency/fy-currency-choose-currency/fy-currency-choose-currency.component';
-import { FyCurrencyExchangeRateComponent } from './fy-currency/fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -33,12 +30,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     SharedModule,
     MatSnackBarModule,
   ],
-  declarations: [
-    AddEditPerDiemPage,
-    FyCurrencyComponent,
-    FyCurrencyChooseCurrencyComponent,
-    FyCurrencyExchangeRateComponent,
-    PolicyViolationComponent,
-  ],
+  declarations: [AddEditPerDiemPage, PolicyViolationComponent],
 })
 export class AddEditPerDiemPageModule {}
