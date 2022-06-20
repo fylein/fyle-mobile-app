@@ -147,14 +147,28 @@
               </ng-container>
             </ng-container>
 
-            <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-              <div class="add-edit-mileage--internal-block">
-                <app-fy-select-vehicle
-                  [isAmountDisabled]="(isAmountDisabled$|async)"
+            <ng-container *ngIf="mileageRateOptions$|async as mileageRateOptions">
+              <div
+                class="add-edit-mileage--internal-block"
+                [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.mileage_rate_name.touched && !fg.controls.mileage_rate_name.valid}"
+              >
+                <app-fy-select
+                  [enableSearch]="false"
+                  [label]="'Mileage Rate'"
                   [mandatory]="true"
-                  [mileageConfig]="mileageConfig"
-                  formControlName="mileage_vehicle_type"
-                ></app-fy-select-vehicle>
+                  [nullOption]="false"
+                  [isAutoHeight]="true"
+                  [options]="mileageRateOptions"
+                  [selectModalHeader]="'Select Mileage Rate'"
+                  formControlName="mileage_rate_name"
+                >
+                </app-fy-select>
+              </div>
+              <div
+                *ngIf="fg.controls.mileage_rate_name.touched && !fg.controls.mileage_rate_name.valid"
+                class="add-edit-mileage--error"
+              >
+                Select Mileage Rate.
               </div>
             </ng-container>
 
