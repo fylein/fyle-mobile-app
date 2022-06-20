@@ -12,7 +12,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 export class TaxGroupService {
   constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
 
-  getEnabledTaxGroupsCount(): Observable<number> {
+  private getEnabledTaxGroupsCount(): Observable<number> {
     const data = {
       params: {
         is_enabled: 'eq.' + true,
@@ -25,7 +25,7 @@ export class TaxGroupService {
       .pipe(map((res) => res.count));
   }
 
-  getTaxGroups(config: { offset: number; limit: number }): Observable<TaxGroup[]> {
+  private getTaxGroups(config: { offset: number; limit: number }): Observable<TaxGroup[]> {
     const data = {
       params: {
         is_enabled: 'eq.' + true,
@@ -45,7 +45,7 @@ export class TaxGroupService {
     );
   }
 
-  transformFrom(platformTaxGroup: PlatformTaxGroup[]): TaxGroup[] {
+  private transformFrom(platformTaxGroup: PlatformTaxGroup[]): TaxGroup[] {
     const oldTaxGroup = platformTaxGroup.map((taxGroup) => ({
       id: taxGroup.id,
       name: taxGroup.name,

@@ -47,6 +47,18 @@ const taxGroupPlatformResponseSingle = {
   offset: 0,
 };
 
+const transformedTaxGroupDataSingle = [
+  {
+    id: 'tgwfjbgqo32',
+    name: 'GST',
+    percentage: 18,
+    created_at: '2020-06-01T13:14:54.804+00:00',
+    updated_at: '2020-06-11T13:14:55.201598+00:00',
+    org_id: 'orwruogwnngg',
+    is_enabled: true,
+  },
+];
+
 const transformedTaxGroupData = [
   {
     id: 'tgwfjbgqo32',
@@ -103,7 +115,7 @@ describe('TaxGroupService', () => {
     spenderPlatformApiService.get.and.returnValue(of(taxGroupPlatformResponseSingle));
 
     taxGroupService.get().subscribe((taxGroups) => {
-      expect(taxGroups).toEqual(fixDate(transformedTaxGroupData)[0]);
+      expect(taxGroups).toEqual(fixDate(transformedTaxGroupDataSingle));
       done();
     });
   });
