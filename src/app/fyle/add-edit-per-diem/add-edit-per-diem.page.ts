@@ -38,7 +38,6 @@ import { DataTransformService } from 'src/app/core/services/data-transform.servi
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -57,6 +56,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 
 @Component({
@@ -1543,12 +1543,14 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    const fyCriticalPolicyViolationPopOver = await this.popoverController.create({
+    const fyCriticalPolicyViolationPopOver = await this.modalController.create({
       component: FyCriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations,
       },
-      cssClass: 'pop-up-in-center',
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await fyCriticalPolicyViolationPopOver.present();
@@ -1559,7 +1561,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
     const currencyModal = await this.modalController.create({
-      component: PolicyViolationComponent,
+      component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription,
