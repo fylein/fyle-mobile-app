@@ -253,7 +253,7 @@ export class SplitExpensePage implements OnInit {
 
   getCategoryList() {
     this.categories$.subscribe((categories) => {
-      this.categoryList = categories.map((cat) => cat.value);
+      this.categoryList = categories.map((category) => category.value);
     });
   }
 

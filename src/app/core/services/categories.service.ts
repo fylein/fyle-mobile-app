@@ -129,10 +129,6 @@ export class CategoriesService {
     return categoryList.find((orgCategory) => orgCategory.id === orgCategoryId);
   }
 
-  filterEnabled(categories: OrgCategory[]): OrgCategory[] {
-    return categories.filter((category) => category.enabled === true);
-  }
-
   filterRequired(categoryList: OrgCategory[]): OrgCategory[] {
     return categoryList.filter((category) => {
       if (!category.fyle_category) {
