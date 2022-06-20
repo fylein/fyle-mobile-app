@@ -12,6 +12,17 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 export class TaxGroupService {
   constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
 
+  get(): Observable<TaxGroup[]> {
+    return this.getEnabledTaxGroupsCount().pipe(
+      switchMap((count) => {
+        count = count > 50 ? count / 50 : 1;
+        return range(0, count);
+      }),
+      concatMap((page) => this.getTaxGroups({ offset: 50 * page, limit: 50 })),
+      reduce((acc, curr) => acc.concat(curr), [] as TaxGroup[])
+    );
+  }
+
   private getEnabledTaxGroupsCount(): Observable<number> {
     const data = {
       params: {
@@ -57,16 +68,5 @@ export class TaxGroupService {
     }));
 
     return oldTaxGroup;
-  }
-
-  get(): Observable<TaxGroup[]> {
-    return this.getEnabledTaxGroupsCount().pipe(
-      switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
-        return range(0, count);
-      }),
-      concatMap((page) => this.getTaxGroups({ offset: 50 * page, limit: 50 })),
-      reduce((acc, curr) => acc.concat(curr), [] as TaxGroup[])
-    );
   }
 }
