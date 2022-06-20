@@ -30,6 +30,23 @@ const taxGroupPlatformResponse = {
   offset: 0,
 };
 
+const taxGroupPlatformResponseSingle = {
+  count: 1,
+  data: [
+    {
+      id: 'tgwfjbgqo32',
+      org_id: 'orwruogwnngg',
+      created_at: '2020-06-01T13:14:54.804+00:00',
+      updated_at: '2020-06-11T13:14:55.201598+00:00',
+      name: 'GST',
+      percentage: 18,
+      is_enabled: true,
+      code: 'C1234',
+    },
+  ],
+  offset: 0,
+};
+
 const transformedTaxGroupData = [
   {
     id: 'tgwfjbgqo32',
@@ -80,6 +97,15 @@ describe('TaxGroupService', () => {
 
   it('should be created', () => {
     expect(taxGroupService).toBeTruthy();
+  });
+
+  it('should be able to return single tax group', (done) => {
+    spenderPlatformApiService.get.and.returnValue(of(taxGroupPlatformResponseSingle));
+
+    taxGroupService.get().subscribe((taxGroups) => {
+      expect(taxGroups).toEqual(fixDate(transformedTaxGroupData)[0]);
+      done();
+    });
   });
 
   it('should return proper response from api and transform it into proper model', (done) => {
