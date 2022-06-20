@@ -125,7 +125,11 @@ export class CategoriesService {
     });
   }
 
-  filterRequired(categoryList) {
+  filterByOrgCategoryId(orgCategoryId: number, categoryList: OrgCategory[]): OrgCategory {
+    return categoryList.find((orgCategory) => orgCategory.id === orgCategoryId);
+  }
+
+  filterRequired(categoryList: OrgCategory[]): OrgCategory[] {
     return categoryList.filter((category) => {
       if (!category.fyle_category) {
         return true;

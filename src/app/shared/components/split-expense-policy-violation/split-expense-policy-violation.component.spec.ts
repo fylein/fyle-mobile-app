@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { CurrencyComponent } from './currency.component';
+import { SplitExpensePolicyViolationComponent } from './split-expense-policy-violation.component';
 
-xdescribe('CurrencyComponent', () => {
-  let component: CurrencyComponent;
-  let fixture: ComponentFixture<CurrencyComponent>;
+xdescribe('SplitExpensePolicyViolationComponent', () => {
+  let component: SplitExpensePolicyViolationComponent;
+  let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [CurrencyComponent],
+        declarations: [SplitExpensePolicyViolationComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(CurrencyComponent);
+      fixture = TestBed.createComponent(SplitExpensePolicyViolationComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })
