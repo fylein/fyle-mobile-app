@@ -59,10 +59,9 @@ import { DataTransformService } from 'src/app/core/services/data-transform.servi
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { DuplicateDetectionService } from 'src/app/core/services/duplicate-detection.service';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
@@ -185,10 +184,6 @@ export class AddEditExpensePage implements OnInit {
 
   receiptsData: any;
 
-  duplicates$: Observable<any>;
-
-  duplicateBoxOpen = false;
-
   isAmountCapped$: Observable<boolean>;
 
   isAmountDisabled$: Observable<boolean>;
@@ -214,8 +209,6 @@ export class AddEditExpensePage implements OnInit {
   isConnected$: Observable<boolean>;
 
   invalidPaymentMode = false;
-
-  pointToDuplicates = false;
 
   isAdvancesEnabled$: Observable<boolean>;
 
@@ -260,8 +253,6 @@ export class AddEditExpensePage implements OnInit {
   saveAndPrevExpenseLoader = false;
 
   canAttachReceipts: boolean;
-
-  duplicateDetectionReasons = [];
 
   tfcDefaultValues$: Observable<any>;
 
@@ -363,7 +354,6 @@ export class AddEditExpensePage implements OnInit {
     private policyService: PolicyService,
     private transactionOutboxService: TransactionsOutboxService,
     private router: Router,
-    private duplicateDetectionService: DuplicateDetectionService,
     private loaderService: LoaderService,
     private modalController: ModalController,
     private statusService: StatusService,
@@ -496,37 +486,6 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  canGetDuplicates() {
-    return this.offlineService.getOrgSettings().pipe(
-      map((orgSettings) => {
-        const isAmountCurrencyTxnDtPresent =
-          isNumber(this.fg.value.currencyObj && this.fg.value.currencyObj.amount) &&
-          !!this.fg.value.dateOfSpend &&
-          !!(this.fg.value.currencyObj && this.fg.value.currencyObj.currency);
-        return this.fg.valid && orgSettings.policies.duplicate_detection_enabled && isAmountCurrencyTxnDtPresent;
-      })
-    );
-  }
-
-  checkForDuplicates() {
-    return this.canGetDuplicates().pipe(
-      switchMap((canGetDuplicates) => {
-        const customFields$ = this.getCustomFields();
-        return iif(
-          () => canGetDuplicates,
-          this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-            switchMap((etxn) => this.duplicateDetectionService.getPossibleDuplicates(etxn.tx))
-          ),
-          of(null)
-        );
-      })
-    );
-  }
-
-  getDuplicates() {
-    return this.etxn$.pipe(switchMap((etxn) => this.duplicateDetectionService.getDuplicates(etxn.tx.id)));
-  }
-
   checkIfInvalidPaymentMode() {
     return this.etxn$.pipe(
       map((etxn) => {
@@ -585,14 +544,6 @@ export class AddEditExpensePage implements OnInit {
     this.isChangeCCCSuggestionClicked = true;
     this.isCCCTransactionAutoSelected = false;
     this.etxn$.subscribe(async (etxn) => {
-      const modalProperties = {
-        cssClass: 'auto-height',
-        showBackdrop: true,
-        swipeToClose: true,
-        backdropDismiss: true,
-        animated: true,
-      };
-
       const matchExpensesModal = await this.modalController.create({
         component: MatchTransactionComponent,
         componentProps: {
@@ -601,8 +552,7 @@ export class AddEditExpensePage implements OnInit {
           selectedCCCTransaction: this.selectedCCCTransaction,
         },
         mode: 'ios',
-        presentingElement: await this.modalController.getTop(),
-        ...modalProperties,
+        ...this.modalProperties.getModalDefaultProperties('auto-height'),
       });
 
       await matchExpensesModal.present();
@@ -734,61 +684,6 @@ export class AddEditExpensePage implements OnInit {
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       shareReplay(1)
     );
-  }
-
-  getPossibleDuplicates() {
-    return this.checkForDuplicates();
-  }
-
-  async trackDuplicatesShown(duplicates, etxn) {
-    try {
-      const duplicateTxnIds = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_transaction_ids), []);
-      const duplicateFields = duplicates.reduce((prev, cur) => prev.concat(cur.duplicate_fields), []);
-
-      await this.trackingService.duplicateDetectionAlertShown({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
-        ExpenseId: etxn.tx.id,
-        DuplicateExpenses: duplicateTxnIds,
-        DuplicateFields: duplicateFields,
-      });
-    } catch (err) {
-      // Ignore event tracking errors
-    }
-  }
-
-  setupDuplicateDetection() {
-    this.duplicates$ = this.fg.valueChanges.pipe(
-      debounceTime(1000),
-      distinctUntilChanged((a, b) => isEqual(a, b)),
-      switchMap(() => this.getPossibleDuplicates())
-    );
-
-    this.duplicates$
-      .pipe(
-        filter((duplicates) => duplicates && duplicates.length),
-        take(1)
-      )
-      .subscribe((res) => {
-        this.pointToDuplicates = true;
-        setTimeout(() => {
-          this.pointToDuplicates = false;
-        }, 3000);
-
-        this.etxn$.pipe(take(1)).subscribe(async (etxn) => this.trackDuplicatesShown(res, etxn));
-      });
-  }
-
-  showDuplicates() {
-    const duplicateInputContainer = this.duplicateInputContainer.nativeElement as HTMLElement;
-    if (duplicateInputContainer) {
-      duplicateInputContainer.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start',
-      });
-
-      this.pointToDuplicates = false;
-    }
   }
 
   openSplitExpenseModal(splitType) {
@@ -2583,11 +2478,6 @@ export class AddEditExpensePage implements OnInit {
       hotel_is_breakfast_provided: [],
     });
 
-    this.duplicateDetectionReasons = [
-      { label: 'Different expense', value: 'Different expense' },
-      { label: 'Other', value: 'Other' },
-    ];
-
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
         this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
@@ -2616,7 +2506,6 @@ export class AddEditExpensePage implements OnInit {
 
     this.setupExpenseSuggestions();
 
-    this.setupDuplicateDetection();
     this.setUpTaxCalculations();
 
     const orgSettings$ = this.offlineService.getOrgSettings();
@@ -2710,7 +2599,6 @@ export class AddEditExpensePage implements OnInit {
     this.title = 'Add Expense';
     this.title =
       this.activeIndex > -1 && this.reviewList && this.activeIndex < this.reviewList.length ? 'Review' : 'Edit';
-    this.duplicateBoxOpen = false;
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
@@ -3106,23 +2994,6 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  // public findInvalidControlsRecursive(formToInvestigate:FormGroup|FormArray):string[] {
-  //   var invalidControls:string[] = [];
-  //   let recursiveFunc = (form:FormGroup|FormArray) => {
-  //     Object.keys(form.controls).forEach(field => {
-  //       const control = form.get(field);
-  //       if (control.invalid) invalidControls.push(field);
-  //       if (control instanceof FormGroup) {
-  //         recursiveFunc(control);
-  //       } else if (control instanceof FormArray) {
-  //         recursiveFunc(control);
-  //       }
-  //     });
-  //   }
-  //   recursiveFunc(formToInvestigate);
-  //   return invalidControls;
-  // }
-
   async reloadCurrentRoute() {
     await this.router.navigateByUrl('/enterprise/my_expenses', { skipLocationChange: true });
     await this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
@@ -3336,12 +3207,14 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    const fyCriticalPolicyViolationPopOver = await this.popoverController.create({
+    const fyCriticalPolicyViolationPopOver = await this.modalController.create({
       component: FyCriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations,
       },
-      cssClass: 'pop-up-in-center',
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await fyCriticalPolicyViolationPopOver.present();
@@ -3352,13 +3225,12 @@ export class AddEditExpensePage implements OnInit {
 
   async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
     const currencyModal = await this.modalController.create({
-      component: PolicyViolationComponent,
+      component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -4178,7 +4050,6 @@ export class AddEditExpensePage implements OnInit {
             canEdit: true,
           },
           mode: 'ios',
-          presentingElement: await this.modalController.getTop(),
         });
 
         await attachmentsModal.present();
@@ -4261,7 +4132,6 @@ export class AddEditExpensePage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx.id,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -4273,20 +4143,6 @@ export class AddEditExpensePage implements OnInit {
       this.trackingService.addComment();
     } else {
       this.trackingService.viewComment();
-    }
-  }
-
-  async setDuplicateBoxOpen(value) {
-    this.duplicateBoxOpen = value;
-
-    if (value) {
-      await this.trackingService.duplicateDetectionUserActionExpand({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
-      });
-    } else {
-      await this.trackingService.duplicateDetectionUserActionCollapse({
-        Page: this.mode === 'add' ? 'Add Expense' : 'Edit Expense',
-      });
     }
   }
 
@@ -4516,7 +4372,6 @@ export class AddEditExpensePage implements OnInit {
         duplicateExpenses,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

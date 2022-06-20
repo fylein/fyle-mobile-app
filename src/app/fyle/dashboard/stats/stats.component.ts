@@ -61,10 +61,6 @@ export class StatsComponent implements OnInit {
 
   isUnifyCCCExpensesSettings: boolean;
 
-  get ReportStates() {
-    return ReportStates;
-  }
-
   constructor(
     private dashboardService: DashboardService,
     private currencyService: CurrencyService,
@@ -73,6 +69,10 @@ export class StatsComponent implements OnInit {
     private offlineService: OfflineService,
     private trackingService: TrackingService
   ) {}
+
+  get ReportStates() {
+    return ReportStates;
+  }
 
   setupNetworkWatcher() {
     const networkWatcherEmitter = new EventEmitter<boolean>();
