@@ -239,6 +239,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         height: window.innerHeight,
         parent: 'cameraPreview',
         disableAudio: true,
+        enableHighResolution: false,
+        rotateWhenOrientationChanged: false,
+        disableExifHeaderStripping: false,
       };
 
       await this.loaderService.showLoader('Please wait...', 5000);
@@ -375,7 +378,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       await this.showLimitMessage();
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
-        quality: 50,
+        quality: 70,
       };
 
       const result = await CameraPreview.capture(cameraPreviewPictureOptions);
