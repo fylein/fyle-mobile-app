@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency.component';
+import { PolicyViolationRuleComponent } from './policy-violation-rule.component';
 
-xdescribe('FyCurrencyChooseCurrencyComponent', () => {
-  let component: FyCurrencyChooseCurrencyComponent;
-  let fixture: ComponentFixture<FyCurrencyChooseCurrencyComponent>;
+describe('PolicyViolationRuleComponent', () => {
+  let component: PolicyViolationRuleComponent;
+  let fixture: ComponentFixture<PolicyViolationRuleComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [FyCurrencyChooseCurrencyComponent],
+        declarations: [PolicyViolationRuleComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(FyCurrencyChooseCurrencyComponent);
+      fixture = TestBed.createComponent(PolicyViolationRuleComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })
