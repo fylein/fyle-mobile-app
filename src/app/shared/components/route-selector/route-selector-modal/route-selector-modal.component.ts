@@ -70,6 +70,16 @@ export class RouteSelectorModalComponent implements OnInit {
     }
   }
 
+  getLocationAutocompleteLabel(index) {
+    if (index === 0) {
+      return 'Start (A)';
+    } else if (index === this.mileageLocations.length - 1) {
+      return 'End (' + String.fromCharCode(this.mileageLocations.length + 64) + ')';
+    } else {
+      return 'Stop ' + String.fromCharCode(index + 65);
+    }
+  }
+
   ngOnInit() {
     this.distance = this.value.distance;
     if (this.value?.mileageLocations?.length > 0) {
