@@ -74,8 +74,8 @@ export class SplitExpenseService {
   testPolicyForTransaction(etxn: Expense): Observable<{ [transactionID: string]: PolicyViolation }> {
     const policyResponse = {};
     return this.transactionService.testPolicy(etxn).pipe(
-      map((response) => {
-        policyResponse[etxn.tx_id] = response;
+      map((policyViolationresponse) => {
+        policyResponse[etxn.tx_id] = policyViolationresponse;
         return policyResponse;
       })
     );
@@ -142,25 +142,33 @@ export class SplitExpenseService {
     return category?.displayName;
   }
 
+  mapViolationDataWithEtxn(
+    policyViolation: { [transactionID: string]: PolicyViolation },
+    etxns: Expense[],
+    categoryList: OrgCategory[]
+  ): { [transactionID: string]: PolicyViolation } {
+    etxns.forEach((etxn) => {
+      for (const key of Object.keys(policyViolation)) {
+        if (policyViolation.hasOwnProperty(key) && key === etxn?.tx_id) {
+          policyViolation[key].amount = etxn.tx_orig_amount || etxn.tx_amount;
+          policyViolation[key].currency = etxn.tx_orig_currency || etxn.tx_currency;
+          policyViolation[key].name = this.formatDisplayName(etxn.tx_org_category_id, categoryList);
+          policyViolation[key].type = 'category';
+          break;
+        }
+      }
+    });
+    return policyViolation;
+  }
+
   executePolicyCheck(
     etxns: Expense[],
     fileObjs: FileObject[],
     categoryList: OrgCategory[]
   ): Observable<{ [id: string]: PolicyViolation }> {
     return this.runPolicyCheck(etxns, fileObjs).pipe(
-      map((data) => {
-        etxns.forEach((etxn) => {
-          for (const key of Object.keys(data)) {
-            if (data.hasOwnProperty(key) && key === etxn?.tx_id) {
-              data[key].amount = etxn.tx_orig_amount || etxn.tx_amount;
-              data[key].currency = etxn.tx_orig_currency || etxn.tx_currency;
-              data[key].name = this.formatDisplayName(etxn.tx_org_category_id, categoryList);
-              data[key].type = 'category';
-              break;
-            }
-          }
-        });
-        return data;
+      map((policyViolation) => {
+        return this.mapViolationDataWithEtxn(policyViolation, etxns, categoryList);
       })
     );
   }
