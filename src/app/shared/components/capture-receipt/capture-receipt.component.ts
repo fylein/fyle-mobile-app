@@ -375,7 +375,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       await this.showLimitMessage();
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
-        quality: 70,
+        quality: 50,
       };
 
       const result = await CameraPreview.capture(cameraPreviewPictureOptions);
