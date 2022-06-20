@@ -167,9 +167,7 @@ export class SplitExpenseService {
     categoryList: OrgCategory[]
   ): Observable<{ [id: string]: PolicyViolation }> {
     return this.runPolicyCheck(etxns, fileObjs).pipe(
-      map((policyViolation) => {
-        return this.mapViolationDataWithEtxn(policyViolation, etxns, categoryList);
-      })
+      map((policyViolation) => this.mapViolationDataWithEtxn(policyViolation, etxns, categoryList))
     );
   }
 
