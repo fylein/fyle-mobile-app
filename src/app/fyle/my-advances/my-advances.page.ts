@@ -91,7 +91,7 @@ export class MyAdvancesPage implements AfterViewChecked {
   ) {}
 
   ionViewWillLeave() {
-    this.onPageExit.next();
+    this.onPageExit.next(null);
   }
 
   setupNetworkWatcher() {
