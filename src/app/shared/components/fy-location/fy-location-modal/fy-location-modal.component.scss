@@ -9,7 +9,7 @@
     // border-color-font
     @extend %fy-select-list-element-default-border-color-font;
     display: flex;
-    align-items: flex-start;
+    align-items: start;
     &__current-location {
       align-items: center;
     }

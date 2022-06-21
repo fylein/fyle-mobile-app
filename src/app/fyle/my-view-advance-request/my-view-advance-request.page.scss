@@ -155,6 +155,12 @@
     padding: 8px 0px;
   }
 
+  &--row-items {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+  }
+
   &--padding-0 {
     padding: 0;
   }
