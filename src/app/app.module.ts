@@ -19,6 +19,7 @@ import { SecureStorageService } from './core/services/secure-storage.service';
 import { StorageService } from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import { GoogleMapsModule } from '@angular/google-maps';
+import { PAGINATION_SIZE } from './constants';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -30,8 +31,6 @@ export class MyHammerConfig extends HammerGestureConfig {
 export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
   'Minimum screen width to act as breakpoint between regular and small devices'
 );
-
-export const PAGINATION_SIZE = new InjectionToken<number>('API Pagination size');
 
 @NgModule({
   declarations: [AppComponent],

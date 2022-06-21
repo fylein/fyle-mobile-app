@@ -1,12 +1,11 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { TaxGroup } from '../models/tax-group.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformTaxGroup } from '../models/platform/platform-tax-group.model';
 import { Observable, range } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { PAGINATION_SIZE } from 'src/app/app.module';
-
+import { PAGINATION_SIZE } from 'src/app/constants';
 @Injectable({
   providedIn: 'root',
 })
