@@ -60,8 +60,8 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
@@ -2903,7 +2903,7 @@ export class AddEditExpensePage implements OnInit {
             locations: locations || [],
             custom_properties: customProperties || [],
             num_files: isPolicyEtxn
-              ? res.attachments && res.attachments.length
+              ? (res.attachments as Array<FileObject>)?.length
               : this.activatedRoute.snapshot.params.dataUrl
               ? 1
               : 0,
@@ -3207,12 +3207,14 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    const fyCriticalPolicyViolationPopOver = await this.popoverController.create({
+    const fyCriticalPolicyViolationPopOver = await this.modalController.create({
       component: FyCriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations,
       },
-      cssClass: 'pop-up-in-center',
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await fyCriticalPolicyViolationPopOver.present();
@@ -3223,7 +3225,7 @@ export class AddEditExpensePage implements OnInit {
 
   async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
     const currencyModal = await this.modalController.create({
-      component: PolicyViolationComponent,
+      component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription,

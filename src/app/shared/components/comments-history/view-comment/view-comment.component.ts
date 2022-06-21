@@ -82,7 +82,7 @@ export class ViewCommentComponent implements OnInit {
         .post(this.objectType, this.objectId, data)
         .pipe()
         .subscribe((res) => {
-          this.refreshEstatuses$.next();
+          this.refreshEstatuses$.next(null);
         });
     }
   }

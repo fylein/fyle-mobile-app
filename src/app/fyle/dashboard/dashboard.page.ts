@@ -75,7 +75,7 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.onPageExit$.next();
+    this.onPageExit$.next(null);
   }
 
   setupNetworkWatcher() {
