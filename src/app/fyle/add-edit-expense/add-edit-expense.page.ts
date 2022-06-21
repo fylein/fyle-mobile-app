@@ -1016,8 +1016,8 @@ export class AddEditExpensePage implements OnInit {
           orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
         const isCCCEnabled =
           orgSettings &&
-          orgSettings.corporate_credit_card_settings.allowed &&
-          orgSettings.corporate_credit_card_settings.enabled;
+          orgSettings.corporate_credit_card_settings?.allowed &&
+          orgSettings.corporate_credit_card_settings?.enabled;
         /**
          * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
          * But if already an expense is created as CCC payment mode then on edit of that expense it should be visible
@@ -2674,8 +2674,8 @@ export class AddEditExpensePage implements OnInit {
         switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
         filter(
           ({ orgSettings, etxn }) =>
-            (orgSettings.corporate_credit_card_settings.allowed &&
-              orgSettings.corporate_credit_card_settings.enabled) ||
+            (orgSettings.corporate_credit_card_settings?.allowed &&
+              orgSettings.corporate_credit_card_settings?.enabled) ||
             etxn.tx.corporate_credit_card_expense_group_id
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
