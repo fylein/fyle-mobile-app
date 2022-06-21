@@ -247,6 +247,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   getEndLocationLabel() {
-    return 'End (' + String.fromCharCode(this.mileageLocations.length + 64) + ')';
+    const character = String.fromCharCode(this.mileageLocations.length + 64);
+    return 'End (' + character + ')';
   }
 }

@@ -70,13 +70,17 @@ export class RouteSelectorModalComponent implements OnInit {
     }
   }
 
-  getLocationAutocompleteLabel(index) {
+  getLocationAutoCompleteLabel(index) {
+    let character;
+
     if (index === 0) {
       return 'Start (A)';
     } else if (index === this.mileageLocations.length - 1) {
-      return 'End (' + String.fromCharCode(this.mileageLocations.length + 64) + ')';
+      character = String.fromCharCode(this.mileageLocations.length + 64);
+      return 'End (' + character + ')';
     } else {
-      return 'Stop ' + String.fromCharCode(index + 65);
+      character = String.fromCharCode(index + 65);
+      return 'Stop ' + character;
     }
   }
 
