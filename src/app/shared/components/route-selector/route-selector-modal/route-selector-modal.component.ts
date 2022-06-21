@@ -70,8 +70,6 @@ export class RouteSelectorModalComponent implements OnInit {
     }
   }
 
-  // It takes the index of the fy-location component in the mileageLocations array and assign the fy-location component a label.
-  // String.fromCharCode(i+65) : It converts the unicode into equivalent character. (e.g. 65 -> A , 66 -> B, etc)
   getLocationAutoCompleteLabel(index) {
     let character;
 
