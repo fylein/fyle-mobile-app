@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { SwiperModule } from 'swiper/angular';
 import { RouterModule } from '@angular/router';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -233,6 +234,7 @@ import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-cur
     IonicModule,
     FormsModule,
     RouterModule,
+    ScrollingModule,
     ReactiveFormsModule,
     MatInputModule,
     MatFormFieldModule,

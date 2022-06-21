@@ -19,6 +19,7 @@ import { SecureStorageService } from './core/services/secure-storage.service';
 import { StorageService } from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import { GoogleMapsModule } from '@angular/google-maps';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -43,8 +44,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     SharedModule,
     HammerModule,
     HttpClientJsonpModule,
-    SharedModule,
-    HammerModule,
+    ScrollingModule,
   ],
   providers: [
     GooglePlus,
