@@ -1,24 +1,28 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { TaxGroup } from '../models/tax-group.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformTaxGroup } from '../models/platform/platform-tax-group.model';
 import { Observable, range } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PAGINATION_SIZE } from 'src/app/app.module';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaxGroupService {
-  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
+  constructor(
+    @Inject(PAGINATION_SIZE) public paginationSize: number,
+    private spenderPlatformApiService: SpenderPlatformApiService
+  ) {}
 
   get(): Observable<TaxGroup[]> {
     return this.getEnabledTaxGroupsCount().pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getTaxGroups({ offset: 50 * page, limit: 50 })),
+      concatMap((page) => this.getTaxGroups({ offset: this.paginationSize * page, limit: this.paginationSize })),
       reduce((acc, curr) => acc.concat(curr), [] as TaxGroup[])
     );
   }

@@ -31,6 +31,8 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
   'Minimum screen width to act as breakpoint between regular and small devices'
 );
 
+export const PAGINATION_SIZE = new InjectionToken<number>('API Pagination size');
+
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -83,6 +85,10 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     {
       provide: MIN_SCREEN_WIDTH,
       useValue: 375,
+    },
+    {
+      provide: PAGINATION_SIZE,
+      useValue: 50,
     },
     TitleCasePipe,
   ],
