@@ -33,6 +33,12 @@ export class SignInPage implements OnInit {
 
   hide = true;
 
+  signInError = false;
+
+  isLockedEmail = false;
+
+  errEncountered = false;
+
   checkEmailExists$: Observable<any>;
 
   constructor(
@@ -110,6 +116,10 @@ export class SignInPage implements OnInit {
   }
 
   async checkIfEmailExists() {
+    this.signInError = false;
+    this.isLockedEmail = false;
+    this.errEncountered = false;
+
     if (this.fg.controls.email.valid) {
       this.emailLoading = true;
 
@@ -141,29 +151,32 @@ export class SignInPage implements OnInit {
   }
 
   async handleError(error) {
-    let header = 'Incorrect Email or Password';
-
+    // let header = 'Incorrect Email or Password';
     if (error.status === 400) {
       this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value }]);
       return;
     } else if (error.status === 500) {
-      header = 'Sorry... Something went wrong!';
+      // header = 'Sorry... Something went wrong!';
+      // this.signInError = true;
+      this.errEncountered = true;
     } else if (error.status === 433) {
-      header = 'Temporary Lockout';
+      // header = 'Temporary Lockout';
+      // this.signInError = true;
+      this.isLockedEmail = true;
     }
 
-    const errorPopover = await this.popoverController.create({
-      component: ErrorComponent,
-      componentProps: {
-        header,
-        error,
-      },
-      cssClass: 'dialog-popover',
-    });
-
+    // const errorPopover = await this.popoverController.create({
+    //   component: ErrorComponent,
+    //   componentProps: {
+    //     header,
+    //     error,
+    //   },
+    //   cssClass: 'dialog-popover',
+    // });
+    this.signInError = true;
     this.emailLoading = false;
     this.passwordLoading = false;
-    await errorPopover.present();
+    // await errorPopover.present();
   }
 
   signInUser() {

@@ -11,6 +11,10 @@ $astrick-red: #ff3366;
 $hide-fill: #a9acbc;
 $signin-divider: rgba(0, 0, 0, 0.1);
 $btn-google-border: #8c8fa6;
+$warning-fg: rgba(253, 209, 58, 0.12);
+$warning-message-bg: rgba(253, 209, 58, 0.03);
+$btn-info-bc: rgba(0, 98, 255, 0.04);
+$info-message-bg: rgba(0, 98, 255, 0.02);
 
 .action-wrapper {
   position: absolute;
@@ -24,18 +28,31 @@ $btn-google-border: #8c8fa6;
 .input-label {
   font-size: 14px;
   color: $input-label-color;
-  padding: 8px 0 0 0;
+  padding: 10px 0 0 0;
+  float: left;
+}
+
+.input-label-container {
+  display: inline;
 }
 
 .astrick-color {
   color: $astrick-red;
   font-size: 24px;
   padding: 8px 0 0 4px;
+  float: left;
 }
 
-.input-label,
-.astrick-color {
-  display: inline-block;
+.forgot-password {
+  float: right;
+  padding-top: 10px;
+  margin: 0;
+}
+
+.forgot-password a {
+  text-decoration: none;
+  color: #5a5d72;
+  font-weight: 400px;
 }
 
 .signin-divider {
@@ -89,17 +106,53 @@ $btn-google-border: #8c8fa6;
   margin: 20px 0px 0px 0px;
 }
 
+.warning-err-header {
+  color: #2c304e;
+  font-size: 14px;
+  margin: 0 0 4px 0;
+  font-weight: 500;
+}
+
+.warning-icon {
+  color: #e1af05;
+  font-size: 18px;
+  border-radius: 2px;
+}
+
+.error-icon {
+  color: red;
+  font-size: 18px;
+}
+
 .footer {
   position: absolute;
   color: #5a5d72;
   text-transform: uppercase;
   text-align: center;
   font-size: 16px;
-  bottom: 50px;
+  bottom: 40px;
 
-  @media screen and (max-height: 610px) {
+  @media screen and (max-height: 750px) {
     position: unset;
   }
+}
+
+.info-message-box {
+  border: 1px solid $btn-info-bc;
+  border-radius: 4px;
+  padding: 8px;
+  background-color: $info-message-bg;
+  margin: 8px 0px;
+  color: $input-label-color;
+  font-size: 12px;
+}
+
+.info-warning-box {
+  border: 1px solid $warning-fg;
+  border-radius: 8px;
+  padding: 8px;
+  background-color: $warning-message-bg;
+  margin: 0 0 16px 0;
 }
 
 .sign-in {
@@ -120,8 +173,8 @@ $btn-google-border: #8c8fa6;
     // text-align: center;
     padding: 16px;
 
-    @media screen and (min-width: 600px) {
-      padding: 10px;
+    @media screen and (max-width: 300px) {
+      padding: 10px 0;
     }
   }
 
@@ -170,11 +223,20 @@ $btn-google-border: #8c8fa6;
 
     background-color: #ffffff;
     box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.15);
+
+    @media screen and (max-height: 670px) {
+      padding-top: 20px;
+    }
+
+    @media screen and (max-width: 300px) {
+      padding: 20px;
+      margin: 0;
+    }
   }
 
   &--form-header {
     font-size: 24px;
-    margin-top: 16px;
+    margin-top: 10px;
     margin-bottom: 10px;
     color: $form-header;
     font-weight: 700;
@@ -190,6 +252,16 @@ $btn-google-border: #8c8fa6;
     display: inline;
     position: relative;
     width: 100%;
+    margin: 4px 0;
+  }
+
+  &--password-label-container {
+    display: inline;
+    border: 1px solid black;
+  }
+
+  &--forgot-password {
+    float: right;
   }
 
   // &--form-subheader {
@@ -238,12 +310,24 @@ $btn-google-border: #8c8fa6;
   //   text-align: end;
   // }
 
-  // &--email-frozen-text {
-  //   white-space: nowrap;
-  //   overflow: hidden;
-  //   display: block;
-  //   text-overflow: ellipsis;
-  //   font-weight: 500;
-  //   font-size: 16px;
-  // }
+  &--change {
+    color: #ff3366;
+  }
+
+  &--email-frozen-container {
+    background: #f5f5f5;
+    border-radius: 4px;
+    margin: 10px 0;
+    padding: 3px;
+    width: 100%;
+  }
+
+  &--email-frozen-text {
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    text-overflow: ellipsis;
+    font-size: 16px;
+    color: #5a5d72;
+  }
 }
