@@ -11,7 +11,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
-  selector: 'app-fy-currency',
+  selector: 'app-currency',
   templateUrl: './fy-currency.component.html',
   styleUrls: ['./fy-currency.component.scss'],
   providers: [
