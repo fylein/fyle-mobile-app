@@ -5,8 +5,7 @@ import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformTaxGroup } from '../models/platform/platform-tax-group.model';
 import { Observable, range } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { PAGINATION_SIZE } from 'src/app/app.module';
-
+import { PAGINATION_SIZE } from 'src/app/constants';
 @Injectable({
   providedIn: 'root',
 })
@@ -19,7 +18,7 @@ export class TaxGroupService {
   get(): Observable<TaxGroup[]> {
     return this.getEnabledTaxGroupsCount().pipe(
       switchMap((count) => {
-        count = count > this.paginationSize ? count / this.paginationSize : 1;
+        count = count >= this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) => this.getTaxGroups({ offset: this.paginationSize * page, limit: this.paginationSize })),

@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { TaxGroupService } from './tax-group.service';
-import { PAGINATION_SIZE } from 'src/app/app.module';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 const taxGroupPlatformResponse = {
   count: 2,
@@ -91,11 +91,9 @@ const fixDate = (data) =>
 describe('TaxGroupService', () => {
   let taxGroupService: TaxGroupService;
   let spenderPlatformApiService: jasmine.SpyObj<SpenderPlatformApiService>;
-  let paginationSize: jasmine.SpyObj<number>;
 
   beforeEach(() => {
     const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformApiService', ['get']);
-    const paginationSizeSpy = jasmine.createSpyObj('PaginationSize', [2]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -106,13 +104,12 @@ describe('TaxGroupService', () => {
         },
         {
           provide: PAGINATION_SIZE,
-          useValue: paginationSizeSpy,
+          useValue: 2,
         },
       ],
     });
     taxGroupService = TestBed.inject(TaxGroupService);
     spenderPlatformApiService = TestBed.inject(SpenderPlatformApiService) as jasmine.SpyObj<SpenderPlatformApiService>;
-    paginationSize = TestBed.inject(PAGINATION_SIZE) as jasmine.SpyObj<number>;
   });
 
   it('should be created', () => {
