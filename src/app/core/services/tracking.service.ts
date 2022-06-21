@@ -64,6 +64,15 @@ export class TrackingService {
         ...properties,
         Asset: 'Mobile',
         DeviceType: deviceInfo.platform,
+        deviceInfo: {
+          manufacturer: deviceInfo.manufacturer,
+          model: deviceInfo.model,
+          operatingSystem: deviceInfo.operatingSystem,
+          osVersion: deviceInfo.osVersion,
+          platform: deviceInfo.platform,
+          webViewVersion: deviceInfo.webViewVersion,
+        },
+        appVersion: deviceInfo.appVersion,
       };
       if (this.tracking) {
         this.tracking.track(action, properties);
