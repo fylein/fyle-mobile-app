@@ -822,6 +822,7 @@ ref - https://stackoverflow.com/a/31162426
   margin: 0;
   width: 100%;
   letter-spacing: 0;
+  --background-activated: transparent;
 
   &--primary {
     --background: #{$pink-gradient};
