@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { ErrorComponent } from './error/error.component';
 import { SharedModule } from '../../shared/shared.module';
-import { NewHeaderComponent } from '../new-header/new-header.template';
+import { NewHeaderComponentModule } from '../new-header/new-header.module';
 
 @NgModule({
   imports: [
@@ -20,7 +20,8 @@ import { NewHeaderComponent } from '../new-header/new-header.template';
     SharedModule,
     MatButtonModule,
     ReactiveFormsModule,
+    NewHeaderComponentModule,
   ],
-  declarations: [SignInPage, ErrorComponent, NewHeaderComponent],
+  declarations: [SignInPage, ErrorComponent],
 })
 export class SignInPageModule {}

@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { SharedModule } from '../../shared/shared.module';
-import { NewHeaderComponent } from '../new-header/new-header.template';
+import { NewHeaderComponentModule } from '../new-header/new-header.module';
 
 @NgModule({
   imports: [
@@ -22,7 +22,8 @@ import { NewHeaderComponent } from '../new-header/new-header.template';
     MatInputModule,
     MatButtonModule,
     SharedModule,
+    NewHeaderComponentModule,
   ],
-  declarations: [ResetPasswordPage, NewHeaderComponent],
+  declarations: [ResetPasswordPage],
 })
 export class ResetPasswordPageModule {}
