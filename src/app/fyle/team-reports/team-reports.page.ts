@@ -114,7 +114,7 @@ export class TeamReportsPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.onPageExit.next();
+    this.onPageExit.next(null);
   }
 
   ionViewWillEnter() {
