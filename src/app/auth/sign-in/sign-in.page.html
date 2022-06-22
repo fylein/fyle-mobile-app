@@ -1,14 +1,14 @@
-<ion-content class="sign-in--content-container">
-  <ion-row class="sign-in--page ion-justify-content-center ion-align-items-center">
+<ion-content class="auth--content-container">
+  <ion-row class="auth--page ion-justify-content-center ion-align-items-center">
     <ion-col size="12" style="padding: 0; margin: 0">
-      <div class="sign-in--logo-container">
+      <div class="auth--logo-container">
         <app-new-header></app-new-header>
       </div>
-      <div class="sign-in--container-jumbotron">
-        <div class="sign-in--form">
-          <div class="sign-in--form-header">Sign In</div>
-          <p class="sign-in--hero-sub-title">Please enter your credentials to access your account</p>
-          <form [formGroup]="fg" class="sign-in--form">
+      <div class="auth--container-jumbotron">
+        <div class="auth--form">
+          <div class="auth--form-header">Sign In</div>
+          <p class="auth--hero-sub-title">Please enter your credentials to access your account</p>
+          <form [formGroup]="fg" class="auth--form">
             <div
               *ngIf="emailSet && (signInError || errEncountered) && !isLockedEmail"
               class="info-message-box info-warning-box"
@@ -26,7 +26,6 @@
                 <ion-col size="1">
                   <mat-icon class="warning-icon">warning</mat-icon>
                 </ion-col>
-                <!-- <svg-sprite icon="warning" class="fy-icon fy-info-icon fy-warning"></svg-sprite>  -->
                 <ion-col size="11">Something went wrong, please try again later</ion-col>
               </ion-row>
             </div>
@@ -41,19 +40,19 @@
                 </ion-col>
               </ion-row>
             </div>
-            <mat-label class="input-label-container">
+            <div style="padding-bottom: 10px">
               <ion-col size="12">
                 <div class="input-label">Work Email</div>
                 <div class="astrick-color">*</div>
               </ion-col>
-            </mat-label>
+            </div>
             <mat-form-field
-              class="signin-signup-fields sign-in--form-field mat-form-field-no-padding"
+              class="signin-signup-fields auth--form-field mat-form-field-no-padding"
               appearance="outline"
               *ngIf="!emailSet"
             >
               <input
-                id="sign-in--email"
+                id="auth--email"
                 name="email"
                 (keyup.enter)="checkIfEmailExists()"
                 formControlName="email"
@@ -72,43 +71,49 @@
               </div>
             </mat-form-field>
             <div
-              class="sign-in--error"
+              class="auth--error"
               *ngIf="fg.controls.email.touched && !fg.controls.email.valid && !fg.controls.email.value"
             >
               Please enter an email.
             </div>
             <div
-              class="sign-in--error"
+              class="auth--error"
               *ngIf="fg.controls.email.touched && !fg.controls.email.valid && fg.controls.email.value"
             >
               Please enter a valid email.
             </div>
-            <div *ngIf="emailSet" class="sign-in--email-frozen-container">
+            <div *ngIf="emailSet" class="auth--email-frozen-container">
               <ion-grid fixed>
                 <ion-row>
                   <ion-col size="8">
-                    <div class="sign-in--email-frozen-text" id="sign-in--email-label">{{fg.controls.email.value}}</div>
+                    <div class="auth--email-frozen-text" id="auth--email-label">{{fg.controls.email.value}}</div>
                   </ion-col>
-                  <ion-col size="4" class="sign-in--edit-email">
-                    <a id="sign-in--change" (click)="emailSet = false"> Change </a>
+                  <ion-col size="4" class="auth--edit-email">
+                    <a id="auth--change" (click)="emailSet = false"> Change </a>
                   </ion-col>
                 </ion-row>
               </ion-grid>
             </div>
-            <mat-label *ngIf="emailSet" class="p-0 m-0 input-label-container">
-              <div class="input-label">Password</div>
-              <div class="astrick-color">*</div>
+            <mat-label *ngIf="emailSet" style="display: flex; flex-flow: row nowrap; justify-content: space-between">
+              <div>
+                <div class="input-label">Password</div>
+                <div class="astrick-color">*</div>
+              </div>
               <div class="forgot-password">
-                <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password ?</a>
+                <a
+                  style="margin-left: auto"
+                  [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]"
+                  >Forgot Password ?</a
+                >
               </div>
             </mat-label>
             <mat-form-field
-              class="signin-signup-fields sign-in--form-field mat-form-field-no-padding"
+              class="signin-signup-fields auth--form-field mat-form-field-no-padding"
               appearance="outline"
               *ngIf="emailSet"
             >
               <input
-                id="sign-in--password"
+                id="auth--password"
                 (keyup.enter)="signInUser()"
                 [disabled]="passwordLoading"
                 formControlName="password"
@@ -116,21 +121,21 @@
                 matInput
                 placeholder="Password"
               />
-              <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
+              <mat-icon class="auth--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
                 {{hide ? 'visibility' : 'visibility_off'}}
               </mat-icon>
             </mat-form-field>
             <div
-              class="sign-in--error"
+              class="auth--error"
               *ngIf="fg.controls.password.touched && !fg.controls.password.valid && !fg.controls.password.value && emailSet"
             >
               Please enter your password
             </div>
           </form>
         </div>
-        <div class="sign-in--primary-cta">
+        <div class="auth--primary-cta">
           <button
-            id="sign-in--continue"
+            id="auth--continue"
             *ngIf="!emailSet"
             mat-flat-button
             color="primary"
@@ -143,9 +148,9 @@
           </button>
         </div>
 
-        <div class="sign-in--primary-cta">
+        <div class="auth--primary-cta">
           <button
-            id="sign-in--btn-sign-in"
+            id="auth--btn-auth"
             *ngIf="emailSet"
             mat-flat-button
             color="primary"
@@ -160,7 +165,7 @@
         <div class="signin-divider text-center">
           <span class="signin-divider-text text-center text-capitalize"> Or </span>
         </div>
-        <div class="sign-in--secondary-cta">
+        <div class="auth--secondary-cta">
           <button
             layout="row"
             layout-align="center center"

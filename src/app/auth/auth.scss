@@ -1,5 +1,4 @@
-@import '../../../theme/colors.scss';
-@import '../auth.scss';
+@import '../../theme/colors.scss';
 
 $sign-in-header: #220033;
 $form-header: #000;
@@ -154,4 +153,125 @@ $info-message-bg: rgba(0, 98, 255, 0.02);
   padding: 8px;
   background-color: $warning-message-bg;
   margin: 0 0 16px 0;
+}
+
+.auth {
+  &--content-container {
+    --keyboard-offset: 0 !important;
+  }
+
+  &--logo-container {
+    text-align: center;
+    padding-bottom: 32px;
+  }
+
+  &--page {
+    background: linear-gradient(277.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
+    width: 100%;
+    min-height: 100vh;
+    padding: 16px;
+
+    @media screen and (max-width: 300px) {
+      padding: 10px 0;
+    }
+  }
+
+  &--error {
+    color: #f00;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  &--container-jumbotron {
+    min-width: 280px;
+    min-height: 325px;
+
+    margin-bottom: 24px;
+    border-radius: 6px;
+    padding: 28px;
+
+    background-color: #ffffff;
+    box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.15);
+
+    @media screen and (max-height: 670px) {
+      padding-top: 20px;
+    }
+
+    @media screen and (max-width: 300px) {
+      padding: 20px;
+      margin: 0;
+    }
+  }
+
+  &--form-header {
+    font-size: 24px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: $form-header;
+    font-weight: 700;
+  }
+
+  &--hero-sub-title {
+    color: $label-font-color;
+    font-size: 12px;
+    margin: 10px 0 6px 0;
+  }
+
+  &--form-field {
+    display: inline;
+    position: relative;
+    width: 100%;
+    margin: 4px 0;
+  }
+
+  &--password-label-container {
+    display: inline;
+    border: 1px solid black;
+  }
+
+  &--forgot-password {
+    float: right;
+  }
+
+  &--primary-cta {
+    margin-top: 25px;
+    .mat-button-base {
+      width: 100%;
+      font-weight: 700;
+      min-height: 47px;
+      background: $pink-gradient;
+    }
+  }
+
+  &--secondary-cta {
+    .mat-button-base {
+      width: 100%;
+      font-weight: 700;
+      min-height: 47px;
+      letter-spacing: 1.6px;
+      border: 1px solid $secondary-cta-border;
+    }
+    margin-top: 24px;
+  }
+
+  &--change {
+    color: #ff3366;
+  }
+
+  &--email-frozen-container {
+    background: #f5f5f5;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    padding: 3px;
+    width: 100%;
+  }
+
+  &--email-frozen-text {
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    text-overflow: ellipsis;
+    font-size: 16px;
+    color: #5a5d72;
+  }
 }
