@@ -124,7 +124,7 @@ export class MyReportsPage implements OnInit {
   ngOnInit() {}
 
   ionViewWillLeave() {
-    this.onPageExit.next();
+    this.onPageExit.next(null);
   }
 
   ionViewWillEnter() {

@@ -102,7 +102,7 @@ export class MyEditReportPage implements OnInit {
   ngOnInit() {}
 
   ionViewWillLeave() {
-    this.onPageExit.next();
+    this.onPageExit.next(null);
   }
 
   getVendorName(etxn) {

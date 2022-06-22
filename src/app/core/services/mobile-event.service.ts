@@ -14,6 +14,6 @@ export class MobileEventService {
   }
 
   dashboardCardExpanded() {
-    return this.cardExpandedSubject.next();
+    return this.cardExpandedSubject.next(null);
   }
 }

@@ -152,7 +152,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Corporate Cards',
         isVisible:
-          this.orgSettings.corporate_credit_card_settings.enabled &&
+          this.orgSettings.corporate_credit_card_settings?.enabled &&
           !(
             this.orgSettings.unify_ccce_expenses_settings.allowed &&
             this.orgSettings.unify_ccce_expenses_settings.enabled

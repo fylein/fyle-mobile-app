@@ -138,7 +138,7 @@ export class ViewTeamReportPage implements OnInit {
   ngOnInit() {}
 
   ionViewWillLeave() {
-    this.onPageExit.next();
+    this.onPageExit.next(null);
   }
 
   setupNetworkWatcher() {
@@ -323,7 +323,7 @@ export class ViewTeamReportPage implements OnInit {
       this.canShowTooltip = true;
     });
 
-    this.refreshApprovals$.next();
+    this.refreshApprovals$.next(null);
   }
 
   toggleTooltip() {
@@ -410,7 +410,7 @@ export class ViewTeamReportPage implements OnInit {
 
   onUpdateApprover(message: boolean) {
     if (message) {
-      this.refreshApprovals$.next();
+      this.refreshApprovals$.next(null);
     }
   }
 
@@ -547,7 +547,7 @@ export class ViewTeamReportPage implements OnInit {
       this.isCommentAdded = true;
 
       this.statusService.post(this.objectType, this.objectId, data).subscribe((res) => {
-        this.refreshEstatuses$.next();
+        this.refreshEstatuses$.next(null);
         setTimeout(() => {
           this.content.scrollToBottom(500);
         }, 500);
