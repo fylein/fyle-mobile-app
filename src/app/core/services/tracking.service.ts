@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { DeviceService } from '../../core/services/device.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -64,7 +65,17 @@ export class TrackingService {
         ...properties,
         Asset: 'Mobile',
         DeviceType: deviceInfo.platform,
+        deviceInfo: {
+          manufacturer: deviceInfo.manufacturer,
+          model: deviceInfo.model,
+          operatingSystem: deviceInfo.operatingSystem,
+          osVersion: deviceInfo.osVersion,
+          platform: deviceInfo.platform,
+          webViewVersion: deviceInfo.webViewVersion,
+        },
+        appVersion: environment.LIVE_UPDATE_APP_VERSION,
       };
+
       if (this.tracking) {
         this.tracking.track(action, properties);
       }
