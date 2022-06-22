@@ -24,7 +24,7 @@ import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
-import { TaxGroupService } from './tax_group.service';
+import { TaxGroupService } from './tax-group.service';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -140,10 +140,7 @@ export class OfflineService {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
-          const params = {
-            is_enabled: 'eq.true',
-          };
-          return this.taxGroupService.get(params).pipe(
+          return this.taxGroupService.get().pipe(
             tap((taxGroups) => {
               this.storageService.set('cachedTaxGroups', taxGroups);
             })
