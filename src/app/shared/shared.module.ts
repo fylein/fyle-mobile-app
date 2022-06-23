@@ -124,6 +124,7 @@ import { PolicyViolationRuleComponent } from './components/policy-violation-rule
 import { FyCurrencyComponent } from './components/fy-currency/fy-currency.component';
 import { FyCurrencyChooseCurrencyComponent } from './components/fy-currency/fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-currency-exchange-rate/fy-currency-exchange-rate.component';
+import { FyCurrencyPipe } from './pipes/fy-currency.pipe';
 
 @NgModule({
   declarations: [
@@ -227,6 +228,7 @@ import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-cur
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
+    FyCurrencyPipe,
   ],
   imports: [
     CommonModule,
@@ -337,6 +339,6 @@ import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-cur
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
 })
 export class SharedModule {}
