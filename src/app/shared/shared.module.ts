@@ -338,6 +338,7 @@ import { FyCurrencyPipe } from './pipes/fy-currency.pipe';
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
+    FyCurrencyPipe,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
 })
