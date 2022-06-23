@@ -2,7 +2,11 @@
   <div class="popup-internal--header" id="sign-in--popup-msg">
     {{ header }}
   </div>
-  <div class="popup-internal--primary-cta">
-    <button mat-flat-button color="primary" (click)="closeClicked()">CLOSE</button>
+  <div class="fy-logo">
+    <mat-icon class="fy-error-logo" *ngIf="!success">error</mat-icon>
+    <img class="fy-success-logo" *ngIf="success" src="../../../../assets/svg/green-check.svg" alt="fyle-green-check" />
+  </div>
+  <div class="message" *ngIf="message">
+    {{ message }}
   </div>
 </div>

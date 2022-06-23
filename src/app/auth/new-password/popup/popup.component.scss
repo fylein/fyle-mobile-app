@@ -1,23 +1,32 @@
 $details-color: #ababab;
 
 .popup-internal {
-  &--header {
-    font-size: 20px;
-    letter-spacing: 1.4px;
-    padding: 16px;
-    font-weight: 500;
-  }
+  padding: 20px;
 
-  &--primary-cta {
-    padding: 16px;
-    .mat-button-base {
-      width: 100%;
-      font-weight: 700;
-      min-height: 47px;
-    }
+  &--header {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
   }
 
   &--redirect {
     text-decoration: none;
+  }
+
+  .fy-logo {
+    padding: 20px;
+  }
+
+  .fy-logo img {
+    width: 100px;
+  }
+
+  .message,
+  .fy-logo {
+    text-align: center;
+  }
+
+  .fy-error-logo {
+    color: red;
   }
 }

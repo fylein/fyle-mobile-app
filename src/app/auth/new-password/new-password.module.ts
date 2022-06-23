@@ -17,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 import { PopupComponent } from './popup/popup.component';
+import { NewHeaderComponentModule } from '../new-header/new-header.module';
 
 @NgModule({
   imports: [
@@ -30,6 +31,7 @@ import { PopupComponent } from './popup/popup.component';
     ReactiveFormsModule,
     MatIconModule,
     MatButtonModule,
+    NewHeaderComponentModule,
   ],
   declarations: [NewPasswordPage, PopupComponent],
 })

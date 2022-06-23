@@ -1,7 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
-import { Router } from '@angular/router';
-import { forkJoin, noop } from 'rxjs';
 
 @Component({
   selector: 'app-popup',
@@ -11,13 +8,11 @@ import { forkJoin, noop } from 'rxjs';
 export class PopupComponent implements OnInit {
   @Input() header = 'Error';
 
-  @Input() route: string[] = ['/', 'auth', 'sign_in'];
+  @Input() success: boolean;
 
-  constructor(private popoverController: PopoverController, private router: Router) {}
+  @Input() message: string;
+
+  constructor() {}
 
   ngOnInit() {}
-
-  closeClicked() {
-    forkJoin([this.popoverController.dismiss(), this.router.navigate(this.route)]).subscribe(noop);
-  }
 }

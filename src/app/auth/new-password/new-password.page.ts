@@ -11,7 +11,7 @@ import { PopupComponent } from './popup/popup.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-new-password',
   templateUrl: './new-password.page.html',
@@ -30,7 +30,11 @@ export class NewPasswordPage implements OnInit {
 
   lowercaseValidationDisplay$: Observable<boolean>;
 
-  hide = false;
+  hidePassword = false;
+
+  hideConfirmPassword = false;
+
+  confirmPasswordIsSame$: Observable<boolean>;
 
   constructor(
     private fb: FormBuilder,
@@ -41,12 +45,25 @@ export class NewPasswordPage implements OnInit {
     private popoverController: PopoverController,
     private trackingService: TrackingService,
     private deviceService: DeviceService,
-    private loginInfoService: LoginInfoService
+    private loginInfoService: LoginInfoService,
+    private router: Router
   ) {}
 
   ngOnInit() {
     this.fg = this.fb.group({
       password: [
+        '',
+        Validators.compose([
+          Validators.required,
+          Validators.minLength(12),
+          Validators.maxLength(32),
+          Validators.pattern(/[A-Z]/),
+          Validators.pattern(/[a-z]/),
+          Validators.pattern(/[0-9]/),
+          Validators.pattern(/[!@#$%^&*()+\-:;<=>{}|~?]/),
+        ]),
+      ],
+      confirmPassword: [
         '',
         Validators.compose([
           Validators.required,
@@ -81,46 +98,67 @@ export class NewPasswordPage implements OnInit {
   }
 
   changePassword() {
-    const refreshToken = this.activatedRoute.snapshot.params.refreshToken;
+    if (this.fg.controls.password.valid && this.fg.controls.password.value === this.fg.controls.confirmPassword.value) {
+      const refreshToken = this.activatedRoute.snapshot.params.refreshToken;
 
-    from(this.loaderService.showLoader())
-      .pipe(
-        switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value)),
-        switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
-        tap(async (eou) => {
-          const email = eou.us.email;
-          this.trackingService.onSignin(email);
-          this.trackingService.resetPassword();
-          await this.trackLoginInfo();
-        }),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
-      .subscribe(
-        async () => {
-          const popup = await this.popoverController.create({
-            component: PopupComponent,
-            componentProps: {
-              header: 'Password changed successfully',
-              route: ['/', 'auth', 'switch_org'],
-            },
-            cssClass: 'dialog-popover',
-          });
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value)),
+          switchMap((res) => this.authService.newRefreshToken(res.refresh_token)),
+          tap(async (eou) => {
+            const email = eou.us.email;
+            this.trackingService.onSignin(email);
+            this.trackingService.resetPassword();
+            await this.trackLoginInfo();
+          }),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(
+          async () => {
+            const popup = await this.popoverController.create({
+              component: PopupComponent,
+              componentProps: {
+                header: 'Password changed successfully',
+                route: ['/', 'auth', 'switch_org'],
+                success: true,
+                message: 'Signing you in',
+              },
+              cssClass: 'pop-up-in-center',
+            });
 
-          await popup.present();
-        },
-        async () => {
-          const popup = await this.popoverController.create({
-            component: PopupComponent,
-            componentProps: {
-              header: 'Setting new password failed. Please try again later.',
-              route: ['/', 'auth', 'sign_in'],
-            },
-            cssClass: 'dialog-popover',
-          });
+            await popup.present();
 
-          await popup.present();
-        }
-      );
+            setTimeout(() => {
+              this.popoverController.dismiss();
+              this.router.navigate(['/', 'auth', 'switch_org']);
+            }, 1000);
+          },
+          async () => {
+            const popup = await this.popoverController.create({
+              component: PopupComponent,
+              componentProps: {
+                header: 'Setting new password failed. Please try again later.',
+                route: ['/', 'auth', 'sign_in'],
+                success: false,
+              },
+              cssClass: 'pop-up-in-center',
+            });
+
+            await popup.present();
+
+            setTimeout(() => {
+              this.popoverController.dismiss();
+              this.router.navigate(['/', 'auth', 'switch_org']);
+            }, 1000);
+          }
+        );
+    }
+  }
+
+  checkConfirmPassword() {
+    this.confirmPasswordIsSame$ = this.fg.controls.confirmPassword.valueChanges.pipe(
+      map((confirmPassword) => this.fg.controls.password.value.indexOf(confirmPassword) === 0)
+    );
   }
 
   async trackLoginInfo() {
