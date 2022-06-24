@@ -845,8 +845,10 @@ export class AddEditMileagePage implements OnInit {
     return forkJoin({
       orgSettings: this.offlineService.getOrgSettings(),
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
+      mileageRates: this.mileageRatesService.getMileageRates({ offset: 0, limit: 200 }),
     }).pipe(
-      map(({ orgSettings, orgUserMileageSettings }) => {
+      map(({ orgSettings, orgUserMileageSettings, mileageRates }) => {
+        console.log('mileageRates---->', mileageRates);
         const mileageConfig = orgSettings.mileage;
         orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
         if (orgUserMileageSettings.length > 0) {
