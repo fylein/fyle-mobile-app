@@ -10,5 +10,5 @@ export interface PlatformMileageRates {
   code?: string;
   currency: string;
   rate: number;
-  slab_rates?:{rate: number, limit: number}[]
+  slab_rates?: { rate: number; limit: number }[];
 }
