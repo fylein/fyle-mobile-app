@@ -119,7 +119,6 @@ export class LocationService {
    * @return label {string}
    * label - Start (A), Stop B, End (C)
    */
-
   getLocationAutoCompleteLabel(index: number, mileageLocationsCount: number) {
     let character;
     const unicodeOfA = 65;
@@ -129,10 +128,10 @@ export class LocationService {
       label = 'Start (A)';
     } else if (index === mileageLocationsCount - 1) {
       character = String.fromCharCode(mileageLocationsCount - 1 + unicodeOfA);
-      label = 'End (' + character + ')';
+      label = `End (${character})`;
     } else {
       character = String.fromCharCode(index + unicodeOfA);
-      label = 'Stop ' + character;
+      label = `Stop ${character}`;
     }
     return label;
   }

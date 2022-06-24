@@ -250,7 +250,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   // String.fromCharCode(i+65) : It converts the unicode into equivalent character. (e.g. 65 -> A , 66 -> B, etc)
 
   getEndLocationLabel() {
-    const character = String.fromCharCode(this.mileageLocations.length + 64);
-    return 'End (' + character + ')';
+    const unicodeOfA = 65;
+    const character = String.fromCharCode(this.mileageLocations.length - 1 + unicodeOfA);
+    return `End (${character})`;
   }
 }
