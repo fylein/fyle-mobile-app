@@ -110,4 +110,30 @@ export class LocationService {
       })
     );
   }
+
+  /**
+   * This method assigns the label to the fy-location component. (e.g., Start (A), Stop B, End (C))
+   *
+   * @params {number} index
+   * @params {number} mileageLocationsCount
+   * @return label {string}
+   * label - Start (A), Stop B, End (C)
+   */
+
+  getLocationAutoCompleteLabel(index: number, mileageLocationsCount: number) {
+    let character;
+    const unicodeOfA = 65;
+    let label;
+
+    if (index === 0) {
+      label = 'Start (A)';
+    } else if (index === mileageLocationsCount - 1) {
+      character = String.fromCharCode(mileageLocationsCount - 1 + unicodeOfA);
+      label = 'End (' + character + ')';
+    } else {
+      character = String.fromCharCode(index + unicodeOfA);
+      label = 'Stop ' + character;
+    }
+    return label;
+  }
 }

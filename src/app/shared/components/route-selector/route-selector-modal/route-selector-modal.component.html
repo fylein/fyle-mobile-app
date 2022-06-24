@@ -42,7 +42,7 @@
               <app-fy-location
                 class="route-selector-modal--location"
                 [formControlName]="i"
-                [label]="getLocationAutoCompleteLabel(i)"
+                [label]="getLocationLabel(i)"
                 [mandatory]="mileageConfig.location_mandatory"
                 [hideSuffix]="true"
                 [cacheName]="isFirst ? 'routeFirstElement' : 'routeOtherElements'"

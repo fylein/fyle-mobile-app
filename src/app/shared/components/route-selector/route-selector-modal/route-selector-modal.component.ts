@@ -5,7 +5,7 @@ import { intersection, isEmpty } from 'lodash';
 import { Subscription } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { MileageService } from 'src/app/core/services/mileage.service';
-
+import { LocationService } from 'src/app/core/services/location.service';
 @Component({
   selector: 'app-route-selector-modal',
   templateUrl: './route-selector-modal.component.html',
@@ -44,7 +44,8 @@ export class RouteSelectorModalComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private modalController: ModalController,
-    private mileageService: MileageService
+    private mileageService: MileageService,
+    private locationService: LocationService
   ) {}
 
   get mileageLocations() {
@@ -67,22 +68,6 @@ export class RouteSelectorModalComponent implements OnInit {
         : {
             invalidDistance: true,
           };
-    }
-  }
-
-  // It takes the index of the fy-location component in the mileageLocations array and assign the fy-location component a label.
-  // String.fromCharCode(i+65) : It converts the unicode into equivalent character. (e.g. 65 -> A , 66 -> B, etc)
-  getLocationAutoCompleteLabel(index) {
-    let character;
-
-    if (index === 0) {
-      return 'Start (A)';
-    } else if (index === this.mileageLocations.length - 1) {
-      character = String.fromCharCode(this.mileageLocations.length + 64);
-      return 'End (' + character + ')';
-    } else {
-      character = String.fromCharCode(index + 65);
-      return 'Stop ' + character;
     }
   }
 
@@ -132,6 +117,10 @@ export class RouteSelectorModalComponent implements OnInit {
           }
         }
       });
+  }
+
+  getLocationLabel(index: number) {
+    this.locationService.getLocationAutoCompleteLabel(index, this.mileageLocations.length);
   }
 
   save() {
