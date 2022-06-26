@@ -11,8 +11,8 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'currency',
 })
 export class FyCurrencyPipe extends CurrencyPipe implements PipeTransform {
-  /**
-   * Adding extra function signature which returns null, this is done because Angular has added very strict typing for Pipes
+  /*
+   * Adding function signatures, this is done because Angular has added very strict typing for Pipes
    * Follow this @link https://github.com/angular/angular/issues/39691#issuecomment-727250091 to know more
    */
   transform(
@@ -21,11 +21,13 @@ export class FyCurrencyPipe extends CurrencyPipe implements PipeTransform {
     display?: string | boolean,
     digitsInfo?: string,
     locale?: string
-  ): null;
+  ): string;
+
+  transform(value: null, currencyCode?: string, display?: string | boolean, digitsInfo?: string, locale?: string): null;
 
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   transform(
-    value: string | number,
+    value: string | number | null,
     currencyCode?: string,
     display?: string | boolean,
     digitsInfo?: string,
