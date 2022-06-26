@@ -1,26 +1,37 @@
-import { CurrencyPipe, getCurrencySymbol } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'fyCurrency',
+  name: 'currency',
 })
-export class FyCurrencyPipe implements PipeTransform {
-  constructor(private currencyPipe: CurrencyPipe) {}
+export class FyCurrencyPipe extends CurrencyPipe implements PipeTransform {
+  transform(
+    value: string | number,
+    currencyCode?: string,
+    display?: string | boolean,
+    digitsInfo?: string,
+    locale?: string
+  ): null;
 
-  transform(amount: number, currencyCode: string, skipSymbol?: boolean, fraction?: number): string {
-    if (!currencyCode) {
-      return amount?.toString();
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+  transform(
+    value: string | number,
+    currencyCode?: string,
+    display?: string | boolean,
+    digitsInfo?: string,
+    locale?: string
+  ): string | null {
+    const transformedValue = super.transform(value, currencyCode, display, digitsInfo, locale);
+
+    if (transformedValue) {
+      const firstDigitIdx = transformedValue.search(/\d/);
+      const currencySymbol = transformedValue.substring(0, firstDigitIdx);
+
+      if (currencySymbol === currencyCode) {
+        return currencySymbol.concat(' ', transformedValue.substring(firstDigitIdx));
+      }
     }
 
-    let symbol = skipSymbol ? '' : getCurrencySymbol(currencyCode, 'narrow');
-    if (currencyCode === symbol) {
-      // Adding a space for more readability when the symbol is same as the currency code
-      symbol += ' ';
-    }
-
-    // Setting min and max number of digits for the decimal point
-    const digitsInfo = fraction && `1.${fraction}-${fraction}`;
-
-    return this.currencyPipe.transform(amount, currencyCode, symbol, digitsInfo);
+    return transformedValue;
   }
 }
