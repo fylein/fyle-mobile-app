@@ -10,7 +10,7 @@
         <div class="my-create-report--title">Create New Report</div>
         <div class="my-create-report--sub-title">
           {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }} - {{
-          homeCurrencySymbol }} {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency:2:true }}
+          homeCurrencySymbol }} {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency:true }}
         </div>
       </div>
     </ion-toolbar>

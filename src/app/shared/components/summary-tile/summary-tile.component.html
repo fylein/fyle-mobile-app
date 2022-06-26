@@ -13,7 +13,7 @@
       <div>
         <span *ngIf="currency">{{ currency }}</span>
         <span class="summary-tile--card-container__amount">
-          {{ amount | humanizeCurrency: currency:2:true }}
+          {{ amount | humanizeCurrency: currency:true }}
         </span>
       </div>
 

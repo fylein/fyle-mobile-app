@@ -129,14 +129,14 @@
                 <div *ngIf="selectedCCCTransaction?.amount > 0">
                   <span class="add-edit-expense--card-container__value"
                     >{{ cardCurrencySymbol }}{{ selectedCCCTransaction?.amount | humanizeCurrency:
-                    selectedCCCTransaction?.currency:2:true }}</span
+                    selectedCCCTransaction?.currency:true }}</span
                   >
                   <span class="add-edit-expense--card-container__txn-type">DR</span>
                 </div>
                 <div *ngIf="selectedCCCTransaction?.amount < 0">
                   <span class="add-edit-expense--card-container__value add-edit-expense--card-container__credit"
                     >{{ cardCurrencySymbol }}{{ selectedCCCTransaction?.amount * -1 | humanizeCurrency:
-                    selectedCCCTransaction?.currency:2:true }}</span
+                    selectedCCCTransaction?.currency:true }}</span
                   >
                   <span class="add-edit-expense--card-container__txn-type add-edit-expense--card-container__credit"
                     >CR</span

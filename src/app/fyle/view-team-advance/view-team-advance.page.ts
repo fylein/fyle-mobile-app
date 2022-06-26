@@ -244,7 +244,7 @@ export class ViewTeamAdvancePage implements OnInit {
 
   async showApproveAdvanceSummaryPopover() {
     const areq = await this.advanceRequest$.pipe(take(1)).toPromise();
-    const advanceAmount = this.humanizeCurrency.transform(areq.areq_amount, areq.areq_currency, 2, false);
+    const advanceAmount = this.humanizeCurrency.transform(areq.areq_amount, areq.areq_currency, false);
     const showApprover = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       cssClass: 'pop-up-in-center',

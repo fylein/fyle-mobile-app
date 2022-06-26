@@ -212,7 +212,7 @@
               <div class="expenses-card--currency-amount-container ion-text-right">
                 <span class="expenses-card--currency"> {{ expense.tx_currency || homeCurrencySymbol }} </span>
                 <span class="expenses-card--amount">{{
-                  expense.tx_amount | humanizeCurrency: expense.tx_currency || homeCurrencySymbol:2:true
+                  expense.tx_amount | humanizeCurrency: expense.tx_currency || homeCurrencySymbol:true
                 }}</span>
                 <mat-icon
                   *ngIf="!isUnifyCcceExpensesSettings"
@@ -231,7 +231,7 @@
                 class="expenses-card--exchange-rate ion-text-right"
               >
                 ({{ foreignCurrencySymbol
-                }}{{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency:2:true }} at
+                }}{{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency:true }} at
                 {{ expense.tx_currency }} {{ expense.tx_amount / expense.tx_orig_amount | number: '1.0-2' }})
               </div>
 
