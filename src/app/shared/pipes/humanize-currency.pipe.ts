@@ -14,7 +14,10 @@ export class HumanizeCurrencyPipe implements PipeTransform {
     const exp = Math.max(0, Math.floor(Math.log(amount) / Math.log(1000)));
     const result = amount / Math.pow(1000, exp);
 
+    // Empty string overrides the currency symbol
     const symbolType = skipSymbol ? '' : 'symbol';
+
+    // We need to pass digitsInfo in this format - {minIntergers}.{minDecimal}-{maxDecimal}
     const digitsInfo = fraction && `1.${fraction}-${fraction}`;
 
     let fixedResult = this.fyCurrencyPipe.transform(result, currencyCode, symbolType, digitsInfo);
