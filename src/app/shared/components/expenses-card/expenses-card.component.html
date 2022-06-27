@@ -230,9 +230,8 @@
                 *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
                 class="expenses-card--exchange-rate ion-text-right"
               >
-                ({{ foreignCurrencySymbol
-                }}{{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency:true }} at
-                {{ expense.tx_currency }} {{ expense.tx_amount / expense.tx_orig_amount | number: '1.0-2' }})
+                ({{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency }} at {{ expense.tx_currency }}
+                {{ expense.tx_amount / expense.tx_orig_amount | number: '1.0-2' }})
               </div>
 
               <div *ngIf="expense.isDraft && !isFromViewReports" class="expenses-card--state-container ion-text-right">
