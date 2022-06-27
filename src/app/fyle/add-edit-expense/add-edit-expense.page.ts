@@ -472,11 +472,12 @@ export class AddEditExpensePage implements OnInit {
         this.fg.controls.tax_group.value.percentage &&
         this.fg.controls.currencyObj.value
       ) {
+        const amount =
+          this.fg.controls.currencyObj.value.amount -
+          this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1);
+
         this.fg.controls.tax_amount.setValue(
-          (
-            this.fg.controls.currencyObj.value.amount -
-            this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1)
-          ).toFixed(2)
+          this.currencyService.getAmountWithCurrencyFraction(amount, this.fg.value.currencyObj.currency)
         );
       } else {
         this.fg.controls.tax_amount.setValue(null);

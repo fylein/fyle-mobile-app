@@ -6,6 +6,7 @@ import { ApiService } from './api.service';
 import { from, of, Subject } from 'rxjs';
 import * as moment from 'moment';
 import { Cacheable } from 'ts-cacheable';
+import { getNumberOfCurrencyDigits } from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
@@ -84,5 +85,12 @@ export class CurrencyService {
   // Todo: Remove this method and change getAll() method to return currency in list format not in object format.
   getAllCurrenciesInList() {
     return from(this.getAll()).pipe(map((res) => this.getCurrenyList(res)));
+  }
+
+  getAmountWithCurrencyFraction(amount: number, currencyCode: string): number {
+    const currencyFraction = getNumberOfCurrencyDigits(currencyCode);
+    const fixedAmount = amount.toFixed(currencyFraction);
+
+    return parseFloat(fixedAmount);
   }
 }
