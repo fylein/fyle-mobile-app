@@ -9,93 +9,14 @@ $label-font-color: #5a5d72;
 $input-label-color: #414562;
 $asterisk-red: #ff3366;
 $hide-fill: #a9acbc;
-$signin-divider: rgba(0, 0, 0, 0.1);
+$signin-divider: #0000001a;
 $btn-google-border: #8c8fa6;
-$white-background: #ffffff;
 $gradient-background: linear-gradient(277.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
-$small-device-width: 610px;
 $error: #f00;
-
-.valid-check-container {
-  width: 20px;
-  height: 20px;
-}
-
-.input-label {
-  font-size: 14px;
-  color: $input-label-color;
-  padding: 8px 0 0 0;
-}
-
-.asterisk {
-  color: $asterisk-red;
-  font-size: 24px;
-  padding: 8px 0 0 4px;
-}
-
-.input-label,
-.asterisk {
-  display: inline-block;
-}
-
-.signin-divider {
-  height: 12px;
-  border-bottom: 1px solid $signin-divider;
-  margin: 10px 0 20px 0;
-}
-
-.signin-divider-text {
-  font-size: 16px;
-  color: $hide-fill;
-  background-color: $white-background;
-  padding: 0 10px;
-  text-align: center;
-}
-
-.btn-login-google {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid $btn-google-border;
-  background-color: $white-background;
-  width: 100%;
-  font-weight: 700;
-  height: 47px;
-  letter-spacing: 1.6px;
-  border-radius: 4px;
-
-  .text-label {
-    padding: 16px 0 16px 8px;
-    color: $input-label-color;
-  }
-
-  .icon-container {
-    border-radius: 4px 0 0 4px;
-    // margin: 0;
-  }
-
-  .icon-google {
-    width: 24px;
-    height: 24px;
-  }
-}
-
-.footer {
-  position: absolute;
-  color: $label-font-color;
-  text-transform: uppercase;
-  text-align: center;
-  font-size: 16px;
-  bottom: 50px;
-
-  @media screen and (max-height: $small-device-width) {
-    position: unset;
-  }
-}
+$container-shadow: #00000026;
 
 .sign-in {
   &--header-container {
-    text-align: center;
     padding-bottom: 32px;
   }
 
@@ -105,7 +26,7 @@ $error: #f00;
     min-height: 100vh;
     padding: 16px;
 
-    @media screen and (min-width: $small-device-width) {
+    @media screen and (min-width: var(--ion-small-device-width)) {
       padding: 10px;
     }
   }
@@ -124,8 +45,8 @@ $error: #f00;
     border-radius: 6px;
     padding: 28px;
 
-    background-color: $white-background;
-    box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.15);
+    background-color: var(--ion-color-fyle-primary-contrast);
+    box-shadow: 0 5px 10px 0 $container-shadow;
   }
 
   &--form-header {
@@ -152,7 +73,7 @@ $error: #f00;
       width: 100%;
       font-weight: 700;
       min-height: 47px;
-      background-color: $pink-gradient;
+      background: $pink-gradient;
     }
   }
 
@@ -165,5 +86,74 @@ $error: #f00;
       border: 1px solid $secondary-cta-border;
     }
     margin-top: 24px;
+  }
+
+  .valid-check-container {
+    width: 20px;
+    height: 20px;
+  }
+
+  .input-label {
+    color: $input-label-color;
+    padding-top: 8px;
+    &::after {
+      content: '*';
+      position: relative;
+      left: 2px;
+      top: 2px;
+      font-size: 24px;
+      color: $asterisk-red;
+    }
+  }
+
+  .signin-divider {
+    height: 12px;
+    border-bottom: 1px solid $signin-divider;
+    margin: 10px 0 20px 0;
+  }
+
+  .signin-divider-text {
+    font-size: 16px;
+    color: $hide-fill;
+    background-color: var(--ion-color-fyle-primary-contrast);
+    padding: 0 10px;
+  }
+
+  .btn-login-google {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid $btn-google-border;
+    background-color: var(--ion-color-fyle-primary-contrast);
+    width: 100%;
+    font-weight: 700;
+    height: 47px;
+    letter-spacing: 1.6px;
+    border-radius: 4px;
+
+    .text-label {
+      padding: 16px 0 16px 8px;
+      color: $input-label-color;
+    }
+
+    .icon-container {
+      border-radius: 4px 0 0 4px;
+    }
+
+    .icon-google {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .footer {
+    position: absolute;
+    color: $label-font-color;
+    font-size: 16px;
+    bottom: 50px;
+
+    @media screen and (max-height: var(--ion-small-device-width)) {
+      position: unset;
+    }
   }
 }

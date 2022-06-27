@@ -1,7 +1,7 @@
 <ion-content class="sign-in no-keyboard-adjust">
   <ion-row class="sign-in--page ion-justify-content-center ion-align-items-center">
     <ion-col size="12">
-      <div class="sign-in--header-container">
+      <div class="sign-in--header-container ion-text-center">
         <app-new-header></app-new-header>
       </div>
       <div class="sign-in--container-jumbotron">
@@ -11,7 +11,6 @@
           <form [formGroup]="fg" class="sign-in--form">
             <mat-label class="p-0 m-0">
               <div class="input-label">Work Email</div>
-              <div class="asterisk">*</div>
             </mat-label>
             <mat-form-field
               class="signin-signup-fields sign-in--form-field mat-form-field-no-padding"
@@ -95,8 +94,6 @@
             color="primary"
             (click)="checkIfEmailExists()"
             appFormButtonValidation
-            [loading]="emailLoading"
-            [loadingText]="'CONTINUING'"
           >
             Next
           </button>
@@ -116,14 +113,14 @@
             SIGN IN
           </button>
         </div>
-        <div class="signin-divider ion-text-center" ng-if="!vm.hideGoogleLogin">
-          <span class="signin-divider-text text-center text-capitalize"> Or </span>
+        <div class="signin-divider ion-text-center">
+          <span class="signin-divider-text ion-text-uppercase"> Or </span>
         </div>
         <div *ngIf="emailSet" class="sign-in--redirect">
           <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password ?</a>
         </div>
         <div *ngIf="!emailSet" class="sign-in--secondary-cta">
-          <button class="btn btn-login-google p-0" ng-click="vm.continueWithGoogle()" ng-if="!vm.hideGoogleLogin">
+          <button class="btn btn-login-google p-0">
             <div class="icon-container ion-no-margin">
               <img
                 src=".../../../assets/images/google_logo_36x36.png"
@@ -137,7 +134,7 @@
         </div>
       </div>
     </ion-col>
-    <ion-footer class="footer">
+    <ion-footer class="footer ion-text-center ion-text-uppercase">
       <div>Never lose track</div>
     </ion-footer>
   </ion-row>
