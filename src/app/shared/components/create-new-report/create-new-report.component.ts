@@ -35,8 +35,6 @@ export class CreateNewReportComponent implements OnInit {
 
   homeCurrency: string;
 
-  homeCurrencySymbol: string;
-
   isSelectedAll: boolean;
 
   showReportNameError: boolean;
@@ -72,7 +70,6 @@ export class CreateNewReportComponent implements OnInit {
     this.selectedElements = this.selectedExpensesToReport;
     this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;
-      this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
   }
 
