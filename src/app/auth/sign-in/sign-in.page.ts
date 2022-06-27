@@ -266,4 +266,12 @@ export class SignInPage implements OnInit {
         }
       });
   }
+
+  changeEmail() {
+    this.emailSet = false;
+  }
+
+  togglePassword() {
+    this.hide = !this.hide;
+  }
 }

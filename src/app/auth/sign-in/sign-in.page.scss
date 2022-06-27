@@ -7,18 +7,18 @@ $password-icon: #b9beba;
 $secondary-cta-border: #e0e0e0;
 $label-font-color: #5a5d72;
 $input-label-color: #414562;
-$astrick-red: #ff3366;
+$asterisk-red: #ff3366;
 $hide-fill: #a9acbc;
 $signin-divider: rgba(0, 0, 0, 0.1);
 $btn-google-border: #8c8fa6;
+$white-background: #ffffff;
+$gradient-background: linear-gradient(277.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
+$small-device-width: 610px;
+$error: #f00;
 
-.action-wrapper {
-  position: absolute;
-  top: 5px;
-  right: 10px;
+.valid-check-container {
   width: 20px;
   height: 20px;
-  float: right;
 }
 
 .input-label {
@@ -27,14 +27,14 @@ $btn-google-border: #8c8fa6;
   padding: 8px 0 0 0;
 }
 
-.astrick-color {
-  color: $astrick-red;
+.asterisk {
+  color: $asterisk-red;
   font-size: 24px;
   padding: 8px 0 0 4px;
 }
 
 .input-label,
-.astrick-color {
+.asterisk {
   display: inline-block;
 }
 
@@ -42,13 +42,12 @@ $btn-google-border: #8c8fa6;
   height: 12px;
   border-bottom: 1px solid $signin-divider;
   margin: 10px 0 20px 0;
-  text-align: center;
 }
 
 .signin-divider-text {
   font-size: 16px;
   color: $hide-fill;
-  background-color: #ffffff;
+  background-color: $white-background;
   padding: 0 10px;
   text-align: center;
 }
@@ -58,11 +57,10 @@ $btn-google-border: #8c8fa6;
   justify-content: center;
   align-items: center;
   border: 1px solid $btn-google-border;
-  background-color: #ffffff;
-  font-size: 14px;
+  background-color: $white-background;
   width: 100%;
   font-weight: 700;
-  min-height: 47px;
+  height: 47px;
   letter-spacing: 1.6px;
   border-radius: 4px;
 
@@ -73,7 +71,7 @@ $btn-google-border: #8c8fa6;
 
   .icon-container {
     border-radius: 4px 0 0 4px;
-    margin: 0;
+    // margin: 0;
   }
 
   .icon-google {
@@ -82,49 +80,38 @@ $btn-google-border: #8c8fa6;
   }
 }
 
-.demo {
-  text-align: center;
-  font-size: 14px;
-  line-height: 20px;
-  margin: 20px 0px 0px 0px;
-}
-
 .footer {
   position: absolute;
-  color: #5a5d72;
+  color: $label-font-color;
   text-transform: uppercase;
   text-align: center;
   font-size: 16px;
   bottom: 50px;
 
-  @media screen and (max-height: 610px) {
+  @media screen and (max-height: $small-device-width) {
     position: unset;
   }
 }
 
 .sign-in {
-  &--content-container {
-    --keyboard-offset: 0 !important;
-  }
-
-  &--logo-container {
+  &--header-container {
     text-align: center;
     padding-bottom: 32px;
   }
 
   &--page {
-    background: linear-gradient(277.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
+    background: $gradient-background;
     width: 100%;
     min-height: 100vh;
     padding: 16px;
 
-    @media screen and (min-width: 600px) {
+    @media screen and (min-width: $small-device-width) {
       padding: 10px;
     }
   }
 
   &--error {
-    color: #f00;
+    color: $error;
     margin-top: 4px;
     margin-bottom: 4px;
   }
@@ -137,7 +124,7 @@ $btn-google-border: #8c8fa6;
     border-radius: 6px;
     padding: 28px;
 
-    background-color: #ffffff;
+    background-color: $white-background;
     box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.15);
   }
 
@@ -156,8 +143,6 @@ $btn-google-border: #8c8fa6;
   }
 
   &--form-field {
-    display: inline;
-    position: relative;
     width: 100%;
   }
 
@@ -167,7 +152,7 @@ $btn-google-border: #8c8fa6;
       width: 100%;
       font-weight: 700;
       min-height: 47px;
-      background: $pink-gradient;
+      background-color: $pink-gradient;
     }
   }
 

@@ -1,7 +1,7 @@
-<ion-content class="sign-in--content-container">
+<ion-content class="sign-in no-keyboard-adjust">
   <ion-row class="sign-in--page ion-justify-content-center ion-align-items-center">
     <ion-col size="12">
-      <div class="sign-in--logo-container">
+      <div class="sign-in--header-container">
         <app-new-header></app-new-header>
       </div>
       <div class="sign-in--container-jumbotron">
@@ -11,7 +11,7 @@
           <form [formGroup]="fg" class="sign-in--form">
             <mat-label class="p-0 m-0">
               <div class="input-label">Work Email</div>
-              <div class="astrick-color">*</div>
+              <div class="asterisk">*</div>
             </mat-label>
             <mat-form-field
               class="signin-signup-fields sign-in--form-field mat-form-field-no-padding"
@@ -26,15 +26,14 @@
                 type="email"
                 matInput
                 placeholder="Enter your business email here"
+                required
               />
-              <div class="action-wrapper" *ngIf="fg.controls.email.valid">
-                <span class="action-text">
-                  <img
-                    class="new-password--header-logo"
-                    src="../../../assets/svg/green-check.svg"
-                    alt="fyle-green-check"
-                  />
-                </span>
+              <div class="valid-check-container" matSuffix *ngIf="fg.controls.email.valid">
+                <img
+                  class="new-password--header-logo"
+                  src="../../../assets/svg/green-check.svg"
+                  alt="fyle-green-check"
+                />
               </div>
             </mat-form-field>
             <div
@@ -56,7 +55,7 @@
                     <div class="sign-in--email-frozen-text" id="sign-in--email-label">{{fg.controls.email.value}}</div>
                   </ion-col>
                   <ion-col size="3" class="sign-in--edit-email">
-                    <a id="sign-in--change" (click)="emailSet = false"> Change </a>
+                    <a id="sign-in--change" (click)="changeEmail()"> Change </a>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -76,7 +75,7 @@
                 matInput
                 placeholder="Password"
               />
-              <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
+              <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="togglePassword()">
                 {{hide ? 'visibility' : 'visibility_off'}}
               </mat-icon>
             </mat-form-field>
@@ -117,21 +116,15 @@
             SIGN IN
           </button>
         </div>
-        <div class="signin-divider text-center" ng-if="!vm.hideGoogleLogin">
+        <div class="signin-divider ion-text-center" ng-if="!vm.hideGoogleLogin">
           <span class="signin-divider-text text-center text-capitalize"> Or </span>
         </div>
         <div *ngIf="emailSet" class="sign-in--redirect">
           <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password ?</a>
         </div>
         <div *ngIf="!emailSet" class="sign-in--secondary-cta">
-          <button
-            layout="row"
-            layout-align="center center"
-            class="btn btn-login-google p-0"
-            ng-click="vm.continueWithGoogle()"
-            ng-if="!vm.hideGoogleLogin"
-          >
-            <div class="icon-container">
+          <button class="btn btn-login-google p-0" ng-click="vm.continueWithGoogle()" ng-if="!vm.hideGoogleLogin">
+            <div class="icon-container ion-no-margin">
               <img
                 src=".../../../assets/images/google_logo_36x36.png"
                 aria-label="Sign in with Google"
