@@ -42,7 +42,6 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { CurrencyPipe } from '@angular/common';
 import { TokenService } from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
@@ -58,6 +57,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AccountOption } from 'src/app/core/models/account-option.model';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -203,7 +203,7 @@ export class AddEditPerDiemPage implements OnInit {
     private popupService: PopupService,
     private navController: NavController,
     private trackingService: TrackingService,
-    private currencyPipe: CurrencyPipe,
+    private fyCurrencyPipe: FyCurrencyPipe,
     private tokenService: TokenService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private expenseFieldsService: ExpenseFieldsService,
@@ -869,7 +869,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.allowedPerDiemRateOptions$ = allowedPerDiemRates$.pipe(
       map((allowedPerDiemRates) =>
         allowedPerDiemRates.map((rate) => {
-          rate.readableRate = this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + ' per day';
+          rate.readableRate = this.fyCurrencyPipe.transform(rate.rate, rate.currency) + ' per day';
           return { label: rate.name, value: rate };
         })
       )
