@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CorporateCardExpense } from '../../../core/models/v2/corporate-card-expense.model';
 import { ModalController } from '@ionic/angular';
 import { PopupService } from '../../../core/services/popup.service';
+import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-match-transaction',
@@ -18,6 +19,10 @@ export class MatchTransactionComponent implements OnInit {
   constructor(private modalController: ModalController, private popupService: PopupService) {}
 
   ngOnInit() {}
+
+  getCurrencySymbol(currencyCode: string): string {
+    return getCurrencySymbol(currencyCode, 'narrow');
+  }
 
   onDoneClick() {
     this.modalController.dismiss();

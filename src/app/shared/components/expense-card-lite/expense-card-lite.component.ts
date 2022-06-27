@@ -1,3 +1,4 @@
+import { getCurrencySymbol } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { noop } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
@@ -14,10 +15,13 @@ export class ExpenseCardLiteComponent implements OnInit {
 
   receiptThumbnail: string;
 
+  currencySymbol: string;
+
   constructor(private fileService: FileService) {}
 
   ngOnInit(): void {
     this.getReceipt();
+    this.currencySymbol = getCurrencySymbol(this.expense.currency, 'narrow');
   }
 
   getReceipt() {

@@ -6,6 +6,7 @@ import { ModalController } from '@ionic/angular';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import * as moment from 'moment';
+import { getCurrencySymbol } from '@angular/common';
 @Component({
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
@@ -20,6 +21,8 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
 
   matchedExpenses$;
 
+  currencySymbol: string;
+
   constructor(
     private personalCardsService: PersonalCardsService,
     private router: Router,
@@ -29,7 +32,9 @@ export class PersonalCardsMatchedExpensesPage implements OnInit {
     this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails;
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.currencySymbol = getCurrencySymbol(this.txnDetails.btxn_currency, 'narrow');
+  }
 
   ionViewWillEnter() {
     const txnDate = moment(this.txnDetails.btxn_transaction_dt).format('yyyy-MM-DD');
