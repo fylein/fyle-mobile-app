@@ -58,7 +58,7 @@
       <ng-container *ngIf="allExpensesStats$ | async as allExpensesStats">
         <ion-title class="my-expenses--multiselect-title page-title">
           {{selectedElements?.length}} {{(selectedElements?.length > 1) ? 'expenses' : 'expense'}} worth
-          {{homeCurrencySymbol}} {{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency: true }}
+          {{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency }}
         </ion-title>
       </ng-container>
     </ng-container>

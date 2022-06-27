@@ -335,8 +335,6 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
-  cardCurrencySymbol = '';
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2712,7 +2710,6 @@ export class AddEditExpensePage implements OnInit {
           this.matchedCCCTransaction = matchedExpense[0].ccce;
           this.matchingCCCTransactions = matchingTransactions;
           this.selectedCCCTransaction = this.matchedCCCTransaction;
-          this.cardCurrencySymbol = getCurrencySymbol(this.selectedCCCTransaction?.currency, 'wide');
           this.cardEndingDigits = (
             this.selectedCCCTransaction.cxorporate_credit_card_account_number
               ? this.selectedCCCTransaction.corporate_credit_card_account_number
