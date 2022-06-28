@@ -45,7 +45,7 @@ $container-shadow: #00000026;
     border-radius: 6px;
     padding: 28px;
 
-    background-color: var(--ion-color-fyle-primary-contrast);
+    background-color: $pure-white;
     box-shadow: 0 5px 10px 0 $container-shadow;
   }
 
@@ -115,7 +115,7 @@ $container-shadow: #00000026;
   .signin-divider-text {
     font-size: 16px;
     color: $hide-fill;
-    background-color: var(--ion-color-fyle-primary-contrast);
+    background-color: $pure-white;
     padding: 0 10px;
   }
 
@@ -124,7 +124,7 @@ $container-shadow: #00000026;
     justify-content: center;
     align-items: center;
     border: 1px solid $btn-google-border;
-    background-color: var(--ion-color-fyle-primary-contrast);
+    background-color: $pure-white;
     width: 100%;
     font-weight: 700;
     height: 47px;
