@@ -477,7 +477,7 @@ export class AddEditExpensePage implements OnInit {
           this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1);
 
         this.fg.controls.tax_amount.setValue(
-          this.currencyService.getAmountWithCurrencyFraction(amount, this.fg.value.currencyObj.currency)
+          this.currencyService.getAmountWithCurrencyFraction(amount, this.fg.controls.currencyObj.value.currency)
         );
       } else {
         this.fg.controls.tax_amount.setValue(null);
