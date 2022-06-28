@@ -10,20 +10,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({
   name: 'currency',
 })
-export class FyCurrencyPipe extends CurrencyPipe implements PipeTransform {
-  /*
-   * Adding function signatures, this is done because Angular has added very strict typing for Pipes
-   * Follow this @link https://github.com/angular/angular/issues/39691#issuecomment-727250091 to know more
-   */
-  transform(
-    value: string | number,
-    currencyCode?: string,
-    display?: string | boolean,
-    digitsInfo?: string,
-    locale?: string
-  ): string;
-
-  transform(value: null, currencyCode?: string, display?: string | boolean, digitsInfo?: string, locale?: string): null;
+export class FyCurrencyPipe implements PipeTransform {
+  constructor(private currencyPipe: CurrencyPipe) {}
 
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   transform(
@@ -33,7 +21,7 @@ export class FyCurrencyPipe extends CurrencyPipe implements PipeTransform {
     digitsInfo?: string,
     locale?: string
   ): string | null {
-    const transformedValue = super.transform(value, currencyCode, display, digitsInfo, locale);
+    const transformedValue = this.currencyPipe.transform(value, currencyCode, display, digitsInfo, locale);
 
     if (transformedValue) {
       // Gets the index of first digit in the transformed amount string
