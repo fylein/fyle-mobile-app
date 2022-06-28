@@ -21,9 +21,7 @@ export class HumanizeCurrencyPipe implements PipeTransform {
     const digitsInfo = fraction && `1.${fraction}-${fraction}`;
 
     let fixedResult = this.fyCurrencyPipe.transform(result, currencyCode, symbolType, digitsInfo);
-    if (fixedResult) {
-      fixedResult = fixedResult + si[exp];
-    }
+    fixedResult = fixedResult + si[exp];
 
     return sign + fixedResult;
   }
