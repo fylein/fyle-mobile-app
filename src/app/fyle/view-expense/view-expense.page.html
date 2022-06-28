@@ -92,7 +92,7 @@
 
           <div class="view-expense--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
             {{ etxn.tx_orig_amount | humanizeCurrency: etxn.tx_orig_currency }} at {{ etxn.tx_amount /
-            etxn.tx_orig_amount | currency: etxn.tx.currency: 'symbol-narrow' }}
+            etxn.tx_orig_amount | currency: etxn.tx_currency: 'symbol-narrow' }}
           </div>
           <div
             class="view-expense--card-container__state-pill ion-text-right"
