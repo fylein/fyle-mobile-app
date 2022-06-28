@@ -23,8 +23,9 @@ export class HumanizeCurrencyPipe implements PipeTransform {
     let fixedResult = this.fyCurrencyPipe.transform(result, currencyCode, symbolType, digitsInfo);
     if (fixedResult) {
       fixedResult = fixedResult + si[exp];
+      return sign + fixedResult;
     }
 
-    return sign + fixedResult;
+    return value;
   }
 }
