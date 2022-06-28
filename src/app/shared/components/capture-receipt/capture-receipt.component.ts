@@ -241,7 +241,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         disableAudio: true,
       };
 
-      this.loaderService.showLoader('Please wait...', 300);
+      this.loaderService.showLoader();
       CameraPreview.start(cameraPreviewOptions).then(async (res) => {
         this.isCameraShown = true;
         this.getFlashModes();
