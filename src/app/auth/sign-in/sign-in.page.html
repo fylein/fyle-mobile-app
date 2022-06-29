@@ -94,6 +94,8 @@
             color="primary"
             (click)="checkIfEmailExists()"
             appFormButtonValidation
+            [loading]="emailLoading"
+            loadingText="CONTINUING"
           >
             Next
           </button>
@@ -108,7 +110,7 @@
             (click)="signInUser()"
             appFormButtonValidation
             [loading]="passwordLoading"
-            [loadingText]="'SIGNING IN'"
+            loadingText="SIGNING IN"
           >
             SIGN IN
           </button>

@@ -14,6 +14,7 @@ $btn-google-border: #8c8fa6;
 $gradient-background: linear-gradient(277.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
 $error: #f00;
 $container-shadow: #00000026;
+$small-width-device: 610px;
 
 .sign-in {
   &--header-container {
@@ -26,7 +27,7 @@ $container-shadow: #00000026;
     min-height: 100vh;
     padding: 16px;
 
-    @media screen and (min-width: var(--ion-small-device-width)) {
+    @media screen and (min-width: $small-width-device) {
       padding: 10px;
     }
   }
@@ -152,7 +153,7 @@ $container-shadow: #00000026;
     font-size: 16px;
     bottom: 50px;
 
-    @media screen and (max-height: var(--ion-small-device-width)) {
+    @media screen and (max-height: $small-width-device) {
       position: unset;
     }
   }
