@@ -230,7 +230,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  async setUpAndStartCamera() {
+  setUpAndStartCamera() {
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -242,7 +242,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       };
 
       this.loaderService.showLoader();
-      CameraPreview.start(cameraPreviewOptions).then(async (res) => {
+      CameraPreview.start(cameraPreviewOptions).then((res) => {
         this.isCameraShown = true;
         this.getFlashModes();
         this.loaderService.hideLoader();
