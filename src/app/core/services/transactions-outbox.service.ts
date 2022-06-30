@@ -135,7 +135,7 @@ export class TransactionsOutboxService {
                   vendor: parsedResponse.vendor_name,
                 };
 
-                entry.transaction.extracted_data = extractedData;
+                entry.transaction.extracted_data = extractedData; 
                 entry.transaction.txn_dt = new Date();
 
                 // TODO: add this to allow amout addtion to extracted expense
@@ -360,7 +360,7 @@ export class TransactionsOutboxService {
         .then((val) => val)
         .catch((err) => {
           reject(err);
-          throw Error(err);
+          throw err;
         });
       that.transactionService
         .createTxnWithFiles(entry.transaction, from(fileUploadsPromise))
