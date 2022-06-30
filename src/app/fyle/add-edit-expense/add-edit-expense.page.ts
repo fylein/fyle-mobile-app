@@ -1382,22 +1382,47 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
+    // const selectedPaymentMode$ = this.etxn$.pipe(
+    //   switchMap((etxn) =>
+    //     iif(
+    //       () => etxn.tx.source_account_id,
+    //       this.paymentModes$.pipe(
+    //         map((paymentModes) =>
+    //           paymentModes
+    //             .map((res) => res.value)
+    //             .find((paymentMode) => {
+    //               if (paymentMode.acc.displayName === 'Personal Card/Cash') {
+    //                 return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
+    //               } else {
+    //                 return paymentMode.acc.id === etxn.tx.source_account_id;
+    //               }
+    //             })
+    //         )
+    //       ),
+    //       of(null)
+    //     )
+    //   )
+    // );
+
     const selectedPaymentMode$ = this.etxn$.pipe(
       switchMap((etxn) =>
         iif(
           () => etxn.tx.source_account_id,
           this.paymentModes$.pipe(
-            map((paymentModes) =>
-              paymentModes
-                .map((res) => res.value)
-                .find((paymentMode) => {
+            map((paymentModes) => paymentModes.map((mode) => mode.value)),
+            switchMap((paymentModes) => {
+              if (paymentModes.length > 1) {
+                return paymentModes.find((paymentMode) => {
                   if (paymentMode.acc.displayName === 'Personal Card/Cash') {
                     return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
                   } else {
                     return paymentMode.acc.id === etxn.tx.source_account_id;
                   }
-                })
-            )
+                });
+              } else if (paymentModes.length === 1) {
+                return paymentModes[0];
+              }
+            })
           ),
           of(null)
         )

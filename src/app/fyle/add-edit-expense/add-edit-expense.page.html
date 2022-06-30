@@ -281,7 +281,7 @@
               <ion-col size="6" *ngIf="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense)">
                 <ng-container *ngIf="paymentModes$|async as paymentModes">
                   <div
-                    *ngIf="paymentModes.length > 0"
+                    *ngIf="paymentModes.length > 1"
                     [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}"
                     class="add-edit-expense--payment-modes add-edit-expense--internal-block"
                   >
