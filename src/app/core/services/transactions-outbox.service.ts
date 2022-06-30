@@ -360,7 +360,7 @@ export class TransactionsOutboxService {
         .then((val) => val)
         .catch((err) => {
           reject(err);
-          throw err;
+          throw Error(err);
         });
       that.transactionService
         .createTxnWithFiles(entry.transaction, from(fileUploadsPromise))
