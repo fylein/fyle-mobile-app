@@ -303,53 +303,58 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  addImageFromGalleryToQueue() {
+    // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
+    from(
+      this.imagePicker.getPictures({
+        maximumImagesCount: 10,
+        outputType: 1,
+        quality: 70,
+      })
+    ).subscribe(async (imageBase64Strings) => {
+      if (imageBase64Strings.length > 0) {
+        imageBase64Strings.forEach((base64String) => {
+          const base64PictureData = 'data:image/jpeg;base64,' + base64String;
+          this.base64ImagesWithSource.push({
+            source: 'MOBILE_DASHCAM_GALLERY',
+            base64Image: base64PictureData,
+          });
+        });
+
+        const modal = await this.modalController.create({
+          component: ReceiptPreviewComponent,
+          componentProps: {
+            base64ImagesWithSource: this.base64ImagesWithSource,
+            mode: 'bulk',
+          },
+        });
+        await modal.present();
+
+        const { data } = await modal.onWillDismiss();
+        if (data) {
+          if (data.base64ImagesWithSource.length === 0) {
+            this.base64ImagesWithSource = [];
+            this.setUpAndStartCamera();
+          } else {
+            this.captureReceiptService
+              .addMultipleExpensesToQueue(this.base64ImagesWithSource, this.homeCurrency, this.isInstafyleEnabled)
+              .pipe(finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses'])))
+              .subscribe(noop);
+          }
+        }
+      } else {
+        this.setUpAndStartCamera();
+      }
+    });
+  }
+
   galleryUpload() {
     this.trackingService.instafyleGalleryUploadOpened({});
     this.stopCamera();
 
     this.imagePicker.hasReadPermission().then((permission) => {
       if (permission) {
-        const options = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
-        // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
-        from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
-          if (imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String, key) => {
-              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-              this.base64ImagesWithSource.push({
-                source: 'MOBILE_DASHCAM_GALLERY',
-                base64Image: base64PictureData,
-              });
-            });
-
-            const modal = await this.modalController.create({
-              component: ReceiptPreviewComponent,
-              componentProps: {
-                base64ImagesWithSource: this.base64ImagesWithSource,
-                mode: 'bulk',
-              },
-            });
-            await modal.present();
-
-            const { data } = await modal.onWillDismiss();
-            if (data) {
-              if (data.base64ImagesWithSource.length === 0) {
-                this.base64ImagesWithSource = [];
-                this.setUpAndStartCamera();
-              } else {
-                this.captureReceiptService
-                  .addMultipleExpensesToQueue(this.base64ImagesWithSource, this.homeCurrency, this.isInstafyleEnabled)
-                  .pipe(finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses'])))
-                  .subscribe(noop);
-              }
-            }
-          } else {
-            this.setUpAndStartCamera();
-          }
-        });
+        this.addImageFromGalleryToQueue();
       } else {
         this.imagePicker.requestReadPermission();
         this.galleryUpload();
