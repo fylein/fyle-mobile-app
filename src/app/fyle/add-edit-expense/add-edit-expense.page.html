@@ -72,7 +72,7 @@
       <div>
         <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
           <app-fy-alert-info
-            [message]="'This expense might be a duplicate of an existing  expense.'"
+            [message]="'This expense might be a duplicate of an existing expense.'"
             [type]="'warning'"
             [showActionButton]="true"
             [actionButtonContent]="'View'"
@@ -898,113 +898,13 @@
 
       <ng-container *ngIf="isConnected$|async as isConnected">
         <div class="add-edit-expense--primary-block">
-          <ng-container *ngFor="let customInput of this.customInputs$ | async as customInputs">
-            <ng-container *ngIf="customInput.mandatory || isExpandedView">
-              <div
-                [ngClass]="{'add-edit-expense--internal-block__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-                class="add-edit-expense--internal-block"
-              >
-                <form [formGroup]="customInput.control">
-                  <div
-                    *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT'&&customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'"
-                    class="add-edit-expense--text"
-                    [ngClass]="{'add-edit-expense--text__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-                  >
-                    <div
-                      [ngClass]="{'add-edit-expense--text-label__invalid': customInput.control.controls.value.touched && !customInput.control.controls.value.valid}"
-                      class="add-edit-expense--text-label"
-                    >
-                      {{customInput.name | ellipsis: 30}}
-                      <span class="add-edit-expense--mandatory" *ngIf="customInput.mandatory"> * </span>
-                    </div>
-                    <input
-                      (blur)="focusState = false"
-                      (focus)="focusState = true"
-                      *ngIf="customInput.type === 'TEXT'"
-                      [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
-                      class="add-edit-expense--text-input"
-                      formControlName="value"
-                      type="text"
-                    />
-
-                    <app-fy-number
-                      formControlName="value"
-                      *ngIf="customInput.type === 'NUMBER'"
-                      [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
-                    >
-                    </app-fy-number>
-
-                    <input
-                      appFormatDate
-                      *ngIf="customInput.type === 'DATE'"
-                      class="add-edit-expense--date-input date-input__format"
-                      formControlName="value"
-                      type="date"
-                      [name]="customInput.placeholder || customInput.name"
-                    />
-                  </div>
-
-                  <div *ngIf="customInput.type === 'BOOLEAN'" class="add-edit-expense--checkbox">
-                    <label>
-                      <mat-checkbox formControlName="value"> {{customInput.name | ellipsis: 35 }} </mat-checkbox>
-                    </label>
-                  </div>
-
-                  <div *ngIf="customInput.type === 'LOCATION'">
-                    <app-fy-location
-                      [label]="customInput.name  | ellipsis: 30"
-                      [mandatory]="customInput.mandatory"
-                      formControlName="value"
-                      [placeholder]="customInput.placeholder | ellipsis: 30"
-                    >
-                    </app-fy-location>
-                  </div>
-
-                  <div *ngIf="customInput.type === 'SELECT'">
-                    <app-fy-select
-                      [label]="customInput.name  | ellipsis: 30"
-                      [mandatory]="customInput.mandatory"
-                      [options]="customInput.options"
-                      [selectModalHeader]="'Select '+customInput.name"
-                      [label]="customInput.name"
-                      formControlName="value"
-                      [placeholder]="customInput.placeholder | ellipsis: 30"
-                    >
-                    </app-fy-select>
-                  </div>
-
-                  <div *ngIf="customInput.type === 'MULTI_SELECT'">
-                    <app-fy-multiselect
-                      [label]="customInput.name  | ellipsis: 30"
-                      [mandatory]="customInput.mandatory"
-                      [options]="customInput.options"
-                      [selectModalHeader]="'Select '+customInput.name"
-                      [subheader]="customInput.name"
-                      formControlName="value"
-                      [placeholder]="customInput.placeholder | ellipsis: 30"
-                    >
-                    </app-fy-multiselect>
-                  </div>
-
-                  <div *ngIf="customInput.type === 'USER_LIST'">
-                    <app-fy-userlist
-                      [label]="customInput.name | ellipsis: 30"
-                      [mandatory]="customInput.mandatory"
-                      [allowCustomValues]="true"
-                      formControlName="value"
-                      [placeholder]="customInput.placeholder | ellipsis: 30"
-                    >
-                    </app-fy-userlist>
-                  </div>
-                </form>
-              </div>
-              <div
-                *ngIf="customInput.control.controls.value.touched && !customInput.control.controls.value.valid"
-                class="add-edit-expense--error"
-              >
-                Please enter {{ customInput.name }}.
-              </div>
-            </ng-container>
+          <ng-container *ngIf="customInputs$|async as customInputs">
+            <app-custom-fields
+              formControlName="custom_inputs"
+              [customInputsDetails]="customInputs"
+              [isExpandedView]="isExpandedView"
+              [isConnected]="isConnected"
+            ></app-custom-fields>
           </ng-container>
         </div>
       </ng-container>

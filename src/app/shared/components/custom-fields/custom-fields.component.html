@@ -1,0 +1,117 @@
+<div [formGroup]="customInputsForm">
+  <ng-container formArrayName="customInputs">
+    <ng-container *ngFor="let customInputFc of customInputsFormArray.controls; let i = index">
+      <ng-container *ngIf="customInputsDetails[i].mandatory || isExpandedView">
+        <div
+          [ngClass]="{ 'custom-fields--internal-block__invalid': customInputFc.touched && !customInputFc.valid }"
+          class="custom-fields--internal-block"
+        >
+          <div
+            *ngIf="
+              customInputsDetails[i].type !== 'BOOLEAN' &&
+              customInputsDetails[i].type !== 'SELECT' &&
+              customInputsDetails[i].type !== 'MULTI_SELECT' &&
+              customInputsDetails[i].type !== 'USER_LIST' &&
+              customInputsDetails[i].type !== 'LOCATION'
+            "
+            class="custom-fields--text"
+            [ngClass]="{ 'custom-fields--text__invalid': customInputFc.touched && !customInputFc.valid }"
+          >
+            <div
+              [ngClass]="{ 'custom-fields--text-label__invalid': customInputFc.touched && !customInputFc.valid }"
+              class="custom-fields--text-label"
+            >
+              {{ customInputsDetails[i].name | ellipsis: 30 }}
+              <span class="custom-fields--mandatory" *ngIf="customInputsDetails[i].mandatory"> * </span>
+            </div>
+            <input
+              (blur)="focusState = false"
+              (focus)="focusState = true"
+              *ngIf="customInputsDetails[i].type === 'TEXT'"
+              [placeholder]="
+                customInputsDetails[i].placeholder || 'Enter ' + customInputsDetails[i].name | ellipsis: 30
+              "
+              class="custom-fields--text-input"
+              [formControlName]="i"
+              type="text"
+            />
+
+            <app-fy-number
+              [formControlName]="i"
+              *ngIf="customInputsDetails[i].type === 'NUMBER'"
+              [placeholder]="
+                customInputsDetails[i].placeholder || 'Enter ' + customInputsDetails[i].name | ellipsis: 30
+              "
+            >
+            </app-fy-number>
+
+            <input
+              appFormatDate
+              *ngIf="customInputsDetails[i].type === 'DATE'"
+              class="custom-fields--date-input date-input__format"
+              [formControlName]="i"
+              type="date"
+              [name]="customInputsDetails[i].placeholder || customInputsDetails[i].name"
+            />
+          </div>
+
+          <div *ngIf="customInputsDetails[i].type === 'BOOLEAN'" class="custom-fields--checkbox">
+            <label>
+              <mat-checkbox [formControlName]="i"> {{ customInputsDetails[i].name | ellipsis: 35 }} </mat-checkbox>
+            </label>
+          </div>
+
+          <div *ngIf="customInputsDetails[i].type === 'LOCATION'">
+            <app-fy-location
+              [label]="customInputsDetails[i].name | ellipsis: 30"
+              [mandatory]="customInputsDetails[i].mandatory"
+              [formControlName]="i"
+              [placeholder]="customInputsDetails[i].placeholder | ellipsis: 30"
+            >
+            </app-fy-location>
+          </div>
+
+          <div *ngIf="customInputsDetails[i].type === 'SELECT'">
+            <app-fy-select
+              [label]="customInputsDetails[i].name | ellipsis: 30"
+              [mandatory]="customInputsDetails[i].mandatory"
+              [options]="customInputsDetails[i].options"
+              [selectModalHeader]="'Select ' + customInputsDetails[i].name"
+              [label]="customInputsDetails[i].name"
+              [formControlName]="i"
+              [placeholder]="customInputsDetails[i].placeholder | ellipsis: 30"
+            >
+            </app-fy-select>
+          </div>
+
+          <div *ngIf="customInputsDetails[i].type === 'MULTI_SELECT'">
+            <app-fy-multiselect
+              [label]="customInputsDetails[i].name | ellipsis: 30"
+              [mandatory]="customInputsDetails[i].mandatory"
+              [options]="customInputsDetails[i].options"
+              [selectModalHeader]="'Select ' + customInputsDetails[i].name"
+              [subheader]="customInputsDetails[i].name"
+              [formControlName]="i"
+              [placeholder]="customInputsDetails[i].placeholder | ellipsis: 30"
+            >
+            </app-fy-multiselect>
+          </div>
+
+          <div *ngIf="customInputsDetails[i].type === 'USER_LIST'">
+            <app-fy-userlist
+              [label]="customInputsDetails[i].name | ellipsis: 30"
+              [mandatory]="customInputsDetails[i].mandatory"
+              [allowCustomValues]="true"
+              [formControlName]="i"
+              [placeholder]="customInputsDetails[i].placeholder | ellipsis: 30"
+            >
+            </app-fy-userlist>
+          </div>
+        </div>
+        <div *ngIf="customInputFc.touched && !customInputFc.valid" class="custom-fields--error">
+          Please enter {{ customInputsDetails[i].name }}.
+        </div>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</div>

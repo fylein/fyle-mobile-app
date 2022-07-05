@@ -29,36 +29,23 @@ export class CustomFieldsService {
     return property;
   }
 
-  setProperty(prefix, customInput, customProperties) {
+  setPropertyNoPrefix(customInput, customProperties) {
     /* Setting the name and mandatory based on the custom input key
      * Reason: Same method is used for expense custom fields and transport/advance request custom fields
      */
     let customInputName;
-    if (customInput.hasOwnProperty('field_name')) {
-      customInputName = customInput.field_name;
-    } else {
-      customInputName = customInput[prefix + 'name'];
-    }
-
-    let customInputMandatory;
-    if (customInput.hasOwnProperty('is_mandatory')) {
-      customInputMandatory = customInput.is_mandatory;
-    } else {
-      customInputMandatory = customInput.mandatory;
-    }
 
     let property = {
       id: customInput.id,
-      prefix,
-      name: customInputName,
+      name: customInput.field_name,
       value: null,
-      placeholder: customInput[prefix + 'placeholder'],
-      type: customInput[prefix + 'type'],
-      mandatory: customInputMandatory,
-      options: customInput[prefix + 'options'],
+      placeholder: customInput.placeholder,
+      type: customInput.type,
+      mandatory: customInput.is_mandatory,
+      options: customInput.options,
     };
 
-    property = this.setDefaultValue(property, customInput[prefix + 'type']);
+    property = this.setDefaultValue(property, customInput.type);
 
     if (customProperties) {
       for (const customProperty of customProperties) {
@@ -76,30 +63,15 @@ export class CustomFieldsService {
   }
 
   standardizeCustomFields(customProperties, customInputs) {
-    let prefix = '';
+    const filledCustomPropertiesWithType = customInputs.map((customInput) =>
+      this.setPropertyNoPrefix(customInput, customProperties)
+    );
 
-    const filledCustomPropertiesWithType = customInputs
-      .filter((customInput) => !customInput.input_type)
-      .map((customInput) => this.setProperty(prefix, customInput, customProperties));
-
-    const filledCustomPropertiesWithInputType = customInputs
-      .filter((customInput) => !customInput.type && customInput.input_type)
-      .map((customInput) => {
-        prefix = 'input_';
-        return this.setProperty(prefix, customInput, customProperties);
-      });
-
-    return filledCustomPropertiesWithType.concat(filledCustomPropertiesWithInputType).sort(this.sortcustomFieldsByType);
-  }
-
-  standardizeProperties(customProperties) {
-    const changedCustomProperties = customProperties.map((customProperty) => ({
-      id: customProperty.id,
-      name: customProperty.name,
-      value: customProperty.value,
-      type: customProperty.type,
-    }));
-
-    return changedCustomProperties;
+    return filledCustomPropertiesWithType.sort(this.sortcustomFieldsByType).map((customField) => {
+      if (customField.options) {
+        customField.options = customField.options.map((option) => ({ label: option, value: option }));
+      }
+      return customField;
+    });
   }
 }

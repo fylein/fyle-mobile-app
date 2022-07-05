@@ -1736,7 +1736,9 @@ export class AddEditExpensePage implements OnInit {
               distance_unit: etxn.tx.distance_unit,
               duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
               billable: etxn.tx.billable,
-              custom_inputs: customInputValues,
+              custom_inputs: {
+                customInputs: customInputValues,
+              },
               costCenter,
               hotel_is_breakfast_provided: etxn.tx.hotel_is_breakfast_provided,
             },
@@ -1752,7 +1754,9 @@ export class AddEditExpensePage implements OnInit {
               paymentMode: paymentMode || defaultPaymentMode,
             });
 
-            this.fg.controls.custom_inputs.patchValue(customInputValues);
+            this.fg.controls.custom_inputs.patchValue({
+              customInputs: customInputValues,
+            });
           }, 600);
 
           this.attachedReceiptsCount = txnReceiptsCount;
@@ -1946,51 +1950,18 @@ export class AddEditExpensePage implements OnInit {
       ),
       switchMap((category) => {
         const formValue = this.fg.value;
-        return this.offlineService
-          .getCustomInputs()
-          .pipe(
-            map((customFields) =>
-              this.customFieldsService.standardizeCustomFields(
-                formValue.custom_inputs || [],
-                this.customInputsService.filterByCategory(customFields, category && category.id)
-              )
+        return this.offlineService.getCustomInputs().pipe(
+          map((customFields) =>
+            this.customFieldsService.standardizeCustomFields(
+              formValue.custom_inputs?.customInputs || [],
+              this.customInputsService.filterByCategory(customFields, category?.id)
             )
-          );
-      }),
-      map((customFields) =>
-        customFields.map((customField) => {
-          if (customField.options) {
-            customField.options = customField.options.map((option) => ({ label: option, value: option }));
-          }
-          return customField;
-        })
-      ),
-
-      switchMap((customFields: any[]) =>
-        this.isConnected$.pipe(
-          take(1),
-          map((isConnected) => {
-            const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
-            customFieldsFormArray.clear();
-            for (const customField of customFields) {
-              customFieldsFormArray.push(
-                this.formBuilder.group({
-                  name: [customField.name],
-                  // Since in boolean, required validation is kinda unnecessary
-                  value: [
-                    customField.type !== 'DATE'
-                      ? customField.value
-                      : customField.value && moment(customField.value).format('y-MM-DD'),
-                    customField.type !== 'BOOLEAN' && customField.mandatory && isConnected && Validators.required,
-                  ],
-                })
-              );
-            }
-            customFieldsFormArray.updateValueAndValidity();
-            return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
+          ),
+          tap((customFieldDetailsFromOutside) => {
+            console.log({ customFieldDetailsFromOutside: cloneDeep(customFieldDetailsFromOutside) });
           })
-        )
-      ),
+        );
+      }),
       shareReplay(1)
     );
   }
@@ -2470,7 +2441,7 @@ export class AddEditExpensePage implements OnInit {
       bus_travel_class: [],
       distance: [],
       distance_unit: [],
-      custom_inputs: new FormArray([]),
+      custom_inputs: [],
       add_to_new_report: [],
       duplicate_detection_reason: [],
       billable: [],
@@ -2811,7 +2782,8 @@ export class AddEditExpensePage implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  generateEtxnFromFg(etxn$, standardisedCustomProperties$, isPolicyEtxn = false) {
+  generateEtxnFromFg(etxn$, isPolicyEtxn = false) {
+    const customProperties = this.getCustomFields();
     const editExpenseAttachments = etxn$.pipe(
       switchMap((etxn: any) => this.fileService.findByTransactionId(etxn.tx.id)),
       switchMap((fileObjs: any) => from(fileObjs)),
@@ -2838,13 +2810,11 @@ export class AddEditExpensePage implements OnInit {
     const attachements$ = iif(() => this.mode === 'add', addExpenseAttachments, editExpenseAttachments);
     return forkJoin({
       etxn: etxn$,
-      customProperties: standardisedCustomProperties$,
       attachments: attachements$,
     }).pipe(
       map((res) => {
         const etxn: any = res.etxn;
-        let customProperties: any = res.customProperties;
-        customProperties = customProperties.map((customProperty) => {
+        const customPropertiesCopy = customProperties.map((customProperty) => {
           if (customProperty.type === 'DATE') {
             customProperty.value = customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value));
           }
@@ -2901,7 +2871,7 @@ export class AddEditExpensePage implements OnInit {
             vendor: this.fg.value.vendor_id && this.fg.value.vendor_id.display_name,
             purpose: this.fg.value.purpose,
             locations: locations || [],
-            custom_properties: customProperties || [],
+            custom_properties: customPropertiesCopy || [],
             num_files: isPolicyEtxn
               ? (res.attachments as Array<FileObject>)?.length
               : this.activatedRoute.snapshot.params.dataUrl
@@ -2977,21 +2947,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getCustomFields() {
-    return this.customInputs$.pipe(
-      take(1),
-      map((customInputs) =>
-        customInputs.map((customInput, i) => ({
-          id: customInput.id,
-          mandatory: customInput.mandatory,
-          name: customInput.name,
-          options: customInput.options,
-          placeholder: customInput.placeholder,
-          prefix: customInput.prefix,
-          type: customInput.type,
-          value: this.fg.value.custom_inputs[i].value,
-        }))
-      )
-    );
+    return this.fg.value.custom_inputs.customInputs;
   }
 
   async reloadCurrentRoute() {
@@ -3267,9 +3223,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.trackPolicyCorrections();
 
-    const customFields$ = this.getCustomFields();
-
-    return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
+    return this.generateEtxnFromFg(this.etxn$, true).pipe(
       switchMap((etxn) => {
         const policyViolations$ = this.checkPolicyViolation(etxn).pipe(shareReplay(1));
         return policyViolations$.pipe(
@@ -3300,18 +3254,14 @@ export class AddEditExpensePage implements OnInit {
                 etxn,
               });
             } else {
-              return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-              );
+              return this.generateEtxnFromFg(this.etxn$).pipe(map((innerEtxn) => ({ etxn: innerEtxn, comment: null })));
             }
           })
         );
       }),
       catchError((err) => {
         if (err.status === 500) {
-          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-            map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-          );
+          return this.generateEtxnFromFg(this.etxn$).pipe(map((innerEtxn) => ({ etxn: innerEtxn, comment: null })));
         }
         if (err.type === 'criticalPolicyViolations') {
           return from(this.loaderService.hideLoader()).pipe(
@@ -3320,9 +3270,7 @@ export class AddEditExpensePage implements OnInit {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
                   switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-                    )
+                    this.generateEtxnFromFg(this.etxn$).pipe(map((innerEtxn) => ({ etxn: innerEtxn, comment: null })))
                   )
                 );
               } else {
@@ -3337,7 +3285,7 @@ export class AddEditExpensePage implements OnInit {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
                   switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                    this.generateEtxnFromFg(this.etxn$).pipe(
                       map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
                     )
                   )
@@ -3486,9 +3434,8 @@ export class AddEditExpensePage implements OnInit {
   }
 
   trackAddExpense() {
-    const customFields$ = this.getCustomFields();
     const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
-    this.generateEtxnFromFg(this.etxn$, customFields$).subscribe((etxn) => {
+    this.generateEtxnFromFg(this.etxn$).subscribe((etxn) => {
       this.trackingService.createExpense({
         Type: 'Receipt',
         Amount: etxn.tx.amount,
@@ -3520,7 +3467,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.trackAddExpense();
 
-    return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
+    return this.generateEtxnFromFg(this.etxn$, true).pipe(
       switchMap((etxn) =>
         this.isConnected$.pipe(
           take(1),
@@ -3555,23 +3502,21 @@ export class AddEditExpensePage implements OnInit {
                       etxn,
                     });
                   } else {
-                    return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                    return this.generateEtxnFromFg(this.etxn$).pipe(
                       map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
                     );
                   }
                 })
               );
             } else {
-              return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-              );
+              return this.generateEtxnFromFg(this.etxn$).pipe(map((innerEtxn) => ({ etxn: innerEtxn, comment: null })));
             }
           })
         )
       ),
       catchError((err) => {
         if (err.status === 500) {
-          return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+          return this.generateEtxnFromFg(this.etxn$).pipe(map((etxn) => ({ etxn })));
         }
 
         if (err.type === 'criticalPolicyViolations') {
@@ -3581,9 +3526,7 @@ export class AddEditExpensePage implements OnInit {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
                   switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                      map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-                    )
+                    this.generateEtxnFromFg(this.etxn$).pipe(map((innerEtxn) => ({ etxn: innerEtxn, comment: null })))
                   )
                 );
               } else {
@@ -3598,7 +3541,7 @@ export class AddEditExpensePage implements OnInit {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
                   switchMap(() =>
-                    this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                    this.generateEtxnFromFg(this.etxn$).pipe(
                       map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
                     )
                   )
@@ -4176,7 +4119,7 @@ export class AddEditExpensePage implements OnInit {
   saveAndMatchWithPersonalCardTxn() {
     this.saveExpenseLoader = true;
     const customFields$ = this.getCustomFields();
-    return this.generateEtxnFromFg(this.etxn$, customFields$, true)
+    return this.generateEtxnFromFg(this.etxn$, true)
       .pipe(
         switchMap((etxn) =>
           this.isConnected$.pipe(
@@ -4212,14 +4155,14 @@ export class AddEditExpensePage implements OnInit {
                         etxn,
                       });
                     } else {
-                      return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                      return this.generateEtxnFromFg(this.etxn$).pipe(
                         map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
                       );
                     }
                   })
                 );
               } else {
-                return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                return this.generateEtxnFromFg(this.etxn$).pipe(
                   map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
                 );
               }
@@ -4228,7 +4171,7 @@ export class AddEditExpensePage implements OnInit {
         ),
         catchError((err) => {
           if (err.status === 500) {
-            return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(map((etxn) => ({ etxn })));
+            return this.generateEtxnFromFg(this.etxn$).pipe(map((etxn) => ({ etxn })));
           }
 
           if (err.type === 'criticalPolicyViolations') {
@@ -4238,9 +4181,7 @@ export class AddEditExpensePage implements OnInit {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
                     switchMap(() =>
-                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
-                        map((innerEtxn) => ({ etxn: innerEtxn, comment: null }))
-                      )
+                      this.generateEtxnFromFg(this.etxn$).pipe(map((innerEtxn) => ({ etxn: innerEtxn, comment: null })))
                     )
                   );
                 } else {
@@ -4255,7 +4196,7 @@ export class AddEditExpensePage implements OnInit {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
                     switchMap(() =>
-                      this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
+                      this.generateEtxnFromFg(this.etxn$).pipe(
                         map((innerEtxn) => ({ etxn: innerEtxn, comment: continueWithTransaction.comment }))
                       )
                     )
