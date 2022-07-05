@@ -6,16 +6,14 @@ import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.compo
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { AccountsService } from 'src/app/core/services/accounts.service';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { CaptureReceiptService } from 'src/app/core/services/capture-receipt.service';
 
 type Image = Partial<{
   source: string;
@@ -60,12 +58,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private router: Router,
     private navController: NavController,
     private offlineService: OfflineService,
-    private transactionsOutboxService: TransactionsOutboxService,
     private imagePicker: ImagePicker,
     private networkService: NetworkService,
-    private accountsService: AccountsService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private captureReceiptService: CaptureReceiptService
   ) {}
 
   setupNetworkWatcher() {
@@ -92,99 +89,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       this.isInstafyleEnabled =
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
-  }
-
-  addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
-    return from(base64ImagesWithSource).pipe(
-      concatMap((res: Image) => this.addExpenseToQueue(res)),
-      reduce((acc, curr) => acc.concat(curr), [])
-    );
-  }
-
-  addExpenseToQueue(base64ImagesWithSource: Image, syncImmediately = false) {
-    let source = base64ImagesWithSource.source;
-
-    return forkJoin({
-      isConnected: this.networkService.isOnline(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
-      accounts: this.offlineService.getAccounts(),
-      orgSettings: this.offlineService.getOrgSettings(),
-    }).pipe(
-      switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) =>
-        this.getAccount(orgSettings, accounts, orgUserSettings).pipe(
-          filter((account) => !!account),
-          switchMap((account) => {
-            if (!isConnected) {
-              source += '_OFFLINE';
-            }
-            const transaction = {
-              source_account_id: account.acc.id,
-              skip_reimbursement: !account.acc.isReimbursable || false,
-              source,
-              txn_dt: new Date(),
-              currency: this.homeCurrency,
-            };
-
-            const attachmentUrls = [
-              {
-                thumbnail: base64ImagesWithSource.base64Image,
-                type: 'image',
-                url: base64ImagesWithSource.base64Image,
-              },
-            ];
-            if (!syncImmediately) {
-              return this.transactionsOutboxService.addEntry(
-                transaction,
-                attachmentUrls,
-                null,
-                null,
-                this.isInstafyleEnabled
-              );
-            } else {
-              return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
-            }
-          })
-        )
-      )
-    );
-  }
-
-  getAccount(
-    orgSettings: any,
-    accounts: ExtendedAccount[],
-    orgUserSettings: OrgUserSettings
-  ): Observable<ExtendedAccount> {
-    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
-
-    const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
-
-    return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
-      map((paymentModes) => {
-        const isCCCEnabled =
-          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
-
-        const paidByCompanyAccount = paymentModes.find(
-          (paymentMode) => paymentMode?.acc.displayName === 'Paid by Company'
-        );
-
-        let account;
-
-        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT' && paidByCompanyAccount) {
-          account = paidByCompanyAccount;
-        } else if (
-          isCCCEnabled &&
-          orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-        ) {
-          account = paymentModes.find(
-            (paymentMode) => paymentMode?.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-          );
-        } else {
-          account = paymentModes.find((paymentMode) => paymentMode?.acc.displayName === 'Personal Card/Cash');
-        }
-        return account;
-      })
-    );
   }
 
   async stopCamera() {
@@ -219,7 +123,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  async getFlashModes() {
+  getFlashModes() {
     if (Capacitor.getPlatform() !== 'web') {
       CameraPreview.getSupportedFlashModes().then((flashModes) => {
         if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
@@ -339,7 +243,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.setUpAndStartCamera();
         } else {
           this.loaderService.showLoader('Please wait...', 10000);
-          this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+          this.captureReceiptService
+            .addMultipleExpensesToQueue(this.base64ImagesWithSource, this.homeCurrency, this.isInstafyleEnabled)
             .pipe(finalize(() => this.loaderService.hideLoader()))
             .subscribe(() => {
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
@@ -435,7 +340,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
                 this.base64ImagesWithSource = [];
                 this.setUpAndStartCamera();
               } else {
-                this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+                this.captureReceiptService
+                  .addMultipleExpensesToQueue(this.base64ImagesWithSource, this.homeCurrency, this.isInstafyleEnabled)
                   .pipe(finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses'])))
                   .subscribe(noop);
               }
