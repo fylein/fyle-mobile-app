@@ -125,6 +125,8 @@ export class AddEditMileagePage implements OnInit {
 
   mileageConfig$: Observable<any>;
 
+  mileageRates$: Observable<any>;
+
   rate$: Observable<number>;
 
   projectCategoryIds$: Observable<string[]>;
@@ -657,7 +659,7 @@ export class AddEditMileagePage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValue: this.recentlyUsedValues$,
-      mileageOptions: this.getMileageConfig().pipe(map((mileageConfig) => this.constructMileageOptions(mileageConfig))),
+      mileageOptions: this.getMileageRates(),
     }).pipe(
       map(({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageOptions }) => {
         const isRecentVehicleTypePresent =
@@ -841,7 +843,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  getMileageConfig() {
+  getMileageRates() {
     return forkJoin({
       orgSettings: this.offlineService.getOrgSettings(),
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
@@ -850,23 +852,21 @@ export class AddEditMileagePage implements OnInit {
       map(({ orgSettings, orgUserMileageSettings, mileageRates }) => {
         console.log('mileageRates---->', mileageRates);
         const mileageConfig = orgSettings.mileage;
+        console.log('mileageConfig', mileageConfig);
         orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
         if (orgUserMileageSettings.length > 0) {
-          const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1'];
+          const mileageRateNames = mileageRates.map((res) => res.vehicle_type);
 
           orgUserMileageSettings.forEach((mileageLabel) => {
-            const i = allVehicleTypes.indexOf(mileageLabel);
-            if (i > -1) {
-              allVehicleTypes.splice(i, 1);
+            const i = mileageRateNames.indexOf(mileageLabel);
+            if (i === -1) {
+              mileageRateNames.splice(i, 1);
+              mileageRates.splice(i, 1);
             }
-          });
-
-          allVehicleTypes.forEach((vehicleType) => {
-            delete mileageConfig[vehicleType];
           });
         }
 
-        return mileageConfig;
+        return mileageRates;
       }),
       shareReplay(1)
     );
@@ -915,6 +915,7 @@ export class AddEditMileagePage implements OnInit {
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    const mileageRates$ = this.offlineService.getMileageRates();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
@@ -965,7 +966,7 @@ export class AddEditMileagePage implements OnInit {
       this.fg.controls.sub_category.updateValueAndValidity();
     });
 
-    this.mileageConfig$ = this.getMileageConfig();
+    this.mileageRates$ = this.getMileageRates();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
@@ -1318,7 +1319,7 @@ export class AddEditMileagePage implements OnInit {
             selectedReport$,
             selectedCostCenter$,
             selectedCustomInputs$,
-            this.mileageConfig$,
+            this.mileageRates,
             defaultPaymentMode$,
             orgUserSettings$,
             orgSettings$,
@@ -1340,7 +1341,7 @@ export class AddEditMileagePage implements OnInit {
           report,
           costCenter,
           customInputs,
-          mileageConfig,
+          mileageRates,
           defaultPaymentMode,
           orgUserSettings,
           orgSettings,
@@ -1846,6 +1847,11 @@ export class AddEditMileagePage implements OnInit {
     return data;
   }
 
+  getRateByName(mileageRates, name) {
+    console.log('mileageRates, name', mileageRates, name);
+    return 0.6;
+  }
+
   generateEtxnFromFg(etxn$, standardisedCustomProperties$, calculatedDistance$) {
     return forkJoin({
       etxn: etxn$.pipe(take(1)),
@@ -1853,7 +1859,7 @@ export class AddEditMileagePage implements OnInit {
       calculatedDistance: calculatedDistance$.pipe(take(1)),
       amount: this.amount$.pipe(take(1)),
       homeCurrency: this.homeCurrency$.pipe(take(1)),
-      mileageConfig: this.mileageConfig$.pipe(take(1)),
+      mileageRates: this.mileageRates$.pipe(take(1)),
       rate: this.rate$.pipe(take(1)),
     }).pipe(
       map((res) => {
@@ -1892,7 +1898,9 @@ export class AddEditMileagePage implements OnInit {
             orig_amount: null,
             mileage_calculated_distance: calculatedDistance,
             mileage_calculated_amount:
-              (rate || etxn.tx.mileage_rate || res.mileageConfig[formValue.mileage_vehicle_type]) * calculatedDistance,
+              rate ||
+              etxn.tx.mileage_rate ||
+              this.getRateByName(res.mileageRates, formValue.mileage_vehicle_type) * calculatedDistance,
             project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,
             custom_properties: customProperties || [],

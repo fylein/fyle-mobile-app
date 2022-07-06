@@ -6,7 +6,6 @@ export interface PlatformMileageRates {
   is_enabled: boolean;
   unit: string;
   vehicle_type?: string;
-  name?: string;
   code?: string;
   currency: string;
   rate: number;
