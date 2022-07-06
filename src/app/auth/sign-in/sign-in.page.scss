@@ -1,7 +1,6 @@
 @import '../../../theme/colors.scss';
 
 $sign-in-header: #220033;
-$signin-divider: #0000001a;
 $gradient-background: linear-gradient(277.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
 $error: #f00;
 $container-shadow: #00000026;
@@ -96,7 +95,7 @@ $small-device-height: 670px; // smallest device height ( i.e., Iphone SE )
 
   .signin-divider {
     height: 12px;
-    border-bottom: 1px solid $signin-divider;
+    border-bottom: 1px solid $black-shadow;
     margin: 10px 0 20px 0;
   }
 
