@@ -337,6 +337,8 @@ export class AddEditExpensePage implements OnInit {
 
   cardCurrencySymbol = '';
 
+  availablePaymentModes: AccountOption[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1033,7 +1035,24 @@ export class AddEditExpensePage implements OnInit {
           this.showCardTransaction = false;
         }
         const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+        const constructedPaymentModes = this.accountsService.constructPaymentModes(
+          userAccounts,
+          isMultipleAdvanceEnabled
+        );
+        if (etxn.tx.source_account_id) {
+          constructedPaymentModes.pipe(
+            map((paymentModes) => {
+              if (!paymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)) {
+                const accountLinkedWithExpense = accounts.find(
+                  (account) => account.acc.id === etxn.tx.source_account_id
+                );
+                paymentModes.push(accountLinkedWithExpense);
+                return paymentModes;
+              }
+            })
+          );
+        }
+        return constructedPaymentModes;
       }),
       map((paymentModes) =>
         paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
@@ -1382,47 +1401,22 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    // const selectedPaymentMode$ = this.etxn$.pipe(
-    //   switchMap((etxn) =>
-    //     iif(
-    //       () => etxn.tx.source_account_id,
-    //       this.paymentModes$.pipe(
-    //         map((paymentModes) =>
-    //           paymentModes
-    //             .map((res) => res.value)
-    //             .find((paymentMode) => {
-    //               if (paymentMode.acc.displayName === 'Personal Card/Cash') {
-    //                 return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
-    //               } else {
-    //                 return paymentMode.acc.id === etxn.tx.source_account_id;
-    //               }
-    //             })
-    //         )
-    //       ),
-    //       of(null)
-    //     )
-    //   )
-    // );
-
     const selectedPaymentMode$ = this.etxn$.pipe(
       switchMap((etxn) =>
         iif(
           () => etxn.tx.source_account_id,
           this.paymentModes$.pipe(
-            map((paymentModes) => paymentModes.map((mode) => mode.value)),
-            switchMap((paymentModes) => {
-              if (paymentModes.length > 1) {
-                return paymentModes.find((paymentMode) => {
+            map((paymentModes) =>
+              paymentModes
+                .map((res) => res.value)
+                .find((paymentMode) => {
                   if (paymentMode.acc.displayName === 'Personal Card/Cash') {
                     return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
                   } else {
                     return paymentMode.acc.id === etxn.tx.source_account_id;
                   }
-                });
-              } else if (paymentModes.length === 1) {
-                return paymentModes[0];
-              }
-            })
+                })
+            )
           ),
           of(null)
         )
@@ -2693,6 +2687,10 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.paymentModes$ = this.getPaymentModes();
+
+    this.paymentModes$.subscribe((paymentModes) => {
+      this.availablePaymentModes = paymentModes;
+    });
 
     orgSettings$
       .pipe(
