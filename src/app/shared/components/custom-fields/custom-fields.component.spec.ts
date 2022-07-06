@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { CustomFieldsComponent } from './custom-fields.component';
 
-describe('CustomFieldsComponent', () => {
+xdescribe('CustomFieldsComponent', () => {
   let component: CustomFieldsComponent;
   let fixture: ComponentFixture<CustomFieldsComponent>;
 
