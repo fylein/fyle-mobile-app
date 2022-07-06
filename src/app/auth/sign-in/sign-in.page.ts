@@ -274,4 +274,8 @@ export class SignInPage implements OnInit {
   togglePassword() {
     this.hide = !this.hide;
   }
+
+  resetPasswordRedirect() {
+    this.router.navigate(['/', 'auth', 'reset_password', { email: this.fg.controls.email.value }]);
+  }
 }

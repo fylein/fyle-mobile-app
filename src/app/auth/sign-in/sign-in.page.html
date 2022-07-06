@@ -119,10 +119,10 @@
           <span class="signin-divider-text ion-text-uppercase"> Or </span>
         </div>
         <div *ngIf="emailSet" class="sign-in--redirect">
-          <a [routerLink]="['/','auth','reset_password', {email:fg.controls.email.value}]">Forgot Password ?</a>
+          <a (click)="resetPasswordRedirect()">Forgot Password ?</a>
         </div>
         <div *ngIf="!emailSet" class="sign-in--secondary-cta">
-          <button class="btn btn-login-google p-0">
+          <button class="btn btn-login-google">
             <div class="icon-container ion-no-margin">
               <img
                 src=".../../../assets/images/google_logo_36x36.png"
