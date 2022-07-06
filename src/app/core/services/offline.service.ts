@@ -7,6 +7,7 @@ import { CategoriesService } from './categories.service';
 import { CostCentersService } from './cost-centers.service';
 import { ProjectsService } from './projects.service';
 import { PerDiemService } from './per-diem.service';
+import { MileageRatesService } from './mileage-rates.service';
 import { CustomInputsService } from './custom-inputs.service';
 import { OrgService } from './org.service';
 import { AccountsService } from './accounts.service';
@@ -41,6 +42,7 @@ export class OfflineService {
     private costCentersService: CostCentersService,
     private projectsService: ProjectsService,
     private perDiemsService: PerDiemService,
+    private mileageRateService: MileageRatesService,
     private customInputsService: CustomInputsService,
     private orgService: OrgService,
     private accountsService: AccountsService,
@@ -296,6 +298,23 @@ export class OfflineService {
   }
 
   @Cacheable()
+  getMileageRates() {
+    return this.networkService.isOnline().pipe(
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.mileageRateService.getRates().pipe(
+            tap((rates) => {
+              this.storageService.set('cachedMileageRates', rates);
+            })
+          );
+        } else {
+          return from(this.storageService.get('cachedMileageRates'));
+        }
+      })
+    );
+  }
+
+  @Cacheable()
   getCustomInputs(): Observable<ExpenseField[]> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -480,6 +499,7 @@ export class OfflineService {
     const costCenters$ = this.getCostCenters();
     const projects$ = this.getProjects();
     const perDiemRates$ = this.getPerDiemRates();
+    const mileageRates$ = this.getMileageRates();
     const customInputs$ = this.getCustomInputs();
     const currentOrg$ = this.getCurrentOrg();
     const primaryOrg$ = this.getPrimaryOrg();
