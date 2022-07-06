@@ -209,7 +209,7 @@
                 <div
                   *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
                   class="add-edit-expense--amount-error"
-                  [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls?.currencyObj?.value?.orig_currency}"
+                  [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls.currencyObj.value.orig_currency}"
                 >
                   Please enter the amount.
                 </div>
