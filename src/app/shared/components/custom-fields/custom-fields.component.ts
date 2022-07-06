@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, DoCheck, Injector, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -6,6 +6,7 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  NgControl,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
   ValidationErrors,
@@ -33,7 +34,7 @@ import { Subscription } from 'rxjs';
     },
   ],
 })
-export class CustomFieldsComponent implements ControlValueAccessor, OnInit, OnDestroy, OnChanges, Validator {
+export class CustomFieldsComponent implements ControlValueAccessor, OnInit, OnDestroy, OnChanges, Validator, DoCheck {
   @Input() customInputsDetails: { name: string; type: string; value: any; mandatory: boolean; placeholder: string }[];
 
   @Input() isExpandedView = false;
@@ -46,7 +47,9 @@ export class CustomFieldsComponent implements ControlValueAccessor, OnInit, OnDe
 
   onChangeSub: Subscription;
 
-  constructor(private fb: FormBuilder) {}
+  private ngControl: NgControl;
+
+  constructor(private fb: FormBuilder, private injector: Injector) {}
 
   get customInputsFormArray() {
     return this.customInputsForm.controls.customInputs as FormArray;
@@ -55,13 +58,19 @@ export class CustomFieldsComponent implements ControlValueAccessor, OnInit, OnDe
   validate(control: AbstractControl): ValidationErrors {
     if (!this.customInputsForm.valid) {
       return {
-        ...this.customInputsForm.controls.customInputs.errors,
+        ...this.customInputsFormArray.controls.map((c) => c.errors).reduce((acc, err) => ({ ...acc, ...err }), {}),
       };
     }
     return null;
   }
 
   onTouched = () => {};
+
+  ngDoCheck() {
+    if (this.ngControl.touched) {
+      this.customInputsForm.markAllAsTouched();
+    }
+  }
 
   writeValue(customInputValues): void {
     if (customInputValues?.customInputs) {
@@ -74,8 +83,8 @@ export class CustomFieldsComponent implements ControlValueAccessor, OnInit, OnDe
           customInput.type !== 'BOOLEAN' && customInput.mandatory && this.isConnected && Validators.required;
         const valueToBeAdded =
           customInput.type !== 'DATE'
-            ? currentValue.value
-            : currentValue.value && moment(currentValue.value).format('y-MM-DD');
+            ? currentValue?.value
+            : currentValue?.value && moment(currentValue?.value).format('y-MM-DD');
         const currentCustomInputControl = new FormControl(valueToBeAdded, validationToBeAdded);
         this.customInputsFormArray.push(currentCustomInputControl);
         this.customInputsForm.updateValueAndValidity();
@@ -98,7 +107,7 @@ export class CustomFieldsComponent implements ControlValueAccessor, OnInit, OnDe
   }
 
   ngOnInit() {
-    console.log({ onInit: this.customInputsDetails });
+    this.ngControl = this.injector.get(NgControl);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

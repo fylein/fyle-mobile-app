@@ -29,11 +29,11 @@ export class CustomFieldsService {
     return property;
   }
 
-  setPropertyNoPrefix(customInput, customProperties) {
+  formatCustomInput(customInput, customProperties) {
     /* Setting the name and mandatory based on the custom input key
      * Reason: Same method is used for expense custom fields and transport/advance request custom fields
      */
-    let customInputName;
+    const customInputName = customInput.field_name;
 
     let property = {
       id: customInput.id,
@@ -50,11 +50,7 @@ export class CustomFieldsService {
     if (customProperties) {
       for (const customProperty of customProperties) {
         if (customProperty.name === customInputName) {
-          if (property.type === 'DATE' && customProperty.value) {
-            property.value = new Date(customProperty.value);
-          } else {
-            property.value = customProperty.value;
-          }
+          property.value = customProperty.value;
           break;
         }
       }
@@ -64,14 +60,16 @@ export class CustomFieldsService {
 
   standardizeCustomFields(customProperties, customInputs) {
     const filledCustomPropertiesWithType = customInputs.map((customInput) =>
-      this.setPropertyNoPrefix(customInput, customProperties)
+      this.formatCustomInput(customInput, customProperties)
     );
 
-    return filledCustomPropertiesWithType.sort(this.sortcustomFieldsByType).map((customField) => {
-      if (customField.options) {
-        customField.options = customField.options.map((option) => ({ label: option, value: option }));
-      }
-      return customField;
-    });
+    return filledCustomPropertiesWithType
+      .sort((customField1, customField2) => this.sortcustomFieldsByType(customField1, customField2))
+      .map((customField) => {
+        if (customField.options) {
+          customField.options = customField.options.map((option) => ({ label: option, value: option }));
+        }
+        return customField;
+      });
   }
 }

@@ -2816,7 +2816,7 @@ export class AddEditExpensePage implements OnInit {
         const etxn: any = res.etxn;
         const customPropertiesCopy = customProperties.map((customProperty) => {
           if (customProperty.type === 'DATE') {
-            customProperty.value = customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value));
+            customProperty.value = moment(new Date(customProperty.value)).utc().toISOString();
           }
           return customProperty;
         });

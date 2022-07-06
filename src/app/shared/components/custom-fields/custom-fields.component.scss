@@ -47,11 +47,26 @@
 
   &--internal-block {
     padding: 6px 0;
-    background: #fff;
+    background: $pure-white;
     line-height: 1;
     margin-bottom: 12px;
     &__margin {
       margin-right: 12px;
     }
+
+    &__invalid {
+      margin-bottom: 0;
+    }
+  }
+
+  &--error {
+    color: $red;
+  }
+
+  &--mandatory {
+    color: $brand-primary;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
   }
 }
