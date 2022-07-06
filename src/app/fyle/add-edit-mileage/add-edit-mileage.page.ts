@@ -681,12 +681,12 @@ export class AddEditMileagePage implements OnInit {
             vehicleType = orgUserMileageSettings[0];
           }
         } else if (!vehicleType) {
-          mileageOptions.some((vType) => {
-            if (orgSettings.mileage[vType]) {
-              vehicleType = vType;
-              return true;
-            }
-          });
+          // mileageOptions.some((vType) => {
+          //   if (orgSettings.mileage[vType]) {
+          //     vehicleType = vType;
+          //     return true;
+          //   }
+          // });
         }
 
         return vehicleType as string;
@@ -1319,7 +1319,7 @@ export class AddEditMileagePage implements OnInit {
             selectedReport$,
             selectedCostCenter$,
             selectedCustomInputs$,
-            this.mileageRates,
+            this.mileageRates$,
             defaultPaymentMode$,
             orgUserSettings$,
             orgSettings$,
