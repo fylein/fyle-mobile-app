@@ -22,7 +22,7 @@
                 class="matched-expenses--currency"
                 [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
               >
-                {{ currencySymbol }}
+                {{ txnDetails.btxn_currency | currencySymbol }}
               </span>
               <span
                 class="matched-expenses--amount"

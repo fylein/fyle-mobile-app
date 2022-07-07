@@ -15,13 +15,10 @@ export class ExpenseCardLiteComponent implements OnInit {
 
   receiptThumbnail: string;
 
-  currencySymbol: string;
-
   constructor(private fileService: FileService) {}
 
   ngOnInit(): void {
     this.getReceipt();
-    this.currencySymbol = getCurrencySymbol(this.expense.currency, 'narrow');
   }
 
   getReceipt() {
