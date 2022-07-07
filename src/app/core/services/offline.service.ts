@@ -53,6 +53,7 @@ export class OfflineService {
     private taxGroupService: TaxGroupService
   ) {}
 
+  // can be removed from offline service. We dont need to allow switch to delegator when user is offline
   @Cacheable()
   getDelegatedAccounts() {
     return this.networkService.isOnline().pipe(
@@ -135,6 +136,7 @@ export class OfflineService {
     return this.getOrgUserSettings().pipe(map((res: any) => res.mileage_settings));
   }
 
+  // is entering tax while user is offline required?
   @Cacheable()
   getEnabledTaxGroups() {
     return this.networkService.isOnline().pipe(
@@ -155,6 +157,7 @@ export class OfflineService {
     );
   }
 
+  // is entering cost center when user is offline required?
   @Cacheable()
   getAllowedCostCenters(orgUserSettings) {
     return this.networkService.isOnline().pipe(
@@ -172,6 +175,7 @@ export class OfflineService {
     );
   }
 
+  // if the above is not required, why is this even required?
   @Cacheable()
   getDefaultCostCenter() {
     return this.networkService.isOnline().pipe(
@@ -206,6 +210,8 @@ export class OfflineService {
     );
   }
 
+  // is entering category required when creating expenses in offline mode?
+  // if otherwise required, what is the minimum subset of this that we can retrieve
   @Cacheable()
   getAllCategories() {
     return this.networkService.isOnline().pipe(
@@ -223,6 +229,7 @@ export class OfflineService {
     );
   }
 
+  // same as above question
   @Cacheable()
   getAllEnabledCategories() {
     return this.getAllCategories().pipe(
@@ -230,6 +237,7 @@ export class OfflineService {
     );
   }
 
+  // is entering payment mode when the user is offline required?
   @Cacheable()
   getAccounts() {
     return this.networkService.isOnline().pipe(
@@ -247,6 +255,7 @@ export class OfflineService {
     );
   }
 
+  // is getting cost center required when user is offline?
   @Cacheable()
   getCostCenters() {
     return this.networkService.isOnline().pipe(
@@ -264,6 +273,7 @@ export class OfflineService {
     );
   }
 
+  // this is unnecessary, we can remove this off
   @Cacheable()
   getProjects() {
     return this.networkService.isOnline().pipe(
@@ -298,6 +308,7 @@ export class OfflineService {
     );
   }
 
+  // is custom fields required during offline mode?
   @Cacheable()
   getCustomInputs(): Observable<ExpenseField[]> {
     return this.networkService.isOnline().pipe(
@@ -332,6 +343,7 @@ export class OfflineService {
     );
   }
 
+  // dont we switch to active org in offline mode. Keeping this here dosnt make sense
   @Cacheable()
   getPrimaryOrg() {
     return this.networkService.isOnline().pipe(
@@ -349,6 +361,7 @@ export class OfflineService {
     );
   }
 
+  // not required for offline mode
   @Cacheable()
   getOrgs() {
     return this.networkService.isOnline().pipe(
@@ -383,6 +396,7 @@ export class OfflineService {
     );
   }
 
+  // isnt this the same as above?
   @Cacheable()
   getExpenseFieldsMap(): Observable<Partial<ExpenseFieldsMap>> {
     return this.networkService.isOnline().pipe(
