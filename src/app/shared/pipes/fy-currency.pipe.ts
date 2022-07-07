@@ -5,7 +5,6 @@ import { Pipe, PipeTransform } from '@angular/core';
  * This pipe is a superset of the default CurrencyPipe provided by Angular
  * It adds functionality to add a space between the currency code and the amount when no symbol is present for the given currency
  * Since this feature is not there by default, we need to add this by ourselves
- * For e.g., USD100.00 will be transformed to USD 100.00
  */
 @Pipe({
   name: 'currency',
@@ -28,7 +27,11 @@ export class FyCurrencyPipe implements PipeTransform {
       const firstDigitIdx = transformedValue.search(/\d/);
       const currencySymbol = transformedValue.substring(0, firstDigitIdx);
 
-      // If the symbol is same as the currency code, we need to add a space for proper readability
+      /**
+       * If the symbol is same as the currency code, we need to add a space for proper readability
+       * This can happen when there is no symbol for the given currency code. e.g. OMR has no currency symbol
+       * In this case we would like to override the default behaviour of showing OMR5.000 and change it to OMR 5.000
+       */
       if (currencySymbol === currencyCode) {
         return currencySymbol.concat(' ', transformedValue.substring(firstDigitIdx));
       }
