@@ -281,7 +281,7 @@
                 </ng-container>
               </ion-col>
               <ion-col
-                [size]="((availablePaymentModes?.length > 1) && !(isUnifyCcceExpensesSettingsEnabled && isCccExpense)) ? 6 : 0"
+                [size]="6"
                 *ngIf="(!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && availablePaymentModes?.length > 1)"
               >
                 <ng-container *ngIf="availablePaymentModes?.length > 1">
