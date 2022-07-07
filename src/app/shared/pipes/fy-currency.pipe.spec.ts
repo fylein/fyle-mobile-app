@@ -9,11 +9,11 @@ describe('FyCurrencyPipe', () => {
     expect(pipe).toBeTruthy();
   });
 
-  it('transforms 5 and USD to $5.00', () => {
+  it('transform 5 and USD to $5.00', () => {
     expect(pipe.transform(5, 'USD')).toEqual('$5.00');
   });
 
-  it('transforms 5 and OMR to OMR 5.000', () => {
+  it('transform 5 and OMR to OMR 5.000', () => {
     expect(pipe.transform(5, 'OMR')).toEqual('OMR 5.000');
   });
 });
