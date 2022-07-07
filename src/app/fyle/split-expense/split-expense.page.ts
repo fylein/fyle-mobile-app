@@ -118,10 +118,9 @@ export class SplitExpensePage implements OnInit {
       const otherIndex = index === 0 ? 1 : 0;
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
-      const amount = this.currencyService.getAmountWithCurrencyFraction(
-        this.amount - splitExpenseForm.value.amount,
-        this.currency
-      );
+      const rawAmount = this.amount - splitExpenseForm.value.amount;
+      const amount = this.currencyService.getAmountWithCurrencyFraction(rawAmount, this.currency);
+
       const percentage = parseFloat(((amount / this.amount) * 100).toFixed(3));
 
       otherSplitExpenseForm.patchValue(
@@ -157,10 +156,9 @@ export class SplitExpensePage implements OnInit {
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
       const percentage = Math.min(100, Math.max(0, 100 - splitExpenseForm.value.percentage));
-      const amount = this.currencyService.getAmountWithCurrencyFraction(
-        (this.amount * percentage) / 100,
-        this.currency
-      );
+
+      const rawAmount = (this.amount * percentage) / 100;
+      const amount = this.currencyService.getAmountWithCurrencyFraction(rawAmount, this.currency);
 
       otherSplitExpenseForm.patchValue(
         {
@@ -592,10 +590,9 @@ export class SplitExpensePage implements OnInit {
       const lastSplitExpenseForm = this.splitExpensesFormArray.at(1);
 
       const percentage = Math.min(100, Math.max(0, 100 - firstSplitExpenseForm.value.percentage));
-      const amount = this.currencyService.getAmountWithCurrencyFraction(
-        (this.amount * percentage) / 100,
-        this.currency
-      );
+
+      const rawAmount = (this.amount * percentage) / 100;
+      const amount = this.currencyService.getAmountWithCurrencyFraction(rawAmount, this.currency);
 
       lastSplitExpenseForm.patchValue(
         {

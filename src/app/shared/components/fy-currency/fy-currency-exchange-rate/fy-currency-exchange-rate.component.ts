@@ -84,12 +84,10 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
     this.fg.controls.newCurrencyAmount.valueChanges.pipe(distinctUntilChanged()).subscribe(() => {
       const amount = +this.fg.controls.newCurrencyAmount.value * +this.fg.controls.exchangeRate.value;
       if (amount && amount !== Infinity) {
-        this.fg.controls.homeCurrencyAmount.setValue(
-          this.currencyService.getAmountWithCurrencyFraction(amount, this.currentCurrency),
-          {
-            emitEvent: false,
-          }
-        );
+        const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(amount, this.currentCurrency);
+        this.fg.controls.homeCurrencyAmount.setValue(formattedAmount, {
+          emitEvent: false,
+        });
       } else {
         this.fg.controls.homeCurrencyAmount.setValue(0, {
           emitEvent: false,
@@ -100,12 +98,10 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
     this.fg.controls.exchangeRate.valueChanges.pipe(distinctUntilChanged()).subscribe(() => {
       const amount = +this.fg.controls.newCurrencyAmount.value * +this.fg.controls.exchangeRate.value;
       if (amount && amount !== Infinity) {
-        this.fg.controls.homeCurrencyAmount.setValue(
-          this.currencyService.getAmountWithCurrencyFraction(amount, this.currentCurrency),
-          {
-            emitEvent: false,
-          }
-        );
+        const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(amount, this.currentCurrency);
+        this.fg.controls.homeCurrencyAmount.setValue(formattedAmount, {
+          emitEvent: false,
+        });
       } else {
         this.fg.controls.homeCurrencyAmount.setValue(0, {
           emitEvent: false,
