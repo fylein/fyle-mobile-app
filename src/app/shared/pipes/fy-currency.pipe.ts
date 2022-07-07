@@ -24,8 +24,8 @@ export class FyCurrencyPipe implements PipeTransform {
 
     if (transformedValue) {
       // Gets the index of first digit in the transformed amount string
-      const firstDigitIdx = transformedValue.search(/\d/);
-      const currencySymbol = transformedValue.substring(0, firstDigitIdx);
+      const firstDigitIndex = transformedValue.search(/\d/);
+      const currencySymbol = transformedValue.substring(0, firstDigitIndex);
 
       /**
        * If the symbol is same as the currency code, we need to add a space for proper readability
@@ -33,7 +33,7 @@ export class FyCurrencyPipe implements PipeTransform {
        * In this case we would like to override the default behaviour of showing OMR5.000 and change it to OMR 5.000
        */
       if (currencySymbol === currencyCode) {
-        return currencySymbol.concat(' ', transformedValue.substring(firstDigitIdx));
+        return currencySymbol.concat(' ', transformedValue.substring(firstDigitIndex));
       }
     }
 
