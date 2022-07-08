@@ -160,7 +160,7 @@
 
             <ion-grid class="ion-grid-no-padding">
               <ion-row>
-                <ion-col size="6">
+                <ion-col [size]="(availablePaymentModes?.length > 1) ? 6 : 12">
                   <ng-container *ngIf="txnFields$|async as txnFields">
                     <div
                       *ngIf="txnFields?.txn_dt"
@@ -191,10 +191,9 @@
                     </div>
                   </ng-container>
                 </ion-col>
-                <ion-col size="6">
-                  <ng-container *ngIf="paymentModes$|async as paymentModes">
+                <ion-col *ngIf="availablePaymentModes?.length > 1" size="6">
+                  <ng-container *ngIf="availablePaymentModes">
                     <div
-                      *ngIf="paymentModes.length > 0"
                       class="add-edit-mileage--payment-modes add-edit-mileage--internal-block"
                       [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
                     >
@@ -203,7 +202,7 @@
                         [label]="'Payment Mode'"
                         [mandatory]="true"
                         [nullOption]="false"
-                        [options]="paymentModes"
+                        [options]="availablePaymentModes"
                         [selectModalHeader]="'Select Payment Mode'"
                         [selectionElement]="paymentMode"
                         formControlName="paymentMode"

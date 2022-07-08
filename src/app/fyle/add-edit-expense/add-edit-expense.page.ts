@@ -1045,7 +1045,7 @@ export class AddEditExpensePage implements OnInit {
           In case if it is not, we have to append the account asociated with the expense to the available payment modes for the user
         */
 
-        if (etxn.tx.source_account_id) {
+        if (etxn?.tx.source_account_id) {
           return constructedPaymentModes.pipe(
             map((paymentModes) => {
               if (!paymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)) {
@@ -1424,7 +1424,18 @@ export class AddEditExpensePage implements OnInit {
                 })
             )
           ),
-          of(null)
+
+          /*
+          To do: This is just temporary to simulate testing.
+          Replace this section with of(null) and handle the default payment mode logic in the defaultPaymentMode$ when the APIs are available
+        */
+
+          this.paymentModes$.pipe(
+            map((paymentModes) => paymentModes.map((res) => res.value)),
+            map((modes) => {
+              return modes[0];
+            })
+          )
         )
       )
     );

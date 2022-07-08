@@ -245,9 +245,8 @@
                     </ng-container>
                   </ng-container>
 
-                  <ng-container *ngIf="paymentModes$|async as paymentModes">
+                  <ng-container *ngIf="availablePaymentModes?.length > 1">
                     <div
-                      *ngIf="paymentModes.length > 0"
                       [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
                       class="add-edit-per-diem--internal-block"
                     >
@@ -257,7 +256,7 @@
                         [mandatory]="true"
                         [mandatory]="true"
                         [nullOption]="false"
-                        [options]="paymentModes"
+                        [options]="availablePaymentModes"
                         [selectModalHeader]="'Select Payment Mode'"
                         [selectionElement]="paymentMode"
                         formControlName="paymentMode"

@@ -192,6 +192,8 @@ export class AddEditMileagePage implements OnInit {
 
   canRemoveFromReport = false;
 
+  availablePaymentModes: AccountOption[];
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -514,8 +516,9 @@ export class AddEditMileagePage implements OnInit {
     return forkJoin({
       accounts: accounts$,
       orgSettings: orgSettings$,
+      etxn: this.etxn$,
     }).pipe(
-      switchMap(({ accounts, orgSettings }) => {
+      switchMap(({ accounts, orgSettings, etxn }) => {
         const isAdvanceEnabled =
           (orgSettings.advances && orgSettings.advances.enabled) ||
           (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
@@ -528,7 +531,30 @@ export class AddEditMileagePage implements OnInit {
           )
           .filter((userAccount) => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
 
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
+        const constructedPaymentModes = this.accountsService.constructPaymentModes(
+          userAccounts,
+          isMultipleAdvanceEnabled
+        );
+
+        /* 
+          We have to find whether the payment mode account associated with the expense is actually enabled/available for the user.
+          In case if it is not, we have to append the account asociated with the expense to the available payment modes for the user
+        */
+
+        if (etxn?.tx.source_account_id) {
+          return constructedPaymentModes.pipe(
+            map((paymentModes) => {
+              if (!paymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)) {
+                const accountLinkedWithExpense = accounts.find(
+                  (account) => account.acc.id === etxn.tx.source_account_id
+                );
+                paymentModes.push(accountLinkedWithExpense);
+              }
+              return paymentModes;
+            })
+          );
+        }
+        return constructedPaymentModes;
       }),
       map((paymentModes) =>
         paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
@@ -942,7 +968,6 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.txnFields$ = this.getTransactionFields();
-    this.paymentModes$ = this.getPaymentModes();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
@@ -964,6 +989,12 @@ export class AddEditMileagePage implements OnInit {
     this.mileageConfig$ = this.getMileageConfig();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
+
+    this.paymentModes$ = this.getPaymentModes();
+
+    this.paymentModes$.subscribe((paymentModes) => {
+      this.availablePaymentModes = paymentModes;
+    });
 
     this.setupTfcDefaultValues();
 
@@ -1204,10 +1235,16 @@ export class AddEditMileagePage implements OnInit {
       )
     );
 
+    /*
+      To do: This is just temporary to simulate testing.
+      Replace this section with the actual default payment mode logic once the APIs are available
+    */
+
     const defaultPaymentMode$ = this.paymentModes$.pipe(
-      map((paymentModes) =>
-        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash')
-      )
+      map((paymentModes) => paymentModes.map((res) => res.value)),
+      map((modes) => {
+        return modes[0];
+      })
     );
 
     this.recentlyUsedProjects$ = forkJoin({
