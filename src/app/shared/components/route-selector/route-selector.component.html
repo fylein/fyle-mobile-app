@@ -19,7 +19,7 @@
             >
               <div class="timeline--timeline-item-internal timeline--timeline-item-internal__first">
                 <app-fy-location
-                  [label]="'Start'"
+                  [label]="'Start (A)'"
                   class="route-selector--input"
                   [formControl]="mileageLocations.controls[0]"
                   [mandatory]="mileageConfig.location_mandatory"
@@ -58,7 +58,7 @@
             >
               <div class="timeline--timeline-item-internal timeline--timeline-item-internal__last">
                 <app-fy-location
-                  [label]="'Stop'"
+                  [label]="getEndLocationLabel()"
                   class="route-selector--input"
                   [formControl]="mileageLocations.controls[mileageLocations.controls.length - 1]"
                   (click)="openModal()"

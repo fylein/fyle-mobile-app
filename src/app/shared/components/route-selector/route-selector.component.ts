@@ -245,4 +245,13 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     }
     return null;
   }
+
+  // It is used to assign the label to the end location in mileage. It get the last index of array and converts to its equivalent character.
+  // String.fromCharCode(i+65) : It converts the unicode into equivalent character. (e.g. 65 -> A , 66 -> B, etc)
+
+  getEndLocationLabel() {
+    const unicodeOfA = 65;
+    const character = String.fromCharCode(this.mileageLocations.length - 1 + unicodeOfA);
+    return `End (${character})`;
+  }
 }

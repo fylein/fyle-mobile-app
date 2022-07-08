@@ -14,10 +14,9 @@
         <div (click)="toggleExpansion(transaction)">
           <div class="split-expense-policy-violation--header-slot">
             <div class="split-expense-policy-violation--violations-count">
-              {{ policyViolations[transaction].rules.length }} Policy Violation<span
-                *ngIf="policyViolations[transaction].rules.length > 1"
-                >(s)</span
-              >
+              {{ policyViolations[transaction].rules.length }}
+              <span *ngIf="policyViolations[transaction].isCriticalPolicyViolation"> Critical </span>
+              Policy Violation<span *ngIf="policyViolations[transaction].rules.length > 1">(s)</span>
             </div>
             <span class="split-expense-policy-violation--dropdown-icon">
               <ion-icon

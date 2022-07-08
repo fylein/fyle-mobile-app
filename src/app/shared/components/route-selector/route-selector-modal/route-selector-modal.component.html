@@ -32,6 +32,7 @@
                   >
                     <app-fy-location
                       class="route-selector-modal--location"
+                      [label]="getLocationLabel(i)"
                       [formControlName]="i"
                       [label]="isFirst ? 'Start' : isLast ? 'Destination' : control.value ? 'Stop ' + i : 'Stop ' + i"
                       [mandatory]="mileageConfig.location_mandatory"
