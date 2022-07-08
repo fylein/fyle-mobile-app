@@ -80,7 +80,7 @@
   }
 
   &--internal-block {
-    padding: 8px 0;
+    padding: 8px 10px;
     background: #fff;
     line-height: 1;
     margin-bottom: 12px;
@@ -93,7 +93,7 @@
   }
 
   &--timeline {
-    padding-top: 48px;
+    padding: 0px;
   }
 
   &--text {
@@ -152,39 +152,36 @@
   &--remove-stop {
     display: block;
     width: 32px;
-    padding-left: 8px;
     stroke: $black-light;
+    margin-top: 20px;
+    margin-left: 10px;
   }
 
   &--add-stop {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     display: block;
-    width: 32px;
     padding-left: 8px;
     color: $black-light;
+
+    .add-stop-icon {
+      width: 30px;
+      padding-right: 8px;
+    }
   }
 
   &--error {
     color: $red;
     line-height: 16px;
     font-size: 12px;
-    left: 14px;
-    position: relative;
-
-    &__first {
-      position: relative;
-      top: -24px;
-    }
-
-    &__last {
-      position: relative;
-      top: 18px;
-    }
   }
 
   &--toolbar {
     border-bottom: 1px solid $translucent-grey;
+  }
+
+  &--drag-icon {
+    margin: 0 10px 10px 0;
   }
 }
 

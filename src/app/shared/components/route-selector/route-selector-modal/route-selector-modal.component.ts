@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { LocationService } from 'src/app/core/services/location.service';
+import { ItemReorderEventDetail } from '@ionic/core';
+
 @Component({
   selector: 'app-route-selector-modal',
   templateUrl: './route-selector-modal.component.html',
@@ -50,6 +52,20 @@ export class RouteSelectorModalComponent implements OnInit {
 
   get mileageLocations() {
     return this.form.controls.mileageLocations as FormArray;
+  }
+
+  reorderItem(ev: CustomEvent<ItemReorderEventDetail>) {
+    // Get location of the item to be reordered
+    const location = this.mileageLocations.at(ev.detail.from).value;
+    // Remove item from the current position
+    this.mileageLocations.removeAt(ev.detail.from);
+    // Insert item at the given position
+    this.mileageLocations.insert(
+      ev.detail.to,
+      new FormControl(location, this.mileageConfig.location_mandatory && Validators.required)
+    );
+    // complete reordering
+    ev.detail.complete();
   }
 
   addMileageLocation() {
