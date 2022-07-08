@@ -1053,8 +1053,8 @@ export class AddEditExpensePage implements OnInit {
                   (account) => account.acc.id === etxn.tx.source_account_id
                 );
                 paymentModes.push(accountLinkedWithExpense);
-                return paymentModes;
               }
+              return paymentModes;
             })
           );
         }
