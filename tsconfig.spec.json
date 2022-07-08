@@ -5,7 +5,7 @@
     "types": [
       "jasmine",
       "node",
-      "googlemaps",
+      "google.maps",
       "lodash"
     ]
   },

@@ -60,8 +60,8 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { StatusService } from 'src/app/core/services/status.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
@@ -89,8 +89,8 @@ import { FileObject } from 'src/app/core/models/file_obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
-import { TaxGroupService } from 'src/app/core/services/tax_group.service';
-import { TaxGroup } from 'src/app/core/models/tax_group.model';
+import { TaxGroupService } from 'src/app/core/services/tax-group.service';
+import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -1016,8 +1016,8 @@ export class AddEditExpensePage implements OnInit {
           orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
         const isCCCEnabled =
           orgSettings &&
-          orgSettings.corporate_credit_card_settings.allowed &&
-          orgSettings.corporate_credit_card_settings.enabled;
+          orgSettings.corporate_credit_card_settings?.allowed &&
+          orgSettings.corporate_credit_card_settings?.enabled;
         /**
          * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
          * But if already an expense is created as CCC payment mode then on edit of that expense it should be visible
@@ -2674,8 +2674,8 @@ export class AddEditExpensePage implements OnInit {
         switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
         filter(
           ({ orgSettings, etxn }) =>
-            (orgSettings.corporate_credit_card_settings.allowed &&
-              orgSettings.corporate_credit_card_settings.enabled) ||
+            (orgSettings.corporate_credit_card_settings?.allowed &&
+              orgSettings.corporate_credit_card_settings?.enabled) ||
             etxn.tx.corporate_credit_card_expense_group_id
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && etxn.tx.txn_dt),
@@ -2903,7 +2903,7 @@ export class AddEditExpensePage implements OnInit {
             locations: locations || [],
             custom_properties: customProperties || [],
             num_files: isPolicyEtxn
-              ? res.attachments && res.attachments.length
+              ? (res.attachments as Array<FileObject>)?.length
               : this.activatedRoute.snapshot.params.dataUrl
               ? 1
               : 0,
@@ -3207,12 +3207,14 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
-    const fyCriticalPolicyViolationPopOver = await this.popoverController.create({
+    const fyCriticalPolicyViolationPopOver = await this.modalController.create({
       component: FyCriticalPolicyViolationComponent,
       componentProps: {
         criticalViolationMessages: criticalPolicyViolations,
       },
-      cssClass: 'pop-up-in-center',
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await fyCriticalPolicyViolationPopOver.present();
@@ -3223,7 +3225,7 @@ export class AddEditExpensePage implements OnInit {
 
   async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
     const currencyModal = await this.modalController.create({
-      component: PolicyViolationComponent,
+      component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
         policyActionDescription,

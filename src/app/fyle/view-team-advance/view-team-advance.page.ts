@@ -179,7 +179,7 @@ export class ViewTeamAdvancePage implements OnInit {
 
   onUpdateApprover(message: boolean) {
     if (message) {
-      this.refreshApprovers$.next();
+      this.refreshApprovers$.next(null);
     }
   }
 

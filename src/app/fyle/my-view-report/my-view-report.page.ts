@@ -203,7 +203,7 @@ export class MyViewReportPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.onPageExit.next();
+    this.onPageExit.next(null);
   }
 
   getVendorName(etxn) {

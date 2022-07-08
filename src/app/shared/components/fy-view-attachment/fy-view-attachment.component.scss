@@ -42,6 +42,11 @@
     z-index: 12;
   }
 
+  &__pdf-viewer {
+    height: 100%;
+    width: 100%;
+  }
+
   &--controls {
     position: relative;
     z-index: 99;

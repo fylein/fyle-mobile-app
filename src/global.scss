@@ -810,6 +810,7 @@ ref - https://stackoverflow.com/a/31162426
   padding: 14px 16px;
   display: flex;
   column-gap: 18px;
+  box-shadow: 0px -2px 10px rgb(0 0 0 / 10%);
 }
 
 .fy-footer-cta {
@@ -1018,7 +1019,7 @@ ion-modal.auto-height {
     contain: content;
 
     .inner-content {
-      max-height: 80vh;
+      max-height: 60vh;
       overflow: auto;
     }
   }

@@ -416,7 +416,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.onPageExit$.next();
+    this.onPageExit$.next(null);
   }
 
   getNonUnifyCCCDetails(): Observable<BankAccountsAssigned[]> {

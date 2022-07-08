@@ -1,7 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { FyPolicyViolationComponent } from '../fy-policy-violation/fy-policy-violation.component';
 import { PolicyViolationDetailsComponent } from '../policy-violation-details/policy-violation-details.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { FyCriticalPolicyViolationComponent } from '../fy-critical-policy-violation/fy-critical-policy-violation.component';
 
 @Component({
   selector: 'app-fy-policy-violation-info',
@@ -26,12 +28,19 @@ export class FyPolicyViolationInfoComponent implements OnInit {
   }
 
   async openPolicyViolationDetails() {
+    const componentProperties = this.criticalPolicyViolated
+      ? { criticalViolationMessages: this.policyViolations, showCTA: false, showDragBar: false, showCloseIcon: true }
+      : {
+          policyViolationMessages: this.policyViolations,
+          showComment: false,
+          showCTA: false,
+          showDragBar: false,
+          showCloseIcon: true,
+        };
     const policyDetailsModal = await this.modalController.create({
-      component: PolicyViolationDetailsComponent,
-      componentProps: {
-        policyViolations: this.policyViolations,
-      },
-      ...this.modalProperties.getModalDefaultProperties('payment-mode-modal'),
+      component: this.criticalPolicyViolated ? FyCriticalPolicyViolationComponent : FyPolicyViolationComponent,
+      componentProps: componentProperties,
+      ...this.modalProperties.getModalDefaultProperties('auto-height'),
     });
 
     await policyDetailsModal.present();
