@@ -1,9 +1,5 @@
 @import '../../../theme/colors.scss';
 
-$sign-in-header: #220033;
-$gradient-background: linear-gradient(277.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
-$error: #f00;
-$container-shadow: #00000026;
 $small-device-height: 670px; // smallest device height ( i.e., Iphone SE )
 
 .sign-in {
@@ -12,14 +8,14 @@ $small-device-height: 670px; // smallest device height ( i.e., Iphone SE )
   }
 
   &--page {
-    background: $gradient-background;
+    background: $blue-gradient;
     width: 100%;
     min-height: 100vh;
     padding: 16px;
   }
 
   &--error {
-    color: $error;
+    color: $validation-error-red;
     margin-top: 4px;
     margin-bottom: 4px;
   }
@@ -32,13 +28,12 @@ $small-device-height: 670px; // smallest device height ( i.e., Iphone SE )
     padding: 28px;
 
     background-color: $pure-white;
-    box-shadow: 0 5px 10px 0 $container-shadow;
+    box-shadow: 0 5px 10px 0 $black-shadow-1;
   }
 
   &--form-header {
     font-size: 24px;
-    margin-top: 16px;
-    margin-bottom: 10px;
+    margin: 16px 0 10px;
     color: $pure-black;
     font-weight: 700;
   }
@@ -46,7 +41,7 @@ $small-device-height: 670px; // smallest device height ( i.e., Iphone SE )
   &--hero-sub-title {
     color: $black-light;
     font-size: 12px;
-    margin: 10px 0 6px 0;
+    margin: 10px 0 6px;
   }
 
   &--form-field {
@@ -96,7 +91,7 @@ $small-device-height: 670px; // smallest device height ( i.e., Iphone SE )
   .signin-divider {
     height: 12px;
     border-bottom: 1px solid $black-shadow;
-    margin: 10px 0 20px 0;
+    margin: 10px 0 20px;
   }
 
   .signin-divider-text {

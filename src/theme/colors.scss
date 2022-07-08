@@ -39,6 +39,7 @@ $highlight-blue: #5c98e5 !default;
 
 $pink-shadow: #d7d7d799 !default;
 $black-shadow: rgba(0, 0, 0, 0.1) !default;
+$black-shadow-1: #00000026 !default;
 
 $brand-primary: #ff3366 !default;
 $brand-primary-light: #fe5196 !default;
@@ -80,6 +81,7 @@ $purple-gradient: linear-gradient(97.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
 $pink-gradient: linear-gradient(162.38deg, $brand-primary 3.01%, $brand-primary-light 111.5%);
 $pink-gradient-2: linear-gradient(97.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
 $pink-gradient-light: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
+$blue-gradient: linear-gradient(277.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
 
 $light-pink: #fff2f3 !default;
 
@@ -96,3 +98,4 @@ $payment-processing-color: #47a447;
 
 $ccc-bank-name: #c4cae8;
 $rejected-color: #d50000;
+$validation-error-red: #f00;

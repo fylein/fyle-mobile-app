@@ -124,6 +124,7 @@ import { PolicyViolationRuleComponent } from './components/policy-violation-rule
 import { FyCurrencyComponent } from './components/fy-currency/fy-currency.component';
 import { FyCurrencyChooseCurrencyComponent } from './components/fy-currency/fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-currency-exchange-rate/fy-currency-exchange-rate.component';
+import { FyleLogoComponent } from './components/fyle-logo/fyle-logo.component';
 
 @NgModule({
   declarations: [
@@ -227,6 +228,7 @@ import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-cur
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
+    FyleLogoComponent,
   ],
   imports: [
     CommonModule,
@@ -336,6 +338,7 @@ import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-cur
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
+    FyleLogoComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })

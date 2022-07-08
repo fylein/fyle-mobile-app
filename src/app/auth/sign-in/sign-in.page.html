@@ -51,7 +51,7 @@
               <ion-grid fixed>
                 <ion-row>
                   <ion-col size="9">
-                    <div class="sign-in--email-frozen-text" id="sign-in--email-label">{{fg.controls.email.value}}</div>
+                    <div class="sign-in--email-frozen-text">{{fg.controls.email.value}}</div>
                   </ion-col>
                   <ion-col size="3" class="sign-in--edit-email">
                     <a id="sign-in--change" (click)="changeEmail()"> Change </a>
@@ -122,7 +122,7 @@
           <a (click)="resetPasswordRedirect()">Forgot Password ?</a>
         </div>
         <div *ngIf="!emailSet" class="sign-in--secondary-cta">
-          <button class="btn btn-login-google">
+          <button class="btn btn-login-google" (click)="googleSignIn()">
             <div class="icon-container ion-no-margin">
               <img
                 src=".../../../assets/images/google_logo_36x36.png"
