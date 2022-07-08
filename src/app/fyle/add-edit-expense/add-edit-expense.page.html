@@ -72,7 +72,7 @@
       <div>
         <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
           <app-fy-alert-info
-            [message]="'This expense might be a duplicate of an existing expense.'"
+            [message]="'This expense might be a duplicate of an existing  expense.'"
             [type]="'warning'"
             [showActionButton]="true"
             [actionButtonContent]="'View'"
@@ -209,7 +209,7 @@
                 <div
                   *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
                   class="add-edit-expense--amount-error"
-                  [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls?.currencyObj?.value?.orig_currency}"
+                  [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls.currencyObj.value.orig_currency}"
                 >
                   Please enter the amount.
                 </div>
@@ -244,7 +244,9 @@
         <div class="add-edit-expense--primary-block">
           <ion-grid class="ion-grid-no-padding">
             <ion-row>
-              <ion-col [size]="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) ? 6 : 12">
+              <ion-col
+                [size]="(!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && availablePaymentModes?.length > 1 ) ? 6 : 12"
+              >
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
                     *ngIf="txnFields?.txn_dt"
@@ -278,10 +280,12 @@
                   </div>
                 </ng-container>
               </ion-col>
-              <ion-col size="6" *ngIf="!(isUnifyCcceExpensesSettingsEnabled && isCccExpense)">
-                <ng-container *ngIf="paymentModes$|async as paymentModes">
+              <ion-col
+                [size]="6"
+                *ngIf="(!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && availablePaymentModes?.length > 1)"
+              >
+                <ng-container *ngIf="availablePaymentModes?.length > 1">
                   <div
-                    *ngIf="paymentModes.length > 0"
                     [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}"
                     class="add-edit-expense--payment-modes add-edit-expense--internal-block"
                   >
@@ -291,7 +295,7 @@
                       [label]="'Payment Mode'"
                       [mandatory]="true"
                       [nullOption]="false"
-                      [options]="paymentModes"
+                      [options]="availablePaymentModes"
                       [selectModalHeader]="'Select Payment Mode'"
                       [selectionElement]="paymentMode"
                       formControlName="paymentMode"

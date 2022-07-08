@@ -95,7 +95,7 @@ export class InvitedUserPage implements OnInit {
     this.eou$ = from(this.authService.getEou());
 
     this.eou$.subscribe((eou) => {
-      this.fg.controls.fullName.setValue(eou?.us?.full_name);
+      this.fg.controls.fullName.setValue(eou.us.full_name);
     });
   }
 
