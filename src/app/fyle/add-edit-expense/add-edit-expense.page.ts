@@ -1046,7 +1046,7 @@ export class AddEditExpensePage implements OnInit {
         */
 
         if (etxn.tx.source_account_id) {
-          constructedPaymentModes.pipe(
+          return constructedPaymentModes.pipe(
             map((paymentModes) => {
               if (!paymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)) {
                 const accountLinkedWithExpense = accounts.find(
