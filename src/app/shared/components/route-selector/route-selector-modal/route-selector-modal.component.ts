@@ -120,7 +120,7 @@ export class RouteSelectorModalComponent implements OnInit {
   }
 
   getLocationLabel(index: number) {
-    this.locationService.getLocationAutoCompleteLabel(index, this.mileageLocations.length);
+    return this.locationService.getLocationAutoCompleteLabel(index, this.mileageLocations.length);
   }
 
   save() {
