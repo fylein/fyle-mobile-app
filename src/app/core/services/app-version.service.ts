@@ -5,6 +5,7 @@ import { ApiService } from './api.service';
 import { forkJoin, noop, of } from 'rxjs';
 import { RouterApiService } from './router-api.service';
 import { AppVersion } from '../models/app_version.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -46,22 +47,20 @@ export class AppVersionService {
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     const platformOS$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.operatingSystem as string));
     const platformVersion$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.osVersion));
-
-    const currentVersion$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.appVersion));
-
     const storedVersion$ = platformOS$.pipe(switchMap((os) => this.get(os)));
+    const liveUpdateVersion = environment.LIVE_UPDATE_APP_VERSION;
 
-    forkJoin([platformOS$, platformVersion$, currentVersion$, storedVersion$])
+    forkJoin([platformOS$, platformVersion$, storedVersion$])
       .pipe(
         switchMap((aggregatedResponses) => {
-          const [platformOS, platformVersion, currentVersion, storedVersion] = aggregatedResponses;
+          const [platformOS, platformVersion, storedVersion] = aggregatedResponses;
           const data = {
-            app_version: currentVersion,
+            app_version: liveUpdateVersion,
             device_platform: platformOS,
             platform_version: platformVersion,
           };
 
-          const isLower = this.isVersionLower(storedVersion && storedVersion.app_version, currentVersion);
+          const isLower = this.isVersionLower(storedVersion && storedVersion.app_version, liveUpdateVersion);
 
           if (isLower) {
             return this.post(data);
@@ -84,9 +83,5 @@ export class AppVersionService {
 
   post(data) {
     return this.apiService.post('/version/app', data);
-  }
-
-  codePushUpdates(data) {
-    return this.apiService.post('/mobileapp/code_push_updates', data);
   }
 }

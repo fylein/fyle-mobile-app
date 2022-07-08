@@ -52,7 +52,7 @@ export class CommentsHistoryComponent implements OnInit {
 
     if (data && data.updated) {
       this.trackingService.addComment();
-      this.refreshComments$.next();
+      this.refreshComments$.next(null);
     } else {
       this.trackingService.viewComment();
     }
@@ -67,6 +67,6 @@ export class CommentsHistoryComponent implements OnInit {
           .pipe(map((res) => res.filter((estatus) => estatus.us_full_name).length))
       )
     );
-    this.refreshComments$.next();
+    this.refreshComments$.next(null);
   }
 }
