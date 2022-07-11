@@ -125,6 +125,7 @@ import { FyCurrencyComponent } from './components/fy-currency/fy-currency.compon
 import { FyCurrencyChooseCurrencyComponent } from './components/fy-currency/fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { FyCurrencyPipe } from './pipes/fy-currency.pipe';
+import { CurrencySymbolPipe } from './pipes/currency-symbol.pipe';
 
 @NgModule({
   declarations: [
@@ -229,6 +230,7 @@ import { FyCurrencyPipe } from './pipes/fy-currency.pipe';
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
     FyCurrencyPipe,
+    CurrencySymbolPipe,
   ],
   imports: [
     CommonModule,
@@ -339,6 +341,7 @@ import { FyCurrencyPipe } from './pipes/fy-currency.pipe';
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
     FyCurrencyPipe,
+    CurrencySymbolPipe,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
 })

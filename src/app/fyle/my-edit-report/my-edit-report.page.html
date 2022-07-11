@@ -92,7 +92,7 @@
                   <span
                     class="my-edit-report--expense-card-amount"
                     [ngClass]="{'my-edit-report--expense-card-amount__non-reimbursable' : reportedEtxn.tx_skip_reimbursement}"
-                    >{{reportedEtxn.tx_amount | number: '1.0-2'}}</span
+                    >{{reportedEtxn.tx_amount | currency: reportedEtxn.tx_currency: '' }}</span
                   >
                 </span>
               </ion-row>

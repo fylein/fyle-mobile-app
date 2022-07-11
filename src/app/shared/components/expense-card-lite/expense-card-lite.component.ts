@@ -1,3 +1,4 @@
+import { getCurrencySymbol } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { noop } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
