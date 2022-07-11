@@ -38,7 +38,9 @@
     <div class="my-edit-report--report-info">
       <div>
         <span class="my-edit-report--report-info-currency">{{extendedReport.rp_currency}}</span>
-        <span class="my-edit-report--report-info-amount"> {{(reportAmount + selectedTotalAmount).toFixed(2)}} </span>
+        <span class="my-edit-report--report-info-amount">
+          {{(reportAmount + selectedTotalAmount | currency: extendedReport.rp_currency: '' )}}
+        </span>
       </div>
       <p class="my-edit-report--report-info-no-of-txns">
         Contain {{noOfTxnsInReport + selectedTotalTxns}} expense
