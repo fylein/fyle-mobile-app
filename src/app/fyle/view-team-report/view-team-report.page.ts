@@ -376,7 +376,7 @@ export class ViewTeamReportPage implements OnInit {
       const erpt = await this.erpt$.pipe(take(1)).toPromise();
       const etxns = await this.etxns$.toPromise();
 
-      const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, 2, false);
+      const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, false);
       const popover = await this.popoverController.create({
         componentProps: {
           etxns,
