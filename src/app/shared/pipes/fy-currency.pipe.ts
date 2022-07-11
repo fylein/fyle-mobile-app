@@ -25,7 +25,7 @@ export class FyCurrencyPipe implements PipeTransform {
     if (transformedValue) {
       // Gets the index of first digit in the transformed amount string
       const firstDigitIdx = transformedValue.search(/\d/);
-      const hasNegativeSign = transformedValue.charAt(0) === '-';
+      const hasNegativeSign = transformedValue.startsWith('-');
 
       // If the transformed string has a negative sign, we need to avoid it as we just want the currency symbol
       const currencySymbol = transformedValue.substring(hasNegativeSign ? 1 : 0, firstDigitIdx);
