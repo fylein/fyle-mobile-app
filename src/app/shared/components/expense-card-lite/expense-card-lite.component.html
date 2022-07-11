@@ -36,7 +36,7 @@
       <div class="d-flex">
         <div>
           <div class="expenses-card--currency-amount-container ion-text-right">
-            <span class="expenses-card--currency">{{ currencySymbol }}</span>
+            <span class="expenses-card--currency">{{ expense.currency | currencySymbol }}</span>
             <span class="expenses-card--amount"> {{ expense.amount }}</span>
 
             <span>
