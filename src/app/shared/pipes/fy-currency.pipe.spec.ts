@@ -16,4 +16,8 @@ describe('FyCurrencyPipe', () => {
   it('transform 5 and OMR to OMR 5.000', () => {
     expect(pipe.transform(5, 'OMR')).toEqual('OMR 5.000');
   });
+
+  it('transform -5 and OMR to -OMR 5.000', () => {
+    expect(pipe.transform(-5, 'OMR')).toEqual('-OMR 5.000');
+  });
 });
