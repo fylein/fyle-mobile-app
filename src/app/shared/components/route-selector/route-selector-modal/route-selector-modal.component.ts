@@ -5,7 +5,7 @@ import { intersection, isEmpty } from 'lodash';
 import { Subscription } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { MileageService } from 'src/app/core/services/mileage.service';
-
+import { LocationService } from 'src/app/core/services/location.service';
 @Component({
   selector: 'app-route-selector-modal',
   templateUrl: './route-selector-modal.component.html',
@@ -44,7 +44,8 @@ export class RouteSelectorModalComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private modalController: ModalController,
-    private mileageService: MileageService
+    private mileageService: MileageService,
+    private locationService: LocationService
   ) {}
 
   get mileageLocations() {
@@ -116,6 +117,10 @@ export class RouteSelectorModalComponent implements OnInit {
           }
         }
       });
+  }
+
+  getLocationLabel(index: number) {
+    return this.locationService.getLocationAutoCompleteLabel(index, this.mileageLocations.length);
   }
 
   save() {

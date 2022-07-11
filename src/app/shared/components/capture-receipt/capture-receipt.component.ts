@@ -230,7 +230,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  async setUpAndStartCamera() {
+  setUpAndStartCamera() {
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -241,11 +241,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         disableAudio: true,
       };
 
-      await this.loaderService.showLoader('Please wait...', 5000);
-      CameraPreview.start(cameraPreviewOptions).then(async (res) => {
+      this.loaderService.showLoader();
+      CameraPreview.start(cameraPreviewOptions).then((res) => {
         this.isCameraShown = true;
         this.getFlashModes();
-        await this.loaderService.hideLoader();
+        this.loaderService.hideLoader();
       });
     }
   }
