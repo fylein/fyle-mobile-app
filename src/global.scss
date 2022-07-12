@@ -427,7 +427,7 @@ ion-popover.camera-options-popover {
 }
 
 .disabled {
-  opacity: 0.2;
+  opacity: 0.5;
 }
 
 /* Safari */
@@ -746,7 +746,7 @@ ref - https://stackoverflow.com/a/31162426
 }
 
 .ios .action-sheet-group {
-  padding-bottom: 0;
+  padding-bottom: 0 !important;
 }
 
 .ios .advances-action-sheet {

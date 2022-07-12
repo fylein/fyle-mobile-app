@@ -506,7 +506,7 @@
               <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
               <ng-container *ngIf="reports$|async as reports">
                 <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                  <ng-container>
+                  <ng-container *ngIf="canRemoveFromReport">
                     <div class="add-edit-mileage--internal-block">
                       <app-fy-add-to-report
                         [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"

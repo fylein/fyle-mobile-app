@@ -72,7 +72,7 @@
       <div>
         <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
           <app-fy-alert-info
-            [message]="'This expense might be a duplicate of an existing expense.'"
+            [message]="'This expense might be a duplicate of an existing  expense.'"
             [type]="'warning'"
             [showActionButton]="true"
             [actionButtonContent]="'View'"
@@ -209,7 +209,7 @@
                 <div
                   *ngIf="fg.controls.currencyObj.touched && !fg.controls.currencyObj.valid"
                   class="add-edit-expense--amount-error"
-                  [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls?.currencyObj?.value?.orig_currency}"
+                  [ngClass]="{'add-edit-expense--orig-amount-error': fg.controls.currencyObj.value.orig_currency}"
                 >
                   Please enter the amount.
                 </div>
@@ -1013,7 +1013,7 @@
       <ng-container *ngIf="isConnected$|async as isConnected">
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-            <ng-container>
+            <ng-container *ngIf="canRemoveFromReport">
               <ng-container *ngIf="reports$|async as reports">
                 <div class="add-edit-expense--internal-block">
                   <app-fy-add-to-report
