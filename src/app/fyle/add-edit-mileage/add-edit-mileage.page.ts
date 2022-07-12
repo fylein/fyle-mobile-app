@@ -1317,7 +1317,7 @@ export class AddEditMileagePage implements OnInit {
             selectedReport$,
             selectedCostCenter$,
             selectedCustomInputs$,
-            this.mileageRates,
+            this.mileageRates$,
             defaultPaymentMode$,
             orgUserSettings$,
             orgSettings$,
