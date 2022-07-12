@@ -560,7 +560,7 @@
                   <ng-container *ngIf="isConnected$|async">
                     <ng-container *ngIf="reports$|async as reports">
                       <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                        <ng-container>
+                        <ng-container *ngIf="canRemoveFromReport">
                           <div class="add-edit-per-diem--internal-block">
                             <app-fy-add-to-report
                               [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
