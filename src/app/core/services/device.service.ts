@@ -5,6 +5,7 @@ import { App, AppInfo } from '@capacitor/app';
 import { forkJoin, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,7 @@ export class DeviceService {
       map(({ deviceInfo, deviceId, appInfo }) =>
         Object.assign(deviceInfo, deviceId, {
           appVersion: appInfo.version,
+          liveUpdateAppVersion: environment.LIVE_UPDATE_APP_VERSION,
         })
       )
     );
