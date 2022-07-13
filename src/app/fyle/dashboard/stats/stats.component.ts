@@ -199,6 +199,7 @@ export class StatsComponent implements OnInit {
         this.cardTransactionsAndDetailsNonUnifyCCC$ = of(null);
       }
     });
+    console.log('time on loading to dashboard ->', performance.now());
   }
 
   ngOnInit() {
