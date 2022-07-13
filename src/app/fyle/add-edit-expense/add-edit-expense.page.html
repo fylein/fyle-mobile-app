@@ -1013,7 +1013,7 @@
       <ng-container *ngIf="isConnected$|async as isConnected">
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-            <ng-container *ngIf="canRemoveFromReport">
+            <ng-container *ngIf="canRemoveFromReport || !etxn?.tx?.report_id">
               <ng-container *ngIf="reports$|async as reports">
                 <div class="add-edit-expense--internal-block">
                   <app-fy-add-to-report
