@@ -114,7 +114,7 @@ export class SidemenuComponent implements OnInit {
         this.orgSettings = orgSettings;
         this.orgUserSettings = orgUserSettings;
         const isDelegatee = delegatedAccounts.length > 0;
-        this.appVersion = (deviceInfo && deviceInfo.appVersion) || '1.2.3';
+        this.appVersion = (deviceInfo && deviceInfo.liveUpdateAppVersion) || '1.2.3';
         this.allowedActions = allowedActions;
         this.isSwitchedToDelegator = isSwitchedToDelegator;
         this.eou = eou;

@@ -560,15 +560,17 @@
 
                   <ng-container *ngIf="isConnected$|async">
                     <ng-container *ngIf="reports$|async as reports">
-                      <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                        <ng-container>
-                          <div class="add-edit-per-diem--internal-block">
-                            <app-fy-add-to-report
-                              [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
-                              [options]="reports"
-                              formControlName="report"
-                            ></app-fy-add-to-report>
-                          </div>
+                      <ng-container *ngIf="etxn$|async as etxn">
+                        <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
+                          <ng-container *ngIf="canRemoveFromReport || !etxn?.tx?.report_id">
+                            <div class="add-edit-per-diem--internal-block">
+                              <app-fy-add-to-report
+                                [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
+                                [options]="reports"
+                                formControlName="report"
+                              ></app-fy-add-to-report>
+                            </div>
+                          </ng-container>
                         </ng-container>
                       </ng-container>
                     </ng-container>
