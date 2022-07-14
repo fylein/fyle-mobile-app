@@ -15,24 +15,8 @@ const routes: Routes = [
     loadChildren: () => import('./my-advances/my-advances.module').then((m) => m.MyAdvancesPageModule),
   },
   {
-    path: 'team_trips',
-    loadChildren: () => import('./team-trips/team-trips.module').then((m) => m.TeamTripsPageModule),
-  },
-  {
-    path: 'view_team_trips',
-    loadChildren: () => import('./view-team-trip/view-team-trip.module').then((m) => m.ViewTeamTripPageModule),
-  },
-  {
     path: 'my_profile',
     loadChildren: () => import('./my-profile/my-profile.module').then((m) => m.MyProfilePageModule),
-  },
-  {
-    path: 'my_trips',
-    loadChildren: () => import('./my-trips/my-trips.module').then((m) => m.MyTripsPageModule),
-  },
-  {
-    path: 'my_view_trips',
-    loadChildren: () => import('./my-view-trips/my-view-trips.module').then((m) => m.MyViewTripsPageModule),
   },
   {
     path: 'my_reports',
@@ -78,10 +62,7 @@ const routes: Routes = [
   },
   {
     path: 'view_team_advance',
-    loadChildren: () =>
-      import('./view-team-advance-request/view-team-advance-request.module').then(
-        (m) => m.ViewTeamAdvanceRequestPageModule
-      ),
+    loadChildren: () => import('./view-team-advance/view-team-advance.module').then((m) => m.ViewTeamAdvancePageModule),
   },
   {
     path: 'notifications',
@@ -94,10 +75,6 @@ const routes: Routes = [
   {
     path: 'my_edit_report',
     loadChildren: () => import('./my-edit-report/my-edit-report.module').then((m) => m.MyEditReportPageModule),
-  },
-  {
-    path: 'my_add_edit_trip',
-    loadChildren: () => import('./my-add-edit-trip/my-add-edit-trip.module').then((m) => m.MyAddEditTripPageModule),
   },
   {
     path: 'add_edit_per_diem',

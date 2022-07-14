@@ -42,7 +42,6 @@ export class PreferenceSettingComponent implements OnInit {
         currentSelection: this.defaultCurrency,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

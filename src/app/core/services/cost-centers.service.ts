@@ -25,7 +25,6 @@ export class CostCentersService {
         return range(0, count);
       }),
       concatMap((page) => this.getCostCenters({ offset: 50 * page, limit: 50 })),
-      map((res) => res),
       reduce((acc, curr) => acc.concat(curr), [] as CostCenter[])
     );
   }

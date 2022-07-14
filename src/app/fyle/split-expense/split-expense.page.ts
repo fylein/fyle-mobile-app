@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { isNumber } from 'lodash';
 import * as moment from 'moment';
 import { forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, concatMap, finalize, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -18,6 +18,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
+import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
+import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -71,6 +77,8 @@ export class SplitExpensePage implements OnInit {
 
   completeTxnIds: string[];
 
+  categoryList: OrgCategory[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -87,7 +95,10 @@ export class SplitExpensePage implements OnInit {
     private reportService: ReportService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private policyService: PolicyService,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService
   ) {}
 
   ngOnInit() {}
@@ -240,6 +251,12 @@ export class SplitExpensePage implements OnInit {
     }
   }
 
+  getCategoryList() {
+    this.categories$.subscribe((categories) => {
+      this.categoryList = categories.map((category) => category.value);
+    });
+  }
+
   createAndLinkTxnsWithFiles(splitExpenses) {
     const splitExpense$: any = {
       txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses),
@@ -325,6 +342,33 @@ export class SplitExpensePage implements OnInit {
     );
   }
 
+  async showSplitExpenseViolations(violations: { [id: string]: FormattedPolicyViolation }) {
+    const splitExpenseViolationsModal = await this.modalController.create({
+      component: SplitExpensePolicyViolationComponent,
+      componentProps: {
+        policyViolations: violations,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await splitExpenseViolationsModal.present();
+
+    const { data } = await splitExpenseViolationsModal.onWillDismiss();
+    this.showSuccessToast();
+  }
+
+  handleSplitExpensePolicyViolations(violations: { [transactionID: string]: PolicyViolation }) {
+    const doViolationsExist = this.policyService.checkIfViolationsExist(violations);
+    if (doViolationsExist) {
+      const formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);
+      this.showSplitExpenseViolations(formattedViolations);
+    } else {
+      this.showSuccessToast();
+    }
+  }
+
   save() {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
@@ -367,21 +411,21 @@ export class SplitExpensePage implements OnInit {
           .pipe(
             concatMap(() => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
             concatMap((res) => {
-              const observables$ = [];
+              const observables: { [id: string]: Observable<any> } = {};
               if (this.transaction.id) {
-                observables$.push(this.transactionService.delete(this.transaction.id));
+                observables.delete = this.transactionService.delete(this.transaction.id);
               }
               if (this.transaction.corporate_credit_card_expense_group_id) {
-                observables$.push(this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id));
+                observables.matchCCC = this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id);
               }
 
-              if (observables$.length === 0) {
-                observables$.push(of(true));
-              }
-              return forkJoin(observables$);
-            }),
-            tap((res) => {
-              this.showSuccessToast();
+              observables.violations = this.splitExpenseService.checkForPolicyViolations(
+                res,
+                this.fileObjs,
+                this.categoryList
+              );
+
+              return forkJoin(observables);
             }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
@@ -398,7 +442,9 @@ export class SplitExpensePage implements OnInit {
               this.trackingService.splittingExpense(splitTrackingProps);
             })
           )
-          .subscribe(noop);
+          .subscribe((response: { [id: string]: any }) => {
+            this.handleSplitExpensePolicyViolations(response.violations as { [id: string]: PolicyViolation });
+          });
       });
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
@@ -421,10 +467,12 @@ export class SplitExpensePage implements OnInit {
       this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs);
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
       this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
+
       if (this.splitType === 'categories') {
         this.categories$ = this.getActiveCategories().pipe(
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
         );
+        this.getCategoryList();
       } else if (this.splitType === 'cost centers') {
         const orgSettings$ = this.offlineService.getOrgSettings();
         const orgUserSettings$ = this.offlineService.getOrgUserSettings();

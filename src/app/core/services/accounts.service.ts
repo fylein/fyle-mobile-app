@@ -4,6 +4,9 @@ import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
 import { CurrencyPipe } from '@angular/common';
+import { LaunchDarklyService } from './launch-darkly.service';
+import { Observable } from 'rxjs';
+import { ExtendedAccount } from '../models/extended-account.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +15,8 @@ export class AccountsService {
   constructor(
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
-    private currencyPipe: CurrencyPipe
+    private currencyPipe: CurrencyPipe,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   getEMyAccounts() {
@@ -40,46 +44,61 @@ export class AccountsService {
     );
   }
 
-  constructPaymentModes(accounts, isMultipleAdvanceEnabled, isNotOwner?) {
+  constructPaymentModes(
+    accounts: ExtendedAccount[],
+    isMultipleAdvanceEnabled: boolean,
+    isNotOwner?: boolean
+  ): Observable<ExtendedAccount[]> {
     const that = this;
-    const accountsMap = {
-      PERSONAL_ACCOUNT(account) {
-        account.acc.displayName = 'Personal Card/Cash';
-        if (isNotOwner) {
-          account.acc.displayName = 'Paid by Employee';
+
+    const hidePaidByCompany$ = that.launchDarklyService.getVariation('hide_paid_by_company', false);
+
+    return hidePaidByCompany$.pipe(
+      map((hidePaidByCompany) => {
+        const accountsMap = {
+          PERSONAL_ACCOUNT(account: ExtendedAccount) {
+            account.acc.displayName = 'Personal Card/Cash';
+            if (isNotOwner) {
+              account.acc.displayName = 'Paid by Employee';
+            }
+            account.acc.isReimbursable = true;
+            return account;
+          },
+          PERSONAL_ADVANCE_ACCOUNT(account: ExtendedAccount) {
+            let currency = account.currency;
+            let balance = account.acc.tentative_balance_amount;
+            if (isMultipleAdvanceEnabled && account.orig && account.orig.amount) {
+              balance =
+                (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
+              currency = account.orig.currency;
+            }
+
+            account.acc.displayName = 'Advance (Balance: ' + that.currencyPipe.transform(balance, currency) + ')';
+
+            account.acc.isReimbursable = false;
+            return account;
+          },
+          PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT(account: ExtendedAccount) {
+            account.acc.displayName = 'Corporate Card';
+            account.acc.isReimbursable = false;
+            return account;
+          },
+        };
+
+        const mappedAccounts = accounts.map((account) => account && accountsMap[account.acc.type](account));
+
+        if (!hidePaidByCompany) {
+          const personalAccount = accounts.find((account) => account.acc.type === 'PERSONAL_ACCOUNT');
+          if (personalAccount) {
+            const personalNonreimbursableAccount = cloneDeep(personalAccount);
+            personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
+            personalNonreimbursableAccount.acc.isReimbursable = false;
+            mappedAccounts.push(personalNonreimbursableAccount);
+          }
         }
-        account.acc.isReimbursable = true;
-        return account;
-      },
-      PERSONAL_ADVANCE_ACCOUNT(account) {
-        let currency = account.currency;
-        let balance = account.acc.tentative_balance_amount;
-        if (isMultipleAdvanceEnabled && account.orig && account.orig.amount) {
-          balance = (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
-          currency = account.orig.currency;
-        }
 
-        account.acc.displayName = 'Advance (Balance: ' + that.currencyPipe.transform(balance, currency) + ')';
-
-        account.acc.isReimbursable = false;
-        return account;
-      },
-      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT(account) {
-        account.acc.displayName = 'Corporate Card';
-        account.acc.isReimbursable = false;
-        return account;
-      },
-    };
-
-    const mappedAccouts = accounts.map((account) => accountsMap[account.acc.type](account));
-    const personalAccount = accounts.find((account) => account.acc.type === 'PERSONAL_ACCOUNT');
-    if (personalAccount) {
-      const personalNonreimbursableAccount = cloneDeep(personalAccount);
-      personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
-      personalNonreimbursableAccount.acc.isReimbursable = false;
-      mappedAccouts.push(personalNonreimbursableAccount);
-    }
-
-    return mappedAccouts;
+        return mappedAccounts;
+      })
+    );
   }
 }

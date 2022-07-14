@@ -26,7 +26,7 @@ export class UserEventService {
   }
 
   logout() {
-    return this.logoutSubject.next();
+    return this.logoutSubject.next(null);
   }
 
   onSetToken(callback) {
@@ -34,11 +34,11 @@ export class UserEventService {
   }
 
   setToken() {
-    return this.tokenSubject.next();
+    return this.tokenSubject.next(null);
   }
 
   clearTaskCache() {
-    return this.taskCacheClearSubject.next();
+    return this.taskCacheClearSubject.next(null);
   }
 
   onTaskCacheClear(callback) {
@@ -66,6 +66,6 @@ export class UserEventService {
   }
 
   clearCache() {
-    return this.clearCacheSubject.next();
+    return this.clearCacheSubject.next(null);
   }
 }

@@ -1,61 +1,35 @@
-<div class="critical-policy-violation">
-  <ion-header>
-    <div class="critical-policy-violation--header text-center">Critical Policy Violation</div>
-    <div class="critical-policy-violation--info text-center">
-      This expense violates the below policies/guidelines of your company. Kindly resolve the issues to be able to
-      submit this expense.
-    </div>
-  </ion-header>
-
-  <div class="critical-policy-violation--body">
-    <mat-icon class="critical-policy-violation--error-icon">error</mat-icon>
-
-    <div class="critical-policy-violation--container">
-      <ng-container *ngIf="criticalViolationMessages.length === 1">
-        <span class="critical-policy-violation--list__element">{{ criticalViolationMessages[0] }}</span>
-      </ng-container>
-      <ul *ngIf="criticalViolationMessages.length !== 1" class="critical-policy-violation--list m-0 p-0">
-        <ng-container *ngFor="let criticalViolationMessage of criticalViolationMessages">
-          <li class="critical-policy-violation--list__elements">
-            {{ criticalViolationMessage }}
-          </li>
-        </ng-container>
-      </ul>
+<div *ngIf="showHeader">
+  <mat-icon *ngIf="showDragBar" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <div class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
+    <div>
+      <div class="critical-policy-violation--toolbar__title">
+        <span class="critical-policy-violation--toolbar__close-icon" *ngIf="showCloseIcon" slot="start">
+          <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+        </span>
+        Expense Blocked
+      </div>
     </div>
   </div>
-
-  <ion-footer class="critical-policy-violation--footer">
-    <div class="critical-policy-violation--alert-info">
-      <app-fy-alert-info
-        [type]="'information'"
-        [message]="'An expense with a critical policy violation cannot be added to any report.'"
-      >
-      </app-fy-alert-info>
-    </div>
-
-    <div class="critical-policy-violation--cta-container">
-      <ion-grid class="ion-no-padding">
-        <ion-row>
-          <ion-col size="6" class="ion-no-padding">
-            <button
-              type="button"
-              class="critical-policy-violation--cta-button critical-policy-violation--secondary-cta text-center"
-              (click)="cancel()"
-            >
-              Cancel
-            </button>
-          </ion-col>
-          <ion-col size="6" class="ion-no-padding">
-            <button
-              type="submit"
-              class="critical-policy-violation--cta-button critical-policy-violation--primary-cta text-center"
-              (click)="continue()"
-            >
-              Continue
-            </button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-  </ion-footer>
 </div>
+
+<div class="critical-policy-violation--content-section">
+  <div class="critical-policy-violation--content">
+    <div class="critical-policy-violation--info">You cannot report this expense due to the following violation(s):</div>
+    <div class="inner-content">
+      <ng-container *ngIf="criticalViolationMessages">
+        <ng-container *ngFor="let violation of criticalViolationMessages">
+          <app-policy-violation-rule [message]="violation" [violationType]="'critical'"></app-policy-violation-rule>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<ion-footer *ngIf="showCTA">
+  <ion-toolbar mode="md">
+    <div class="fy-footer-cta-container">
+      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()"> Continue </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

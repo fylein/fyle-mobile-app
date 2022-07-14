@@ -7,13 +7,16 @@ import { ModalController } from '@ionic/angular';
 export class ModalPropertiesService {
   constructor(private modalController: ModalController) {}
 
-  getModalDefaultProperties() {
+  getModalDefaultProperties(cssClass = 'fy-modal') {
     const properties = {
-      cssClass: 'fy-modal',
+      cssClass,
       showBackdrop: true,
-      swipeToClose: true,
+      canDismiss: true,
       backdropDismiss: true,
       animated: true,
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
+      handle: false,
     };
     return properties;
   }

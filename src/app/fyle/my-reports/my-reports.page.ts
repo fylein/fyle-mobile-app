@@ -101,10 +101,6 @@ export class MyReportsPage implements OnInit {
 
   filterPills = [];
 
-  get HeaderState() {
-    return HeaderState;
-  }
-
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -121,10 +117,14 @@ export class MyReportsPage implements OnInit {
     private modalController: ModalController
   ) {}
 
+  get HeaderState() {
+    return HeaderState;
+  }
+
   ngOnInit() {}
 
   ionViewWillLeave() {
-    this.onPageExit.next();
+    this.onPageExit.next(null);
   }
 
   ionViewWillEnter() {

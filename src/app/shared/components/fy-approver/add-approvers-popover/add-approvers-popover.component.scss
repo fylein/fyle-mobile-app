@@ -6,7 +6,8 @@
   }
 
   &--toolbar {
-    padding-bottom: 10px;
+    padding: 0 0 10px;
+    --background: #{$pure-white};
 
     &__title {
       font-size: 20px;

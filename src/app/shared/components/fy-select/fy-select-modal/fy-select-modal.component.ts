@@ -43,7 +43,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() showSaveButton = false;
 
-  @Input() placeholder = '';
+  @Input() placeholder: string;
 
   @Input() defaultLabelProp;
 

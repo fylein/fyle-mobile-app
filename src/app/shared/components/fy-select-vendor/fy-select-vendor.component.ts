@@ -24,19 +24,13 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
 
   @Input() mandatory = false;
 
+  @Input() placeholder: string;
+
   displayValue;
 
   private innerValue;
 
   private ngControl: NgControl;
-
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
 
   private onTouchedCallback: () => void = noop;
 
@@ -48,11 +42,13 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
     private injector: Injector
   ) {}
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
-
-  ngOnDestroy() {}
 
   get value(): any {
     return this.innerValue;
@@ -72,6 +68,12 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
     }
   }
 
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
+  }
+
+  ngOnDestroy() {}
+
   async openModal() {
     const currencyModal = await this.modalController.create({
       component: FySelectVendorModalComponent,
@@ -79,7 +81,6 @@ export class FySelectVendorComponent implements OnInit, OnDestroy {
         currentSelection: this.value,
       },
       mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 

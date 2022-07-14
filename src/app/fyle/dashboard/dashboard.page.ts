@@ -45,14 +45,6 @@ export class DashboardPage implements OnInit {
 
   taskCount = 0;
 
-  get displayedTaskCount() {
-    if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
-      return this.tasksComponent?.taskCount;
-    } else {
-      return this.taskCount;
-    }
-  }
-
   constructor(
     private offlineService: OfflineService,
     private transactionService: TransactionService,
@@ -66,8 +58,24 @@ export class DashboardPage implements OnInit {
     private tasksService: TasksService
   ) {}
 
+  get displayedTaskCount() {
+    if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
+      return this.tasksComponent?.taskCount;
+    } else {
+      return this.taskCount;
+    }
+  }
+
+  get FooterState() {
+    return FooterState;
+  }
+
+  get filterPills() {
+    return this.tasksComponent?.filterPills;
+  }
+
   ionViewWillLeave() {
-    this.onPageExit$.next();
+    this.onPageExit$.next(null);
   }
 
   setupNetworkWatcher() {
@@ -122,14 +130,6 @@ export class DashboardPage implements OnInit {
     that.offlineService.getOrgSettings().subscribe((orgSettings) => {
       this.setupActionSheet(orgSettings);
     });
-  }
-
-  get FooterState() {
-    return FooterState;
-  }
-
-  get filterPills() {
-    return this.tasksComponent?.filterPills;
   }
 
   onTaskClicked() {

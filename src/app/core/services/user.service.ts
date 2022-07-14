@@ -12,32 +12,34 @@ import { UserProperty } from '../models/v1/user-property.model';
   providedIn: 'root',
 })
 export class UserService {
-  constructor(private authService: AuthService, private httpClient: HttpClient, private apiService: ApiService) {}
+  constructor(private authService: AuthService, private apiService: ApiService) {}
 
   getCurrent(): Observable<User> {
-    return this.apiService.get('/users/current');
+    return this.apiService.get('/users/current').pipe(
+      map((userRaw) => ({
+        ...userRaw,
+        created_at: userRaw.created_at && new Date(userRaw.created_at),
+        updated_at: userRaw.updated_at && new Date(userRaw.updated_at),
+        email_verified_at: userRaw.email_verified_at && new Date(userRaw.email_verified_at),
+        password_changed_at: userRaw.password_changed_at && new Date(userRaw.password_changed_at),
+      }))
+    );
   }
 
   isPendingDetails() {
     return from(this.authService.getEou()).pipe(map((eou) => eou.ou.status === 'PENDING_DETAILS'));
   }
 
-  getCountryFromIp(): Observable<string> {
-    const url = 'https://ipfind.co/me';
-    const data = {
-      params: {
-        auth: environment.IP_FIND_KEY,
-      },
-    };
-
-    return this.httpClient.get(url, data).pipe(
-      map((response: any) => response.country),
-      catchError((err) => of(null))
-    );
-  }
-
   getProperties(): Observable<UserProperty> {
-    return this.getCurrent().pipe(switchMap((user) => this.apiService.get('/users/' + user.id + '/properties')));
+    return this.getCurrent()
+      .pipe(switchMap((user) => this.apiService.get('/users/' + user.id + '/properties')))
+      .pipe(
+        map((userPropertiesRaw) => ({
+          ...userPropertiesRaw,
+          created_at: userPropertiesRaw.created_at && new Date(userPropertiesRaw.created_at),
+          updated_at: userPropertiesRaw.updated_at && new Date(userPropertiesRaw.updated_at),
+        }))
+      );
   }
 
   upsertProperties(userProperties: UserProperty) {

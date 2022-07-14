@@ -29,11 +29,11 @@ export class SendEmailComponent implements OnInit {
 
   fg: FormGroup;
 
+  constructor(private formBuilder: FormBuilder, private activatedRoute: ActivatedRoute) {}
+
   get pageStates() {
     return PageState;
   }
-
-  constructor(private formBuilder: FormBuilder, private activatedRoute: ActivatedRoute) {}
 
   ngOnInit() {
     const email = this.activatedRoute.snapshot.params.email || '';

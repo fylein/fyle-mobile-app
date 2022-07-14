@@ -19,6 +19,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func applicationWillResignActive(_ application: UIApplication) {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+    
+    /*
+      This code snippet will blur the view when app goes in background. This is done as ios takes
+      screenshots when app goes in background for better UX and we want to hide passwords or any such
+      info in the screenshot.
+
+      References:
+        - https://stackoverflow.com/questions/31982270/blurring-app-screen-in-switch-mode-on-ios
+        - https://stackoverflow.com/questions/30953201/adding-blur-effect-to-background-in-swift
+    */
+
+    let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.light)
+    let blurEffectView = UIVisualEffectView(effect: blurEffect)
+    blurEffectView.frame = window!.frame
+    blurEffectView.tag = 221122
+
+    self.window?.addSubview(blurEffectView)
   }
 
   func applicationDidEnterBackground(_ application: UIApplication) {
@@ -32,6 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func applicationDidBecomeActive(_ application: UIApplication) {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    self.window?.viewWithTag(221122)?.removeFromSuperview()
   }
 
   func applicationWillTerminate(_ application: UIApplication) {

@@ -90,10 +90,6 @@ export class TeamReportsPage implements OnInit {
 
   teamReportsTaskCount = 0;
 
-  get HeaderState() {
-    return HeaderState;
-  }
-
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -109,12 +105,16 @@ export class TeamReportsPage implements OnInit {
     private tasksService: TasksService
   ) {}
 
+  get HeaderState() {
+    return HeaderState;
+  }
+
   ngOnInit() {
     this.setupNetworkWatcher();
   }
 
   ionViewWillLeave() {
-    this.onPageExit.next();
+    this.onPageExit.next(null);
   }
 
   ionViewWillEnter() {

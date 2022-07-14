@@ -1,14 +1,34 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { forkJoin, from, Observable, of } from 'rxjs';
+import { concatMap, map, reduce, switchMap, toArray } from 'rxjs/operators';
+import { Expense } from '../models/expense.model';
+import { FileObject } from '../models/file_obj.model';
+import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
+import { PolicyViolationComment } from '../models/policy-violation-comment.model';
+import { PolicyViolation } from '../models/policy-violation.model';
+import { TransactionStatus } from '../models/transaction-status.model';
+import { OrgCategory } from '../models/v1/org-category.model';
+import { CategoriesService } from './categories.service';
 import { FileService } from './file.service';
+import { PolicyService } from './policy.service';
+import { StatusService } from './status.service';
 import { TransactionService } from './transaction.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SplitExpenseService {
-  constructor(private transactionService: TransactionService, private fileService: FileService) {}
+  defaultPolicyViolationMessage = 'No policy violation explanation provided';
+
+  prependPolicyViolationMessage = 'Policy violation explanation: ';
+
+  constructor(
+    private transactionService: TransactionService,
+    private fileService: FileService,
+    private policyService: PolicyService,
+    private statusService: StatusService,
+    private categoriesService: CategoriesService
+  ) {}
 
   linkTxnWithFiles(data) {
     const observables = [];
@@ -49,6 +69,139 @@ export class SplitExpenseService {
         return newFileObjs;
       })
     );
+  }
+
+  testPolicyForTransaction(etxn: Expense): Observable<{ [transactionID: string]: PolicyViolation }> {
+    const policyResponse = {};
+    return this.transactionService.testPolicy(etxn).pipe(
+      map((policyViolationresponse) => {
+        policyResponse[etxn.tx_id] = policyViolationresponse;
+        return policyResponse;
+      })
+    );
+  }
+
+  postComment(apiPayload: PolicyViolationComment): Observable<TransactionStatus> {
+    return this.statusService.post(apiPayload.objectType, apiPayload.txnId, apiPayload.comment, apiPayload.notify);
+  }
+
+  postCommentsFromUsers(
+    transactionIDs: string[],
+    comments: { [transactionID: string]: string }
+  ): Observable<TransactionStatus[]> {
+    const payloadData = [];
+    transactionIDs.forEach((transactionID) => {
+      const comment =
+        comments[transactionID] && comments[transactionID] !== ''
+          ? this.prependPolicyViolationMessage + comments[transactionID]
+          : this.defaultPolicyViolationMessage;
+      const apiPayload = {
+        objectType: 'transactions',
+        txnId: transactionID,
+        comment: { comment },
+        notify: true,
+      };
+      payloadData.push(apiPayload);
+    });
+
+    return from(payloadData).pipe(
+      concatMap((payload) => this.postComment(payload)),
+      toArray()
+    );
+  }
+
+  formatPolicyViolations(violations: { [id: string]: PolicyViolation }): {
+    [transactionID: string]: FormattedPolicyViolation;
+  } {
+    const formattedViolations = {};
+
+    for (const key of Object.keys(violations)) {
+      if (violations.hasOwnProperty(key)) {
+        // check for popup field for all polices
+        const rules = this.policyService.getPolicyRules(violations[key]);
+        const criticalPolicyRules = this.policyService.getCriticalPolicyRules(violations[key]);
+        const isCriticalPolicyViolation = criticalPolicyRules?.length > 0;
+
+        formattedViolations[key] = {
+          rules,
+          action: violations[key].transaction_desired_state.action_description,
+          type: violations[key].type,
+          name: violations[key].name,
+          currency: violations[key].currency,
+          amount: violations[key].amount,
+          isCriticalPolicyViolation,
+          isExpanded: false,
+        };
+      }
+    }
+    return formattedViolations;
+  }
+
+  formatDisplayName(model: number, categoryList: OrgCategory[]): string {
+    const category = this.categoriesService.filterByOrgCategoryId(model, categoryList);
+    return category?.displayName;
+  }
+
+  mapViolationDataWithEtxn(
+    policyViolation: { [transactionID: string]: PolicyViolation },
+    etxns: Expense[],
+    categoryList: OrgCategory[]
+  ): { [transactionID: string]: PolicyViolation } {
+    etxns.forEach((etxn) => {
+      for (const key of Object.keys(policyViolation)) {
+        if (policyViolation.hasOwnProperty(key) && key === etxn?.tx_id) {
+          policyViolation[key].amount = etxn.tx_orig_amount || etxn.tx_amount;
+          policyViolation[key].currency = etxn.tx_orig_currency || etxn.tx_currency;
+          policyViolation[key].name = this.formatDisplayName(etxn.tx_org_category_id, categoryList);
+          policyViolation[key].type = 'category';
+          break;
+        }
+      }
+    });
+    return policyViolation;
+  }
+
+  executePolicyCheck(
+    etxns: Expense[],
+    fileObjs: FileObject[],
+    categoryList: OrgCategory[]
+  ): Observable<{ [id: string]: PolicyViolation }> {
+    return this.runPolicyCheck(etxns, fileObjs).pipe(
+      map((policyViolation) => this.mapViolationDataWithEtxn(policyViolation, etxns, categoryList))
+    );
+  }
+
+  checkForPolicyViolations(
+    txnIds: string[],
+    fileObjs: FileObject[],
+    categoryList: OrgCategory[]
+  ): Observable<{ [id: string]: PolicyViolation }> {
+    return from(txnIds).pipe(
+      concatMap((txnId) => this.transactionService.getEtxn(txnId)),
+      toArray(),
+      switchMap((etxns) => this.executePolicyCheck(etxns, fileObjs, categoryList))
+    );
+  }
+
+  checkPolicyForTransactions(etxns: Expense[]): Observable<{ [transactionID: string]: PolicyViolation }> {
+    return from(etxns).pipe(
+      concatMap((etxn) => this.testPolicyForTransaction(etxn)),
+      reduce((accumulator, violation) => {
+        accumulator = { ...accumulator, ...violation };
+        return accumulator;
+      }, {})
+    );
+  }
+
+  runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<{ [transactionID: string]: PolicyViolation }> {
+    if (etxns?.length > 0) {
+      etxns.forEach((etxn) => {
+        etxn.tx_num_files = fileObjs ? fileObjs.length : 0;
+      });
+      return this.checkPolicyForTransactions(etxns);
+    } else {
+      return of({});
+    }
   }
 
   createSplitTxns(sourceTxn, totalSplitAmount, splitExpenses) {

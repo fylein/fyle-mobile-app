@@ -54,6 +54,14 @@ export class NotificationsPage implements OnInit {
     private navController: NavController
   ) {}
 
+  get pushEvents(): FormArray {
+    return this.notificationForm.controls.pushEvents as FormArray;
+  }
+
+  get emailEvents(): FormArray {
+    return this.notificationForm.controls.emailEvents as FormArray;
+  }
+
   getDelegateeSubscription() {
     return this.orgUserSettings$.pipe(
       map((ouSetting) => {
@@ -83,14 +91,6 @@ export class NotificationsPage implements OnInit {
 
   trackByEventType(index, item) {
     return item.eventType;
-  }
-
-  get pushEvents(): FormArray {
-    return this.notificationForm.controls.pushEvents as FormArray;
-  }
-
-  get emailEvents(): FormArray {
-    return this.notificationForm.controls.emailEvents as FormArray;
   }
 
   setEvents(notificationEvents, orgUserSettings) {
@@ -192,33 +192,6 @@ export class NotificationsPage implements OnInit {
       .subscribe(noop);
   }
 
-  updateTripRequestFeatures() {
-    this.orgSettings$
-      .pipe(
-        map((setting) => {
-          const isTripRequestsEnabled = setting.trip_requests.enabled;
-
-          if (!isTripRequestsEnabled) {
-            this.notificationEvents.events = this.notificationEvents.events.filter(
-              (notificationEvent) => notificationEvent.feature !== 'trips'
-            );
-            delete this.notificationEvents.features.trips;
-          }
-          if (isTripRequestsEnabled && !setting.trip_requests.enabled_hotel_requests) {
-            this.notificationEvents.events = this.notificationEvents.events.filter(
-              (notificationEvent) => notificationEvent.profile !== 'hotel_requests'
-            );
-          }
-          if (isTripRequestsEnabled && !setting.trip_requests.enabled_transportation_requests) {
-            this.notificationEvents.events = this.notificationEvents.events.filter(
-              (notificationEvent) => notificationEvent.profile !== 'transport_requests'
-            );
-          }
-        })
-      )
-      .subscribe(noop);
-  }
-
   updateDelegateeNotifyPreference(event) {
     if (event) {
       if (event.value === 'Notify my delegate') {
@@ -236,7 +209,6 @@ export class NotificationsPage implements OnInit {
 
   removeDisabledFeatures() {
     this.updateAdvanceRequestFeatures();
-    this.updateTripRequestFeatures();
 
     const activeFeatures = this.notificationEvents.events.reduce((accumulator, notificationEvent) => {
       if (accumulator.indexOf(notificationEvent.feature) === -1) {

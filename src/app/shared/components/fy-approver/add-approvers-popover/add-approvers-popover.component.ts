@@ -5,7 +5,6 @@ import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ApproverDialogComponent } from './approver-dialog/approver-dialog.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { TripRequestsService } from 'src/app/core/services/trip-requests.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { ReportService } from 'src/app/core/services/report.service';
 
@@ -35,8 +34,7 @@ export class AddApproversPopoverComponent {
     private popoverController: PopoverController,
     private advanceRequestService: AdvanceRequestService,
     private reportService: ReportService,
-    private loaderService: LoaderService,
-    private tripRequestsService: TripRequestsService
+    private loaderService: LoaderService
   ) {}
 
   async openModal() {
@@ -74,9 +72,7 @@ export class AddApproversPopoverComponent {
       .pipe(
         switchMap(() => from(this.selectedApproversList.map((selectedApprover) => selectedApprover.email))),
         concatMap((approver) => {
-          if (this.type === 'TRIP_REQUEST') {
-            return this.tripRequestsService.addApproverETripRequests(this.id, approver, this.confirmationMessage);
-          } else if (this.type === 'ADVANCE_REQUEST') {
+          if (this.type === 'ADVANCE_REQUEST') {
             return this.advanceRequestService.addApprover(this.id, approver, this.confirmationMessage);
           } else {
             return this.reportService.addApprover(this.id, approver, this.confirmationMessage);

@@ -76,10 +76,6 @@ export class ViewPerDiemPage implements OnInit {
 
   projectFieldName: string;
 
-  get ExpenseView() {
-    return ExpenseView;
-  }
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
@@ -96,6 +92,10 @@ export class ViewPerDiemPage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService
   ) {}
+
+  get ExpenseView() {
+    return ExpenseView;
+  }
 
   isNumber(val) {
     return typeof val === 'number';
@@ -127,7 +127,6 @@ export class ViewPerDiemPage implements OnInit {
         objectType: 'transactions',
         objectId: etxn.tx_id,
       },
-      presentingElement: await this.modalController.getTop(),
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
@@ -251,7 +250,7 @@ export class ViewPerDiemPage implements OnInit {
       this.isExpenseFlagged = etxn.tx_manual_flag;
     });
 
-    this.updateFlag$.next();
+    this.updateFlag$.next(null);
 
     const etxnIds =
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
@@ -317,7 +316,7 @@ export class ViewPerDiemPage implements OnInit {
               : this.transactionService.manualFlag(etxn.tx_id)
           ),
           finalize(() => {
-            this.updateFlag$.next();
+            this.updateFlag$.next(null);
             this.loaderService.hideLoader();
           })
         )

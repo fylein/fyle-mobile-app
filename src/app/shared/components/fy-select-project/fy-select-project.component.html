@@ -9,7 +9,7 @@
     <input
       class="fy-select-project--input"
       type="text"
-      [placeholder]="placeholder"
+      [placeholder]="placeholder || 'Select ' + label"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"

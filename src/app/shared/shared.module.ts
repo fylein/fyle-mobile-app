@@ -12,7 +12,6 @@ import { HumanizeCurrencyPipe } from './pipes/humanize-currency.pipe';
 import { HighlightPipe } from './pipes/highlight.pipe';
 import { ReportState } from './pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from './pipes/snake-case-to-space-case.pipe';
-import { TripState } from './pipes/trip-state.pipe';
 import { FySelectComponent } from './components/fy-select/fy-select.component';
 import { FySelectModalComponent } from './components/fy-select/fy-select-modal/fy-select-modal.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,8 +27,6 @@ import { FyMultiselectModalComponent } from './components/fy-multiselect/fy-mult
 import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-modal/fy-userlist-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FyAlertComponent } from './components/fy-alert/fy-alert.component';
-import { FyDuplicateDetectionComponent } from './components/fy-duplicate-detection/fy-duplicate-detection.component';
-import { FyDuplicateDetectionModalComponent } from './components/fy-duplicate-detection/fy-duplicate-detection-modal/fy-duplicate-detection-modal.component';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { ApproverDialogComponent } from './components/fy-approver/add-approvers-popover/approver-dialog/approver-dialog.component';
@@ -43,12 +40,12 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 // component imports
 import { DelegatedAccMessageComponent } from './components/delegated-acc-message/delegated-acc-message.component';
 import { IconModule } from './icon/icon.module';
-import { CurrencyComponent } from './components/currency/currency.component';
 import { CommentsHistoryComponent } from './components/comments-history/comments-history.component';
 import { ViewCommentComponent } from './components/comments-history/view-comment/view-comment.component';
 import { AuditHistoryComponent } from './components/comments-history/audit-history/audit-history.component';
 import { StatusesDiffComponent } from './components/comments-history/audit-history/statuses-diff/statuses-diff.component';
 import { FyApproverComponent } from './components/fy-approver/fy-approver.component';
+import { FyPolicyViolationComponent } from './components/fy-policy-violation/fy-policy-violation.component';
 import { PolicyViolationDetailsComponent } from './components/policy-violation-details/policy-violation-details.component';
 
 // directive imports
@@ -121,6 +118,12 @@ import { ViewExpenseSkeletonLoaderComponent } from './components/view-expense-sk
 import { SpentCardsComponent } from './components/spent-cards/spent-cards.component';
 import { CardDetailComponent } from './components/spent-cards/card-detail/card-detail.component';
 import { MaskNumber } from './pipes/mask-number.pipe';
+import { PolicyViolationActionComponent } from './components/fy-policy-violation/policy-violation-action/policy-violation-action.component';
+import { SplitExpensePolicyViolationComponent } from './components/split-expense-policy-violation/split-expense-policy-violation.component';
+import { PolicyViolationRuleComponent } from './components/policy-violation-rule/policy-violation-rule.component';
+import { FyCurrencyComponent } from './components/fy-currency/fy-currency.component';
+import { FyCurrencyChooseCurrencyComponent } from './components/fy-currency/fy-currency-choose-currency/fy-currency-choose-currency.component';
+import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 
 @NgModule({
   declarations: [
@@ -131,7 +134,6 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     HumanizeCurrencyPipe,
     ReportState,
     SnakeCaseToSpaceCase,
-    TripState,
     DateFormatPipe,
     FySelectComponent,
     FySelectModalComponent,
@@ -144,10 +146,7 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     FyMultiselectModalComponent,
     FyUserlistModalComponent,
     FyAlertComponent,
-    FyDuplicateDetectionComponent,
-    FyDuplicateDetectionModalComponent,
     DelegatedAccMessageComponent,
-    CurrencyComponent,
     CommentsHistoryComponent,
     ViewCommentComponent,
     AuditHistoryComponent,
@@ -221,6 +220,13 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     SpentCardsComponent,
     CardDetailComponent,
     MaskNumber,
+    FyPolicyViolationComponent,
+    PolicyViolationActionComponent,
+    SplitExpensePolicyViolationComponent,
+    PolicyViolationRuleComponent,
+    FyCurrencyComponent,
+    FyCurrencyChooseCurrencyComponent,
+    FyCurrencyExchangeRateComponent,
   ],
   imports: [
     CommonModule,
@@ -259,14 +265,11 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     FyMultiselectComponent,
     FyUserlistComponent,
     FyAlertComponent,
-    FyDuplicateDetectionComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
-    TripState,
     InitialsPipe,
     DelegatedAccMessageComponent,
     IconModule,
-    CurrencyComponent,
     CommentsHistoryComponent,
     AuditHistoryComponent,
     StatusesDiffComponent,
@@ -326,6 +329,13 @@ import { MaskNumber } from './pipes/mask-number.pipe';
     SpentCardsComponent,
     CardDetailComponent,
     MaskNumber,
+    FyPolicyViolationComponent,
+    PolicyViolationActionComponent,
+    SplitExpensePolicyViolationComponent,
+    PolicyViolationRuleComponent,
+    FyCurrencyComponent,
+    FyCurrencyChooseCurrencyComponent,
+    FyCurrencyExchangeRateComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
 })

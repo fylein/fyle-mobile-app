@@ -14,6 +14,8 @@ export const environment = {
   FRESHCHAT_TOKEN: '',
   SENTRY_DSN: '',
   REFINER_NPS_FORM_ID: '',
+  LAUNCH_DARKLY_CLIENT_ID: '',
+  LIVE_UPDATE_APP_VERSION: '',
 };
 
 /*

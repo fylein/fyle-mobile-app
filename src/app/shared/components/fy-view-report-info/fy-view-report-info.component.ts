@@ -58,10 +58,6 @@ export class FyViewReportInfoComponent implements OnInit {
 
   isSwipe = false;
 
-  get ExpenseView() {
-    return ExpenseView;
-  }
-
   constructor(
     private modalController: ModalController,
     private transactionService: TransactionService,
@@ -73,6 +69,10 @@ export class FyViewReportInfoComponent implements OnInit {
     private offlineService: OfflineService,
     private authService: AuthService
   ) {}
+
+  get ExpenseView() {
+    return ExpenseView;
+  }
 
   ngOnInit(): void {}
 

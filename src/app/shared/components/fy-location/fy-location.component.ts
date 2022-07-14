@@ -20,8 +20,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 export class FyLocationComponent implements ControlValueAccessor, OnInit {
   @Input() label = 'location';
 
-  @Input() placeholder: string;
-
   @Input() mandatory = false;
 
   @Input() disabled = false;
@@ -34,19 +32,13 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   @Input() cacheName;
 
+  @Input() placeholder: string;
+
   displayValue;
 
   private ngControl: NgControl;
 
   private innerValue;
-
-  get valid() {
-    if (this.ngControl.touched) {
-      return this.ngControl.valid;
-    } else {
-      return true;
-    }
-  }
 
   private onTouchedCallback: () => void = noop;
 
@@ -58,8 +50,12 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     private injector: Injector
   ) {}
 
-  ngOnInit() {
-    this.ngControl = this.injector.get(NgControl);
+  get valid() {
+    if (this.ngControl.touched) {
+      return this.ngControl.valid;
+    } else {
+      return true;
+    }
   }
 
   get value(): any {
@@ -78,6 +74,10 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
       this.onChangeCallback(v);
     }
+  }
+
+  ngOnInit() {
+    this.ngControl = this.injector.get(NgControl);
   }
 
   async openModal() {
