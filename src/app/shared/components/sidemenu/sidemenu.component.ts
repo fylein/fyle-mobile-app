@@ -114,7 +114,7 @@ export class SidemenuComponent implements OnInit {
         this.orgSettings = orgSettings;
         this.orgUserSettings = orgUserSettings;
         const isDelegatee = delegatedAccounts.length > 0;
-        this.appVersion = (deviceInfo && deviceInfo.appVersion) || '1.2.3';
+        this.appVersion = (deviceInfo && deviceInfo.liveUpdateAppVersion) || '1.2.3';
         this.allowedActions = allowedActions;
         this.isSwitchedToDelegator = isSwitchedToDelegator;
         this.eou = eou;
@@ -152,7 +152,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Corporate Cards',
         isVisible:
-          this.orgSettings.corporate_credit_card_settings.enabled &&
+          this.orgSettings.corporate_credit_card_settings?.enabled &&
           !(
             this.orgSettings.unify_ccce_expenses_settings.allowed &&
             this.orgSettings.unify_ccce_expenses_settings.enabled
