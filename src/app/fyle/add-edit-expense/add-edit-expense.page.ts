@@ -838,93 +838,114 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  async moreActions() {
-    if (this.fg.valid) {
-      return forkJoin({
-        orgSettings$: this.offlineService.getOrgSettings(),
-        costCenters: this.costCenters$,
-        projects: this.offlineService.getProjects(),
-        txnFields: this.txnFields$.pipe(take(1)),
-      }).subscribe(async (res) => {
-        const orgSettings = res.orgSettings$;
-        const areCostCentersAvailable = res.costCenters.length > 0;
-        const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
-        const projectField = res.txnFields.project_id;
-
-        this.actionSheetButtons = [
-          {
-            text: 'Split Expense By Category',
-            handler: () => {
-              this.openSplitExpenseModal('categories');
-            },
-          },
-        ];
-
-        if (areProjectsAvailable) {
-          this.actionSheetButtons.push({
-            text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
-            handler: () => {
-              this.openSplitExpenseModal('projects');
-            },
-          });
-        }
-
-        if (areCostCentersAvailable) {
-          this.actionSheetButtons.push({
-            text: 'Split Expense By Cost Center',
-            handler: () => {
-              this.openSplitExpenseModal('cost centers');
-            },
-          });
-        }
-
-        if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense && this.isExpenseMatchedForDebitCCCE) {
-          this.actionSheetButtons.push({
-            text: 'Mark as Personal',
-            handler: () => {
-              this.markPeronsalOrDismiss('personal');
-            },
-          });
-        }
-
-        if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense && this.canDismissCCCE) {
-          this.actionSheetButtons.push({
-            text: 'Dimiss as Card Payment',
-            handler: () => {
-              this.markPeronsalOrDismiss('dismiss');
-            },
-          });
-        }
-
-        if (this.isCorporateCreditCardEnabled && this.canUnlinkCCCE) {
-          this.actionSheetButtons.push({
-            text: 'Unlink Card Details',
-            handler: () => {
-              this.unlinkCorporateCardExpense();
-            },
-          });
-        }
-
-        const actionSheet = await this.actionSheetController.create({
-          header: 'MORE ACTIONS',
-          mode: 'md',
-          cssClass: 'fy-action-sheet',
-          buttons: this.actionSheetButtons,
+  showFormValidationErrors() {
+    const toastMessage = 'Please enter the required details.';
+    const toastMessageData = {
+      message: toastMessage,
+    };
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
+      panelClass: ['msb-info'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+    this.fg.markAllAsTouched();
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth',
         });
-        await actionSheet.present();
-      });
-    } else {
-      this.fg.markAllAsTouched();
-      const formContainer = this.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
       }
     }
+  }
+
+  async moreActions() {
+    return forkJoin({
+      orgSettings$: this.offlineService.getOrgSettings(),
+      costCenters: this.costCenters$,
+      projects: this.offlineService.getProjects(),
+      txnFields: this.txnFields$.pipe(take(1)),
+    }).subscribe(async (res) => {
+      const orgSettings = res.orgSettings$;
+      const areCostCentersAvailable = res.costCenters.length > 0;
+      const areProjectsAvailable = orgSettings.projects.enabled && res.projects.length > 0;
+      const projectField = res.txnFields.project_id;
+
+      this.actionSheetButtons = [
+        {
+          text: 'Split Expense By Category',
+          handler: () => {
+            if (this.fg.valid) {
+              this.openSplitExpenseModal('categories');
+            } else {
+              this.showFormValidationErrors();
+            }
+          },
+        },
+      ];
+
+      if (areProjectsAvailable) {
+        this.actionSheetButtons.push({
+          text: 'Split Expense By ' + this.titleCasePipe.transform(projectField?.field_name),
+          handler: () => {
+            if (this.fg.valid) {
+              this.openSplitExpenseModal('projects');
+            } else {
+              this.showFormValidationErrors();
+            }
+          },
+        });
+      }
+
+      if (areCostCentersAvailable) {
+        this.actionSheetButtons.push({
+          text: 'Split Expense By Cost Center',
+          handler: () => {
+            if (this.fg.valid) {
+              this.openSplitExpenseModal('cost centers');
+            } else {
+              this.showFormValidationErrors();
+            }
+          },
+        });
+      }
+
+      if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense && this.isExpenseMatchedForDebitCCCE) {
+        this.actionSheetButtons.push({
+          text: 'Mark as Personal',
+          handler: () => {
+            this.markPeronsalOrDismiss('personal');
+          },
+        });
+      }
+
+      if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense && this.canDismissCCCE) {
+        this.actionSheetButtons.push({
+          text: 'Dimiss as Card Payment',
+          handler: () => {
+            this.markPeronsalOrDismiss('dismiss');
+          },
+        });
+      }
+
+      if (this.isCorporateCreditCardEnabled && this.canUnlinkCCCE) {
+        this.actionSheetButtons.push({
+          text: 'Unlink Card Details',
+          handler: () => {
+            this.unlinkCorporateCardExpense();
+          },
+        });
+      }
+
+      const actionSheet = await this.actionSheetController.create({
+        header: 'MORE ACTIONS',
+        mode: 'md',
+        cssClass: 'fy-action-sheet',
+        buttons: this.actionSheetButtons,
+      });
+      await actionSheet.present();
+    });
   }
 
   ngOnInit() {
