@@ -49,7 +49,7 @@
         <ng-container *cdkVirtualFor="let filteredListItem of filteredOptions$ | async as list">
           <div
             (click)="onElementSelect(filteredListItem)"
-            *ngIf="!filteredListItem.value && filteredListItem.label.length > 0"
+            *ngIf="!filteredListItem.value && filteredListItem?.label?.length > 0"
             class="selection-modal--list-element"
             matRipple
           >
@@ -71,49 +71,32 @@
       </cdk-virtual-scroll-viewport>
     </div>
 
-    <div
-      *ngIf="cacheName && (recentrecentlyUsedItems$ | async)?.length > 0"
-      class="selection-modal--recently-used-block"
-    >
-      <div
-        (click)="onElementSelect(recentrecentlyUsedItem)"
-        *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list"
-        class="selection-modal--list-element"
-        matRipple
-      >
-        <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-          <div class="selection-modal--recently-used-item-content">
-            <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
-            <span class="selection-modal--label">
-              <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-            </span>
-          </div>
-          <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-        </ng-template>
-        <ng-container
-          *ngTemplateOutlet="
-            selectionElement ? selectionElement : defaultSelectionElement;
-            context: recentrecentlyUsedItem
-          "
-        >
-        </ng-container>
-      </div>
-    </div>
-
     <div *ngIf="(filteredOptions$ | async)?.length > 0 && !customInput">
-      <cdk-virtual-scroll-viewport itemSize="40" class="virtual-scroll">
-        <ng-container *cdkVirtualFor="let filteredListItem of filteredOptions$ | async as list">
+      <cdk-virtual-scroll-viewport itemSize="50" class="virtual-scroll">
+        <ng-container *cdkVirtualFor="let filteredListItem of filteredList as list">
+          <div *ngIf="!(filteredListItem?.label?.length > 0)" class="spinner">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
           <div
             (click)="onElementSelect(filteredListItem)"
-            *ngIf="filteredListItem.label.length > 0"
+            *ngIf="filteredListItem?.label?.length > 0"
             class="selection-modal--list-element"
             matRipple
           >
             <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-              <div class="selection-modal--label">
-                <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+              <div *ngIf="filteredListItem.recentlyUsed" class="selection-modal--recently-used-item-content">
+                <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
+                <span class="selection-modal--label">
+                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                </span>
               </div>
-              <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+
+              <div *ngIf="!filteredListItem.recentlyUsed">
+                <div class="selection-modal--label">
+                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                </div>
+                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+              </div>
             </ng-template>
             <ng-container
               *ngTemplateOutlet="

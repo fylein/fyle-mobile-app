@@ -3,7 +3,16 @@
 $list-element-color: #333;
 
 .virtual-scroll {
-  height: 400px;
+  height: calc(100% - 10px);
+  width: 100%;
+  position: fixed;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
   width: 100%;
 }
 

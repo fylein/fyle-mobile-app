@@ -11,7 +11,7 @@ import {
 import { from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import { isEqual, includes } from 'lodash';
+import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 
@@ -53,7 +53,11 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   value = '';
 
-  recentrecentlyUsedItems$: Observable<any[]>;
+  recentrecentlyUsedItems$: Observable<{ label: string; value: any; selected?: boolean; recentlyUsed?: boolean }[]>;
+
+  filteredList: { label: string; value: any; selected?: boolean }[];
+
+  recentList: { label: string; value: any; selected?: boolean; recentlyUsed?: boolean }[] = [];
 
   constructor(
     private modalController: ModalController,
@@ -143,6 +147,19 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
           console.log('check recent items', res);
         })
       );
+      this.filteredOptions$.subscribe((res) => {
+        this.filteredList = res;
+      });
+
+      this.recentrecentlyUsedItems$.subscribe((res) => {
+        res.map((recentItem) => {
+          let recentItemObj = { ...recentItem };
+          recentItemObj.recentlyUsed = true;
+          this.recentList.push(recentItemObj);
+        });
+      });
+
+      this.filteredList = [...this.recentList, ...this.filteredList];
     } else {
       const initial = [];
 
