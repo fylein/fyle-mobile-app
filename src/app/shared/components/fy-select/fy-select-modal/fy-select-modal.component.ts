@@ -138,7 +138,10 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
             // filtering of recently used items wrt searchText is taken care in service method
             this.utilityService.searchArrayStream(searchText)
           )
-        )
+        ),
+        tap((res) => {
+          console.log('check recent items', res);
+        })
       );
     } else {
       const initial = [];
