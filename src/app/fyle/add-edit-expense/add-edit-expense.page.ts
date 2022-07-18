@@ -839,15 +839,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   showFormValidationErrors() {
-    const toastMessage = 'Please enter the required details.';
-    const toastMessageData = {
-      message: toastMessage,
-    };
-    this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
-      panelClass: ['msb-info'],
-    });
-    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
     this.fg.markAllAsTouched();
     const formContainer = this.formContainer.nativeElement as HTMLElement;
     if (formContainer) {
