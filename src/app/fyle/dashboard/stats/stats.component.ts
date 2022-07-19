@@ -202,12 +202,15 @@ export class StatsComponent implements OnInit {
       }
     });
 
+    // Time when the app starts loading
     const appLaunchStartTime = await this.storageService.get('App launch start time');
 
+    // Time taken for the app to launch and display the first screen
     const appLaunchEndTime = performance.now() / 1000;
 
     let appLaunchTime: number;
 
+    // Total time taken to launch app
     appLaunchTime = appLaunchEndTime - appLaunchStartTime;
 
     this.trackingService.appLaunchTime({
