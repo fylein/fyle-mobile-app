@@ -55,7 +55,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
 
   recentrecentlyUsedItems$: Observable<{ label: string; value: any; selected?: boolean; recentlyUsed?: boolean }[]>;
 
-  filteredList: { label: string; value: any; selected?: boolean }[];
+  combinedList: { label: string; value: any; selected?: boolean }[];
 
   recentList: { label: string; value: any; selected?: boolean; recentlyUsed?: boolean }[] = [];
 
@@ -142,13 +142,10 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
             // filtering of recently used items wrt searchText is taken care in service method
             this.utilityService.searchArrayStream(searchText)
           )
-        ),
-        tap((res) => {
-          console.log('check recent items', res);
-        })
+        )
       );
       this.filteredOptions$.subscribe((res) => {
-        this.filteredList = res;
+        this.combinedList = res;
       });
 
       this.recentrecentlyUsedItems$.subscribe((res) => {
@@ -159,7 +156,7 @@ export class FySelectModalComponent implements OnInit, AfterViewInit {
         });
       });
 
-      this.filteredList = [...this.recentList, ...this.filteredList];
+      this.combinedList = [...this.recentList, ...this.combinedList];
     } else {
       const initial = [];
 

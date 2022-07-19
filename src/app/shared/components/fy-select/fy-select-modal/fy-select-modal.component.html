@@ -73,7 +73,7 @@
 
     <div *ngIf="(filteredOptions$ | async)?.length > 0 && !customInput">
       <cdk-virtual-scroll-viewport itemSize="50" class="virtual-scroll">
-        <ng-container *cdkVirtualFor="let filteredListItem of filteredList as list">
+        <ng-container *cdkVirtualFor="let filteredListItem of combinedList as list">
           <div *ngIf="!(filteredListItem?.label?.length > 0)" class="spinner">
             <ion-spinner name="crescent"></ion-spinner>
           </div>
