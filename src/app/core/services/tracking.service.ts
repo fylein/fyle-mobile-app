@@ -983,11 +983,7 @@ export class TrackingService {
   }
 
   // Track app launch time
-  appLaunchStartTime(properties = {}) {
-    this.eventTrack('app launch start time', properties);
-  }
-
-  appLaunchEndTime(properties = {}) {
-    this.eventTrack('app launch end time', properties);
+  appLaunchTime(properties = {}) {
+    this.eventTrack('app launch time', properties);
   }
 }

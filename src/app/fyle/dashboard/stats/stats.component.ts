@@ -14,6 +14,7 @@ import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assig
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
+import { StorageService } from 'src/app/core/services/storage.service';
 
 @Component({
   selector: 'app-stats',
@@ -67,7 +68,8 @@ export class StatsComponent implements OnInit {
     private router: Router,
     private networkService: NetworkService,
     private offlineService: OfflineService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private storageService: StorageService
   ) {}
 
   get ReportStates() {
@@ -177,7 +179,7 @@ export class StatsComponent implements OnInit {
    * The ionViewWillEnter is an alternative for this but not present in child pages.
    * Here, I am setting up the initialize method to be called from the parent's ionViewWillEnter method.
    * **/
-  init() {
+  async init() {
     const that = this;
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
@@ -200,8 +202,16 @@ export class StatsComponent implements OnInit {
       }
     });
 
-    this.trackingService.appLaunchEndTime({
-      'App launch end time': performance.now() / 1000,
+    const appLaunchStartTime = await this.storageService.get('App launch start time');
+
+    const appLaunchEndTime = performance.now() / 1000;
+
+    let appLaunchTime: number;
+
+    appLaunchTime = appLaunchEndTime - appLaunchStartTime;
+
+    this.trackingService.appLaunchTime({
+      'App launch time': appLaunchTime.toFixed(2) + ' secs',
     });
   }
 

@@ -23,6 +23,7 @@ import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.compone
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { OfflineService } from './core/services/offline.service';
+import { StorageService } from './core/services/storage.service';
 
 @Component({
   selector: 'app-root',
@@ -64,7 +65,8 @@ export class AppComponent implements OnInit {
     private loginInfoService: LoginInfoService,
     private offlineService: OfflineService,
     private navController: NavController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private storageService: StorageService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -121,9 +123,7 @@ export class AppComponent implements OnInit {
     // eslint-disable-next-line max-len
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
 
-    this.trackingService.appLaunchStartTime({
-      'App launch start time': performance.now() / 1000,
-    });
+    this.storageService.set('App launch start time', performance.now() / 1000);
 
     App.addListener('appUrlOpen', (data) => {
       this.zone.run(() => {
