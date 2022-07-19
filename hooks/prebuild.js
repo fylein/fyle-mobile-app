@@ -5,6 +5,11 @@ dotenv.config();
 const secrets = require('./secrets');
 
 module.exports = function (ctx) {
+  //Throw error if any env variable is undefined
+  if(secrets.prodEnvironment.includes('undefined')) {
+    throw Error('Environment variable cannot be undefined');
+  }
+
   // Creating environment.prod.ts file
   fs.writeFileSync(`${ctx.project.dir}` + "/src/environments/environment.prod.ts", secrets.prodEnvironment);
 
@@ -19,6 +24,8 @@ module.exports = function (ctx) {
 
   //Check if live update and actual app version have same major and minor versions
   compareAppVersion(process.env.LIVE_UPDATE_APP_VERSION, ctx.env.FYLE_MOBILE_RELEASE_VERSION);
+
+  //Throw error if any variable in environment file is undefined
   
   const platformRoot = path.join(ctx.project.dir, 'android');
   FILE_PATHS = {
