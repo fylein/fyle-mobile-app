@@ -199,6 +199,10 @@ export class StatsComponent implements OnInit {
         this.cardTransactionsAndDetailsNonUnifyCCC$ = of(null);
       }
     });
+
+    this.trackingService.appLaunchEndTime({
+      'App launch end time': performance.now() / 1000,
+    });
   }
 
   ngOnInit() {

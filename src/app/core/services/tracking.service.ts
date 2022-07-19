@@ -981,4 +981,13 @@ export class TrackingService {
   visitedMergeExpensesPageFromTask(properties = {}) {
     this.eventTrack('visited merged expense page from tasks', properties);
   }
+
+  // Track app launch time
+  appLaunchStartTime(properties = {}) {
+    this.eventTrack('app launch start time', properties);
+  }
+
+  appLaunchEndTime(properties = {}) {
+    this.eventTrack('app launch end time', properties);
+  }
 }
