@@ -10,6 +10,7 @@
         <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
           <app-stat-badge
             [currency]="homeCurrency$ | async"
+            [currencySymbol]="currencySymbol$ | async"
             [name]="'Draft'"
             [reportState]="ReportStates.DRAFT"
             [count]="(draftStats$ | async)?.count"
@@ -21,6 +22,7 @@
         <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
           <app-stat-badge
             [currency]="homeCurrency$ | async"
+            [currencySymbol]="currencySymbol$ | async"
             [name]="'Reported'"
             [reportState]="ReportStates.APPROVER_PENDING"
             [count]="(reportedStats$ | async)?.count"
@@ -34,6 +36,7 @@
         <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__bottom" size="6">
           <app-stat-badge
             [currency]="homeCurrency$ | async"
+            [currencySymbol]="currencySymbol$ | async"
             [name]="'Approved'"
             [reportState]="ReportStates.APPROVED"
             [count]="(approvedStats$ | async)?.count"
@@ -48,6 +51,7 @@
         >
           <app-stat-badge
             [currency]="homeCurrency$ | async"
+            [currencySymbol]="currencySymbol$ | async"
             [name]="'Payment Pending'"
             [reportState]="ReportStates.PAYMENT_PENDING"
             [count]="(paymentPendingStats$ | async)?.count"
@@ -66,6 +70,7 @@
         <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
           <app-stat-badge
             [currency]="homeCurrency$ | async"
+            [currencySymbol]="currencySymbol$ | async"
             [name]="'Incomplete'"
             [expenseState]="'DRAFT'"
             [count]="(incompleteExpensesStats$ | async)?.count"
@@ -77,6 +82,7 @@
         <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
           <app-stat-badge
             [currency]="homeCurrency$ | async"
+            [currencySymbol]="currencySymbol$ | async"
             [name]="'Unreported'"
             [expenseState]="'COMPLETE'"
             [count]="(unreportedExpensesStats$ | async)?.count"
