@@ -120,6 +120,10 @@ export class AppComponent implements OnInit {
   initializeApp() {
     // eslint-disable-next-line max-len
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
+
+    // Time when the app starts loading
+    performance.mark('app launch start time');
+
     App.addListener('appUrlOpen', (data) => {
       this.zone.run(() => {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
