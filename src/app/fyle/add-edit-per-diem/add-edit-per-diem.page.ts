@@ -1482,7 +1482,7 @@ export class AddEditPerDiemPage implements OnInit {
             per_diem_rate_id: formValue.per_diem_rate.id,
             source: 'MOBILE',
             currency: amountData.currency,
-            amount: parseInt(amountData.amount, 10),
+            amount: parseFloat(amountData.amount),
             orig_currency: amountData.orig_currency,
             orig_amount: amountData.orig_amount,
             project_id: formValue.project && formValue.project.project_id,
