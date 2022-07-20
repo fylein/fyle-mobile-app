@@ -12,7 +12,7 @@
       <div class="advance-card--amount-block">
         <span class="advance-card--currency">{{ currencySymbol }}</span>
         <span class="advance-card--amount" *ngIf="advanceRequest.areq_amount && advanceRequest.areq_currency"
-          >{{ advanceRequest.areq_amount || 0 | humanizeCurrency: advanceRequest.areq_currency:2:true }}
+          >{{ advanceRequest.areq_amount || 0 | humanizeCurrency: advanceRequest.areq_currency:true }}
         </span>
       </div>
     </div>

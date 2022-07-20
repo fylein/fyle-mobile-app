@@ -46,8 +46,6 @@ export class MyCreateReportPage implements OnInit {
 
   showReportNameError = false;
 
-  homeCurrencySymbol: string;
-
   homeCurrency: string;
 
   isSelectedAll: boolean;
@@ -353,7 +351,6 @@ export class MyCreateReportPage implements OnInit {
   ngOnInit() {
     this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;
-      this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
   }
 }

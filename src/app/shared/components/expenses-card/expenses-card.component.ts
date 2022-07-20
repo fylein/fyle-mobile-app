@@ -91,8 +91,6 @@ export class ExpensesCardComponent implements OnInit {
 
   homeCurrencySymbol = '';
 
-  foreignCurrencySymbol = '';
-
   paymentModeIcon: string;
 
   isScanInProgress: boolean;
@@ -300,7 +298,6 @@ export class ExpensesCardComponent implements OnInit {
         map((homeCurrency) => {
           this.homeCurrency = homeCurrency;
           this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
-          this.foreignCurrencySymbol = getCurrencySymbol(this.expense.tx_orig_currency, 'wide');
         })
       )
       .subscribe(noop);
