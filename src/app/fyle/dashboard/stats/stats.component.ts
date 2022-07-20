@@ -14,7 +14,6 @@ import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assig
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
-import { StorageService } from 'src/app/core/services/storage.service';
 
 @Component({
   selector: 'app-stats',
@@ -68,8 +67,7 @@ export class StatsComponent implements OnInit {
     private router: Router,
     private networkService: NetworkService,
     private offlineService: OfflineService,
-    private trackingService: TrackingService,
-    private storageService: StorageService
+    private trackingService: TrackingService
   ) {}
 
   get ReportStates() {
@@ -202,19 +200,19 @@ export class StatsComponent implements OnInit {
       }
     });
 
-    // Time when the app starts loading
-    const appLaunchStartTime = await this.storageService.get('App launch start time');
-
     // Time taken for the app to launch and display the first screen
-    const appLaunchEndTime = performance.now() / 1000;
+    performance.mark('app launch end time');
 
-    let appLaunchTime: number;
+    // Measure time taken to launch app
+    performance.measure('app launch time', 'app launch start time', 'app launch end time');
 
-    // Total time taken to launch app
-    appLaunchTime = appLaunchEndTime - appLaunchStartTime;
+    const measureLaunchTime = performance.getEntriesByName('app launch time');
+
+    // Converting the duration to seconds and fix it to 3 decimal places
+    const launchTimeDuration = (measureLaunchTime[0].duration / 1000).toFixed(3);
 
     this.trackingService.appLaunchTime({
-      'App launch time': appLaunchTime.toFixed(2) + ' secs',
+      'App launch time': launchTimeDuration,
     });
   }
 
