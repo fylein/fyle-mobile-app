@@ -307,7 +307,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
               const measureLaunchTime = performance.getEntriesByName('app launch time');
 
-              /* eslint-disable dot-notation */
+              // eslint-disable-next-line dot-notation
               const isLoggedIn = performance.getEntriesByName('app launch start time')[0]['detail'];
 
               // Converting the duration to seconds and fix it to 3 decimal places
