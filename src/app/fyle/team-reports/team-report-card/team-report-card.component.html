@@ -12,7 +12,7 @@
   <div class="reports-card--main-info">
     <ion-grid class="reports-card--grid">
       <ion-row>
-        <ion-col size="8">
+        <ion-col size="6">
           <div class="reports-card--purpose">
             <span>{{ erpt.rp_purpose | ellipsis: 40 }}</span>
             <span *ngIf="erpt.rp_manual_flag || erpt.rp_policy_flag">
@@ -20,7 +20,7 @@
             </span>
           </div>
         </ion-col>
-        <ion-col size="4">
+        <ion-col size="6">
           <div class="text-right reports-card--amount-box">
             <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
             <span class="reports-card--amount">
