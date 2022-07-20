@@ -986,4 +986,9 @@ export class TrackingService {
   appLaunchTime(properties = {}) {
     this.eventTrack('app launch time', properties);
   }
+
+  // Track time taken to capture single receipt for the first time
+  captureSingleReceiptTime(properties = {}) {
+    this.eventTrack('capture single receipt time', properties);
+  }
 }
