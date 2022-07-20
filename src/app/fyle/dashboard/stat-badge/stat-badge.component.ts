@@ -17,7 +17,7 @@ export class StatBadgeComponent {
 
   @Input() currency: string;
 
-  @Input() currencySymbol: String;
+  @Input() currencySymbol: string;
 
   @Input() loading = false;
 
