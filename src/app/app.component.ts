@@ -196,8 +196,7 @@ export class AppComponent implements OnInit {
         this.pushNotificationService.initPush();
       }
 
-      let markOptions: PerformanceMarkOptions;
-      markOptions = {
+      const markOptions: PerformanceMarkOptions = {
         detail: this.isUserLoggedIn,
       };
       performance.mark('app launch start time', markOptions);
