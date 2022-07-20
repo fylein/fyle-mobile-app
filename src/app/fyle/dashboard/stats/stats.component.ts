@@ -177,7 +177,7 @@ export class StatsComponent implements OnInit {
    * The ionViewWillEnter is an alternative for this but not present in child pages.
    * Here, I am setting up the initialize method to be called from the parent's ionViewWillEnter method.
    * **/
-  async init() {
+  init() {
     const that = this;
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
