@@ -287,9 +287,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          let isMultiOrg: boolean;
           this.offlineService.getOrgs().subscribe((orgs) => {
-            isMultiOrg = orgs.length > 1;
+            const isMultiOrg = orgs.length > 1;
 
             if (
               performance.getEntriesByName('capture single receipt time').length < 1 &&

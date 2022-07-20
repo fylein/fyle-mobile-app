@@ -200,9 +200,8 @@ export class StatsComponent implements OnInit {
       }
     });
 
-    let isMultiOrg: boolean;
     this.offlineService.getOrgs().subscribe((orgs) => {
-      isMultiOrg = orgs.length > 1;
+      const isMultiOrg = orgs.length > 1;
 
       if (performance.getEntriesByName('app launch time').length < 1) {
         // Time taken for the app to launch and display the first screen
