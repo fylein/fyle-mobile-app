@@ -645,6 +645,10 @@ export class AddEditMileagePage implements OnInit {
       options.push('four_wheeler1');
     }
 
+    if (mileageConfig.four_wheeler4) {
+      options.push('four_wheeler4');
+    }
+
     return options;
   }
 
@@ -848,7 +852,7 @@ export class AddEditMileagePage implements OnInit {
         const mileageConfig = orgSettings.mileage;
         orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
         if (orgUserMileageSettings.length > 0) {
-          const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1'];
+          const allVehicleTypes = ['two_wheeler', 'four_wheeler', 'four_wheeler1', 'four_wheeler4'];
 
           orgUserMileageSettings.forEach((mileageLabel) => {
             const i = allVehicleTypes.indexOf(mileageLabel);
