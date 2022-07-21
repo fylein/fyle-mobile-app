@@ -1049,18 +1049,18 @@ export class AddEditExpensePage implements OnInit {
           this.showCardTransaction = false;
         }
         const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-        const constructedPaymentModes = this.accountsService.constructPaymentModes(
+        const constructedPaymentModes$ = this.accountsService.constructPaymentModes(
           userAccounts,
           isMultipleAdvanceEnabled
         );
 
-        /* 
+        /*
           We have to find whether the payment mode account associated with the expense is actually enabled/available for the user.
           In case if it is not, we have to append the account asociated with the expense to the available payment modes for the user
         */
 
         if (etxn.tx.source_account_id) {
-          return constructedPaymentModes.pipe(
+          return constructedPaymentModes$.pipe(
             map((paymentModes) => {
               if (!paymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)) {
                 const accountLinkedWithExpense = accounts.find(
@@ -1072,7 +1072,7 @@ export class AddEditExpensePage implements OnInit {
             })
           );
         }
-        return constructedPaymentModes;
+        return constructedPaymentModes$;
       }),
       map((paymentModes) =>
         paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
