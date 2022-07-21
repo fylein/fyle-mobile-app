@@ -474,12 +474,12 @@ export class SplitExpensePage implements OnInit {
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
       this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
 
-      if (this.splitType === 'categories') {
-        this.categories$ = this.getActiveCategories().pipe(
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-        );
-        this.getCategoryList();
-      } else if (this.splitType === 'cost centers') {
+      this.categories$ = this.getActiveCategories().pipe(
+        map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+      );
+      this.getCategoryList();
+
+      if (this.splitType === 'cost centers') {
         const orgSettings$ = this.offlineService.getOrgSettings();
         const orgUserSettings$ = this.offlineService.getOrgUserSettings();
         this.costCenters$ = forkJoin({
