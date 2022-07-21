@@ -1054,24 +1054,47 @@ export class AddEditExpensePage implements OnInit {
           isMultipleAdvanceEnabled
         );
 
+        // constructedPaymentModes$.subscribe(val => console.log('constructedPaymentModes', val));
+
+        const allowedPaymentModes$ = this.accountsService.getAllowedPaymentModes();
+
+        forkJoin({
+          constructedPaymentModes: constructedPaymentModes$,
+          allowedPaymentModes: allowedPaymentModes$,
+        }).pipe(
+          map(({ constructedPaymentModes, allowedPaymentModes }) => {
+            const filteredPaymentModes = constructedPaymentModes.filter(
+              (paymentMode) => allowedPaymentModes.indexOf(paymentMode.acc.type) >= 0
+            );
+            const resPaymentModes = filteredPaymentModes.sort(
+              (a, b) => allowedPaymentModes.indexOf(a.acc.type) - allowedPaymentModes.indexOf(b.acc.type)
+            );
+            return resPaymentModes;
+          }),
+          map((paymentModes) =>
+            paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
+          )
+        );
+        // .subscribe(val => console.log('AFTER FORKJOIN', val));
+
         /*
           We have to find whether the payment mode account associated with the expense is actually enabled/available for the user.
           In case if it is not, we have to append the account asociated with the expense to the available payment modes for the user
         */
 
-        if (etxn.tx.source_account_id) {
-          return constructedPaymentModes$.pipe(
-            map((paymentModes) => {
-              if (!paymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)) {
-                const accountLinkedWithExpense = accounts.find(
-                  (account) => account.acc.id === etxn.tx.source_account_id
-                );
-                paymentModes.push(accountLinkedWithExpense);
-              }
-              return paymentModes;
-            })
-          );
-        }
+        // if (etxn.tx.source_account_id) {
+        //   return constructedPaymentModes$.pipe(
+        //     map((paymentModes) => {
+        //       if (!paymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)) {
+        //         const accountLinkedWithExpense = accounts.find(
+        //           (account) => account.acc.id === etxn.tx.source_account_id
+        //         );
+        //         paymentModes.push(accountLinkedWithExpense);
+        //       }
+        //       return paymentModes;
+        //     })
+        //   );
+        // }
         return constructedPaymentModes$;
       }),
       map((paymentModes) =>

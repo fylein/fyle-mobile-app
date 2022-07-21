@@ -4,7 +4,7 @@ import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
 import { LaunchDarklyService } from './launch-darkly.service';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 
@@ -100,5 +100,10 @@ export class AccountsService {
         return mappedAccounts;
       })
     );
+  }
+
+  //Dummy method - will be replaced by API call
+  getAllowedPaymentModes(): Observable<string[]> {
+    return of(['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT']);
   }
 }
