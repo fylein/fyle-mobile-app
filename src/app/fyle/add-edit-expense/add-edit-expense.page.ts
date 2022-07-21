@@ -1063,9 +1063,16 @@ export class AddEditExpensePage implements OnInit {
           allowedPaymentModes: allowedPaymentModes$,
         }).pipe(
           map(({ constructedPaymentModes, allowedPaymentModes }) => {
-            const filteredPaymentModes = constructedPaymentModes.filter(
-              (paymentMode) => allowedPaymentModes.indexOf(paymentMode.acc.type) >= 0
-            );
+            const filteredPaymentModes = constructedPaymentModes.filter((paymentMode) => {
+              /**
+               * Mapping expenses of type 'COMPANY_ACCOUNT' in allowedPaymentModes array to
+               * non-reimbursable expenses of 'PERSONAL_ACCOUNT' in constructedPaymentModes
+               */
+              if (paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable) {
+                return allowedPaymentModes.indexOf('COMPANY_ACCOUNT') >= 0;
+              }
+              return allowedPaymentModes.indexOf(paymentMode.acc.type) >= 0;
+            });
             const resPaymentModes = filteredPaymentModes.sort(
               (a, b) => allowedPaymentModes.indexOf(a.acc.type) - allowedPaymentModes.indexOf(b.acc.type)
             );
