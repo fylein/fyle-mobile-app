@@ -1076,9 +1076,22 @@ export class AddEditExpensePage implements OnInit {
             });
 
             //Sorting expenses based on the order in allowedPaymentModes
-            const resPaymentModes = filteredPaymentModes.sort(
+            let resPaymentModes = filteredPaymentModes.sort(
               (a, b) => allowedPaymentModes.indexOf(a.acc.type) - allowedPaymentModes.indexOf(b.acc.type)
             );
+
+            /**
+             * In edit expense, if the account selected while creating the expense is no longer present in
+             * the list of allowed accounts, add it to the list only for this expense
+             */
+            if (
+              etxn.tx.source_account_id &&
+              !resPaymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)
+            ) {
+              const accountLinkedWithExpense = accounts.find((account) => account.acc.id === etxn.tx.source_account_id);
+              resPaymentModes = [accountLinkedWithExpense, ...resPaymentModes];
+            }
+
             return resPaymentModes.map((paymentMode) => {
               if (paymentMode.acc.type === 'COMPANY_ACCOUNT') {
                 paymentMode.acc.type = 'PERSONAL_ACCOUNT';
