@@ -1054,11 +1054,11 @@ export class AddEditExpensePage implements OnInit {
           isMultipleAdvanceEnabled
         );
 
-        // constructedPaymentModes$.subscribe(val => console.log('constructedPaymentModes', val));
+        constructedPaymentModes$.subscribe((val) => console.log('constructedPaymentModes', val));
 
         const allowedPaymentModes$ = this.accountsService.getAllowedPaymentModes();
 
-        forkJoin({
+        return forkJoin({
           constructedPaymentModes: constructedPaymentModes$,
           allowedPaymentModes: allowedPaymentModes$,
         }).pipe(
@@ -1069,18 +1069,23 @@ export class AddEditExpensePage implements OnInit {
                * non-reimbursable expenses of 'PERSONAL_ACCOUNT' in constructedPaymentModes
                */
               if (paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable) {
+                paymentMode.acc.type = 'COMPANY_ACCOUNT';
                 return allowedPaymentModes.indexOf('COMPANY_ACCOUNT') >= 0;
               }
               return allowedPaymentModes.indexOf(paymentMode.acc.type) >= 0;
             });
+
+            //Sorting expenses based on the order in allowedPaymentModes
             const resPaymentModes = filteredPaymentModes.sort(
               (a, b) => allowedPaymentModes.indexOf(a.acc.type) - allowedPaymentModes.indexOf(b.acc.type)
             );
-            return resPaymentModes;
-          }),
-          map((paymentModes) =>
-            paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
-          )
+            return resPaymentModes.map((paymentMode) => {
+              if (paymentMode.acc.type === 'COMPANY_ACCOUNT') {
+                paymentMode.acc.type = 'PERSONAL_ACCOUNT';
+              }
+              return { label: paymentMode.acc.displayName, value: paymentMode };
+            });
+          })
         );
         // .subscribe(val => console.log('AFTER FORKJOIN', val));
 
@@ -1102,11 +1107,7 @@ export class AddEditExpensePage implements OnInit {
         //     })
         //   );
         // }
-        return constructedPaymentModes$;
-      }),
-      map((paymentModes) =>
-        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
-      )
+      })
     );
   }
 
@@ -2712,6 +2713,8 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.paymentModes$ = this.getPaymentModes();
+
+    this.paymentModes$.subscribe((val) => console.log('VALUE RETURNED BY PAYMENT MODE', val));
 
     orgSettings$
       .pipe(
