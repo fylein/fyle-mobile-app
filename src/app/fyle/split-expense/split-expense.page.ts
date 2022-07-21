@@ -24,7 +24,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
-import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -99,8 +98,7 @@ export class SplitExpensePage implements OnInit {
     private trackingService: TrackingService,
     private policyService: PolicyService,
     private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private currencyService: CurrencyService
+    private modalProperties: ModalPropertiesService
   ) {}
 
   ngOnInit() {}
