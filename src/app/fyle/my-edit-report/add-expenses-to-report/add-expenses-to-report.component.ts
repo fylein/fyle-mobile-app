@@ -28,6 +28,8 @@ export class AddExpensesToReportComponent implements OnInit {
 
   homeCurrency: string;
 
+  homeCurrencySymbol: string;
+
   constructor(
     private modalController: ModalController,
     private currencyService: CurrencyService,
@@ -95,6 +97,7 @@ export class AddExpensesToReportComponent implements OnInit {
   ngOnInit() {
     this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;
+      this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
   }
 }

@@ -580,7 +580,7 @@ export class TasksService {
   }
 
   private getAmountString(amount: number, currency: string): string {
-    return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency)} ` : '';
+    return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency, 2)} ` : '';
   }
 
   private mapSentBackReportsToTasks(
@@ -590,7 +590,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
           count: aggregate.totalCount,
           header: `Report${aggregate.totalCount === 1 ? '' : 's'} sent back!`,
           subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
@@ -624,7 +624,7 @@ export class TasksService {
       } sent back by your approver`;
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
           count: aggregate.totalCount,
           header: headerMessage,
           subheader: subheaderMessage,
@@ -649,7 +649,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
           count: aggregate.totalCount,
           header: `Unsubmitted report${aggregate.totalCount === 1 ? '' : 's'}`,
           subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
@@ -677,7 +677,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
           count: aggregate.totalCount,
           header: `Report${aggregate.totalCount === 1 ? '' : 's'} to be approved`,
           subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
@@ -705,7 +705,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
           count: aggregate.totalCount,
           header: `Incomplete expense${aggregate.totalCount === 1 ? '' : 's'}`,
           subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
@@ -733,7 +733,7 @@ export class TasksService {
   ): DashboardTask[] {
     if (aggregate.totalCount > 0) {
       const task = {
-        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
+        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
         count: aggregate.totalCount,
         header: `Unreported`,
         subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(

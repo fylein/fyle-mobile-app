@@ -22,13 +22,13 @@
                 class="matched-expenses--currency"
                 [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
               >
-                {{ txnDetails.btxn_currency | currencySymbol }}
+                {{ ( 0 | currency : txnDetails.btxn_currency : 'symbol-narrow' ) | slice:0:1 }}
               </span>
               <span
                 class="matched-expenses--amount"
                 [ngClass]="{'matched-expenses--green': txnDetails.btxn_transaction_type === 'credit'}"
               >
-                {{ txnDetails.btxn_amount | currency: txnDetails.btxn_currency: '' }}
+                {{ txnDetails.btxn_amount | number: '1.2-2' }}
               </span>
               <span
                 class="matched-expenses--type"

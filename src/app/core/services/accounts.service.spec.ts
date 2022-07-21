@@ -1,6 +1,6 @@
+import { CurrencyPipe } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
-import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountsService } from './accounts.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
@@ -116,12 +116,12 @@ describe('AccountsService', () => {
   let accountsService: AccountsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
-  let fyCurrencyPipe: jasmine.SpyObj<FyCurrencyPipe>;
+  let currencyPipe: jasmine.SpyObj<CurrencyPipe>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
-    const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
+    const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -135,8 +135,8 @@ describe('AccountsService', () => {
           useValue: dataTransformServiceSpy,
         },
         {
-          provide: FyCurrencyPipe,
-          useValue: fyCurrencyPipeSpy,
+          provide: CurrencyPipe,
+          useValue: currencyPipeSpy,
         },
       ],
     });
@@ -144,7 +144,7 @@ describe('AccountsService', () => {
     accountsService = TestBed.inject(AccountsService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
-    fyCurrencyPipe = TestBed.inject(FyCurrencyPipe) as jasmine.SpyObj<FyCurrencyPipe>;
+    currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;
   });
 
   it('should be created', () => {

@@ -72,7 +72,7 @@
         <div>
           <span>{{ etxnCurrencySymbol }}</span>
           <span class="view-mileage--card-container__amount">
-            {{ extendedMileage.tx_amount || 0 | humanizeCurrency: extendedMileage.tx_currency:true }}
+            {{ extendedMileage.tx_amount || 0 | humanizeCurrency: extendedMileage.tx_currency:2:true }}
           </span>
           <ion-icon
             class="view-mileage--card-container__icon"

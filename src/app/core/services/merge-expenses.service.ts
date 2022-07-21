@@ -210,7 +210,7 @@ export class MergeExpensesService {
         if (expense.tx_txn_dt) {
           date = moment(expense.tx_txn_dt).format('MMM DD');
         }
-        let amount = this.humanizeCurrency.transform(expense.tx_amount, expense.tx_currency);
+        let amount = this.humanizeCurrency.transform(expense.tx_amount, expense.tx_currency, 2);
         if (!date) {
           amount = '';
         }

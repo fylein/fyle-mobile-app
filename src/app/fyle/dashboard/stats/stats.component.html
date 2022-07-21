@@ -176,7 +176,7 @@
                   </span>
                   {{
                     cardTransactionsAndDetailsNonUnifyCCC?.total_classified_amount
-                      | humanizeCurrency: (homeCurrency$ | async):true
+                      | humanizeCurrency: (homeCurrency$ | async):2:true
                   }}
                 </div>
               </div>
@@ -194,7 +194,7 @@
                   </span>
                   {{
                     cardTransactionsAndDetailsNonUnifyCCC?.total_unclassified_amount
-                      | humanizeCurrency: (homeCurrency$ | async):true
+                      | humanizeCurrency: (homeCurrency$ | async):2:true
                   }}
                 </div>
               </div>

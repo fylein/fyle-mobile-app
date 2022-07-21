@@ -24,7 +24,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
-import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -99,8 +98,7 @@ export class SplitExpensePage implements OnInit {
     private trackingService: TrackingService,
     private policyService: PolicyService,
     private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private currencyService: CurrencyService
+    private modalProperties: ModalPropertiesService
   ) {}
 
   ngOnInit() {}
@@ -118,9 +116,7 @@ export class SplitExpensePage implements OnInit {
       const otherIndex = index === 0 ? 1 : 0;
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
-      const rawAmount = this.amount - splitExpenseForm.value.amount;
-      const amount = this.currencyService.getAmountWithCurrencyFraction(rawAmount, this.currency);
-
+      const amount = parseFloat((this.amount - splitExpenseForm.value.amount).toFixed(3));
       const percentage = parseFloat(((amount / this.amount) * 100).toFixed(3));
 
       otherSplitExpenseForm.patchValue(
@@ -156,9 +152,7 @@ export class SplitExpensePage implements OnInit {
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
       const percentage = Math.min(100, Math.max(0, 100 - splitExpenseForm.value.percentage));
-
-      const rawAmount = (this.amount * percentage) / 100;
-      const amount = this.currencyService.getAmountWithCurrencyFraction(rawAmount, this.currency);
+      const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
 
       otherSplitExpenseForm.patchValue(
         {
@@ -170,7 +164,7 @@ export class SplitExpensePage implements OnInit {
     }
 
     let amount = (this.amount * splitExpenseForm.value.percentage) / 100;
-    amount = this.currencyService.getAmountWithCurrencyFraction(amount, this.currency);
+    amount = parseFloat(amount.toFixed(3));
 
     splitExpenseForm.patchValue({
       amount,
@@ -184,9 +178,9 @@ export class SplitExpensePage implements OnInit {
 
       const totalSplitAmount = amounts.reduce((acc, curr) => acc + curr);
 
-      this.totalSplitAmount = this.currencyService.getAmountWithCurrencyFraction(totalSplitAmount, this.currency) || 0;
+      this.totalSplitAmount = parseFloat(totalSplitAmount.toFixed(3)) || 0;
       const remainingAmount = this.amount - this.totalSplitAmount;
-      this.remainingAmount = this.currencyService.getAmountWithCurrencyFraction(remainingAmount, this.currency) || 0;
+      this.remainingAmount = parseFloat(remainingAmount.toFixed(3)) || 0;
     }
   }
 
@@ -523,8 +517,8 @@ export class SplitExpensePage implements OnInit {
 
     const percentage1 = this.amount ? 60 : null;
     const percentage2 = this.amount ? 40 : null;
-    amount1 = amount1 ? this.currencyService.getAmountWithCurrencyFraction(amount1, this.currency) : amount1;
-    amount2 = amount2 ? this.currencyService.getAmountWithCurrencyFraction(amount2, this.currency) : amount2;
+    amount1 = amount1 ? parseFloat(amount1.toFixed(3)) : amount1;
+    amount2 = amount2 ? parseFloat(amount2.toFixed(3)) : amount2;
     this.add(amount1, this.currency, percentage1, null);
     this.add(amount2, this.currency, percentage2, null);
     this.getTotalSplitAmount();
@@ -590,9 +584,7 @@ export class SplitExpensePage implements OnInit {
       const lastSplitExpenseForm = this.splitExpensesFormArray.at(1);
 
       const percentage = Math.min(100, Math.max(0, 100 - firstSplitExpenseForm.value.percentage));
-
-      const rawAmount = (this.amount * percentage) / 100;
-      const amount = this.currencyService.getAmountWithCurrencyFraction(rawAmount, this.currency);
+      const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
 
       lastSplitExpenseForm.patchValue(
         {

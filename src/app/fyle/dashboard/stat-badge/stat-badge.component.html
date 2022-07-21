@@ -44,7 +44,7 @@
                   <span class="stat-badge--currency">
                     {{ currencySymbol }}
                   </span>
-                  {{ value | humanizeCurrency: currency:true }}
+                  {{ value | humanizeCurrency: currency:2:true }}
                 </div>
                 <div *ngIf="loading">
                   <ion-skeleton-text

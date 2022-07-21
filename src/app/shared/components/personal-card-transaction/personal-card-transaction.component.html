@@ -38,7 +38,7 @@
     <span
       class="personal-card-transaction--amount"
       [ngClass]="{ 'personal-card-transaction--green': type === 'credit' }"
-      >{{ amount | currency: currency:'' }}
+      >{{ amount | number: '1.2-2' }}
     </span>
     <span
       class="personal-card-transaction--type"

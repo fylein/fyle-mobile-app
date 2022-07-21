@@ -1,28 +1,32 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { FyCurrencyPipe } from './fy-currency.pipe';
+import { getCurrencySymbol } from '@angular/common';
 
 @Pipe({
   name: 'humanizeCurrency',
 })
 export class HumanizeCurrencyPipe implements PipeTransform {
-  constructor(private fyCurrencyPipe: FyCurrencyPipe) {}
-
-  transform(value: number, currencyCode: string, skipSymbol = false, fraction?: number): any {
+  transform(value: number, currencyCode: string, fraction: number, skipSymbol = false): any {
     const sign = value < 0 ? '-' : '';
     const amount = Math.abs(value) || 0;
     const si = ['', 'K', 'M', 'B', 't', 'q', 'Q', 's', 'S', 'o', 'n'];
     const exp = Math.max(0, Math.floor(Math.log(amount) / Math.log(1000)));
     const result = amount / Math.pow(1000, exp);
+    let fixedResult;
 
-    // Empty string overrides the currency symbol
-    const symbolType = skipSymbol ? '' : 'symbol';
+    const currency = getCurrencySymbol(currencyCode, 'wide', 'en');
+    if (currency) {
+      const fractionSize = fraction;
+      if (fractionSize) {
+        fixedResult = result.toFixed(fraction);
+      } else {
+        // will implemnt later if no fraction passed
+      }
+      if (!skipSymbol) {
+        fixedResult = currency + fixedResult;
+      }
+    }
 
-    // We need to pass digitsInfo in this format - {minIntergers}.{minDecimal}-{maxDecimal}
-    const digitsInfo = fraction && `1.${fraction}-${fraction}`;
-
-    let fixedResult = this.fyCurrencyPipe.transform(result, currencyCode, symbolType, digitsInfo);
     fixedResult = fixedResult + si[exp];
-
     return sign + fixedResult;
   }
 }

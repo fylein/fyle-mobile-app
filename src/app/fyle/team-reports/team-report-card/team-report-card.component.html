@@ -24,7 +24,7 @@
           <div class="text-right reports-card--amount-box">
             <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
             <span class="reports-card--amount">
-              {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:true }}
+              {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:2:true }}
             </span>
           </div>
         </ion-col>

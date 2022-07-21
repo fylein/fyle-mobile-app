@@ -36,7 +36,9 @@
           {{ cccExpense.vendor || cccExpense.description | ellipsis: 20 }}
         </div>
         <div class="match-transaction--amount">
-          <span class="match-transaction--currency">{{ cccExpense.currency | currencySymbol }}</span
+          <span class="match-transaction--currency">{{
+            0 | currency: cccExpense.currency:'symbol-narrow' | slice: 0:1
+          }}</span
           >{{ cccExpense.amount }}
         </div>
       </div>

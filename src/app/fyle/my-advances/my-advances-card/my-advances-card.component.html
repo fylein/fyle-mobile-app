@@ -12,7 +12,7 @@
       <div class="advance-card--amount-block">
         <span class="advance-card--currency">{{ currencySymbol }}</span>
         <span class="advance-card--amount"
-          >{{ advanceRequest.orig_amount || advanceRequest.amount | humanizeCurrency: advanceRequest.currency:true }}
+          >{{ advanceRequest.orig_amount || advanceRequest.amount | humanizeCurrency: advanceRequest.currency:2:true }}
         </span>
       </div>
     </div>

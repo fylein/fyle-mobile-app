@@ -34,7 +34,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.tx_amount | currency: expenseDetails.tx_currency:'symbol-narrow' }}
+            {{ 0 | currency: expenseDetails.tx_currency:'symbol-narrow' | slice: 0:1 }} {{ expenseDetails.tx_amount }}
           </div>
         </ion-col>
       </ion-row>

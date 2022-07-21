@@ -335,6 +335,8 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
+  cardCurrencySymbol = '';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -472,16 +474,12 @@ export class AddEditExpensePage implements OnInit {
         this.fg.controls.tax_group.value.percentage &&
         this.fg.controls.currencyObj.value
       ) {
-        const amount =
-          this.fg.controls.currencyObj.value.amount -
-          this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1);
-
-        const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(
-          amount,
-          this.fg.controls.currencyObj.value.currency
+        this.fg.controls.tax_amount.setValue(
+          (
+            this.fg.controls.currencyObj.value.amount -
+            this.fg.controls.currencyObj.value.amount / (this.fg.controls.tax_group.value.percentage + 1)
+          ).toFixed(2)
         );
-
-        this.fg.controls.tax_amount.setValue(formattedAmount);
       } else {
         this.fg.controls.tax_amount.setValue(null);
       }
@@ -2726,6 +2724,7 @@ export class AddEditExpensePage implements OnInit {
           this.matchedCCCTransaction = matchedExpense[0].ccce;
           this.matchingCCCTransactions = matchingTransactions;
           this.selectedCCCTransaction = this.matchedCCCTransaction;
+          this.cardCurrencySymbol = getCurrencySymbol(this.selectedCCCTransaction?.currency, 'wide');
           this.cardEndingDigits = (
             this.selectedCCCTransaction.cxorporate_credit_card_account_number
               ? this.selectedCCCTransaction.corporate_credit_card_account_number

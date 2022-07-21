@@ -33,11 +33,11 @@
   <div class="split-expense--amount-block" *ngIf="amount">
     <div class="split-expense--amount-block__label">
       Total:
-      <div class="split-expense--split-amount">{{ totalSplitAmount | currency: currency: 'code'}}</div>
+      <div class="split-expense--split-amount">{{ currency }} {{totalSplitAmount}}</div>
     </div>
     <div class="split-expense--amount-block__label">
       Remaining:
-      <div class="split-expense--split-amount">{{ remainingAmount | currency: currency: 'code' }}</div>
+      <div class="split-expense--split-amount">{{ currency }} {{ remainingAmount }}</div>
     </div>
   </div>
 </div>
