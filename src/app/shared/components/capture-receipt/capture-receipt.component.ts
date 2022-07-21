@@ -287,6 +287,38 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
+          this.offlineService.getOrgs().subscribe((orgs) => {
+            const isMultiOrg = orgs.length > 1;
+
+            if (
+              performance.getEntriesByName('capture single receipt time').length < 1 &&
+              performance.getEntriesByName('app launch time').length < 2
+            ) {
+              // Time taken for capturing single receipt for the first time
+              performance.mark('capture single receipt time');
+
+              // Measure total time taken from launching the app to capturing first single receipt
+              performance.measure(
+                'capture single receipt time',
+                'app launch start time',
+                'capture single receipt time'
+              );
+
+              const measureLaunchTime = performance.getEntriesByName('app launch time');
+
+              // eslint-disable-next-line @typescript-eslint/dot-notation
+              const isLoggedIn = performance.getEntriesByName('app launch start time')[0]['detail'];
+
+              // Converting the duration to seconds and fix it to 3 decimal places
+              const launchTimeDuration = (measureLaunchTime[0].duration / 1000).toFixed(3);
+
+              this.trackingService.captureSingleReceiptTime({
+                'Capture receipt time': launchTimeDuration,
+                'Is logged in': isLoggedIn,
+                'Is multi org': isMultiOrg,
+              });
+            }
+          });
           this.loaderService.showLoader();
           if (this.isModal) {
             await modal.onDidDismiss();

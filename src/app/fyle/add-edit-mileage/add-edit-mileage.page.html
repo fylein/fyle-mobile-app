@@ -103,7 +103,7 @@
                 </span>
               </div>
               <div>
-                <div class="add-edit-mileage--rate-value mb-0 text-right">
+                <div class="add-edit-mileage--rate-value text-uppercase mb-0 text-right">
                   {{rate$|async | currency: homeCurrency: 'symbol-narrow'}} /
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
                     <span>{{ etxn.tx.distance_unit }}</span>
@@ -117,7 +117,7 @@
                 </div>
               </div>
               <div>
-                <div class="add-edit-mileage--amount-value mb-0">
+                <div class="add-edit-mileage--amount-value text-uppercase mb-0">
                   {{amount$|async | currency: homeCurrency: 'symbol-narrow'}}
                 </div>
               </div>
@@ -491,15 +491,17 @@
             <ng-container *ngIf="isConnected$|async">
               <!-- Hide is offline/ critical policy violation/ draft mileage/ only mileage in the report(vm.canAddToReport)-->
               <ng-container *ngIf="reports$|async as reports">
-                <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
-                  <ng-container>
-                    <div class="add-edit-mileage--internal-block">
-                      <app-fy-add-to-report
-                        [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                        [options]="reports"
-                        formControlName="report"
-                      ></app-fy-add-to-report>
-                    </div>
+                <ng-container *ngIf="etxn$|async as etxn">
+                  <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
+                    <ng-container *ngIf="canRemoveFromReport || !etxn?.tx?.report_id">
+                      <div class="add-edit-mileage--internal-block">
+                        <app-fy-add-to-report
+                          [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                          [options]="reports"
+                          formControlName="report"
+                        ></app-fy-add-to-report>
+                      </div>
+                    </ng-container>
                   </ng-container>
                 </ng-container>
               </ng-container>

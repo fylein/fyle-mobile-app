@@ -12,7 +12,7 @@
             {{ corporateCardExpense.currency }}
           </span>
           <span class="corporate-card-expenses-card--amount">
-            {{ corporateCardExpense.amount | number: '1.2-2' }}
+            {{ corporateCardExpense.amount | currency: corporateCardExpense.currency:'' }}
           </span>
         </div>
         <div class="corporate-card-expenses-card--vendor">
@@ -45,7 +45,7 @@
             {{ corporateCardExpense.currency }}
           </span>
           <span class="corporate-card-expenses-card--amount">
-            {{ corporateCardExpense.amount | number: '1.2-2' }}
+            {{ corporateCardExpense.amount | currency: corporateCardExpense.currency:'' }}
           </span>
         </div>
         <div class="corporate-card-expenses-card--vendor">

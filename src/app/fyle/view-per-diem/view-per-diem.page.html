@@ -72,7 +72,7 @@
         <div>
           <span>{{ etxnCurrencySymbol }}</span>
           <span class="view-per-diem--card-container__amount">
-            {{ extendedPerDiem.tx_amount || 0 | humanizeCurrency: extendedPerDiem.tx_currency:2:true }}
+            {{ extendedPerDiem.tx_amount || 0 | humanizeCurrency: extendedPerDiem.tx_currency:true }}
           </span>
           <ion-icon
             class="view-per-diem--card-container__icon"
