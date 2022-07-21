@@ -1483,41 +1483,54 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
-    const defaultPaymentMode$ = forkJoin({
-      orgUserSettings: this.orgUserSettings$,
-      paymentModes: this.paymentModes$,
-    }).pipe(
-      map(({ paymentModes, orgUserSettings }) => {
-        const hasCCCAccount = paymentModes
-          .map((res) => res.value)
-          .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-
-        const paidByCompanyAccount = paymentModes
-          .map((res) => res?.value)
-          .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
-
-        if (
-          hasCCCAccount &&
-          orgUserSettings.preferences &&
-          orgUserSettings.preferences.default_payment_mode &&
-          orgUserSettings.preferences.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-        ) {
+    const defaultPaymentMode$ = this.paymentModes$.pipe(
+      map((paymentModes) => {
+        if (this.isCreatedFromCCC) {
           return paymentModes
             .map((res) => res.value)
             .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-        } else if (paidByCompanyAccount && orgUserSettings?.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
-          return paidByCompanyAccount;
-        } else if (this.isCreatedFromCCC) {
-          return paymentModes
-            .map((res) => res.value)
-            .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-        } else {
-          return paymentModes
-            .map((res) => res.value)
-            .find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash');
         }
+        return paymentModes[0].value;
       })
     );
+
+    defaultPaymentMode$.subscribe((val) => console.log('DEFAULT PAYMENT MODE', val));
+
+    // const defaultPaymentMode$ = forkJoin({
+    //   orgUserSettings: this.orgUserSettings$,
+    //   paymentModes: this.paymentModes$,
+    // }).pipe(
+    //   map(({ paymentModes, orgUserSettings }) => {
+    //     const hasCCCAccount = paymentModes
+    //       .map((res) => res.value)
+    //       .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+
+    //     const paidByCompanyAccount = paymentModes
+    //       .map((res) => res?.value)
+    //       .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
+
+    //     if (
+    //       hasCCCAccount &&
+    //       orgUserSettings.preferences &&
+    //       orgUserSettings.preferences.default_payment_mode &&
+    //       orgUserSettings.preferences.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+    //     ) {
+    //       return paymentModes
+    //         .map((res) => res.value)
+    //         .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+    //     } else if (paidByCompanyAccount && orgUserSettings?.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
+    //       return paidByCompanyAccount;
+    //     } else if (this.isCreatedFromCCC) {
+    //       return paymentModes
+    //         .map((res) => res.value)
+    //         .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+    //     } else {
+    //       return paymentModes
+    //         .map((res) => res.value)
+    //         .find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash');
+    //     }
+    //   })
+    // );
 
     this.recentlyUsedProjects$ = forkJoin({
       recentValues: this.recentlyUsedValues$,

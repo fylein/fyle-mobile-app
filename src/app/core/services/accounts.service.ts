@@ -105,10 +105,10 @@ export class AccountsService {
   //Dummy method - will be replaced by API call
   getAllowedPaymentModes(): Observable<string[]> {
     return of([
-      'COMPANY_ACCOUNT',
-      'PERSONAL_ADVANCE_ACCOUNT',
-      'PERSONAL_ACCOUNT',
       'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      'PERSONAL_ADVANCE_ACCOUNT',
+      'COMPANY_ACCOUNT',
+      'PERSONAL_ACCOUNT',
     ]);
   }
 }
