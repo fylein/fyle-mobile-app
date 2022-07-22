@@ -61,7 +61,7 @@ export class TransactionsOutboxService {
     await this.storageService.set('data_extraction_queue', this.dataExtractionQueue);
   }
 
-  async removeDataExtractionEntry(expenseId) {
+  async removeDataExtractionEntry(expenseId: string) {
     const idx = this.dataExtractionQueue.findIndex((queueElement) => queueElement.transaction.id === expenseId);
     this.dataExtractionQueue.splice(idx, 1);
     await this.saveDataExtractionQueue();
