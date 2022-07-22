@@ -43,8 +43,7 @@ export class TransactionsOutboxService {
     private receiptService: ReceiptService,
     private reportService: ReportService,
     private offlineService: OfflineService,
-    private trackingService: TrackingService,
-    private currencyService: CurrencyService
+    private trackingService: TrackingService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -62,13 +61,8 @@ export class TransactionsOutboxService {
     await this.storageService.set('data_extraction_queue', this.dataExtractionQueue);
   }
 
-  async removeDataExtractionEntry(expense, dataUrls) {
-    const entry = {
-      transaction: expense,
-      dataUrls,
-    };
-
-    const idx = this.dataExtractionQueue.indexOf(entry);
+  async removeDataExtractionEntry(expenseId) {
+    const idx = this.dataExtractionQueue.findIndex((queueElement) => queueElement.transaction.id === expenseId);
     this.dataExtractionQueue.splice(idx, 1);
     await this.saveDataExtractionQueue();
   }
@@ -154,14 +148,14 @@ export class TransactionsOutboxService {
                   .toPromise()
                   .then(() => {})
                   .finally(() => {
-                    this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+                    this.removeDataExtractionEntry(entry.transaction.id);
                   });
               } else {
-                this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+                this.removeDataExtractionEntry(entry.transaction.id);
               }
             },
             (err) => {
-              this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
+              this.removeDataExtractionEntry(entry.transaction.id);
             }
           )
           .finally(() => {
