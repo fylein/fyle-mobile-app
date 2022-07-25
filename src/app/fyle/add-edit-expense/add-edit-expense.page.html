@@ -244,9 +244,7 @@
         <div class="add-edit-expense--primary-block">
           <ion-grid class="ion-grid-no-padding">
             <ion-row>
-              <ion-col
-                [size]="(!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && availablePaymentModes?.length > 1 ) ? 6 : 12"
-              >
+              <ion-col [size]="!((isUnifyCcceExpensesSettingsEnabled && isCccExpense) || hidePaymentMode ) ? 6 : 12">
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
                     *ngIf="txnFields?.txn_dt"
@@ -280,51 +278,50 @@
                   </div>
                 </ng-container>
               </ion-col>
-              <ion-col
-                [size]="6"
-                *ngIf="(!(isUnifyCcceExpensesSettingsEnabled && isCccExpense) && availablePaymentModes?.length > 1)"
-              >
-                <div
-                  [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}"
-                  class="add-edit-expense--payment-modes add-edit-expense--internal-block"
-                >
-                  <app-fy-select
-                    [disabled]="isExpenseBankTxn"
-                    [enableSearch]="false"
-                    [label]="'Payment Mode'"
-                    [mandatory]="true"
-                    [nullOption]="false"
-                    [options]="availablePaymentModes"
-                    [selectModalHeader]="'Select Payment Mode'"
-                    [selectionElement]="paymentMode"
-                    formControlName="paymentMode"
-                    [placeholder]="'Payment Mode'"
+              <ion-col [size]="6" *ngIf="!((isUnifyCcceExpensesSettingsEnabled && isCccExpense) || hidePaymentMode)">
+                <ng-container *ngIf="paymentModes$|async as paymentModes">
+                  <div
+                    [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}"
+                    class="add-edit-expense--payment-modes add-edit-expense--internal-block"
                   >
-                  </app-fy-select>
-                  <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
-                    <div>
-                      <div class="add-edit-expense--payment-mode-header">{{label}}</div>
-                      <ng-container *ngIf="paymentMode">
-                        <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
-                          <div class="add-edit-expense--payment-mode-section">{{paymentMode.advance.purpose}}</div>
+                    <app-fy-select
+                      [disabled]="isExpenseBankTxn"
+                      [enableSearch]="false"
+                      [label]="'Payment Mode'"
+                      [mandatory]="true"
+                      [nullOption]="false"
+                      [options]="paymentModes"
+                      [selectModalHeader]="'Select Payment Mode'"
+                      [selectionElement]="paymentMode"
+                      formControlName="paymentMode"
+                      [placeholder]="'Payment Mode'"
+                    >
+                    </app-fy-select>
+                    <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
+                      <div>
+                        <div class="add-edit-expense--payment-mode-header">{{label}}</div>
+                        <ng-container *ngIf="paymentMode">
+                          <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
+                            <div class="add-edit-expense--payment-mode-section">{{paymentMode.advance.purpose}}</div>
+                          </ng-container>
+                          <div *ngIf="paymentMode.acc.isReimbursable" class="add-edit-expense--payment-mode-section">
+                            (Reimbursable)
+                          </div>
+                          <div *ngIf="!paymentMode.acc.isReimbursable" class="add-edit-expense--payment-mode-section">
+                            (Non Reimbursable)
+                          </div>
                         </ng-container>
-                        <div *ngIf="paymentMode.acc.isReimbursable" class="add-edit-expense--payment-mode-section">
-                          (Reimbursable)
-                        </div>
-                        <div *ngIf="!paymentMode.acc.isReimbursable" class="add-edit-expense--payment-mode-section">
-                          (Non Reimbursable)
-                        </div>
-                      </ng-container>
-                    </div>
-                    <mat-icon *ngIf="selected" class="add-edit-expense--check"> check </mat-icon>
-                  </ng-template>
-                </div>
-                <div
-                  *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
-                  class="add-edit-expense--error"
-                >
-                  Please select a valid payment mode.
-                </div>
+                      </div>
+                      <mat-icon *ngIf="selected" class="add-edit-expense--check"> check </mat-icon>
+                    </ng-template>
+                  </div>
+                  <div
+                    *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
+                    class="add-edit-expense--error"
+                  >
+                    Please select a valid payment mode.
+                  </div>
+                </ng-container>
               </ion-col>
             </ion-row>
           </ion-grid>

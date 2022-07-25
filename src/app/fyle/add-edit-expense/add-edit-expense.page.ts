@@ -335,7 +335,7 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
-  availablePaymentModes: AccountOption[];
+  hidePaymentMode: boolean;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1054,13 +1054,9 @@ export class AddEditExpensePage implements OnInit {
           isMultipleAdvanceEnabled
         );
 
-        constructedPaymentModes$.subscribe((val) => console.log('constructedPaymentModes', val));
-
-        const allowedPaymentModes$ = this.accountsService.getAllowedPaymentModes();
-
         return forkJoin({
           constructedPaymentModes: constructedPaymentModes$,
-          allowedPaymentModes: allowedPaymentModes$,
+          allowedPaymentModes: this.accountsService.getAllowedPaymentModes(),
         }).pipe(
           map(({ constructedPaymentModes, allowedPaymentModes }) => {
             const filteredPaymentModes = constructedPaymentModes.filter((paymentMode) => {
@@ -1100,26 +1096,6 @@ export class AddEditExpensePage implements OnInit {
             });
           })
         );
-        // .subscribe(val => console.log('AFTER FORKJOIN', val));
-
-        /*
-          We have to find whether the payment mode account associated with the expense is actually enabled/available for the user.
-          In case if it is not, we have to append the account asociated with the expense to the available payment modes for the user
-        */
-
-        // if (etxn.tx.source_account_id) {
-        //   return constructedPaymentModes$.pipe(
-        //     map((paymentModes) => {
-        //       if (!paymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)) {
-        //         const accountLinkedWithExpense = accounts.find(
-        //           (account) => account.acc.id === etxn.tx.source_account_id
-        //         );
-        //         paymentModes.push(accountLinkedWithExpense);
-        //       }
-        //       return paymentModes;
-        //     })
-        //   );
-        // }
       })
     );
   }
@@ -1506,44 +1482,6 @@ export class AddEditExpensePage implements OnInit {
         return paymentModes[0].value;
       })
     );
-
-    defaultPaymentMode$.subscribe((val) => console.log('DEFAULT PAYMENT MODE', val));
-
-    // const defaultPaymentMode$ = forkJoin({
-    //   orgUserSettings: this.orgUserSettings$,
-    //   paymentModes: this.paymentModes$,
-    // }).pipe(
-    //   map(({ paymentModes, orgUserSettings }) => {
-    //     const hasCCCAccount = paymentModes
-    //       .map((res) => res.value)
-    //       .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-
-    //     const paidByCompanyAccount = paymentModes
-    //       .map((res) => res?.value)
-    //       .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
-
-    //     if (
-    //       hasCCCAccount &&
-    //       orgUserSettings.preferences &&
-    //       orgUserSettings.preferences.default_payment_mode &&
-    //       orgUserSettings.preferences.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-    //     ) {
-    //       return paymentModes
-    //         .map((res) => res.value)
-    //         .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-    //     } else if (paidByCompanyAccount && orgUserSettings?.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
-    //       return paidByCompanyAccount;
-    //     } else if (this.isCreatedFromCCC) {
-    //       return paymentModes
-    //         .map((res) => res.value)
-    //         .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-    //     } else {
-    //       return paymentModes
-    //         .map((res) => res.value)
-    //         .find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash');
-    //     }
-    //   })
-    // );
 
     this.recentlyUsedProjects$ = forkJoin({
       recentValues: this.recentlyUsedValues$,
@@ -2740,7 +2678,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    this.paymentModes$.subscribe((val) => console.log('VALUE RETURNED BY PAYMENT MODE', val));
+    this.paymentModes$.subscribe((paymentModes) => (this.hidePaymentMode = paymentModes.length <= 1));
 
     orgSettings$
       .pipe(
@@ -2892,10 +2830,6 @@ export class AddEditExpensePage implements OnInit {
         this.taxGroups$ = of(null);
         this.taxGroupsOptions$ = of(null);
       }
-    });
-
-    this.paymentModes$.subscribe((paymentModes) => {
-      this.availablePaymentModes = paymentModes;
     });
 
     this.etxn$.subscribe((etxn) => {
