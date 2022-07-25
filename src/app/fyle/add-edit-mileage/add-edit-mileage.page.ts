@@ -646,7 +646,7 @@ export class AddEditMileagePage implements OnInit {
     return filteredMileageRate && filteredMileageRate.length > 0 && filteredMileageRate[0].rate;
   }
 
-  getMileageByVehicleType(mileageRates, vehicle_type, check) {
+  getMileageByVehicleType(mileageRates, vehicle_type) {
     const filteredMileageRate = mileageRates.filter((mileageRate) => mileageRate.vehicle_type === vehicle_type);
 
     return filteredMileageRate && filteredMileageRate.length > 0 && filteredMileageRate[0];
@@ -711,9 +711,7 @@ export class AddEditMileagePage implements OnInit {
     const defaultMileage$ = forkJoin({
       defaultVehicle: defaultVehicle$,
       mileageRates: this.mileageRates$,
-    }).pipe(
-      map(({ defaultVehicle, mileageRates }) => this.getMileageByVehicleType(mileageRates, defaultVehicle, true))
-    );
+    }).pipe(map(({ defaultVehicle, mileageRates }) => this.getMileageByVehicleType(mileageRates, defaultVehicle)));
 
     type locationInfo = { recentStartLocation: string; eou: ExtendedOrgUser; currentLocation: Position };
 
@@ -1483,7 +1481,7 @@ export class AddEditMileagePage implements OnInit {
             this.presetLocation = recentValue.recent_start_locations[0];
           }
           const unit = etxn.tx.distance_unit && etxn.tx.distance_unit.toLowerCase() === 'miles' ? 'mile' : 'km';
-          var mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type, false);
+          var mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type);
           mileage_rate_name.readableRate =
             this.currencyPipe.transform(etxn.tx.mileage_rate, etxn.tx.currency, 'symbol', '1.2-2') + '/' + unit;
           this.fg.patchValue({
