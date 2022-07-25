@@ -13,6 +13,7 @@ $grey-4: #f9f9f9;
 $grey-5: #e5e5e5;
 $grey-6: #e0e0e0 !default;
 $grey-7: #eeeeee !default;
+$grey-8: #666 !default;
 $grey-light: #a9acbc !default;
 $grey-light-2: #4a4a4a !default;
 $grey-lighter: #dfdfe2 !default;
@@ -85,16 +86,11 @@ $light-pink: #fff2f3 !default;
 
 $text-button-grey: #8c8fa6;
 
-$balanced: #666 !default;
-
 $reported-color: #4798ff;
 $approved-color: #67bc53;
 $paid-color: #3d8b3d;
 $fyled-color: #f90;
 $sent-back-color: #da1e28;
-$draft-color: #464d57;
-$payment-pending-color: #66bb6a;
-$payment-processing-color: #47a447;
 
 $ccc-bank-name: #c4cae8;
 $rejected-color: #d50000;
@@ -113,13 +109,10 @@ $states: (
   'payment_pending': $highlight-green,
   'payment_processing': darken(#5cb85c, 8%),
   'paid': darken(#5cb85c, 15%),
-  'disabled': $balanced,
+  'disabled': $grey-8,
   //state pill in advance requests
   'pending': #2196f3,
   'issued': #3d8b3d,
-  //state pill in integration exports
-  'success': $highlight-green,
-  'failure': $rejected-color,
   //adding new states for advance colors
   'pendingApproval': #1ab6bb,
   'cancelled': #d0021b,
