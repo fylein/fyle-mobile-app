@@ -31,7 +31,7 @@
         <span>{{ erpt.rp_num_transactions }} </span>
         <span>{{ erpt.rp_num_transactions === 1 ? 'Expense' : 'Expenses' }}</span>
       </div>
-      <div class="text-capitalize reports-card--pill  reports-card--pill__{{ erpt.rp_state | reportState }}">
+      <div class="text-capitalize state-pill state-{{ erpt.rp_state | reportState }}">
         {{ erpt.rp_state | reportState | snakeCaseToSpaceCase }}
       </div>
     </div>

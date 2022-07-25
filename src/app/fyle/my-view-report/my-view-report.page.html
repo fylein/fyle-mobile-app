@@ -58,7 +58,7 @@
             <ion-col size="5"> </ion-col>
             <ion-col size="7">
               <div
-                class="text-capitalize view-reports--report-state-pill view-reports--report-state-pill__{{erpt.rp_state | reportState}}"
+                class="text-capitalize view-reports--report-state-pill state-pill state-{{erpt.rp_state | reportState}}"
               >
                 {{erpt.rp_state | reportState | snakeCaseToSpaceCase}}
               </div>

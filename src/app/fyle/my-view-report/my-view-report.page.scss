@@ -83,43 +83,8 @@
 
   &--report-state-pill {
     margin-top: 4px;
-    color: $pure-white;
-    padding: 1px 16px;
-    border-radius: 16px;
     font-size: 12px;
     float: right;
-
-    &__unreported {
-      background-color: $fyled-color;
-    }
-
-    &__draft {
-      background-color: $draft-color;
-    }
-
-    &__reported {
-      background-color: $reported-color;
-    }
-
-    &__sent_back {
-      background-color: $sent-back-color;
-    }
-
-    &__approved {
-      background-color: $approved-color;
-    }
-
-    &__payment_pending {
-      background-color: $payment-pending-color;
-    }
-
-    &__payment_processing {
-      background-color: $payment-processing-color;
-    }
-
-    &__paid {
-      background-color: $paid-color;
-    }
   }
 
   &--approval-state-block {

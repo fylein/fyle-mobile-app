@@ -84,7 +84,7 @@
           class="view-per-diem--card-container__state-pill ion-text-right"
           [ngClass]="{'view-per-diem--card-container__state-pill--with-project': isProjectShown}"
         >
-          <div class="view-per-diem--card-container__state-pill__state">
+          <div class="state-pill state-{{extendedMileage.tx_state | expenseState}}">
             {{ extendedPerDiem.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
