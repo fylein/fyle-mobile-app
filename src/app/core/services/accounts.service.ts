@@ -105,10 +105,10 @@ export class AccountsService {
 
   //Dummy method - will be replaced by API call
   getAllowedPaymentModes(): Observable<string[]> {
-    return of(['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT']);
+    return of(['PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT']);
   }
 
-  //Get user accounts, filter and sort by allowed payment modes and return an observable
+  //Filter and sort user accounts by allowed payment modes and return an observable of allowed accounts
   getAllowedAccounts(
     etxn: any,
     accounts: ExtendedAccount[],
@@ -121,10 +121,11 @@ export class AccountsService {
       allowedPaymentModes: this.getAllowedPaymentModes(),
     }).pipe(
       map(({ constructedPaymentModes, allowedPaymentModes }) => {
+        //Filter out accounts not present in allowed payment modes array
         const filteredPaymentModes = constructedPaymentModes.filter((paymentMode) => {
           /**
            * Mapping expenses of type 'COMPANY_ACCOUNT' in allowedPaymentModes array to
-           * non-reimbursable expenses of 'PERSONAL_ACCOUNT' in constructedPaymentModes
+           * non-reimbursable expenses of type 'PERSONAL_ACCOUNT' in constructedPaymentModes
            */
           if (paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable) {
             paymentMode.acc.type = 'COMPANY_ACCOUNT';

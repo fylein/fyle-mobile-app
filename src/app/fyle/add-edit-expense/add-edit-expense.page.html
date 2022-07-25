@@ -278,7 +278,7 @@
                   </div>
                 </ng-container>
               </ion-col>
-              <ion-col [size]="6" *ngIf="!hidePaymentMode">
+              <ion-col size="6" *ngIf="!hidePaymentMode">
                 <ng-container *ngIf="paymentModes$|async as paymentModes">
                   <div
                     [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}"
