@@ -659,9 +659,9 @@ export class AddEditMileagePage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValue: this.recentlyUsedValues$,
-      mileageOptions: this.offlineService.getMileageRates(),
+      mileageRates: this.mileageRates$,
     }).pipe(
-      map(({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageOptions }) => {
+      map(({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageRates }) => {
         const isRecentVehicleTypePresent =
           orgSettings.org_expense_form_autofills &&
           orgSettings.org_expense_form_autofills.allowed &&
@@ -680,8 +680,8 @@ export class AddEditMileagePage implements OnInit {
           if (isVehicleTypePresent === -1) {
             vehicleType = orgUserMileageSettings[0];
           }
-        } else if (!vehicleType && mileageOptions && mileageOptions.length > 0) {
-          vehicleType = mileageOptions[0].vehicle_type;
+        } else if (!vehicleType && mileageRates && mileageRates.length > 0) {
+          vehicleType = mileageRates[0].vehicle_type;
         }
 
         return vehicleType as string;
@@ -690,7 +690,7 @@ export class AddEditMileagePage implements OnInit {
 
     const defaultMileage$ = forkJoin({
       defaultVehicle: defaultVehicle$,
-      mileageRates: this.offlineService.getMileageRates(),
+      mileageRates: this.mileageRates$,
     }).pipe(map(({ defaultVehicle, mileageRates }) => this.getMileageByVehicleType(mileageRates, defaultVehicle)));
 
     type locationInfo = { recentStartLocation: string; eou: ExtendedOrgUser; currentLocation: Position };
@@ -852,33 +852,6 @@ export class AddEditMileagePage implements OnInit {
     return rateName && names[rateName] ? names[rateName] : rateName;
   }
 
-  getMileageRates() {
-    return forkJoin({
-      orgSettings: this.offlineService.getOrgSettings(),
-      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
-      mileageRates: this.offlineService.getMileageRates(),
-    }).pipe(
-      map(({ orgSettings, orgUserMileageSettings, mileageRates }) => {
-        const mileageConfig = orgSettings.mileage;
-        orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
-        if (orgUserMileageSettings.length > 0) {
-          const mileageRateNames = mileageRates.map((res) => res.vehicle_type);
-
-          orgUserMileageSettings.forEach((mileageLabel) => {
-            const i = mileageRateNames.indexOf(mileageLabel);
-            if (i === -1) {
-              mileageRateNames.splice(i, 1);
-              mileageRates.splice(i, 1);
-            }
-          });
-        }
-
-        return mileageRates;
-      }),
-      shareReplay(1)
-    );
-  }
-
   ionViewWillEnter() {
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
@@ -922,7 +895,6 @@ export class AddEditMileagePage implements OnInit {
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const mileageRates$ = this.offlineService.getMileageRates();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
@@ -973,7 +945,27 @@ export class AddEditMileagePage implements OnInit {
       this.fg.controls.sub_category.updateValueAndValidity();
     });
 
-    this.mileageRates$ = this.offlineService.getMileageRates();
+    this.mileageRates$ = forkJoin({
+      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
+      mileageRates: this.offlineService.getMileageRates(),
+    }).pipe(
+      map(({ orgUserMileageSettings, mileageRates }) => {
+        orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
+        if (orgUserMileageSettings.length > 0) {
+          const mileageRateNames = mileageRates.map((res) => res.vehicle_type);
+
+          orgUserMileageSettings.forEach((mileageLabel) => {
+            const i = mileageRateNames.indexOf(mileageLabel);
+            if (i === -1) {
+              mileageRateNames.splice(i, 1);
+              mileageRates.splice(i, 1);
+            }
+          });
+        }
+
+        return mileageRates;
+      })
+    );
 
     this.mileageRatesOptions$ = forkJoin({
       mileageRates: this.mileageRates$,
@@ -1150,7 +1142,7 @@ export class AddEditMileagePage implements OnInit {
         switchMap((formValue) =>
           forkJoin({
             etxn: this.etxn$,
-            mileageRates: this.offlineService.getMileageRates(),
+            mileageRates: this.mileageRates$,
           }).pipe(
             map(({ etxn, mileageRates }) => {
               if (formValue) {
@@ -1168,9 +1160,9 @@ export class AddEditMileagePage implements OnInit {
       this.fg.valueChanges.pipe(
         map((formValue) => formValue.mileage_rate_name),
         switchMap((formValue) =>
-          this.offlineService
-            .getMileageRates()
-            .pipe(map((mileageRates) => this.getRateByVehicleType(mileageRates, formValue && formValue.vehicle_type)))
+          this.mileageRates$.pipe(
+            map((mileageRates) => this.getRateByVehicleType(mileageRates, formValue && formValue.vehicle_type))
+          )
         ),
         shareReplay(1)
       )
@@ -1880,7 +1872,7 @@ export class AddEditMileagePage implements OnInit {
       calculatedDistance: calculatedDistance$.pipe(take(1)),
       amount: this.amount$.pipe(take(1)),
       homeCurrency: this.homeCurrency$.pipe(take(1)),
-      mileageRates: this.offlineService.getMileageRates(),
+      mileageRates: this.mileageRates$,
       rate: this.rate$.pipe(take(1)),
     }).pipe(
       map((res) => {
