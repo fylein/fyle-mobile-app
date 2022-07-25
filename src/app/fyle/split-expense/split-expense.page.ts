@@ -116,7 +116,9 @@ export class SplitExpensePage implements OnInit {
       const otherIndex = index === 0 ? 1 : 0;
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
-      const amount = parseFloat((this.amount - splitExpenseForm.value.amount).toFixed(3));
+      const rawAmount = this.amount - splitExpenseForm.value.amount;
+      const amount = parseFloat(rawAmount.toFixed(3));
+
       const percentage = parseFloat(((amount / this.amount) * 100).toFixed(3));
 
       otherSplitExpenseForm.patchValue(
@@ -152,7 +154,9 @@ export class SplitExpensePage implements OnInit {
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
       const percentage = Math.min(100, Math.max(0, 100 - splitExpenseForm.value.percentage));
-      const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
+
+      const rawAmount = (this.amount * percentage) / 100;
+      const amount = parseFloat(rawAmount.toFixed(3));
 
       otherSplitExpenseForm.patchValue(
         {
@@ -468,12 +472,12 @@ export class SplitExpensePage implements OnInit {
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
       this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
 
-      if (this.splitType === 'categories') {
-        this.categories$ = this.getActiveCategories().pipe(
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-        );
-        this.getCategoryList();
-      } else if (this.splitType === 'cost centers') {
+      this.categories$ = this.getActiveCategories().pipe(
+        map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+      );
+      this.getCategoryList();
+
+      if (this.splitType === 'cost centers') {
         const orgSettings$ = this.offlineService.getOrgSettings();
         const orgUserSettings$ = this.offlineService.getOrgUserSettings();
         this.costCenters$ = forkJoin({
@@ -584,7 +588,9 @@ export class SplitExpensePage implements OnInit {
       const lastSplitExpenseForm = this.splitExpensesFormArray.at(1);
 
       const percentage = Math.min(100, Math.max(0, 100 - firstSplitExpenseForm.value.percentage));
-      const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
+
+      const rawAmount = (this.amount * percentage) / 100;
+      const amount = parseFloat(rawAmount.toFixed(3));
 
       lastSplitExpenseForm.patchValue(
         {

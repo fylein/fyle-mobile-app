@@ -199,6 +199,32 @@ export class StatsComponent implements OnInit {
         this.cardTransactionsAndDetailsNonUnifyCCC$ = of(null);
       }
     });
+
+    this.offlineService.getOrgs().subscribe((orgs) => {
+      const isMultiOrg = orgs.length > 1;
+
+      if (performance.getEntriesByName('app launch time').length < 1) {
+        // Time taken for the app to launch and display the first screen
+        performance.mark('app launch end time');
+
+        // Measure time taken to launch app
+        performance.measure('app launch time', 'app launch start time', 'app launch end time');
+
+        const measureLaunchTime = performance.getEntriesByName('app launch time');
+
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        const isLoggedIn = performance.getEntriesByName('app launch start time')[0]['detail'];
+
+        // Converting the duration to seconds and fix it to 3 decimal places
+        const launchTimeDuration = (measureLaunchTime[0].duration / 1000).toFixed(3);
+
+        this.trackingService.appLaunchTime({
+          'App launch time': launchTimeDuration,
+          'Is logged in': isLoggedIn,
+          'Is multi org': isMultiOrg,
+        });
+      }
+    });
   }
 
   ngOnInit() {

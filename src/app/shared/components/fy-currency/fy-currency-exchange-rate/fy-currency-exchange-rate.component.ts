@@ -56,7 +56,10 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
       this.fg.setValue({
         newCurrencyAmount: this.amount,
         exchangeRate: this.toFixed(this.exchangeRate, 7),
-        homeCurrencyAmount: this.toFixed(this.exchangeRate * this.amount, 2),
+        homeCurrencyAmount: this.currencyService.getAmountWithCurrencyFraction(
+          this.exchangeRate * this.amount,
+          this.currentCurrency
+        ),
       });
     } else {
       from(this.loaderService.showLoader())
@@ -70,7 +73,10 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
           this.fg.setValue({
             newCurrencyAmount: this.amount,
             exchangeRate,
-            homeCurrencyAmount: this.toFixed(exchangeRate * this.amount, 2),
+            homeCurrencyAmount: this.currencyService.getAmountWithCurrencyFraction(
+              exchangeRate * this.amount,
+              this.currentCurrency
+            ),
           });
         });
     }
@@ -78,7 +84,8 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
     this.fg.controls.newCurrencyAmount.valueChanges.pipe(distinctUntilChanged()).subscribe(() => {
       const amount = +this.fg.controls.newCurrencyAmount.value * +this.fg.controls.exchangeRate.value;
       if (amount && amount !== Infinity) {
-        this.fg.controls.homeCurrencyAmount.setValue(this.toFixed(amount, 2), {
+        const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(amount, this.currentCurrency);
+        this.fg.controls.homeCurrencyAmount.setValue(formattedAmount, {
           emitEvent: false,
         });
       } else {
@@ -91,7 +98,8 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
     this.fg.controls.exchangeRate.valueChanges.pipe(distinctUntilChanged()).subscribe(() => {
       const amount = +this.fg.controls.newCurrencyAmount.value * +this.fg.controls.exchangeRate.value;
       if (amount && amount !== Infinity) {
-        this.fg.controls.homeCurrencyAmount.setValue(this.toFixed(amount, 2), {
+        const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(amount, this.currentCurrency);
+        this.fg.controls.homeCurrencyAmount.setValue(formattedAmount, {
           emitEvent: false,
         });
       } else {

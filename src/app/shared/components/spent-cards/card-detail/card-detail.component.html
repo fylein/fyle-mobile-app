@@ -41,7 +41,7 @@
           <span class="stats--expenses-amount-currency">
             {{ currencySymbol | async }}
           </span>
-          {{ cardDetail.totalDraftValue | humanizeCurrency: (homeCurrency | async):2:true }}
+          {{ cardDetail.totalDraftValue | humanizeCurrency: (homeCurrency | async):true }}
         </div>
       </div>
       <div class="stats--ccc-stats-title">
@@ -59,7 +59,7 @@
           <span class="stats--expenses-amount-currency">
             {{ currencySymbol | async }}
           </span>
-          {{ cardDetail.totalAmountValue | humanizeCurrency: (homeCurrency | async):2:true }}
+          {{ cardDetail.totalAmountValue | humanizeCurrency: (homeCurrency | async):true }}
         </div>
       </div>
       <div class="stats--ccc-stats-title">Total {{ cardDetail.totalTxnsCount === 1 ? 'Expense' : 'Expenses' }}</div>
