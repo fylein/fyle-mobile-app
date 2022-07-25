@@ -2556,6 +2556,31 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
+    orgSettings$.subscribe((orgSettings) => {
+      this.isUnifyCcceExpensesSettingsEnabled =
+        orgSettings.unify_ccce_expenses_settings &&
+        orgSettings.unify_ccce_expenses_settings.allowed &&
+        orgSettings.unify_ccce_expenses_settings.enabled;
+
+      this.isCorporateCreditCardEnabled =
+        orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+
+      this.isDraftExpenseEnabled =
+        orgSettings.ccc_draft_expense_settings &&
+        orgSettings.ccc_draft_expense_settings.allowed &&
+        orgSettings.ccc_draft_expense_settings.enabled;
+
+      if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
+        this.taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
+        this.taxGroupsOptions$ = this.taxGroups$.pipe(
+          map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
+        );
+      } else {
+        this.taxGroups$ = of(null);
+        this.taxGroupsOptions$ = of(null);
+      }
+    });
+
     this.setupNetworkWatcher();
 
     this.recentlyUsedValues$ = this.isConnected$.pipe(
@@ -2806,31 +2831,6 @@ export class AddEditExpensePage implements OnInit {
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
     );
-
-    orgSettings$.subscribe((orgSettings) => {
-      this.isUnifyCcceExpensesSettingsEnabled =
-        orgSettings.unify_ccce_expenses_settings &&
-        orgSettings.unify_ccce_expenses_settings.allowed &&
-        orgSettings.unify_ccce_expenses_settings.enabled;
-
-      this.isCorporateCreditCardEnabled =
-        orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
-
-      this.isDraftExpenseEnabled =
-        orgSettings.ccc_draft_expense_settings &&
-        orgSettings.ccc_draft_expense_settings.allowed &&
-        orgSettings.ccc_draft_expense_settings.enabled;
-
-      if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
-        this.taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
-        this.taxGroupsOptions$ = this.taxGroups$.pipe(
-          map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
-        );
-      } else {
-        this.taxGroups$ = of(null);
-        this.taxGroupsOptions$ = of(null);
-      }
-    });
 
     this.etxn$.subscribe((etxn) => {
       this.isCccExpense = etxn?.tx?.corporate_credit_card_expense_group_id;
