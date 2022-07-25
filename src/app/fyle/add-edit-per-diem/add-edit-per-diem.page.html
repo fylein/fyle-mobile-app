@@ -68,8 +68,9 @@
                 <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
                   <mat-icon class="capped-icon" svgIcon="fy-info"></mat-icon>
                   <div class="capped-message">
-                    Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
-                    '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+                    Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: '' }} was capped to
+                    {{etxn.tx.amount | currency: etxn.tx.currency: '' }} due to policy
+                    <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
                   </div>
                 </div>
               </ng-container>
@@ -95,8 +96,8 @@
                 <div class="add-edit-per-diem--conversion">
                   <mat-icon class="add-edit-per-diem--conversion-icon" svgIcon="information"></mat-icon>
                   <div class="add-edit-per-diem--conversion-amount">
-                    {{fg.controls.currencyObj?.value?.currency}} {{fg.controls.currencyObj?.value?.amount | number:
-                    '1.0-2'}}
+                    {{ fg.controls.currencyObj?.value?.amount | currency: fg.controls.currencyObj?.value?.currency:
+                    'code' }}
                   </div>
                   <div class="add-edit-per-diem--conversion-rate">
                     at {{ (fg.controls.currencyObj?.value?.amount / fg.controls.currencyObj?.value?.orig_amount) |

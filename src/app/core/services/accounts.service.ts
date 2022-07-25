@@ -3,10 +3,10 @@ import { map } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
-import { CurrencyPipe } from '@angular/common';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { Observable } from 'rxjs';
 import { ExtendedAccount } from '../models/extended-account.model';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +15,7 @@ export class AccountsService {
   constructor(
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
-    private currencyPipe: CurrencyPipe,
+    private fyCurrencyPipe: FyCurrencyPipe,
     private launchDarklyService: LaunchDarklyService
   ) {}
 
@@ -73,7 +73,7 @@ export class AccountsService {
               currency = account.orig.currency;
             }
 
-            account.acc.displayName = 'Advance (Balance: ' + that.currencyPipe.transform(balance, currency) + ')';
+            account.acc.displayName = 'Advance (Balance: ' + that.fyCurrencyPipe.transform(balance, currency) + ')';
 
             account.acc.isReimbursable = false;
             return account;

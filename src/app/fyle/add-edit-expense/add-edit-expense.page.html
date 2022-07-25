@@ -102,8 +102,9 @@
             <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
               <mat-icon class="capped-icon" svgIcon="fy-info"></mat-icon>
               <div class="capped-message">
-                Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
-                '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+                Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: '' }} was capped to {{etxn.tx.amount
+                | currency: etxn.tx.currency: '' }} due to policy
+                <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
               </div>
             </div>
           </ng-container>
@@ -128,15 +129,14 @@
                 <div class="add-edit-expense--card-container__label">Spend Amount</div>
                 <div *ngIf="selectedCCCTransaction?.amount > 0">
                   <span class="add-edit-expense--card-container__value"
-                    >{{ cardCurrencySymbol }}{{ selectedCCCTransaction?.amount | humanizeCurrency:
-                    selectedCCCTransaction?.currency:2:true }}</span
+                    >{{ selectedCCCTransaction?.amount | humanizeCurrency: selectedCCCTransaction?.currency }}</span
                   >
                   <span class="add-edit-expense--card-container__txn-type">DR</span>
                 </div>
                 <div *ngIf="selectedCCCTransaction?.amount < 0">
                   <span class="add-edit-expense--card-container__value add-edit-expense--card-container__credit"
-                    >{{ cardCurrencySymbol }}{{ selectedCCCTransaction?.amount * -1 | humanizeCurrency:
-                    selectedCCCTransaction?.currency:2:true }}</span
+                    >{{ selectedCCCTransaction?.amount * -1 | humanizeCurrency: selectedCCCTransaction?.currency
+                    }}</span
                   >
                   <span class="add-edit-expense--card-container__txn-type add-edit-expense--card-container__credit"
                     >CR</span

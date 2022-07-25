@@ -46,6 +46,8 @@ export class AppComponent implements OnInit {
 
   isSwitchedToDelegator: boolean;
 
+  isUserLoggedIn = false;
+
   constructor(
     private platform: Platform,
     private router: Router,
@@ -120,6 +122,7 @@ export class AppComponent implements OnInit {
   initializeApp() {
     // eslint-disable-next-line max-len
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
+
     App.addListener('appUrlOpen', (data) => {
       this.zone.run(() => {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
@@ -187,10 +190,16 @@ export class AppComponent implements OnInit {
 
     this.checkAppSupportedVersion();
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+      this.isUserLoggedIn = loggedInStatus;
       if (loggedInStatus) {
         this.sidemenuRef.showSideMenu();
         this.pushNotificationService.initPush();
       }
+
+      const markOptions: PerformanceMarkOptions = {
+        detail: this.isUserLoggedIn,
+      };
+      performance.mark('app launch start time', markOptions);
     });
 
     this.userEventService.onSetToken(() => {

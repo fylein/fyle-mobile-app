@@ -647,6 +647,10 @@ export class AddEditMileagePage implements OnInit {
       options.push('four_wheeler1');
     }
 
+    if (mileageConfig.four_wheeler4) {
+      options.push('four_wheeler4');
+    }
+
     return options;
   }
 
