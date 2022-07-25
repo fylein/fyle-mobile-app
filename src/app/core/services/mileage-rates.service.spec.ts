@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { MileageRatesService } from './mileage-rate.service';
+import { MileageRatesService } from './mileage-rates.service';
 
 xdescribe('MileageRatesService', () => {
   let service: MileageRatesService;
