@@ -19,8 +19,6 @@ export class MileageRateName implements PipeTransform {
       electric_car: 'Electric Car',
     };
 
-    names['vehicle type'] = 'Mileage Rate Name';
-
     return names[value] ? names[value] : value;
   }
 }
