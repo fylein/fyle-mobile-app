@@ -219,22 +219,24 @@
         </ion-row>
       </ion-grid>
 
-      <ion-grid class="view-expense--grid">
-        <ion-row>
-          <ion-col class="view-expense--icon-container">
-            <div class="view-expense--icon-container__background">
-              <ion-icon
-                class="view-expense--icon-container__icon-lg"
-                [src]="'../../../assets/svg/' + (paymentModeIcon === 'fy-matched' ? 'fy-unmatched' : paymentModeIcon) + '.svg'"
-              ></ion-icon>
-            </div>
-          </ion-col>
-          <ion-col class="view-expense--content-container">
-            <div class="view-expense--label">Payment Mode</div>
-            <div class="view-expense--value">{{ paymentMode }}</div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+      <ng-container *ngIf="!(hidePaymentMode$|async)">
+        <ion-grid class="view-expense--grid">
+          <ion-row>
+            <ion-col class="view-expense--icon-container">
+              <div class="view-expense--icon-container__background">
+                <ion-icon
+                  class="view-expense--icon-container__icon-lg"
+                  [src]="'../../../assets/svg/' + (paymentModeIcon === 'fy-matched' ? 'fy-unmatched' : paymentModeIcon) + '.svg'"
+                ></ion-icon>
+              </div>
+            </ion-col>
+            <ion-col class="view-expense--content-container">
+              <div class="view-expense--label">Payment Mode</div>
+              <div class="view-expense--value">{{ paymentMode }}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
 
       <ion-grid *ngIf="isCCCTransaction" class="view-expense--grid">
         <ion-row>

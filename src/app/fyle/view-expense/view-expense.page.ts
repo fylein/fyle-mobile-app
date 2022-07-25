@@ -25,6 +25,7 @@ import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
+import { AccountsService } from 'src/app/core/services/accounts.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -102,6 +103,8 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
+  hidePaymentMode$: Observable<boolean>;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -118,7 +121,8 @@ export class ViewExpensePage implements OnInit {
     private policyService: PolicyService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private accountsService: AccountsService
   ) {}
 
   get ExpenseView() {
@@ -233,6 +237,22 @@ export class ViewExpensePage implements OnInit {
       if (etxn.tx_amount && etxn.tx_orig_amount) {
         this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
       }
+
+      this.hidePaymentMode$ = this.accountsService.getAllowedPaymentModes().pipe(
+        map((paymentModes) => {
+          if (paymentModes.length === 1) {
+            if (
+              paymentModes[0] === 'COMPANY_ACCOUNT' &&
+              etxn.source_account_type === 'PERSONAL_ACCOUNT' &&
+              etxn.tx_skip_reimbursement
+            ) {
+              return true;
+            }
+            return paymentModes[0] === etxn.source_account_type;
+          }
+          return false;
+        })
+      );
 
       if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
         this.paymentMode = 'Advance';
