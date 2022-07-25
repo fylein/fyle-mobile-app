@@ -4,9 +4,10 @@ import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
 import { LaunchDarklyService } from './launch-darkly.service';
-import { Observable, of } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { AccountOption } from '../models/account-option.model';
 
 @Injectable({
   providedIn: 'root',
@@ -104,6 +105,58 @@ export class AccountsService {
 
   //Dummy method - will be replaced by API call
   getAllowedPaymentModes(): Observable<string[]> {
-    return of(['PERSONAL_ACCOUNT']);
+    return of(['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT']);
+  }
+
+  //Get user accounts, filter and sort by allowed payment modes and return an observable
+  getAllowedAccounts(
+    etxn: any,
+    accounts: ExtendedAccount[],
+    isAdvanceEnabled: boolean,
+    isMultipleAdvanceEnabled: boolean
+  ): Observable<AccountOption[]> {
+    const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+    return forkJoin({
+      constructedPaymentModes: this.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled),
+      allowedPaymentModes: this.getAllowedPaymentModes(),
+    }).pipe(
+      map(({ constructedPaymentModes, allowedPaymentModes }) => {
+        const filteredPaymentModes = constructedPaymentModes.filter((paymentMode) => {
+          /**
+           * Mapping expenses of type 'COMPANY_ACCOUNT' in allowedPaymentModes array to
+           * non-reimbursable expenses of 'PERSONAL_ACCOUNT' in constructedPaymentModes
+           */
+          if (paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable) {
+            paymentMode.acc.type = 'COMPANY_ACCOUNT';
+            return allowedPaymentModes.indexOf('COMPANY_ACCOUNT') >= 0;
+          }
+          return allowedPaymentModes.indexOf(paymentMode.acc.type) >= 0;
+        });
+
+        //Sorting expenses based on the order in allowedPaymentModes
+        let resPaymentModes = filteredPaymentModes.sort(
+          (a, b) => allowedPaymentModes.indexOf(a.acc.type) - allowedPaymentModes.indexOf(b.acc.type)
+        );
+
+        /**
+         * In edit expense, if the account selected while creating the expense is no longer present in
+         * the list of allowed accounts, add it to the list only for this expense
+         */
+        if (
+          etxn.tx.source_account_id &&
+          !resPaymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)
+        ) {
+          const accountLinkedWithExpense = accounts.find((account) => account.acc.id === etxn.tx.source_account_id);
+          resPaymentModes = [accountLinkedWithExpense, ...resPaymentModes];
+        }
+
+        return resPaymentModes.map((paymentMode) => {
+          if (paymentMode.acc.type === 'COMPANY_ACCOUNT') {
+            paymentMode.acc.type = 'PERSONAL_ACCOUNT';
+          }
+          return { label: paymentMode.acc.displayName, value: paymentMode };
+        });
+      })
+    );
   }
 }

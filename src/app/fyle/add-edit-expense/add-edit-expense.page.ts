@@ -1025,15 +1025,11 @@ export class AddEditExpensePage implements OnInit {
       etxn: this.etxn$,
     }).pipe(
       switchMap(({ accounts, orgSettings, etxn }) => {
-        const isAdvanceEnabled =
-          (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
-        const isMultipleAdvanceEnabled =
-          orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
+        const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
+        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
         const isCCCEnabled =
-          orgSettings &&
-          orgSettings.corporate_credit_card_settings?.allowed &&
-          orgSettings.corporate_credit_card_settings?.enabled;
+          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+
         /**
          * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
          * But if already an expense is created as CCC payment mode then on edit of that expense it should be visible
@@ -1048,54 +1044,7 @@ export class AddEditExpensePage implements OnInit {
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
           this.showCardTransaction = false;
         }
-        const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-        const constructedPaymentModes$ = this.accountsService.constructPaymentModes(
-          userAccounts,
-          isMultipleAdvanceEnabled
-        );
-
-        return forkJoin({
-          constructedPaymentModes: constructedPaymentModes$,
-          allowedPaymentModes: this.accountsService.getAllowedPaymentModes(),
-        }).pipe(
-          map(({ constructedPaymentModes, allowedPaymentModes }) => {
-            const filteredPaymentModes = constructedPaymentModes.filter((paymentMode) => {
-              /**
-               * Mapping expenses of type 'COMPANY_ACCOUNT' in allowedPaymentModes array to
-               * non-reimbursable expenses of 'PERSONAL_ACCOUNT' in constructedPaymentModes
-               */
-              if (paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable) {
-                paymentMode.acc.type = 'COMPANY_ACCOUNT';
-                return allowedPaymentModes.indexOf('COMPANY_ACCOUNT') >= 0;
-              }
-              return allowedPaymentModes.indexOf(paymentMode.acc.type) >= 0;
-            });
-
-            //Sorting expenses based on the order in allowedPaymentModes
-            let resPaymentModes = filteredPaymentModes.sort(
-              (a, b) => allowedPaymentModes.indexOf(a.acc.type) - allowedPaymentModes.indexOf(b.acc.type)
-            );
-
-            /**
-             * In edit expense, if the account selected while creating the expense is no longer present in
-             * the list of allowed accounts, add it to the list only for this expense
-             */
-            if (
-              etxn.tx.source_account_id &&
-              !resPaymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)
-            ) {
-              const accountLinkedWithExpense = accounts.find((account) => account.acc.id === etxn.tx.source_account_id);
-              resPaymentModes = [accountLinkedWithExpense, ...resPaymentModes];
-            }
-
-            return resPaymentModes.map((paymentMode) => {
-              if (paymentMode.acc.type === 'COMPANY_ACCOUNT') {
-                paymentMode.acc.type = 'PERSONAL_ACCOUNT';
-              }
-              return { label: paymentMode.acc.displayName, value: paymentMode };
-            });
-          })
-        );
+        return this.accountsService.getAllowedAccounts(etxn, accounts, isAdvanceEnabled, isMultipleAdvanceEnabled);
       })
     );
   }
