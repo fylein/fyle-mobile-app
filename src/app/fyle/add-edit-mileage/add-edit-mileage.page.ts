@@ -1898,6 +1898,7 @@ export class AddEditMileagePage implements OnInit {
           this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
         const rate = res.rate;
         const formValue = this.fg.value;
+        console.log('rate', rate);
         return {
           tx: {
             ...etxn.tx,
@@ -1918,10 +1919,10 @@ export class AddEditMileagePage implements OnInit {
             orig_amount: null,
             mileage_calculated_distance: calculatedDistance,
             mileage_calculated_amount:
-              rate ||
-              etxn.tx.mileage_rate ||
-              this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name.vehicle_type) *
-                calculatedDistance,
+              (rate ||
+                etxn.tx.mileage_rate ||
+                this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name.vehicle_type)) *
+              calculatedDistance,
             project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,
             custom_properties: customProperties || [],
