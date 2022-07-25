@@ -16,6 +16,7 @@ import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take 
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type Image = Partial<{
   source: string;
@@ -54,6 +55,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
+  isRemoveOfflineFormsSupportEnabled = false;
+
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -65,7 +68,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   setupNetworkWatcher() {
@@ -91,6 +95,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
       this.isInstafyleEnabled =
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
+    });
+
+    this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
+      this.isRemoveOfflineFormsSupportEnabled = res;
     });
   }
 
@@ -328,15 +336,19 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
               });
             }, 0);
           } else {
-            this.router.navigate([
-              '/',
-              'enterprise',
-              'add_edit_expense',
-              {
-                dataUrl: this.base64ImagesWithSource[0].base64Image,
-                canExtractData: this.isInstafyleEnabled,
-              },
-            ]);
+            if (this.isRemoveOfflineFormsSupportEnabled) {
+              this.review();
+            } else {
+              this.router.navigate([
+                '/',
+                'enterprise',
+                'add_edit_expense',
+                {
+                  dataUrl: this.base64ImagesWithSource[0].base64Image,
+                  canExtractData: this.isInstafyleEnabled,
+                },
+              ]);
+            }
           }
           this.loaderService.hideLoader();
         }
@@ -346,28 +358,22 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   async review() {
     this.stopCamera();
-    const modal = await this.modalController.create({
-      component: ReceiptPreviewComponent,
-      componentProps: {
-        base64ImagesWithSource: this.base64ImagesWithSource,
-        mode: 'bulk',
-      },
-    });
+    if (this.isRemoveOfflineFormsSupportEnabled) {
+      const modal = await this.modalController.create({
+        component: ReceiptPreviewComponent,
+        componentProps: {
+          base64ImagesWithSource: this.base64ImagesWithSource,
+          mode: 'single',
+        },
+      });
 
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss();
-    if (data) {
-      if (data.base64ImagesWithSource.length === 0) {
-        this.base64ImagesWithSource = [];
-        this.captureCount = 0;
-        this.lastImage = null;
-        this.setUpAndStartCamera();
-      } else {
-        if (data.continueCaptureReceipt) {
-          this.base64ImagesWithSource = data.base64ImagesWithSource;
-          this.captureCount = data.base64ImagesWithSource.length;
-          this.isBulkMode = true;
+      await modal.present();
+      const { data } = await modal.onWillDismiss();
+      if (data) {
+        if (data.base64ImagesWithSource.length === 0) {
+          this.base64ImagesWithSource = [];
+          this.captureCount = 0;
+          this.lastImage = null;
           this.setUpAndStartCamera();
         } else {
           this.loaderService.showLoader('Please wait...', 10000);
@@ -376,6 +382,40 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             .subscribe(() => {
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
             });
+        }
+      }
+    } else {
+      const modal = await this.modalController.create({
+        component: ReceiptPreviewComponent,
+        componentProps: {
+          base64ImagesWithSource: this.base64ImagesWithSource,
+          mode: 'bulk',
+        },
+      });
+
+      await modal.present();
+
+      const { data } = await modal.onWillDismiss();
+      if (data) {
+        if (data.base64ImagesWithSource.length === 0) {
+          this.base64ImagesWithSource = [];
+          this.captureCount = 0;
+          this.lastImage = null;
+          this.setUpAndStartCamera();
+        } else {
+          if (data.continueCaptureReceipt) {
+            this.base64ImagesWithSource = data.base64ImagesWithSource;
+            this.captureCount = data.base64ImagesWithSource.length;
+            this.isBulkMode = true;
+            this.setUpAndStartCamera();
+          } else {
+            this.loaderService.showLoader('Please wait...', 10000);
+            this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+              .pipe(finalize(() => this.loaderService.hideLoader()))
+              .subscribe(() => {
+                this.router.navigate(['/', 'enterprise', 'my_expenses']);
+              });
+          }
         }
       }
     }

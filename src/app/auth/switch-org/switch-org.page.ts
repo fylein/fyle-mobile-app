@@ -18,6 +18,7 @@ import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -47,6 +48,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isIos = false;
 
+  isRemoveOfflineFormsSupportEnabled = false;
+
   constructor(
     private platform: Platform,
     private offlineService: OfflineService,
@@ -63,7 +66,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private cdRef: ChangeDetectorRef,
     private trackingService: TrackingService,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ngOnInit() {
@@ -125,7 +129,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   async proceed() {
-    const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+    let offlineData$: Observable<any[]>;
+    this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
+      this.isRemoveOfflineFormsSupportEnabled = res;
+    });
+    if (this.isRemoveOfflineFormsSupportEnabled) {
+      offlineData$ = of([]);
+    }
+    offlineData$ = this.offlineService.load().pipe(shareReplay(1));
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
