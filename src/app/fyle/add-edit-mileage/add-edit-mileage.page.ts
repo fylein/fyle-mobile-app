@@ -646,7 +646,7 @@ export class AddEditMileagePage implements OnInit {
     return filteredMileageRate && filteredMileageRate.length > 0 && filteredMileageRate[0].rate;
   }
 
-  getMileageByVehicleType(mileageRates, vehicle_type) {
+  getMileageByVehicleType(mileageRates, vehicle_type, check) {
     const filteredMileageRate = mileageRates.filter((mileageRate) => mileageRate.vehicle_type === vehicle_type);
 
     return filteredMileageRate && filteredMileageRate.length > 0 && filteredMileageRate[0];
@@ -660,38 +660,60 @@ export class AddEditMileagePage implements OnInit {
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValue: this.recentlyUsedValues$,
       mileageRates: this.mileageRates$,
+      mileageConfig: this.mileageConfig$,
     }).pipe(
-      map(({ vehicleType, orgUserMileageSettings, orgSettings, orgUserSettings, recentValue, mileageRates }) => {
-        const isRecentVehicleTypePresent =
-          orgSettings.org_expense_form_autofills &&
-          orgSettings.org_expense_form_autofills.allowed &&
-          orgSettings.org_expense_form_autofills.enabled &&
-          orgUserSettings.expense_form_autofills.allowed &&
-          orgUserSettings.expense_form_autofills.enabled &&
-          recentValue &&
-          recentValue.recent_vehicle_types &&
-          recentValue.recent_vehicle_types.length > 0;
-        if (isRecentVehicleTypePresent) {
-          vehicleType = recentValue.recent_vehicle_types[0];
-          this.presetVehicleType = recentValue.recent_vehicle_types[0];
-        } else if (orgUserMileageSettings.length > 0) {
-          const isVehicleTypePresent = orgUserMileageSettings.indexOf(vehicleType);
-
-          if (isVehicleTypePresent === -1) {
-            vehicleType = orgUserMileageSettings[0];
+      map(
+        ({
+          vehicleType,
+          orgUserMileageSettings,
+          orgSettings,
+          orgUserSettings,
+          recentValue,
+          mileageRates,
+          mileageConfig,
+        }) => {
+          const isRecentVehicleTypePresent =
+            orgSettings.org_expense_form_autofills &&
+            orgSettings.org_expense_form_autofills.allowed &&
+            orgSettings.org_expense_form_autofills.enabled &&
+            orgUserSettings.expense_form_autofills.allowed &&
+            orgUserSettings.expense_form_autofills.enabled &&
+            recentValue &&
+            recentValue.recent_vehicle_types &&
+            recentValue.recent_vehicle_types.length > 0;
+          if (isRecentVehicleTypePresent) {
+            vehicleType = recentValue.recent_vehicle_types[0];
+            this.presetVehicleType = recentValue.recent_vehicle_types[0];
           }
-        } else if (!vehicleType && mileageRates && mileageRates.length > 0) {
-          vehicleType = mileageRates[0].vehicle_type;
-        }
 
-        return vehicleType as string;
-      })
+          // if any employee assigned mileage rate is present
+          // -> the recently used mileage rate should be part of the allowed mileage rates.
+          if (
+            mileageConfig &&
+            mileageConfig.enable_individual_mileage_rates &&
+            orgUserMileageSettings &&
+            orgUserMileageSettings.mileage_rate_labels.length > 0
+          ) {
+            const isVehicleTypePresent = orgUserMileageSettings.mileage_rate_labels.indexOf(vehicleType);
+
+            if (isVehicleTypePresent === -1) {
+              vehicleType = orgUserMileageSettings.mileage_rate_labels[0];
+            }
+          } else if (!vehicleType && mileageRates && mileageRates.length > 0) {
+            vehicleType = mileageRates[0].vehicle_type;
+          }
+
+          return vehicleType as string;
+        }
+      )
     );
 
     const defaultMileage$ = forkJoin({
       defaultVehicle: defaultVehicle$,
       mileageRates: this.mileageRates$,
-    }).pipe(map(({ defaultVehicle, mileageRates }) => this.getMileageByVehicleType(mileageRates, defaultVehicle)));
+    }).pipe(
+      map(({ defaultVehicle, mileageRates }) => this.getMileageByVehicleType(mileageRates, defaultVehicle, true))
+    );
 
     type locationInfo = { recentStartLocation: string; eou: ExtendedOrgUser; currentLocation: Position };
 
@@ -896,6 +918,7 @@ export class AddEditMileagePage implements OnInit {
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
 
+    this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
@@ -948,17 +971,18 @@ export class AddEditMileagePage implements OnInit {
     this.mileageRates$ = forkJoin({
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
       mileageRates: this.offlineService.getMileageRates(),
+      mileageConfig: this.mileageConfig$,
     }).pipe(
-      map(({ orgUserMileageSettings, mileageRates }) => {
+      map(({ orgUserMileageSettings, mileageRates, mileageConfig }) => {
         orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
-        if (orgUserMileageSettings.length > 0) {
+        if (mileageConfig && mileageConfig.enable_individual_mileage_rates && orgUserMileageSettings.length > 0) {
           const mileageRateNames = mileageRates.map((res) => res.vehicle_type);
 
-          orgUserMileageSettings.forEach((mileageLabel) => {
-            const i = mileageRateNames.indexOf(mileageLabel);
-            if (i === -1) {
-              mileageRateNames.splice(i, 1);
-              mileageRates.splice(i, 1);
+          mileageRateNames.forEach((mileageLabel, index) => {
+            if (orgUserMileageSettings.indexOf(mileageLabel) === -1) {
+              // removing from mileageRates array if the rate is not allowed.
+              mileageRateNames.splice(index, 1);
+              mileageRates.splice(index, 1);
             }
           });
         }
@@ -989,8 +1013,6 @@ export class AddEditMileagePage implements OnInit {
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.advanced_projects && orgSettings.advanced_projects.enable_individual_projects)
     );
-
-    this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
 
     this.individualProjectIds$ = orgUserSettings$.pipe(
       map((orgUserSettings: any) => orgUserSettings.project_ids || [])
@@ -1461,7 +1483,7 @@ export class AddEditMileagePage implements OnInit {
             this.presetLocation = recentValue.recent_start_locations[0];
           }
           const unit = etxn.tx.distance_unit && etxn.tx.distance_unit.toLowerCase() === 'miles' ? 'mile' : 'km';
-          var mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type);
+          var mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type, false);
           mileage_rate_name.readableRate =
             this.currencyPipe.transform(etxn.tx.mileage_rate, etxn.tx.currency, 'symbol', '1.2-2') + '/' + unit;
           this.fg.patchValue({
@@ -1890,7 +1912,6 @@ export class AddEditMileagePage implements OnInit {
           this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
         const rate = res.rate;
         const formValue = this.fg.value;
-        console.log('rate', rate);
         return {
           tx: {
             ...etxn.tx,
