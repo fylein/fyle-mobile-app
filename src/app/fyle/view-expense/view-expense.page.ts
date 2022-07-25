@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, combineLatest, concat, noop, forkJoin } from 'rxjs';
+import { Observable, from, Subject, combineLatest, concat, noop, forkJoin, iif, of } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -238,21 +238,8 @@ export class ViewExpensePage implements OnInit {
         this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
       }
 
-      this.hidePaymentMode$ = this.accountsService.getAllowedPaymentModes().pipe(
-        map((paymentModes) => {
-          if (paymentModes.length === 1) {
-            if (
-              paymentModes[0] === 'COMPANY_ACCOUNT' &&
-              etxn.source_account_type === 'PERSONAL_ACCOUNT' &&
-              etxn.tx_skip_reimbursement
-            ) {
-              return true;
-            }
-            return paymentModes[0] === etxn.source_account_type;
-          }
-          return false;
-        })
-      );
+      //Always show payment mode to approvers
+      this.hidePaymentMode$ = iif(() => this.view === ExpenseView.team, of(false), this.hidePaymentMode(etxn));
 
       if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
         this.paymentMode = 'Advance';
@@ -378,6 +365,24 @@ export class ViewExpensePage implements OnInit {
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
     this.numEtxnsInReport = etxnIds.length;
     this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
+  }
+
+  hidePaymentMode(etxn: Expense) {
+    return this.accountsService.getAllowedPaymentModes().pipe(
+      map((paymentModes) => {
+        if (paymentModes.length === 1) {
+          if (
+            paymentModes[0] === 'COMPANY_ACCOUNT' &&
+            etxn.source_account_type === 'PERSONAL_ACCOUNT' &&
+            etxn.tx_skip_reimbursement
+          ) {
+            return true;
+          }
+          return paymentModes[0] === etxn.source_account_type;
+        }
+        return false;
+      })
+    );
   }
 
   getReceiptExtension(name: string) {
