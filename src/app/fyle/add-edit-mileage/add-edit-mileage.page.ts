@@ -28,7 +28,6 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { MileageService } from 'src/app/core/services/mileage.service';
-import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -213,7 +212,6 @@ export class AddEditMileagePage implements OnInit {
     private fb: FormBuilder,
     private projectService: ProjectsService,
     private mileageService: MileageService,
-    private mileageRatesService: MileageRatesService,
     private currencyPipe: CurrencyPipe,
     private transactionsOutboxService: TransactionsOutboxService,
     private policyService: PolicyService,
