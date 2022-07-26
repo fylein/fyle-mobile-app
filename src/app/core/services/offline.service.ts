@@ -302,7 +302,7 @@ export class OfflineService {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
         if (isOnline) {
-          return this.mileageRateService.getRates().pipe(
+          return this.mileageRateService.getAllMileageRates().pipe(
             tap((rates) => {
               this.storageService.set('cachedMileageRates', rates);
             })
