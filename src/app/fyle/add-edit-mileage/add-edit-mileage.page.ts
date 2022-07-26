@@ -687,10 +687,8 @@ export class AddEditMileagePage implements OnInit {
           // if any employee assigned mileage rate is present
           // -> the recently used mileage rate should be part of the allowed mileage rates.
           if (
-            mileageConfig &&
-            mileageConfig.enable_individual_mileage_rates &&
-            orgUserMileageSettings &&
-            orgUserMileageSettings.mileage_rate_labels.length > 0
+            mileageConfig?.enable_individual_mileage_rates &&
+            orgUserMileageSettings?.mileage_rate_labels?.length > 0
           ) {
             const isVehicleTypePresent = orgUserMileageSettings.mileage_rate_labels.indexOf(vehicleType);
 
@@ -956,7 +954,7 @@ export class AddEditMileagePage implements OnInit {
       mileageConfig: this.mileageConfig$,
     }).pipe(
       map(({ orgUserMileageSettings, mileageRates, mileageConfig }) => {
-        orgUserMileageSettings = (orgUserMileageSettings && orgUserMileageSettings.mileage_rate_labels) || [];
+        orgUserMileageSettings = orgUserMileageSettings?.mileage_rate_labels || [];
         if (mileageConfig && mileageConfig.enable_individual_mileage_rates && orgUserMileageSettings.length > 0) {
           const mileageRateNames = mileageRates.map((res) => res.vehicle_type);
 
