@@ -38,7 +38,6 @@ import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { DateService } from 'src/app/core/services/date.service';
-import { CurrencyPipe } from '@angular/common';
 import { TrackingService } from '../../core/services/tracking.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -214,7 +213,6 @@ export class AddEditMileagePage implements OnInit {
     private projectService: ProjectsService,
     private mileageService: MileageService,
     private mileageRatesService: MileageRatesService,
-    private currencyPipe: CurrencyPipe,
     private transactionsOutboxService: TransactionsOutboxService,
     private policyService: PolicyService,
     private statusService: StatusService,
@@ -838,20 +836,6 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  formatMileageRateName(rateName) {
-    var names = {
-      two_wheeler: 'Two Wheeler',
-      four_wheeler: 'Four Wheeler - Type 1',
-      four_wheeler1: 'Four Wheeler - Type 2',
-      four_wheeler3: 'Four Wheeler - Type 3',
-      four_wheeler4: 'Four Wheeler - Type 4',
-      bicycle: 'Bicycle',
-      electric_car: 'Electric Car',
-    };
-
-    return rateName && names[rateName] ? names[rateName] : rateName;
-  }
-
   getMileageRates() {
     return forkJoin({
       orgSettings: this.offlineService.getOrgSettings(),
@@ -981,9 +965,11 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(({ mileageRates, homeCurrency }) =>
         mileageRates.map((rate) => {
-          const unit = rate.unit && rate.unit.toLowerCase() === 'miles' ? 'mile' : 'km';
-          rate.readableRate = this.currencyPipe.transform(rate.rate, homeCurrency, 'symbol', '1.2-2') + '/' + unit;
-          return { label: this.formatMileageRateName(rate.vehicle_type) + ' (' + rate.readableRate + ')', value: rate };
+          rate.readableRate = this.mileageRatesService.getReadableRate(rate.rate, homeCurrency, rate.unit);
+          return {
+            label: this.mileageRatesService.formatMileageRateName(rate.vehicle_type) + ' (' + rate.readableRate + ')',
+            value: rate,
+          };
         })
       )
     );
@@ -1468,10 +1454,12 @@ export class AddEditMileagePage implements OnInit {
           if (isRecentLocationPresent) {
             this.presetLocation = recentValue.recent_start_locations[0];
           }
-          const unit = etxn.tx.distance_unit && etxn.tx.distance_unit.toLowerCase() === 'miles' ? 'mile' : 'km';
           var mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type);
-          mileage_rate_name.readableRate =
-            this.currencyPipe.transform(etxn.tx.mileage_rate, etxn.tx.currency, 'symbol', '1.2-2') + '/' + unit;
+          mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
+            etxn.tx.mileage_rate,
+            etxn.tx.currency,
+            etxn.tx.distance_unit
+          );
           this.fg.patchValue({
             mileage_rate_name: mileage_rate_name,
             dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
