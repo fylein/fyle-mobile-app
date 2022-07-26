@@ -4,6 +4,7 @@ import { Observable, range, Subject } from 'rxjs';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { CurrencyPipe } from '@angular/common';
 import { switchMap, concatMap, tap, map, reduce } from 'rxjs/operators';
 
 const mileageRateCacheBuster$ = new Subject<void>();
@@ -12,12 +13,12 @@ const mileageRateCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class MileageRatesService {
-  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
+  constructor(private spenderPlatformApiService: SpenderPlatformApiService, private currencyPipe: CurrencyPipe) {}
 
   @Cacheable({
     cacheBusterObserver: mileageRateCacheBuster$,
   })
-  getRates(): Observable<PlatformMileageRates[]> {
+  getAllMileageRates(): Observable<PlatformMileageRates[]> {
     return this.getActiveMileageRatesCount().pipe(
       switchMap((count) => {
         count = count > 50 ? count / 50 : 1;
@@ -57,5 +58,25 @@ export class MileageRatesService {
   excludeNullRates(platformMileageRates: PlatformMileageRates[]): PlatformMileageRates[] {
     const validMileageRates = platformMileageRates.filter((mileageRate) => mileageRate.rate !== null);
     return validMileageRates;
+  }
+
+  formatMileageRateName(rateName: string) {
+    const names = {
+      two_wheeler: 'Two Wheeler',
+      four_wheeler: 'Four Wheeler - Type 1',
+      four_wheeler1: 'Four Wheeler - Type 2',
+      four_wheeler3: 'Four Wheeler - Type 3',
+      four_wheeler4: 'Four Wheeler - Type 4',
+      bicycle: 'Bicycle',
+      electric_car: 'Electric Car',
+    };
+
+    return rateName && names[rateName] ? names[rateName] : rateName;
+  }
+
+  getReadableRate(rate: number, currency: string, unit: string) {
+    unit = unit && unit.toLowerCase() === 'miles' ? 'mile' : 'km';
+
+    return this.currencyPipe.transform(rate, currency, 'symbol', '1.2-2') + '/' + unit;
   }
 }
