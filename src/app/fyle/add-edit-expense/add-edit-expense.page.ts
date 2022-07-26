@@ -1423,6 +1423,7 @@ export class AddEditExpensePage implements OnInit {
 
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) => {
+        //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
         if (this.isCreatedFromCCC) {
           return paymentModes
             .map((res) => res.value)
