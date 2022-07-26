@@ -17,7 +17,7 @@ export class MileageRatesService {
   @Cacheable({
     cacheBusterObserver: mileageRateCacheBuster$,
   })
-  getRates(): Observable<PlatformMileageRates[]> {
+  getAllMileageRates(): Observable<PlatformMileageRates[]> {
     return this.getActiveMileageRatesCount().pipe(
       switchMap((count) => {
         count = count > 50 ? count / 50 : 1;
