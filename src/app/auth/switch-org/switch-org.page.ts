@@ -132,11 +132,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     let offlineData$: Observable<any[]>;
     this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
       this.isRemoveOfflineFormsSupportEnabled = res;
+      if (this.isRemoveOfflineFormsSupportEnabled) {
+        offlineData$ = of([]);
+      } else {
+        offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+      }
     });
-    if (this.isRemoveOfflineFormsSupportEnabled) {
-      offlineData$ = of([]);
-    }
-    offlineData$ = this.offlineService.load().pipe(shareReplay(1));
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
