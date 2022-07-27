@@ -133,9 +133,9 @@
                   Scan failed
                 </div>
               </div>
-              <ng-container *ngIf="expense.isDraft && !isFromViewReports">
+              <div *ngIf="expense.isDraft && !isFromViewReports">
                 <div
-                  class="expenses-card--state-container ion-text-right expenses-card--state-container__center state-pill state-{{
+                  class="expenses-card--state-container expenses-card--state-container__center state-pill state-{{
                     expense.tx_state | expenseState | lowercase
                   }}"
                 >
@@ -143,7 +143,7 @@
                     {{ expense.tx_state | expenseState | titlecase }}
                   </span>
                 </div>
-              </ng-container>
+              </div>
             </ng-template>
           </ng-container>
         </ng-template>
@@ -238,8 +238,11 @@
                 {{ expense.tx_amount / expense.tx_orig_amount | currency: expense.tx_currency:'code' }})
               </div>
 
-              <div *ngIf="expense.isDraft && !isFromViewReports" class="expenses-card--state-container ion-text-right">
-                <span class="expenses-card--state">
+              <div
+                *ngIf="expense.isDraft && !isFromViewReports"
+                class="expenses-card--state-container state-pill state-{{ expense.tx_state | expenseState }}"
+              >
+                <span>
                   {{ expense.tx_state | expenseState | titlecase }}
                 </span>
               </div>

@@ -268,12 +268,12 @@
   }
 
   &--state-container {
-    margin-top: 6px;
-    width: 100%;
-    white-space: nowrap;
+    margin-top: 4px;
+    float: right;
     &__center {
       position: relative;
-      top: 25%;
+      height: 24px;
+      top: 30%;
     }
   }
 
