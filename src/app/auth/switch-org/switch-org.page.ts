@@ -129,13 +129,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
   }
 
-  initializeLDUser(eou, deviceInfo) {
+  initializeLDUser(eou, deviceInfo, currentOrg) {
     this.launchDarklyService.initializeUser({
       key: eou.ou.user_id,
       custom: {
         org_id: eou.ou.org_id,
         org_user_id: eou.ou.id,
-        org_currency: eou.org_currency,
+        org_currency: currentOrg?.currency,
+        org_created_at: currentOrg?.created_at,
         asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
       },
     });
@@ -168,15 +169,16 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   async proceed() {
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
+    const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     let offlineData$: Observable<any[]>;
 
-    forkJoin([eou$, deviceInfo$])
+    forkJoin([eou$, deviceInfo$, currentOrg$])
       .pipe()
-      .subscribe(([eou, deviceInfo]) => {
-        this.initializeLDUser(eou, deviceInfo);
+      .subscribe(([eou, deviceInfo, currentOrg]) => {
+        this.initializeLDUser(eou, deviceInfo, currentOrg);
         const LDClient = this.launchDarklyService.getLDClient();
         LDClient.waitForInitialization().then(() => {
           this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
