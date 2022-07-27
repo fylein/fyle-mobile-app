@@ -19,7 +19,11 @@
           <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
         </ng-template>
       </ion-button>
-      <ion-button *ngIf="isConnected$ | async" class="my-expenses--header-btn" (click)="openActionSheet()">
+      <ion-button
+        *ngIf="(isConnected$ | async) || !isRemoveOfflineFormsSupportEnabled"
+        class="my-expenses--header-btn"
+        (click)="openActionSheet()"
+      >
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
     </ion-buttons>

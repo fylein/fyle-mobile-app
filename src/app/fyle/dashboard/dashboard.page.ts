@@ -13,6 +13,7 @@ import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 enum DashboardState {
   home,
@@ -45,6 +46,8 @@ export class DashboardPage implements OnInit {
 
   taskCount = 0;
 
+  isRemoveOfflineFormsSupportEnabled = false;
+
   constructor(
     private offlineService: OfflineService,
     private transactionService: TransactionService,
@@ -55,7 +58,8 @@ export class DashboardPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get displayedTaskCount() {
@@ -89,6 +93,9 @@ export class DashboardPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+    this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
+      this.isRemoveOfflineFormsSupportEnabled = res;
+    });
     this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;

@@ -19,6 +19,7 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 @Component({
   selector: 'app-switch-org',
@@ -128,68 +129,92 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
   }
 
+  setSentryUser(eou: ExtendedOrgUser) {
+    if (eou) {
+      Sentry.setUser({
+        id: eou.us.email + ' - ' + eou.ou.id,
+        email: eou.us.email,
+        orgUserId: eou.ou.id,
+      });
+    }
+  }
+
+  navigateBasedOnUserStatus(isPendingDetails: boolean, roles: string[], eou: ExtendedOrgUser) {
+    if (isPendingDetails) {
+      if (roles.indexOf('OWNER') > -1) {
+        this.router.navigate(['/', 'post_verification', 'setup_account']);
+      } else {
+        this.router.navigate(['/', 'post_verification', 'invited_user']);
+      }
+    } else if (eou.ou.status === 'ACTIVE') {
+      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+    } else if (eou.ou.status === 'DISABLED') {
+      this.router.navigate(['/', 'auth', 'disabled']);
+    }
+  }
+
   async proceed() {
     let offlineData$: Observable<any[]>;
     this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
       this.isRemoveOfflineFormsSupportEnabled = res;
+
       if (this.isRemoveOfflineFormsSupportEnabled) {
         offlineData$ = of([]);
       } else {
         offlineData$ = this.offlineService.load().pipe(shareReplay(1));
       }
-    });
-    const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
-    const eou$ = from(this.authService.getEou());
-    const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
-    const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
+      const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
+      const eou$ = from(this.authService.getEou());
+      const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
+      const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
 
-    forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$])
-      .pipe(finalize(() => from(this.loaderService.hideLoader())))
-      .subscribe((aggregatedResults) => {
-        const [
-          [
-            orgSettings,
-            orgUserSettings,
-            allCategories,
-            allEnabledCategories,
-            costCenters,
-            projects,
-            perDiemRates,
-            customInputs,
-            currentOrg,
-            orgs,
-            accounts,
-            currencies,
-            homeCurrency,
-          ],
-          isPendingDetails,
-          eou,
-          roles,
-          isOnline,
-        ] = aggregatedResults;
+      let isOfflineDataLoaded: boolean;
+      if (offlineData$) {
+        offlineData$.subscribe((res) => {
+          isOfflineDataLoaded = res?.length > 0;
 
-        const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
+          if (isOfflineDataLoaded) {
+            forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$])
+              .pipe(finalize(() => from(this.loaderService.hideLoader())))
+              .subscribe((aggregatedResults) => {
+                const [
+                  [
+                    orgSettings,
+                    orgUserSettings,
+                    allCategories,
+                    allEnabledCategories,
+                    costCenters,
+                    projects,
+                    perDiemRates,
+                    customInputs,
+                    currentOrg,
+                    orgs,
+                    accounts,
+                    currencies,
+                    homeCurrency,
+                  ],
+                  isPendingDetails,
+                  eou,
+                  roles,
+                  isOnline,
+                ] = aggregatedResults;
 
-        if (eou) {
-          Sentry.setUser({
-            id: eou.us.email + ' - ' + eou.ou.id,
-            email: eou.us.email,
-            orgUserId: eou.ou.id,
-          });
-        }
-
-        if (pendingDetails) {
-          if (roles.indexOf('OWNER') > -1) {
-            this.router.navigate(['/', 'post_verification', 'setup_account']);
+                this.setSentryUser(eou);
+                this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
+              });
           } else {
-            this.router.navigate(['/', 'post_verification', 'invited_user']);
+            forkJoin([pendingDetails$, eou$, roles$, isOnline$])
+              .pipe(finalize(() => from(this.loaderService.hideLoader())))
+              .subscribe((aggregatedResults) => {
+                const [isPendingDetails, eou, roles, isOnline] = aggregatedResults;
+
+                this.setSentryUser(eou);
+                this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
+              });
           }
-        } else if (eou.ou.status === 'ACTIVE') {
-          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-        } else if (eou.ou.status === 'DISABLED') {
-          this.router.navigate(['/', 'auth', 'disabled']);
-        }
-      });
+        });
+      }
+    });
   }
 
   trackSwitchOrg(org: Org, originalEou) {
