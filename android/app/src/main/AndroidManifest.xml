@@ -9,7 +9,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:exported="false"
         android:theme="@style/AppTheme">
 
         <activity
@@ -19,6 +18,7 @@
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
+            android:exported="true"
             >
 
             <intent-filter android:autoVerify="true">
