@@ -98,7 +98,7 @@
             class="view-expense--card-container__state-pill ion-text-right"
             [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
           >
-            <div class="view-expense--card-container__state-pill__state">
+            <div class="state-pill state-{{etxn.tx_state | expenseState}}">
               {{ etxn.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
             </div>
           </div>
@@ -344,7 +344,7 @@
                 </ion-col>
                 <ion-col class="view-expense--content-container">
                   <div class="view-expense--label">Cost Center Code</div>
-                  <div class="view-expense--value">{{ etxn.tx_cost_center_id }}</div>
+                  <div class="view-expense--value">{{ etxn.tx_cost_center_code }}</div>
                 </ion-col>
               </ion-row>
             </ion-grid>

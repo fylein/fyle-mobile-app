@@ -167,6 +167,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       const eou$ = from(this.authService.getEou());
       const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
       const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
+      const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
 
       let isOfflineDataLoaded: boolean;
       if (offlineData$) {
@@ -174,7 +175,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           isOfflineDataLoaded = res?.length > 0;
 
           if (isOfflineDataLoaded) {
-            forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$])
+            forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
               .pipe(finalize(() => from(this.loaderService.hideLoader())))
               .subscribe((aggregatedResults) => {
                 const [
@@ -197,18 +198,39 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
                   eou,
                   roles,
                   isOnline,
+                  deviceInfo,
                 ] = aggregatedResults;
 
                 this.setSentryUser(eou);
+                this.launchDarklyService.initializeUser({
+                  key: eou.ou.user_id,
+                  custom: {
+                    org_id: eou.ou.org_id,
+                    org_user_id: eou.ou.id,
+                    org_currency: currentOrg?.currency,
+                    org_created_at: currentOrg?.created_at,
+                    asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
+                  },
+                });
                 this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
               });
           } else {
-            forkJoin([pendingDetails$, eou$, roles$, isOnline$])
+            forkJoin([pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
               .pipe(finalize(() => from(this.loaderService.hideLoader())))
               .subscribe((aggregatedResults) => {
-                const [isPendingDetails, eou, roles, isOnline] = aggregatedResults;
+                const [isPendingDetails, eou, roles, isOnline, deviceInfo] = aggregatedResults;
 
                 this.setSentryUser(eou);
+                this.launchDarklyService.initializeUser({
+                  key: eou.ou.user_id,
+                  custom: {
+                    org_id: eou.ou.org_id,
+                    org_user_id: eou.ou.id,
+                    // org_currency: currentOrg?.currency,
+                    // org_created_at: currentOrg?.created_at,
+                    asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
+                  },
+                });
                 this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
               });
           }

@@ -19,5 +19,5 @@
   </ul>
 </div>
 <div *ngIf="!isValueList">
-  <li class="text-capitalize">{{ key }} : {{ value }}</li>
+  <li class="text-capitalize">{{ key === 'vehicle type' ? 'Mileage Rate Name' : key }} : {{ value }}</li>
 </div>
