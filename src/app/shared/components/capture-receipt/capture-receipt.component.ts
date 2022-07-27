@@ -273,7 +273,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   onSingleCaptureOffline() {
-    this.loaderService.showLoader('Please wait...', 10000);
+    this.loaderService.showLoader();
     this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe(() => {
