@@ -129,6 +129,18 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
   }
 
+  initializeLDUser(eou, deviceInfo) {
+    this.launchDarklyService.initializeUser({
+      key: eou.ou.user_id,
+      custom: {
+        org_id: eou.ou.org_id,
+        org_user_id: eou.ou.id,
+        org_currency: eou.org_currency,
+        asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
+      },
+    });
+  }
+
   setSentryUser(eou: ExtendedOrgUser) {
     if (eou) {
       Sentry.setUser({
@@ -154,89 +166,80 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   async proceed() {
+    const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
+    const eou$ = from(this.authService.getEou());
+    const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
+    const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
+    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     let offlineData$: Observable<any[]>;
-    this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
-      this.isRemoveOfflineFormsSupportEnabled = res;
 
-      if (this.isRemoveOfflineFormsSupportEnabled) {
-        offlineData$ = of([]);
-      } else {
-        offlineData$ = this.offlineService.load().pipe(shareReplay(1));
-      }
-      const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
-      const eou$ = from(this.authService.getEou());
-      const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
-      const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
-      const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
+    forkJoin([eou$, deviceInfo$])
+      .pipe()
+      .subscribe(([eou, deviceInfo]) => {
+        this.initializeLDUser(eou, deviceInfo);
+        const LDClient = this.launchDarklyService.getLDClient();
+        LDClient.waitForInitialization().then(() => {
+          this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
+            console.log('check val after .then()', res);
 
-      let isOfflineDataLoaded: boolean;
-      if (offlineData$) {
-        offlineData$.subscribe((res) => {
-          isOfflineDataLoaded = res?.length > 0;
+            this.isRemoveOfflineFormsSupportEnabled = res;
 
-          if (isOfflineDataLoaded) {
-            forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
-              .pipe(finalize(() => from(this.loaderService.hideLoader())))
-              .subscribe((aggregatedResults) => {
-                const [
-                  [
-                    orgSettings,
-                    orgUserSettings,
-                    allCategories,
-                    allEnabledCategories,
-                    costCenters,
-                    projects,
-                    perDiemRates,
-                    customInputs,
-                    currentOrg,
-                    orgs,
-                    accounts,
-                    currencies,
-                    homeCurrency,
-                  ],
-                  isPendingDetails,
-                  eou,
-                  roles,
-                  isOnline,
-                  deviceInfo,
-                ] = aggregatedResults;
+            if (this.isRemoveOfflineFormsSupportEnabled) {
+              offlineData$ = of([]);
+            } else {
+              offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+            }
 
-                this.setSentryUser(eou);
-                this.launchDarklyService.initializeUser({
-                  key: eou.ou.user_id,
-                  custom: {
-                    org_id: eou.ou.org_id,
-                    org_user_id: eou.ou.id,
-                    org_currency: currentOrg?.currency,
-                    org_created_at: currentOrg?.created_at,
-                    asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
-                  },
-                });
-                this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
+            let isOfflineDataLoaded: boolean;
+            if (offlineData$) {
+              offlineData$.subscribe((res) => {
+                isOfflineDataLoaded = res?.length > 0;
+
+                if (isOfflineDataLoaded) {
+                  forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
+                    .pipe(finalize(() => from(this.loaderService.hideLoader())))
+                    .subscribe((aggregatedResults) => {
+                      const [
+                        [
+                          orgSettings,
+                          orgUserSettings,
+                          allCategories,
+                          allEnabledCategories,
+                          costCenters,
+                          projects,
+                          perDiemRates,
+                          customInputs,
+                          currentOrg,
+                          orgs,
+                          accounts,
+                          currencies,
+                          homeCurrency,
+                        ],
+                        isPendingDetails,
+                        eou,
+                        roles,
+                        isOnline,
+                        deviceInfo,
+                      ] = aggregatedResults;
+
+                      this.setSentryUser(eou);
+                      this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
+                    });
+                } else {
+                  forkJoin([pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
+                    .pipe(finalize(() => from(this.loaderService.hideLoader())))
+                    .subscribe((aggregatedResults) => {
+                      const [isPendingDetails, eou, roles, isOnline, deviceInfo] = aggregatedResults;
+
+                      this.setSentryUser(eou);
+                      this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
+                    });
+                }
               });
-          } else {
-            forkJoin([pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
-              .pipe(finalize(() => from(this.loaderService.hideLoader())))
-              .subscribe((aggregatedResults) => {
-                const [isPendingDetails, eou, roles, isOnline, deviceInfo] = aggregatedResults;
-
-                this.setSentryUser(eou);
-                this.launchDarklyService.initializeUser({
-                  key: eou.ou.user_id,
-                  custom: {
-                    org_id: eou.ou.org_id,
-                    org_user_id: eou.ou.id,
-                    // org_currency: currentOrg?.currency,
-                    // org_created_at: currentOrg?.created_at,
-                    asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
-                  },
-                });
-                this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
-              });
-          }
+            }
+          });
         });
-      }
-    });
+      });
   }
 
   trackSwitchOrg(org: Org, originalEou) {

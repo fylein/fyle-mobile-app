@@ -54,6 +54,10 @@ export class LaunchDarklyService {
     }
   }
 
+  getLDClient() {
+    return this.ldClient;
+  }
+
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)
   private isTheSameUser(newUser: LDClient.LDUser): boolean {
     const previousUser = this.ldClient?.getUser();
