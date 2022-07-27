@@ -1462,7 +1462,7 @@ export class AddEditMileagePage implements OnInit {
           if (isRecentLocationPresent) {
             this.presetLocation = recentValue.recent_start_locations[0];
           }
-          let mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type);
+          const mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type);
           mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
             etxn.tx.mileage_rate,
             etxn.tx.currency,
