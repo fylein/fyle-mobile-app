@@ -22,7 +22,7 @@ fdescribe('TransactionsOutboxService', () => {
 
   beforeEach(() => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
-    const dateServiceSpy = jasmine.createSpyObj('DateService', ['fixDates']);
+    // const dateServiceSpy = jasmine.createSpyObj('DateService', ['fixDates']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['upsert', 'matchCCCExpense']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post', 'uploadUrl', 'uploadComplete', 'base64Upload']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
@@ -41,13 +41,10 @@ fdescribe('TransactionsOutboxService', () => {
     TestBed.configureTestingModule({
       providers: [
         TransactionsOutboxService,
+        DateService,
         {
           provide: StorageService,
           useValue: storageServiceSpy,
-        },
-        {
-          provide: DateService,
-          useValue: dateServiceSpy,
         },
         {
           provide: TransactionService,
@@ -98,20 +95,20 @@ fdescribe('TransactionsOutboxService', () => {
   });
 
   it('can check if data extraction is pending for a particular expense', () => {
-    service.dataExtractionQueue = dataExtractionQueueBulkFyleSample;
+    service.dataExtractionQueue = cloneDeep(dataExtractionQueueBulkFyleSample);
 
     expect(service.isDataExtractionPending('txxpF3eoBNaK')).toBeTrue();
     expect(service.isDataExtractionPending('txxpF3eosNaK')).toBeFalse();
   });
 
   it('should be able to save the data extraction queue', async () => {
-    service.dataExtractionQueue = dataExtractionQueueBulkFyleSample;
+    service.dataExtractionQueue = cloneDeep(dataExtractionQueueBulkFyleSample);
     await service.saveDataExtractionQueue();
     expect(storageService.set).toHaveBeenCalledWith('data_extraction_queue', dataExtractionQueueBulkFyleSample);
   });
 
   it('can remove entries from data extraction queue', async () => {
-    service.dataExtractionQueue = dataExtractionQueueBulkFyleSample;
+    service.dataExtractionQueue = cloneDeep(dataExtractionQueueBulkFyleSample);
     let clonedQueue = cloneDeep(dataExtractionQueueBulkFyleSample);
     clonedQueue = clonedQueue.filter((c) => c.transaction.id !== dataExtractionQueueBulkFyleSample[0].transaction.id);
     await service.removeDataExtractionEntry(dataExtractionQueueBulkFyleSample[0].transaction.id);
@@ -119,7 +116,7 @@ fdescribe('TransactionsOutboxService', () => {
   });
 
   it('can save to transaction outbox', async () => {
-    service.queue = sampleBulkFyleQueue;
+    service.queue = cloneDeep(sampleBulkFyleQueue);
     await service.saveQueue();
     expect(storageService.set).toHaveBeenCalledWith('outbox', sampleBulkFyleQueue);
   });
