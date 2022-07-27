@@ -13,6 +13,7 @@ $grey-4: #f9f9f9;
 $grey-5: #e5e5e5;
 $grey-6: #e0e0e0 !default;
 $grey-7: #eeeeee !default;
+$grey-8: #666 !default;
 $grey-light: #a9acbc !default;
 $grey-light-2: #4a4a4a !default;
 $grey-lighter: #dfdfe2 !default;
@@ -90,9 +91,98 @@ $approved-color: #67bc53;
 $paid-color: #3d8b3d;
 $fyled-color: #f90;
 $sent-back-color: #da1e28;
-$draft-color: #464d57;
-$payment-pending-color: #66bb6a;
-$payment-processing-color: #47a447;
 
 $ccc-bank-name: #c4cae8;
 $rejected-color: #d50000;
+
+// State Specific Map
+$states: (
+  'draft': $highlight-black,
+  'incomplete': #da1e28,
+  'unreported': $fyled-color,
+  'reported': #2196f3,
+  'inquiry': #da1e28,
+  'sent_back': #da1e28,
+  'auto_flagged': darken(#4a90e2, 20%),
+  'rejected': $rejected-color,
+  'approved': $highlight-green,
+  'payment_pending': $highlight-green,
+  'payment_processing': darken(#5cb85c, 8%),
+  'paid': darken(#5cb85c, 15%),
+  'disabled': $grey-8,
+  //state pill in advance requests
+  'pending': #2196f3,
+  'issued': #3d8b3d,
+  //adding new states for advance colors
+  'pendingApproval': #1ab6bb,
+  'cancelled': #d0021b,
+  'closed': #3375ad,
+  'pulledBack': #34495e,
+  'pulled': #34495e,
+);
+
+$fdl-state-bg-map: (
+  'draft': #ebedef,
+  'incomplete': #fce9ea,
+  'unreported': #f4edff,
+  'reported': #eef1fe,
+  'sent_back': #fce9ea,
+  'approved': #e7f3f4,
+  'payment_pending': #e7f3f4,
+  'payment_processing': #e7f3f4,
+  'pending': #e7f3f4,
+  'paid': #eef8f2,
+  'pendingApproval': #e7f3f4,
+  'pendingClosure': #e7f3f4,
+  'inquiry': #fce9ea,
+  'closed': #e7f3f4,
+  'rejected': #fce9ea,
+  'booked': #eef8f2,
+  'pulledBack': #ebedef,
+  'pulled': #ebedef,
+  'disabled': #ebedef,
+);
+
+$fdl-state-color-map: (
+  'draft': #34495e,
+  'incomplete': #da1e28,
+  'unreported': #8e46ff,
+  'reported': #556ef2,
+  'sent_back': #da1e28,
+  'approved': #077e8c,
+  'payment_pending': #077e8c,
+  'payment_processing': #077e8c,
+  'pending': #077e8c,
+  'paid': #55b07d,
+  'pendingApproval': #077e8c,
+  'pendingClosure': #077e8c,
+  'inquiry': #da1e28,
+  'closed': #077e8c,
+  'rejected': #da1e28,
+  'booked': #55b07d,
+  'pulledBack': #34495e,
+  'pulled': #34495e,
+  'disabled': #34495e,
+);
+
+$fdl-state-border-color-map: (
+  'draft': #c6ccd2,
+  'incomplete': #f5c0c3,
+  'unreported': #dbc5ff,
+  'reported': #d9def8,
+  'sent_back': #f5c0c3,
+  'approved': #c9e1e4,
+  'payment_pending': #c9e1e4,
+  'payment_processing': #c9e1e4,
+  'pending': #c9e1e4,
+  'paid': #d9ebe1,
+  'pendingApproval': #c9e1e4,
+  'pendingClosure': #c9e1e4,
+  'inquiry': #f5c0c3,
+  'closed': #c9e1e4,
+  'rejected': #f5c0c3,
+  'booked': #d9ebe1,
+  'pulledBack': #c6ccd2,
+  'pulled': #c6ccd2,
+  'disabled': #c6ccd2,
+);

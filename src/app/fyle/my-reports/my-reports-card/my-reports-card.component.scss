@@ -80,45 +80,6 @@
     line-height: 18px;
     color: $blue-black;
   }
-
-  &--pill {
-    color: white;
-    border-radius: 16px;
-    padding: 2px 16px;
-    font-size: 12px;
-
-    &__unreported {
-      background-color: #f90;
-    }
-
-    &__draft {
-      background-color: #464d57;
-    }
-
-    &__reported {
-      background-color: #2196f3;
-    }
-
-    &__sent_back {
-      background-color: #da1e28;
-    }
-
-    &__approved {
-      background-color: #66bb6a;
-    }
-
-    &__payment_pending {
-      background-color: #66bb6a;
-    }
-
-    &__payment_processing {
-      background-color: #47a447;
-    }
-
-    &__paid {
-      background-color: #3d8b3d;
-    }
-  }
 }
 
 .reports-card-menu {

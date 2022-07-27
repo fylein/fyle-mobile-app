@@ -21,11 +21,7 @@
         class="ion-text-right"
         [ngClass]="{ 'summary-tile--card-container__no-exchange': !orig_currency && project }"
       >
-        <div
-          class="summary-tile--card-container__state-pill summary-tile--card-container__state-pill__{{
-            status | lowercase
-          }}"
-        >
+        <div class="summary-tile--card-container__state-pill state-pill state-{{ status | lowercase }}">
           {{ status | snakeCaseToSpaceCase | titlecase }}
         </div>
       </div>
