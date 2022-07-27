@@ -293,6 +293,22 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     ]);
   }
 
+  saveSingleCapture() {
+    if (this.isRemoveOfflineFormsSupportEnabled) {
+      let isOnline: boolean;
+      this.networkService.isOnline().subscribe((res) => {
+        isOnline = res;
+        if (!isOnline) {
+          this.onSingleCaptureOffline();
+        } else {
+          this.navigateToExpenseForm();
+        }
+      });
+    } else {
+      this.navigateToExpenseForm();
+    }
+  }
+
   async onSingleCapture() {
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
@@ -357,19 +373,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
               });
             }, 0);
           } else {
-            if (this.isRemoveOfflineFormsSupportEnabled) {
-              let isOnline: boolean;
-              this.networkService.isOnline().subscribe((res) => {
-                isOnline = res;
-                if (!isOnline) {
-                  this.onSingleCaptureOffline();
-                } else {
-                  this.navigateToExpenseForm();
-                }
-              });
-            } else {
-              this.navigateToExpenseForm();
-            }
+            this.saveSingleCapture();
           }
           this.loaderService.hideLoader();
         }
