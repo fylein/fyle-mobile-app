@@ -272,6 +272,27 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  onSingleCaptureOffline() {
+    this.loaderService.showLoader('Please wait...', 10000);
+    this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      });
+  }
+
+  navigateToExpenseForm() {
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'add_edit_expense',
+      {
+        dataUrl: this.base64ImagesWithSource[0].base64Image,
+        canExtractData: this.isInstafyleEnabled,
+      },
+    ]);
+  }
+
   async onSingleCapture() {
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
@@ -318,7 +339,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
               const isLoggedIn = performance.getEntriesByName('app launch start time')[0]['detail'];
 
               // Converting the duration to seconds and fix it to 3 decimal places
-              const launchTimeDuration = (measureLaunchTime[0].duration / 1000).toFixed(3);
+              const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
 
               this.trackingService.captureSingleReceiptTime({
                 'Capture receipt time': launchTimeDuration,
@@ -337,17 +358,17 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             }, 0);
           } else {
             if (this.isRemoveOfflineFormsSupportEnabled) {
-              this.review();
+              let isOnline: boolean;
+              this.networkService.isOnline().subscribe((res) => {
+                isOnline = res;
+                if (!isOnline) {
+                  this.onSingleCaptureOffline();
+                } else {
+                  this.navigateToExpenseForm();
+                }
+              });
             } else {
-              this.router.navigate([
-                '/',
-                'enterprise',
-                'add_edit_expense',
-                {
-                  dataUrl: this.base64ImagesWithSource[0].base64Image,
-                  canExtractData: this.isInstafyleEnabled,
-                },
-              ]);
+              this.navigateToExpenseForm();
             }
           }
           this.loaderService.hideLoader();
@@ -358,22 +379,28 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   async review() {
     this.stopCamera();
-    if (this.isRemoveOfflineFormsSupportEnabled) {
-      const modal = await this.modalController.create({
-        component: ReceiptPreviewComponent,
-        componentProps: {
-          base64ImagesWithSource: this.base64ImagesWithSource,
-          mode: 'single',
-        },
-      });
+    const modal = await this.modalController.create({
+      component: ReceiptPreviewComponent,
+      componentProps: {
+        base64ImagesWithSource: this.base64ImagesWithSource,
+        mode: 'bulk',
+      },
+    });
 
-      await modal.present();
-      const { data } = await modal.onWillDismiss();
-      if (data) {
-        if (data.base64ImagesWithSource.length === 0) {
-          this.base64ImagesWithSource = [];
-          this.captureCount = 0;
-          this.lastImage = null;
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data) {
+      if (data.base64ImagesWithSource.length === 0) {
+        this.base64ImagesWithSource = [];
+        this.captureCount = 0;
+        this.lastImage = null;
+        this.setUpAndStartCamera();
+      } else {
+        if (data.continueCaptureReceipt) {
+          this.base64ImagesWithSource = data.base64ImagesWithSource;
+          this.captureCount = data.base64ImagesWithSource.length;
+          this.isBulkMode = true;
           this.setUpAndStartCamera();
         } else {
           this.loaderService.showLoader('Please wait...', 10000);
@@ -382,40 +409,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             .subscribe(() => {
               this.router.navigate(['/', 'enterprise', 'my_expenses']);
             });
-        }
-      }
-    } else {
-      const modal = await this.modalController.create({
-        component: ReceiptPreviewComponent,
-        componentProps: {
-          base64ImagesWithSource: this.base64ImagesWithSource,
-          mode: 'bulk',
-        },
-      });
-
-      await modal.present();
-
-      const { data } = await modal.onWillDismiss();
-      if (data) {
-        if (data.base64ImagesWithSource.length === 0) {
-          this.base64ImagesWithSource = [];
-          this.captureCount = 0;
-          this.lastImage = null;
-          this.setUpAndStartCamera();
-        } else {
-          if (data.continueCaptureReceipt) {
-            this.base64ImagesWithSource = data.base64ImagesWithSource;
-            this.captureCount = data.base64ImagesWithSource.length;
-            this.isBulkMode = true;
-            this.setUpAndStartCamera();
-          } else {
-            this.loaderService.showLoader('Please wait...', 10000);
-            this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
-              .pipe(finalize(() => this.loaderService.hideLoader()))
-              .subscribe(() => {
-                this.router.navigate(['/', 'enterprise', 'my_expenses']);
-              });
-          }
         }
       }
     }
