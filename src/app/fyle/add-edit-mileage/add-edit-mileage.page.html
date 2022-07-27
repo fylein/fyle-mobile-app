@@ -106,12 +106,12 @@
                 <div class="add-edit-mileage--rate-value text-uppercase mb-0 text-right">
                   {{rate$|async | currency: homeCurrency: 'symbol-narrow'}} /
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                    <span>{{ etxn.tx.distance_unit }}</span>
+                    <span>{{ etxn.tx.distance_unit | singular }}</span>
                   </ng-container>
 
                   <ng-template #defaultDistanceUnit>
                     <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                      <span>{{ mileageConfig.unit }}</span>
+                      <span>{{ mileageConfig.unit | singular }}</span>
                     </ng-container>
                   </ng-template>
                 </div>
@@ -147,14 +147,33 @@
               </ng-container>
             </ng-container>
 
-            <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-              <div class="add-edit-mileage--internal-block">
-                <app-fy-select-vehicle
-                  [isAmountDisabled]="(isAmountDisabled$|async)"
+            <ng-container *ngIf="mileageRatesOptions$|async as mileageRatesOptions">
+              <div
+                *ngIf="mileageRatesOptions.length > 1"
+                class="add-edit-mileage--internal-block"
+                [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.mileage_rate_name.touched && !fg.controls.mileage_rate_name.valid}"
+              >
+                <app-fy-select
+                  [enableSearch]="false"
+                  [label]="'Mileage Rate'"
                   [mandatory]="true"
-                  [mileageConfig]="mileageConfig"
-                  formControlName="mileage_vehicle_type"
-                ></app-fy-select-vehicle>
+                  [nullOption]="false"
+                  [options]="mileageRatesOptions"
+                  [selectModalHeader]="'Select Mileage Rate'"
+                  formControlName="mileage_rate_name"
+                  [selectionElement]="mileage_rate_name"
+                >
+                </app-fy-select>
+                <ng-template #mileage_rate_name let-label="label" let-mileage_rate_name="value" let-selected="selected">
+                  <div class="add-edit-mileage--rate-name">{{label}}</div>
+                  <mat-icon *ngIf="selected"> check </mat-icon>
+                </ng-template>
+              </div>
+              <div
+                *ngIf="fg.controls.mileage_rate_name.touched && !fg.controls.mileage_rate_name.valid"
+                class="add-edit-mileage--error"
+              >
+                Select Mileage Rate.
               </div>
             </ng-container>
 
