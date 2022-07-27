@@ -4,9 +4,9 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'mileageRateName',
 })
 export class MileageRateName implements PipeTransform {
-  transform(value) {
+  transform(value: string): string {
     if (!value) {
-      return value;
+      return '';
     }
 
     const names = {
@@ -19,6 +19,6 @@ export class MileageRateName implements PipeTransform {
       electric_car: 'Electric Car',
     };
 
-    return names[value] ? names[value] : value;
+    return names[value] || value;
   }
 }
