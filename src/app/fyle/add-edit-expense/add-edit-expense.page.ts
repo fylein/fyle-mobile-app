@@ -1399,11 +1399,17 @@ export class AddEditExpensePage implements OnInit {
               paymentModes
                 .map((res) => res.value)
                 .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
-                    return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
-                  } else {
-                    return paymentMode.acc.id === etxn.tx.source_account_id;
+                  /*
+                   * Check to differentiate between `Personal Cash/Card` and `Paid by Company`
+                   * as they have the same source account id
+                   */
+                  if (paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
+                    return (
+                      paymentMode.acc.id === etxn.tx.source_account_id &&
+                      paymentMode.acc.isReimbursable !== etxn.tx.skip_reimbursement
+                    );
                   }
+                  return paymentMode.acc.id === etxn.tx.source_account_id;
                 })
             )
           ),

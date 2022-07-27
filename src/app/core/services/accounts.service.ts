@@ -105,7 +105,7 @@ export class AccountsService {
 
   //Dummy method - will be replaced by API call
   getAllowedPaymentModes(): Observable<string[]> {
-    return of(['PERSONAL_ACCOUNT', 'COMPANY_ACCOUNT']);
+    return of(['COMPANY_ACCOUNT']);
   }
 
   //Filter and sort user accounts by allowed payment modes and return an observable of allowed accounts
@@ -123,33 +123,15 @@ export class AccountsService {
       map(({ constructedPaymentModes, allowedPaymentModes }) => {
         //Filter out accounts not present in allowed payment modes array
         const filteredPaymentModes = constructedPaymentModes.filter((paymentMode) => {
-          /**
-           * Mapping expenses of type 'COMPANY_ACCOUNT' in allowedPaymentModes array to
-           * non-reimbursable expenses of type 'PERSONAL_ACCOUNT' in constructedPaymentModes
-           */
-          if (paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable) {
+          if (this.isCompanyAccount(paymentMode)) {
             paymentMode.acc.type = 'COMPANY_ACCOUNT';
-            return allowedPaymentModes.indexOf('COMPANY_ACCOUNT') >= 0;
+            return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === 'COMPANY_ACCOUNT');
           }
-          return allowedPaymentModes.indexOf(paymentMode.acc.type) >= 0;
+          return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === paymentMode.acc.type);
         });
 
-        //Sorting expenses based on the order in allowedPaymentModes
-        let resPaymentModes = filteredPaymentModes.sort(
-          (a, b) => allowedPaymentModes.indexOf(a.acc.type) - allowedPaymentModes.indexOf(b.acc.type)
-        );
-
-        /**
-         * In edit expense, if the account selected while creating the expense is no longer present in
-         * the list of allowed accounts, add it to the list only for this expense
-         */
-        if (
-          etxn.tx.source_account_id &&
-          !resPaymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)
-        ) {
-          const accountLinkedWithExpense = accounts.find((account) => account.acc.id === etxn.tx.source_account_id);
-          resPaymentModes = [accountLinkedWithExpense, ...resPaymentModes];
-        }
+        let resPaymentModes = this.sortBasedOnAllowedPaymentModes(allowedPaymentModes, filteredPaymentModes);
+        resPaymentModes = this.addMissingAccount(etxn, accounts, resPaymentModes);
 
         return resPaymentModes.map((paymentMode) => {
           if (paymentMode.acc.type === 'COMPANY_ACCOUNT') {
@@ -159,5 +141,34 @@ export class AccountsService {
         });
       })
     );
+  }
+
+  /**
+   * Mapping expenses of type 'COMPANY_ACCOUNT' in allowedPaymentModes array to
+   * non-reimbursable expenses of type 'PERSONAL_ACCOUNT' in constructedPaymentModes
+   */
+  isCompanyAccount(paymentMode: ExtendedAccount) {
+    return paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable;
+  }
+
+  sortBasedOnAllowedPaymentModes(allowedPaymentModes: string[], paymentModes: ExtendedAccount[]) {
+    return paymentModes.sort(
+      (a, b) => allowedPaymentModes.indexOf(a.acc.type) - allowedPaymentModes.indexOf(b.acc.type)
+    );
+  }
+
+  /**
+   * In edit expense, if the account selected while creating the expense is no longer present in
+   * the list of allowed accounts, add it to the list only for this expense
+   */
+  addMissingAccount(etxn: any, accounts: ExtendedAccount[], paymentModes: ExtendedAccount[]) {
+    if (
+      etxn.tx.source_account_id &&
+      !paymentModes.some((paymentMode) => paymentMode.acc.id === etxn.tx.source_account_id)
+    ) {
+      const accountLinkedWithExpense = accounts.find((account) => account.acc.id === etxn.tx.source_account_id);
+      return [accountLinkedWithExpense, ...paymentModes];
+    }
+    return paymentModes;
   }
 }
