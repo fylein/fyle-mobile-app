@@ -93,22 +93,7 @@
   }
 
   &--state {
-    font-size: 12px;
-    line-height: 1.25;
-    color: $pure-white;
-    background-color: $highlight-black;
-    border-radius: 16px;
-    padding: 4px 17px;
-    max-width: 90px;
     margin-left: auto;
-
-    &__reported {
-      background-color: $blue-1;
-    }
-
-    &__sent_back {
-      background-color: $red;
-    }
   }
 
   &--zero-state {
