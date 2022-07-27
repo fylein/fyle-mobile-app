@@ -150,42 +150,6 @@ $light-grey-border: #cccdd7;
     height: 14px;
   }
 
-  &--pill {
-    font-size: 12px;
-    display: inline-block;
-    color: $white;
-    border-radius: 4px;
-    padding: 2px 5px;
-
-    &__unreported {
-      background-color: $fyled-pill;
-    }
-
-    &__incomplete {
-      background-color: $draft-pill;
-    }
-
-    &__reported {
-      background-color: $reported-pill;
-    }
-
-    &__approved {
-      background-color: $approved-pill;
-    }
-
-    &__payment_pending {
-      background-color: $approved-pill;
-    }
-
-    &__payment_processing {
-      background-color: $payment-processing-pill;
-    }
-
-    &__paid {
-      background-color: $paid-pill;
-    }
-  }
-
   &--button {
     width: 140px;
     height: 40px;

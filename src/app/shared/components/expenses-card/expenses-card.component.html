@@ -134,8 +134,12 @@
                 </div>
               </div>
               <ng-container *ngIf="expense.isDraft && !isFromViewReports">
-                <div class="expenses-card--state-container ion-text-right expenses-card--state-container__center">
-                  <span class="expenses-card--state">
+                <div
+                  class="expenses-card--state-container ion-text-right expenses-card--state-container__center state-pill state-{{
+                    expense.tx_state | expenseState | lowercase
+                  }}"
+                >
+                  <span>
                     {{ expense.tx_state | expenseState | titlecase }}
                   </span>
                 </div>
