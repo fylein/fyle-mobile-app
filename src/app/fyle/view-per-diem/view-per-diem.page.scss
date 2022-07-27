@@ -87,15 +87,6 @@
       margin-top: 6px;
       white-space: nowrap;
 
-      &__state {
-        font-size: 12px;
-        line-height: 1.25;
-        color: $pure-white;
-        background-color: $highlight-black;
-        border-radius: 16px;
-        padding: 5px 15px;
-      }
-
       &--with-project {
         padding-top: 20px;
       }

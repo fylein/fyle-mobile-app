@@ -639,15 +639,15 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getRateByVehicleType(mileageRates, vehicle_type) {
-    const filteredMileageRate = mileageRates.filter((mileageRate) => mileageRate.vehicle_type === vehicle_type);
+    const filteredMileageRate = mileageRates.find((mileageRate) => mileageRate.vehicle_type === vehicle_type);
 
-    return filteredMileageRate && filteredMileageRate.length > 0 && filteredMileageRate[0].rate;
+    return filteredMileageRate?.rate;
   }
 
   getMileageByVehicleType(mileageRates, vehicle_type) {
-    const filteredMileageRate = mileageRates.filter((mileageRate) => mileageRate.vehicle_type === vehicle_type);
+    const filteredMileageRate = mileageRates.find((mileageRate) => mileageRate.vehicle_type === vehicle_type);
 
-    return filteredMileageRate && filteredMileageRate.length > 0 && filteredMileageRate[0];
+    return filteredMileageRate;
   }
 
   getNewExpense() {

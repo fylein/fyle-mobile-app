@@ -19,7 +19,7 @@
               }}</span>
             </div>
             <div class="ion-text-right">
-              <div class="text-center report-list--state report-list--state__{{ report.rp_state | reportState }}">
+              <div class="text-center report-list--state state-pill state-{{ report.rp_state | reportState }}">
                 {{ report.rp_state | reportState | snakeCaseToSpaceCase | titlecase }}
               </div>
             </div>

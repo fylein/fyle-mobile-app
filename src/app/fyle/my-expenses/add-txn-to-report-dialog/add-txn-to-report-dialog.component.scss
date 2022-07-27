@@ -1,5 +1,5 @@
 @import '../../../../theme/colors.scss';
-$reports_sent_back_color: #da1e28;;
+$reports_sent_back_color: #da1e28;
 
 .report-list {
   &--header {
@@ -52,21 +52,6 @@ $reports_sent_back_color: #da1e28;;
   }
 
   &--state {
-    font-size: 12px;
-    line-height: 1.25;
-    color: $pure-white;
-    background-color: $highlight-black;
-    border-radius: 16px;
-    padding: 4px 17px;
-    max-width: 91px;
     margin-left: auto;
-
-    &__reported {
-      background-color: $blue-1;
-    }
-
-    &__sent_back {
-      background-color: $reports_sent_back_color;
-    }
   }
 }
