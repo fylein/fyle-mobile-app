@@ -4,6 +4,7 @@ import { UserEventService } from './user-event.service';
 import { StorageService } from './storage.service';
 import { from, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { isEqual } from 'lodash';
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
 @Injectable({
@@ -41,13 +42,23 @@ export class LaunchDarklyService {
   }
 
   initializeUser(user: LDClient.LDUser) {
-    this.ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
+    if (!this.isTheSameUser(user)) {
+      this.ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
 
-    this.ldClient.on('initialized', this.updateCache, this);
-    this.ldClient.on('change', this.updateCache, this);
+      this.ldClient.on('initialized', this.updateCache, this);
+      this.ldClient.on('change', this.updateCache, this);
+    }
+  }
+
+  private isTheSameUser(newUser: LDClient.LDUser): boolean {
+    const previousUser = this.ldClient?.getUser();
+    const isUserEqual = isEqual(previousUser, newUser);
+
+    return isUserEqual;
   }
 
   private updateCache() {
+    console.log('Updating Cache');
     if (this.ldClient) {
       const latestFlags = this.ldClient.allFlags();
       this.storageService.set('cachedLDFlags', latestFlags);

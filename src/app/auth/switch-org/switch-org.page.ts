@@ -18,6 +18,7 @@ import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -63,7 +64,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private cdRef: ChangeDetectorRef,
     private trackingService: TrackingService,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ngOnInit() {
@@ -130,8 +132,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
+    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
 
-    forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$])
+    forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
       .pipe(finalize(() => from(this.loaderService.hideLoader())))
       .subscribe((aggregatedResults) => {
         const [
@@ -154,6 +157,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           eou,
           roles,
           isOnline,
+          deviceInfo,
         ] = aggregatedResults;
 
         const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
@@ -163,6 +167,17 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             id: eou.us.email + ' - ' + eou.ou.id,
             email: eou.us.email,
             orgUserId: eou.ou.id,
+          });
+
+          this.launchDarklyService.initializeUser({
+            key: eou.ou.user_id,
+            custom: {
+              org_id: eou.ou.org_id,
+              org_user_id: eou.ou.id,
+              org_currency: currentOrg?.currency,
+              org_created_at: currentOrg?.created_at,
+              asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
+            },
           });
         }
 
