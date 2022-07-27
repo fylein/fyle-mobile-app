@@ -106,12 +106,12 @@
                 <div class="add-edit-mileage--rate-value text-uppercase mb-0 text-right">
                   {{rate$|async | currency: homeCurrency: 'symbol-narrow'}} /
                   <ng-container *ngIf="etxn.tx.distance_unit; else defaultDistanceUnit">
-                    <span>{{ etxn.tx.distance_unit }}</span>
+                    <span>{{ etxn.tx.distance_unit | singular }}</span>
                   </ng-container>
 
                   <ng-template #defaultDistanceUnit>
                     <ng-container *ngIf="mileageConfig$|async as mileageConfig">
-                      <span>{{ mileageConfig.unit }}</span>
+                      <span>{{ mileageConfig.unit | singular }}</span>
                     </ng-container>
                   </ng-template>
                 </div>

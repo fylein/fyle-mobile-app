@@ -7,7 +7,6 @@ export interface PlatformMileageRates {
   unit: string;
   vehicle_type?: string;
   code?: string;
-  currency: string;
   readableRate?: string;
   rate: number;
   slab_rates?: { rate: number; limit: number }[];
