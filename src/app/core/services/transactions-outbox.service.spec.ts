@@ -13,12 +13,28 @@ import { TransactionService } from './transaction.service';
 
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { transactionOutboxData } from './data-extraction-queue-bulk-fyle-sample';
+import { of } from 'rxjs';
+import { ParsedReceipt } from '../models/parsed_receipt.model';
 
 fdescribe('TransactionsOutboxService', () => {
   let service: TransactionsOutboxService;
   let storageService: jasmine.SpyObj<StorageService>;
+  let offlineService: jasmine.SpyObj<OfflineService>;
+  let httpClient: jasmine.SpyObj<HttpClient>;
+
   let dataExtractionQueueBulkFyleSample = transactionOutboxData.dataQueue;
   let sampleBulkFyleQueue = transactionOutboxData.sampleBulkFyleQueue;
+  let parsedReceiptResponse: ParsedReceipt = {
+    data: {
+      category: 'Food',
+      currency: 'INR',
+      amount: 1234,
+      date: '11-05-1994',
+      location: null,
+      invoice_dt: '11-05-1994',
+      vendor_name: 'A2B',
+    },
+  };
 
   beforeEach(() => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
@@ -82,6 +98,8 @@ fdescribe('TransactionsOutboxService', () => {
     });
     service = TestBed.inject(TransactionsOutboxService);
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
+    offlineService = TestBed.inject(OfflineService) as jasmine.SpyObj<OfflineService>;
+    httpClient = TestBed.inject(HttpClient) as jasmine.SpyObj<HttpClient>;
   });
 
   it('should be created', () => {
@@ -169,5 +187,16 @@ fdescribe('TransactionsOutboxService', () => {
         dataUrls,
       },
     ]);
+  });
+
+  fit('should be able to parse receipts in the queue', async () => {
+    const imageData = transactionOutboxData.sampleBulkFyleQueue[0].dataUrls[0].url;
+    const base64Image = imageData.replace('data:image/jpeg;base64,', '');
+
+    offlineService.getHomeCurrency.and.returnValue(of('USD'));
+    httpClient.post.and.returnValue(of(parsedReceiptResponse));
+
+    const parserResponse = await service.parseReceipt(base64Image, 'pdf');
+    expect(parsedReceiptResponse).toEqual(parserResponse);
   });
 });
