@@ -171,15 +171,9 @@ export class AccountsService {
 
   //`Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
   isSameAccount(etxn: any, account: ExtendedAccount) {
-    if (account.acc.id === etxn.tx.source_account_id) {
-      if (
-        etxn.source.account_type === 'PERSONAL_ACCOUNT' &&
-        account.acc.isReimbursable === etxn.tx.skip_reimbursement
-      ) {
-        return false;
-      }
-      return true;
+    if (etxn.source.account_type === 'PERSONAL_ACCOUNT') {
+      return account.acc.id === etxn.tx.source_account_id && account.acc.isReimbursable !== etxn.tx.skip_reimbursement;
     }
-    return false;
+    return account.acc.id === etxn.tx.source_account_id;
   }
 }
