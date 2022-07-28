@@ -371,14 +371,8 @@ export class ViewExpensePage implements OnInit {
     return this.accountsService.getAllowedPaymentModes().pipe(
       map((paymentModes) => {
         if (paymentModes.length === 1) {
-          if (
-            paymentModes[0] === 'COMPANY_ACCOUNT' &&
-            etxn.source_account_type === 'PERSONAL_ACCOUNT' &&
-            etxn.tx_skip_reimbursement
-          ) {
-            return true;
-          }
-          return paymentModes[0] === etxn.source_account_type;
+          const etxnAccountType = this.accountsService.getAccountTypeFromEtxn(etxn);
+          return paymentModes[0] === etxnAccountType;
         }
         return false;
       })

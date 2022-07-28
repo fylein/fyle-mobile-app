@@ -8,6 +8,7 @@ import { Observable, of, forkJoin } from 'rxjs';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountOption } from '../models/account-option.model';
+import { Expense } from '../models/expense.model';
 
 @Injectable({
   providedIn: 'root',
@@ -130,8 +131,8 @@ export class AccountsService {
           return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === paymentMode.acc.type);
         });
 
-        let resPaymentModes = this.sortBasedOnAllowedPaymentModes(allowedPaymentModes, filteredPaymentModes);
-        resPaymentModes = this.addMissingAccount(etxn, constructedPaymentModes, resPaymentModes);
+        const sortedPaymentModes = this.sortBasedOnAllowedPaymentModes(allowedPaymentModes, filteredPaymentModes);
+        const resPaymentModes = this.addMissingAccount(etxn, constructedPaymentModes, sortedPaymentModes);
 
         return resPaymentModes.map((paymentMode) => {
           if (paymentMode.acc.type === 'COMPANY_ACCOUNT') {
@@ -161,19 +162,32 @@ export class AccountsService {
    * In edit expense, if the account selected while creating the expense is no longer present in
    * the list of allowed accounts, add it to the list only for this expense
    */
-  addMissingAccount(etxn: any, accounts: ExtendedAccount[], paymentModes: ExtendedAccount[]) {
+  addMissingAccount(etxn: any, allPaymentModes: ExtendedAccount[], paymentModes: ExtendedAccount[]) {
     if (etxn.tx.source_account_id && !paymentModes.some((paymentMode) => this.isSameAccount(etxn, paymentMode))) {
-      const accountLinkedWithExpense = accounts.find((account) => this.isSameAccount(etxn, account));
+      const accountLinkedWithExpense = allPaymentModes.find((paymentMode) => this.isSameAccount(etxn, paymentMode));
       return [accountLinkedWithExpense, ...paymentModes];
     }
     return paymentModes;
   }
 
   //`Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
-  isSameAccount(etxn: any, account: ExtendedAccount) {
+  isSameAccount(etxn: any, paymentMode: ExtendedAccount) {
     if (etxn.source.account_type === 'PERSONAL_ACCOUNT') {
-      return account.acc.id === etxn.tx.source_account_id && account.acc.isReimbursable !== etxn.tx.skip_reimbursement;
+      return (
+        paymentMode.acc.id === etxn.tx.source_account_id &&
+        paymentMode.acc.isReimbursable !== etxn.tx.skip_reimbursement
+      );
     }
-    return account.acc.id === etxn.tx.source_account_id;
+    return paymentMode.acc.id === etxn.tx.source_account_id;
+  }
+
+  getAccountTypeFromEtxn(etxn: Expense) {
+    if (etxn.source_account_type === 'PERSONAL_ACCOUNT') {
+      if (etxn.tx_skip_reimbursement) {
+        return 'COMPANY_ACCOUNT';
+      }
+      return 'PERSONAL_ACCOUNT';
+    }
+    return etxn.source_account_type;
   }
 }
