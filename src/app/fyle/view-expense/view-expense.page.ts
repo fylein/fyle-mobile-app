@@ -239,7 +239,7 @@ export class ViewExpensePage implements OnInit {
       }
 
       //Always show payment mode to approvers
-      this.hidePaymentMode$ = iif(() => this.view === ExpenseView.team, of(false), this.hidePaymentMode(etxn));
+      this.hidePaymentMode$ = this.view === ExpenseView.team ? of(false) : this.shouldPaymentModeBeHidden(etxn);
 
       if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
         this.paymentMode = 'Advance';
@@ -367,7 +367,7 @@ export class ViewExpensePage implements OnInit {
     this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
   }
 
-  hidePaymentMode(etxn: Expense) {
+  shouldPaymentModeBeHidden(etxn: Expense) {
     return this.accountsService.getAllowedPaymentModes().pipe(
       map((paymentModes) => {
         if (paymentModes.length === 1) {

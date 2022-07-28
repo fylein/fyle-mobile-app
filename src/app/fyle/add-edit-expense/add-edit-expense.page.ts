@@ -1391,19 +1391,18 @@ export class AddEditExpensePage implements OnInit {
     );
 
     const selectedPaymentMode$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.source_account_id,
-          this.paymentModes$.pipe(
+      switchMap((etxn) => {
+        if (etxn.tx.source_account_id) {
+          return this.paymentModes$.pipe(
             map((paymentModes) =>
               paymentModes
                 .map((res) => res.value)
                 .find((paymentMode) => this.accountsService.isSameAccount(etxn, paymentMode))
             )
-          ),
-          of(null)
-        )
-      )
+          );
+        }
+        return of(null);
+      })
     );
 
     this.recentlyUsedCostCenters$ = forkJoin({
