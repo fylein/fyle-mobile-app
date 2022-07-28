@@ -371,7 +371,7 @@ export class ViewExpensePage implements OnInit {
     return this.accountsService.getAllowedPaymentModes().pipe(
       map((paymentModes) => {
         if (paymentModes.length === 1) {
-          const etxnAccountType = this.accountsService.getAccountTypeFromEtxn(etxn);
+          const etxnAccountType = this.accountsService.getEtxnAccountType(etxn);
           return paymentModes[0] === etxnAccountType;
         }
         return false;

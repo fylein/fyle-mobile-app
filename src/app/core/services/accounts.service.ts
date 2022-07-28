@@ -181,7 +181,7 @@ export class AccountsService {
     return paymentMode.acc.id === etxn.tx.source_account_id;
   }
 
-  getAccountTypeFromEtxn(etxn: Expense) {
+  getEtxnAccountType(etxn: Expense) {
     if (etxn.source_account_type === 'PERSONAL_ACCOUNT') {
       if (etxn.tx_skip_reimbursement) {
         return 'COMPANY_ACCOUNT';
