@@ -182,63 +182,19 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         const LDClient = this.launchDarklyService.getLDClient();
         LDClient.waitForInitialization().then(() => {
           this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
-            console.log('check val after .then()', res);
-
             this.isRemoveOfflineFormsSupportEnabled = res;
-
             if (this.isRemoveOfflineFormsSupportEnabled) {
               offlineData$ = of([]);
             } else {
               offlineData$ = this.offlineService.load().pipe(shareReplay(1));
             }
 
-            let isOfflineDataLoaded: boolean;
-            if (offlineData$) {
-              offlineData$.subscribe((res) => {
-                isOfflineDataLoaded = res?.length > 0;
-
-                if (isOfflineDataLoaded) {
-                  forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
-                    .pipe(finalize(() => from(this.loaderService.hideLoader())))
-                    .subscribe((aggregatedResults) => {
-                      const [
-                        [
-                          orgSettings,
-                          orgUserSettings,
-                          allCategories,
-                          allEnabledCategories,
-                          costCenters,
-                          projects,
-                          perDiemRates,
-                          customInputs,
-                          currentOrg,
-                          orgs,
-                          accounts,
-                          currencies,
-                          homeCurrency,
-                        ],
-                        isPendingDetails,
-                        eou,
-                        roles,
-                        isOnline,
-                        deviceInfo,
-                      ] = aggregatedResults;
-
-                      this.setSentryUser(eou);
-                      this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
-                    });
-                } else {
-                  forkJoin([pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
-                    .pipe(finalize(() => from(this.loaderService.hideLoader())))
-                    .subscribe((aggregatedResults) => {
-                      const [isPendingDetails, eou, roles, isOnline, deviceInfo] = aggregatedResults;
-
-                      this.setSentryUser(eou);
-                      this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
-                    });
-                }
+            forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
+              .pipe(finalize(() => from(this.loaderService.hideLoader())))
+              .subscribe(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
+                this.setSentryUser(eou);
+                this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
               });
-            }
           });
         });
       });
