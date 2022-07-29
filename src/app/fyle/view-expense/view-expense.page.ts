@@ -103,7 +103,7 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
-  hidePaymentMode$: Observable<boolean>;
+  hidePaymentMode = false;
 
   constructor(
     private loaderService: LoaderService,
@@ -238,9 +238,6 @@ export class ViewExpensePage implements OnInit {
         this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
       }
 
-      //Always show payment mode to approvers
-      this.hidePaymentMode$ = this.view === ExpenseView.team ? of(false) : this.shouldPaymentModeBeHidden(etxn);
-
       if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
         this.paymentMode = 'Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
@@ -336,6 +333,17 @@ export class ViewExpensePage implements OnInit {
     );
 
     this.getPolicyDetails(txId);
+
+    if (this.view === ExpenseView.team) {
+      this.hidePaymentMode = false;
+    } else {
+      this.etxn$
+        .pipe(
+          switchMap((etxn) => this.shouldPaymentModeBeHidden(etxn)),
+          map((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden))
+        )
+        .subscribe(noop);
+    }
 
     const editExpenseAttachments = this.etxn$.pipe(
       take(1),
