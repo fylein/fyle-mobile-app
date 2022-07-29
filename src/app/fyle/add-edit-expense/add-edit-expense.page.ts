@@ -2819,6 +2819,26 @@ export class AddEditExpensePage implements OnInit {
         ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn?.tx?.state);
     });
 
+    //Clear all category dependent fields when user changes the category
+    this.fg.controls.category.valueChanges.subscribe((_) => {
+      if (this.fg.controls.category.dirty) {
+        [
+          'from_dt',
+          'to_dt',
+          'location_1',
+          'location_2',
+          'distance',
+          'distance_unit',
+          'flight_journey_travel_class',
+          'flight_return_travel_class',
+          'train_travel_class',
+          'bus_travel_class',
+        ].forEach((categoryDependentField) => {
+          this.fg.controls[categoryDependentField]?.patchValue(null);
+        });
+      }
+    });
+
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
