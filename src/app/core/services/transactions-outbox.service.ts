@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
-import { from, empty, EMPTY, forkJoin, noop, concat, of } from 'rxjs';
-import { concatMap, switchMap, map, catchError, finalize } from 'rxjs/operators';
+import { from, noop } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { OfflineService } from './offline.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -15,7 +15,6 @@ import { ReportService } from './report.service';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
 import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
-import { CurrencyService } from './currency.service';
 
 @Injectable({
   providedIn: 'root',
