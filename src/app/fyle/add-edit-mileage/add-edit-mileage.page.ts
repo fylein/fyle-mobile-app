@@ -516,11 +516,8 @@ export class AddEditMileagePage implements OnInit {
       orgSettings: orgSettings$,
     }).pipe(
       switchMap(({ accounts, orgSettings }) => {
-        const isAdvanceEnabled =
-          (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
-        const isMultipleAdvanceEnabled =
-          orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
+        const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
+        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
         const userAccounts = this.accountsService
           .filterAccountsWithSufficientBalance(
             accounts.filter((account) => account.acc.type),
