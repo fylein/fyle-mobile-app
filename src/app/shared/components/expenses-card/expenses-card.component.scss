@@ -265,11 +265,13 @@
     margin-top: 6px;
     min-width: 117px;
     white-space: nowrap;
+    position: absolute;
+    right: 12px;
   }
 
   &--state-container {
     margin-top: 4px;
-    float: right;
+
     &__center {
       position: relative;
       height: 24px;
