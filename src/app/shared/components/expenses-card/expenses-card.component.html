@@ -247,7 +247,9 @@
                 </span>
               </div>
 
-              <div class="expenses-card--critical-policy-violatios">Critical Policy violations</div>
+              <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
+                Critical Policy violations
+              </div>
             </div>
           </div>
         </ng-template>
