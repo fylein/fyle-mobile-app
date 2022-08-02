@@ -35,7 +35,7 @@ export class AccountsService {
   }
 
   filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled, accountId?) {
-    return accounts.filter(
+    return accounts?.filter(
       (account) =>
         // Personal Account and CCC account are considered to always have sufficient funds
         (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) ||

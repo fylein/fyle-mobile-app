@@ -496,7 +496,7 @@ export class AddEditPerDiemPage implements OnInit {
         const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
         const userAccounts = this.accountsService
           .filterAccountsWithSufficientBalance(
-            accounts.filter((account) => account.acc.type),
+            accounts?.filter((account) => account.acc.type),
             isAdvanceEnabled
           )
           .filter((userAccount) => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
