@@ -12,7 +12,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
@@ -32,6 +31,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatButtonModule,
     MatSnackBarModule,
   ],
-  declarations: [AddEditMileagePage, FySelectVehicleComponent, PolicyViolationComponent],
+  declarations: [AddEditMileagePage, FySelectVehicleComponent],
 })
 export class AddEditMileagePageModule {}
