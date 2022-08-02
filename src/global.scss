@@ -1296,3 +1296,11 @@ ion-toggle.toggle-checked::before {
     @include state($state);
   }
 }
+
+.ios {
+  .add-edit-expense--title__review,
+  .add-edit-mileage--title__review,
+  .add-edit-per-diem--title__review {
+    height: 74px !important;
+  }
+}
