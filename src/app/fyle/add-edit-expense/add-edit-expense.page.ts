@@ -335,7 +335,7 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
-  hidePaymentMode: boolean;
+  hidePaymentMode = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1397,7 +1397,7 @@ export class AddEditExpensePage implements OnInit {
             map((paymentModes) =>
               paymentModes
                 .map((res) => res.value)
-                .find((paymentMode) => this.accountsService.isSameAccount(etxn, paymentMode))
+                .find((paymentMode) => this.accountsService.checkIfEtxnHasSamePaymentMode(etxn, paymentMode))
             )
           );
         }
@@ -2649,7 +2649,7 @@ export class AddEditExpensePage implements OnInit {
     this.paymentModes$.subscribe(
       (paymentModes) =>
         (this.hidePaymentMode =
-          paymentModes.length <= 1 || (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
+          paymentModes?.length <= 1 || (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
     );
 
     orgSettings$
