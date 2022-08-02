@@ -25,7 +25,7 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import * as moment from 'moment';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AddExpensesToReportComponent } from '../my-edit-report/add-expenses-to-report/add-expenses-to-report.component';
+import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { cloneDeep, isEqual } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -304,10 +304,6 @@ export class MyViewReportPage implements OnInit {
         })
       )
       .subscribe(noop);
-  }
-
-  goToEditReport() {
-    this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   updateReportName(erpt: ExtendedReport, reportName: string) {

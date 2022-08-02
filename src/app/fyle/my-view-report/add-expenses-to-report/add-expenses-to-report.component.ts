@@ -24,7 +24,7 @@ export class AddExpensesToReportComponent implements OnInit {
 
   selectedElements: Expense[];
 
-  isSelectedAll: boolean;
+  isSelectedAll: boolean = false;
 
   homeCurrency: string;
 
