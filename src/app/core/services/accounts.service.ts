@@ -196,4 +196,11 @@ export class AccountsService {
     }
     return etxn.source_account_type;
   }
+
+  getAccountTypeFromPaymentMode(paymentMode: ExtendedAccount) {
+    if (paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable) {
+      return 'COMPANY_ACCOUNT';
+    }
+    return paymentMode.acc.type;
+  }
 }
