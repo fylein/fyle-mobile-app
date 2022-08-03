@@ -211,45 +211,43 @@
             <div>Expense information</div>
             <div>missing</div>
           </div>
-          <div class="d-flex">
-            <div>
-              <div class="expenses-card--currency-amount-container ion-text-right">
-                <span class="expenses-card--currency"> {{ expense.tx_currency || homeCurrencySymbol }} </span>
-                <span class="expenses-card--amount">{{
-                  expense.tx_amount | humanizeCurrency: expense.tx_currency:true
-                }}</span>
-                <mat-icon
-                  *ngIf="!isUnifyCcceExpensesSettings"
-                  class="expenses-card--icon"
-                  svgIcon="{{ paymentModeIcon }}"
-                ></mat-icon>
-                <mat-icon
-                  *ngIf="isUnifyCcceExpensesSettings && showPaymentModeIcon"
-                  class="expenses-card--icon"
-                  svgIcon="fy-reimbursable"
-                ></mat-icon>
-              </div>
+          <div class="expenses-card--default-view-container">
+            <div class="expenses-card--currency-amount-container ion-text-right">
+              <span class="expenses-card--currency"> {{ expense.tx_currency || homeCurrencySymbol }} </span>
+              <span class="expenses-card--amount">{{
+                expense.tx_amount | humanizeCurrency: expense.tx_currency:true
+              }}</span>
+              <mat-icon
+                *ngIf="!isUnifyCcceExpensesSettings"
+                class="expenses-card--icon"
+                svgIcon="{{ paymentModeIcon }}"
+              ></mat-icon>
+              <mat-icon
+                *ngIf="isUnifyCcceExpensesSettings && showPaymentModeIcon"
+                class="expenses-card--icon"
+                svgIcon="fy-reimbursable"
+              ></mat-icon>
+            </div>
 
-              <div
-                *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
-                class="expenses-card--exchange-rate ion-text-right"
-              >
-                ({{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency }} at
-                {{ expense.tx_amount / expense.tx_orig_amount | currency: expense.tx_currency:'code' }})
-              </div>
+            <div
+              *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
+              class="expenses-card--exchange-rate ion-text-right"
+            >
+              ({{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency }} at
+              {{ expense.tx_amount / expense.tx_orig_amount | currency: expense.tx_currency:'code' }})
+            </div>
 
-              <div
-                *ngIf="expense.isDraft && !isFromViewReports"
-                class="expenses-card--state-container state-pill state-{{ expense.tx_state | expenseState }}"
-              >
-                <span>
-                  {{ expense.tx_state | expenseState | titlecase }}
-                </span>
-              </div>
+            <div
+              *ngIf="expense.isDraft && !isFromViewReports"
+              class="expenses-card--state-container state-pill state-{{ expense.tx_state | expenseState }}"
+            >
+              <span>
+                {{ expense.tx_state | expenseState | titlecase }}
+              </span>
+            </div>
 
-              <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
-                Critical Policy violations
-              </div>
+            <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
+              Critical Policy violations
             </div>
           </div>
         </ng-template>
