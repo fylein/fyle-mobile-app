@@ -126,8 +126,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
               source += '_OFFLINE';
             }
             const transaction = {
-              source_account_id: account.acc.id,
-              skip_reimbursement: !account.acc.isReimbursable || false,
+              source_account_id: account?.acc?.id,
+              skip_reimbursement: !account?.acc?.isReimbursable || false,
               source,
               txn_dt: new Date(),
               currency: this.homeCurrency,
@@ -172,8 +172,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         const isCCCEnabled =
           orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
-        const paidByCompanyAccount = paymentModes.find(
-          (paymentMode) => paymentMode?.acc.displayName === 'Paid by Company'
+        const paidByCompanyAccount = paymentModes?.find(
+          (paymentMode) => paymentMode?.acc?.displayName === 'Paid by Company'
         );
 
         let account;
@@ -184,11 +184,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           isCCCEnabled &&
           orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
         ) {
-          account = paymentModes.find(
+          account = paymentModes?.find(
             (paymentMode) => paymentMode?.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
           );
         } else {
-          account = paymentModes.find((paymentMode) => paymentMode?.acc.displayName === 'Personal Card/Cash');
+          account = paymentModes?.find((paymentMode) => paymentMode?.acc.displayName === 'Personal Card/Cash');
         }
         return account;
       })
