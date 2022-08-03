@@ -118,7 +118,7 @@ export class AddEditExpensePage implements OnInit {
 
   etxn$: Observable<any>;
 
-  paymentModes$: Observable<any[]>;
+  paymentModes$: Observable<AccountOption[]>;
 
   recentlyUsedValues$: Observable<RecentlyUsed>;
 

@@ -106,7 +106,7 @@ export class AccountsService {
 
   //Dummy method - will be replaced by API call
   getAllowedPaymentModes(): Observable<string[]> {
-    return of(['COMPANY_ACCOUNT']);
+    return of(['PERSONAL_ACCOUNT']);
   }
 
   //Filter and sort user accounts by allowed payment modes and return an observable of allowed accounts
@@ -130,6 +130,19 @@ export class AccountsService {
           }
           return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === paymentMode.acc.type);
         });
+
+        //In case no payment modes are present, show `Personal Card/Cash` as the payment mode
+        if (!filteredPaymentModes?.length) {
+          return [
+            {
+              label: 'PERSONAL_ACCOUNT',
+              value: constructedPaymentModes.find((paymentMode) => {
+                const accountType = this.getAccountTypeFromPaymentMode(paymentMode);
+                return accountType === 'PERSONAL_ACCOUNT';
+              }),
+            },
+          ];
+        }
 
         const sortedPaymentModes = this.sortBasedOnAllowedPaymentModes(allowedPaymentModes, filteredPaymentModes);
         const userPaymentModes = this.addMissingAccount(etxn, constructedPaymentModes, sortedPaymentModes);
