@@ -85,15 +85,15 @@ export class AccountsService {
           },
         };
 
-        const mappedAccounts = accounts.map((account) => account && accountsMap[account.acc.type](account));
+        const mappedAccounts = accounts?.map((account) => account && accountsMap[account.acc.type](account));
 
         if (!hidePaidByCompany) {
-          const personalAccount = accounts.find((account) => account.acc.type === 'PERSONAL_ACCOUNT');
+          const personalAccount = accounts?.find((account) => account?.acc?.type === 'PERSONAL_ACCOUNT');
           if (personalAccount) {
             const personalNonreimbursableAccount = cloneDeep(personalAccount);
             personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
             personalNonreimbursableAccount.acc.isReimbursable = false;
-            mappedAccounts.push(personalNonreimbursableAccount);
+            mappedAccounts?.push(personalNonreimbursableAccount);
           }
         }
 
