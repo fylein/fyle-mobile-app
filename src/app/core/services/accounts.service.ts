@@ -132,9 +132,9 @@ export class AccountsService {
         });
 
         const sortedPaymentModes = this.sortBasedOnAllowedPaymentModes(allowedPaymentModes, filteredPaymentModes);
-        const resPaymentModes = this.addMissingAccount(etxn, constructedPaymentModes, sortedPaymentModes);
+        const userPaymentModes = this.addMissingAccount(etxn, constructedPaymentModes, sortedPaymentModes);
 
-        return resPaymentModes.map((paymentMode) => {
+        return userPaymentModes.map((paymentMode) => {
           if (paymentMode.acc.type === 'COMPANY_ACCOUNT') {
             paymentMode.acc.type = 'PERSONAL_ACCOUNT';
           }
@@ -148,11 +148,11 @@ export class AccountsService {
    * Mapping expenses of type 'COMPANY_ACCOUNT' in allowedPaymentModes array to
    * non-reimbursable expenses of type 'PERSONAL_ACCOUNT' in constructedPaymentModes
    */
-  isCompanyAccount(paymentMode: ExtendedAccount) {
+  isCompanyAccount(paymentMode: ExtendedAccount): boolean {
     return paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable;
   }
 
-  sortBasedOnAllowedPaymentModes(allowedPaymentModes: string[], paymentModes: ExtendedAccount[]) {
+  sortBasedOnAllowedPaymentModes(allowedPaymentModes: string[], paymentModes: ExtendedAccount[]): ExtendedAccount[] {
     return paymentModes.sort(
       (a, b) => allowedPaymentModes.indexOf(a.acc.type) - allowedPaymentModes.indexOf(b.acc.type)
     );
@@ -162,16 +162,25 @@ export class AccountsService {
    * In edit expense, if the account selected while creating the expense is no longer present in
    * the list of allowed accounts, add it to the list only for this expense
    */
-  addMissingAccount(etxn: any, allPaymentModes: ExtendedAccount[], paymentModes: ExtendedAccount[]) {
-    if (etxn.tx.source_account_id && !paymentModes.some((paymentMode) => this.isSameAccount(etxn, paymentMode))) {
-      const accountLinkedWithExpense = allPaymentModes.find((paymentMode) => this.isSameAccount(etxn, paymentMode));
-      return [accountLinkedWithExpense, ...paymentModes];
+  addMissingAccount(
+    etxn: any,
+    allPaymentModes: ExtendedAccount[],
+    allowedPaymentModes: ExtendedAccount[]
+  ): ExtendedAccount[] {
+    if (
+      etxn.tx.source_account_id &&
+      !allowedPaymentModes.some((paymentMode) => this.checkIfEtxnHasSamePaymentMode(etxn, paymentMode))
+    ) {
+      const accountLinkedWithExpense = allPaymentModes.find((paymentMode) =>
+        this.checkIfEtxnHasSamePaymentMode(etxn, paymentMode)
+      );
+      return [accountLinkedWithExpense, ...allowedPaymentModes];
     }
-    return paymentModes;
+    return allowedPaymentModes;
   }
 
   //`Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
-  isSameAccount(etxn: any, paymentMode: ExtendedAccount) {
+  checkIfEtxnHasSamePaymentMode(etxn: any, paymentMode: ExtendedAccount): boolean {
     if (etxn.source.account_type === 'PERSONAL_ACCOUNT') {
       return (
         paymentMode.acc.id === etxn.tx.source_account_id &&
@@ -181,12 +190,9 @@ export class AccountsService {
     return paymentMode.acc.id === etxn.tx.source_account_id;
   }
 
-  getEtxnAccountType(etxn: Expense) {
-    if (etxn.source_account_type === 'PERSONAL_ACCOUNT') {
-      if (etxn.tx_skip_reimbursement) {
-        return 'COMPANY_ACCOUNT';
-      }
-      return 'PERSONAL_ACCOUNT';
+  getEtxnAccountType(etxn: Expense): string {
+    if (etxn.source_account_type === 'PERSONAL_ACCOUNT' && etxn.tx_skip_reimbursement) {
+      return 'COMPANY_ACCOUNT';
     }
     return etxn.source_account_type;
   }
