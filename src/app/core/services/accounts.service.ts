@@ -124,7 +124,7 @@ export class AccountsService {
       map(({ constructedPaymentModes, allowedPaymentModes }) => {
         //Filter out accounts not present in allowed payment modes array
         const filteredPaymentModes = constructedPaymentModes.filter((paymentMode) => {
-          if (this.isCompanyAccount(paymentMode)) {
+          if (this.getAccountTypeFromPaymentMode(paymentMode) === 'COMPANY_ACCOUNT') {
             paymentMode.acc.type = 'COMPANY_ACCOUNT';
             return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === 'COMPANY_ACCOUNT');
           }
@@ -155,14 +155,6 @@ export class AccountsService {
         });
       })
     );
-  }
-
-  /**
-   * Mapping expenses of type 'COMPANY_ACCOUNT' in allowedPaymentModes array to
-   * non-reimbursable expenses of type 'PERSONAL_ACCOUNT' in constructedPaymentModes
-   */
-  isCompanyAccount(paymentMode: ExtendedAccount): boolean {
-    return paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable;
   }
 
   sortBasedOnAllowedPaymentModes(allowedPaymentModes: string[], paymentModes: ExtendedAccount[]): ExtendedAccount[] {
