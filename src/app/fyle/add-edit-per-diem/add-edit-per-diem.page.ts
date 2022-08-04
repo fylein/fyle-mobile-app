@@ -1149,20 +1149,10 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    const selectedPaymentMode$ = this.etxn$.pipe(
-      switchMap((etxn) => {
-        if (etxn.tx.source_account_id) {
-          return this.paymentModes$.pipe(
-            map((paymentModes) =>
-              paymentModes
-                .map((res) => res.value)
-                .find((paymentMode) => this.accountsService.checkIfEtxnHasSamePaymentMode(etxn, paymentMode))
-            )
-          );
-        }
-        return of(null);
-      })
-    );
+    const selectedPaymentMode$ = forkJoin({
+      etxn: this.etxn$,
+      paymentModes: this.paymentModes$,
+    }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
 
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>

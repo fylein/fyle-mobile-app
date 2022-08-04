@@ -216,4 +216,13 @@ export class AccountsService {
     }
     return paymentMode.acc.type;
   }
+
+  getEtxnSelectedPaymentMode(etxn: any, paymentModes: AccountOption[]) {
+    if (etxn.tx.source_account_id) {
+      return paymentModes
+        .map((res) => res.value)
+        .find((paymentMode) => this.checkIfEtxnHasSamePaymentMode(etxn, paymentMode));
+    }
+    return null;
+  }
 }
