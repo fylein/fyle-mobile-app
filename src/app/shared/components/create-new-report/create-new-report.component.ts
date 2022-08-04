@@ -152,7 +152,7 @@ export class CreateNewReportComponent implements OnInit {
               Expense_Count: txnIds.length,
               Report_Value: this.selectedTotalAmount,
             });
-            this.refinerService.startSurvey({ actionName: 'Submit Report' });
+            this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
           }),
           finalize(() => {
             this.submitReportLoader = false;

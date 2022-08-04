@@ -150,7 +150,7 @@ export class MyCreateReportPage implements OnInit {
             this.saveReportLoading = false;
             this.router.navigate(['/', 'enterprise', 'my_reports']);
 
-            this.refinerService.startSurvey({ actionName: 'Submit Report' });
+            this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
           })
         )
         .subscribe(noop);
