@@ -58,6 +58,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -83,7 +84,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   allowedPerDiemRateOptions$: Observable<any[]>;
 
-  paymentModes$: Observable<any[]>;
+  paymentModes$: Observable<AccountOption[]>;
 
   homeCurrency$: Observable<string>;
 
@@ -178,6 +179,8 @@ export class AddEditPerDiemPage implements OnInit {
   isRedirectedFromReport = false;
 
   canRemoveFromReport = false;
+
+  hidePaymentMode = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -490,22 +493,21 @@ export class AddEditPerDiemPage implements OnInit {
     return forkJoin({
       accounts: accounts$,
       orgSettings: orgSettings$,
+      etxn: this.etxn$,
     }).pipe(
-      switchMap(({ accounts, orgSettings }) => {
+      switchMap(({ accounts, orgSettings, etxn }) => {
         const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
         const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
-        const userAccounts = this.accountsService
-          .filterAccountsWithSufficientBalance(
-            accounts.filter((account) => account.acc.type),
-            isAdvanceEnabled
-          )
-          .filter((userAccount) => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
-
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
-      }),
-      map((paymentModes) =>
-        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
-      )
+        const perDiemAccounts = accounts.filter((account: ExtendedAccount) =>
+          ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(account.acc.type)
+        );
+        return this.accountsService.getAllowedAccounts(
+          etxn,
+          perDiemAccounts,
+          isAdvanceEnabled,
+          isMultipleAdvanceEnabled
+        );
+      })
     );
   }
 
@@ -845,7 +847,6 @@ export class AddEditPerDiemPage implements OnInit {
       );
 
     this.txnFields$ = this.getTransactionFields();
-    this.paymentModes$ = this.getPaymentModes();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
@@ -892,6 +893,9 @@ export class AddEditPerDiemPage implements OnInit {
     this.customInputs$ = this.getCustomInputs();
 
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
+
+    this.paymentModes$ = this.getPaymentModes();
+    this.paymentModes$.subscribe((paymentModes) => (this.hidePaymentMode = paymentModes.length <= 1));
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
@@ -1146,30 +1150,28 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     const selectedPaymentMode$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.source_account_id,
-          this.paymentModes$.pipe(
+      switchMap((etxn) => {
+        if (etxn.tx.source_account_id) {
+          return this.paymentModes$.pipe(
             map((paymentModes) =>
               paymentModes
                 .map((res) => res.value)
-                .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
-                    return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
-                  } else {
-                    return paymentMode.acc.id === etxn.tx.source_account_id;
-                  }
-                })
+                .find((paymentMode) => this.accountsService.checkIfEtxnHasSamePaymentMode(etxn, paymentMode))
             )
-          ),
-          of(null)
-        )
-      )
+          );
+        }
+        return of(null);
+      })
     );
 
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
-        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash')
+        paymentModes
+          .map((paymentMode) => paymentMode.value)
+          .find((paymentMode) => {
+            const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
+            return accountType === 'PERSONAL_ACCOUNT';
+          })
       )
     );
 
