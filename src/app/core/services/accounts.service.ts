@@ -106,7 +106,7 @@ export class AccountsService {
 
   //Dummy method - will be replaced by API call
   getAllowedPaymentModes(): Observable<string[]> {
-    return of(['PERSONAL_ACCOUNT']);
+    return of(['COMPANY_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT', 'PERSONAL_ACCOUNT']);
   }
 
   //Filter and sort user accounts by allowed payment modes and return an observable of allowed accounts

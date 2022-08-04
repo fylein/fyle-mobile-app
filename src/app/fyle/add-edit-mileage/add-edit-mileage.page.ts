@@ -1198,7 +1198,16 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
-    const defaultPaymentMode$ = this.paymentModes$.pipe(map((paymentModes) => paymentModes[0].value));
+    const defaultPaymentMode$ = this.paymentModes$.pipe(
+      map((paymentModes) =>
+        paymentModes
+          .map((paymentMode) => paymentMode.value)
+          .find((paymentMode) => {
+            const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
+            return accountType === 'PERSONAL_ACCOUNT';
+          })
+      )
+    );
 
     this.recentlyUsedProjects$ = forkJoin({
       recentValues: this.recentlyUsedValues$,
