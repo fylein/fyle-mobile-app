@@ -213,7 +213,7 @@
           </div>
           <div class="expenses-card--default-view-container">
             <div class="expenses-card--currency-amount-container ion-text-right">
-              <span class="expenses-card--currency"> {{ expense.tx_currency || homeCurrencySymbol }} </span>
+              <span class="expenses-card--currency"> {{ homeCurrency }} </span>
               <span class="expenses-card--amount">{{
                 expense.tx_amount | humanizeCurrency: expense.tx_currency:true
               }}</span>
