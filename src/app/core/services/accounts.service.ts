@@ -110,13 +110,11 @@ export class AccountsService {
   }
 
   //Filter and sort user accounts by allowed payment modes and return an observable of allowed accounts
-  getAllowedAccounts(
-    etxn: any,
-    accounts: ExtendedAccount[],
-    isAdvanceEnabled: boolean,
-    isMultipleAdvanceEnabled: boolean
-  ): Observable<AccountOption[]> {
+  getAllowedAccounts(etxn: any, accounts: ExtendedAccount[], orgSettings: any): Observable<AccountOption[]> {
+    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
+    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
     const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+
     return forkJoin({
       constructedPaymentModes: this.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled),
       allowedPaymentModes: this.getAllowedPaymentModes(),
@@ -132,6 +130,8 @@ export class AccountsService {
         });
 
         //In case no payment modes are present, show `Personal Card/Cash` as the payment mode
+        // isMileageOrPerDiemExpense = ['MILEAGE', 'PER_DIEM'].includes()
+
         if (!filteredPaymentModes?.length) {
           return [
             {

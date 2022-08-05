@@ -496,17 +496,10 @@ export class AddEditPerDiemPage implements OnInit {
       etxn: this.etxn$,
     }).pipe(
       switchMap(({ accounts, orgSettings, etxn }) => {
-        const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
-        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
         const perDiemAccounts = accounts.filter((account: ExtendedAccount) =>
           ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(account.acc.type)
         );
-        return this.accountsService.getAllowedAccounts(
-          etxn,
-          perDiemAccounts,
-          isAdvanceEnabled,
-          isMultipleAdvanceEnabled
-        );
+        return this.accountsService.getAllowedAccounts(etxn, perDiemAccounts, orgSettings);
       })
     );
   }
