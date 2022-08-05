@@ -233,4 +233,16 @@ export class AccountsService {
     }
     return null;
   }
+
+  shouldPaymentModeBeHidden(etxn: Expense) {
+    return this.getAllowedPaymentModes().pipe(
+      map((paymentModes) => {
+        if (paymentModes.length === 1) {
+          const etxnAccountType = this.getEtxnAccountType(etxn);
+          return paymentModes[0] === etxnAccountType;
+        }
+        return false;
+      })
+    );
+  }
 }
