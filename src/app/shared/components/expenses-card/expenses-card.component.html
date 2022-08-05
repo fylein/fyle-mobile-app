@@ -217,7 +217,7 @@
                 {{ (expense.tx_currency | currencySymbol) || (homeCurrency | currencySymbol) }}
               </span>
               <span class="expenses-card--amount">{{
-                expense.tx_amount | humanizeCurrency: expense.tx_currency || homeCurrency:true
+                expense.tx_amount | humanizeCurrency: (expense.tx_currency || homeCurrency): true
               }}</span>
               <mat-icon
                 *ngIf="!isUnifyCcceExpensesSettings"
