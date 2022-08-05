@@ -118,6 +118,13 @@ export class AccountsService {
   ): Observable<AccountOption[]> {
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
+
+    //Mileage and Per Diem expenses cannot have CCC as a payment mode
+    if (['MILEAGE', 'PER_DIEM'].includes(expenseType)) {
+      accounts = accounts.filter((account) =>
+        ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(account.acc.type)
+      );
+    }
     const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
 
     return forkJoin({

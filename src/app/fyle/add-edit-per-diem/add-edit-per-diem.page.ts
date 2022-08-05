@@ -495,12 +495,9 @@ export class AddEditPerDiemPage implements OnInit {
       orgSettings: orgSettings$,
       etxn: this.etxn$,
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn }) => {
-        const perDiemAccounts = accounts.filter((account: ExtendedAccount) =>
-          ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(account.acc.type)
-        );
-        return this.accountsService.getAllowedAccounts(etxn, perDiemAccounts, orgSettings, 'PER_DIEM');
-      })
+      switchMap(({ accounts, orgSettings, etxn }) =>
+        this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'PER_DIEM')
+      )
     );
   }
 
