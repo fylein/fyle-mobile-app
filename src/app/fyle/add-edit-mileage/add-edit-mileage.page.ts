@@ -59,6 +59,7 @@ import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -524,7 +525,7 @@ export class AddEditMileagePage implements OnInit {
         const mileageAccounts = accounts.filter((account: ExtendedAccount) =>
           [AccountType.PERSONAL, AccountType.ADVANCE].includes(account.acc.type)
         );
-        return this.accountsService.getAllowedAccounts(etxn, mileageAccounts, orgSettings, 'MILEAGE');
+        return this.accountsService.getAllowedAccounts(etxn, mileageAccounts, orgSettings, ExpenseType.MILEAGE);
       })
     );
   }

@@ -10,6 +10,7 @@ import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountOption } from '../models/account-option.model';
 import { Expense } from '../models/expense.model';
 import { AccountType } from '../enums/account-type.enum';
+import { ExpenseType } from '../enums/expense-type.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -115,7 +116,7 @@ export class AccountsService {
     etxn: any,
     accounts: ExtendedAccount[],
     orgSettings: any,
-    expenseType: string
+    expenseType: ExpenseType
   ): Observable<AccountOption[]> {
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
@@ -137,7 +138,7 @@ export class AccountsService {
 
         const sortedPaymentModes = this.sortBasedOnAllowedPaymentModes(allowedPaymentModes, filteredPaymentModes);
 
-        const isMileageOrPerDiemExpense = ['MILEAGE', 'PER_DIEM'].includes(expenseType);
+        const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
         const userPaymentModes = this.addMissingAccount(
           etxn,
           constructedPaymentModes,

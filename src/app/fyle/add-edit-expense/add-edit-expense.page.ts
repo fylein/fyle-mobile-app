@@ -102,6 +102,7 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { getCurrencySymbol } from '@angular/common';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -1039,7 +1040,7 @@ export class AddEditExpensePage implements OnInit {
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
           this.showCardTransaction = false;
         }
-        return this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'EXPENSE');
+        return this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, ExpenseType.EXPENSE);
       })
     );
   }
