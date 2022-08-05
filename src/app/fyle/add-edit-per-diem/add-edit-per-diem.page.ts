@@ -1150,7 +1150,7 @@ export class AddEditPerDiemPage implements OnInit {
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
         paymentModes
-          .map((paymentMode) => paymentMode.value)
+          .map((extendedPaymentMode) => extendedPaymentMode.value)
           .find((paymentMode) => {
             const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
             return accountType === 'PERSONAL_ACCOUNT';
