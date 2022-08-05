@@ -9,6 +9,7 @@ import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountOption } from '../models/account-option.model';
 import { Expense } from '../models/expense.model';
+import { AccountType } from '../enums/account-type.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +42,7 @@ export class AccountsService {
       (account) =>
         // Personal Account and CCC account are considered to always have sufficient funds
         (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) ||
-        ['PERSONAL_ACCOUNT', 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'].indexOf(account.acc.type) > -1 ||
+        [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1 ||
         accountId === account.acc.id
     );
   }
@@ -90,7 +91,7 @@ export class AccountsService {
         const mappedAccounts = accounts.map((account) => account && accountsMap[account.acc.type](account));
 
         if (!hidePaidByCompany) {
-          const personalAccount = accounts.find((account) => account.acc.type === 'PERSONAL_ACCOUNT');
+          const personalAccount = accounts.find((account) => account.acc.type === AccountType.PERSONAL);
           if (personalAccount) {
             const personalNonreimbursableAccount = cloneDeep(personalAccount);
             personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
@@ -127,9 +128,9 @@ export class AccountsService {
       map(({ constructedPaymentModes, allowedPaymentModes }) => {
         //Filter out accounts not present in allowed payment modes array
         const filteredPaymentModes = constructedPaymentModes.filter((paymentMode) => {
-          if (this.getAccountTypeFromPaymentMode(paymentMode) === 'COMPANY_ACCOUNT') {
-            paymentMode.acc.type = 'COMPANY_ACCOUNT';
-            return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === 'COMPANY_ACCOUNT');
+          if (this.getAccountTypeFromPaymentMode(paymentMode) === AccountType.COMPANY) {
+            paymentMode.acc.type = AccountType.COMPANY;
+            return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === AccountType.COMPANY);
           }
           return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === paymentMode.acc.type);
         });
@@ -145,8 +146,8 @@ export class AccountsService {
         );
 
         return userPaymentModes.map((paymentMode) => {
-          if (paymentMode.acc.type === 'COMPANY_ACCOUNT') {
-            paymentMode.acc.type = 'PERSONAL_ACCOUNT';
+          if (paymentMode.acc.type === AccountType.COMPANY) {
+            paymentMode.acc.type = AccountType.PERSONAL;
           }
           return { label: paymentMode.acc.displayName, value: paymentMode };
         });
@@ -187,12 +188,12 @@ export class AccountsService {
     if (
       (isMileageOrPerDiemExpense &&
         !allowedPaymentModes.some(
-          (paymentMode) => this.getAccountTypeFromPaymentMode(paymentMode) === 'PERSONAL_ACCOUNT'
+          (paymentMode) => this.getAccountTypeFromPaymentMode(paymentMode) === AccountType.PERSONAL
         )) ||
       !allowedPaymentModes?.length
     ) {
       const personalAccountPaymentMode = allPaymentModes.find(
-        (paymentMode) => this.getAccountTypeFromPaymentMode(paymentMode) === 'PERSONAL_ACCOUNT'
+        (paymentMode) => this.getAccountTypeFromPaymentMode(paymentMode) === AccountType.PERSONAL
       );
       return [personalAccountPaymentMode, ...allowedPaymentModes];
     }
@@ -202,7 +203,7 @@ export class AccountsService {
 
   //`Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
   checkIfEtxnHasSamePaymentMode(etxn: any, paymentMode: ExtendedAccount): boolean {
-    if (etxn.source.account_type === 'PERSONAL_ACCOUNT') {
+    if (etxn.source.account_type === AccountType.PERSONAL) {
       return (
         paymentMode.acc.id === etxn.tx.source_account_id &&
         paymentMode.acc.isReimbursable !== etxn.tx.skip_reimbursement
@@ -212,15 +213,15 @@ export class AccountsService {
   }
 
   getEtxnAccountType(etxn: Expense): string {
-    if (etxn.source_account_type === 'PERSONAL_ACCOUNT' && etxn.tx_skip_reimbursement) {
-      return 'COMPANY_ACCOUNT';
+    if (etxn.source_account_type === AccountType.PERSONAL && etxn.tx_skip_reimbursement) {
+      return AccountType.COMPANY;
     }
     return etxn.source_account_type;
   }
 
   getAccountTypeFromPaymentMode(paymentMode: ExtendedAccount) {
-    if (paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !paymentMode.acc.isReimbursable) {
-      return 'COMPANY_ACCOUNT';
+    if (paymentMode.acc.type === AccountType.PERSONAL && !paymentMode.acc.isReimbursable) {
+      return AccountType.COMPANY;
     }
     return paymentMode.acc.type;
   }

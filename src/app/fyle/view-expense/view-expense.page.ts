@@ -26,6 +26,7 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 @Component({
   selector: 'app-view-expense',
@@ -238,10 +239,10 @@ export class ViewExpensePage implements OnInit {
         this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
       }
 
-      if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (etxn.source_account_type === AccountType.ADVANCE) {
         this.paymentMode = 'Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+      } else if (etxn.source_account_type === AccountType.CCC) {
         this.paymentMode = 'Corporate Card';
         this.paymentModeIcon = 'fy-unmatched';
         this.isCCCTransaction = true;

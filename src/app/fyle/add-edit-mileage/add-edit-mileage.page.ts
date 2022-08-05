@@ -58,6 +58,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -521,7 +522,7 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       switchMap(({ accounts, orgSettings, etxn }) => {
         const mileageAccounts = accounts.filter((account: ExtendedAccount) =>
-          ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(account.acc.type)
+          [AccountType.PERSONAL, AccountType.ADVANCE].includes(account.acc.type)
         );
         return this.accountsService.getAllowedAccounts(etxn, mileageAccounts, orgSettings, 'MILEAGE');
       })
@@ -1090,7 +1091,7 @@ export class AddEditMileagePage implements OnInit {
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
-        if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
+        if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return this.offlineService
             .getAccounts()
             .pipe(
@@ -1098,10 +1099,7 @@ export class AddEditMileagePage implements OnInit {
                 (accounts) =>
                   accounts.filter(
                     (account) =>
-                      account &&
-                      account.acc &&
-                      account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' &&
-                      account.acc.tentative_balance_amount > 0
+                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
                   ).length > 0
               )
             );
@@ -1187,7 +1185,7 @@ export class AddEditMileagePage implements OnInit {
           .map((paymentMode) => paymentMode.value)
           .find((paymentMode) => {
             const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
-            return accountType === 'PERSONAL_ACCOUNT';
+            return accountType === AccountType.PERSONAL;
           })
       )
     );
@@ -1846,7 +1844,7 @@ export class AddEditMileagePage implements OnInit {
         const calculatedDistance = +res.calculatedDistance;
         const amount = res.amount;
         const skipReimbursement =
-          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
+          this.fg.value.paymentMode.acc.type === AccountType.PERSONAL && !this.fg.value.paymentMode.acc.isReimbursable;
         const rate = res.rate;
         const formValue = this.fg.value;
 
