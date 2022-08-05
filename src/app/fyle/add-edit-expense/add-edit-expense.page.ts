@@ -1042,7 +1042,7 @@ export class AddEditExpensePage implements OnInit {
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
           this.showCardTransaction = false;
         }
-        return this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings);
+        return this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'EXPENSE');
       })
     );
   }

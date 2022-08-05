@@ -106,11 +106,16 @@ export class AccountsService {
 
   //Dummy method - will be replaced by API call
   getAllowedPaymentModes(): Observable<string[]> {
-    return of(['COMPANY_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT', 'PERSONAL_ACCOUNT']);
+    return of(['PERSONAL_ADVANCE_ACCOUNT']);
   }
 
   //Filter and sort user accounts by allowed payment modes and return an observable of allowed accounts
-  getAllowedAccounts(etxn: any, accounts: ExtendedAccount[], orgSettings: any): Observable<AccountOption[]> {
+  getAllowedAccounts(
+    etxn: any,
+    accounts: ExtendedAccount[],
+    orgSettings: any,
+    expenseType: string
+  ): Observable<AccountOption[]> {
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
     const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
@@ -129,23 +134,15 @@ export class AccountsService {
           return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === paymentMode.acc.type);
         });
 
-        //In case no payment modes are present, show `Personal Card/Cash` as the payment mode
-        // isMileageOrPerDiemExpense = ['MILEAGE', 'PER_DIEM'].includes()
-
-        if (!filteredPaymentModes?.length) {
-          return [
-            {
-              label: 'PERSONAL_ACCOUNT',
-              value: constructedPaymentModes.find((paymentMode) => {
-                const accountType = this.getAccountTypeFromPaymentMode(paymentMode);
-                return accountType === 'PERSONAL_ACCOUNT';
-              }),
-            },
-          ];
-        }
-
         const sortedPaymentModes = this.sortBasedOnAllowedPaymentModes(allowedPaymentModes, filteredPaymentModes);
-        const userPaymentModes = this.addMissingAccount(etxn, constructedPaymentModes, sortedPaymentModes);
+
+        const isMileageOrPerDiemExpense = ['MILEAGE', 'PER_DIEM'].includes(expenseType);
+        const userPaymentModes = this.addMissingAccount(
+          etxn,
+          constructedPaymentModes,
+          sortedPaymentModes,
+          isMileageOrPerDiemExpense
+        );
 
         return userPaymentModes.map((paymentMode) => {
           if (paymentMode.acc.type === 'COMPANY_ACCOUNT') {
@@ -163,15 +160,16 @@ export class AccountsService {
     );
   }
 
-  /**
-   * In edit expense, if the account selected while creating the expense is no longer present in
-   * the list of allowed accounts, add it to the list only for this expense
-   */
   addMissingAccount(
     etxn: any,
     allPaymentModes: ExtendedAccount[],
-    allowedPaymentModes: ExtendedAccount[]
+    allowedPaymentModes: ExtendedAccount[],
+    isMileageOrPerDiemExpense: boolean
   ): ExtendedAccount[] {
+    /**
+     * In edit expense, if the account selected while creating the expense is no longer present in
+     * the list of allowed accounts, add it to the list only for this expense
+     */
     if (
       etxn.tx.source_account_id &&
       !allowedPaymentModes.some((paymentMode) => this.checkIfEtxnHasSamePaymentMode(etxn, paymentMode))
@@ -181,6 +179,24 @@ export class AccountsService {
       );
       return [accountLinkedWithExpense, ...allowedPaymentModes];
     }
+
+    /**
+     * 'Personal Card/Cash' should always be present for mileage and per diem expenses
+     * or if no payment mode is present
+     */
+    if (
+      (isMileageOrPerDiemExpense &&
+        !allowedPaymentModes.some(
+          (paymentMode) => this.getAccountTypeFromPaymentMode(paymentMode) === 'PERSONAL_ACCOUNT'
+        )) ||
+      !allowedPaymentModes?.length
+    ) {
+      const personalAccountPaymentMode = allPaymentModes.find(
+        (paymentMode) => this.getAccountTypeFromPaymentMode(paymentMode) === 'PERSONAL_ACCOUNT'
+      );
+      return [personalAccountPaymentMode, ...allowedPaymentModes];
+    }
+
     return allowedPaymentModes;
   }
 

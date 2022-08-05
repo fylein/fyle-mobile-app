@@ -523,7 +523,7 @@ export class AddEditMileagePage implements OnInit {
         const mileageAccounts = accounts.filter((account: ExtendedAccount) =>
           ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(account.acc.type)
         );
-        return this.accountsService.getAllowedAccounts(etxn, mileageAccounts, orgSettings);
+        return this.accountsService.getAllowedAccounts(etxn, mileageAccounts, orgSettings, 'MILEAGE');
       })
     );
   }

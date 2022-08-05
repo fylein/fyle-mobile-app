@@ -499,7 +499,7 @@ export class AddEditPerDiemPage implements OnInit {
         const perDiemAccounts = accounts.filter((account: ExtendedAccount) =>
           ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(account.acc.type)
         );
-        return this.accountsService.getAllowedAccounts(etxn, perDiemAccounts, orgSettings);
+        return this.accountsService.getAllowedAccounts(etxn, perDiemAccounts, orgSettings, 'PER_DIEM');
       })
     );
   }
