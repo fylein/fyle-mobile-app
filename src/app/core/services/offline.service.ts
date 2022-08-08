@@ -423,22 +423,6 @@ export class OfflineService {
     return of(['PERSONAL_ACCOUNT']);
   }
 
-  getActiveExpenseTab() {
-    return from(this.storageService.get('activeExpenseTab'));
-  }
-
-  setActiveExpenseTab(activeTab) {
-    return from(this.storageService.set('activeExpenseTab', activeTab));
-  }
-
-  setActiveCorporateCardExpenseTab(activeTab) {
-    return from(this.storageService.set('activeCorporateCardExpenseTab', activeTab));
-  }
-
-  getActiveCorporateCardExpenseTab() {
-    return from(this.storageService.get('activeCorporateCardExpenseTab'));
-  }
-
   getReportActions(orgSettings) {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
