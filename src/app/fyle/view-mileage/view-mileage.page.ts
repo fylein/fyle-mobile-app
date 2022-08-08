@@ -354,11 +354,8 @@ export class ViewMileagePage implements OnInit {
       this.hidePaymentMode = false;
     } else {
       this.extendedMileage$
-        .pipe(
-          switchMap((extendedMileage) => this.accountsService.shouldPaymentModeBeHidden(extendedMileage)),
-          map((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden))
-        )
-        .subscribe(noop);
+        .pipe(switchMap((extendedMileage) => this.accountsService.shouldPaymentModeBeHidden(extendedMileage)))
+        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
     }
 
     const etxnIds =

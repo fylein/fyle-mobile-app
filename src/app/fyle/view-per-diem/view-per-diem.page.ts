@@ -260,11 +260,8 @@ export class ViewPerDiemPage implements OnInit {
       this.hidePaymentMode = false;
     } else {
       this.extendedPerDiem$
-        .pipe(
-          switchMap((extendedPerDiem) => this.accountsService.shouldPaymentModeBeHidden(extendedPerDiem)),
-          map((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden))
-        )
-        .subscribe(noop);
+        .pipe(switchMap((extendedPerDiem) => this.accountsService.shouldPaymentModeBeHidden(extendedPerDiem)))
+        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
     }
 
     const etxnIds =

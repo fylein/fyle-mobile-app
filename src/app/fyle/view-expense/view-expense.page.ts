@@ -338,11 +338,8 @@ export class ViewExpensePage implements OnInit {
       this.hidePaymentMode = false;
     } else {
       this.etxn$
-        .pipe(
-          switchMap((etxn) => this.accountsService.shouldPaymentModeBeHidden(etxn)),
-          map((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden))
-        )
-        .subscribe(noop);
+        .pipe(switchMap((etxn) => this.accountsService.shouldPaymentModeBeHidden(etxn)))
+        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
     }
 
     const editExpenseAttachments = this.etxn$.pipe(
