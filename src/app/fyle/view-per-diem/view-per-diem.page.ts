@@ -259,8 +259,15 @@ export class ViewPerDiemPage implements OnInit {
     if (this.view === ExpenseView.team) {
       this.hidePaymentMode = false;
     } else {
-      this.extendedPerDiem$
-        .pipe(switchMap((extendedPerDiem) => this.accountsService.shouldPaymentModeBeHidden(extendedPerDiem)))
+      forkJoin({
+        extendedPerDiem: this.extendedPerDiem$,
+        allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      })
+        .pipe(
+          map(({ extendedPerDiem, allowedPaymentModes }) =>
+            this.accountsService.shouldPaymentModeBeHidden(extendedPerDiem, allowedPaymentModes)
+          )
+        )
         .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
     }
 

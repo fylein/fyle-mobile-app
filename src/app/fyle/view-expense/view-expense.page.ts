@@ -337,8 +337,15 @@ export class ViewExpensePage implements OnInit {
     if (this.view === ExpenseView.team) {
       this.hidePaymentMode = false;
     } else {
-      this.etxn$
-        .pipe(switchMap((etxn) => this.accountsService.shouldPaymentModeBeHidden(etxn)))
+      forkJoin({
+        etxn: this.etxn$,
+        allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      })
+        .pipe(
+          map(({ etxn, allowedPaymentModes }) =>
+            this.accountsService.shouldPaymentModeBeHidden(etxn, allowedPaymentModes)
+          )
+        )
         .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
     }
 

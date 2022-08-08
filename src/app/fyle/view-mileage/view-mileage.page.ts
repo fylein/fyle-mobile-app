@@ -353,8 +353,15 @@ export class ViewMileagePage implements OnInit {
     if (this.view === ExpenseView.team) {
       this.hidePaymentMode = false;
     } else {
-      this.extendedMileage$
-        .pipe(switchMap((extendedMileage) => this.accountsService.shouldPaymentModeBeHidden(extendedMileage)))
+      forkJoin({
+        extendedMileage: this.extendedMileage$,
+        allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      })
+        .pipe(
+          map(({ extendedMileage, allowedPaymentModes }) =>
+            this.accountsService.shouldPaymentModeBeHidden(extendedMileage, allowedPaymentModes)
+          )
+        )
         .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
     }
 
