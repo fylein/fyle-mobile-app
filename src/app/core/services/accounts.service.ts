@@ -104,11 +104,6 @@ export class AccountsService {
     );
   }
 
-  //Dummy method - will be replaced by API call
-  getAllowedPaymentModes(): Observable<string[]> {
-    return of(['PERSONAL_ADVANCE_ACCOUNT']);
-  }
-
   //Filter and sort user accounts by allowed payment modes and return an observable of allowed accounts
   //eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getAllowedAccounts(
