@@ -160,7 +160,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     return forkJoin({
       allPaymentModes: this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled),
-      allowedPaymentModes: this.accountsService.getAllowedPaymentModes(),
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
       map(({ allPaymentModes, allowedPaymentModes }) => {
         if (allowedPaymentModes?.length) {
