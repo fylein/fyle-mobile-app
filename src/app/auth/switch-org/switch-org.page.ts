@@ -2,7 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, Vie
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of } from 'rxjs';
 import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { Platform } from '@ionic/angular';
+import { Platform, PopoverController } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -18,6 +18,8 @@ import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -47,6 +49,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isIos = false;
 
+  userOrgs;
+
   constructor(
     private platform: Platform,
     private offlineService: OfflineService,
@@ -63,7 +67,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private cdRef: ChangeDetectorRef,
     private trackingService: TrackingService,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
+    private popoverController: PopoverController,
+    private orgUserService: OrgUserService
   ) {}
 
   ngOnInit() {
@@ -89,13 +95,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
     if (!choose) {
       from(that.loaderService.showLoader())
-        .pipe(switchMap(() => from(that.proceed())))
+        .pipe(switchMap(() => from(that.proceed(true))))
         .subscribe(noop);
     } else {
       that.orgs$.subscribe((orgs) => {
+        that.userOrgs = orgs;
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
-            .pipe(switchMap(() => from(that.proceed())))
+            .pipe(switchMap(() => from(that.proceed(false))))
             .subscribe(noop);
         }
       });
@@ -124,7 +131,99 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
   }
 
-  async proceed() {
+  async showEmailNotVerifiedAlert() {
+    const popover = await this.popoverController.create({
+      componentProps: {
+        title: 'Email Not Verified',
+        message: 'Your Email is not verified, Please check your Email and accept the invite first.',
+        primaryCta: {
+          text: 'OK',
+          action: 'close',
+        },
+      },
+      component: PopupAlertComponentComponent,
+      cssClass: 'pop-up-in-center',
+    });
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data && data.action === 'close') {
+      console.log('yaatta');
+      this.orgs$.subscribe((orgs) => {
+        console.log(orgs);
+        if (orgs.length === 1) {
+          this.signOut();
+        }
+      });
+    }
+  }
+
+  goToSetupPassword(roles) {
+    if (roles.indexOf('OWNER') > -1) {
+      this.router.navigate(['/', 'post_verification', 'setup_account']);
+    } else {
+      this.router.navigate(['/', 'post_verification', 'invited_user']);
+    }
+  }
+
+  markUserActive() {
+    this.orgUserService.markActive().subscribe(() => this.router.navigate(['/', 'enterprise', 'my_dashboard']));
+  }
+
+  async handlePendingDetails(isInviteLink, orgSettings, roles) {
+    if (isInviteLink) {
+      if (orgSettings.sso_integration_settings.allowed && orgSettings.sso_integration_settings.enabled) {
+        this.markUserActive();
+      } else if (this.userOrgs.length > 1) {
+        let isUserActiveInAnyOrg = false;
+        new Promise((resolve, reject) => {
+          const p = [];
+
+          for (let i = 0; i < this.userOrgs.length; i++) {
+            p.push(
+              this.orgService
+                .switchOrg(this.userOrgs[i].id)
+                .toPromise()
+                .then(() => {
+                  this.userService
+                    .isPendingDetails()
+                    .toPromise()
+                    .then((isPendingDetail) => {
+                      if (!isPendingDetail) {
+                        isUserActiveInAnyOrg = true;
+                      }
+                    });
+                })
+            );
+          }
+
+          Promise.all(p)
+            .then(() => {
+              if (isUserActiveInAnyOrg) {
+                this.orgService.switchOrg(orgSettings.org_id).subscribe(() => {
+                  this.markUserActive();
+                });
+              } else {
+                this.orgService.switchOrg(orgSettings.org_id).subscribe(() => {
+                  this.goToSetupPassword(roles);
+                });
+              }
+              resolve(true);
+            })
+            .catch((err) => {
+              reject(err);
+            });
+        });
+      } else {
+        this.goToSetupPassword(roles);
+      }
+    } else {
+      await this.showEmailNotVerifiedAlert();
+    }
+  }
+
+  async proceed(isInviteLink) {
     const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
@@ -133,7 +232,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
     forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$])
       .pipe(finalize(() => from(this.loaderService.hideLoader())))
-      .subscribe((aggregatedResults) => {
+      .subscribe(async (aggregatedResults) => {
         const [
           [
             orgSettings,
@@ -165,13 +264,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             orgUserId: eou.ou.id,
           });
         }
-
         if (pendingDetails) {
-          if (roles.indexOf('OWNER') > -1) {
-            this.router.navigate(['/', 'post_verification', 'setup_account']);
-          } else {
-            this.router.navigate(['/', 'post_verification', 'invited_user']);
-          }
+          await this.handlePendingDetails(isInviteLink, orgSettings, roles);
         } else if (eou.ou.status === 'ACTIVE') {
           this.router.navigate(['/', 'enterprise', 'my_dashboard']);
         } else if (eou.ou.status === 'DISABLED') {
@@ -212,7 +306,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           }
           this.userEventService.clearTaskCache();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-          from(this.proceed()).subscribe(noop);
+          from(this.proceed(false)).subscribe(noop);
         },
         async (err) => {
           await this.secureStorageService.clearAll();
