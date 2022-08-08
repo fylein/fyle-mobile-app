@@ -512,15 +512,14 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getPaymentModes(): Observable<AccountOption[]> {
-    const orgSettings$ = this.offlineService.getOrgSettings();
-    const accounts$ = this.offlineService.getAccounts();
     return forkJoin({
-      accounts: accounts$,
-      orgSettings: orgSettings$,
+      accounts: this.offlineService.getAccounts(),
+      orgSettings: this.offlineService.getOrgSettings(),
       etxn: this.etxn$,
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn }) =>
-        this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'MILEAGE')
+      switchMap(({ accounts, orgSettings, etxn, allowedPaymentModes }) =>
+        this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, allowedPaymentModes, 'MILEAGE')
       )
     );
   }

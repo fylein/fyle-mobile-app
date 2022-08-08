@@ -1007,24 +1007,13 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getPaymentModes(): Observable<AccountOption[]> {
-    const accounts$ = this.isConnected$.pipe(
-      take(1),
-      switchMap((isConnected) => {
-        if (isConnected) {
-          return this.accountsService.getEMyAccounts();
-        } else {
-          return this.offlineService.getAccounts();
-        }
-      })
-    );
-    const orgSettings$ = this.offlineService.getOrgSettings();
-
     return forkJoin({
-      accounts: accounts$,
-      orgSettings: orgSettings$,
+      accounts: this.offlineService.getAccounts(),
+      orgSettings: this.offlineService.getOrgSettings(),
       etxn: this.etxn$,
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn }) => {
+      switchMap(({ accounts, orgSettings, etxn, allowedPaymentModes }) => {
         const isCCCEnabled =
           orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
@@ -1042,7 +1031,7 @@ export class AddEditExpensePage implements OnInit {
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
           this.showCardTransaction = false;
         }
-        return this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'EXPENSE');
+        return this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, allowedPaymentModes, 'EXPENSE');
       })
     );
   }

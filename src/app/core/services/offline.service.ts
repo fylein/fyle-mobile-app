@@ -416,6 +416,13 @@ export class OfflineService {
     );
   }
 
+  @Cacheable()
+  //Dummy Method - will update once backend changes are done
+  getAllowedPaymentModes() {
+    // return this.getOrgUserSettings().pipe(map(orgUserSettings => orgUserSettings?.payment_mode_settings?.allowed_payment_modes));
+    return of(['PERSONAL_ACCOUNT']);
+  }
+
   getActiveExpenseTab() {
     return from(this.storageService.get('activeExpenseTab'));
   }

@@ -110,10 +110,12 @@ export class AccountsService {
   }
 
   //Filter and sort user accounts by allowed payment modes and return an observable of allowed accounts
+  //eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getAllowedAccounts(
     etxn: any,
     accounts: ExtendedAccount[],
     orgSettings: any,
+    allowedPaymentModes: string[],
     expenseType: string
   ): Observable<AccountOption[]> {
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
@@ -127,11 +129,8 @@ export class AccountsService {
     }
     const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
 
-    return forkJoin({
-      constructedPaymentModes: this.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled),
-      allowedPaymentModes: this.getAllowedPaymentModes(),
-    }).pipe(
-      map(({ constructedPaymentModes, allowedPaymentModes }) => {
+    return this.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
+      map((constructedPaymentModes) => {
         //Filter out accounts not present in allowed payment modes array
         const filteredPaymentModes = constructedPaymentModes.filter((paymentMode) => {
           if (this.getAccountTypeFromPaymentMode(paymentMode) === 'COMPANY_ACCOUNT') {
