@@ -520,12 +520,9 @@ export class AddEditMileagePage implements OnInit {
       orgSettings: orgSettings$,
       etxn: this.etxn$,
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn }) => {
-        const mileageAccounts = accounts.filter((account: ExtendedAccount) =>
-          [AccountType.PERSONAL, AccountType.ADVANCE].includes(account.acc.type)
-        );
-        return this.accountsService.getAllowedAccounts(etxn, mileageAccounts, orgSettings, 'MILEAGE');
-      })
+      switchMap(({ accounts, orgSettings, etxn }) =>
+        this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'MILEAGE')
+      )
     );
   }
 
@@ -1182,7 +1179,7 @@ export class AddEditMileagePage implements OnInit {
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
         paymentModes
-          .map((paymentMode) => paymentMode.value)
+          .map((extendedPaymentMode) => extendedPaymentMode.value)
           .find((paymentMode) => {
             const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
             return accountType === AccountType.PERSONAL;

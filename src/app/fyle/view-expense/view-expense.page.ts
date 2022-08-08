@@ -339,11 +339,8 @@ export class ViewExpensePage implements OnInit {
       this.hidePaymentMode = false;
     } else {
       this.etxn$
-        .pipe(
-          switchMap((etxn) => this.shouldPaymentModeBeHidden(etxn)),
-          map((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden))
-        )
-        .subscribe(noop);
+        .pipe(switchMap((etxn) => this.accountsService.shouldPaymentModeBeHidden(etxn)))
+        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
     }
 
     const editExpenseAttachments = this.etxn$.pipe(
@@ -374,18 +371,6 @@ export class ViewExpensePage implements OnInit {
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
     this.numEtxnsInReport = etxnIds.length;
     this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
-  }
-
-  shouldPaymentModeBeHidden(etxn: Expense) {
-    return this.accountsService.getAllowedPaymentModes().pipe(
-      map((paymentModes) => {
-        if (paymentModes.length === 1) {
-          const etxnAccountType = this.accountsService.getEtxnAccountType(etxn);
-          return paymentModes[0] === etxnAccountType;
-        }
-        return false;
-      })
-    );
   }
 
   getReceiptExtension(name: string) {

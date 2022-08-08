@@ -496,12 +496,9 @@ export class AddEditPerDiemPage implements OnInit {
       orgSettings: orgSettings$,
       etxn: this.etxn$,
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn }) => {
-        const perDiemAccounts = accounts.filter((account: ExtendedAccount) =>
-          [AccountType.PERSONAL, AccountType.ADVANCE].includes(account.acc.type)
-        );
-        return this.accountsService.getAllowedAccounts(etxn, perDiemAccounts, orgSettings, 'PER_DIEM');
-      })
+      switchMap(({ accounts, orgSettings, etxn }) =>
+        this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'PER_DIEM')
+      )
     );
   }
 
@@ -1148,7 +1145,7 @@ export class AddEditPerDiemPage implements OnInit {
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
         paymentModes
-          .map((paymentMode) => paymentMode.value)
+          .map((extendedPaymentMode) => extendedPaymentMode.value)
           .find((paymentMode) => {
             const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
             return accountType === AccountType.PERSONAL;

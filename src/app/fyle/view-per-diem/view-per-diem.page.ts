@@ -21,6 +21,7 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 @Component({
@@ -77,6 +78,8 @@ export class ViewPerDiemPage implements OnInit {
 
   projectFieldName: string;
 
+  hidePaymentMode = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
@@ -91,7 +94,8 @@ export class ViewPerDiemPage implements OnInit {
     private statusService: StatusService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private accountsService: AccountsService
   ) {}
 
   get ExpenseView() {
@@ -252,6 +256,14 @@ export class ViewPerDiemPage implements OnInit {
     });
 
     this.updateFlag$.next(null);
+
+    if (this.view === ExpenseView.team) {
+      this.hidePaymentMode = false;
+    } else {
+      this.extendedPerDiem$
+        .pipe(switchMap((extendedPerDiem) => this.accountsService.shouldPaymentModeBeHidden(extendedPerDiem)))
+        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
+    }
 
     const etxnIds =
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
