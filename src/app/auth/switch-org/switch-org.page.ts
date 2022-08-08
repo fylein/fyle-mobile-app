@@ -92,17 +92,19 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     });
 
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
+    const invite_link =
+      that.activatedRoute.snapshot.params.invite_link && JSON.parse(that.activatedRoute.snapshot.params.invite_link);
 
     if (!choose) {
       from(that.loaderService.showLoader())
-        .pipe(switchMap(() => from(that.proceed(true))))
+        .pipe(switchMap(() => from(that.proceed(invite_link))))
         .subscribe(noop);
     } else {
       that.orgs$.subscribe((orgs) => {
         that.userOrgs = orgs;
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
-            .pipe(switchMap(() => from(that.proceed(false))))
+            .pipe(switchMap(() => from(that.proceed(invite_link))))
             .subscribe(noop);
         }
       });
