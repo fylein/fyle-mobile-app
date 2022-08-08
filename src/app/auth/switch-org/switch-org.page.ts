@@ -87,7 +87,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     that.orgs$ = that.offlineService.getOrgs().pipe(shareReplay(1));
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
-    that.orgs$.subscribe(() => {
+    that.orgs$.subscribe((orgs) => {
+      that.userOrgs = orgs;
       that.cdRef.detectChanges();
     });
 
@@ -101,7 +102,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         .subscribe(noop);
     } else {
       that.orgs$.subscribe((orgs) => {
-        that.userOrgs = orgs;
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
             .pipe(switchMap(() => from(that.proceed(invite_link))))
