@@ -13,7 +13,6 @@ import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 enum DashboardState {
   home,
@@ -58,8 +57,7 @@ export class DashboardPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
-    private tasksService: TasksService,
-    private launchDarklyService: LaunchDarklyService
+    private tasksService: TasksService
   ) {}
 
   get displayedTaskCount() {
@@ -93,7 +91,7 @@ export class DashboardPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
-    this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
+    from(this.storageService.get('removeOfflineForms')).subscribe((res) => {
       this.isRemoveOfflineFormsSupportEnabled = res;
     });
     this.taskCount = 0;

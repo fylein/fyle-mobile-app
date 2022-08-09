@@ -16,7 +16,7 @@ import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take 
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { StorageService } from 'src/app/core/services/storage.service';
 
 type Image = Partial<{
   source: string;
@@ -69,7 +69,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private accountsService: AccountsService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
-    private launchDarklyService: LaunchDarklyService
+    private storageService: StorageService
   ) {}
 
   setupNetworkWatcher() {
@@ -97,7 +97,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
 
-    this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
+    from(this.storageService.get('removeOfflineForms')).subscribe((res) => {
       this.isRemoveOfflineFormsSupportEnabled = res;
     });
   }

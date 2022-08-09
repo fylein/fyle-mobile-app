@@ -142,6 +142,23 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     });
   }
 
+  async getRemoveOfflineFormsLDKey() {
+    const eou$ = from(this.authService.getEou());
+    const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
+    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
+    await this.storageService.delete('removeOfflineForms');
+    forkJoin([eou$, deviceInfo$, currentOrg$])
+      .pipe()
+      .subscribe(([eou, deviceInfo, currentOrg]) => {
+        this.initializeLDUser(eou, deviceInfo, currentOrg);
+        const LDClient = this.launchDarklyService.getLDClient();
+        LDClient.waitForInitialization().then(() => {
+          const allLDFlags = LDClient.allFlags();
+          this.storageService.set('removeOfflineForms', allLDFlags['remove_offline_forms']);
+        });
+      });
+  }
+
   setSentryUser(eou: ExtendedOrgUser) {
     if (eou) {
       Sentry.setUser({
@@ -173,30 +190,23 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
+    this.getRemoveOfflineFormsLDKey();
+    from(this.storageService.get('removeOfflineForms')).subscribe((res) => {
+      this.isRemoveOfflineFormsSupportEnabled = res;
+    });
     let offlineData$: Observable<any[]>;
 
-    forkJoin([eou$, deviceInfo$, currentOrg$])
-      .pipe()
-      .subscribe(([eou, deviceInfo, currentOrg]) => {
-        this.initializeLDUser(eou, deviceInfo, currentOrg);
-        const LDClient = this.launchDarklyService.getLDClient();
-        LDClient.waitForInitialization().then(() => {
-          this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
-            this.isRemoveOfflineFormsSupportEnabled = res;
-            if (this.isRemoveOfflineFormsSupportEnabled) {
-              offlineData$ = this.offlineService.loadInOfflineMode().pipe(shareReplay(1));
-            } else {
-              offlineData$ = this.offlineService.load().pipe(shareReplay(1));
-            }
+    if (this.isRemoveOfflineFormsSupportEnabled) {
+      offlineData$ = this.offlineService.loadInOfflineMode().pipe(shareReplay(1));
+    } else {
+      offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+    }
 
-            forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
-              .pipe(finalize(() => from(this.loaderService.hideLoader())))
-              .subscribe(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
-                this.setSentryUser(eou);
-                this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
-              });
-          });
-        });
+    forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
+      .pipe(finalize(() => from(this.loaderService.hideLoader())))
+      .subscribe(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
+        this.setSentryUser(eou);
+        this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
       });
   }
 

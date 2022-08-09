@@ -55,7 +55,6 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type Filters = Partial<{
   state: string[];
@@ -207,8 +206,7 @@ export class MyExpensesPage implements OnInit {
     private actionSheetController: ActionSheetController,
     private snackbarProperties: SnackbarPropertiesService,
     private tasksService: TasksService,
-    private corporateCreditCardService: CorporateCreditCardExpenseService,
-    private launchDarklyService: LaunchDarklyService
+    private corporateCreditCardService: CorporateCreditCardExpenseService
   ) {}
 
   get HeaderState() {
@@ -428,7 +426,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
+    from(this.storageService.get('removeOfflineForms')).subscribe((res) => {
       this.isRemoveOfflineFormsSupportEnabled = res;
     });
 
