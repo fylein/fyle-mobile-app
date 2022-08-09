@@ -126,9 +126,9 @@ export class AccountsService {
         const filteredPaymentModes = constructedPaymentModes.filter((paymentMode) => {
           if (this.isCompanyAccount(paymentMode)) {
             paymentMode.acc.type = 'COMPANY_ACCOUNT';
-            return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === 'COMPANY_ACCOUNT');
+            return allowedPaymentModes.some((allowedPaymentMode) => allowedPaymentMode === 'COMPANY_ACCOUNT');
           }
-          return allowedPaymentModes.some((allowedpaymentMode) => allowedpaymentMode === paymentMode.acc.type);
+          return allowedPaymentModes.some((allowedPaymentMode) => allowedPaymentMode === paymentMode.acc.type);
         });
 
         const sortedPaymentModes = this.sortBasedOnAllowedPaymentModes(allowedPaymentModes, filteredPaymentModes);
@@ -171,10 +171,10 @@ export class AccountsService {
       etxn.tx.source_account_id &&
       !allowedPaymentModes.some((paymentMode) => this.checkIfEtxnHasSamePaymentMode(etxn, paymentMode))
     ) {
-      const accountLinkedWithExpense = allPaymentModes.find((paymentMode) =>
+      const paymentModeOfExpense = allPaymentModes.find((paymentMode) =>
         this.checkIfEtxnHasSamePaymentMode(etxn, paymentMode)
       );
-      return [accountLinkedWithExpense, ...allowedPaymentModes];
+      return [paymentModeOfExpense, ...allowedPaymentModes];
     }
     return allowedPaymentModes;
   }
