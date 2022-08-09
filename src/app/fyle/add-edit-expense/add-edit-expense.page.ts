@@ -1400,13 +1400,38 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
-    const defaultPaymentMode$ = this.paymentModes$.pipe(
-      map((paymentModes) => {
+    const defaultPaymentMode$ = forkJoin({
+      paymentModes: this.paymentModes$,
+      orgUserSettings: this.orgUserSettings$,
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+    }).pipe(
+      map(({ paymentModes, orgUserSettings, isPaymentModeConfigurationsEnabled }) => {
         //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
         if (this.isCreatedFromCCC) {
           return paymentModes
             .map((res) => res.value)
             .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+        }
+
+        if (isPaymentModeConfigurationsEnabled) {
+          const hasCCCAccount = paymentModes
+            .map((res) => res.value)
+            .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+
+          const paidByCompanyAccount = paymentModes
+            .map((res) => res?.value)
+            .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
+
+          if (
+            hasCCCAccount &&
+            orgUserSettings?.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+          ) {
+            return paymentModes
+              .map((res) => res.value)
+              .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          } else if (paidByCompanyAccount && orgUserSettings?.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
+            return paidByCompanyAccount;
+          }
         }
         return paymentModes[0].value;
       })
