@@ -154,6 +154,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         const LDClient = this.launchDarklyService.getLDClient();
         LDClient.waitForInitialization().then(() => {
           const allLDFlags = LDClient.allFlags();
+          // eslint-disable-next-line @typescript-eslint/dot-notation
           this.storageService.set('removeOfflineForms', allLDFlags['remove_offline_forms']);
         });
       });
