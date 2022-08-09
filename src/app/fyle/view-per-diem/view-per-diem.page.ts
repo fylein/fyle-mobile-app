@@ -22,6 +22,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -94,7 +95,8 @@ export class ViewPerDiemPage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get ExpenseView() {
@@ -256,19 +258,25 @@ export class ViewPerDiemPage implements OnInit {
 
     this.updateFlag$.next(null);
 
+    const shouldPaymentModeBeHidden$ = forkJoin({
+      extendedPerDiem: this.extendedPerDiem$,
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+    }).pipe(
+      map(({ extendedPerDiem, allowedPaymentModes }) =>
+        this.accountsService.shouldPaymentModeBeHidden(extendedPerDiem, allowedPaymentModes)
+      )
+    );
+
     if (this.view === ExpenseView.team) {
       this.hidePaymentMode = false;
     } else {
       forkJoin({
-        extendedPerDiem: this.extendedPerDiem$,
-        allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      })
-        .pipe(
-          map(({ extendedPerDiem, allowedPaymentModes }) =>
-            this.accountsService.shouldPaymentModeBeHidden(extendedPerDiem, allowedPaymentModes)
-          )
-        )
-        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
+        shouldPaymentModeBeHidden: shouldPaymentModeBeHidden$,
+        isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      }).subscribe(
+        ({ shouldPaymentModeBeHidden, isPaymentModeConfigurationsEnabled }) =>
+          (this.hidePaymentMode = isPaymentModeConfigurationsEnabled && shouldPaymentModeBeHidden)
+      );
     }
 
     const etxnIds =

@@ -26,6 +26,7 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -122,7 +123,8 @@ export class ViewExpensePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get ExpenseView() {
@@ -334,19 +336,23 @@ export class ViewExpensePage implements OnInit {
 
     this.getPolicyDetails(txId);
 
+    const shouldPaymentModeBeHidden$ = forkJoin({
+      etxn: this.etxn$,
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+    }).pipe(
+      map(({ etxn, allowedPaymentModes }) => this.accountsService.shouldPaymentModeBeHidden(etxn, allowedPaymentModes))
+    );
+
     if (this.view === ExpenseView.team) {
       this.hidePaymentMode = false;
     } else {
       forkJoin({
-        etxn: this.etxn$,
-        allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      })
-        .pipe(
-          map(({ etxn, allowedPaymentModes }) =>
-            this.accountsService.shouldPaymentModeBeHidden(etxn, allowedPaymentModes)
-          )
-        )
-        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
+        shouldPaymentModeBeHidden: shouldPaymentModeBeHidden$,
+        isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      }).subscribe(
+        ({ shouldPaymentModeBeHidden, isPaymentModeConfigurationsEnabled }) =>
+          (this.hidePaymentMode = isPaymentModeConfigurationsEnabled && shouldPaymentModeBeHidden)
+      );
     }
 
     const editExpenseAttachments = this.etxn$.pipe(
