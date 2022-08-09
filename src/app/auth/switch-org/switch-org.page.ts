@@ -184,7 +184,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.launchDarklyService.getVariation('remove_offline_forms', false).subscribe((res) => {
             this.isRemoveOfflineFormsSupportEnabled = res;
             if (this.isRemoveOfflineFormsSupportEnabled) {
-              offlineData$ = of([]);
+              offlineData$ = this.offlineService.loadInOfflineMode().pipe(shareReplay(1));
             } else {
               offlineData$ = this.offlineService.load().pipe(shareReplay(1));
             }
