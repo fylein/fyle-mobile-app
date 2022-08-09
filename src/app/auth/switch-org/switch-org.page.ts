@@ -170,7 +170,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   markUserActive() {
-    this.orgUserService.markActive().subscribe(() => this.router.navigate(['/', 'enterprise', 'my_dashboard']));
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.orgUserService.markActive()),
+        finalize(() => this.loaderService.hideLoader())
+      )
+      .subscribe(() => this.router.navigate(['/', 'enterprise', 'my_dashboard']));
   }
 
   async handlePendingDetails(isInviteLink, orgSettings, roles) {
@@ -298,8 +303,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   async switchOrg(org: Org) {
     const originalEou = await this.authService.getEou();
-    const invite_link =
-      this.activatedRoute.snapshot.params.invite_link && JSON.parse(this.activatedRoute.snapshot.params.invite_link);
     from(this.loaderService.showLoader())
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
       .subscribe(
@@ -310,7 +313,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           }
           this.userEventService.clearTaskCache();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-          from(this.proceed(invite_link)).subscribe(noop);
+          from(this.proceed(false)).subscribe(noop);
         },
         async (err) => {
           await this.secureStorageService.clearAll();
