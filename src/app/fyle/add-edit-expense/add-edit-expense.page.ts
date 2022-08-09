@@ -100,7 +100,7 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { AccountOption } from 'src/app/core/models/account-option.model';
-import { getCurrencySymbol } from '@angular/common';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -379,7 +379,8 @@ export class AddEditExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
-    private handleDuplicates: HandleDuplicatesService
+    private handleDuplicates: HandleDuplicatesService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   @HostListener('keydown')
@@ -1012,8 +1013,9 @@ export class AddEditExpensePage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn, allowedPaymentModes }) => {
+      switchMap(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
         const isCCCEnabled =
           orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
@@ -1031,7 +1033,14 @@ export class AddEditExpensePage implements OnInit {
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
           this.showCardTransaction = false;
         }
-        return this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, allowedPaymentModes, 'EXPENSE');
+        return this.accountsService.getAllowedAccounts(
+          etxn,
+          accounts,
+          orgSettings,
+          allowedPaymentModes,
+          'EXPENSE',
+          isPaymentModeConfigurationsEnabled
+        );
       })
     );
   }
@@ -2623,10 +2632,14 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    this.paymentModes$.subscribe(
-      (paymentModes) =>
+    forkJoin({
+      paymentModes: this.paymentModes$,
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+    }).subscribe(
+      ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
         (this.hidePaymentMode =
-          paymentModes?.length <= 1 || (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
+          (isPaymentModeConfigurationsEnabled && paymentModes?.length <= 1) ||
+          (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
     );
 
     orgSettings$

@@ -111,7 +111,8 @@ export class AccountsService {
     accounts: ExtendedAccount[],
     orgSettings: any,
     allowedPaymentModes: string[],
-    expenseType: string
+    expenseType: string,
+    isPaymentModeConfigurationsEnabled = false
   ): Observable<AccountOption[]> {
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
@@ -123,6 +124,14 @@ export class AccountsService {
       );
     }
     const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+
+    if (isPaymentModeConfigurationsEnabled) {
+      return this.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
+        map((paymentModes) =>
+          paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
+        )
+      );
+    }
 
     return this.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
       map((constructedPaymentModes) => {
