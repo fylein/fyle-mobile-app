@@ -93,18 +93,18 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     });
 
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
-    const invite_link =
+    const inviteLink =
       that.activatedRoute.snapshot.params.invite_link && JSON.parse(that.activatedRoute.snapshot.params.invite_link);
 
     if (!choose) {
       from(that.loaderService.showLoader())
-        .pipe(switchMap(() => from(that.proceed(invite_link))))
+        .pipe(switchMap(() => from(that.proceed(inviteLink))))
         .subscribe(noop);
     } else {
       that.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
-            .pipe(switchMap(() => from(that.proceed(invite_link))))
+            .pipe(switchMap(() => from(that.proceed(inviteLink))))
             .subscribe(noop);
         }
       });
@@ -137,7 +137,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const popover = await this.popoverController.create({
       componentProps: {
         title: 'Email Not Verified',
-        message: 'Your Email is not verified, Please check your Email and accept the invite first.',
+        message: 'Your email is not verified. Please check your previous emails and accept the invite.',
         primaryCta: {
           text: 'OK',
           action: 'close',
@@ -151,9 +151,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const { data } = await popover.onWillDismiss();
 
     if (data && data.action === 'close') {
-      console.log('yaatta');
       this.orgs$.subscribe((orgs) => {
-        console.log(orgs);
         if (orgs.length === 1) {
           this.signOut();
         }
@@ -178,50 +176,54 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       .subscribe(() => this.router.navigate(['/', 'enterprise', 'my_dashboard']));
   }
 
+  checkUserStatusInAllOrgs(currentOrgId, roles) {
+    let isUserActiveInAnyOrg = false;
+    return new Promise((resolve, reject) => {
+      const promises = [];
+
+      for (let i = 0; i < this.userOrgs.length; i++) {
+        promises.push(
+          this.orgService
+            .switchOrg(this.userOrgs[i].id)
+            .toPromise()
+            .then(() => {
+              this.userService
+                .isPendingDetails()
+                .toPromise()
+                .then((isPendingDetail) => {
+                  if (!isPendingDetail) {
+                    isUserActiveInAnyOrg = true;
+                  }
+                });
+            })
+        );
+      }
+
+      Promise.all(promises)
+        .then(() => {
+          if (isUserActiveInAnyOrg) {
+            this.orgService.switchOrg(currentOrgId).subscribe(() => {
+              this.markUserActive();
+            });
+          } else {
+            this.orgService.switchOrg(currentOrgId).subscribe(() => {
+              this.goToSetupPassword(roles);
+            });
+          }
+          resolve(true);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   async handlePendingDetails(isInviteLink, orgSettings, roles) {
     if (isInviteLink) {
       if (orgSettings.sso_integration_settings.allowed && orgSettings.sso_integration_settings.enabled) {
         this.markUserActive();
       } else if (this.userOrgs.length > 1) {
-        let isUserActiveInAnyOrg = false;
-        new Promise((resolve, reject) => {
-          const p = [];
-
-          for (let i = 0; i < this.userOrgs.length; i++) {
-            p.push(
-              this.orgService
-                .switchOrg(this.userOrgs[i].id)
-                .toPromise()
-                .then(() => {
-                  this.userService
-                    .isPendingDetails()
-                    .toPromise()
-                    .then((isPendingDetail) => {
-                      if (!isPendingDetail) {
-                        isUserActiveInAnyOrg = true;
-                      }
-                    });
-                })
-            );
-          }
-
-          Promise.all(p)
-            .then(() => {
-              if (isUserActiveInAnyOrg) {
-                this.orgService.switchOrg(orgSettings.org_id).subscribe(() => {
-                  this.markUserActive();
-                });
-              } else {
-                this.orgService.switchOrg(orgSettings.org_id).subscribe(() => {
-                  this.goToSetupPassword(roles);
-                });
-              }
-              resolve(true);
-            })
-            .catch((err) => {
-              reject(err);
-            });
-        });
+        this.checkUserStatusInAllOrgs(orgSettings.org_id, roles);
       } else {
         this.goToSetupPassword(roles);
       }
