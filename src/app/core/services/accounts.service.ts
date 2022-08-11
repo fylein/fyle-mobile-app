@@ -111,13 +111,13 @@ export class AccountsService {
 
   //Filter user accounts by allowed payment modes and return an observable of allowed accounts
   getAllowedAccounts(
-    etxn: any,
     accounts: ExtendedAccount[],
-    isMultipleAdvanceEnabled: boolean
+    isMultipleAdvanceEnabled: boolean,
+    etxn?: any
   ): Observable<AccountOption[]> {
     return this.getAllowedPaymentModes().pipe(
       map((allowedPaymentModes) => {
-        const allowedAccountsWithDisplayName = allowedPaymentModes.map((allowedPaymentMode) => {
+        let allowedAccounts = allowedPaymentModes.map((allowedPaymentMode) => {
           const accountForPaymentMode = accounts.find((account) => {
             if (allowedPaymentMode === 'COMPANY_ACCOUNT') {
               return account.acc.type === 'PERSONAL_ACCOUNT';
@@ -127,12 +127,9 @@ export class AccountsService {
           return this.setAccountProperties(accountForPaymentMode, allowedPaymentMode, isMultipleAdvanceEnabled);
         });
 
-        const allowedAccounts = this.addMissingAccount(
-          etxn,
-          accounts,
-          allowedAccountsWithDisplayName,
-          isMultipleAdvanceEnabled
-        );
+        if (etxn?.tx?.source_account_id) {
+          allowedAccounts = this.addMissingAccount(etxn, accounts, allowedAccounts, isMultipleAdvanceEnabled);
+        }
         return allowedAccounts.map((account) => ({
           label: account.acc.displayName,
           value: account,
@@ -151,10 +148,7 @@ export class AccountsService {
     allowedAccounts: ExtendedAccount[],
     isMultipleAdvanceEnabled: boolean
   ): ExtendedAccount[] {
-    if (
-      etxn.tx.source_account_id &&
-      !allowedAccounts.some((account) => this.checkIfEtxnHasSamePaymentMode(etxn, account))
-    ) {
+    if (!allowedAccounts.some((account) => this.checkIfEtxnHasSamePaymentMode(etxn, account))) {
       let paymentModeOfExpense = allAccounts.find((account) => account.acc.id === etxn.tx.source_account_id);
       let accountTypeOfExpense = etxn.source.account_type;
       if (etxn.source.account_type === 'PERSONAL_ACCOUNT' && etxn.tx.skip_reimbursement) {
