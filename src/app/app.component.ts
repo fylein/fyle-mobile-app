@@ -1,6 +1,6 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController, PopoverController } from '@ionic/angular';
-import { from, concat, Observable, noop, forkJoin } from 'rxjs';
+import { from, concat, Observable, noop } from 'rxjs';
 import { switchMap, shareReplay } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';

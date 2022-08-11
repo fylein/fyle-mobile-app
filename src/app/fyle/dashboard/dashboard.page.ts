@@ -91,7 +91,7 @@ export class DashboardPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
-    from(this.storageService.get('removeOfflineForms')).subscribe((res) => {
+    from(this.storageService.get('isOfflineFormsRemoved')).subscribe((res) => {
       this.isOfflineFormsRemoved = res;
     });
     this.taskCount = 0;

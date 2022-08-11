@@ -97,7 +97,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
 
-    from(this.storageService.get('removeOfflineForms')).subscribe((res) => {
+    from(this.storageService.get('isOfflineFormsRemoved')).subscribe((res) => {
       this.isOfflineFormsRemoved = res;
     });
   }

@@ -35,7 +35,7 @@ export class RemoveOfflineFormsService {
     const eou$ = from(this.authService.getEou());
     const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    await this.storageService.delete('removeOfflineForms');
+    await this.storageService.delete('isOfflineFormsRemoved');
     forkJoin([eou$, deviceInfo$, currentOrg$])
       .pipe()
       .subscribe(([eou, deviceInfo, currentOrg]) => {
@@ -44,7 +44,7 @@ export class RemoveOfflineFormsService {
         LDClient.waitForInitialization().then(() => {
           const allLDFlags = LDClient.allFlags();
           // eslint-disable-next-line @typescript-eslint/dot-notation
-          this.storageService.set('removeOfflineForms', allLDFlags['remove_offline_forms']);
+          this.storageService.set('isOfflineFormsRemoved', allLDFlags['remove_offline_forms']);
         });
       });
   }
