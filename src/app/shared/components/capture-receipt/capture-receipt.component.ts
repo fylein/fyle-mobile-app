@@ -106,11 +106,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     return forkJoin({
       isConnected: this.networkService.isOnline(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
       accounts: this.offlineService.getAccounts(),
       orgSettings: this.offlineService.getOrgSettings(),
     }).pipe(
-      switchMap(({ isConnected, accounts, orgSettings }) =>
-        this.getAccount(orgSettings, accounts).pipe(
+      switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) =>
+        this.getAccount(orgSettings, accounts, orgUserSettings).pipe(
           filter((account) => !!account),
           switchMap((account) => {
             if (!isConnected) {
@@ -148,11 +149,17 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     );
   }
 
-  getAccount(orgSettings: any, accounts: ExtendedAccount[]): Observable<ExtendedAccount> {
+  getAccount(
+    orgSettings: any,
+    accounts: ExtendedAccount[],
+    orgUserSettings: OrgUserSettings
+  ): Observable<ExtendedAccount> {
+    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
+    const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
 
     return forkJoin({
-      allPaymentModes: this.accountsService.constructPaymentModes(accounts, isMultipleAdvanceEnabled),
+      allPaymentModes: this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled),
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
       map(({ allPaymentModes, allowedPaymentModes }) => {
