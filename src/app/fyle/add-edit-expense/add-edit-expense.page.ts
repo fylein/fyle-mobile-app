@@ -1044,7 +1044,8 @@ export class AddEditExpensePage implements OnInit {
           this.showCardTransaction = false;
         }
         return this.accountsService.getAllowedAccounts(etxn, accounts, isMultipleAdvanceEnabled);
-      })
+      }),
+      shareReplay(1)
     );
   }
 

@@ -4,7 +4,7 @@ import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
 import { LaunchDarklyService } from './launch-darkly.service';
-import { Observable, of, forkJoin } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountOption } from '../models/account-option.model';
@@ -106,7 +106,7 @@ export class AccountsService {
 
   //Dummy method - will be replaced by API call
   getAllowedPaymentModes(): Observable<string[]> {
-    return of(['COMPANY_ACCOUNT']);
+    return of(['PERSONAL_ACCOUNT']);
   }
 
   //Filter user accounts by allowed payment modes and return an observable of allowed accounts
@@ -155,8 +155,11 @@ export class AccountsService {
       etxn.tx.source_account_id &&
       !allowedAccounts.some((account) => this.checkIfEtxnHasSamePaymentMode(etxn, account))
     ) {
-      let paymentModeOfExpense = allAccounts.find((account) => this.checkIfEtxnHasSamePaymentMode(etxn, account));
-      const accountTypeOfExpense = this.getEtxnAccountType(etxn);
+      let paymentModeOfExpense = allAccounts.find((account) => account.acc.id === etxn.tx.source_account_id);
+      let accountTypeOfExpense = etxn.source.account_type;
+      if (etxn.source.account_type === 'PERSONAL_ACCOUNT' && etxn.tx.skip_reimbursement) {
+        accountTypeOfExpense = 'COMPANY_ACCOUNT';
+      }
       paymentModeOfExpense = this.setAccountProperties(
         paymentModeOfExpense,
         accountTypeOfExpense,
@@ -172,7 +175,6 @@ export class AccountsService {
     if (etxn.source.account_type === 'PERSONAL_ACCOUNT') {
       return (
         paymentMode.acc.id === etxn.tx.source_account_id &&
-        paymentMode.acc.isReimbursable &&
         paymentMode.acc.isReimbursable !== etxn.tx.skip_reimbursement
       );
     }
@@ -201,12 +203,14 @@ export class AccountsService {
       PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
     };
 
-    account.acc.displayName =
+    const accountCopy = cloneDeep(account);
+    accountCopy.acc.displayName =
       paymentMode === 'PERSONAL_ADVANCE_ACCOUNT'
-        ? this.getAdvanceAccountDisplayName(account, isMultipleAdvanceEnabled)
+        ? this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled)
         : accountDisplayNameMapping[paymentMode];
-    account.acc.isReimbursable = paymentMode === 'PERSONAL_ACCOUNT';
-    return account;
+    accountCopy.acc.isReimbursable = paymentMode === 'PERSONAL_ACCOUNT';
+
+    return accountCopy;
   }
 
   getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean) {
