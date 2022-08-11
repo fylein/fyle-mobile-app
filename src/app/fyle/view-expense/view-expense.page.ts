@@ -103,7 +103,7 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private loaderService: LoaderService,
@@ -335,12 +335,12 @@ export class ViewExpensePage implements OnInit {
     this.getPolicyDetails(txId);
 
     if (this.view === ExpenseView.team) {
-      this.hidePaymentMode = false;
+      this.showPaymentMode = true;
     } else {
       this.etxn$
         .pipe(
-          switchMap((etxn) => this.shouldPaymentModeBeHidden(etxn)),
-          map((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden))
+          switchMap((etxn) => this.shouldPaymentModeBeShown(etxn)),
+          map((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown))
         )
         .subscribe(noop);
     }
@@ -375,14 +375,14 @@ export class ViewExpensePage implements OnInit {
     this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
   }
 
-  shouldPaymentModeBeHidden(etxn: Expense) {
+  shouldPaymentModeBeShown(etxn: Expense) {
     return this.accountsService.getAllowedPaymentModes().pipe(
       map((paymentModes) => {
         if (paymentModes.length === 1) {
           const etxnAccountType = this.accountsService.getEtxnAccountType(etxn);
-          return paymentModes[0] === etxnAccountType;
+          return paymentModes[0] !== etxnAccountType;
         }
-        return false;
+        return true;
       })
     );
   }
