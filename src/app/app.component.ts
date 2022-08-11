@@ -23,8 +23,7 @@ import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.compone
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { OfflineService } from './core/services/offline.service';
-import { StorageService } from './core/services/storage.service';
-import { LaunchDarklyService } from './core/services/launch-darkly.service';
+import { RemoveOfflineFormsService } from './core/services/remove-offline-forms.service';
 
 @Component({
   selector: 'app-root',
@@ -69,8 +68,7 @@ export class AppComponent implements OnInit {
     private offlineService: OfflineService,
     private navController: NavController,
     private popoverController: PopoverController,
-    private storageService: StorageService,
-    private launchDarklyService: LaunchDarklyService
+    private removeOfflineFormsService: RemoveOfflineFormsService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -184,37 +182,6 @@ export class AppComponent implements OnInit {
     );
   }
 
-  initializeLDUser(eou, deviceInfo, currentOrg) {
-    this.launchDarklyService.initializeUser({
-      key: eou.ou.user_id,
-      custom: {
-        org_id: eou.ou.org_id,
-        org_user_id: eou.ou.id,
-        org_currency: currentOrg?.currency,
-        org_created_at: currentOrg?.created_at,
-        asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
-      },
-    });
-  }
-
-  async getRemoveOfflineFormsLDKey() {
-    const eou$ = from(this.authService.getEou());
-    const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
-    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    await this.storageService.delete('removeOfflineForms');
-    forkJoin([eou$, deviceInfo$, currentOrg$])
-      .pipe()
-      .subscribe(([eou, deviceInfo, currentOrg]) => {
-        this.initializeLDUser(eou, deviceInfo, currentOrg);
-        const LDClient = this.launchDarklyService.getLDClient();
-        LDClient.waitForInitialization().then(() => {
-          const allLDFlags = LDClient.allFlags();
-          // eslint-disable-next-line @typescript-eslint/dot-notation
-          this.storageService.set('removeOfflineForms', allLDFlags['remove_offline_forms']);
-        });
-      });
-  }
-
   ngOnInit() {
     if ((window as any) && (window as any).localStorage) {
       const lstorage = (window as any).localStorage;
@@ -274,7 +241,7 @@ export class AppComponent implements OnInit {
       }
     });
 
-    this.getRemoveOfflineFormsLDKey();
+    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey();
   }
 
   switchDelegator(isSwitchedToDelegator: boolean) {

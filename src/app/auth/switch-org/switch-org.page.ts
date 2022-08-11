@@ -18,8 +18,8 @@ import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { RemoveOfflineFormsService } from 'src/app/core/services/remove-offline-forms.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -49,7 +49,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isIos = false;
 
-  isRemoveOfflineFormsSupportEnabled = false;
+  isOfflineFormsRemoved = false;
 
   constructor(
     private platform: Platform,
@@ -68,7 +68,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private cdRef: ChangeDetectorRef,
     private trackingService: TrackingService,
     private deviceService: DeviceService,
-    private launchDarklyService: LaunchDarklyService
+    private removeOfflineFormsService: RemoveOfflineFormsService
   ) {}
 
   ngOnInit() {
@@ -129,37 +129,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
   }
 
-  initializeLDUser(eou, deviceInfo, currentOrg) {
-    this.launchDarklyService.initializeUser({
-      key: eou.ou.user_id,
-      custom: {
-        org_id: eou.ou.org_id,
-        org_user_id: eou.ou.id,
-        org_currency: currentOrg?.currency,
-        org_created_at: currentOrg?.created_at,
-        asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
-      },
-    });
-  }
-
-  async getRemoveOfflineFormsLDKey() {
-    const eou$ = from(this.authService.getEou());
-    const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
-    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    await this.storageService.delete('removeOfflineForms');
-    forkJoin([eou$, deviceInfo$, currentOrg$])
-      .pipe()
-      .subscribe(([eou, deviceInfo, currentOrg]) => {
-        this.initializeLDUser(eou, deviceInfo, currentOrg);
-        const LDClient = this.launchDarklyService.getLDClient();
-        LDClient.waitForInitialization().then(() => {
-          const allLDFlags = LDClient.allFlags();
-          // eslint-disable-next-line @typescript-eslint/dot-notation
-          this.storageService.set('removeOfflineForms', allLDFlags['remove_offline_forms']);
-        });
-      });
-  }
-
   setSentryUser(eou: ExtendedOrgUser) {
     if (eou) {
       Sentry.setUser({
@@ -191,14 +160,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    this.getRemoveOfflineFormsLDKey();
+    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey();
     from(this.storageService.get('removeOfflineForms')).subscribe((res) => {
-      this.isRemoveOfflineFormsSupportEnabled = res;
+      this.isOfflineFormsRemoved = res;
     });
     let offlineData$: Observable<any[]>;
 
-    if (this.isRemoveOfflineFormsSupportEnabled) {
-      offlineData$ = this.offlineService.loadInOfflineMode().pipe(shareReplay(1));
+    if (this.isOfflineFormsRemoved) {
+      offlineData$ = this.offlineService.loadOptimized().pipe(shareReplay(1));
     } else {
       offlineData$ = this.offlineService.load().pipe(shareReplay(1));
     }

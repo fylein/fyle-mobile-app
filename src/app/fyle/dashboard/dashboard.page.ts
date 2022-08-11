@@ -45,7 +45,7 @@ export class DashboardPage implements OnInit {
 
   taskCount = 0;
 
-  isRemoveOfflineFormsSupportEnabled = false;
+  isOfflineFormsRemoved = false;
 
   constructor(
     private offlineService: OfflineService,
@@ -92,7 +92,7 @@ export class DashboardPage implements OnInit {
   ionViewWillEnter() {
     this.setupNetworkWatcher();
     from(this.storageService.get('removeOfflineForms')).subscribe((res) => {
-      this.isRemoveOfflineFormsSupportEnabled = res;
+      this.isOfflineFormsRemoved = res;
     });
     this.taskCount = 0;
     const currentState =

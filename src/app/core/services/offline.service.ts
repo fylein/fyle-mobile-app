@@ -534,7 +534,7 @@ export class OfflineService {
     ]);
   }
 
-  loadInOfflineMode() {
+  loadOptimized() {
     globalCacheBusterNotifier.next();
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();

@@ -180,7 +180,7 @@ export class MyExpensesPage implements OnInit {
 
   allCardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned[]>;
 
-  isRemoveOfflineFormsSupportEnabled = false;
+  isOfflineFormsRemoved = false;
 
   constructor(
     private networkService: NetworkService,
@@ -427,7 +427,7 @@ export class MyExpensesPage implements OnInit {
 
   ionViewWillEnter() {
     from(this.storageService.get('removeOfflineForms')).subscribe((res) => {
-      this.isRemoveOfflineFormsSupportEnabled = res;
+      this.isOfflineFormsRemoved = res;
     });
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {

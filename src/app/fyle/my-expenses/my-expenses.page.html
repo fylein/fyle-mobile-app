@@ -20,7 +20,7 @@
         </ng-template>
       </ion-button>
       <ion-button
-        *ngIf="(isConnected$ | async) || !isRemoveOfflineFormsSupportEnabled"
+        *ngIf="(isConnected$ | async) || !isOfflineFormsRemoved"
         class="my-expenses--header-btn"
         (click)="openActionSheet()"
       >

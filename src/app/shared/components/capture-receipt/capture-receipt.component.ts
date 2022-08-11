@@ -55,7 +55,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
-  isRemoveOfflineFormsSupportEnabled = false;
+  isOfflineFormsRemoved = false;
 
   constructor(
     private modalController: ModalController,
@@ -98,7 +98,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
 
     from(this.storageService.get('removeOfflineForms')).subscribe((res) => {
-      this.isRemoveOfflineFormsSupportEnabled = res;
+      this.isOfflineFormsRemoved = res;
     });
   }
 
@@ -294,7 +294,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   saveSingleCapture() {
-    if (this.isRemoveOfflineFormsSupportEnabled) {
+    if (this.isOfflineFormsRemoved) {
       let isOnline: boolean;
       this.networkService.isOnline().subscribe((res) => {
         isOnline = res;
