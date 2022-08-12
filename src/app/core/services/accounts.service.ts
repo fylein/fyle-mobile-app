@@ -151,24 +151,22 @@ export class AccountsService {
   ) {
     //Mileage and per diem expenses cannot have PCCC as a payment mode
     if (isMileageOrPerDiemExpense) {
-      allowedPaymentModes = allowedPaymentModes.filter(
-        (allowedPaymentMode) => allowedPaymentMode !== 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-      );
+      allowedPaymentModes = allowedPaymentModes.filter((allowedPaymentMode) => allowedPaymentMode !== AccountType.CCC);
     }
 
     //PERSONAL_ACCOUNT should always be present for mileage/per-diem or in case backend does not return any payment mode
     if (
       !allowedPaymentModes?.length ||
-      (isMileageOrPerDiemExpense && !allowedPaymentModes.includes('PERSONAL_ACCOUNT'))
+      (isMileageOrPerDiemExpense && !allowedPaymentModes.includes(AccountType.PERSONAL))
     ) {
-      allowedPaymentModes = ['PERSONAL_ACCOUNT', ...allowedPaymentModes];
+      allowedPaymentModes = [AccountType.PERSONAL, ...allowedPaymentModes];
     }
 
     //Add current expense account to allowedPaymentModes if it is not present
     if (etxn?.source.account_id) {
       let paymentModeOfExpense = etxn.source.account_type;
-      if (etxn.source.account_type === 'PERSONAL_ACCOUNT' && etxn.tx.skip_reimbursement) {
-        paymentModeOfExpense = 'COMPANY_ACCOUNT';
+      if (etxn.source.account_type === AccountType.PERSONAL && etxn.tx.skip_reimbursement) {
+        paymentModeOfExpense = AccountType.COMPANY;
       }
       if (!allowedPaymentModes.includes(paymentModeOfExpense)) {
         allowedPaymentModes = [paymentModeOfExpense, ...allowedPaymentModes];
@@ -177,8 +175,8 @@ export class AccountsService {
 
     return allowedPaymentModes.map((allowedPaymentMode) => {
       const accountForPaymentMode = allAccounts.find((account) => {
-        if (allowedPaymentMode === 'COMPANY_ACCOUNT') {
-          return account.acc.type === 'PERSONAL_ACCOUNT';
+        if (allowedPaymentMode === AccountType.COMPANY) {
+          return account.acc.type === AccountType.PERSONAL;
         }
         return account.acc.type === allowedPaymentMode;
       });
@@ -230,10 +228,10 @@ export class AccountsService {
 
     const accountCopy = cloneDeep(account);
     accountCopy.acc.displayName =
-      paymentMode === 'PERSONAL_ADVANCE_ACCOUNT'
+      paymentMode === AccountType.ADVANCE
         ? this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled)
         : accountDisplayNameMapping[paymentMode];
-    accountCopy.acc.isReimbursable = paymentMode === 'PERSONAL_ACCOUNT';
+    accountCopy.acc.isReimbursable = paymentMode === AccountType.PERSONAL;
 
     return accountCopy;
   }

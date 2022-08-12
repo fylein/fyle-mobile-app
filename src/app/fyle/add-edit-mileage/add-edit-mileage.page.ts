@@ -1509,7 +1509,7 @@ export class AddEditMileagePage implements OnInit {
         const paymentAccount = this.fg.value.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         let isPaymentModeInvalid = false;
-        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        if (paymentAccount?.acc?.type === AccountType.ADVANCE) {
           if (paymentAccount.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid = paymentAccount.acc.tentative_balance_amount < amount;
           } else {
