@@ -22,6 +22,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 @Component({
   selector: 'app-view-mileage',
@@ -81,7 +82,7 @@ export class ViewMileagePage implements OnInit {
 
   projectFieldName: string;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -250,7 +251,7 @@ export class ViewMileagePage implements OnInit {
     this.extendedMileage$.subscribe((extendedMileage) => {
       this.reportId = extendedMileage.tx_report_id;
 
-      if (extendedMileage.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (extendedMileage.source_account_type === AccountType.ADVANCE) {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else if (extendedMileage.tx_skip_reimbursement) {
@@ -351,18 +352,18 @@ export class ViewMileagePage implements OnInit {
     this.updateFlag$.next(null);
 
     if (this.view === ExpenseView.team) {
-      this.hidePaymentMode = false;
+      this.showPaymentMode = true;
     } else {
       forkJoin({
         extendedMileage: this.extendedMileage$,
         allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       })
         .pipe(
-          map(({ extendedMileage, allowedPaymentModes }) =>
-            this.accountsService.shouldPaymentModeBeHidden(extendedMileage, allowedPaymentModes)
+          switchMap(({ extendedMileage, allowedPaymentModes }) =>
+            this.accountsService.shouldPaymentModeBeShown(extendedMileage, allowedPaymentModes)
           )
         )
-        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
+        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 
     const etxnIds =

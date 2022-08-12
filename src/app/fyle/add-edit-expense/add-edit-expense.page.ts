@@ -101,6 +101,7 @@ import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { getCurrencySymbol } from '@angular/common';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -335,7 +336,7 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -496,7 +497,7 @@ export class AddEditExpensePage implements OnInit {
         const paymentAccount = this.fg.value.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         let isPaymentModeInvalid = false;
-        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === AccountType.ADVANCE) {
           if (paymentAccount.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid =
               paymentAccount.acc.tentative_balance_amount <
@@ -987,16 +988,12 @@ export class AddEditExpensePage implements OnInit {
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
-        if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
+        if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return accounts$.pipe(
             map(
               (accounts) =>
                 accounts.filter(
-                  (account) =>
-                    account &&
-                    account.acc &&
-                    account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' &&
-                    account.acc.tentative_balance_amount > 0
+                  (account) => account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
                 ).length > 0
             )
           );
@@ -1024,15 +1021,16 @@ export class AddEditExpensePage implements OnInit {
         if (
           !isCCCEnabled &&
           !etxn.tx.corporate_credit_card_expense_group_id &&
-          etxn.source?.account_type !== 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+          etxn.source?.account_type !== AccountType.CCC
         ) {
-          accounts = accounts.filter((account) => account.acc.type !== 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          accounts = accounts.filter((account) => account.acc.type !== AccountType.CCC);
         }
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
           this.showCardTransaction = false;
         }
-        return this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, allowedPaymentModes, 'EXPENSE');
-      })
+        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, orgSettings, etxn, 'EXPENSE');
+      }),
+      shareReplay(1)
     );
   }
 
@@ -1395,9 +1393,7 @@ export class AddEditExpensePage implements OnInit {
       map((paymentModes) => {
         //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
         if (this.isCreatedFromCCC) {
-          return paymentModes
-            .map((res) => res.value)
-            .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          return paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.type === AccountType.CCC);
         }
         return paymentModes[0].value;
       })
@@ -2447,10 +2443,7 @@ export class AddEditExpensePage implements OnInit {
     }
 
     this.isCCCPaymentModeSelected$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      map(
-        (paymentMode: any) =>
-          paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-      )
+      map((paymentMode: any) => paymentMode?.acc?.type === AccountType.CCC)
     );
 
     this.isCreatedFromCCC = !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn;
@@ -2575,7 +2568,7 @@ export class AddEditExpensePage implements OnInit {
     this.paymentAccount$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
-          return accounts.find((account) => account.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          return accounts.find((account) => account.acc.type === AccountType.CCC);
         } else {
           return null;
         }
@@ -2585,7 +2578,7 @@ export class AddEditExpensePage implements OnInit {
     this.isCCCAccountSelected$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
-          return accounts.find((account) => account.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT').length > 0;
+          return accounts.find((account) => account.acc.type === AccountType.CCC).length > 0;
         } else {
           return false;
         }
@@ -2625,8 +2618,8 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$.subscribe(
       (paymentModes) =>
-        (this.hidePaymentMode =
-          paymentModes?.length <= 1 || (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
+        (this.showPaymentMode =
+          paymentModes?.length > 1 && !(this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
     );
 
     orgSettings$
@@ -2844,7 +2837,7 @@ export class AddEditExpensePage implements OnInit {
             billable: this.fg.value.billable,
             skip_reimbursement:
               this.fg.value.paymentMode &&
-              this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
+              this.fg.value.paymentMode.acc.type === AccountType.PERSONAL &&
               !this.fg.value.paymentMode.acc.isReimbursable,
             txn_dt: this.fg.value.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value.dateOfSpend)),
             currency: this.fg.value.currencyObj && this.fg.value.currencyObj.currency,
