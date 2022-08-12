@@ -9,7 +9,7 @@ import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountOption } from '../models/account-option.model';
 import { Expense } from '../models/expense.model';
-import { AccountType } from '../enums/account-type.enum';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -111,6 +111,7 @@ export class AccountsService {
   }
 
   //Filter user accounts by allowed payment modes and return an observable of allowed accounts
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getPaymentModes(
     accounts: ExtendedAccount[],
     allowedPaymentModes: string[],
@@ -217,11 +218,40 @@ export class AccountsService {
     return null;
   }
 
-  shouldPaymentModeBeHidden(etxn: Expense, allowedPaymentModes: string[]) {
+  //Add display name and isReimbursable properties to account object
+  setAccountProperties(account: ExtendedAccount, paymentMode: string, isMultipleAdvanceEnabled: boolean) {
+    const accountDisplayNameMapping = {
+      PERSONAL_ACCOUNT: 'Personal Card/Cash',
+      COMPANY_ACCOUNT: 'Paid by Company',
+      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
+    };
+
+    const accountCopy = cloneDeep(account);
+    accountCopy.acc.displayName =
+      paymentMode === 'PERSONAL_ADVANCE_ACCOUNT'
+        ? this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled)
+        : accountDisplayNameMapping[paymentMode];
+    accountCopy.acc.isReimbursable = paymentMode === 'PERSONAL_ACCOUNT';
+
+    return accountCopy;
+  }
+
+  getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean) {
+    let accountCurrency = account.currency;
+    let accountBalance = account.acc.tentative_balance_amount;
+    if (isMultipleAdvanceEnabled && account?.orig?.amount) {
+      accountCurrency = account.orig.currency;
+      accountBalance =
+        (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
+    }
+    return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
+  }
+
+  shouldPaymentModeBeShown(etxn: Expense, allowedPaymentModes: string[]) {
     if (allowedPaymentModes.length === 1) {
       const etxnAccountType = this.getEtxnAccountType(etxn);
-      return allowedPaymentModes[0] === etxnAccountType;
+      return allowedPaymentModes[0] !== etxnAccountType;
     }
-    return false;
+    return true;
   }
 }

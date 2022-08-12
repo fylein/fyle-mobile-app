@@ -359,7 +359,7 @@ export class ViewMileagePage implements OnInit {
         allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       })
         .pipe(
-          switchMap(({ extendedMileage, allowedPaymentModes }) =>
+          map(({ extendedMileage, allowedPaymentModes }) =>
             this.accountsService.shouldPaymentModeBeShown(extendedMileage, allowedPaymentModes)
           )
         )

@@ -265,7 +265,7 @@ export class ViewPerDiemPage implements OnInit {
         allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       })
         .pipe(
-          switchMap(({ extendedPerDiem, allowedPaymentModes }) =>
+          map(({ extendedPerDiem, allowedPaymentModes }) =>
             this.accountsService.shouldPaymentModeBeShown(extendedPerDiem, allowedPaymentModes)
           )
         )

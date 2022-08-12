@@ -343,7 +343,7 @@ export class ViewExpensePage implements OnInit {
         allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       })
         .pipe(
-          switchMap(({ etxn, allowedPaymentModes }) =>
+          map(({ etxn, allowedPaymentModes }) =>
             this.accountsService.shouldPaymentModeBeShown(etxn, allowedPaymentModes)
           )
         )
