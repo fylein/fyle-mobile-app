@@ -23,6 +23,7 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -352,19 +353,26 @@ export class ViewMileagePage implements OnInit {
 
     this.updateFlag$.next(null);
 
+    const shouldPaymentModeBeShown$ = forkJoin({
+      extendedMileage: this.extendedMileage$,
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+    }).pipe(
+      map(({ extendedMileage, allowedPaymentModes }) =>
+        this.accountsService.shouldPaymentModeBeShown(extendedMileage, allowedPaymentModes)
+      )
+    );
+
     if (this.view === ExpenseView.team) {
       this.showPaymentMode = true;
     } else {
       forkJoin({
-        extendedMileage: this.extendedMileage$.pipe(take(1)),
-        allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      })
-        .pipe(
-          map(({ extendedMileage, allowedPaymentModes }) =>
-            this.accountsService.shouldPaymentModeBeShown(extendedMileage, allowedPaymentModes)
-          )
-        )
-        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
+        shouldPaymentModeBeShown: shouldPaymentModeBeShown$,
+        isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      }).subscribe(
+        ({ shouldPaymentModeBeShown, isPaymentModeConfigurationsEnabled }) =>
+          (this.showPaymentMode =
+            !isPaymentModeConfigurationsEnabled || (isPaymentModeConfigurationsEnabled && shouldPaymentModeBeShown))
+      );
     }
 
     const etxnIds =

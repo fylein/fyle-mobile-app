@@ -27,6 +27,7 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -336,26 +337,24 @@ export class ViewExpensePage implements OnInit {
 
     this.getPolicyDetails(txId);
 
-    const shouldPaymentModeBeHidden$ = forkJoin({
+    const shouldPaymentModeBeShown$ = forkJoin({
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
-      map(({ etxn, allowedPaymentModes }) => this.accountsService.shouldPaymentModeBeHidden(etxn, allowedPaymentModes))
+      map(({ etxn, allowedPaymentModes }) => this.accountsService.shouldPaymentModeBeShown(etxn, allowedPaymentModes))
     );
 
     if (this.view === ExpenseView.team) {
       this.showPaymentMode = true;
     } else {
       forkJoin({
-        etxn: this.etxn$.pipe(take(1)),
-        allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      })
-        .pipe(
-          map(({ etxn, allowedPaymentModes }) =>
-            this.accountsService.shouldPaymentModeBeShown(etxn, allowedPaymentModes)
-          )
-        )
-        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
+        shouldPaymentModeBeShown: shouldPaymentModeBeShown$,
+        isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      }).subscribe(
+        ({ shouldPaymentModeBeShown, isPaymentModeConfigurationsEnabled }) =>
+          (this.showPaymentMode =
+            !isPaymentModeConfigurationsEnabled || (isPaymentModeConfigurationsEnabled && shouldPaymentModeBeShown))
+      );
     }
 
     const editExpenseAttachments = this.etxn$.pipe(
