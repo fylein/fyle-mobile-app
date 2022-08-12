@@ -22,6 +22,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
@@ -78,7 +79,7 @@ export class ViewPerDiemPage implements OnInit {
 
   projectFieldName: string;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -160,7 +161,7 @@ export class ViewPerDiemPage implements OnInit {
     this.extendedPerDiem$.subscribe((extendedPerDiem) => {
       this.reportId = extendedPerDiem.tx_report_id;
 
-      if (extendedPerDiem.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (extendedPerDiem.source_account_type === AccountType.ADVANCE) {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else if (extendedPerDiem.tx_skip_reimbursement) {
@@ -258,24 +259,25 @@ export class ViewPerDiemPage implements OnInit {
 
     this.updateFlag$.next(null);
 
-    const shouldPaymentModeBeHidden$ = forkJoin({
-      extendedPerDiem: this.extendedPerDiem$,
+    const shouldPaymentModeBeShown$ = forkJoin({
+      extendedPerDiem: this.extendedPerDiem$.pipe(take(1)),
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
       map(({ extendedPerDiem, allowedPaymentModes }) =>
-        this.accountsService.shouldPaymentModeBeHidden(extendedPerDiem, allowedPaymentModes)
+        this.accountsService.shouldPaymentModeBeShown(extendedPerDiem, allowedPaymentModes)
       )
     );
 
     if (this.view === ExpenseView.team) {
-      this.hidePaymentMode = false;
+      this.showPaymentMode = true;
     } else {
       forkJoin({
-        shouldPaymentModeBeHidden: shouldPaymentModeBeHidden$,
+        shouldPaymentModeBeShown: shouldPaymentModeBeShown$,
         isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
       }).subscribe(
-        ({ shouldPaymentModeBeHidden, isPaymentModeConfigurationsEnabled }) =>
-          (this.hidePaymentMode = isPaymentModeConfigurationsEnabled && shouldPaymentModeBeHidden)
+        ({ shouldPaymentModeBeShown, isPaymentModeConfigurationsEnabled }) =>
+          (this.showPaymentMode =
+            !isPaymentModeConfigurationsEnabled || (isPaymentModeConfigurationsEnabled && shouldPaymentModeBeShown))
       );
     }
 

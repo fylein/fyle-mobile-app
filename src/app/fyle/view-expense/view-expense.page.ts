@@ -26,7 +26,7 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 @Component({
   selector: 'app-view-expense',
@@ -104,7 +104,7 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private loaderService: LoaderService,
@@ -240,10 +240,10 @@ export class ViewExpensePage implements OnInit {
         this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
       }
 
-      if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (etxn.source_account_type === AccountType.ADVANCE) {
         this.paymentMode = 'Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+      } else if (etxn.source_account_type === AccountType.CCC) {
         this.paymentMode = 'Corporate Card';
         this.paymentModeIcon = 'fy-unmatched';
         this.isCCCTransaction = true;
@@ -344,15 +344,18 @@ export class ViewExpensePage implements OnInit {
     );
 
     if (this.view === ExpenseView.team) {
-      this.hidePaymentMode = false;
+      this.showPaymentMode = true;
     } else {
       forkJoin({
-        shouldPaymentModeBeHidden: shouldPaymentModeBeHidden$,
-        isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
-      }).subscribe(
-        ({ shouldPaymentModeBeHidden, isPaymentModeConfigurationsEnabled }) =>
-          (this.hidePaymentMode = isPaymentModeConfigurationsEnabled && shouldPaymentModeBeHidden)
-      );
+        etxn: this.etxn$.pipe(take(1)),
+        allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      })
+        .pipe(
+          map(({ etxn, allowedPaymentModes }) =>
+            this.accountsService.shouldPaymentModeBeShown(etxn, allowedPaymentModes)
+          )
+        )
+        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 
     const editExpenseAttachments = this.etxn$.pipe(

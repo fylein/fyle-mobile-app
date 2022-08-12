@@ -244,7 +244,7 @@
         <div class="add-edit-expense--primary-block">
           <ion-grid class="ion-grid-no-padding">
             <ion-row>
-              <ion-col [size]="!hidePaymentMode ? 6 : 12">
+              <ion-col [size]="showPaymentMode ? 6 : 12">
                 <ng-container *ngIf="txnFields$|async as txnFields">
                   <div
                     *ngIf="txnFields?.txn_dt"
@@ -278,7 +278,7 @@
                   </div>
                 </ng-container>
               </ion-col>
-              <ion-col size="6" *ngIf="!hidePaymentMode">
+              <ion-col size="6" *ngIf="showPaymentMode">
                 <ng-container *ngIf="paymentModes$|async as paymentModes">
                   <div
                     [ngClass]="{'add-edit-expense--internal-block_special': fg.controls.paymentMode.value}"
