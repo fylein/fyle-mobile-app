@@ -49,7 +49,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isIos = false;
 
-  userOrgs;
+  userOrgsCount: number;
 
   constructor(
     private platform: Platform,
@@ -88,7 +88,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
     that.orgs$.subscribe((orgs) => {
-      that.userOrgs = orgs;
+      that.userOrgsCount = orgs.length;
       that.cdRef.detectChanges();
     });
 
@@ -150,7 +150,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
     const { data } = await popover.onWillDismiss();
 
-    if (data && data.action === 'close') {
+    if (data?.action === 'close') {
       this.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
           this.signOut();
@@ -159,8 +159,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  goToSetupPassword(roles) {
-    if (roles.indexOf('OWNER') > -1) {
+  goToSetupPassword(roles: string[]) {
+    if (roles.includes('OWNER')) {
       this.router.navigate(['/', 'post_verification', 'setup_account']);
     } else {
       this.router.navigate(['/', 'post_verification', 'invited_user']);
@@ -176,29 +176,30 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       .subscribe(() => this.router.navigate(['/', 'enterprise', 'my_dashboard']));
   }
 
-  checkUserStatusInPrimaryOrg(currentOrgId, roles) {
-    this.offlineService.getPrimaryOrg().subscribe((primaryOrg) => {
-      this.orgService.switchOrg(primaryOrg.id).subscribe(() => {
-        this.userService.isPendingDetails().subscribe((pendingDetails) => {
-          if (!pendingDetails) {
-            this.orgService.switchOrg(currentOrgId).subscribe(() => {
-              this.markUserActive();
-            });
-          } else {
-            this.orgService.switchOrg(currentOrgId).subscribe(() => {
-              this.goToSetupPassword(roles);
-            });
-          }
-        });
+  checkUserStatusInPrimaryOrg(currentOrgId: string, roles: string[]) {
+    from(this.offlineService.getPrimaryOrg())
+      .pipe(
+        switchMap((primaryOrg) => this.orgService.switchOrg(primaryOrg.id)),
+        switchMap(() => this.userService.isPendingDetails())
+      )
+      .subscribe((pendingDetails) => {
+        if (!pendingDetails) {
+          this.orgService.switchOrg(currentOrgId).subscribe(() => {
+            this.markUserActive();
+          });
+        } else {
+          this.orgService.switchOrg(currentOrgId).subscribe(() => {
+            this.goToSetupPassword(roles);
+          });
+        }
       });
-    });
   }
 
-  async handlePendingDetails(isInviteLink, orgSettings, roles) {
+  async handlePendingDetails(isInviteLink: boolean, orgSettings, roles: string[]) {
     if (isInviteLink) {
       if (orgSettings.sso_integration_settings.allowed && orgSettings.sso_integration_settings.enabled) {
         this.markUserActive();
-      } else if (this.userOrgs.length > 1) {
+      } else if (this.userOrgsCount > 1) {
         this.checkUserStatusInPrimaryOrg(orgSettings.org_id, roles);
       } else {
         this.goToSetupPassword(roles);
@@ -208,7 +209,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  async proceed(isInviteLink) {
+  async proceed(isInviteLink: boolean) {
     const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
@@ -217,7 +218,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
     forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$])
       .pipe(finalize(() => from(this.loaderService.hideLoader())))
-      .subscribe(async (aggregatedResults) => {
+      .subscribe((aggregatedResults) => {
         const [
           [
             orgSettings,
@@ -250,7 +251,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           });
         }
         if (pendingDetails) {
-          await this.handlePendingDetails(isInviteLink, orgSettings, roles);
+          this.handlePendingDetails(isInviteLink, orgSettings, roles);
         } else if (eou.ou.status === 'ACTIVE') {
           this.router.navigate(['/', 'enterprise', 'my_dashboard']);
         } else if (eou.ou.status === 'DISABLED') {
