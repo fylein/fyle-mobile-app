@@ -158,7 +158,7 @@ export class AccountsService {
     }
 
     //Add current expense account to allowedPaymentModes if it is not present
-    if (etxn?.source.account_id) {
+    if (etxn?.source?.account_id) {
       let paymentModeOfExpense = etxn.source.account_type;
       if (etxn.source.account_type === AccountType.PERSONAL && etxn.tx.skip_reimbursement) {
         paymentModeOfExpense = AccountType.COMPANY;

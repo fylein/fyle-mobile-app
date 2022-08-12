@@ -339,7 +339,7 @@ export class ViewExpensePage implements OnInit {
       this.showPaymentMode = true;
     } else {
       forkJoin({
-        etxn: this.etxn$,
+        etxn: this.etxn$.pipe(take(1)),
         allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       })
         .pipe(

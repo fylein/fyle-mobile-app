@@ -355,7 +355,7 @@ export class ViewMileagePage implements OnInit {
       this.showPaymentMode = true;
     } else {
       forkJoin({
-        extendedMileage: this.extendedMileage$,
+        extendedMileage: this.extendedMileage$.pipe(take(1)),
         allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       })
         .pipe(

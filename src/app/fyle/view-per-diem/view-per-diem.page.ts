@@ -261,7 +261,7 @@ export class ViewPerDiemPage implements OnInit {
       this.showPaymentMode = true;
     } else {
       forkJoin({
-        extendedPerDiem: this.extendedPerDiem$,
+        extendedPerDiem: this.extendedPerDiem$.pipe(take(1)),
         allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       })
         .pipe(
