@@ -246,7 +246,7 @@
                     </ng-container>
                   </ng-container>
 
-                  <ng-container *ngIf="!hidePaymentMode">
+                  <ng-container *ngIf="showPaymentMode">
                     <ng-container *ngIf="paymentModes$|async as paymentModes">
                       <div
                         *ngIf="paymentModes.length > 0"
