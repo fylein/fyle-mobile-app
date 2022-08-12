@@ -520,7 +520,7 @@ export class AddEditMileagePage implements OnInit {
       etxn: this.etxn$,
     }).pipe(
       switchMap(({ accounts, orgSettings, etxn }) =>
-        this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'MILEAGE')
+        this.accountsService.getPaymentModes(accounts, orgSettings, etxn, 'MILEAGE')
       )
     );
   }

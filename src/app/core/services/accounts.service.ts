@@ -114,7 +114,7 @@ export class AccountsService {
     accounts: ExtendedAccount[],
     orgSettings: any,
     etxn?: any,
-    expenseType: 'EXPENSE'
+    expenseType = 'EXPENSE'
   ): Observable<AccountOption[]> {
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
@@ -229,6 +229,15 @@ export class AccountsService {
       return 'COMPANY_ACCOUNT';
     }
     return paymentMode.acc.type;
+  }
+
+  getEtxnSelectedPaymentMode(etxn: any, paymentModes: AccountOption[]) {
+    if (etxn.tx.source_account_id) {
+      return paymentModes
+        .map((res) => res.value)
+        .find((paymentMode) => this.checkIfEtxnHasSamePaymentMode(etxn, paymentMode));
+    }
+    return null;
   }
 
   //Add display name and isReimbursable properties to account object
