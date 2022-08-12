@@ -115,7 +115,7 @@ export class AccountsService {
     accounts: ExtendedAccount[],
     orgSettings: any,
     etxn?: any,
-    expenseType = 'EXPENSE'
+    expenseType: 'EXPENSE' | 'MILEAGE' | 'PER_DIEM' = 'EXPENSE'
   ): Observable<AccountOption[]> {
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
