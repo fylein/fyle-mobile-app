@@ -223,10 +223,10 @@ export class AccountsService {
 
     const accountCopy = cloneDeep(account);
     accountCopy.acc.displayName =
-      paymentMode === 'PERSONAL_ADVANCE_ACCOUNT'
+      paymentMode === AccountType.ADVANCE
         ? this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled)
         : accountDisplayNameMapping[paymentMode];
-    accountCopy.acc.isReimbursable = paymentMode === 'PERSONAL_ACCOUNT';
+    accountCopy.acc.isReimbursable = paymentMode === AccountType.PERSONAL;
 
     return accountCopy;
   }
