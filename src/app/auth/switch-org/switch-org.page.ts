@@ -176,32 +176,11 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       .subscribe(() => this.router.navigate(['/', 'enterprise', 'my_dashboard']));
   }
 
-  checkUserStatusInAllOrgs(currentOrgId, roles) {
-    let isUserActiveInAnyOrg = false;
-    return new Promise((resolve, reject) => {
-      const promises = [];
-
-      for (let i = 0; i < this.userOrgs.length; i++) {
-        promises.push(
-          this.orgService
-            .switchOrg(this.userOrgs[i].id)
-            .toPromise()
-            .then(() => {
-              this.userService
-                .isPendingDetails()
-                .toPromise()
-                .then((isPendingDetail) => {
-                  if (!isPendingDetail) {
-                    isUserActiveInAnyOrg = true;
-                  }
-                });
-            })
-        );
-      }
-
-      Promise.all(promises)
-        .then(() => {
-          if (isUserActiveInAnyOrg) {
+  checkUserStatusInPrimaryOrg(currentOrgId, roles) {
+    this.offlineService.getPrimaryOrg().subscribe((primaryOrg) => {
+      this.orgService.switchOrg(primaryOrg.id).subscribe(() => {
+        this.userService.isPendingDetails().subscribe((pendingDetails) => {
+          if (!pendingDetails) {
             this.orgService.switchOrg(currentOrgId).subscribe(() => {
               this.markUserActive();
             });
@@ -210,11 +189,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
               this.goToSetupPassword(roles);
             });
           }
-          resolve(true);
-        })
-        .catch((err) => {
-          reject(err);
         });
+      });
     });
   }
 
@@ -223,7 +199,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       if (orgSettings.sso_integration_settings.allowed && orgSettings.sso_integration_settings.enabled) {
         this.markUserActive();
       } else if (this.userOrgs.length > 1) {
-        this.checkUserStatusInAllOrgs(orgSettings.org_id, roles);
+        this.checkUserStatusInPrimaryOrg(orgSettings.org_id, roles);
       } else {
         this.goToSetupPassword(roles);
       }
