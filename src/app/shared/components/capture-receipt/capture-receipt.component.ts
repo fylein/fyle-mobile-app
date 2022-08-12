@@ -16,7 +16,6 @@ import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take 
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 type Image = Partial<{
   source: string;
