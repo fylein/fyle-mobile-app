@@ -416,20 +416,11 @@ export class OfflineService {
     );
   }
 
-  getActiveExpenseTab() {
-    return from(this.storageService.get('activeExpenseTab'));
-  }
-
-  setActiveExpenseTab(activeTab) {
-    return from(this.storageService.set('activeExpenseTab', activeTab));
-  }
-
-  setActiveCorporateCardExpenseTab(activeTab) {
-    return from(this.storageService.set('activeCorporateCardExpenseTab', activeTab));
-  }
-
-  getActiveCorporateCardExpenseTab() {
-    return from(this.storageService.get('activeCorporateCardExpenseTab'));
+  @Cacheable()
+  //Dummy Method - will update once backend changes are done
+  getAllowedPaymentModes() {
+    // return this.getOrgUserSettings().pipe(map(orgUserSettings => orgUserSettings?.payment_mode_settings?.allowed_payment_modes));
+    return of(['PERSONAL_ACCOUNT']);
   }
 
   getReportActions(orgSettings) {

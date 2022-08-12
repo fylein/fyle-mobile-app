@@ -103,7 +103,7 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private loaderService: LoaderService,
@@ -335,11 +335,11 @@ export class ViewExpensePage implements OnInit {
     this.getPolicyDetails(txId);
 
     if (this.view === ExpenseView.team) {
-      this.hidePaymentMode = false;
+      this.showPaymentMode = true;
     } else {
       this.etxn$
-        .pipe(switchMap((etxn) => this.accountsService.shouldPaymentModeBeHidden(etxn)))
-        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
+        .pipe(switchMap((etxn) => this.shouldPaymentModeBeShown(etxn)))
+        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 
     const editExpenseAttachments = this.etxn$.pipe(
@@ -370,6 +370,18 @@ export class ViewExpensePage implements OnInit {
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
     this.numEtxnsInReport = etxnIds.length;
     this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
+  }
+
+  shouldPaymentModeBeShown(etxn: Expense) {
+    return this.accountsService.getAllowedPaymentModes().pipe(
+      map((paymentModes) => {
+        if (paymentModes.length === 1) {
+          const etxnAccountType = this.accountsService.getEtxnAccountType(etxn);
+          return paymentModes[0] !== etxnAccountType;
+        }
+        return true;
+      })
+    );
   }
 
   getReceiptExtension(name: string) {

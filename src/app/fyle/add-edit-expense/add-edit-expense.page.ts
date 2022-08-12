@@ -335,7 +335,7 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1025,6 +1025,7 @@ export class AddEditExpensePage implements OnInit {
       etxn: this.etxn$,
     }).pipe(
       switchMap(({ accounts, orgSettings, etxn }) => {
+        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
         const isCCCEnabled =
           orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
@@ -1042,8 +1043,9 @@ export class AddEditExpensePage implements OnInit {
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
           this.showCardTransaction = false;
         }
-        return this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'EXPENSE');
-      })
+        return this.accountsService.getPaymentModes(accounts, isMultipleAdvanceEnabled, etxn, 'EXPENSE');
+      }),
+      shareReplay(1)
     );
   }
 
@@ -2636,8 +2638,8 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$.subscribe(
       (paymentModes) =>
-        (this.hidePaymentMode =
-          paymentModes?.length <= 1 || (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
+        (this.showPaymentMode =
+          paymentModes?.length > 1 && !(this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
     );
 
     orgSettings$
