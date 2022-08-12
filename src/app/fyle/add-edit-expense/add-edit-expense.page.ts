@@ -1409,7 +1409,7 @@ export class AddEditExpensePage implements OnInit {
           return paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.type === AccountType.CCC);
         }
 
-        if (isPaymentModeConfigurationsEnabled) {
+        if (!isPaymentModeConfigurationsEnabled) {
           const hasCCCAccount = paymentModes
             .map((res) => res.value)
             .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
