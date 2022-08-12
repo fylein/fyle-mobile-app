@@ -121,7 +121,7 @@ export class AccountsService {
 
     let userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
 
-    if (isPaymentModeConfigurationsEnabled) {
+    if (!isPaymentModeConfigurationsEnabled) {
       if (isMileageOrPerDiemExpense) {
         userAccounts = userAccounts.filter((userAccount) =>
           ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type)
