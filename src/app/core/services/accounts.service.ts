@@ -106,26 +106,18 @@ export class AccountsService {
 
   //Dummy method - will be replaced by API call
   getAllowedPaymentModes(): Observable<string[]> {
-    return of(['PERSONAL_ACCOUNT']);
+    return of(['PERSONAL_ADVANCE_ACCOUNT', 'COMPANY_ACCOUNT']);
   }
 
   //Filter user accounts by allowed payment modes and return an observable of allowed accounts
-  getAllowedAccounts(
+  getPaymentModes(
     accounts: ExtendedAccount[],
     isMultipleAdvanceEnabled: boolean,
     etxn?: any
   ): Observable<AccountOption[]> {
     return this.getAllowedPaymentModes().pipe(
       map((allowedPaymentModes) => {
-        let allowedAccounts = allowedPaymentModes.map((allowedPaymentMode) => {
-          const accountForPaymentMode = accounts.find((account) => {
-            if (allowedPaymentMode === 'COMPANY_ACCOUNT') {
-              return account.acc.type === 'PERSONAL_ACCOUNT';
-            }
-            return account.acc.type === allowedPaymentMode;
-          });
-          return this.setAccountProperties(accountForPaymentMode, allowedPaymentMode, isMultipleAdvanceEnabled);
-        });
+        let allowedAccounts = this.getAllowedAccounts(accounts, allowedPaymentModes, isMultipleAdvanceEnabled);
 
         if (etxn?.tx?.source_account_id) {
           allowedAccounts = this.addMissingAccount(etxn, accounts, allowedAccounts, isMultipleAdvanceEnabled);
@@ -136,6 +128,18 @@ export class AccountsService {
         }));
       })
     );
+  }
+
+  getAllowedAccounts(accounts: ExtendedAccount[], allowedPaymentModes: string[], isMultipleAdvanceEnabled: boolean) {
+    return allowedPaymentModes.map((allowedPaymentMode) => {
+      const accountForPaymentMode = accounts.find((account) => {
+        if (allowedPaymentMode === 'COMPANY_ACCOUNT') {
+          return account.acc.type === 'PERSONAL_ACCOUNT';
+        }
+        return account.acc.type === allowedPaymentMode;
+      });
+      return this.setAccountProperties(accountForPaymentMode, allowedPaymentMode, isMultipleAdvanceEnabled);
+    });
   }
 
   /**
