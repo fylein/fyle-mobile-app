@@ -81,7 +81,7 @@ export class ViewMileagePage implements OnInit {
 
   projectFieldName: string;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -351,11 +351,11 @@ export class ViewMileagePage implements OnInit {
     this.updateFlag$.next(null);
 
     if (this.view === ExpenseView.team) {
-      this.hidePaymentMode = false;
+      this.showPaymentMode = true;
     } else {
       this.extendedMileage$
-        .pipe(switchMap((extendedMileage) => this.accountsService.shouldPaymentModeBeHidden(extendedMileage)))
-        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
+        .pipe(switchMap((extendedMileage) => this.accountsService.shouldPaymentModeBeShown(extendedMileage)))
+        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 
     const etxnIds =

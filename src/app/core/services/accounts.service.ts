@@ -268,4 +268,16 @@ export class AccountsService {
     }
     return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
   }
+
+  shouldPaymentModeBeShown(etxn: Expense) {
+    return this.getAllowedPaymentModes().pipe(
+      map((paymentModes) => {
+        if (paymentModes.length === 1) {
+          const etxnAccountType = this.getEtxnAccountType(etxn);
+          return paymentModes[0] !== etxnAccountType;
+        }
+        return true;
+      })
+    );
+  }
 }
