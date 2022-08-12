@@ -78,7 +78,7 @@ export class ViewPerDiemPage implements OnInit {
 
   projectFieldName: string;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -258,11 +258,11 @@ export class ViewPerDiemPage implements OnInit {
     this.updateFlag$.next(null);
 
     if (this.view === ExpenseView.team) {
-      this.hidePaymentMode = false;
+      this.showPaymentMode = true;
     } else {
       this.extendedPerDiem$
-        .pipe(switchMap((extendedPerDiem) => this.accountsService.shouldPaymentModeBeHidden(extendedPerDiem)))
-        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
+        .pipe(switchMap((extendedPerDiem) => this.accountsService.shouldPaymentModeBeShown(extendedPerDiem)))
+        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 
     const etxnIds =

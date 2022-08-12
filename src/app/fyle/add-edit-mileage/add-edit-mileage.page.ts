@@ -194,7 +194,7 @@ export class AddEditMileagePage implements OnInit {
 
   canRemoveFromReport = false;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private router: Router,
@@ -521,8 +521,9 @@ export class AddEditMileagePage implements OnInit {
       etxn: this.etxn$,
     }).pipe(
       switchMap(({ accounts, orgSettings, etxn }) =>
-        this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'MILEAGE')
-      )
+        this.accountsService.getPaymentModes(accounts, orgSettings, etxn, 'MILEAGE')
+      ),
+      shareReplay(1)
     );
   }
 
@@ -975,7 +976,7 @@ export class AddEditMileagePage implements OnInit {
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
     this.paymentModes$ = this.getPaymentModes();
-    this.paymentModes$.subscribe((paymentModes) => (this.hidePaymentMode = paymentModes.length <= 1));
+    this.paymentModes$.subscribe((paymentModes) => (this.showPaymentMode = paymentModes?.length > 1));
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,

@@ -181,7 +181,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   canRemoveFromReport = false;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -497,8 +497,9 @@ export class AddEditPerDiemPage implements OnInit {
       etxn: this.etxn$,
     }).pipe(
       switchMap(({ accounts, orgSettings, etxn }) =>
-        this.accountsService.getAllowedAccounts(etxn, accounts, orgSettings, 'PER_DIEM')
-      )
+        this.accountsService.getPaymentModes(accounts, orgSettings, etxn, 'PER_DIEM')
+      ),
+      shareReplay(1)
     );
   }
 
@@ -886,7 +887,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
     this.paymentModes$ = this.getPaymentModes();
-    this.paymentModes$.subscribe((paymentModes) => (this.hidePaymentMode = paymentModes.length <= 1));
+    this.paymentModes$.subscribe((paymentModes) => (this.showPaymentMode = paymentModes?.length > 1));
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,

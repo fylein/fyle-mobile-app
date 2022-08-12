@@ -104,7 +104,7 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
-  hidePaymentMode = false;
+  showPaymentMode = true;
 
   constructor(
     private loaderService: LoaderService,
@@ -336,11 +336,11 @@ export class ViewExpensePage implements OnInit {
     this.getPolicyDetails(txId);
 
     if (this.view === ExpenseView.team) {
-      this.hidePaymentMode = false;
+      this.showPaymentMode = true;
     } else {
       this.etxn$
-        .pipe(switchMap((etxn) => this.accountsService.shouldPaymentModeBeHidden(etxn)))
-        .subscribe((shouldPaymentModeBeHidden) => (this.hidePaymentMode = shouldPaymentModeBeHidden));
+        .pipe(switchMap((etxn) => this.accountsService.shouldPaymentModeBeShown(etxn)))
+        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 
     const editExpenseAttachments = this.etxn$.pipe(

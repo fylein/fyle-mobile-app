@@ -159,22 +159,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
 
-    return forkJoin({
-      allPaymentModes: this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled),
-      allowedPaymentModes: this.accountsService.getAllowedPaymentModes(),
-    }).pipe(
-      map(({ allPaymentModes, allowedPaymentModes }) => {
-        if (allowedPaymentModes?.length) {
-          return allPaymentModes.find((paymentMode) => {
-            const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
-            return accountType === allowedPaymentModes[0];
-          });
-        }
-        //Default to `Personal Cash/Card` in case of allowedPaymentModes is null
-        return allPaymentModes.find(
-          (paymentMode) => paymentMode.acc.type === AccountType.PERSONAL && paymentMode.acc.isReimbursable
-        );
-      })
+    return this.offlineService.getAllowedPaymentModes().pipe(
+      map((allowedPaymentModes) =>
+        this.accountsService.getAllowedAccounts(userAccounts, allowedPaymentModes, isMultipleAdvanceEnabled)
+      ),
+      map((allowedAccounts: ExtendedAccount[]) => allowedAccounts[0])
     );
   }
 
