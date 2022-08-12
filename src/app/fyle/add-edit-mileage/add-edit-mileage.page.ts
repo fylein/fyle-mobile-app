@@ -57,8 +57,8 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AccountOption } from 'src/app/core/models/account-option.model';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -519,9 +519,17 @@ export class AddEditMileagePage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn, allowedPaymentModes }) =>
-        this.accountsService.getPaymentModes(accounts, allowedPaymentModes, orgSettings, etxn, 'MILEAGE')
+      switchMap(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) =>
+        this.accountsService.getPaymentModes(
+          accounts,
+          allowedPaymentModes,
+          orgSettings,
+          etxn,
+          'MILEAGE',
+          isPaymentModeConfigurationsEnabled
+        )
       ),
       shareReplay(1)
     );
@@ -976,7 +984,15 @@ export class AddEditMileagePage implements OnInit {
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
     this.paymentModes$ = this.getPaymentModes();
-    this.paymentModes$.subscribe((paymentModes) => (this.showPaymentMode = paymentModes?.length > 1));
+
+    forkJoin({
+      paymentModes: this.paymentModes$,
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+    }).subscribe(
+      ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
+        (this.showPaymentMode =
+          !isPaymentModeConfigurationsEnabled || (isPaymentModeConfigurationsEnabled && paymentModes.length > 1))
+    );
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,

@@ -112,13 +112,30 @@ export class AccountsService {
     allowedPaymentModes: string[],
     orgSettings: any,
     etxn?: any,
-    expenseType: 'EXPENSE' | 'MILEAGE' | 'PER_DIEM' = 'EXPENSE'
+    expenseType: 'EXPENSE' | 'MILEAGE' | 'PER_DIEM' = 'EXPENSE',
+    isPaymentModeConfigurationsEnabled = false
   ): Observable<AccountOption[]> {
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
     const isMileageOrPerDiemExpense = ['MILEAGE', 'PER_DIEM'].includes(expenseType);
 
-    const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+    let userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+
+    if (isPaymentModeConfigurationsEnabled) {
+      if (isMileageOrPerDiemExpense) {
+        userAccounts = userAccounts.filter((userAccount) =>
+          ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type)
+        );
+      }
+      return this.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
+        map((paymentModes) =>
+          paymentModes.map((paymentMode) => ({
+            label: paymentMode.acc.displayName,
+            value: paymentMode,
+          }))
+        )
+      );
+    }
 
     const allowedAccounts = this.getAllowedAccounts(
       userAccounts,

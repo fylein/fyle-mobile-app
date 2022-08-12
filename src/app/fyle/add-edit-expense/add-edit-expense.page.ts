@@ -100,8 +100,8 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { AccountOption } from 'src/app/core/models/account-option.model';
-import { getCurrencySymbol } from '@angular/common';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -1030,7 +1030,14 @@ export class AddEditExpensePage implements OnInit {
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
           this.showCardTransaction = false;
         }
-        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, orgSettings, etxn, 'EXPENSE');
+        return this.accountsService.getPaymentModes(
+          accounts,
+          allowedPaymentModes,
+          orgSettings,
+          etxn,
+          'EXPENSE',
+          isPaymentModeConfigurationsEnabled
+        );
       }),
       shareReplay(1)
     );
@@ -1400,6 +1407,27 @@ export class AddEditExpensePage implements OnInit {
         //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
         if (this.isCreatedFromCCC) {
           return paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.type === AccountType.CCC);
+        }
+
+        if (isPaymentModeConfigurationsEnabled) {
+          const hasCCCAccount = paymentModes
+            .map((res) => res.value)
+            .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+
+          const paidByCompanyAccount = paymentModes
+            .map((res) => res?.value)
+            .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
+
+          if (
+            hasCCCAccount &&
+            orgUserSettings?.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+          ) {
+            return paymentModes
+              .map((res) => res.value)
+              .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          } else if (paidByCompanyAccount && orgUserSettings?.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
+            return paidByCompanyAccount;
+          }
         }
         return paymentModes[0].value;
       })
@@ -2621,6 +2649,16 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.paymentModes$ = this.getPaymentModes();
+
+    forkJoin({
+      paymentModes: this.paymentModes$,
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+    }).subscribe(
+      ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
+        (this.showPaymentMode =
+          (!isPaymentModeConfigurationsEnabled || (isPaymentModeConfigurationsEnabled && paymentModes?.length > 1)) &&
+          !(this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
+    );
 
     this.paymentModes$.subscribe(
       (paymentModes) =>
