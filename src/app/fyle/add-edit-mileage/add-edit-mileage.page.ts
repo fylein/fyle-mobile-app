@@ -521,7 +521,8 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       switchMap(({ accounts, orgSettings, etxn }) =>
         this.accountsService.getPaymentModes(accounts, orgSettings, etxn, 'MILEAGE')
-      )
+      ),
+      shareReplay(1)
     );
   }
 

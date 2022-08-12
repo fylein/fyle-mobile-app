@@ -1025,7 +1025,6 @@ export class AddEditExpensePage implements OnInit {
       etxn: this.etxn$,
     }).pipe(
       switchMap(({ accounts, orgSettings, etxn }) => {
-        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
         const isCCCEnabled =
           orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
@@ -1043,7 +1042,7 @@ export class AddEditExpensePage implements OnInit {
         if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
           this.showCardTransaction = false;
         }
-        return this.accountsService.getPaymentModes(accounts, isMultipleAdvanceEnabled, etxn, 'EXPENSE');
+        return this.accountsService.getPaymentModes(accounts, orgSettings, etxn, 'EXPENSE');
       }),
       shareReplay(1)
     );
