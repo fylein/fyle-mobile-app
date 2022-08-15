@@ -17,6 +17,8 @@ import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
+import { cloneDeep } from 'lodash';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -45,7 +47,7 @@ export class TransactionService {
     private userEventService: UserEventService
   ) {
     transactionsCacheBuster$.subscribe(() => {
-      this.userEventService.clearTaskCache();
+      userEventService.clearTaskCache();
     });
   }
 
@@ -766,5 +768,173 @@ export class TransactionService {
       txn_id: txnId,
     };
     return this.apiService.post('/transactions/unlink_card_expense', data);
+  }
+
+  isMergeAllowed(expenses: Expense[]) {
+    if (expenses?.length === 2) {
+      const areSomeMileageOrPerDiemExpenses = expenses.some(
+        (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
+      );
+      const areAllExpensesSubmitted = expenses.every((expense) =>
+        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
+      );
+      const areAllCCCMatchedExpenses = expenses.every((expense) => expense.tx_corporate_credit_card_expense_group_id);
+      return !areSomeMileageOrPerDiemExpenses && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
+    } else {
+      return false;
+    }
+  }
+
+  generateStateFilters(newQueryParams, filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const stateOrFilter = [];
+
+    if (filters.state) {
+      newQueryParamsCopy.tx_report_id = 'is.null';
+      if (filters.state.includes('READY_TO_REPORT')) {
+        stateOrFilter.push('and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (filters.state.includes('POLICY_VIOLATED')) {
+        stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (filters.state.includes('CANNOT_REPORT')) {
+        stateOrFilter.push('tx_policy_amount.lt.0.0001');
+      }
+
+      if (filters.state.includes('DRAFT')) {
+        stateOrFilter.push('tx_state.in.(DRAFT)');
+      }
+    }
+
+    if (stateOrFilter.length > 0) {
+      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedStateOrFilter = `(${combinedStateOrFilter})`;
+      newQueryParamsCopy.or.push(combinedStateOrFilter);
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateCardNumberParams(newQueryParams, filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.cardNumbers?.length > 0) {
+      let cardNumberString = '';
+      filters.cardNumbers?.forEach((cardNumber) => {
+        cardNumberString += cardNumber + ',';
+      });
+      cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
+      newQueryParamsCopy.corporate_credit_card_account_number = 'in.(' + cardNumberString + ')';
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateReceiptAttachedParams(newQueryParams, filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.receiptsAttached) {
+      if (filters.receiptsAttached === 'YES') {
+        newQueryParamsCopy.tx_num_files = 'gt.0';
+      }
+
+      if (filters.receiptsAttached === 'NO') {
+        newQueryParamsCopy.tx_num_files = 'eq.0';
+      }
+    }
+    return newQueryParamsCopy;
+  }
+
+  generateDateParams(newQueryParams, filters) {
+    let newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date) {
+      filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
+      filters.customDateEnd = filters.customDateEnd && new Date(filters.customDateEnd);
+      if (filters.date === DateFilters.thisMonth) {
+        const thisMonth = this.dateService.getThisMonthRange();
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`;
+      }
+
+      if (filters.date === DateFilters.thisWeek) {
+        const thisWeek = this.dateService.getThisWeekRange();
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`;
+      }
+
+      if (filters.date === DateFilters.lastMonth) {
+        const lastMonth = this.dateService.getLastMonthRange();
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
+      }
+
+      newQueryParamsCopy = this.generateCustomDateParams(newQueryParams, filters);
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateCustomDateParams(newQueryParams: any, filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date === DateFilters.custom) {
+      const startDate = filters?.customDateStart?.toISOString();
+      const endDate = filters?.customDateEnd?.toISOString();
+      if (filters.customDateStart && filters.customDateEnd) {
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
+      } else if (filters.customDateStart) {
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate})`;
+      } else if (filters.customDateEnd) {
+        newQueryParamsCopy.and = `(tx_txn_dt.lt.${endDate})`;
+      }
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateTypeFilters(newQueryParams, filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const typeOrFilter = [];
+
+    if (filters.type) {
+      if (filters.type.includes('Mileage')) {
+        typeOrFilter.push('tx_fyle_category.eq.Mileage');
+      }
+
+      if (filters.type.includes('PerDiem')) {
+        // The space encoding is done by angular into %20 so no worries here
+        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
+      }
+
+      if (filters.type.includes('RegularExpenses')) {
+        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
+      }
+    }
+
+    if (typeOrFilter.length > 0) {
+      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
+      newQueryParamsCopy.or.push(combinedTypeOrFilter);
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  setSortParams(
+    currentParams: Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }>,
+    filters
+  ) {
+    const currentParamsCopy = cloneDeep(currentParams);
+    if (filters.sortParam && filters.sortDir) {
+      currentParamsCopy.sortParam = filters.sortParam;
+      currentParamsCopy.sortDir = filters.sortDir;
+    } else {
+      currentParamsCopy.sortParam = 'tx_txn_dt';
+      currentParamsCopy.sortDir = 'desc';
+    }
+
+    return currentParamsCopy;
   }
 }
