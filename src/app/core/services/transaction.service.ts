@@ -47,7 +47,7 @@ export class TransactionService {
     private userEventService: UserEventService
   ) {
     transactionsCacheBuster$.subscribe(() => {
-      userEventService.clearTaskCache();
+      this.userEventService.clearTaskCache();
     });
   }
 
