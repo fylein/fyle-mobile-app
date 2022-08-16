@@ -177,20 +177,21 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   checkUserStatusInPrimaryOrg(currentOrgId: string, roles: string[]) {
+    let isPendingDetail = false;
     from(this.offlineService.getPrimaryOrg())
       .pipe(
         switchMap((primaryOrg) => this.orgService.switchOrg(primaryOrg.id)),
-        switchMap(() => this.userService.isPendingDetails())
+        switchMap(() => this.userService.isPendingDetails()),
+        switchMap((pendingDetails) => {
+          isPendingDetail = pendingDetails;
+          return this.orgService.switchOrg(currentOrgId);
+        })
       )
-      .subscribe((pendingDetails) => {
-        if (!pendingDetails) {
-          this.orgService.switchOrg(currentOrgId).subscribe(() => {
-            this.markUserActive();
-          });
+      .subscribe(() => {
+        if (isPendingDetail) {
+          this.goToSetupPassword(roles);
         } else {
-          this.orgService.switchOrg(currentOrgId).subscribe(() => {
-            this.goToSetupPassword(roles);
-          });
+          this.markUserActive();
         }
       });
   }
