@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of } from 'rxjs';
-import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -183,7 +183,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         switchMap(() => this.userService.isPendingDetails()),
         switchMap((pendingDetails) =>
           this.orgService.switchOrg(currentOrgId).pipe(
-            map(() => {
+            tap(() => {
               if (pendingDetails) {
                 this.goToSetupPassword(roles);
               } else {
@@ -197,7 +197,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   handlePendingDetails(isInviteLink: boolean, orgSettings, roles: string[]) {
-    if (isInviteLink) {
+    if (!isInviteLink) {
       if (orgSettings.sso_integration_settings.allowed && orgSettings.sso_integration_settings.enabled) {
         this.markUserActive();
       } else if (this.userOrgsCount > 1) {
