@@ -93,7 +93,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     });
 
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
-    const inviteLink =
+    const inviteLink: boolean =
       that.activatedRoute.snapshot.params.invite_link && JSON.parse(that.activatedRoute.snapshot.params.invite_link);
 
     if (!choose) {
@@ -177,26 +177,26 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   checkUserStatusInPrimaryOrg(currentOrgId: string, roles: string[]) {
-    let isPendingDetail = false;
     from(this.offlineService.getPrimaryOrg())
       .pipe(
         switchMap((primaryOrg) => this.orgService.switchOrg(primaryOrg.id)),
         switchMap(() => this.userService.isPendingDetails()),
-        switchMap((pendingDetails) => {
-          isPendingDetail = pendingDetails;
-          return this.orgService.switchOrg(currentOrgId);
-        })
+        switchMap((pendingDetails) =>
+          this.orgService.switchOrg(currentOrgId).pipe(
+            map(() => {
+              if (pendingDetails) {
+                this.goToSetupPassword(roles);
+              } else {
+                this.markUserActive();
+              }
+            })
+          )
+        )
       )
-      .subscribe(() => {
-        if (isPendingDetail) {
-          this.goToSetupPassword(roles);
-        } else {
-          this.markUserActive();
-        }
-      });
+      .subscribe();
   }
 
-  async handlePendingDetails(isInviteLink: boolean, orgSettings, roles: string[]) {
+  handlePendingDetails(isInviteLink: boolean, orgSettings, roles: string[]) {
     if (isInviteLink) {
       if (orgSettings.sso_integration_settings.allowed && orgSettings.sso_integration_settings.enabled) {
         this.markUserActive();
@@ -206,7 +206,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         this.goToSetupPassword(roles);
       }
     } else {
-      await this.showEmailNotVerifiedAlert();
+      this.showEmailNotVerifiedAlert();
     }
   }
 
