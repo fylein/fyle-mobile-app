@@ -23,6 +23,7 @@ import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.compone
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { OfflineService } from './core/services/offline.service';
+import { RemoveOfflineFormsService } from './core/services/remove-offline-forms.service';
 
 @Component({
   selector: 'app-root',
@@ -66,7 +67,8 @@ export class AppComponent implements OnInit {
     private loginInfoService: LoginInfoService,
     private offlineService: OfflineService,
     private navController: NavController,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private removeOfflineFormsService: RemoveOfflineFormsService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -238,6 +240,8 @@ export class AppComponent implements OnInit {
         }
       }
     });
+
+    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey();
   }
 
   switchDelegator(isSwitchedToDelegator: boolean) {
