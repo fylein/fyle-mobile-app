@@ -18,8 +18,6 @@ import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { RemoveOfflineFormsService } from 'src/app/core/services/remove-offline-forms.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -49,8 +47,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isIos = false;
 
-  isOfflineFormsRemoved = false;
-
   constructor(
     private platform: Platform,
     private offlineService: OfflineService,
@@ -67,8 +63,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private cdRef: ChangeDetectorRef,
     private trackingService: TrackingService,
-    private deviceService: DeviceService,
-    private removeOfflineFormsService: RemoveOfflineFormsService
+    private deviceService: DeviceService
   ) {}
 
   ngOnInit() {
@@ -129,54 +124,59 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
   }
 
-  setSentryUser(eou: ExtendedOrgUser) {
-    if (eou) {
-      Sentry.setUser({
-        id: eou.us.email + ' - ' + eou.ou.id,
-        email: eou.us.email,
-        orgUserId: eou.ou.id,
-      });
-    }
-  }
-
-  navigateBasedOnUserStatus(isPendingDetails: boolean, roles: string[], eou: ExtendedOrgUser) {
-    if (isPendingDetails) {
-      if (roles.indexOf('OWNER') > -1) {
-        this.router.navigate(['/', 'post_verification', 'setup_account']);
-      } else {
-        this.router.navigate(['/', 'post_verification', 'invited_user']);
-      }
-    } else if (eou.ou.status === 'ACTIVE') {
-      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-    } else if (eou.ou.status === 'DISABLED') {
-      this.router.navigate(['/', 'auth', 'disabled']);
-    }
-  }
-
   async proceed() {
+    const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
-    const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
-    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey();
-    from(this.storageService.get('isOfflineFormsRemoved')).subscribe((res) => {
-      this.isOfflineFormsRemoved = res;
-    });
-    let offlineData$: Observable<any[]>;
 
-    if (this.isOfflineFormsRemoved) {
-      offlineData$ = this.offlineService.loadOptimized().pipe(shareReplay(1));
-    } else {
-      offlineData$ = this.offlineService.load().pipe(shareReplay(1));
-    }
-
-    forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
+    forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$])
       .pipe(finalize(() => from(this.loaderService.hideLoader())))
-      .subscribe(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
-        this.setSentryUser(eou);
-        this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
+      .subscribe((aggregatedResults) => {
+        const [
+          [
+            orgSettings,
+            orgUserSettings,
+            allCategories,
+            allEnabledCategories,
+            costCenters,
+            projects,
+            perDiemRates,
+            customInputs,
+            currentOrg,
+            orgs,
+            accounts,
+            currencies,
+            homeCurrency,
+          ],
+          isPendingDetails,
+          eou,
+          roles,
+          isOnline,
+        ] = aggregatedResults;
+
+        const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
+
+        if (eou) {
+          Sentry.setUser({
+            id: eou.us.email + ' - ' + eou.ou.id,
+            email: eou.us.email,
+            orgUserId: eou.ou.id,
+          });
+        }
+
+        if (pendingDetails) {
+          if (roles.indexOf('OWNER') > -1) {
+            this.router.navigate(['/', 'post_verification', 'setup_account']);
+          } else {
+            this.router.navigate(['/', 'post_verification', 'invited_user']);
+          }
+        } else if (eou.ou.status === 'ACTIVE') {
+          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        } else if (eou.ou.status === 'DISABLED') {
+          this.router.navigate(['/', 'auth', 'disabled']);
+        }
       });
   }
 

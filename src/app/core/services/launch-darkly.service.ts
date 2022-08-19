@@ -4,7 +4,6 @@ import { UserEventService } from './user-event.service';
 import { StorageService } from './storage.service';
 import { from, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { isEqual } from 'lodash';
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
 @Injectable({
@@ -42,28 +41,10 @@ export class LaunchDarklyService {
   }
 
   initializeUser(user: LDClient.LDUser) {
-    /**
-     * Only makes LaunchDarkly call if the user has changed since the last initalization
-     * This is done to avoid redundant calls
-     */
-    if (!this.isTheSameUser(user)) {
-      this.ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
+    this.ldClient = LDClient.initialize(environment.LAUNCH_DARKLY_CLIENT_ID, user);
 
-      this.ldClient.on('initialized', this.updateCache, this);
-      this.ldClient.on('change', this.updateCache, this);
-    }
-  }
-
-  getLDClient() {
-    return this.ldClient;
-  }
-
-  // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)
-  private isTheSameUser(newUser: LDClient.LDUser): boolean {
-    const previousUser = this.ldClient?.getUser();
-    const isUserEqual = isEqual(previousUser, newUser);
-
-    return isUserEqual;
+    this.ldClient.on('initialized', this.updateCache, this);
+    this.ldClient.on('change', this.updateCache, this);
   }
 
   private updateCache() {

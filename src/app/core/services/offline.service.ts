@@ -534,17 +534,6 @@ export class OfflineService {
     ]);
   }
 
-  loadOptimized() {
-    globalCacheBusterNotifier.next();
-    const orgSettings$ = this.getOrgSettings();
-    const orgUserSettings$ = this.getOrgUserSettings();
-    const accounts$ = this.getAccounts();
-
-    this.loadAppVersion();
-
-    return forkJoin([orgSettings$, orgUserSettings$, accounts$]);
-  }
-
   getCurrentUser() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
