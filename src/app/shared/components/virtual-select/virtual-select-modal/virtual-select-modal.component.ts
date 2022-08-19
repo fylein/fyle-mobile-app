@@ -11,7 +11,7 @@ import {
 import { combineLatest, from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, tap, switchMap } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
-import { isEqual, includes } from 'lodash';
+import { isEqual, includes, cloneDeep } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 
