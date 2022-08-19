@@ -156,10 +156,6 @@ export class VirtualSelectModalComponent implements OnInit, AfterViewInit {
       );
     }
 
-    this.filteredOptions$.subscribe((res) => {
-      this.selectableOptions = res;
-    });
-
     combineLatest({
       filteredOptions: this.filteredOptions$,
       recentlyUsedItems: this.recentlyUsedItems$,
