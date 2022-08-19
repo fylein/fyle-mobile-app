@@ -38,18 +38,19 @@ export class RemoveOfflineFormsService {
     const deleteLDKey$ = from(this.storageService.delete('isOfflineFormsRemoved'));
     return forkJoin([eou$, deviceInfo$, currentOrg$, deleteLDKey$]).pipe(
       timeout(2000),
-      switchMap(([eou, deviceInfo, currentOrg]) => {
-        return new Observable((subscriber) => {
-          this.initializeLDUser(eou, deviceInfo, currentOrg);
-          const LDClient = this.launchDarklyService.getLDClient();
-          LDClient.waitForInitialization().then(() => {
-            const allLDFlags = LDClient.allFlags();
-            // eslint-disable-next-line @typescript-eslint/dot-notation
-            subscriber.next(allLDFlags['remove_offline_forms']);
-            subscriber.complete();
-          });
-        });
-      }),
+      switchMap(
+        ([eou, deviceInfo, currentOrg]) =>
+          new Observable((subscriber) => {
+            this.initializeLDUser(eou, deviceInfo, currentOrg);
+            const LDClient = this.launchDarklyService.getLDClient();
+            LDClient.waitForInitialization().then(() => {
+              const allLDFlags = LDClient.allFlags();
+              // eslint-disable-next-line @typescript-eslint/dot-notation
+              subscriber.next(allLDFlags['remove_offline_forms']);
+              subscriber.complete();
+            });
+          })
+      ),
       catchError((err) => of(null))
     );
   }
