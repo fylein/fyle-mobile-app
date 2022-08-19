@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { from, shareReplay, forkJoin, switchMap, observable, Observable } from 'rxjs';
+import { from, shareReplay, forkJoin, switchMap, Observable, catchError, of, timeout } from 'rxjs';
 import { AuthService } from './auth.service';
 import { DeviceService } from './device.service';
 import { LaunchDarklyService } from './launch-darkly.service';
@@ -37,6 +37,7 @@ export class RemoveOfflineFormsService {
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     const deleteLDKey$ = from(this.storageService.delete('isOfflineFormsRemoved'));
     return forkJoin([eou$, deviceInfo$, currentOrg$, deleteLDKey$]).pipe(
+      timeout(2000),
       switchMap(([eou, deviceInfo, currentOrg]) => {
         return new Observable((subscriber) => {
           this.initializeLDUser(eou, deviceInfo, currentOrg);
@@ -45,23 +46,11 @@ export class RemoveOfflineFormsService {
             const allLDFlags = LDClient.allFlags();
             // eslint-disable-next-line @typescript-eslint/dot-notation
             subscriber.next(allLDFlags['remove_offline_forms']);
-            //this.storageService.set('isOfflineFormsRemoved', allLDFlags['remove_offline_forms']);
             subscriber.complete();
           });
         });
-      })
+      }),
+      catchError((err) => of(null))
     );
-    // .subscribe(([eou, deviceInfo, currentOrg]) => {
-    // this.initializeLDUser(eou, deviceInfo, currentOrg);
-    // const LDClient = this.launchDarklyService.getLDClient();
-    // LDClient.waitForInitialization().then(() => {
-    //   const allLDFlags = LDClient.allFlags();
-    //   // eslint-disable-next-line @typescript-eslint/dot-notation
-    //   this.storageService.set('isOfflineFormsRemoved', allLDFlags['remove_offline_forms']);
-    // });
-    // });
   }
 }
-
-// check catch error ->
-// force it to throw an error if it takes more than 2 secs

@@ -163,6 +163,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.removeOfflineFormsService.getRemoveOfflineFormsLDKey().subscribe((res: boolean) => {
       this.isOfflineFormsRemoved = res;
 
+      this.storageService.set('isOfflineFormsRemoved', res);
+
       let offlineData$: Observable<any[]>;
 
       if (this.isOfflineFormsRemoved) {
