@@ -57,26 +57,20 @@
             matRipple
           >
             <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-              <div class="selection-modal--label">
-                <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-              </div>
-              <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-            </ng-template>
-
-            <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-              <div *ngIf="filteredListItem.recentlyUsed" class="selection-modal--recently-used-item-content">
+              <div *ngIf="filteredListItem.isRecentlyUsed" class="selection-modal--recently-used-item-content">
                 <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
                 <span class="selection-modal--label">
                   <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
                 </span>
+                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
               </div>
 
-              <div *ngIf="!filteredListItem.recentlyUsed">
+              <ng-container *ngIf="!filteredListItem.isRecentlyUsed">
                 <div class="selection-modal--label">
                   <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
                 </div>
                 <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-              </div>
+              </ng-container>
             </ng-template>
 
             <ng-container
