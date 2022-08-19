@@ -465,7 +465,7 @@
                     [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}"
                     class="add-edit-expense--internal-block"
                   >
-                    <app-fy-select
+                    <app-virtual-select
                       [cacheName]="'recentCategoryList'"
                       [defaultLabelProp]="'displayName'"
                       [label]="'Category'"
@@ -476,7 +476,7 @@
                       formControlName="category"
                       [placeholder]="txnFields.org_category_id.placeholder"
                     >
-                    </app-fy-select>
+                    </app-virtual-select>
                   </div>
                   <div
                     *ngIf="fg.controls.category.touched && !fg.controls.category.valid"
