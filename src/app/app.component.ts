@@ -240,8 +240,6 @@ export class AppComponent implements OnInit {
         }
       }
     });
-
-    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey();
   }
 
   switchDelegator(isSwitchedToDelegator: boolean) {
