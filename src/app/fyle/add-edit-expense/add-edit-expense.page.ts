@@ -1010,7 +1010,7 @@ export class AddEditExpensePage implements OnInit {
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn, allowedPaymentModes }) => {
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes }) => {
         const isCCCEnabled =
           orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 

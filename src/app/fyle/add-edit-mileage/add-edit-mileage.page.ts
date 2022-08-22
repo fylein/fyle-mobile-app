@@ -519,7 +519,7 @@ export class AddEditMileagePage implements OnInit {
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn, allowedPaymentModes }) =>
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes }) =>
         this.accountsService.getPaymentModes(accounts, allowedPaymentModes, orgSettings, etxn, 'MILEAGE')
       ),
       shareReplay(1)

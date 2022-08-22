@@ -494,7 +494,7 @@ export class AddEditPerDiemPage implements OnInit {
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn, allowedPaymentModes }) =>
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes }) =>
         this.accountsService.getPaymentModes(accounts, allowedPaymentModes, orgSettings, etxn, 'PER_DIEM')
       ),
       shareReplay(1)

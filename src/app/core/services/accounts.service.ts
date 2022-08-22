@@ -113,7 +113,7 @@ export class AccountsService {
     orgSettings: any,
     etxn?: any,
     expenseType: 'EXPENSE' | 'MILEAGE' | 'PER_DIEM' = 'EXPENSE'
-  ): Observable<AccountOption[]> {
+  ): AccountOption[] {
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
     const isMileageOrPerDiemExpense = ['MILEAGE', 'PER_DIEM'].includes(expenseType);
@@ -128,12 +128,10 @@ export class AccountsService {
       isMileageOrPerDiemExpense
     );
 
-    return of(
-      allowedAccounts.map((account) => ({
-        label: account.acc.displayName,
-        value: account,
-      }))
-    );
+    return allowedAccounts.map((account) => ({
+      label: account.acc.displayName,
+      value: account,
+    }));
   }
 
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
