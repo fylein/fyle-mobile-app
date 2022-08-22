@@ -129,7 +129,7 @@ export class AccountsService {
         etxn?.source?.account_type !== AccountType.CCC;
       if (isMileageOrPerDiemExpense || shouldCCCBeHidden) {
         userAccounts = userAccounts.filter((userAccount) =>
-          ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type)
+          [AccountType.PERSONAL, AccountType.ADVANCE].includes(userAccount.acc.type)
         );
       }
 

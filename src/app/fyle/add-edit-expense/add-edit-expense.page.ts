@@ -1413,20 +1413,18 @@ export class AddEditExpensePage implements OnInit {
         if (!isPaymentModeConfigurationsEnabled) {
           const hasCCCAccount = paymentModes
             .map((res) => res.value)
-            .some((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+            .some((paymentMode) => paymentMode.acc.type === AccountType.CCC);
 
           const paidByCompanyAccount = paymentModes
             .map((res) => res?.value)
             .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
 
-          if (
-            hasCCCAccount &&
-            orgUserSettings?.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+          if (hasCCCAccount && orgUserSettings?.preferences?.default_payment_mode === AccountType.CCC) {
+            return paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.type === AccountType.CCC);
+          } else if (
+            paidByCompanyAccount &&
+            orgUserSettings?.preferences?.default_payment_mode === AccountType.COMPANY
           ) {
-            return paymentModes
-              .map((res) => res.value)
-              .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
-          } else if (paidByCompanyAccount && orgUserSettings?.preferences?.default_payment_mode === 'COMPANY_ACCOUNT') {
             return paidByCompanyAccount;
           }
         }

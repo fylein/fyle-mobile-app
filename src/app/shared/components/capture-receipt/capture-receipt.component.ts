@@ -163,7 +163,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
       map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden }) => {
-        let defaultAccountType = 'PERSONAL_ACCOUNT';
+        let defaultAccountType = AccountType.PERSONAL;
 
         if (isPaymentModeConfigurationsEnabled) {
           defaultAccountType = allowedPaymentModes[0];
@@ -175,7 +175,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
             defaultAccountType = AccountType.CCC;
           } else if (
-            orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT' &&
+            orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY &&
             !isPaidByCompanyHidden
           ) {
             defaultAccountType = AccountType.COMPANY;
