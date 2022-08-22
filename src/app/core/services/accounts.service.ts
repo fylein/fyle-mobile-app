@@ -117,24 +117,20 @@ export class AccountsService {
     let userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
 
     if (!isPaymentModeConfigurationsEnabled) {
-      if (isMileageOrPerDiemExpense) {
-        userAccounts = userAccounts.filter((userAccount) =>
-          ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type)
-        );
-      }
-
       /**
        * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
        * But if already an expense is created as CCC payment mode then on edit of that expense it should be visible
        */
       const isCCCEnabled =
         orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
-      if (
+      const shouldCCCBeHidden =
         !isCCCEnabled &&
-        !etxn.tx.corporate_credit_card_expense_group_id &&
-        etxn.source?.account_type !== AccountType.CCC
-      ) {
-        accounts = accounts.filter((account) => account.acc.type !== AccountType.CCC);
+        !etxn?.tx?.corporate_credit_card_expense_group_id &&
+        etxn?.source?.account_type !== AccountType.CCC;
+      if (isMileageOrPerDiemExpense || shouldCCCBeHidden) {
+        userAccounts = userAccounts.filter((userAccount) =>
+          ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type)
+        );
       }
 
       const constructedPaymentModes = this.constructPaymentModes(
