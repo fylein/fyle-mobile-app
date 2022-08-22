@@ -354,7 +354,7 @@ export class ViewMileagePage implements OnInit {
     this.updateFlag$.next(null);
 
     const shouldPaymentModeBeShown$ = forkJoin({
-      extendedMileage: this.extendedMileage$,
+      extendedMileage: this.extendedMileage$.pipe(take(1)),
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
       map(({ extendedMileage, allowedPaymentModes }) =>

@@ -260,7 +260,7 @@ export class ViewPerDiemPage implements OnInit {
     this.updateFlag$.next(null);
 
     const shouldPaymentModeBeShown$ = forkJoin({
-      extendedPerDiem: this.extendedPerDiem$,
+      extendedPerDiem: this.extendedPerDiem$.pipe(take(1)),
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
       map(({ extendedPerDiem, allowedPaymentModes }) =>

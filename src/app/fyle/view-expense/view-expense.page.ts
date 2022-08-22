@@ -338,7 +338,7 @@ export class ViewExpensePage implements OnInit {
     this.getPolicyDetails(txId);
 
     const shouldPaymentModeBeShown$ = forkJoin({
-      etxn: this.etxn$,
+      etxn: this.etxn$.pipe(take(1)),
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
     }).pipe(
       map(({ etxn, allowedPaymentModes }) => this.accountsService.shouldPaymentModeBeShown(etxn, allowedPaymentModes))
