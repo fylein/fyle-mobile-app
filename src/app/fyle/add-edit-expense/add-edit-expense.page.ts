@@ -2657,14 +2657,8 @@ export class AddEditExpensePage implements OnInit {
     }).subscribe(
       ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
         (this.showPaymentMode =
-          (!isPaymentModeConfigurationsEnabled || (isPaymentModeConfigurationsEnabled && paymentModes?.length > 1)) &&
+          (!isPaymentModeConfigurationsEnabled || paymentModes?.length > 1) &&
           !(this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
-    );
-
-    this.paymentModes$.subscribe(
-      (paymentModes) =>
-        (this.showPaymentMode =
-          paymentModes?.length > 1 && !(this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
     );
 
     orgSettings$

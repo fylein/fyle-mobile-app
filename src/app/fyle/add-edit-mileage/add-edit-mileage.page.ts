@@ -1000,8 +1000,7 @@ export class AddEditMileagePage implements OnInit {
       isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).subscribe(
       ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
-        (this.showPaymentMode =
-          !isPaymentModeConfigurationsEnabled || (isPaymentModeConfigurationsEnabled && paymentModes.length > 1))
+        (this.showPaymentMode = !isPaymentModeConfigurationsEnabled || paymentModes.length > 1)
     );
 
     this.costCenters$ = forkJoin({

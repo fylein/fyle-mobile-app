@@ -352,8 +352,7 @@ export class ViewExpensePage implements OnInit {
         isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
       }).subscribe(
         ({ shouldPaymentModeBeShown, isPaymentModeConfigurationsEnabled }) =>
-          (this.showPaymentMode =
-            !isPaymentModeConfigurationsEnabled || (isPaymentModeConfigurationsEnabled && shouldPaymentModeBeShown))
+          (this.showPaymentMode = !isPaymentModeConfigurationsEnabled || shouldPaymentModeBeShown)
       );
     }
 
