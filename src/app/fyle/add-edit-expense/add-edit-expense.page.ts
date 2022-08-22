@@ -1011,34 +1011,46 @@ export class AddEditExpensePage implements OnInit {
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
-        const isCCCEnabled =
-          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
-
-        /**
-         * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
-         * But if already an expense is created as CCC payment mode then on edit of that expense it should be visible
-         */
-        if (
-          !isCCCEnabled &&
-          !etxn.tx.corporate_credit_card_expense_group_id &&
-          etxn.source?.account_type !== AccountType.CCC
-        ) {
-          accounts = accounts.filter((account) => account.acc.type !== AccountType.CCC);
-        }
-        if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
-          this.showCardTransaction = false;
-        }
-        return this.accountsService.getPaymentModes(
+      map(
+        ({
           accounts,
-          allowedPaymentModes,
           orgSettings,
           etxn,
-          'EXPENSE',
-          isPaymentModeConfigurationsEnabled
-        );
-      }),
+          allowedPaymentModes,
+          isPaymentModeConfigurationsEnabled,
+          isPaidByCompanyHidden,
+        }) => {
+          const isCCCEnabled =
+            orgSettings?.corporate_credit_card_settings?.allowed &&
+            orgSettings?.corporate_credit_card_settings?.enabled;
+
+          /**
+           * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
+           * But if already an expense is created as CCC payment mode then on edit of that expense it should be visible
+           */
+          if (
+            !isCCCEnabled &&
+            !etxn.tx.corporate_credit_card_expense_group_id &&
+            etxn.source?.account_type !== AccountType.CCC
+          ) {
+            accounts = accounts.filter((account) => account.acc.type !== AccountType.CCC);
+          }
+          if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
+            this.showCardTransaction = false;
+          }
+          return this.accountsService.getPaymentModes(
+            accounts,
+            allowedPaymentModes,
+            orgSettings,
+            etxn,
+            'EXPENSE',
+            isPaymentModeConfigurationsEnabled,
+            isPaidByCompanyHidden
+          );
+        }
+      ),
       shareReplay(1)
     );
   }

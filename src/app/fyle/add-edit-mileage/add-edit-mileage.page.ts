@@ -520,16 +520,26 @@ export class AddEditMileagePage implements OnInit {
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) =>
-        this.accountsService.getPaymentModes(
+      map(
+        ({
           accounts,
-          allowedPaymentModes,
           orgSettings,
           etxn,
-          'MILEAGE',
-          isPaymentModeConfigurationsEnabled
-        )
+          allowedPaymentModes,
+          isPaymentModeConfigurationsEnabled,
+          isPaidByCompanyHidden,
+        }) =>
+          this.accountsService.getPaymentModes(
+            accounts,
+            allowedPaymentModes,
+            orgSettings,
+            etxn,
+            'MILEAGE',
+            isPaymentModeConfigurationsEnabled,
+            isPaidByCompanyHidden
+          )
       ),
       shareReplay(1)
     );
