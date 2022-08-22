@@ -521,7 +521,7 @@ export class AddEditMileagePage implements OnInit {
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) =>
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) =>
         this.accountsService.getPaymentModes(
           accounts,
           allowedPaymentModes,
