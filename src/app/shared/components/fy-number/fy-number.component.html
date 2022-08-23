@@ -1,5 +1,5 @@
 <input
-  *ngIf="isIos && !isKeyboardPluginDisabled"
+  *ngIf="isIos && isKeyboardPluginEnabled; else inputWithoutPlugin"
   class="fy-number--input"
   [min]="min"
   [disabled]="disabled"
@@ -11,14 +11,15 @@
   decimal="true"
   decimal-char="."
 />
-<input
-  *ngIf="!isIos || isKeyboardPluginDisabled"
-  class="fy-number--input"
-  [min]="min"
-  [disabled]="disabled"
-  [formControl]="fc"
-  [placeholder]="placeholder || ''"
-  (blur)="(onBlur)"
-  type="number"
-  inputmode="decimal"
-/>
+<ng-template #inputWithoutPlugin>
+  <input
+    class="fy-number--input"
+    [min]="min"
+    [disabled]="disabled"
+    [formControl]="fc"
+    [placeholder]="placeholder || ''"
+    (blur)="(onBlur)"
+    type="number"
+    inputmode="decimal"
+  />
+</ng-template>

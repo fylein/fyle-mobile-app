@@ -29,7 +29,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   isIos = false;
 
-  isKeyboardPluginDisabled = false;
+  isKeyboardPluginEnabled = true;
 
   private innerValue;
 
@@ -78,8 +78,8 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
   ngOnInit() {
     this.isIos = this.platform.is('ios');
     this.launchDarklyService
-      .checkIfKeyboardPluginIsDisabled()
-      .subscribe((isKeyboardPluginDisabled) => (this.isKeyboardPluginDisabled = isKeyboardPluginDisabled));
+      .checkIfKeyboardPluginIsEnabled()
+      .subscribe((isKeyboardPluginEnabled) => (this.isKeyboardPluginEnabled = isKeyboardPluginEnabled));
 
     this.fc = new FormControl();
     this.fc.valueChanges.subscribe((value) => {

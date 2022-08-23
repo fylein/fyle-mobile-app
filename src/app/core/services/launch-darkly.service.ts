@@ -47,8 +47,8 @@ export class LaunchDarklyService {
     this.ldClient.on('change', this.updateCache, this);
   }
 
-  checkIfKeyboardPluginIsDisabled() {
-    return this.getVariation('disable_keyboard_plugin', false);
+  checkIfKeyboardPluginIsEnabled() {
+    return this.getVariation('keyboard_plugin_enabled', true);
   }
 
   private updateCache() {
