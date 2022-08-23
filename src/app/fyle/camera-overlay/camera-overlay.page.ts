@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 
 @Component({
   selector: 'app-camera-overlay',
@@ -6,7 +7,17 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./camera-overlay.page.scss'],
 })
 export class CameraOverlayPage implements OnInit {
+  @ViewChild('captureReceipt') captureReceipt: CaptureReceiptComponent;
+
   constructor() {}
 
   ngOnInit() {}
+
+  ionViewWillEnter() {
+    this.captureReceipt.setUpAndStartCamera();
+  }
+
+  ionViewWillLeave() {
+    this.captureReceipt.stopCamera();
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Input } from '@angular/core';
 import { CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor } from '@capacitor/core';
 import { ModalController, NavController, PopoverController } from '@ionic/angular';
@@ -28,7 +28,7 @@ type Image = Partial<{
   templateUrl: './capture-receipt.component.html',
   styleUrls: ['./capture-receipt.component.scss'],
 })
-export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CaptureReceiptComponent implements OnInit {
   @Input() isModal = false;
 
   @Input() allowGalleryUploads = true;
@@ -518,13 +518,5 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.galleryUpload();
       }
     });
-  }
-
-  ngAfterViewInit() {
-    this.setUpAndStartCamera();
-  }
-
-  ngOnDestroy() {
-    this.stopCamera();
   }
 }
