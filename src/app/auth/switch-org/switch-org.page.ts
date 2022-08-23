@@ -160,10 +160,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey().subscribe((res: boolean) => {
-      this.isOfflineFormsRemoved = res;
+    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey().subscribe((isOfflineModeDisabled: boolean) => {
+      this.isOfflineFormsRemoved = isOfflineModeDisabled;
 
-      this.storageService.set('isOfflineFormsRemoved', res);
+      this.storageService.set('isOfflineFormsRemoved', isOfflineModeDisabled);
 
       let offlineData$: Observable<any[]>;
 

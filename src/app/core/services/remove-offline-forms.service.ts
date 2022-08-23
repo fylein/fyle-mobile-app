@@ -37,7 +37,6 @@ export class RemoveOfflineFormsService {
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     const deleteLDKey$ = from(this.storageService.delete('isOfflineFormsRemoved'));
     return forkJoin([eou$, deviceInfo$, currentOrg$, deleteLDKey$]).pipe(
-      timeout(2000),
       switchMap(
         ([eou, deviceInfo, currentOrg]) =>
           new Observable((subscriber) => {
@@ -51,7 +50,8 @@ export class RemoveOfflineFormsService {
             });
           })
       ),
-      catchError((err) => of(null))
+      timeout(2000),
+      catchError((err) => of(false))
     );
   }
 }
