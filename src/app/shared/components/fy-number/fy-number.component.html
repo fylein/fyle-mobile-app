@@ -1,5 +1,5 @@
 <input
-  *ngIf="isIos"
+  *ngIf="isIos && !isKeyboardPluginDisabled"
   class="fy-number--input"
   [min]="min"
   [disabled]="disabled"
@@ -12,7 +12,7 @@
   decimal-char="."
 />
 <input
-  *ngIf="!isIos"
+  *ngIf="!isIos || isKeyboardPluginDisabled"
   class="fy-number--input"
   [min]="min"
   [disabled]="disabled"

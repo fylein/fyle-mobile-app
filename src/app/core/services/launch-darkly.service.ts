@@ -47,6 +47,10 @@ export class LaunchDarklyService {
     this.ldClient.on('change', this.updateCache, this);
   }
 
+  checkIfKeyboardPluginIsDisabled() {
+    return this.getVariation('disable_keyboard_plugin', false);
+  }
+
   private updateCache() {
     if (this.ldClient) {
       const latestFlags = this.ldClient.allFlags();
