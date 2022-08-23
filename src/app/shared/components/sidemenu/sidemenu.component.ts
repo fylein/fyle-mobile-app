@@ -141,7 +141,6 @@ export class SidemenuComponent implements OnInit {
         }
 
         this.switchDelegator.emit(this.isSwitchedToDelegator);
-        this.freshChatService.setupNetworkWatcher();
         this.setupSideMenu(isConnected, orgs, isDelegatee);
       }
     );
