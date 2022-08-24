@@ -521,10 +521,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngAfterViewInit() {
-    this.setUpAndStartCamera();
+    if (this.isModal) {
+      this.setUpAndStartCamera();
+    }
   }
 
   ngOnDestroy() {
-    this.stopCamera();
+    if (this.isModal) {
+      this.stopCamera();
+    }
   }
 }
