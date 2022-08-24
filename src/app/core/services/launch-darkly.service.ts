@@ -66,6 +66,10 @@ export class LaunchDarklyService {
     return isUserEqual;
   }
 
+  checkIfKeyboardPluginIsEnabled() {
+    return this.getVariation('keyboard_plugin_enabled', true);
+  }
+
   private updateCache() {
     if (this.ldClient) {
       const latestFlags = this.ldClient.allFlags();
