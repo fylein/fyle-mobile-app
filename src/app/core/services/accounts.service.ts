@@ -4,12 +4,12 @@ import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
 import { LaunchDarklyService } from './launch-darkly.service';
-import { Observable, of } from 'rxjs';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountOption } from '../models/account-option.model';
 import { Expense } from '../models/expense.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 
 type ExpenseType = 'EXPENSE' | 'MILEAGE' | 'PER_DIEM';
 @Injectable({
@@ -264,5 +264,28 @@ export class AccountsService {
         (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
     }
     return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
+  }
+
+  getDefaultAccountFromUserPreference(paymentModes: AccountOption[], orgUserSettings: OrgUserSettings) {
+    const hasCCCAccount = paymentModes.some((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
+
+    const paidByCompanyAccount = paymentModes.find(
+      (paymentMode) => paymentMode.value.acc.displayName === 'Paid by Company'
+    );
+
+    if (hasCCCAccount && orgUserSettings?.preferences?.default_payment_mode === AccountType.CCC) {
+      const CCCAccount = paymentModes.find((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
+      return CCCAccount.value;
+    } else if (
+      paidByCompanyAccount?.value &&
+      orgUserSettings?.preferences?.default_payment_mode === AccountType.COMPANY
+    ) {
+      return paidByCompanyAccount.value;
+    }
+
+    const personalAccount = paymentModes.find(
+      (paymentMode) => paymentMode.value.acc.displayName === 'Personal Card/Cash'
+    );
+    return personalAccount.value;
   }
 }
