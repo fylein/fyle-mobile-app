@@ -1412,21 +1412,7 @@ export class AddEditExpensePage implements OnInit {
         }
 
         if (!isPaymentModeConfigurationsEnabled) {
-          const hasCCCAccount = paymentModes.some((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
-
-          const paidByCompanyAccount = paymentModes.find(
-            (paymentMode) => paymentMode.value.acc.displayName === 'Paid by Company'
-          );
-
-          if (hasCCCAccount && orgUserSettings?.preferences?.default_payment_mode === AccountType.CCC) {
-            const CCCAccount = paymentModes.find((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
-            return CCCAccount.value;
-          } else if (
-            paidByCompanyAccount?.value &&
-            orgUserSettings?.preferences?.default_payment_mode === AccountType.COMPANY
-          ) {
-            return paidByCompanyAccount.value;
-          }
+          return this.getDefaultAccountFromUserPreference(paymentModes, orgUserSettings);
         }
         return paymentModes[0].value;
       })
@@ -1877,6 +1863,24 @@ export class AddEditExpensePage implements OnInit {
         }
       })
     );
+  }
+
+  getDefaultAccountFromUserPreference(paymentModes: AccountOption[], orgUserSettings: OrgUserSettings) {
+    const hasCCCAccount = paymentModes.some((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
+
+    const paidByCompanyAccount = paymentModes.find(
+      (paymentMode) => paymentMode.value.acc.displayName === 'Paid by Company'
+    );
+
+    if (hasCCCAccount && orgUserSettings?.preferences?.default_payment_mode === AccountType.CCC) {
+      const CCCAccount = paymentModes.find((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
+      return CCCAccount.value;
+    } else if (
+      paidByCompanyAccount?.value &&
+      orgUserSettings?.preferences?.default_payment_mode === AccountType.COMPANY
+    ) {
+      return paidByCompanyAccount.value;
+    }
   }
 
   getCategoryOnAdd(category) {
