@@ -225,16 +225,7 @@
                   {{ expense.tx_amount | humanizeCurrency: homeCurrency:true }}
                 </ng-container>
               </span>
-              <mat-icon
-                *ngIf="!isUnifyCcceExpensesSettings"
-                class="expenses-card--icon"
-                svgIcon="{{ paymentModeIcon }}"
-              ></mat-icon>
-              <mat-icon
-                *ngIf="isUnifyCcceExpensesSettings && showPaymentModeIcon"
-                class="expenses-card--icon"
-                svgIcon="fy-reimbursable"
-              ></mat-icon>
+              <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="fy-reimbursable"></mat-icon>
             </div>
 
             <div

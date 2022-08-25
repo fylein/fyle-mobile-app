@@ -49,12 +49,6 @@ export class StatsComponent implements OnInit {
 
   isCCCStatsLoading: boolean;
 
-  allCardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned[]>;
-
-  cardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned>;
-
-  cardTransactionsAndDetailsNonUnifyCCC: BankAccountsAssigned;
-
   cardTransactionsAndDetails$: Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }>;
 
   cardTransactionsAndDetails: CardDetail[];
@@ -160,15 +154,6 @@ export class StatsComponent implements OnInit {
           });
           this.isCCCStatsLoading = false;
         });
-    } else {
-      this.cardTransactionsAndDetailsNonUnifyCCC$ = this.dashboardService.getNonUnifyCCCDetails().pipe(
-        map((res) => res[0]),
-        shareReplay(1)
-      );
-      this.cardTransactionsAndDetailsNonUnifyCCC$.subscribe((details) => {
-        this.cardTransactionsAndDetailsNonUnifyCCC = details;
-        this.isCCCStatsLoading = false;
-      });
     }
   }
 
@@ -196,7 +181,6 @@ export class StatsComponent implements OnInit {
         that.initializeCCCStats();
       } else {
         this.cardTransactionsAndDetails$ = of(null);
-        this.cardTransactionsAndDetailsNonUnifyCCC$ = of(null);
       }
     });
 

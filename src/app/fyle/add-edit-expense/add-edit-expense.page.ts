@@ -309,8 +309,6 @@ export class AddEditExpensePage implements OnInit {
 
   canRemoveFromReport = false;
 
-  isUnifyCcceExpensesSettingsEnabled: boolean;
-
   isCccExpense: boolean;
 
   cardNumber: string;
@@ -904,7 +902,7 @@ export class AddEditExpensePage implements OnInit {
         });
       }
 
-      if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense && this.isExpenseMatchedForDebitCCCE) {
+      if (this.isCccExpense && this.isExpenseMatchedForDebitCCCE) {
         this.actionSheetButtons.push({
           text: 'Mark as Personal',
           handler: () => {
@@ -913,7 +911,7 @@ export class AddEditExpensePage implements OnInit {
         });
       }
 
-      if (this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense && this.canDismissCCCE) {
+      if (this.isCccExpense && this.canDismissCCCE) {
         this.actionSheetButtons.push({
           text: 'Dimiss as Card Payment',
           handler: () => {
@@ -2537,11 +2535,6 @@ export class AddEditExpensePage implements OnInit {
     );
 
     orgSettings$.subscribe((orgSettings) => {
-      this.isUnifyCcceExpensesSettingsEnabled =
-        orgSettings.unify_ccce_expenses_settings &&
-        orgSettings.unify_ccce_expenses_settings.allowed &&
-        orgSettings.unify_ccce_expenses_settings.enabled;
-
       this.isCorporateCreditCardEnabled =
         orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 

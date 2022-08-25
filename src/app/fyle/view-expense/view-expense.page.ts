@@ -98,8 +98,6 @@ export class ViewExpensePage implements OnInit {
 
   isLoading = true;
 
-  isUnifyCcceExpensesSettingsEnabled: boolean;
-
   cardNumber: string;
 
   constructor(
@@ -310,9 +308,6 @@ export class ViewExpensePage implements OnInit {
 
     this.offlineService.getOrgSettings().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
-      this.isUnifyCcceExpensesSettingsEnabled =
-        this.orgSettings?.unify_ccce_expenses_settings?.allowed &&
-        this.orgSettings?.unify_ccce_expenses_settings?.enabled;
     });
 
     this.offlineService
