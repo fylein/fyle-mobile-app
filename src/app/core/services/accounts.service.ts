@@ -265,12 +265,4 @@ export class AccountsService {
     }
     return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
   }
-
-  shouldPaymentModeBeShown(etxn: Expense, allowedPaymentModes: string[]) {
-    if (allowedPaymentModes.length === 1) {
-      const etxnAccountType = this.getEtxnAccountType(etxn);
-      return allowedPaymentModes[0] !== etxnAccountType;
-    }
-    return true;
-  }
 }

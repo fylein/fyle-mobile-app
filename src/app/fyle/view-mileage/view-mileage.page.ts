@@ -21,9 +21,8 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ViewExpenseService } from 'src/app/core/services/view-expense.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -100,8 +99,7 @@ export class ViewMileagePage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private accountsService: AccountsService,
-    private launchDarklyService: LaunchDarklyService
+    private viewExpenseService: ViewExpenseService
   ) {}
 
   get ExpenseView() {
@@ -353,25 +351,12 @@ export class ViewMileagePage implements OnInit {
 
     this.updateFlag$.next(null);
 
-    const shouldPaymentModeBeShown$ = forkJoin({
-      extendedMileage: this.extendedMileage$.pipe(take(1)),
-      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-    }).pipe(
-      map(({ extendedMileage, allowedPaymentModes }) =>
-        this.accountsService.shouldPaymentModeBeShown(extendedMileage, allowedPaymentModes)
-      )
-    );
-
     if (this.view === ExpenseView.team) {
       this.showPaymentMode = true;
     } else {
-      forkJoin({
-        shouldPaymentModeBeShown: shouldPaymentModeBeShown$,
-        isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
-      }).subscribe(
-        ({ shouldPaymentModeBeShown, isPaymentModeConfigurationsEnabled }) =>
-          (this.showPaymentMode = !isPaymentModeConfigurationsEnabled || shouldPaymentModeBeShown)
-      );
+      this.extendedMileage$
+        .pipe(switchMap((extendedMileage) => this.viewExpenseService.shouldPaymentModeBeShown(extendedMileage)))
+        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 
     const etxnIds =
