@@ -1407,25 +1407,25 @@ export class AddEditExpensePage implements OnInit {
       map(({ paymentModes, orgUserSettings, isPaymentModeConfigurationsEnabled }) => {
         //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
         if (this.isCreatedFromCCC) {
-          return paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.type === AccountType.CCC);
+          const CCCAccount = paymentModes.find((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
+          return CCCAccount.value;
         }
 
         if (!isPaymentModeConfigurationsEnabled) {
-          const hasCCCAccount = paymentModes
-            .map((res) => res.value)
-            .some((paymentMode) => paymentMode.acc.type === AccountType.CCC);
+          const hasCCCAccount = paymentModes.some((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
 
-          const paidByCompanyAccount = paymentModes
-            .map((res) => res?.value)
-            .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
+          const paidByCompanyAccount = paymentModes.find(
+            (paymentMode) => paymentMode.value.acc.displayName === 'Paid by Company'
+          );
 
           if (hasCCCAccount && orgUserSettings?.preferences?.default_payment_mode === AccountType.CCC) {
-            return paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.type === AccountType.CCC);
+            const CCCAccount = paymentModes.find((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
+            return CCCAccount.value;
           } else if (
-            paidByCompanyAccount &&
+            paidByCompanyAccount?.value &&
             orgUserSettings?.preferences?.default_payment_mode === AccountType.COMPANY
           ) {
-            return paidByCompanyAccount;
+            return paidByCompanyAccount.value;
           }
         }
         return paymentModes[0].value;

@@ -11,6 +11,7 @@ import { AccountOption } from '../models/account-option.model';
 import { Expense } from '../models/expense.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 
+type ExpenseType = 'EXPENSE' | 'MILEAGE' | 'PER_DIEM';
 @Injectable({
   providedIn: 'root',
 })
@@ -106,7 +107,7 @@ export class AccountsService {
     allowedPaymentModes: string[],
     orgSettings: any,
     etxn?: any,
-    expenseType: 'EXPENSE' | 'MILEAGE' | 'PER_DIEM' = 'EXPENSE',
+    expenseType: ExpenseType = 'EXPENSE',
     isPaymentModeConfigurationsEnabled = false,
     isPaidByCompanyHidden = false
   ): AccountOption[] {
@@ -123,10 +124,11 @@ export class AccountsService {
        */
       const isCCCEnabled =
         orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
-      const shouldCCCBeHidden =
-        !isCCCEnabled &&
-        !etxn?.tx?.corporate_credit_card_expense_group_id &&
-        etxn?.source?.account_type !== AccountType.CCC;
+
+      const isNonCCCExpense =
+        !etxn?.tx?.corporate_credit_card_expense_group_id && etxn?.source?.account_type !== AccountType.CCC;
+      const shouldCCCBeHidden = !isCCCEnabled && isNonCCCExpense;
+
       if (isMileageOrPerDiemExpense || shouldCCCBeHidden) {
         userAccounts = userAccounts.filter((userAccount) =>
           [AccountType.PERSONAL, AccountType.ADVANCE].includes(userAccount.acc.type)
