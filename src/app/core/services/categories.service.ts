@@ -23,10 +23,10 @@ export class CategoriesService {
   getAll(): Observable<OrgCategory[]> {
     return this.getActiveCategoriesCount().pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > 200 ? count / 200 : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getCategories({ offset: 50 * page, limit: 50 })),
+      concatMap((page) => this.getCategories({ offset: 200 * page, limit: 200 })),
       reduce((acc, curr) => acc.concat(curr), [] as OrgCategory[])
     );
   }
