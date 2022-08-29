@@ -4,7 +4,7 @@ import { OfflineService } from './offline.service';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { Expense } from '../models/expense.model';
 import { map } from 'rxjs/operators';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +16,7 @@ export class ViewExpenseService {
     private launchDarklyService: LaunchDarklyService
   ) {}
 
-  shouldPaymentModeBeShown(etxn: Expense) {
+  shouldPaymentModeBeShown(etxn: Expense): Observable<boolean> {
     return forkJoin({
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),

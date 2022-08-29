@@ -51,17 +51,13 @@ export class AccountsService {
   constructPaymentModes(
     accounts: ExtendedAccount[],
     isMultipleAdvanceEnabled: boolean,
-    isPaidByCompanyHidden: boolean,
-    isNotOwner?: boolean
+    isPaidByCompanyHidden: boolean
   ): ExtendedAccount[] {
     const that = this;
 
     const accountsMap = {
       PERSONAL_ACCOUNT(account: ExtendedAccount) {
         account.acc.displayName = 'Personal Card/Cash';
-        if (isNotOwner) {
-          account.acc.displayName = 'Paid by Employee';
-        }
         account.acc.isReimbursable = true;
         return account;
       },
