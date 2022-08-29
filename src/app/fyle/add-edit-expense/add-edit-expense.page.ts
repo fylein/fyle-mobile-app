@@ -2638,12 +2638,18 @@ export class AddEditExpensePage implements OnInit {
     forkJoin({
       paymentModes: this.paymentModes$,
       isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
-    }).subscribe(
-      ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
-        (this.showPaymentMode =
-          (!isPaymentModeConfigurationsEnabled || paymentModes?.length > 1) &&
-          !(this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
-    );
+    }).subscribe(({ paymentModes, isPaymentModeConfigurationsEnabled }) => {
+      // Hide payment mode if Unify CCC is enabled and it is a CCC expense
+      const hidePaymentModeForCCCExpense = this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense;
+
+      /*
+       * Show payment mode if payment_mode_configurations LD flag is disabled
+       * or if it is enabled and there is more than one payment mode
+       * and hidePaymentModeForCCCExpense is false
+       */
+      this.showPaymentMode =
+        (!isPaymentModeConfigurationsEnabled || paymentModes?.length > 1) && !hidePaymentModeForCCCExpense;
+    });
 
     orgSettings$
       .pipe(
