@@ -122,12 +122,11 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
       filteredOptions: this.filteredOptions$,
       recentlyUsedItems: this.recentrecentlyUsedItems$,
     }).subscribe(({ filteredOptions, recentlyUsedItems }) => {
-      const recentlyUsedItemsUpdated = recentlyUsedItems.map((v) => {
-        v.isRecentlyUsed = true;
-        return v;
+      const recentlyUsedItemsUpdated = recentlyUsedItems.map((recentItem) => {
+        recentItem.isRecentlyUsed = true;
+        return recentItem;
       });
       this.selectableOptions = [...recentlyUsedItemsUpdated, ...filteredOptions];
-      console.log('check selectable options', this.selectableOptions);
       this.cdr.detectChanges();
     });
 
