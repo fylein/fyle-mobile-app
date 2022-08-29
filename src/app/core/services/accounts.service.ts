@@ -10,8 +10,8 @@ import { AccountOption } from '../models/account-option.model';
 import { Expense } from '../models/expense.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { ExpenseType } from '../enums/expense-type.enum';
 
-type ExpenseType = 'EXPENSE' | 'MILEAGE' | 'PER_DIEM';
 @Injectable({
   providedIn: 'root',
 })
@@ -101,15 +101,18 @@ export class AccountsService {
   getPaymentModes(
     accounts: ExtendedAccount[],
     allowedPaymentModes: string[],
-    orgSettings: any,
-    etxn?: any,
-    expenseType: ExpenseType = 'EXPENSE',
-    isPaymentModeConfigurationsEnabled = false,
-    isPaidByCompanyHidden = false
+    config: {
+      etxn: any;
+      orgSettings: any;
+      expenseType: ExpenseType;
+      isPaymentModeConfigurationsEnabled: boolean;
+      isPaidByCompanyHidden: boolean;
+    }
   ): AccountOption[] {
+    const { etxn, orgSettings, expenseType, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden } = config;
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
-    const isMileageOrPerDiemExpense = ['MILEAGE', 'PER_DIEM'].includes(expenseType);
+    const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
 
     let userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
 

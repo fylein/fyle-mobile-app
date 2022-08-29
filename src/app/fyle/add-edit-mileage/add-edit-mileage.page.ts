@@ -59,6 +59,7 @@ import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -530,16 +531,16 @@ export class AddEditMileagePage implements OnInit {
           allowedPaymentModes,
           isPaymentModeConfigurationsEnabled,
           isPaidByCompanyHidden,
-        }) =>
-          this.accountsService.getPaymentModes(
-            accounts,
-            allowedPaymentModes,
-            orgSettings,
+        }) => {
+          const config = {
             etxn,
-            'MILEAGE',
+            orgSettings,
+            expenseType: ExpenseType.MILEAGE,
             isPaymentModeConfigurationsEnabled,
-            isPaidByCompanyHidden
-          )
+            isPaidByCompanyHidden,
+          };
+          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+        }
       ),
       shareReplay(1)
     );

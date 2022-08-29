@@ -60,6 +60,7 @@ import { AccountOption } from 'src/app/core/models/account-option.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -505,16 +506,16 @@ export class AddEditPerDiemPage implements OnInit {
           allowedPaymentModes,
           isPaymentModeConfigurationsEnabled,
           isPaidByCompanyHidden,
-        }) =>
-          this.accountsService.getPaymentModes(
-            accounts,
-            allowedPaymentModes,
-            orgSettings,
+        }) => {
+          const config = {
             etxn,
-            'PER_DIEM',
+            orgSettings,
+            expenseType: ExpenseType.MILEAGE,
             isPaymentModeConfigurationsEnabled,
-            isPaidByCompanyHidden
-          )
+            isPaidByCompanyHidden,
+          };
+          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+        }
       ),
       shareReplay(1)
     );
