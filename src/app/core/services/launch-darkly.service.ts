@@ -47,6 +47,14 @@ export class LaunchDarklyService {
     this.ldClient.on('change', this.updateCache, this);
   }
 
+  checkIfPaymentModeConfigurationsIsEnabled(): Observable<boolean> {
+    return this.getVariation('payment_mode_configurations', false);
+  }
+
+  checkIfPaidByCompanyIsHidden(): Observable<boolean> {
+    return this.getVariation('hide_paid_by_company', false);
+  }
+
   private updateCache() {
     if (this.ldClient) {
       const latestFlags = this.ldClient.allFlags();

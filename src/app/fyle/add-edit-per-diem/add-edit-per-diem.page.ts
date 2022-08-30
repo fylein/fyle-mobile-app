@@ -58,6 +58,9 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -83,7 +86,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   allowedPerDiemRateOptions$: Observable<any[]>;
 
-  paymentModes$: Observable<any[]>;
+  paymentModes$: Observable<AccountOption[]>;
 
   homeCurrency$: Observable<string>;
 
@@ -179,6 +182,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   canRemoveFromReport = false;
 
+  showPaymentMode = true;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -210,7 +215,8 @@ export class AddEditPerDiemPage implements OnInit {
     private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get minPerDiemDate() {
@@ -383,7 +389,7 @@ export class AddEditPerDiemPage implements OnInit {
         const paymentAccount = this.fg.value.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         let isPaymentModeInvalid = false;
-        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        if (paymentAccount?.acc?.type === AccountType.ADVANCE) {
           if (paymentAccount.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid =
               paymentAccount.acc.tentative_balance_amount <
@@ -484,28 +490,34 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getPaymentModes(): Observable<AccountOption[]> {
-    const orgSettings$ = this.offlineService.getOrgSettings();
-    const accounts$ = this.offlineService.getAccounts();
-
     return forkJoin({
-      accounts: accounts$,
-      orgSettings: orgSettings$,
+      accounts: this.offlineService.getAccounts(),
+      orgSettings: this.offlineService.getOrgSettings(),
+      etxn: this.etxn$,
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      switchMap(({ accounts, orgSettings }) => {
-        const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
-        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
-        const userAccounts = this.accountsService
-          .filterAccountsWithSufficientBalance(
-            accounts.filter((account) => account.acc.type),
-            isAdvanceEnabled
-          )
-          .filter((userAccount) => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
-
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
-      }),
-      map((paymentModes) =>
-        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
-      )
+      map(
+        ({
+          accounts,
+          orgSettings,
+          etxn,
+          allowedPaymentModes,
+          isPaymentModeConfigurationsEnabled,
+          isPaidByCompanyHidden,
+        }) => {
+          const config = {
+            etxn,
+            orgSettings,
+            expenseType: ExpenseType.MILEAGE,
+            isPaymentModeConfigurationsEnabled,
+            isPaidByCompanyHidden,
+          };
+          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+        }
+      ),
+      shareReplay(1)
     );
   }
 
@@ -845,7 +857,6 @@ export class AddEditPerDiemPage implements OnInit {
       );
 
     this.txnFields$ = this.getTransactionFields();
-    this.paymentModes$ = this.getPaymentModes();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
@@ -892,6 +903,16 @@ export class AddEditPerDiemPage implements OnInit {
     this.customInputs$ = this.getCustomInputs();
 
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
+
+    this.paymentModes$ = this.getPaymentModes();
+
+    forkJoin({
+      paymentModes: this.paymentModes$,
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+    }).subscribe(
+      ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
+        (this.showPaymentMode = !isPaymentModeConfigurationsEnabled || paymentModes.length > 1)
+    );
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
@@ -1099,7 +1120,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
-        if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
+        if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return this.offlineService
             .getAccounts()
             .pipe(
@@ -1107,10 +1128,7 @@ export class AddEditPerDiemPage implements OnInit {
                 (accounts) =>
                   accounts.filter(
                     (account) =>
-                      account &&
-                      account.acc &&
-                      account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' &&
-                      account.acc.tentative_balance_amount > 0
+                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
                   ).length > 0
               )
             );
@@ -1145,31 +1163,19 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    const selectedPaymentMode$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.source_account_id,
-          this.paymentModes$.pipe(
-            map((paymentModes) =>
-              paymentModes
-                .map((res) => res.value)
-                .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
-                    return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
-                  } else {
-                    return paymentMode.acc.id === etxn.tx.source_account_id;
-                  }
-                })
-            )
-          ),
-          of(null)
-        )
-      )
-    );
+    const selectedPaymentMode$ = forkJoin({
+      etxn: this.etxn$,
+      paymentModes: this.paymentModes$,
+    }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
 
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
-        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash')
+        paymentModes
+          .map((extendedPaymentMode) => extendedPaymentMode.value)
+          .find((paymentMode) => {
+            const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
+            return accountType === AccountType.PERSONAL;
+          })
       )
     );
 
@@ -1426,7 +1432,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.paymentModeInvalid$ = iif(() => this.activatedRoute.snapshot.params.id, this.etxn$, of(null)).pipe(
       map((etxn) => {
-        if (this.fg.value.paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        if (this.fg.value.paymentMode.acc.type === AccountType.ADVANCE) {
           if (
             etxn &&
             etxn.id &&
@@ -1461,7 +1467,7 @@ export class AddEditPerDiemPage implements OnInit {
           return customProperty;
         });
         const skipReimbursement =
-          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
+          this.fg.value.paymentMode.acc.type === AccountType.PERSONAL && !this.fg.value.paymentMode.acc.isReimbursable;
 
         const formValue = this.fg.value;
         const currencyObj = this.fg.controls.currencyObj.value;

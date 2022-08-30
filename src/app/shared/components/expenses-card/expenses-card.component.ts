@@ -23,6 +23,7 @@ import { TrackingService } from '../../../core/services/tracking.service';
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -270,7 +271,7 @@ export class ExpensesCardComponent implements OnInit {
 
   canShowPaymentModeIcon() {
     this.showPaymentModeIcon =
-      this.expense.source_account_type === 'PERSONAL_ACCOUNT' && !this.expense.tx_skip_reimbursement;
+      this.expense.source_account_type === AccountType.PERSONAL && !this.expense.tx_skip_reimbursement;
   }
 
   ngOnInit() {
@@ -335,7 +336,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setOtherData() {
-    if (this.expense.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+    if (this.expense.source_account_type === AccountType.CCC) {
       if (this.expense.tx_corporate_credit_card_expense_group_id) {
         this.paymentModeIcon = 'fy-matched';
       } else {
