@@ -101,6 +101,7 @@ export class AuthService {
         await this.storageService.delete('lastLoggedInDelegatee');
         await this.storageService.delete('lastLoggedInOrgQueue');
         await this.storageService.delete('isSidenavCollapsed');
+        await this.storageService.delete('isOfflineFormsRemoved');
       })
     );
   }

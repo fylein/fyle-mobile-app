@@ -1,24 +1,27 @@
-<input
-  *ngIf="isIos"
-  class="fy-number--input"
-  [min]="min"
-  [disabled]="disabled"
-  [formControl]="fc"
-  [placeholder]="placeholder || ''"
-  (blur)="(onBlur)"
-  type="text"
-  pattern="[0-9]*"
-  decimal="true"
-  decimal-char="."
-/>
-<input
-  *ngIf="!isIos"
-  class="fy-number--input"
-  [min]="min"
-  [disabled]="disabled"
-  [formControl]="fc"
-  [placeholder]="placeholder || ''"
-  (blur)="(onBlur)"
-  type="number"
-  inputmode="decimal"
-/>
+<ng-container *ngIf="isIos && isKeyboardPluginEnabled; else inputWithoutPlugin">
+  <input
+    class="fy-number--input"
+    [min]="min"
+    [disabled]="disabled"
+    [formControl]="fc"
+    [placeholder]="placeholder || ''"
+    (blur)="(onBlur)"
+    type="text"
+    pattern="[0-9]*"
+    decimal="true"
+    decimal-char="."
+  />
+</ng-container>
+
+<ng-template #inputWithoutPlugin>
+  <input
+    class="fy-number--input"
+    [min]="min"
+    [disabled]="disabled"
+    [formControl]="fc"
+    [placeholder]="placeholder || ''"
+    (blur)="(onBlur)"
+    type="number"
+    inputmode="decimal"
+  />
+</ng-template>

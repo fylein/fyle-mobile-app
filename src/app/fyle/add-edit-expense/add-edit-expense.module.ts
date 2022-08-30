@@ -14,7 +14,6 @@ import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PinchZoomModule } from 'ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
@@ -46,7 +45,6 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
   ],
   declarations: [
     AddEditExpensePage,
-    PolicyViolationComponent,
     CameraOptionsPopupComponent,
     MatchTransactionComponent,
     SuggestedDuplicatesComponent,

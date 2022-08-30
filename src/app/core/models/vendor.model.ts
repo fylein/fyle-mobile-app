@@ -15,4 +15,5 @@ export interface VendorListItem {
   label: string;
   value: Vendor;
   selected?: boolean;
+  isRecentlyUsed?: boolean;
 }

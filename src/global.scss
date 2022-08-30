@@ -1268,3 +1268,39 @@ ion-toggle.toggle-checked::before {
     }
   }
 }
+
+@mixin state($color) {
+  &.state-#{$color} {
+    background-color: map-get($fdl-state-bg-map, $color);
+    color: map-get($fdl-state-color-map, $color);
+    border: 1px solid;
+    border-color: map-get($fdl-state-border-color-map, $color);
+  }
+}
+
+.state-pill {
+  background-color: transparent;
+  border: 1px solid $brand-primary;
+  border-radius: 14px;
+  color: $brand-primary;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+  line-height: 1;
+  padding: 5px 12px;
+  text-align: center;
+  text-transform: uppercase;
+
+  //get state keys for generating state class
+  @each $state in map-keys($states) {
+    @include state($state);
+  }
+}
+
+.ios {
+  .add-edit-expense--title__review,
+  .add-edit-mileage--title__review,
+  .add-edit-per-diem--title__review {
+    height: 74px !important;
+  }
+}

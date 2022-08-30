@@ -73,10 +73,6 @@ const routes: Routes = [
     loadChildren: () => import('./my-create-report/my-create-report.module').then((m) => m.MyCreateReportPageModule),
   },
   {
-    path: 'my_edit_report',
-    loadChildren: () => import('./my-edit-report/my-edit-report.module').then((m) => m.MyEditReportPageModule),
-  },
-  {
     path: 'add_edit_per_diem',
     loadChildren: () => import('./add-edit-per-diem/add-edit-per-diem.module').then((m) => m.AddEditPerDiemPageModule),
   },

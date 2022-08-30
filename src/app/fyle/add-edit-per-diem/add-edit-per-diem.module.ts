@@ -10,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { PolicyViolationComponent } from './policy-violation/policy-violation.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
@@ -30,6 +29,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     SharedModule,
     MatSnackBarModule,
   ],
-  declarations: [AddEditPerDiemPage, PolicyViolationComponent],
+  declarations: [AddEditPerDiemPage],
 })
 export class AddEditPerDiemPageModule {}

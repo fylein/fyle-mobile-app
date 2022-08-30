@@ -16,6 +16,7 @@ import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take 
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { StorageService } from 'src/app/core/services/storage.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 
@@ -56,6 +57,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
+  isOfflineFormsRemoved = false;
+
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -68,7 +71,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private accountsService: AccountsService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private storageService: StorageService
   ) {}
 
   setupNetworkWatcher() {
@@ -94,6 +98,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
       this.isInstafyleEnabled =
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
+    });
+
+    from(this.storageService.get('isOfflineFormsRemoved')).subscribe((res) => {
+      this.isOfflineFormsRemoved = res;
     });
   }
 
@@ -267,6 +275,43 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  onSingleCaptureOffline() {
+    this.loaderService.showLoader();
+    this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      });
+  }
+
+  navigateToExpenseForm() {
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'add_edit_expense',
+      {
+        dataUrl: this.base64ImagesWithSource[0].base64Image,
+        canExtractData: this.isInstafyleEnabled,
+      },
+    ]);
+  }
+
+  saveSingleCapture() {
+    if (this.isOfflineFormsRemoved) {
+      let isOnline: boolean;
+      this.networkService.isOnline().subscribe((res) => {
+        isOnline = res;
+        if (!isOnline) {
+          this.onSingleCaptureOffline();
+        } else {
+          this.navigateToExpenseForm();
+        }
+      });
+    } else {
+      this.navigateToExpenseForm();
+    }
+  }
+
   async onSingleCapture() {
     const modal = await this.modalController.create({
       component: ReceiptPreviewComponent,
@@ -313,7 +358,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
               const isLoggedIn = performance.getEntriesByName('app launch start time')[0]['detail'];
 
               // Converting the duration to seconds and fix it to 3 decimal places
-              const launchTimeDuration = (measureLaunchTime[0].duration / 1000).toFixed(3);
+              const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
 
               this.trackingService.captureSingleReceiptTime({
                 'Capture receipt time': launchTimeDuration,
@@ -331,15 +376,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
               });
             }, 0);
           } else {
-            this.router.navigate([
-              '/',
-              'enterprise',
-              'add_edit_expense',
-              {
-                dataUrl: this.base64ImagesWithSource[0].base64Image,
-                canExtractData: this.isInstafyleEnabled,
-              },
-            ]);
+            this.saveSingleCapture();
           }
           this.loaderService.hideLoader();
         }
@@ -487,10 +524,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngAfterViewInit() {
-    this.setUpAndStartCamera();
+    if (this.isModal) {
+      this.setUpAndStartCamera();
+    }
   }
 
   ngOnDestroy() {
-    this.stopCamera();
+    if (this.isModal) {
+      this.stopCamera();
+    }
   }
 }

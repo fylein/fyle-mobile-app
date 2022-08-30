@@ -67,43 +67,4 @@ $advance_rejected_color: #d50000;
   &--approval {
     margin-bottom: 8px;
   }
-
-  &--pill {
-    color: $pure-white;
-    font-size: 12px;
-    padding: 3px 15px;
-    border-radius: 16px;
-
-    &__draft {
-      background: $advance_draft_color;
-    }
-
-    &__pulledBack {
-      background: $advance_pulled_back_color;
-    }
-
-    &__inquiry {
-      background: $advance_inquiry_color;
-    }
-
-    &__sent_back {
-      background: $advance_inquiry_color;
-    }
-
-    &__pendingApproval {
-      background: $advance_pending_approval_color;
-    }
-
-    &__approved {
-      background: $advance_approved_color;
-    }
-
-    &__paid {
-      background: $advance_paid_color;
-    }
-
-    &__rejected {
-      background: $advance_rejected_color;
-    }
-  }
 }

@@ -84,7 +84,7 @@
           class="view-per-diem--card-container__state-pill ion-text-right"
           [ngClass]="{'view-per-diem--card-container__state-pill--with-project': isProjectShown}"
         >
-          <div class="view-per-diem--card-container__state-pill__state">
+          <div class="state-pill state-{{extendedPerDiem.tx_state | expenseState}}">
             {{ extendedPerDiem.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
@@ -280,7 +280,7 @@
             </ion-row>
           </ion-grid>
         </ion-col>
-        <ion-col>
+        <ion-col size="6" *ngIf="extendedPerDiem.tx_cost_center_code">
           <ion-grid>
             <ion-row>
               <ion-col class="view-per-diem--icon-container">
@@ -293,7 +293,7 @@
               </ion-col>
               <ion-col class="view-per-diem--content-container">
                 <div class="view-per-diem--label">Cost Center Code</div>
-                <div class="view-per-diem--value">{{ extendedPerDiem.tx_cost_center_id }}</div>
+                <div class="view-per-diem--value">{{ extendedPerDiem.tx_cost_center_code }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>

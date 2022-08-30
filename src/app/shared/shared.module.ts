@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { SwiperModule } from 'swiper/angular';
 import { RouterModule } from '@angular/router';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 // pipe imports
 import { EllipsisPipe } from './pipes/ellipses.pipe';
@@ -126,6 +127,10 @@ import { FyCurrencyChooseCurrencyComponent } from './components/fy-currency/fy-c
 import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { FyCurrencyPipe } from './pipes/fy-currency.pipe';
 import { CurrencySymbolPipe } from './pipes/currency-symbol.pipe';
+import { MileageRateName } from './pipes/mileage-rate-name.pipe';
+import { SingularPipe } from './pipes/singular.pipe';
+import { VirtualSelectComponent } from './components/virtual-select/virtual-select.component';
+import { VirtualSelectModalComponent } from './components/virtual-select/virtual-select-modal/virtual-select-modal.component';
 
 @NgModule({
   declarations: [
@@ -231,6 +236,10 @@ import { CurrencySymbolPipe } from './pipes/currency-symbol.pipe';
     FyCurrencyExchangeRateComponent,
     FyCurrencyPipe,
     CurrencySymbolPipe,
+    MileageRateName,
+    SingularPipe,
+    VirtualSelectComponent,
+    VirtualSelectModalComponent,
   ],
   imports: [
     CommonModule,
@@ -257,6 +266,7 @@ import { CurrencySymbolPipe } from './pipes/currency-symbol.pipe';
     RouterModule,
     MatBottomSheetModule,
     ImageCropperModule,
+    ScrollingModule,
   ],
   exports: [
     EllipsisPipe,
@@ -342,6 +352,9 @@ import { CurrencySymbolPipe } from './pipes/currency-symbol.pipe';
     FyCurrencyExchangeRateComponent,
     FyCurrencyPipe,
     CurrencySymbolPipe,
+    MileageRateName,
+    SingularPipe,
+    VirtualSelectComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
 })

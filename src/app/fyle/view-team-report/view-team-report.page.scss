@@ -213,43 +213,8 @@ $sent-back-color: #da1e28;
   }
 
   &--report-state-pill {
-    font-size: 12px;
     margin-top: 2px;
-    color: $pure-white;
-    padding: 1px 16px;
-    border-radius: 16px;
     float: right;
-    &__unreported {
-      background-color: #f90;
-    }
-
-    &__draft {
-      background-color: #464d57;
-    }
-
-    &__reported {
-      background-color: #2196f3;
-    }
-
-    &__sent_back {
-      background-color: #da1e28;
-    }
-
-    &__approved {
-      background-color: #66bb6a;
-    }
-
-    &__payment_pending {
-      background-color: #66bb6a;
-    }
-
-    &__payment_processing {
-      background-color: #47a447;
-    }
-
-    &__paid {
-      background-color: #3d8b3d;
-    }
   }
 
   &--count {

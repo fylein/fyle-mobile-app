@@ -29,7 +29,7 @@ export class AuditHistoryComponent implements OnInit {
   }
 
   updateProjectNameKey() {
-    this.estatuses = this.estatuses.map((estatus) => {
+    this.estatuses = this.estatuses?.map((estatus) => {
       if (estatus && estatus.st_diff && estatus.st_diff['project name']) {
         const project = estatus.st_diff['project name'];
         delete estatus.st_diff['project name'];
@@ -46,7 +46,7 @@ export class AuditHistoryComponent implements OnInit {
   }
 
   hasDetails() {
-    this.estatuses = this.estatuses.map(function (estatus) {
+    this.estatuses = this.estatuses?.map(function (estatus) {
       if (estatus) {
         estatus.has_details = estatus.st_diff !== null && Object.keys(estatus.st_diff).length > 0;
       }
@@ -55,7 +55,7 @@ export class AuditHistoryComponent implements OnInit {
   }
 
   setReimbursable() {
-    this.estatuses = this.estatuses.map(function (status) {
+    this.estatuses = this.estatuses?.map(function (status) {
       if (status && status.st_diff && status.st_diff.hasOwnProperty('non-reimbursable')) {
         status.st_diff.reimbursable = status.st_diff['non-reimbursable'] ? 'No' : 'Yes';
         delete status.st_diff['non-reimbursable'];

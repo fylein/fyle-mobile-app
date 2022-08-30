@@ -2,6 +2,7 @@ import { Component, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output }
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Platform } from '@ionic/angular';
 import { noop } from 'rxjs';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-fy-number',
@@ -28,13 +29,15 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   isIos = false;
 
+  isKeyboardPluginEnabled = true;
+
   private innerValue;
 
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
 
-  constructor(private platform: Platform) {}
+  constructor(private platform: Platform, private launchDarklyService: LaunchDarklyService) {}
 
   get value(): any {
     return this.innerValue;
@@ -74,6 +77,10 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, OnDestro
 
   ngOnInit() {
     this.isIos = this.platform.is('ios');
+    this.launchDarklyService
+      .checkIfKeyboardPluginIsEnabled()
+      .subscribe((isKeyboardPluginEnabled) => (this.isKeyboardPluginEnabled = isKeyboardPluginEnabled));
+
     this.fc = new FormControl();
     this.fc.valueChanges.subscribe((value) => {
       if (typeof value === 'string') {

@@ -28,5 +28,13 @@
     >
       <ion-icon name="car-sport"></ion-icon>
     </div>
+    <div
+      class="fy-select-vehicle--selector"
+      [ngClass]="{ 'fy-select-vehicle--selector__selected': value === 'four_wheeler4' }"
+      (click)="selectType('four_wheeler4')"
+      *ngIf="mileageConfig.four_wheeler4 || value === 'four_wheeler4'"
+    >
+      <ion-icon name="car-sport"></ion-icon>
+    </div>
   </div>
 </div>
