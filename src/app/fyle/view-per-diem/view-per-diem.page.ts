@@ -21,8 +21,8 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { ViewExpenseService } from 'src/app/core/services/view-expense.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -95,7 +95,7 @@ export class ViewPerDiemPage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private accountsService: AccountsService
+    private viewExpenseService: ViewExpenseService
   ) {}
 
   get ExpenseView() {
@@ -260,15 +260,8 @@ export class ViewPerDiemPage implements OnInit {
     if (this.view === ExpenseView.team) {
       this.showPaymentMode = true;
     } else {
-      forkJoin({
-        extendedPerDiem: this.extendedPerDiem$.pipe(take(1)),
-        allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      })
-        .pipe(
-          map(({ extendedPerDiem, allowedPaymentModes }) =>
-            this.accountsService.shouldPaymentModeBeShown(extendedPerDiem, allowedPaymentModes)
-          )
-        )
+      this.extendedPerDiem$
+        .pipe(switchMap((extendedPerDiem) => this.viewExpenseService.shouldPaymentModeBeShown(extendedPerDiem)))
         .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 

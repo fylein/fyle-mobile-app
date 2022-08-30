@@ -4,12 +4,13 @@ import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
 import { LaunchDarklyService } from './launch-darkly.service';
-import { Observable, of } from 'rxjs';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountOption } from '../models/account-option.model';
 import { Expense } from '../models/expense.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { ExpenseType } from '../enums/expense-type.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -50,59 +51,49 @@ export class AccountsService {
   constructPaymentModes(
     accounts: ExtendedAccount[],
     isMultipleAdvanceEnabled: boolean,
-    isNotOwner?: boolean
-  ): Observable<ExtendedAccount[]> {
+    isPaidByCompanyHidden: boolean
+  ): ExtendedAccount[] {
     const that = this;
 
-    const hidePaidByCompany$ = that.launchDarklyService.getVariation('hide_paid_by_company', false);
-
-    return hidePaidByCompany$.pipe(
-      map((hidePaidByCompany) => {
-        const accountsMap = {
-          PERSONAL_ACCOUNT(account: ExtendedAccount) {
-            account.acc.displayName = 'Personal Card/Cash';
-            if (isNotOwner) {
-              account.acc.displayName = 'Paid by Employee';
-            }
-            account.acc.isReimbursable = true;
-            return account;
-          },
-          PERSONAL_ADVANCE_ACCOUNT(account: ExtendedAccount) {
-            let currency = account.currency;
-            let balance = account.acc.tentative_balance_amount;
-            if (isMultipleAdvanceEnabled && account.orig && account.orig.amount) {
-              balance =
-                (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
-              currency = account.orig.currency;
-            }
-
-            account.acc.displayName = 'Advance (Balance: ' + that.fyCurrencyPipe.transform(balance, currency) + ')';
-
-            account.acc.isReimbursable = false;
-            return account;
-          },
-          PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT(account: ExtendedAccount) {
-            account.acc.displayName = 'Corporate Card';
-            account.acc.isReimbursable = false;
-            return account;
-          },
-        };
-
-        const mappedAccounts = accounts.map((account) => account && accountsMap[account.acc.type](account));
-
-        if (!hidePaidByCompany) {
-          const personalAccount = accounts.find((account) => account.acc.type === AccountType.PERSONAL);
-          if (personalAccount) {
-            const personalNonreimbursableAccount = cloneDeep(personalAccount);
-            personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
-            personalNonreimbursableAccount.acc.isReimbursable = false;
-            mappedAccounts.push(personalNonreimbursableAccount);
-          }
+    const accountsMap = {
+      PERSONAL_ACCOUNT(account: ExtendedAccount) {
+        account.acc.displayName = 'Personal Card/Cash';
+        account.acc.isReimbursable = true;
+        return account;
+      },
+      PERSONAL_ADVANCE_ACCOUNT(account: ExtendedAccount) {
+        let currency = account.currency;
+        let balance = account.acc.tentative_balance_amount;
+        if (isMultipleAdvanceEnabled && account.orig && account.orig.amount) {
+          balance = (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
+          currency = account.orig.currency;
         }
 
-        return mappedAccounts;
-      })
-    );
+        account.acc.displayName = 'Advance (Balance: ' + that.fyCurrencyPipe.transform(balance, currency) + ')';
+
+        account.acc.isReimbursable = false;
+        return account;
+      },
+      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT(account: ExtendedAccount) {
+        account.acc.displayName = 'Corporate Card';
+        account.acc.isReimbursable = false;
+        return account;
+      },
+    };
+
+    const mappedAccounts = accounts.map((account) => account && accountsMap[account.acc.type](account));
+
+    if (!isPaidByCompanyHidden) {
+      const personalAccount = accounts.find((account) => account.acc.type === AccountType.PERSONAL);
+      if (personalAccount) {
+        const personalNonreimbursableAccount = cloneDeep(personalAccount);
+        personalNonreimbursableAccount.acc.displayName = 'Paid by Company';
+        personalNonreimbursableAccount.acc.isReimbursable = false;
+        mappedAccounts.push(personalNonreimbursableAccount);
+      }
+    }
+
+    return mappedAccounts;
   }
 
   //Filter user accounts by allowed payment modes and return an observable of allowed accounts
@@ -110,15 +101,49 @@ export class AccountsService {
   getPaymentModes(
     accounts: ExtendedAccount[],
     allowedPaymentModes: string[],
-    orgSettings: any,
-    etxn?: any,
-    expenseType: 'EXPENSE' | 'MILEAGE' | 'PER_DIEM' = 'EXPENSE'
+    config: {
+      etxn: any;
+      orgSettings: any;
+      expenseType: ExpenseType;
+      isPaymentModeConfigurationsEnabled: boolean;
+      isPaidByCompanyHidden: boolean;
+    }
   ): AccountOption[] {
+    const { etxn, orgSettings, expenseType, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden } = config;
     const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
     const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
-    const isMileageOrPerDiemExpense = ['MILEAGE', 'PER_DIEM'].includes(expenseType);
+    const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
 
-    const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+    let userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+
+    if (!isPaymentModeConfigurationsEnabled) {
+      /**
+       * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
+       * But if already an expense is created as CCC payment mode then on edit of that expense it should be visible
+       */
+      const isCCCEnabled =
+        orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+
+      const isNonCCCExpense =
+        !etxn?.tx?.corporate_credit_card_expense_group_id && etxn?.source?.account_type !== AccountType.CCC;
+      const shouldCCCBeHidden = !isCCCEnabled && isNonCCCExpense;
+
+      if (isMileageOrPerDiemExpense || shouldCCCBeHidden) {
+        userAccounts = userAccounts.filter((userAccount) =>
+          [AccountType.PERSONAL, AccountType.ADVANCE].includes(userAccount.acc.type)
+        );
+      }
+
+      const constructedPaymentModes = this.constructPaymentModes(
+        userAccounts,
+        isMultipleAdvanceEnabled,
+        isPaidByCompanyHidden
+      );
+      return constructedPaymentModes.map((paymentMode) => ({
+        label: paymentMode.acc.displayName,
+        value: paymentMode,
+      }));
+    }
 
     const allowedAccounts = this.getAllowedAccounts(
       userAccounts,
@@ -240,11 +265,26 @@ export class AccountsService {
     return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
   }
 
-  shouldPaymentModeBeShown(etxn: Expense, allowedPaymentModes: string[]) {
-    if (allowedPaymentModes.length === 1) {
-      const etxnAccountType = this.getEtxnAccountType(etxn);
-      return allowedPaymentModes[0] !== etxnAccountType;
+  getDefaultAccountFromUserPreference(paymentModes: AccountOption[], orgUserSettings: OrgUserSettings) {
+    const hasCCCAccount = paymentModes.some((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
+
+    const paidByCompanyAccount = paymentModes.find(
+      (paymentMode) => paymentMode.value.acc.displayName === 'Paid by Company'
+    );
+
+    if (hasCCCAccount && orgUserSettings?.preferences?.default_payment_mode === AccountType.CCC) {
+      const CCCAccount = paymentModes.find((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
+      return CCCAccount.value;
+    } else if (
+      paidByCompanyAccount?.value &&
+      orgUserSettings?.preferences?.default_payment_mode === AccountType.COMPANY
+    ) {
+      return paidByCompanyAccount.value;
     }
-    return true;
+
+    const personalAccount = paymentModes.find(
+      (paymentMode) => paymentMode.value.acc.displayName === 'Personal Card/Cash'
+    );
+    return personalAccount.value;
   }
 }

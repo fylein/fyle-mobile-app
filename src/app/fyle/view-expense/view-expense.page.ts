@@ -25,9 +25,8 @@ import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-
+import { ViewExpenseService } from 'src/app/core/services/view-expense.service';
 @Component({
   selector: 'app-view-expense',
   templateUrl: './view-expense.page.html',
@@ -123,7 +122,7 @@ export class ViewExpensePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private accountsService: AccountsService
+    private viewExpenseService: ViewExpenseService
   ) {}
 
   get ExpenseView() {
@@ -338,15 +337,8 @@ export class ViewExpensePage implements OnInit {
     if (this.view === ExpenseView.team) {
       this.showPaymentMode = true;
     } else {
-      forkJoin({
-        etxn: this.etxn$.pipe(take(1)),
-        allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      })
-        .pipe(
-          map(({ etxn, allowedPaymentModes }) =>
-            this.accountsService.shouldPaymentModeBeShown(etxn, allowedPaymentModes)
-          )
-        )
+      this.etxn$
+        .pipe(switchMap((etxn) => this.viewExpenseService.shouldPaymentModeBeShown(etxn)))
         .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 

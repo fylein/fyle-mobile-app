@@ -16,6 +16,8 @@ import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take 
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 type Image = Partial<{
   source: string;
@@ -65,7 +67,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   setupNetworkWatcher() {
@@ -108,9 +111,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       isConnected: this.networkService.isOnline(),
       accounts: this.offlineService.getAccounts(),
       orgSettings: this.offlineService.getOrgSettings(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
     }).pipe(
-      switchMap(({ isConnected, accounts, orgSettings }) =>
-        this.getAccount(orgSettings, accounts).pipe(
+      switchMap(({ isConnected, accounts, orgSettings, orgUserSettings }) =>
+        this.getDefaultAccount(orgSettings, accounts, orgUserSettings).pipe(
           filter((account) => !!account),
           switchMap((account) => {
             if (!isConnected) {
@@ -148,16 +152,41 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     );
   }
 
-  getAccount(orgSettings: any, accounts: ExtendedAccount[]): Observable<ExtendedAccount> {
-    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
-    const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
+  getDefaultAccount(
+    orgSettings: any,
+    accounts: ExtendedAccount[],
+    orgUserSettings: OrgUserSettings
+  ): Observable<ExtendedAccount> {
+    return forkJoin({
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
+    }).pipe(
+      map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden }) => {
+        let defaultAccountType = AccountType.PERSONAL;
 
-    return this.offlineService.getAllowedPaymentModes().pipe(
-      map((allowedPaymentModes) =>
-        this.accountsService.getAllowedAccounts(userAccounts, allowedPaymentModes, isMultipleAdvanceEnabled)
-      ),
-      map((allowedAccounts: ExtendedAccount[]) => allowedAccounts[0])
+        if (isPaymentModeConfigurationsEnabled) {
+          defaultAccountType = allowedPaymentModes[0];
+        } else {
+          const userDefaultPaymentMode = orgUserSettings.preferences?.default_payment_mode;
+          const isCCCEnabled =
+            orgSettings?.corporate_credit_card_settings?.allowed &&
+            orgSettings?.corporate_credit_card_settings?.enabled;
+          if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
+            defaultAccountType = AccountType.CCC;
+          } else if (
+            orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY &&
+            !isPaidByCompanyHidden
+          ) {
+            defaultAccountType = AccountType.COMPANY;
+          }
+        }
+
+        const defaultAccount = accounts.find(
+          (account) => this.accountsService.getAccountTypeFromPaymentMode(account) === defaultAccountType
+        );
+        return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
+      })
     );
   }
 
