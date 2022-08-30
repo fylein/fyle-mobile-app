@@ -21,7 +21,8 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AccountsService } from 'src/app/core/services/accounts.service';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { ViewExpenseService } from 'src/app/core/services/view-expense.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -94,7 +95,7 @@ export class ViewPerDiemPage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private accountsService: AccountsService
+    private viewExpenseService: ViewExpenseService
   ) {}
 
   get ExpenseView() {
@@ -158,7 +159,7 @@ export class ViewPerDiemPage implements OnInit {
     this.extendedPerDiem$.subscribe((extendedPerDiem) => {
       this.reportId = extendedPerDiem.tx_report_id;
 
-      if (extendedPerDiem.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (extendedPerDiem.source_account_type === AccountType.ADVANCE) {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else if (extendedPerDiem.tx_skip_reimbursement) {
@@ -260,7 +261,7 @@ export class ViewPerDiemPage implements OnInit {
       this.showPaymentMode = true;
     } else {
       this.extendedPerDiem$
-        .pipe(switchMap((extendedPerDiem) => this.accountsService.shouldPaymentModeBeShown(extendedPerDiem)))
+        .pipe(switchMap((extendedPerDiem) => this.viewExpenseService.shouldPaymentModeBeShown(extendedPerDiem)))
         .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 
