@@ -25,8 +25,8 @@ import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { AccountsService } from 'src/app/core/services/accounts.service';
-
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { ViewExpenseService } from 'src/app/core/services/view-expense.service';
 @Component({
   selector: 'app-view-expense',
   templateUrl: './view-expense.page.html',
@@ -122,7 +122,7 @@ export class ViewExpensePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private accountsService: AccountsService
+    private viewExpenseService: ViewExpenseService
   ) {}
 
   get ExpenseView() {
@@ -238,10 +238,10 @@ export class ViewExpensePage implements OnInit {
         this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
       }
 
-      if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (etxn.source_account_type === AccountType.ADVANCE) {
         this.paymentMode = 'Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+      } else if (etxn.source_account_type === AccountType.CCC) {
         this.paymentMode = 'Corporate Card';
         this.paymentModeIcon = 'fy-unmatched';
         this.isCCCTransaction = true;
@@ -338,11 +338,8 @@ export class ViewExpensePage implements OnInit {
       this.showPaymentMode = true;
     } else {
       this.etxn$
-        .pipe(
-          switchMap((etxn) => this.shouldPaymentModeBeShown(etxn)),
-          map((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown))
-        )
-        .subscribe(noop);
+        .pipe(switchMap((etxn) => this.viewExpenseService.shouldPaymentModeBeShown(etxn)))
+        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 
     const editExpenseAttachments = this.etxn$.pipe(
@@ -373,18 +370,6 @@ export class ViewExpensePage implements OnInit {
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
     this.numEtxnsInReport = etxnIds.length;
     this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
-  }
-
-  shouldPaymentModeBeShown(etxn: Expense) {
-    return this.accountsService.getAllowedPaymentModes().pipe(
-      map((paymentModes) => {
-        if (paymentModes.length === 1) {
-          const etxnAccountType = this.accountsService.getEtxnAccountType(etxn);
-          return paymentModes[0] !== etxnAccountType;
-        }
-        return true;
-      })
-    );
   }
 
   getReceiptExtension(name: string) {

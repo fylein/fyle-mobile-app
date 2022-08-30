@@ -100,7 +100,9 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { AccountOption } from 'src/app/core/models/account-option.model';
-import { getCurrencySymbol } from '@angular/common';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -118,7 +120,7 @@ export class AddEditExpensePage implements OnInit {
 
   etxn$: Observable<any>;
 
-  paymentModes$: Observable<any[]>;
+  paymentModes$: Observable<AccountOption[]>;
 
   recentlyUsedValues$: Observable<RecentlyUsed>;
 
@@ -379,7 +381,8 @@ export class AddEditExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
-    private handleDuplicates: HandleDuplicatesService
+    private handleDuplicates: HandleDuplicatesService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   @HostListener('keydown')
@@ -496,7 +499,7 @@ export class AddEditExpensePage implements OnInit {
         const paymentAccount = this.fg.value.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         let isPaymentModeInvalid = false;
-        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === AccountType.ADVANCE) {
           if (paymentAccount.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid =
               paymentAccount.acc.tentative_balance_amount <
@@ -987,16 +990,12 @@ export class AddEditExpensePage implements OnInit {
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
-        if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
+        if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return accounts$.pipe(
             map(
               (accounts) =>
                 accounts.filter(
-                  (account) =>
-                    account &&
-                    account.acc &&
-                    account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' &&
-                    account.acc.tentative_balance_amount > 0
+                  (account) => account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
                 ).length > 0
             )
           );
@@ -1007,44 +1006,41 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getPaymentModes(): Observable<AccountOption[]> {
-    const accounts$ = this.isConnected$.pipe(
-      take(1),
-      switchMap((isConnected) => {
-        if (isConnected) {
-          return this.accountsService.getEMyAccounts();
-        } else {
-          return this.offlineService.getAccounts();
-        }
-      })
-    );
-    const orgSettings$ = this.offlineService.getOrgSettings();
-
     return forkJoin({
-      accounts: accounts$,
-      orgSettings: orgSettings$,
+      accounts: this.offlineService.getAccounts(),
+      orgSettings: this.offlineService.getOrgSettings(),
       etxn: this.etxn$,
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn }) => {
-        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
-        const isCCCEnabled =
-          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+      map(
+        ({
+          accounts,
+          orgSettings,
+          etxn,
+          allowedPaymentModes,
+          isPaymentModeConfigurationsEnabled,
+          isPaidByCompanyHidden,
+        }) => {
+          const isCCCEnabled =
+            orgSettings?.corporate_credit_card_settings?.allowed &&
+            orgSettings?.corporate_credit_card_settings?.enabled;
 
-        /**
-         * When CCC settings is disabled then we shouldn't show CCC as payment mode on add expense form
-         * But if already an expense is created as CCC payment mode then on edit of that expense it should be visible
-         */
-        if (
-          !isCCCEnabled &&
-          !etxn.tx.corporate_credit_card_expense_group_id &&
-          etxn.source?.account_type !== 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-        ) {
-          accounts = accounts.filter((account) => account.acc.type !== 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
+            this.showCardTransaction = false;
+          }
+          const config = {
+            etxn,
+            orgSettings,
+            expenseType: ExpenseType.EXPENSE,
+            isPaymentModeConfigurationsEnabled,
+            isPaidByCompanyHidden,
+          };
+
+          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
         }
-        if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
-          this.showCardTransaction = false;
-        }
-        return this.accountsService.getPaymentModes(accounts, isMultipleAdvanceEnabled, etxn);
-      }),
+      ),
       shareReplay(1)
     );
   }
@@ -1390,20 +1386,10 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    const selectedPaymentMode$ = this.etxn$.pipe(
-      switchMap((etxn) => {
-        if (etxn.tx.source_account_id) {
-          return this.paymentModes$.pipe(
-            map((paymentModes) =>
-              paymentModes
-                .map((res) => res.value)
-                .find((paymentMode) => this.accountsService.checkIfEtxnHasSamePaymentMode(etxn, paymentMode))
-            )
-          );
-        }
-        return of(null);
-      })
-    );
+    const selectedPaymentMode$ = forkJoin({
+      etxn: this.etxn$,
+      paymentModes: this.paymentModes$,
+    }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
 
     this.recentlyUsedCostCenters$ = forkJoin({
       costCenters: this.costCenters$,
@@ -1414,13 +1400,20 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
-    const defaultPaymentMode$ = this.paymentModes$.pipe(
-      map((paymentModes) => {
+    const defaultPaymentMode$ = forkJoin({
+      paymentModes: this.paymentModes$,
+      orgUserSettings: this.orgUserSettings$,
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+    }).pipe(
+      map(({ paymentModes, orgUserSettings, isPaymentModeConfigurationsEnabled }) => {
         //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
         if (this.isCreatedFromCCC) {
-          return paymentModes
-            .map((res) => res.value)
-            .find((paymentMode) => paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          const CCCAccount = paymentModes.find((paymentMode) => paymentMode.value.acc.type === AccountType.CCC);
+          return CCCAccount.value;
+        }
+
+        if (!isPaymentModeConfigurationsEnabled) {
+          return this.accountsService.getDefaultAccountFromUserPreference(paymentModes, orgUserSettings);
         }
         return paymentModes[0].value;
       })
@@ -2470,10 +2463,7 @@ export class AddEditExpensePage implements OnInit {
     }
 
     this.isCCCPaymentModeSelected$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      map(
-        (paymentMode: any) =>
-          paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-      )
+      map((paymentMode: any) => paymentMode?.acc?.type === AccountType.CCC)
     );
 
     this.isCreatedFromCCC = !this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn;
@@ -2598,7 +2588,7 @@ export class AddEditExpensePage implements OnInit {
     this.paymentAccount$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
-          return accounts.find((account) => account.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+          return accounts.find((account) => account.acc.type === AccountType.CCC);
         } else {
           return null;
         }
@@ -2608,7 +2598,7 @@ export class AddEditExpensePage implements OnInit {
     this.isCCCAccountSelected$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
-          return accounts.find((account) => account.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT').length > 0;
+          return accounts.find((account) => account.acc.type === AccountType.CCC).length > 0;
         } else {
           return false;
         }
@@ -2646,11 +2636,21 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    this.paymentModes$.subscribe(
-      (paymentModes) =>
-        (this.showPaymentMode =
-          paymentModes?.length > 1 && !(this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense))
-    );
+    forkJoin({
+      paymentModes: this.paymentModes$,
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+    }).subscribe(({ paymentModes, isPaymentModeConfigurationsEnabled }) => {
+      // Hide payment mode if Unify CCC is enabled and it is a CCC expense
+      const hidePaymentModeForCCCExpense = this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense;
+
+      /*
+       * Show payment mode if payment_mode_configurations LD flag is disabled
+       * or if it is enabled and there is more than one payment mode
+       * and hidePaymentModeForCCCExpense is false
+       */
+      this.showPaymentMode =
+        (!isPaymentModeConfigurationsEnabled || paymentModes?.length > 1) && !hidePaymentModeForCCCExpense;
+    });
 
     orgSettings$
       .pipe(
@@ -2867,7 +2867,7 @@ export class AddEditExpensePage implements OnInit {
             billable: this.fg.value.billable,
             skip_reimbursement:
               this.fg.value.paymentMode &&
-              this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
+              this.fg.value.paymentMode.acc.type === AccountType.PERSONAL &&
               !this.fg.value.paymentMode.acc.isReimbursable,
             txn_dt: this.fg.value.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value.dateOfSpend)),
             currency: this.fg.value.currencyObj && this.fg.value.currencyObj.currency,

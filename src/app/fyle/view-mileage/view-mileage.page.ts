@@ -21,6 +21,8 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { ViewExpenseService } from 'src/app/core/services/view-expense.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -80,6 +82,8 @@ export class ViewMileagePage implements OnInit {
 
   projectFieldName: string;
 
+  showPaymentMode = true;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -94,7 +98,8 @@ export class ViewMileagePage implements OnInit {
     private statusService: StatusService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private viewExpenseService: ViewExpenseService
   ) {}
 
   get ExpenseView() {
@@ -246,7 +251,7 @@ export class ViewMileagePage implements OnInit {
     this.extendedMileage$.subscribe((extendedMileage) => {
       this.reportId = extendedMileage.tx_report_id;
 
-      if (extendedMileage.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (extendedMileage.source_account_type === AccountType.ADVANCE) {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else if (extendedMileage.tx_skip_reimbursement) {
@@ -345,6 +350,14 @@ export class ViewMileagePage implements OnInit {
     });
 
     this.updateFlag$.next(null);
+
+    if (this.view === ExpenseView.team) {
+      this.showPaymentMode = true;
+    } else {
+      this.extendedMileage$
+        .pipe(switchMap((extendedMileage) => this.viewExpenseService.shouldPaymentModeBeShown(extendedMileage)))
+        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
+    }
 
     const etxnIds =
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
