@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, combineLatest, concat, noop, forkJoin } from 'rxjs';
+import { Observable, from, Subject, combineLatest, concat, noop, forkJoin, iif, of } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -25,7 +25,8 @@ import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { ViewExpenseService } from 'src/app/core/services/view-expense.service';
 @Component({
   selector: 'app-view-expense',
   templateUrl: './view-expense.page.html',
@@ -102,6 +103,8 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
+  showPaymentMode = true;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -118,7 +121,8 @@ export class ViewExpensePage implements OnInit {
     private policyService: PolicyService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private viewExpenseService: ViewExpenseService
   ) {}
 
   get ExpenseView() {
@@ -234,10 +238,10 @@ export class ViewExpensePage implements OnInit {
         this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
       }
 
-      if (etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (etxn.source_account_type === AccountType.ADVANCE) {
         this.paymentMode = 'Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+      } else if (etxn.source_account_type === AccountType.CCC) {
         this.paymentMode = 'Corporate Card';
         this.paymentModeIcon = 'fy-unmatched';
         this.isCCCTransaction = true;
@@ -329,6 +333,14 @@ export class ViewExpensePage implements OnInit {
     );
 
     this.getPolicyDetails(txId);
+
+    if (this.view === ExpenseView.team) {
+      this.showPaymentMode = true;
+    } else {
+      this.etxn$
+        .pipe(switchMap((etxn) => this.viewExpenseService.shouldPaymentModeBeShown(etxn)))
+        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
+    }
 
     const editExpenseAttachments = this.etxn$.pipe(
       take(1),
