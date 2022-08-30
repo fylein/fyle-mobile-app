@@ -58,8 +58,9 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -214,7 +215,8 @@ export class AddEditPerDiemPage implements OnInit {
     private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get minPerDiemDate() {
@@ -488,16 +490,32 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getPaymentModes(): Observable<AccountOption[]> {
-    const orgSettings$ = this.offlineService.getOrgSettings();
-    const accounts$ = this.offlineService.getAccounts();
-
     return forkJoin({
-      accounts: accounts$,
-      orgSettings: orgSettings$,
+      accounts: this.offlineService.getAccounts(),
+      orgSettings: this.offlineService.getOrgSettings(),
       etxn: this.etxn$,
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      switchMap(({ accounts, orgSettings, etxn }) =>
-        this.accountsService.getPaymentModes(accounts, orgSettings, etxn, 'PER_DIEM')
+      map(
+        ({
+          accounts,
+          orgSettings,
+          etxn,
+          allowedPaymentModes,
+          isPaymentModeConfigurationsEnabled,
+          isPaidByCompanyHidden,
+        }) => {
+          const config = {
+            etxn,
+            orgSettings,
+            expenseType: ExpenseType.MILEAGE,
+            isPaymentModeConfigurationsEnabled,
+            isPaidByCompanyHidden,
+          };
+          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+        }
       ),
       shareReplay(1)
     );
@@ -887,7 +905,14 @@ export class AddEditPerDiemPage implements OnInit {
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
     this.paymentModes$ = this.getPaymentModes();
-    this.paymentModes$.subscribe((paymentModes) => (this.showPaymentMode = paymentModes?.length > 1));
+
+    forkJoin({
+      paymentModes: this.paymentModes$,
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+    }).subscribe(
+      ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
+        (this.showPaymentMode = !isPaymentModeConfigurationsEnabled || paymentModes.length > 1)
+    );
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
