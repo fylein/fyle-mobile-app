@@ -800,7 +800,7 @@
                 [placeholder]="txnFields.vendor_id?.placeholder"
               >
               </app-fy-select-vendor>
-              <app-fy-select
+              <app-virtual-select
                 *ngIf="txnFields.vendor_id?.options?.length"
                 [disabled]="!txnFields.vendor_id?.canEdit"
                 [label]="txnFields.vendor_id?.field_name"
@@ -810,7 +810,7 @@
                 formControlName="vendor_id"
                 [placeholder]="txnFields.vendor_id?.placeholder"
               >
-              </app-fy-select>
+              </app-virtual-select>
             </div>
             <div *ngIf="fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid" class="add-edit-expense--error">
               Please select a merchant
