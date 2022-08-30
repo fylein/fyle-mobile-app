@@ -825,7 +825,7 @@
                     *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
                     class="add-edit-expense--internal-block"
                   >
-                    <app-fy-select
+                    <app-virtual-select
                       [cacheName]="'recentCostCenterList'"
                       [label]="txnFields.cost_center_id?.field_name"
                       [mandatory]="txnFields.cost_center_id?.is_mandatory"
@@ -835,7 +835,7 @@
                       formControlName="costCenter"
                       [placeholder]="txnFields.cost_center_id?.placeholder"
                     >
-                    </app-fy-select>
+                    </app-virtual-select>
                   </div>
                   <div
                     *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"
