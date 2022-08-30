@@ -3,18 +3,19 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { concatMap, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { from, of, range, Subject } from 'rxjs';
+import { from, Observable, of, range, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
 import { DateService } from './date.service';
 import { ExtendedReport } from '../models/report.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { isEqual } from 'lodash';
 import { DataTransformService } from './data-transform.service';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { TransactionService } from './transaction.service';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { UserEventService } from './user-event.service';
+import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -31,7 +32,8 @@ export class ReportService {
     private dateService: DateService,
     private dataTransformService: DataTransformService,
     private transactionService: TransactionService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private spenderPlatformApiService: SpenderPlatformApiService
   ) {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -206,6 +208,26 @@ export class ReportService {
     return this.apiService
       .post('/reports', reportData.rp)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+  }
+
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$,
+  })
+  getReportAutoSubmissionDetails(): Observable<ReportAutoSubmissionDetails> {
+    return this.spenderPlatformApiService
+      .post<ReportAutoSubmissionDetails>('/automations/report_submissions/next_at', {
+        data: null,
+      })
+      .pipe(
+        map((res) => {
+          if (res.data.next_at) {
+            const dateObj = new Date(res.data.next_at);
+            res.data.next_at = dateObj;
+            return res;
+          }
+          return res;
+        })
+      );
   }
 
   getUserReportParams(state: string) {
