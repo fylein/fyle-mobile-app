@@ -14,6 +14,7 @@ export class CameraOverlayPage implements OnInit {
   ngOnInit() {}
 
   ionViewWillEnter() {
+    this.captureReceipt.ngOnInit();
     this.captureReceipt.setUpAndStartCamera();
   }
 
