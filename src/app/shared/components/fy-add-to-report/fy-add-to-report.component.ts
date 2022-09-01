@@ -4,6 +4,7 @@ import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { isEqual } from 'lodash';
+import { DatePipe } from '@angular/common';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -44,7 +45,11 @@ export class FyAddToReportComponent implements OnInit {
 
   @Input() enableSearch = false;
 
-  displayValue;
+  @Input() nextReportAutoSubmissionDate: Date;
+
+  displayValue: string;
+
+  nextAutoSubmissionReportName: string;
 
   private ngControl: NgControl;
 
@@ -60,7 +65,8 @@ export class FyAddToReportComponent implements OnInit {
     private injector: Injector,
     private popoverController: PopoverController,
     private reportService: ReportService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private datePipe: DatePipe
   ) {}
 
   get valid() {
@@ -95,6 +101,11 @@ export class FyAddToReportComponent implements OnInit {
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
+
+    if (this.nextReportAutoSubmissionDate) {
+      this.nextAutoSubmissionReportName =
+        'Automatic On ' + this.datePipe.transform(this.nextReportAutoSubmissionDate, 'MMM d');
+    }
   }
 
   async openModal() {
@@ -109,6 +120,7 @@ export class FyAddToReportComponent implements OnInit {
         customInput: this.customInput,
         subheader: this.subheader,
         enableSearch: this.enableSearch,
+        nextAutoSubmissionReportName: this.nextAutoSubmissionReportName,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
