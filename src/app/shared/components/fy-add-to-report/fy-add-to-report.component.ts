@@ -34,7 +34,7 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
 
   @Input() selectionElement: TemplateRef<any>;
 
-  @Input() nullOption = true;
+  @Input() showNullOption = true;
 
   @Input() cacheName = '';
 
@@ -90,7 +90,7 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
 
     //If Report auto submission is scheduled, 'None' option won't be shown in reports list
     if (this.nextAutoSubmissionReportName) {
-      this.nullOption = false;
+      this.showNullOption = false;
     }
   }
 
@@ -101,7 +101,7 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
         options: this.options,
         currentSelection: this.value,
         selectionElement: this.selectionElement,
-        nullOption: this.nullOption,
+        showNullOption: this.showNullOption,
         cacheName: this.cacheName,
         customInput: this.customInput,
         subheader: this.subheader,
@@ -185,7 +185,7 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
       } else if (typeof this.innerValue === 'string') {
         this.displayValue = this.innerValue;
       } else {
-        this.displayValue = this.nullOption ? '' : this.nextAutoSubmissionReportName;
+        this.displayValue = this.showNullOption ? '' : this.nextAutoSubmissionReportName;
       }
     }
   }

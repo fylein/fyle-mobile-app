@@ -19,7 +19,7 @@
 
 <ion-content>
   <div *ngIf="options.length; else zeroState" class="report-list--container">
-    <div *ngIf="nullOption" matRipple (click)="dismissModal($event)" class="report-list--list">
+    <div *ngIf="showNullOption" matRipple (click)="dismissModal($event)" class="report-list--list">
       <div class="report-list--purpose report-list--none">None</div>
     </div>
 

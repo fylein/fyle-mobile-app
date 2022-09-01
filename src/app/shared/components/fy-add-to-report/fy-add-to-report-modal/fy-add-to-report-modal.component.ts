@@ -34,7 +34,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
-  @Input() nullOption = true;
+  @Input() showNullOption = true;
 
   @Input() cacheName;
 
