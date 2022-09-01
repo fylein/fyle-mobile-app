@@ -15,7 +15,7 @@ import {
   throwError,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TitleCasePipe } from '@angular/common';
+import { TitleCasePipe, DatePipe } from '@angular/common';
 import {
   catchError,
   concatMap,
@@ -335,7 +335,7 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
-  nextReportAutoSubmissionDate$: Observable<Date>;
+  nextAutoSubmissionReportName$: Observable<string>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -379,7 +379,8 @@ export class AddEditExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
-    private handleDuplicates: HandleDuplicatesService
+    private handleDuplicates: HandleDuplicatesService,
+    private datePipe: DatePipe
   ) {}
 
   @HostListener('keydown')
@@ -2841,9 +2842,15 @@ export class AddEditExpensePage implements OnInit {
       }
     });
 
-    this.nextReportAutoSubmissionDate$ = this.reportService
-      .getReportAutoSubmissionDetails()
-      .pipe(map((reportAutoSubmissionDetails) => reportAutoSubmissionDetails?.data?.next_at));
+    this.nextAutoSubmissionReportName$ = this.reportService.getReportAutoSubmissionDetails().pipe(
+      map((reportAutoSubmissionDetails) => reportAutoSubmissionDetails?.data?.next_at),
+      map((nextReportAutoSubmissionDate) => {
+        if (nextReportAutoSubmissionDate) {
+          return 'Automatic On ' + this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d');
+        }
+        return null;
+      })
+    );
 
     this.getPolicyDetails();
     this.getDuplicateExpenses();

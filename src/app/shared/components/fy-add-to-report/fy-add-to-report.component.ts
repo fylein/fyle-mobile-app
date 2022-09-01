@@ -4,7 +4,6 @@ import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { isEqual } from 'lodash';
-import { DatePipe } from '@angular/common';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -45,11 +44,9 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
 
   @Input() enableSearch = false;
 
-  @Input() nextReportAutoSubmissionDate: Date;
+  @Input() nextAutoSubmissionReportName: string;
 
   displayValue: string;
-
-  nextAutoSubmissionReportName: string;
 
   private ngControl: NgControl;
 
@@ -65,8 +62,7 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
     private injector: Injector,
     private popoverController: PopoverController,
     private reportService: ReportService,
-    private trackingService: TrackingService,
-    private datePipe: DatePipe
+    private trackingService: TrackingService
   ) {}
 
   get valid() {
@@ -92,9 +88,8 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
 
-    if (this.nextReportAutoSubmissionDate) {
-      this.nextAutoSubmissionReportName =
-        'Automatic On ' + this.datePipe.transform(this.nextReportAutoSubmissionDate, 'MMM d');
+    //If Report auto submission is scheduled, 'None' option won't be shown in reports list
+    if (this.nextAutoSubmissionReportName) {
       this.nullOption = false;
     }
   }
