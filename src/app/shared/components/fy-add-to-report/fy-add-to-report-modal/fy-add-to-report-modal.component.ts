@@ -84,9 +84,9 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss({ createDraftReport: true });
   }
 
-  onNoneSelect() {
+  dismissModal(event: any) {
     this.modalController.dismiss({
-      label: 'None',
+      label: event.srcElement.innerText,
       value: null,
     });
   }

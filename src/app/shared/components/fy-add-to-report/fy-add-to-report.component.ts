@@ -1,5 +1,5 @@
 import { Component, forwardRef, Injector, Input, OnInit, TemplateRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -24,7 +24,7 @@ import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model'
     },
   ],
 })
-export class FyAddToReportComponent implements OnInit {
+export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
   @Input() options: { label: string; value: UnflattenedReport }[] = [];
 
   @Input() disabled = false;
@@ -84,17 +84,7 @@ export class FyAddToReportComponent implements OnInit {
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
-      if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-        if (selectedOption) {
-          this.displayValue = selectedOption && selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
-          this.displayValue = this.innerValue;
-        } else {
-          this.displayValue = '';
-        }
-      }
-
+      this.setDisplayValue();
       this.onChangeCallback(v);
     }
   }
@@ -105,6 +95,7 @@ export class FyAddToReportComponent implements OnInit {
     if (this.nextReportAutoSubmissionDate) {
       this.nextAutoSubmissionReportName =
         'Automatic On ' + this.datePipe.transform(this.nextReportAutoSubmissionDate, 'MMM d');
+      this.nullOption = false;
     }
   }
 
@@ -187,15 +178,19 @@ export class FyAddToReportComponent implements OnInit {
   writeValue(value: any): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
-      if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-        if (selectedOption) {
-          this.displayValue = selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
-          this.displayValue = this.innerValue;
-        } else {
-          this.displayValue = '';
-        }
+      this.setDisplayValue();
+    }
+  }
+
+  setDisplayValue() {
+    if (this.options) {
+      const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
+      if (selectedOption) {
+        this.displayValue = selectedOption.label;
+      } else if (typeof this.innerValue === 'string') {
+        this.displayValue = this.innerValue;
+      } else {
+        this.displayValue = this.nullOption ? '' : this.nextAutoSubmissionReportName;
       }
     }
   }
