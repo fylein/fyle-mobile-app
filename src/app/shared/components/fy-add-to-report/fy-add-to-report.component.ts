@@ -185,7 +185,7 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
       } else if (typeof this.innerValue === 'string') {
         this.displayValue = this.innerValue;
       } else {
-        this.displayValue = this.showNullOption ? '' : this.nextAutoSubmissionReportName;
+        this.displayValue = this.nextAutoSubmissionReportName || '';
       }
     }
   }
