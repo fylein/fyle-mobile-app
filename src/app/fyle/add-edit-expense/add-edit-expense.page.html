@@ -1014,17 +1014,15 @@
         <ng-container *ngIf="etxn$|async as etxn">
           <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
             <ng-container *ngIf="canRemoveFromReport || !etxn?.tx?.report_id">
-              <ng-container *ngIf="nextAutoSubmissionReportName$|async as nextAutoSubmissionReportName">
-                <ng-container *ngIf="reports$|async as reports">
-                  <div class="add-edit-expense--internal-block">
-                    <app-fy-add-to-report
-                      [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                      [nextAutoSubmissionReportName]="nextAutoSubmissionReportName"
-                      [options]="reports"
-                      formControlName="report"
-                    ></app-fy-add-to-report>
-                  </div>
-                </ng-container>
+              <ng-container *ngIf="reports$|async as reports">
+                <div class="add-edit-expense--internal-block">
+                  <app-fy-add-to-report
+                    [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                    [nextAutoSubmissionReportName]="nextAutoSubmissionReportName$|async"
+                    [options]="reports"
+                    formControlName="report"
+                  ></app-fy-add-to-report>
+                </div>
               </ng-container>
             </ng-container>
           </ng-container>
