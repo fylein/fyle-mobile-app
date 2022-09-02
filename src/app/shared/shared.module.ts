@@ -131,6 +131,7 @@ import { MileageRateName } from './pipes/mileage-rate-name.pipe';
 import { SingularPipe } from './pipes/singular.pipe';
 import { VirtualSelectComponent } from './components/virtual-select/virtual-select.component';
 import { VirtualSelectModalComponent } from './components/virtual-select/virtual-select-modal/virtual-select-modal.component';
+import { AutosubmissionInfoCardComponent } from '../fyle/dashboard/tasks/autosubmission-info-card/autosubmission-info-card.component';
 
 @NgModule({
   declarations: [
@@ -240,6 +241,7 @@ import { VirtualSelectModalComponent } from './components/virtual-select/virtual
     SingularPipe,
     VirtualSelectComponent,
     VirtualSelectModalComponent,
+    AutosubmissionInfoCardComponent,
   ],
   imports: [
     CommonModule,
@@ -355,6 +357,7 @@ import { VirtualSelectModalComponent } from './components/virtual-select/virtual
     MileageRateName,
     SingularPipe,
     VirtualSelectComponent,
+    AutosubmissionInfoCardComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
 })
