@@ -437,10 +437,10 @@ export class OfflineService {
   }
 
   @Cacheable()
-  //Dummy Method - will update once backend changes are done
   getAllowedPaymentModes(): Observable<AccountType[]> {
-    // return this.getOrgUserSettings().pipe(map(orgUserSettings => orgUserSettings?.payment_mode_settings?.allowed_payment_modes));
-    return of([AccountType.CCC]);
+    return this.getOrgUserSettings().pipe(
+      map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes)
+    );
   }
 
   getReportActions(orgSettings) {
