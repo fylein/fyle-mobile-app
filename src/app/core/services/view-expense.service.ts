@@ -5,6 +5,8 @@ import { LaunchDarklyService } from './launch-darkly.service';
 import { Expense } from '../models/expense.model';
 import { map } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
+import { ExpenseType } from '../enums/expense-type.enum';
+import { AccountType } from '../enums/account-type.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -16,12 +18,18 @@ export class ViewExpenseService {
     private launchDarklyService: LaunchDarklyService
   ) {}
 
-  shouldPaymentModeBeShown(etxn: Expense): Observable<boolean> {
+  shouldPaymentModeBeShown(etxn: Expense, expenseType: ExpenseType): Observable<boolean> {
     return forkJoin({
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
+        const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
+        if (isMileageOrPerDiemExpense) {
+          allowedPaymentModes = allowedPaymentModes.filter(
+            (allowedPaymentMode) => allowedPaymentMode !== AccountType.CCC
+          );
+        }
         if (isPaymentModeConfigurationsEnabled && allowedPaymentModes.length === 1) {
           const etxnAccountType = this.accountsService.getEtxnAccountType(etxn);
           return allowedPaymentModes[0] !== etxnAccountType;

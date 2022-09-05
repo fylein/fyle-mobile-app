@@ -27,6 +27,8 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ViewExpenseService } from 'src/app/core/services/view-expense.service';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+
 @Component({
   selector: 'app-view-expense',
   templateUrl: './view-expense.page.html',
@@ -338,7 +340,7 @@ export class ViewExpensePage implements OnInit {
       this.showPaymentMode = true;
     } else {
       this.etxn$
-        .pipe(switchMap((etxn) => this.viewExpenseService.shouldPaymentModeBeShown(etxn)))
+        .pipe(switchMap((etxn) => this.viewExpenseService.shouldPaymentModeBeShown(etxn, ExpenseType.EXPENSE)))
         .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 
