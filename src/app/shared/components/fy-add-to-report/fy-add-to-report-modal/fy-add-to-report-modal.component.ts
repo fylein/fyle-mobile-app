@@ -44,7 +44,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @Input() enableSearch;
 
-  @Input() nextAutoSubmissionReportName: string;
+  @Input() autoSubmissionReportName: string;
 
   reportCurrencySymbol: string;
 

@@ -1018,7 +1018,7 @@
                 <div class="add-edit-expense--internal-block">
                   <app-fy-add-to-report
                     [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                    [nextAutoSubmissionReportName]="nextAutoSubmissionReportName$|async"
+                    [autoSubmissionReportName]="autoSubmissionReportName$|async"
                     [options]="reports"
                     formControlName="report"
                   ></app-fy-add-to-report>

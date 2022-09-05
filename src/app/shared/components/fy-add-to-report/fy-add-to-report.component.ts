@@ -44,7 +44,7 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
 
   @Input() enableSearch = false;
 
-  @Input() nextAutoSubmissionReportName: string;
+  @Input() autoSubmissionReportName: string;
 
   displayValue: string;
 
@@ -89,7 +89,7 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
     this.ngControl = this.injector.get(NgControl);
 
     //If Report auto submission is scheduled, 'None' option won't be shown in reports list
-    if (this.nextAutoSubmissionReportName) {
+    if (this.autoSubmissionReportName) {
       this.showNullOption = false;
     }
   }
@@ -106,7 +106,7 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
         customInput: this.customInput,
         subheader: this.subheader,
         enableSearch: this.enableSearch,
-        nextAutoSubmissionReportName: this.nextAutoSubmissionReportName,
+        autoSubmissionReportName: this.autoSubmissionReportName,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -185,7 +185,7 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
       } else if (typeof this.innerValue === 'string') {
         this.displayValue = this.innerValue;
       } else {
-        this.displayValue = this.nextAutoSubmissionReportName || '';
+        this.displayValue = this.autoSubmissionReportName || '';
       }
     }
   }
