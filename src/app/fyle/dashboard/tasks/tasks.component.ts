@@ -446,14 +446,14 @@ export class TasksComponent implements OnInit {
 
   onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask) {
     if (task.count === 1) {
+      const queryParams = {
+        rp_approval_state: ['in.(APPROVAL_PENDING)'],
+        rp_state: ['in.(APPROVER_PENDING)'],
+        sequential_approval_turn: ['in.(true)'],
+      };
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
-          map(() => ({
-            rp_approval_state: ['in.(APPROVAL_PENDING)'],
-            rp_state: ['in.(APPROVER_PENDING)'],
-            sequential_approval_turn: ['in.(true)'],
-          })),
-          switchMap((queryParams) => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
+          switchMap(() => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
