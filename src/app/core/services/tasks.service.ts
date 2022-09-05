@@ -449,7 +449,7 @@ export class TasksService {
       eou: from(this.authService.getEou()),
       sequentalApproversEnabled: this.offlineService
         .getOrgSettings()
-        .pipe(map((orgSettings) => orgSettings.approval_settings.enable_sequential_approvers)),
+        .pipe(map((orgSettings) => orgSettings?.approval_settings?.enable_sequential_approvers)),
     }).pipe(
       switchMap(({ eou, sequentalApproversEnabled }) =>
         this.reportService.getReportStatsData(
