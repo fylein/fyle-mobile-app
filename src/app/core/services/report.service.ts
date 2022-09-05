@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
@@ -33,7 +34,8 @@ export class ReportService {
     private dataTransformService: DataTransformService,
     private transactionService: TransactionService,
     private userEventService: UserEventService,
-    private spenderPlatformApiService: SpenderPlatformApiService
+    private spenderPlatformApiService: SpenderPlatformApiService,
+    private datePipe: DatePipe
   ) {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -228,6 +230,18 @@ export class ReportService {
           return res;
         })
       );
+  }
+
+  getAutoSubmissionReportName() {
+    return this.getReportAutoSubmissionDetails().pipe(
+      map((reportAutoSubmissionDetails) => reportAutoSubmissionDetails?.data?.next_at),
+      map((nextReportAutoSubmissionDate) => {
+        if (nextReportAutoSubmissionDate) {
+          return 'Automatic On ' + this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d');
+        }
+        return null;
+      })
+    );
   }
 
   getUserReportParams(state: string) {
