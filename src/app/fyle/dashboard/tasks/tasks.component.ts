@@ -448,18 +448,10 @@ export class TasksComponent implements OnInit {
     if (task.count === 1) {
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
-          switchMap(() =>
-            forkJoin({
-              eou: from(this.authService.getEou()),
-              sequentalApproversEnabled: this.offlineService
-                .getOrgSettings()
-                .pipe(map((orgSettings) => orgSettings?.approval_settings?.enable_sequential_approvers)),
-            })
-          ),
-          map(({ eou, sequentalApproversEnabled }) => ({
+          map(() => ({
             rp_approval_state: ['in.(APPROVAL_PENDING)'],
             rp_state: ['in.(APPROVER_PENDING)'],
-            sequential_approval_turn: sequentalApproversEnabled ? ['in.(true)'] : ['in.(true)'],
+            sequential_approval_turn: ['in.(true)'],
           })),
           switchMap((queryParams) => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
           finalize(() => this.loaderService.hideLoader())
