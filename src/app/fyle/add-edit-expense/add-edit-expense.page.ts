@@ -335,7 +335,7 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
-  nextAutoSubmissionReportName$: Observable<string>;
+  autoSubmissionReportName$: Observable<string>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2842,7 +2842,7 @@ export class AddEditExpensePage implements OnInit {
       }
     });
 
-    this.nextAutoSubmissionReportName$ = this.reportService.getReportAutoSubmissionDetails().pipe(
+    this.autoSubmissionReportName$ = this.reportService.getReportAutoSubmissionDetails().pipe(
       map((reportAutoSubmissionDetails) => reportAutoSubmissionDetails?.data?.next_at),
       map((nextReportAutoSubmissionDate) => {
         if (nextReportAutoSubmissionDate) {

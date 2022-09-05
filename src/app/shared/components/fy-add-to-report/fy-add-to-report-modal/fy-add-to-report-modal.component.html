@@ -23,12 +23,12 @@
       <div class="report-list--purpose report-list--none">None</div>
     </div>
 
-    <ng-container *ngIf="nextAutoSubmissionReportName">
+    <ng-container *ngIf="autoSubmissionReportName">
       <div matRipple (click)="dismissModal($event)">
         <ion-grid class="ion-no-padding report-list--default-container">
           <ion-row>
             <ion-col class="ion-no-padding report-list--purpose-count-container">
-              <div class="report-list--purpose">{{ nextAutoSubmissionReportName }}</div>
+              <div class="report-list--purpose">{{ autoSubmissionReportName }}</div>
             </ion-col>
             <ion-col size="3.5" class="ion-no-padding ion-text-right">
               <div class="ion-text-right">
@@ -72,7 +72,7 @@
               </div>
             </ion-col>
             <ion-col
-              *ngIf="currentSelection || nextAutoSubmissionReportName"
+              *ngIf="currentSelection || autoSubmissionReportName"
               size="1"
               class="ion-no-padding report-list--selected"
             >
