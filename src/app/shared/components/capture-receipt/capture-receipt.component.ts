@@ -167,7 +167,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   ): Observable<ExtendedAccount> {
     return forkJoin({
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.offlineService.checkIfPaymentModeConfigurationsIsEnabled(),
       isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
       map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden }) => {

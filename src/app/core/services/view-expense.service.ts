@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AccountsService } from './accounts.service';
 import { OfflineService } from './offline.service';
-import { LaunchDarklyService } from './launch-darkly.service';
 import { Expense } from '../models/expense.model';
 import { map } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
@@ -12,16 +11,12 @@ import { AccountType } from '../enums/account-type.enum';
   providedIn: 'root',
 })
 export class ViewExpenseService {
-  constructor(
-    private accountsService: AccountsService,
-    private offlineService: OfflineService,
-    private launchDarklyService: LaunchDarklyService
-  ) {}
+  constructor(private accountsService: AccountsService, private offlineService: OfflineService) {}
 
   shouldPaymentModeBeShown(etxn: Expense, expenseType: ExpenseType): Observable<boolean> {
     return forkJoin({
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.offlineService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
         const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);

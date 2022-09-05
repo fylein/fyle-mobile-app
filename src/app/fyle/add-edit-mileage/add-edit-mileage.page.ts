@@ -527,7 +527,7 @@ export class AddEditMileagePage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.offlineService.checkIfPaymentModeConfigurationsIsEnabled(),
       isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
       map(
@@ -1019,7 +1019,7 @@ export class AddEditMileagePage implements OnInit {
 
     forkJoin({
       paymentModes: this.paymentModes$,
-      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.offlineService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).subscribe(
       ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
         (this.showPaymentMode = !isPaymentModeConfigurationsEnabled || paymentModes.length > 1)
