@@ -234,8 +234,8 @@ export class ReportService {
 
   getAutoSubmissionReportName() {
     return this.getReportAutoSubmissionDetails().pipe(
-      map((reportAutoSubmissionDetails) => reportAutoSubmissionDetails?.data?.next_at),
-      map((nextReportAutoSubmissionDate) => {
+      map((reportAutoSubmissionDetails) => {
+        const nextReportAutoSubmissionDate = reportAutoSubmissionDetails?.data?.next_at;
         if (nextReportAutoSubmissionDate) {
           return 'Automatic On ' + this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d');
         }
