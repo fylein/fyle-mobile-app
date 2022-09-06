@@ -531,11 +531,10 @@ export class OfflineService {
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const accounts$ = this.getAccounts();
-    const expenseFieldsMap$ = this.getExpenseFieldsMap();
 
     this.loadAppVersion();
 
-    return forkJoin([orgSettings$, orgUserSettings$, accounts$, expenseFieldsMap$]);
+    return forkJoin([orgSettings$, orgUserSettings$, accounts$]);
   }
 
   getCurrentUser() {

@@ -398,7 +398,7 @@
                           [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
                           class="add-edit-per-diem--internal-block"
                         >
-                          <app-fy-select
+                          <app-virtual-select
                             [cacheName]="'perDiemCostCenterCache'"
                             [label]="txnFields.cost_center_id.field_name  | ellipsis: 30"
                             [mandatory]="txnFields.cost_center_id.is_mandatory"
@@ -408,7 +408,7 @@
                             formControlName="costCenter"
                             [placeholder]="txnFields.cost_center_id.placeholder | ellipsis: 30"
                           >
-                          </app-fy-select>
+                          </app-virtual-select>
                         </div>
                         <div
                           *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"

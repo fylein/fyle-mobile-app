@@ -445,19 +445,14 @@ export class TasksService {
   }
 
   private getTeamReportsStats() {
-    return forkJoin({
-      eou: from(this.authService.getEou()),
-      sequentalApproversEnabled: this.offlineService
-        .getOrgSettings()
-        .pipe(map((orgSettings) => orgSettings.approval_settings.enable_sequential_approvers)),
-    }).pipe(
-      switchMap(({ eou, sequentalApproversEnabled }) =>
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) =>
         this.reportService.getReportStatsData(
           {
             approved_by: 'cs.{' + eou.ou.id + '}',
             rp_approval_state: ['in.(APPROVAL_PENDING)'],
             rp_state: ['in.(APPROVER_PENDING)'],
-            sequential_approval_turn: sequentalApproversEnabled ? ['in.(true)'] : ['in.(true)'],
+            sequential_approval_turn: ['in.(true)'],
             aggregates: 'count(rp_id),sum(rp_amount)',
             scalar: true,
           },

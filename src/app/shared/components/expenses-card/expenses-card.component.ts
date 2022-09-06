@@ -77,7 +77,7 @@ export class ExpensesCardComponent implements OnInit {
 
   inlineReceiptDataUrl: string;
 
-  expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+  expenseFields: Partial<ExpenseFieldsMap>;
 
   receiptIcon: string;
 
@@ -288,7 +288,9 @@ export class ExpensesCardComponent implements OnInit {
     this.expense.isPolicyViolated = this.expense.tx_manual_flag || this.expense.tx_policy_flag;
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
-    this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
+    this.offlineService.getExpenseFieldsMap().subscribe((expenseFields) => {
+      this.expenseFields = expenseFields;
+    });
 
     this.offlineService
       .getHomeCurrency()
