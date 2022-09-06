@@ -1,7 +1,7 @@
 <div class="task">
   <div class="task--card">
     <ion-grid>
-      <ion-row class="task--row">
+      <ion-row class="task--row" [ngClass]="{ 'pb-0': showReportAutoSubmissionInfo }">
         <ion-col size="1" class="task--icon-col">
           <ion-row>
             <ion-col class="task--icon-col">
@@ -41,6 +41,12 @@
             </ion-col>
           </ion-row>
         </ion-col>
+      </ion-row>
+      <ion-row>
+        <ng-container *ngIf="showReportAutoSubmissionInfo">
+          <app-autosubmission-info-card [autoSubmissionReportDate]="autoSubmissionReportDate">
+          </app-autosubmission-info-card>
+        </ng-container>
       </ion-row>
     </ion-grid>
   </div>

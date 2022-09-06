@@ -23,6 +23,15 @@
   }
 }
 
+.task-card {
+  background-color: $pure-white;
+
+  &__container {
+    margin: 0 16px;
+    border-bottom: 1px solid $grey;
+  }
+}
+
 .task-list {
   margin-bottom: 120px;
   &--filter-pills {

@@ -1,18 +1,9 @@
 @import '../../../../../theme/colors.scss';
 
 .info-card {
-  background: $pure-white;
-
-  &__content {
-    margin: 0 16px;
-  }
+  padding: 16px 0;
 
   &__container {
-    border-bottom: 1px solid $grey;
-    padding: 16px 0;
-  }
-
-  &__card {
     background: $grey-9;
     border: 1px solid $alice-blue;
     border-radius: 16px;
