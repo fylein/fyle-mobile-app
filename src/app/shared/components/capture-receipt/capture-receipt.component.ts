@@ -19,6 +19,7 @@ import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 
 type Image = Partial<{
   source: string;
@@ -72,7 +73,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private launchDarklyService: LaunchDarklyService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private paymentModesService: PaymentModesService
   ) {}
 
   setupNetworkWatcher() {
@@ -167,7 +169,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   ): Observable<ExtendedAccount> {
     return forkJoin({
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
       isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
       map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden }) => {

@@ -61,6 +61,7 @@ import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -216,7 +217,8 @@ export class AddEditPerDiemPage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private paymentModesService: PaymentModesService
   ) {}
 
   get minPerDiemDate() {
@@ -495,7 +497,7 @@ export class AddEditPerDiemPage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
       isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
       map(
@@ -908,7 +910,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     forkJoin({
       paymentModes: this.paymentModes$,
-      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).subscribe(
       ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
         (this.showPaymentMode = !isPaymentModeConfigurationsEnabled || paymentModes.length > 1)

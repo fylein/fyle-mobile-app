@@ -22,7 +22,8 @@ import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { ViewExpenseService } from 'src/app/core/services/view-expense.service';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -95,7 +96,7 @@ export class ViewPerDiemPage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private viewExpenseService: ViewExpenseService
+    private paymentModesService: PaymentModesService
   ) {}
 
   get ExpenseView() {
@@ -261,7 +262,11 @@ export class ViewPerDiemPage implements OnInit {
       this.showPaymentMode = true;
     } else {
       this.extendedPerDiem$
-        .pipe(switchMap((extendedPerDiem) => this.viewExpenseService.shouldPaymentModeBeShown(extendedPerDiem)))
+        .pipe(
+          switchMap((extendedPerDiem) =>
+            this.paymentModesService.shouldPaymentModeBeShown(extendedPerDiem, ExpenseType.PER_DIEM)
+          )
+        )
         .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
     }
 

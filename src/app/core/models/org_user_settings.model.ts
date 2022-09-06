@@ -130,6 +130,8 @@ export interface PersonalCardsSettings {
 }
 
 export interface PaymentModeSettings {
+  allowed: boolean;
+  enabled: boolean;
   allowed_payment_modes: AccountType[];
 }
 
