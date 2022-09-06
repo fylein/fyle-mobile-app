@@ -24,6 +24,15 @@ export class ViewExpenseService {
           allowedPaymentModes = allowedPaymentModes.filter(
             (allowedPaymentMode) => allowedPaymentMode !== AccountType.CCC
           );
+
+          /*
+           * For mileage and per-diem expenses, since default payment mode is PERSONAL_ACCOUNT,
+           * we don't show Payment Mode field if COMPANY_ACCOUNT and PERSONAL_ADVANCE_ACCOUNT
+           * are not present
+           */
+          if (!allowedPaymentModes.length) {
+            return false;
+          }
         }
         if (isPaymentModeConfigurationsEnabled && allowedPaymentModes.length === 1) {
           const etxnAccountType = this.accountsService.getEtxnAccountType(etxn);
