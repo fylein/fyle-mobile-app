@@ -15,7 +15,11 @@
     </div>
   </ng-container>
   <ng-container *ngIf="isConnected$ | async">
-    <app-autosubmission-info-card></app-autosubmission-info-card>
+    <ng-container *ngIf="!isIncompleteExpensesTaskShown">
+      <app-autosubmission-info-card
+        [autoSubmissionReportDate]="autoSubmissionReportDate$ | async"
+      ></app-autosubmission-info-card>
+    </ng-container>
     <ng-container *ngIf="tasks$ | async as tasks; else loader">
       <ng-container *ngIf="tasks.length > 0; else zeroState">
         <ng-container *ngFor="let task of tasks">

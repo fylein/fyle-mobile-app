@@ -6,7 +6,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./autosubmission-info-card.component.scss'],
 })
 export class AutosubmissionInfoCardComponent implements OnInit {
-  @Input() nextReportAutoSubmissionDate: Date;
+  @Input() autoSubmissionReportDate: Date;
 
   @Output() cardClicked = new EventEmitter<void>();
 
