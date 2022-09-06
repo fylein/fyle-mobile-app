@@ -42,12 +42,12 @@
           </ion-row>
         </ion-col>
       </ion-row>
-      <ion-row>
-        <ng-container *ngIf="showReportAutoSubmissionInfo">
+      <ng-container *ngIf="showReportAutoSubmissionInfo">
+        <ion-row>
           <app-autosubmission-info-card [autoSubmissionReportDate]="autoSubmissionReportDate">
           </app-autosubmission-info-card>
-        </ng-container>
-      </ion-row>
+        </ion-row>
+      </ng-container>
     </ion-grid>
   </div>
 </div>

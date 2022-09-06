@@ -8,8 +8,6 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export class AutosubmissionInfoCardComponent implements OnInit {
   @Input() autoSubmissionReportDate: Date;
 
-  @Output() cardClicked = new EventEmitter<void>();
-
   constructor() {}
 
   ngOnInit() {}
