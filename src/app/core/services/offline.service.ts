@@ -27,7 +27,6 @@ import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { TaxGroupService } from './tax-group.service';
 import { AccountType } from '../enums/account-type.enum';
-import { LaunchDarklyService } from './launch-darkly.service';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -54,8 +53,7 @@ export class OfflineService {
     private orgUserService: OrgUserService,
     private deviceService: DeviceService,
     private expenseFieldsService: ExpenseFieldsService,
-    private taxGroupService: TaxGroupService,
-    private launchDarklyService: LaunchDarklyService
+    private taxGroupService: TaxGroupService
   ) {}
 
   @Cacheable()
@@ -442,21 +440,6 @@ export class OfflineService {
   getAllowedPaymentModes(): Observable<AccountType[]> {
     return this.getOrgUserSettings().pipe(
       map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes)
-    );
-  }
-
-  @Cacheable()
-  checkIfPaymentModeConfigurationsIsEnabled() {
-    return forkJoin({
-      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
-      orgUserSettings: this.getOrgUserSettings(),
-    }).pipe(
-      map(
-        ({ isPaymentModeConfigurationsEnabled, orgUserSettings }) =>
-          isPaymentModeConfigurationsEnabled &&
-          orgUserSettings.payment_mode_settings.allowed &&
-          orgUserSettings.payment_mode_settings.enabled
-      )
     );
   }
 

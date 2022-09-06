@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AccountsService } from './accounts.service';
 import { OfflineService } from './offline.service';
+import { LaunchDarklyService } from './launch-darkly.service';
 import { Expense } from '../models/expense.model';
 import { map } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
@@ -10,8 +11,26 @@ import { AccountType } from '../enums/account-type.enum';
 @Injectable({
   providedIn: 'root',
 })
-export class ViewExpenseService {
-  constructor(private accountsService: AccountsService, private offlineService: OfflineService) {}
+export class PaymentModesService {
+  constructor(
+    private accountsService: AccountsService,
+    private offlineService: OfflineService,
+    private launchDarklyService: LaunchDarklyService
+  ) {}
+
+  checkIfPaymentModeConfigurationsIsEnabled() {
+    return forkJoin({
+      isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+    }).pipe(
+      map(
+        ({ isPaymentModeConfigurationsEnabled, orgUserSettings }) =>
+          isPaymentModeConfigurationsEnabled &&
+          orgUserSettings.payment_mode_settings.allowed &&
+          orgUserSettings.payment_mode_settings.enabled
+      )
+    );
+  }
 
   shouldPaymentModeBeShown(etxn: Expense, expenseType: ExpenseType): Observable<boolean> {
     return forkJoin({

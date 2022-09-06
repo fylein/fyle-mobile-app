@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ViewExpenseService } from './view-expense.service';
+import { PaymentModesService } from './payment-modes.service';
 
-xdescribe('ViewExpenseService', () => {
-  let service: ViewExpenseService;
+xdescribe('PaymentModesService', () => {
+  let service: PaymentModesService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(ViewExpenseService);
+    service = TestBed.inject(PaymentModesService);
   });
 
   it('should be created', () => {

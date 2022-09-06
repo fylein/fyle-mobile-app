@@ -22,7 +22,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { ViewExpenseService } from 'src/app/core/services/view-expense.service';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Component({
@@ -100,7 +100,7 @@ export class ViewMileagePage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private viewExpenseService: ViewExpenseService
+    private paymentModesService: PaymentModesService
   ) {}
 
   get ExpenseView() {
@@ -358,7 +358,7 @@ export class ViewMileagePage implements OnInit {
       this.extendedMileage$
         .pipe(
           switchMap((extendedMileage) =>
-            this.viewExpenseService.shouldPaymentModeBeShown(extendedMileage, ExpenseType.MILEAGE)
+            this.paymentModesService.shouldPaymentModeBeShown(extendedMileage, ExpenseType.MILEAGE)
           )
         )
         .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
