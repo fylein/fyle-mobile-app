@@ -35,7 +35,7 @@ export class PaymentModesService {
   shouldPaymentModeBeShown(etxn: Expense, expenseType: ExpenseType): Observable<boolean> {
     return forkJoin({
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      isPaymentModeConfigurationsEnabled: this.offlineService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
         const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);

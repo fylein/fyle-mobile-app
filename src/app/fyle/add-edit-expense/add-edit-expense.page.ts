@@ -103,6 +103,7 @@ import { AccountOption } from 'src/app/core/models/account-option.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -382,7 +383,8 @@ export class AddEditExpensePage implements OnInit {
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
     private handleDuplicates: HandleDuplicatesService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private paymentModesService: PaymentModesService
   ) {}
 
   @HostListener('keydown')
@@ -1011,7 +1013,7 @@ export class AddEditExpensePage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      isPaymentModeConfigurationsEnabled: this.offlineService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
       isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
       map(
@@ -1403,7 +1405,7 @@ export class AddEditExpensePage implements OnInit {
     const defaultPaymentMode$ = forkJoin({
       paymentModes: this.paymentModes$,
       orgUserSettings: this.orgUserSettings$,
-      isPaymentModeConfigurationsEnabled: this.offlineService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
       map(({ paymentModes, orgUserSettings, isPaymentModeConfigurationsEnabled }) => {
         //If the user is creating expense from Corporate cards page, the default payment mode should be CCC
@@ -2638,7 +2640,7 @@ export class AddEditExpensePage implements OnInit {
 
     forkJoin({
       paymentModes: this.paymentModes$,
-      isPaymentModeConfigurationsEnabled: this.offlineService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).subscribe(({ paymentModes, isPaymentModeConfigurationsEnabled }) => {
       // Hide payment mode if Unify CCC is enabled and it is a CCC expense
       const hidePaymentModeForCCCExpense = this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense;
