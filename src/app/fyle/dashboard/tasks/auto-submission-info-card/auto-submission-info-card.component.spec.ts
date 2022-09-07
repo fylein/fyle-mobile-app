@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { AutosubmissionInfoCardComponent } from './autosubmission-info-card.component';
+import { AutoSubmissionInfoCardComponent } from './auto-submission-info-card.component';
 
-describe('AutosubmissionInfoCardComponent', () => {
-  let component: AutosubmissionInfoCardComponent;
-  let fixture: ComponentFixture<AutosubmissionInfoCardComponent>;
+describe('AutoSubmissionInfoCardComponent', () => {
+  let component: AutoSubmissionInfoCardComponent;
+  let fixture: ComponentFixture<AutoSubmissionInfoCardComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [AutosubmissionInfoCardComponent],
+        declarations: [AutoSubmissionInfoCardComponent],
         imports: [IonicModule.forRoot()],
       }).compileComponents();
 
-      fixture = TestBed.createComponent(AutosubmissionInfoCardComponent);
+      fixture = TestBed.createComponent(AutoSubmissionInfoCardComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
     })

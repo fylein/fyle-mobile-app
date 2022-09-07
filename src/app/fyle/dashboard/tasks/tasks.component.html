@@ -19,9 +19,9 @@
       <ng-container *ngIf="!isIncompleteExpensesTaskShown">
         <div [ngClass]="{ 'task-card': tasks.length }">
           <div class="task-card__container" [ngClass]="{ 'task-card__container--divider': tasks.length }">
-            <app-autosubmission-info-card
+            <app-auto-submission-info-card
               [autoSubmissionReportDate]="autoSubmissionReportDate$ | async"
-            ></app-autosubmission-info-card>
+            ></app-auto-submission-info-card>
           </div>
         </div>
       </ng-container>
