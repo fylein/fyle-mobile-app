@@ -3,7 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { Observable, BehaviorSubject, forkJoin, from, of, concat } from 'rxjs';
+import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
@@ -100,7 +100,7 @@ export class TasksComponent implements OnInit {
       this.taskCount = tasks.length;
     });
 
-    forkJoin({
+    combineLatest({
       tasks: this.tasks$,
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
     }).subscribe(({ tasks, autoSubmissionReportDate }) => {
