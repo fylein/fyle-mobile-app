@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Actions } from 'src/app/core/models/actions.model';
 @Component({
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
@@ -25,7 +26,21 @@ export class FySummaryTileComponent implements OnInit {
 
   @Input() orig_currency: string;
 
+  @Input() actions: Actions;
+
+  @Input() id: string;
+
+  @Input() ownerEmail: string;
+
   constructor() {}
+
+  ngOnChanges() {
+    this.status = this.status === 'APPROVAL PENDING' ? 'Pending' : this.status;
+  }
+
+  getApproverEmails(approvals) {
+    return approvals.map((approver) => approver.approver_email);
+  }
 
   ngOnInit() {}
 }

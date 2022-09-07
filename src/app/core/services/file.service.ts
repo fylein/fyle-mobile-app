@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { File } from '../models/file.model';
 import { ApiService } from './api.service';
 import { FileObject } from '../models/file_obj.model';
+import { ReceiptInfo } from '../models/receipt-info.model';
 
 @Injectable({
   providedIn: 'root',
@@ -157,21 +158,38 @@ export class FileService {
   }
 
   getReceiptExtension(url: string) {
-    let res = null;
+    let receiptExtension = null;
     const name = url.split('?')[0];
     if (name) {
       const filename = name.toLowerCase();
-      const idx = filename.lastIndexOf('.');
+      const index = filename.lastIndexOf('.');
 
-      if (idx > -1) {
-        res = filename.substring(idx + 1, filename.length);
+      if (index > -1) {
+        receiptExtension = filename.substring(index + 1, filename.length);
       }
     }
 
-    return res;
+    return receiptExtension;
   }
 
   getImageTypeFromDataUrl(dataUrl: string) {
     return dataUrl.split(';')[0].split(':')[1];
+  }
+
+  getReceiptsDetails(file: FileObject): ReceiptInfo {
+    const receiptExtn = this.getReceiptExtension(file.name);
+    const receiptInfo = {
+      type: 'unknown',
+      thumbnail: 'img/fy-receipt.svg',
+    };
+
+    if (receiptExtn === 'pdf') {
+      receiptInfo.type = 'pdf';
+      receiptInfo.thumbnail = 'img/fy-pdf.svg';
+    } else if (receiptExtn && ['png', 'jpg', 'jpeg', 'gif'].indexOf(receiptExtn) > -1) {
+      receiptInfo.type = 'image';
+      receiptInfo.thumbnail = file.url;
+    }
+    return receiptInfo;
   }
 }
