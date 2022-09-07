@@ -14,11 +14,15 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 export class TasksCardComponent implements OnInit {
   @Input() task: DashboardTask;
 
+  @Input() autoSubmissionReportDate: Date;
+
   @Output() ctaClicked: EventEmitter<TaskCta> = new EventEmitter();
 
   homeCurrency$: Observable<string>;
 
   currencySymbol$: Observable<string>;
+
+  showReportAutoSubmissionInfo = false;
 
   constructor(private offlineService: OfflineService) {}
 
@@ -27,6 +31,8 @@ export class TasksCardComponent implements OnInit {
     this.currencySymbol$ = this.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
     );
+    this.showReportAutoSubmissionInfo =
+      this.task.header.includes('Incomplete expense') && !!this.autoSubmissionReportDate;
   }
 
   taskCtaClicked(event) {

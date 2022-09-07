@@ -16,13 +16,26 @@
   </ng-container>
   <ng-container *ngIf="isConnected$ | async">
     <ng-container *ngIf="tasks$ | async as tasks; else loader">
+      <ng-container *ngIf="!isIncompleteExpensesTaskShown">
+        <div [ngClass]="{ 'task-card': tasks.length }">
+          <div class="task-card__container" [ngClass]="{ 'task-card__container--divider': tasks.length }">
+            <app-auto-submission-info-card
+              [autoSubmissionReportDate]="autoSubmissionReportDate$ | async"
+            ></app-auto-submission-info-card>
+          </div>
+        </div>
+      </ng-container>
       <ng-container *ngIf="tasks.length > 0; else zeroState">
         <ng-container *ngFor="let task of tasks">
-          <app-tasks-card [task]="task" (ctaClicked)="onTaskClicked($event, task)"></app-tasks-card>
+          <app-tasks-card
+            [task]="task"
+            [autoSubmissionReportDate]="autoSubmissionReportDate$ | async"
+            (ctaClicked)="onTaskClicked($event, task)"
+          ></app-tasks-card>
         </ng-container>
       </ng-container>
       <ng-template #zeroState>
-        <ion-grid class="tasks--container">
+        <ion-grid class="tasks--container" [ngClass]="{ 'tasks--zero-state': !isIncompleteExpensesTaskShown }">
           <ion-row class="tasks--container-row">
             <ion-col size="12" class="ion-align-self-center">
               <app-fy-zero-state

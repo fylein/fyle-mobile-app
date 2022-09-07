@@ -50,6 +50,10 @@ export class TasksComponent implements OnInit {
 
   taskCount = 0;
 
+  isIncompleteExpensesTaskShown = false;
+
+  autoSubmissionReportDate$: Observable<Date>;
+
   constructor(
     private taskService: TasksService,
     private transactionService: TransactionService,
@@ -84,10 +88,18 @@ export class TasksComponent implements OnInit {
   init() {
     this.tasks$ = this.loadData$.pipe(
       switchMap((taskFilters) => this.taskService.getTasks(taskFilters)),
-      tap((tasks) => this.trackTasks(tasks)),
-      tap((tasks) => (this.taskCount = tasks.length)),
       shareReplay(1)
     );
+
+    this.autoSubmissionReportDate$ = this.reportService
+      .getReportAutoSubmissionDetails()
+      .pipe(map((autoSubmissionReportDetails) => autoSubmissionReportDetails?.data?.next_at));
+
+    this.tasks$.subscribe((tasks) => {
+      this.trackTasks(tasks);
+      this.taskCount = tasks.length;
+      this.isIncompleteExpensesTaskShown = tasks.some((task) => task.header.includes('Incomplete expense'));
+    });
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
     if (paramFilters === 'expenses') {
