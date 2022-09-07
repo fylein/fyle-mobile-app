@@ -50,7 +50,7 @@ export class TasksComponent implements OnInit {
 
   taskCount = 0;
 
-  isIncompleteExpensesTaskShown = false;
+  showReportAutoSubmissionInfoCard = false;
 
   autoSubmissionReportDate$: Observable<Date>;
 
@@ -98,7 +98,14 @@ export class TasksComponent implements OnInit {
     this.tasks$.subscribe((tasks) => {
       this.trackTasks(tasks);
       this.taskCount = tasks.length;
-      this.isIncompleteExpensesTaskShown = tasks.some((task) => task.header.includes('Incomplete expense'));
+    });
+
+    forkJoin({
+      tasks: this.tasks$,
+      autoSubmissionReportDate: this.autoSubmissionReportDate$,
+    }).subscribe(({ tasks, autoSubmissionReportDate }) => {
+      const isIncompleteExpensesTaskShown = tasks.some((task) => task.header.includes('Incomplete expense'));
+      this.showReportAutoSubmissionInfoCard = autoSubmissionReportDate && !isIncompleteExpensesTaskShown;
     });
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
