@@ -184,7 +184,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
   }
 
   getApproverEmails(activeApprovals) {
-    return activeApprovals.map((approver) => approver.approver_email);
+    return activeApprovals?.map((approver) => approver.approver_email);
   }
 
   onUpdateApprover(message: boolean) {

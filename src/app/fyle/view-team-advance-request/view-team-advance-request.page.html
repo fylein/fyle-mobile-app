@@ -45,6 +45,7 @@
         [actions]="actions$ | async"
         [id]="advanceRequest?.areq_id"
         [ownerEmail]="advanceRequest?.us_email"
+        [approverEmails]="getApproverEmails(activeApprovals$ | async)"
       ></app-summary-tile>
       <div *ngIf="attachedFiles$|async as attachedFiles">
         <div *ngIf="attachedFiles?.length > 0">

@@ -32,14 +32,12 @@ export class FySummaryTileComponent implements OnInit {
 
   @Input() ownerEmail: string;
 
+  @Input() approverEmails: string[];
+
   constructor() {}
 
   ngOnChanges() {
     this.status = this.status === 'APPROVAL PENDING' ? 'Pending' : this.status;
-  }
-
-  getApproverEmails(approvals) {
-    return approvals.map((approver) => approver.approver_email);
   }
 
   ngOnInit() {}

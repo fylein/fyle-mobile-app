@@ -38,7 +38,7 @@
       <div class="summary-tile--approvers-add-approver">
         <app-fy-approver
           *ngIf="actions?.can_add_approver"
-          [approverEmailsList]="getApproverEmails(approvals)"
+          [approverEmailsList]="approverEmails"
           [id]="id"
           [ownerEmail]="ownerEmail"
           [type]="'ADVANCE_REQUEST'"
