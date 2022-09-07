@@ -4,7 +4,7 @@ import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 import { concatMap, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { from, Observable, of, range, Subject } from 'rxjs';
+import { from, Observable, of, range, Subject, iif } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
 import { DateService } from './date.service';
@@ -17,6 +17,7 @@ import { StatsResponse } from '../models/v2/stats-response.model';
 import { UserEventService } from './user-event.service';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { LaunchDarklyService } from './launch-darkly.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -35,7 +36,8 @@ export class ReportService {
     private transactionService: TransactionService,
     private userEventService: UserEventService,
     private spenderPlatformApiService: SpenderPlatformApiService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private launchDarklyService: LaunchDarklyService
   ) {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -216,7 +218,7 @@ export class ReportService {
     cacheBusterObserver: reportsCacheBuster$,
   })
   getReportAutoSubmissionDetails(): Observable<ReportAutoSubmissionDetails> {
-    return this.spenderPlatformApiService
+    const reportAutoSubmissionDetails$ = this.spenderPlatformApiService
       .post<ReportAutoSubmissionDetails>('/automations/report_submissions/next_at', {
         data: null,
       })
@@ -229,6 +231,14 @@ export class ReportService {
           }
           return res;
         })
+      );
+
+    return this.launchDarklyService
+      .checkIfReportAutoSubmissionIsEnabled()
+      .pipe(
+        switchMap((isReportAutoSubmissionEnabled) =>
+          iif(() => isReportAutoSubmissionEnabled, reportAutoSubmissionDetails$, of(null))
+        )
       );
   }
 
