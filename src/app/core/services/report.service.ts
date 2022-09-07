@@ -234,10 +234,10 @@ export class ReportService {
       );
 
     return this.launchDarklyService
-      .checkIfReportAutoSubmissionIsEnabled()
+      .checkIfAutomateReportSubmissionIsEnabled()
       .pipe(
-        switchMap((isReportAutoSubmissionEnabled) =>
-          iif(() => isReportAutoSubmissionEnabled, reportAutoSubmissionDetails$, of(null))
+        switchMap((isAutomateReportSubmissionEnabled) =>
+          iif(() => isAutomateReportSubmissionEnabled, reportAutoSubmissionDetails$, of(null))
         )
       );
   }

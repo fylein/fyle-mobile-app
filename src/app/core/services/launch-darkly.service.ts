@@ -62,7 +62,7 @@ export class LaunchDarklyService {
     return this.getVariation('keyboard_plugin_enabled', true);
   }
 
-  checkIfReportAutoSubmissionIsEnabled() {
+  checkIfAutomateReportSubmissionIsEnabled() {
     return this.getVariation('automate_report_submission_enabled', false);
   }
 
