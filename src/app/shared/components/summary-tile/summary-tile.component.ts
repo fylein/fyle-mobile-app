@@ -1,11 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { Actions } from 'src/app/core/models/actions.model';
 @Component({
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
   styleUrls: ['./summary-tile.component.scss'],
 })
-export class FySummaryTileComponent implements OnInit {
+export class FySummaryTileComponent implements OnInit, OnChanges {
   @Input() category: string;
 
   @Input() merchant: string;
