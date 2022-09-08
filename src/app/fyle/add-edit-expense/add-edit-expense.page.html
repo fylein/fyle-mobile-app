@@ -465,7 +465,7 @@
                     [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.category.touched && !fg.controls.category.valid}"
                     class="add-edit-expense--internal-block"
                   >
-                    <app-fy-select
+                    <app-virtual-select
                       [cacheName]="'recentCategoryList'"
                       [defaultLabelProp]="'displayName'"
                       [label]="'Category'"
@@ -476,7 +476,7 @@
                       formControlName="category"
                       [placeholder]="txnFields.org_category_id.placeholder"
                     >
-                    </app-fy-select>
+                    </app-virtual-select>
                   </div>
                   <div
                     *ngIf="fg.controls.category.touched && !fg.controls.category.valid"
@@ -801,7 +801,7 @@
                 [placeholder]="txnFields.vendor_id?.placeholder"
               >
               </app-fy-select-vendor>
-              <app-fy-select
+              <app-virtual-select
                 *ngIf="txnFields.vendor_id?.options?.length"
                 [disabled]="!txnFields.vendor_id?.canEdit"
                 [label]="txnFields.vendor_id?.field_name"
@@ -811,7 +811,7 @@
                 formControlName="vendor_id"
                 [placeholder]="txnFields.vendor_id?.placeholder"
               >
-              </app-fy-select>
+              </app-virtual-select>
             </div>
             <div *ngIf="fg.controls.vendor_id.touched && !fg.controls.vendor_id.valid" class="add-edit-expense--error">
               Please select a merchant
@@ -825,7 +825,7 @@
                     *ngIf="costCenters.length > 0 && txnFields?.cost_center_id"
                     class="add-edit-expense--internal-block"
                   >
-                    <app-fy-select
+                    <app-virtual-select
                       [cacheName]="'recentCostCenterList'"
                       [label]="txnFields.cost_center_id?.field_name"
                       [mandatory]="txnFields.cost_center_id?.is_mandatory"
@@ -835,7 +835,7 @@
                       formControlName="costCenter"
                       [placeholder]="txnFields.cost_center_id?.placeholder"
                     >
-                    </app-fy-select>
+                    </app-virtual-select>
                   </div>
                   <div
                     *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"

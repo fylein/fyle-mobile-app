@@ -13,13 +13,6 @@ $list-element-color: #333;
     @extend %fy-select-list-element-layout;
   }
 
-  &--list-item {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    justify-content: space-between;
-  }
-
   &--virtual-scroll {
     height: 100%;
   }
@@ -28,12 +21,13 @@ $list-element-color: #333;
     @extend %fy-select-title;
   }
 
-  &--header {
-    @extend %fy-select-header;
+  &--label {
+    text-align: justify;
+    word-break: break-word;
   }
 
-  &--label {
-    word-break: break-all;
+  &--header {
+    @extend %fy-select-header;
   }
 
   &--search-input {
@@ -42,17 +36,10 @@ $list-element-color: #333;
 
   &--form-field {
     @extend %fy-select-mat-form-field;
-    .mat-form-field-wrapper {
-      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
-    }
   }
 
   &--search-icon {
     @extend %fy-select-search-icon;
-  }
-
-  &--form-field-container {
-    text-align: center;
   }
 
   &--container {
@@ -60,7 +47,21 @@ $list-element-color: #333;
   }
 
   &--recently-used-block {
-    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  &--single-element-block {
+    margin-bottom: 20px;
+  }
+
+  &--cta-container {
+    margin: 12px;
+  }
+
+  &--primary-cta {
+    width: 100%;
+    height: 48px;
+    --border-radius: 4px !important;
   }
 
   &--recently-used-icon {
@@ -77,32 +78,11 @@ $list-element-color: #333;
     align-items: center;
   }
 
-  &--all-merchants {
-    &__margin-top {
-      margin-top: 20px;
-    }
-  }
-
-  &--add-item-block {
-    @extend %flex-layout-row;
-    align-items: center;
-  }
-
-  &--add-item-icon {
-    min-height: 22px;
-    min-width: 22px;
-    margin-right: 10px;
-  }
-
-  &--new-item-name {
-    word-break: break-all;
-  }
-
-  &--autocomplete-loader {
-    @extend %autocomplete-loader;
-  }
-
   &--check {
     @extend %fy-select-check;
+  }
+
+  &--virtual-scroll {
+    height: 100%;
   }
 }

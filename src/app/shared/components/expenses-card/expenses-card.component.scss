@@ -217,6 +217,11 @@
     }
   }
 
+  &--default-view-container {
+    display: flex;
+    flex-direction: column;
+  }
+
   &--currency-amount-container {
     width: 100%;
     white-space: nowrap;
@@ -263,13 +268,13 @@
     padding: 2px 3px;
     border-radius: 3px;
     margin-top: 6px;
-    min-width: 117px;
     white-space: nowrap;
   }
 
   &--state-container {
     margin-top: 4px;
-    float: right;
+    align-self: flex-end;
+
     &__center {
       position: relative;
       height: 24px;

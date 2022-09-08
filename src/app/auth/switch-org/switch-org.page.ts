@@ -18,6 +18,7 @@ import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
+import { RemoveOfflineFormsService } from 'src/app/core/services/remove-offline-forms.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -50,6 +51,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isIos = false;
 
+  isOfflineFormsRemoved = false;
+
   userOrgsCount: number;
 
   constructor(
@@ -69,6 +72,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private cdRef: ChangeDetectorRef,
     private trackingService: TrackingService,
     private deviceService: DeviceService,
+    private removeOfflineFormsService: RemoveOfflineFormsService,
     private popoverController: PopoverController,
     private orgUserService: OrgUserService
   ) {}
@@ -134,140 +138,57 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     );
   }
 
-  async showEmailNotVerifiedAlert() {
-    const popover = await this.popoverController.create({
-      componentProps: {
-        title: 'Email Not Verified',
-        message: 'Your email is not verified. Please check your previous emails and accept the invite.',
-        primaryCta: {
-          text: 'OK',
-          action: 'close',
-        },
-      },
-      component: PopupAlertComponentComponent,
-      cssClass: 'pop-up-in-center',
-    });
-    await popover.present();
-
-    const { data } = await popover.onWillDismiss();
-
-    if (data?.action === 'close') {
-      /*
-       * Case : When user is added to a SSO orgs, but he haven't verified his account through link.
-       * After showing the alert, he will be redirected to sign in page since there is no other org he is part of.
-       * If user have more than 1 org, user will stay on switch org page to choose another org.
-       */
-      this.orgs$.subscribe((orgs) => {
-        if (orgs.length === 1) {
-          this.signOut();
-        }
+  setSentryUser(eou: ExtendedOrgUser) {
+    if (eou) {
+      Sentry.setUser({
+        id: eou.us.email + ' - ' + eou.ou.id,
+        email: eou.us.email,
+        orgUserId: eou.ou.id,
       });
     }
   }
 
-  goToSetupPassword(roles: string[]) {
-    if (roles.includes('OWNER')) {
-      this.router.navigate(['/', 'post_verification', 'setup_account']);
-    } else {
-      this.router.navigate(['/', 'post_verification', 'invited_user']);
+  navigateBasedOnUserStatus(isPendingDetails: boolean, roles: string[], eou: ExtendedOrgUser) {
+    if (isPendingDetails) {
+      if (roles.indexOf('OWNER') > -1) {
+        this.router.navigate(['/', 'post_verification', 'setup_account']);
+      } else {
+        this.router.navigate(['/', 'post_verification', 'invited_user']);
+      }
+    } else if (eou.ou.status === 'ACTIVE') {
+      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+    } else if (eou.ou.status === 'DISABLED') {
+      this.router.navigate(['/', 'auth', 'disabled']);
     }
   }
 
-  /*
-   * Mark User active in the selected org and redirect him to the dashboard.
-   */
-  markUserActive(): Observable<OrgUserService | ExtendedOrgUser> {
-    return from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.orgUserService.markActive()),
-      finalize(() => {
-        this.loaderService.hideLoader();
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-      })
-    );
-  }
-
-  /*
-   * Check if user is part of a SSO org or is a part of multiple Non SSO orgs.
-   * If yes, Mark user active directly.
-   * If no, Redirect user to setup password page.
-   */
-  handleInviteLinkFlow(roles: string[]) {
-    this.userService
-      .getUserPasswordStatus()
-      .pipe(
-        switchMap((passwordStatus) => {
-          if (passwordStatus.is_password_required && !passwordStatus.is_password_set) {
-            this.goToSetupPassword(roles);
-          } else {
-            return this.markUserActive();
-          }
-          return of(null);
-        })
-      )
-      .subscribe(noop);
-  }
-
-  /*
-   * If user is coming from invite link, Follow invite link flow.
-   * Otherwise, show user popup to verify his email.
-   */
-  handlePendingDetails(roles: string[], isFromInviteLink?: boolean) {
-    if (isFromInviteLink) {
-      this.handleInviteLinkFlow(roles);
-    } else {
-      this.showEmailNotVerifiedAlert();
-    }
-  }
-
-  async proceed(isFromInviteLink?: boolean) {
-    const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+  async proceed() {
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
+    const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
+    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
+    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey().subscribe((isOfflineModeDisabled: boolean) => {
+      this.isOfflineFormsRemoved = isOfflineModeDisabled;
 
-    forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$])
-      .pipe(finalize(() => from(this.loaderService.hideLoader())))
-      .subscribe((aggregatedResults) => {
-        const [
-          [
-            orgSettings,
-            orgUserSettings,
-            allCategories,
-            allEnabledCategories,
-            costCenters,
-            projects,
-            perDiemRates,
-            customInputs,
-            currentOrg,
-            orgs,
-            accounts,
-            currencies,
-            homeCurrency,
-          ],
-          isPendingDetails,
-          eou,
-          roles,
-          isOnline,
-        ] = aggregatedResults;
+      this.storageService.set('isOfflineFormsRemoved', isOfflineModeDisabled);
 
-        const pendingDetails = !(currentOrg.lite === true || currentOrg.lite === false) || isPendingDetails;
+      let offlineData$: Observable<any[]>;
 
-        if (eou) {
-          Sentry.setUser({
-            id: eou.us.email + ' - ' + eou.ou.id,
-            email: eou.us.email,
-            orgUserId: eou.ou.id,
-          });
-        }
-        if (pendingDetails) {
-          this.handlePendingDetails(roles, isFromInviteLink);
-        } else if (eou.ou.status === 'ACTIVE') {
-          this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-        } else if (eou.ou.status === 'DISABLED') {
-          this.router.navigate(['/', 'auth', 'disabled']);
-        }
-      });
+      if (this.isOfflineFormsRemoved) {
+        offlineData$ = this.offlineService.loadOptimized().pipe(shareReplay(1));
+      } else {
+        offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+      }
+
+      forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
+        .pipe(finalize(() => from(this.loaderService.hideLoader())))
+        .subscribe(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
+          this.setSentryUser(eou);
+          this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
+        });
+    });
   }
 
   trackSwitchOrg(org: Org, originalEou) {
@@ -292,7 +213,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   async switchOrg(org: Org) {
     const originalEou = await this.authService.getEou();
-    from(this.loaderService.showLoader())
+    from(this.loaderService.showLoader('Please wait...', 2000))
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
       .subscribe(
         () => {

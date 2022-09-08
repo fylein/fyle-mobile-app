@@ -4,7 +4,6 @@ import { concat } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { getCurrencySymbol } from '@angular/common';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { concatMap, finalize, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { isNumber, reduce } from 'lodash';
@@ -77,7 +76,7 @@ export class ExpensesCardComponent implements OnInit {
 
   inlineReceiptDataUrl: string;
 
-  expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
+  expenseFields: Partial<ExpenseFieldsMap>;
 
   receiptIcon: string;
 
@@ -88,8 +87,6 @@ export class ExpensesCardComponent implements OnInit {
   isCriticalPolicyViolated: boolean;
 
   homeCurrency: string;
-
-  homeCurrencySymbol = '';
 
   paymentModeIcon: string;
 
@@ -290,14 +287,15 @@ export class ExpensesCardComponent implements OnInit {
     this.expense.isPolicyViolated = this.expense.tx_manual_flag || this.expense.tx_policy_flag;
     this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
     this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
-    this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
+    this.offlineService.getExpenseFieldsMap().subscribe((expenseFields) => {
+      this.expenseFields = expenseFields;
+    });
 
     this.offlineService
       .getHomeCurrency()
       .pipe(
         map((homeCurrency) => {
           this.homeCurrency = homeCurrency;
-          this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
         })
       )
       .subscribe(noop);

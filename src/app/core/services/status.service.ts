@@ -12,7 +12,7 @@ export class StatusService {
   find(objectType, objectId) {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
       map((estatuses: ExtendedStatus[]) =>
-        estatuses.map((estatus) => {
+        estatuses?.map((estatus) => {
           estatus.st_created_at = new Date(estatus.st_created_at);
           return estatus as ExtendedStatus;
         })
