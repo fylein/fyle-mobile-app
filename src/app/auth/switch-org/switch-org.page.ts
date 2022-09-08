@@ -20,6 +20,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 @Component({
   selector: 'app-switch-org',
@@ -93,18 +94,18 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     });
 
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
-    const inviteLink: boolean =
+    const isFromInviteLink: boolean =
       that.activatedRoute.snapshot.params.invite_link && JSON.parse(that.activatedRoute.snapshot.params.invite_link);
 
     if (!choose) {
       from(that.loaderService.showLoader())
-        .pipe(switchMap(() => from(that.proceed(inviteLink))))
+        .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
         .subscribe(noop);
     } else {
       that.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
-            .pipe(switchMap(() => from(that.proceed(inviteLink))))
+            .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
             .subscribe(noop);
         }
       });
@@ -151,6 +152,11 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const { data } = await popover.onWillDismiss();
 
     if (data?.action === 'close') {
+      /*
+       * Case : When user is added to a SSO orgs, but he haven't verified his account through link.
+       * After showing the alert, he will be redirected to sign in page since there is no other org he is part of.
+       * If user have more than 1 org, user will stay on switch org page to choose another org.
+       */
       this.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
           this.signOut();
@@ -167,50 +173,53 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  markUserActive() {
-    from(this.loaderService.showLoader())
-      .pipe(
-        switchMap(() => this.orgUserService.markActive()),
-        finalize(() => this.loaderService.hideLoader())
-      )
-      .subscribe(() => this.router.navigate(['/', 'enterprise', 'my_dashboard']));
+  /*
+   * Mark User active in the selected org and redirect him to the dashboard.
+   */
+  markUserActive(): Observable<OrgUserService | ExtendedOrgUser> {
+    return from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.orgUserService.markActive()),
+      finalize(() => {
+        this.loaderService.hideLoader();
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      })
+    );
   }
 
-  checkUserStatusInPrimaryOrg(currentOrgId: string, roles: string[]) {
-    from(this.offlineService.getPrimaryOrg())
+  /*
+   * Check if user is part of a SSO org or is a part of multiple Non SSO orgs.
+   * If yes, Mark user active directly.
+   * If no, Redirect user to setup password page.
+   */
+  handleInviteLinkFlow(roles: string[]) {
+    this.userService
+      .getUserPasswordStatus()
       .pipe(
-        switchMap((primaryOrg) => this.orgService.switchOrg(primaryOrg.id)),
-        switchMap(() => this.userService.isPendingDetails()),
-        switchMap((pendingDetails) =>
-          this.orgService.switchOrg(currentOrgId).pipe(
-            tap(() => {
-              if (pendingDetails) {
-                this.goToSetupPassword(roles);
-              } else {
-                this.markUserActive();
-              }
-            })
-          )
-        )
+        switchMap((passwordStatus) => {
+          if (passwordStatus.is_password_required && !passwordStatus.is_password_set) {
+            this.goToSetupPassword(roles);
+          } else {
+            return this.markUserActive();
+          }
+          return of(null);
+        })
       )
-      .subscribe();
+      .subscribe(noop);
   }
 
-  handlePendingDetails(isInviteLink: boolean, orgSettings, roles: string[]) {
-    if (!isInviteLink) {
-      if (orgSettings.sso_integration_settings.allowed && orgSettings.sso_integration_settings.enabled) {
-        this.markUserActive();
-      } else if (this.userOrgsCount > 1) {
-        this.checkUserStatusInPrimaryOrg(orgSettings.org_id, roles);
-      } else {
-        this.goToSetupPassword(roles);
-      }
+  /*
+   * If user is coming from invite link, Follow invite link flow.
+   * Otherwise, show user popup to verify his email.
+   */
+  handlePendingDetails(roles: string[], isFromInviteLink?: boolean) {
+    if (isFromInviteLink) {
+      this.handleInviteLinkFlow(roles);
     } else {
       this.showEmailNotVerifiedAlert();
     }
   }
 
-  async proceed(isInviteLink: boolean) {
+  async proceed(isFromInviteLink?: boolean) {
     const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
@@ -252,7 +261,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           });
         }
         if (pendingDetails) {
-          this.handlePendingDetails(isInviteLink, orgSettings, roles);
+          this.handlePendingDetails(roles, isFromInviteLink);
         } else if (eou.ou.status === 'ACTIVE') {
           this.router.navigate(['/', 'enterprise', 'my_dashboard']);
         } else if (eou.ou.status === 'DISABLED') {
@@ -293,7 +302,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           }
           this.userEventService.clearTaskCache();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-          from(this.proceed(false)).subscribe(noop);
+          from(this.proceed()).subscribe(noop);
         },
         async (err) => {
           await this.secureStorageService.clearAll();
