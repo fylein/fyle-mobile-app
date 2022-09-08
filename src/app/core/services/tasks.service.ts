@@ -55,8 +55,8 @@ export class TasksService {
   ) {
     this.userEventService.onTaskCacheClear(() => {
       this.reportService.getReportAutoSubmissionDetails().subscribe((autoSubmissionReportDetails) => {
-        const isAutomateReportSubmissionEnabled = !!autoSubmissionReportDetails?.data?.next_at;
-        this.getTasks(isAutomateReportSubmissionEnabled).subscribe(noop);
+        const isReportAutoSubmissionScheduled = !!autoSubmissionReportDetails?.data?.next_at;
+        this.getTasks(isReportAutoSubmissionScheduled).subscribe(noop);
       });
     });
   }
@@ -291,12 +291,12 @@ export class TasksService {
     return filterPills;
   }
 
-  getTasks(isAutomateReportSubmissionEnabled = false, filters?: TaskFilters): Observable<DashboardTask[]> {
+  getTasks(isReportAutoSubmissionScheduled = false, filters?: TaskFilters): Observable<DashboardTask[]> {
     return forkJoin({
       potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackReports: this.getSentBackReportTasks(),
-      unreportedExpenses: this.getUnreportedExpensesTasks(isAutomateReportSubmissionEnabled),
-      unsubmittedReports: this.getUnsubmittedReportsTasks(isAutomateReportSubmissionEnabled),
+      unreportedExpenses: this.getUnreportedExpensesTasks(isReportAutoSubmissionScheduled),
+      unsubmittedReports: this.getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled),
       draftExpenses: this.getDraftExpensesTasks(),
       teamReports: this.getTeamReportsTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
@@ -513,9 +513,9 @@ export class TasksService {
     return [task];
   }
 
-  private getUnsubmittedReportsTasks(isAutomateReportSubmissionEnabled = false) {
-    //Unsubmitted reports task should not be shown if report auto-submission is enabled
-    if (isAutomateReportSubmissionEnabled) {
+  private getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled = false) {
+    //Unsubmitted reports task should not be shown if report auto-submission is scheduled
+    if (isReportAutoSubmissionScheduled) {
       return of([]);
     }
 
@@ -538,9 +538,9 @@ export class TasksService {
     });
   }
 
-  private getUnreportedExpensesTasks(isAutomateReportSubmissionEnabled = false) {
-    //Unreported expenses task should not be shown if report auto submission is enabled
-    if (isAutomateReportSubmissionEnabled) {
+  private getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false) {
+    //Unreported expenses task should not be shown if report auto submission is scheduled
+    if (isReportAutoSubmissionScheduled) {
       return of([]);
     }
 
