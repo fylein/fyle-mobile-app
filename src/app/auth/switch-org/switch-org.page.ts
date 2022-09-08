@@ -226,7 +226,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     roles: string[],
     isFromInviteLink?: boolean
   ): Observable<OrgUserService | ExtendedOrgUser | null> {
-    if (!isFromInviteLink) {
+    if (isFromInviteLink) {
       return this.handleInviteLinkFlow(roles);
     } else {
       this.showEmailNotVerifiedAlert();
