@@ -110,7 +110,9 @@ export class TasksComponent implements OnInit {
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
     }).subscribe(({ tasks, autoSubmissionReportDate }) => {
       const isIncompleteExpensesTaskShown = tasks.some((task) => task.header.includes('Incomplete expense'));
-      this.showReportAutoSubmissionInfoCard = autoSubmissionReportDate && !isIncompleteExpensesTaskShown;
+      const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
+      this.showReportAutoSubmissionInfoCard =
+        autoSubmissionReportDate && !isIncompleteExpensesTaskShown && paramFilters !== 'team_reports';
     });
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
