@@ -107,10 +107,10 @@ export class TransactionService {
   getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
       switchMap((res) => {
-        const count = res.count > 50 ? res.count / 50 : 1;
+        const count = res.count > 200 ? res.count / 200 : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getETxnc({ offset: 50 * page, limit: 50, params })),
+      concatMap((page) => this.getETxnc({ offset: 200 * page, limit: 200, params })),
       reduce((acc, curr) => acc.concat(curr))
     );
   }
@@ -160,11 +160,11 @@ export class TransactionService {
   getAllExpenses(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > 200 ? count / 200 : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })
+        this.getMyExpenses({ offset: 200 * page, limit: 200, queryParams: config.queryParams, order: config.order })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as any[])
@@ -300,11 +300,11 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$,
   })
   removeTxnsFromRptInBulk(txnIds, comment?) {
-    const count = txnIds.length > 50 ? txnIds.length / 50 : 1;
+    const count = txnIds.length > 200 ? txnIds.length / 200 : 1;
     return range(0, count).pipe(
       concatMap((page) => {
         const data: any = {
-          ids: txnIds.slice(page * 50, (page + 1) * 50),
+          ids: txnIds.slice(page * 200, (page + 1) * 200),
         };
 
         if (comment) {

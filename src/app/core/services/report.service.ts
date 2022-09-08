@@ -395,11 +395,11 @@ export class ReportService {
   getAllExtendedReports(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > 200 ? count / 200 : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getMyReports({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })
+        this.getMyReports({ offset: 200 * page, limit: 200, queryParams: config.queryParams, order: config.order })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
@@ -420,11 +420,11 @@ export class ReportService {
   ) {
     return this.getTeamReportsCount().pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > 200 ? count / 200 : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getTeamReports({ offset: 50 * page, limit: 50, ...config.queryParams, order: config.order })
+        this.getTeamReports({ offset: 200 * page, limit: 200, ...config.queryParams, order: config.order })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
@@ -488,9 +488,9 @@ export class ReportService {
     if (!rptIds || rptIds.length === 0) {
       return of([]);
     }
-    const count = rptIds.length > 50 ? rptIds.length / 50 : 1;
+    const count = rptIds.length > 200 ? rptIds.length / 200 : 1;
     return range(0, count).pipe(
-      map((page) => rptIds.slice(page * 50, (page + 1) * 50)),
+      map((page) => rptIds.slice(page * 200, (page + 1) * 200)),
       concatMap((rptIds) => this.apiService.get('/reports/approvers', { params: { report_ids: rptIds } })),
       reduce((acc, curr) => acc.concat(curr), [])
     );
