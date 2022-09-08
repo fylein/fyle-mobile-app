@@ -211,7 +211,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     }
   }
 
-  async setupActionScheet() {
+  setupActionScheet() {
     this.actions$.subscribe((actions) => {
       if (actions.can_approve) {
         this.actionSheetButtons.push({
