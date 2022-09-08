@@ -23,6 +23,7 @@ import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.compone
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { OfflineService } from './core/services/offline.service';
+declare var UXCam: any;
 
 @Component({
   selector: 'app-root',
@@ -140,6 +141,8 @@ export class AppComponent implements OnInit {
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
+      UXCam.optIntoSchematicRecordings(); /* To enable session video recording on iOS */
+      UXCam.startWithKey('by7hbp9rpp91c84');
     });
   }
 
