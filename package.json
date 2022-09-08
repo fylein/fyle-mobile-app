@@ -69,6 +69,7 @@
     "cordova-plugin-ios-decimal-keyboard": "^1.0.1",
     "cordova-plugin-native-spinner": "^1.1.3",
     "cordova-plugin-telerik-imagepicker": "^2.3.6",
+    "cordova-uxcam": "^3.4.3",
     "dotenv": "^16.0.1",
     "hammerjs": "^2.0.8",
     "jetifier": "^2.0.0",
