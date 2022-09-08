@@ -86,14 +86,19 @@ export class TasksComponent implements OnInit {
   }
 
   init() {
-    this.tasks$ = this.loadData$.pipe(
-      switchMap((taskFilters) => this.taskService.getTasks(taskFilters)),
-      shareReplay(1)
-    );
-
     this.autoSubmissionReportDate$ = this.reportService
       .getReportAutoSubmissionDetails()
       .pipe(map((autoSubmissionReportDetails) => autoSubmissionReportDetails?.data?.next_at));
+
+    this.tasks$ = combineLatest({
+      taskFilters: this.loadData$,
+      autoSubmissionReportDate: this.autoSubmissionReportDate$,
+    }).pipe(
+      switchMap(({ taskFilters, autoSubmissionReportDate }) =>
+        this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters)
+      ),
+      shareReplay(1)
+    );
 
     this.tasks$.subscribe((tasks) => {
       this.trackTasks(tasks);
