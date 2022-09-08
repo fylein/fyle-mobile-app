@@ -198,6 +198,8 @@ export class AddEditMileagePage implements OnInit {
 
   canRemoveFromReport = false;
 
+  autoSubmissionReportName$: Observable<string>;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -1309,6 +1311,8 @@ export class AddEditMileagePage implements OnInit {
         }
       })
     );
+
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>

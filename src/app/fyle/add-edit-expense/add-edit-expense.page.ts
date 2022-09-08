@@ -15,7 +15,7 @@ import {
   throwError,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TitleCasePipe, DatePipe } from '@angular/common';
+import { TitleCasePipe } from '@angular/common';
 import {
   catchError,
   concatMap,
@@ -379,8 +379,7 @@ export class AddEditExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
-    private handleDuplicates: HandleDuplicatesService,
-    private datePipe: DatePipe
+    private handleDuplicates: HandleDuplicatesService
   ) {}
 
   @HostListener('keydown')
