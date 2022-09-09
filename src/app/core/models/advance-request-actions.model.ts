@@ -1,4 +1,4 @@
-export interface Actions {
+export interface AdvanceRequestActions {
   id: string;
   can_add_approver: boolean;
   can_approve: boolean;

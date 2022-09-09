@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Actions } from 'src/app/core/models/actions.model';
+import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 @Component({
   selector: 'app-summary-tile',
   templateUrl: './summary-tile.component.html',
@@ -26,7 +26,7 @@ export class FySummaryTileComponent implements OnInit, OnChanges {
 
   @Input() orig_currency: string;
 
-  @Input() actions: Actions;
+  @Input() actions: AdvanceRequestActions;
 
   @Input() id: string;
 
