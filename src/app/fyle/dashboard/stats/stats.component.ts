@@ -224,6 +224,23 @@ export class StatsComponent implements OnInit {
           'Is multi org': isMultiOrg,
         });
       }
+
+      if (performance.getEntriesByName('dashboard launch time').length < 1) {
+        // Time taken to land on dashboard page after switching org
+        performance.mark('dashboard launch time');
+
+        // Measure total time taken from switch org page to landing on dashboard page
+        performance.measure('dashboard launch time', 'switch org launch time', 'dashboard launch time');
+
+        const measureLaunchTime = performance.getEntriesByName('dashboard launch time');
+
+        // Converting the duration to seconds and fix it to 3 decimal places
+        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
+
+        this.trackingService.dashboardLaunchTime({
+          'Dashboard launch time': launchTimeDuration,
+        });
+      }
     });
   }
 

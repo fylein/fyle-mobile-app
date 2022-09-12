@@ -996,4 +996,9 @@ export class TrackingService {
   switchOrgLaunchTime(properties = {}) {
     this.eventTrack('switch org launch time', properties);
   }
+
+  // Track dashboard launch time
+  dashboardLaunchTime(properties = {}) {
+    this.eventTrack('dashboard launch time', properties);
+  }
 }
