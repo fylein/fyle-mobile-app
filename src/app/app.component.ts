@@ -24,6 +24,8 @@ import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { OfflineService } from './core/services/offline.service';
 
+declare let UXCam: any;
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -47,8 +49,6 @@ export class AppComponent implements OnInit {
   isSwitchedToDelegator: boolean;
 
   isUserLoggedIn = false;
-
-  UXCam: any;
 
   constructor(
     private platform: Platform,
@@ -143,8 +143,8 @@ export class AppComponent implements OnInit {
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
 
-      this.UXCam.optIntoSchematicRecordings();
-      this.UXCam.startWithKey('ma8jrrtuaf8h58h');
+      UXCam.optIntoSchematicRecordings();
+      UXCam.startWithKey('ma8jrrtuaf8h58h');
     });
   }
 
