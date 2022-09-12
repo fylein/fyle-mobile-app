@@ -48,6 +48,8 @@ export class AppComponent implements OnInit {
 
   isUserLoggedIn = false;
 
+  UXCam: any;
+
   constructor(
     private platform: Platform,
     private router: Router,
@@ -141,6 +143,9 @@ export class AppComponent implements OnInit {
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
     });
+
+    this.UXCam.optIntoSchematicRecordings();
+    this.UXCam.startWithKey('App-key from UXCam');
   }
 
   checkAppSupportedVersion() {
