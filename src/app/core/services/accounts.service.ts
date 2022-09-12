@@ -7,6 +7,7 @@ import { LaunchDarklyService } from './launch-darkly.service';
 import { Observable } from 'rxjs';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +20,7 @@ export class AccountsService {
     private launchDarklyService: LaunchDarklyService
   ) {}
 
+  @Cacheable()
   getEMyAccounts() {
     return this.apiService.get('/eaccounts/').pipe(
       map((accountsRaw: any[]) => {

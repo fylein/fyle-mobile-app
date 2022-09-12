@@ -33,6 +33,9 @@ export class OrgUserSettingsService {
     return this.apiService.post('/org_user_settings', data);
   }
 
+  @Cacheable({
+    cacheBusterObserver: orgUserSettingsCacheBuster$,
+  })
   getUserSettings(userSettingsId: string) {
     return this.apiService.get('/org_user_settings/' + userSettingsId).pipe(map((res) => res as OrgUserSettings));
   }

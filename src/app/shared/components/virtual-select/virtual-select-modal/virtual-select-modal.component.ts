@@ -164,7 +164,7 @@ export class VirtualSelectModalComponent implements OnInit, AfterViewInit {
         v.isRecentlyUsed = true;
         return v;
       });
-      this.selectableOptions = [...recentlyUsedItemsUpdated, ...filteredOptions];
+      this.selectableOptions = recentlyUsedItemsUpdated.concat(filteredOptions);
       this.cdr.detectChanges();
     });
 
