@@ -24,7 +24,8 @@ import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { OfflineService } from './core/services/offline.service';
 
-declare let UXCam: any;
+// eslint-disable-next-line no-var
+declare var UXCam: any;
 
 @Component({
   selector: 'app-root',
