@@ -41,7 +41,7 @@ export class ProjectsService {
     const params: any = {
       project_org_id: 'eq.' + orgId,
       order: sortOrder + '.' + sortDirection,
-      limit: limit || this.paginationSize,
+      limit: limit || 200,
       offset: offset || 0,
     };
 
