@@ -16,6 +16,7 @@ import { FileResponse } from './file-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { FormControl } from '@angular/forms';
 import { DateService } from './date.service';
+import { DuplicateSet } from '../models/v2/duplicate-sets.model';
 
 type Option = Partial<{
   label: string;
@@ -771,5 +772,11 @@ export class MergeExpensesService {
     } else {
       return formValue;
     }
+  }
+
+  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]) {
+    return duplicateSet.transaction_ids.map(
+      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
+    );
   }
 }

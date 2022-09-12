@@ -101,6 +101,7 @@ import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { getCurrencySymbol } from '@angular/common';
+import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -377,7 +378,8 @@ export class AddEditExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
-    private handleDuplicates: HandleDuplicatesService
+    private handleDuplicates: HandleDuplicatesService,
+    private mergeExpensesService: MergeExpensesService
   ) {}
 
   @HostListener('keydown')
@@ -1061,7 +1063,7 @@ export class AddEditExpensePage implements OnInit {
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
 
-  getInstaFyleImageData() {
+  getInstaFyleImageData(): Observable<any> {
     if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
       const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
       const b64Image = dataUrl.replace('data:image/jpeg;base64,', '');
@@ -1127,7 +1129,6 @@ export class AddEditExpensePage implements OnInit {
 
   getNewExpenseObservable() {
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
 
     return forkJoin({
@@ -1135,24 +1136,14 @@ export class AddEditExpensePage implements OnInit {
       orgUserSettings: this.orgUserSettings$,
       categories: this.offlineService.getAllEnabledCategories(),
       homeCurrency: this.homeCurrency$,
-      accounts: accounts$,
       eou: eou$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
       recentValue: this.recentlyUsedValues$,
     }).pipe(
       map((dependencies) => {
-        const {
-          orgSettings,
-          orgUserSettings,
-          categories,
-          homeCurrency,
-          accounts,
-          eou,
-          imageData,
-          recentCurrency,
-          recentValue,
-        } = dependencies;
+        const { orgSettings, orgUserSettings, categories, homeCurrency, eou, imageData, recentCurrency, recentValue } =
+          dependencies;
         const bankTxn =
           this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         const personalCardTxn =
@@ -2316,10 +2307,8 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
-          return forkJoin({
-            allCategories: this.offlineService.getAllEnabledCategories(),
-          }).pipe(
-            switchMap(({ allCategories }) => {
+          return this.offlineService.getAllEnabledCategories().pipe(
+            switchMap((allCategories) => {
               if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
                 etxn.tx.amount = etxn.tx.extracted_data.amount;
               }
@@ -4381,7 +4370,7 @@ export class AddEditExpensePage implements OnInit {
                 map((expenses) => {
                   const expensesArray = expenses as [];
                   return duplicateSets.map((duplicateSet) =>
-                    this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                    this.mergeExpensesService.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
                   );
                 })
               );
@@ -4394,12 +4383,6 @@ export class AddEditExpensePage implements OnInit {
           this.duplicateExpenses = duplicateExpensesSet[0];
         });
     }
-  }
-
-  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]) {
-    return duplicateSet.transaction_ids.map(
-      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
-    );
   }
 
   async showSuggestedDuplicates(duplicateExpenses: Expense[]) {
