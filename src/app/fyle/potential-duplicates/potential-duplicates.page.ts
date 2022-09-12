@@ -10,6 +10,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 
 type Expenses = Expense[];
 
@@ -37,7 +38,8 @@ export class PotentialDuplicatesPage implements OnInit {
     private router: Router,
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private mergeExpensesService: MergeExpensesService
   ) {}
 
   ngOnInit() {}
@@ -66,7 +68,7 @@ export class PotentialDuplicatesPage implements OnInit {
               map((expenses) => {
                 const expensesArray = expenses as [];
                 return duplicateSets.map((duplicateSet) =>
-                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                  this.mergeExpensesService.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
                 );
               })
             );
@@ -80,12 +82,6 @@ export class PotentialDuplicatesPage implements OnInit {
     this.duplicateSets$.subscribe((duplicateExpenses) => {
       this.duplicateExpenses = duplicateExpenses;
     });
-  }
-
-  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]) {
-    return duplicateSet.transaction_ids.map(
-      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
-    );
   }
 
   next() {
