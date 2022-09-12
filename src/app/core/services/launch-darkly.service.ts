@@ -63,7 +63,7 @@ export class LaunchDarklyService {
   }
 
   checkIfAutomateReportSubmissionIsEnabled() {
-    return this.getVariation('automate_report_submission_enabled', false);
+    return of(true);
   }
 
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)
