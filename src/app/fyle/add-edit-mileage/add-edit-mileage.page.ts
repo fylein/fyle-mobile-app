@@ -126,6 +126,8 @@ export class AddEditMileagePage implements OnInit {
 
   mileageConfig$: Observable<any>;
 
+  allMileageRates$: Observable<PlatformMileageRates[]>;
+
   mileageRates$: Observable<PlatformMileageRates[]>;
 
   mileageRatesOptions$: Observable<any>;
@@ -946,26 +948,29 @@ export class AddEditMileagePage implements OnInit {
       this.fg.controls.sub_category.updateValueAndValidity();
     });
 
+    this.allMileageRates$ = this.offlineService.getMileageRates();
+
     this.mileageRates$ = forkJoin({
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
-      mileageRates: this.offlineService.getMileageRates(),
+      allMileageRates: this.offlineService.getMileageRates(),
       mileageConfig: this.mileageConfig$,
     }).pipe(
-      map(({ orgUserMileageSettings, mileageRates, mileageConfig }) => {
+      map(({ orgUserMileageSettings, allMileageRates, mileageConfig }) => {
+        const enabledMileageRates = allMileageRates.filter((rate) => !!rate.is_enabled);
         orgUserMileageSettings = orgUserMileageSettings?.mileage_rate_labels || [];
         if (orgUserMileageSettings.length > 0) {
-          const mileageRateNames = mileageRates.map((res) => res.vehicle_type);
+          const mileageRateNames = enabledMileageRates.map((res) => res.vehicle_type);
 
           mileageRateNames.forEach((mileageLabel, index) => {
             if (orgUserMileageSettings.indexOf(mileageLabel) === -1) {
-              // removing from mileageRates array if the rate is not allowed.
+              // removing from enabledMileageRates array if the rate is not allowed.
               mileageRateNames.splice(index, 1);
-              mileageRates.splice(index, 1);
+              enabledMileageRates.splice(index, 1);
             }
           });
         }
 
-        return mileageRates;
+        return enabledMileageRates;
       })
     );
 
@@ -1358,7 +1363,7 @@ export class AddEditMileagePage implements OnInit {
           report,
           costCenter,
           customInputs,
-          mileageRates,
+          allMileageRates,
           defaultPaymentMode,
           orgUserSettings,
           orgSettings,
@@ -1462,7 +1467,7 @@ export class AddEditMileagePage implements OnInit {
           if (isRecentLocationPresent) {
             this.presetLocation = recentValue.recent_start_locations[0];
           }
-          const mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type);
+          const mileage_rate_name = this.getMileageByVehicleType(allMileageRates, etxn.tx.mileage_vehicle_type);
           mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
             etxn.tx.mileage_rate,
             etxn.tx.currency,

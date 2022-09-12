@@ -19,7 +19,7 @@ export class MileageRatesService {
     cacheBusterObserver: mileageRateCacheBuster$,
   })
   getAllMileageRates(): Observable<PlatformMileageRates[]> {
-    return this.getActiveMileageRatesCount().pipe(
+    return this.getAllMileageRatesCount().pipe(
       switchMap((count) => {
         count = count > 50 ? count / 50 : 1;
         return range(0, count);
@@ -29,10 +29,9 @@ export class MileageRatesService {
     );
   }
 
-  getActiveMileageRatesCount(): Observable<number> {
+  getAllMileageRatesCount(): Observable<number> {
     const data = {
       params: {
-        is_enabled: 'eq.' + true,
         offset: 0,
         limit: 1,
       },
@@ -45,7 +44,6 @@ export class MileageRatesService {
   getMileageRates(config: { offset: number; limit: number }): Observable<PlatformMileageRates[]> {
     const data = {
       params: {
-        is_enabled: 'eq.' + true,
         offset: config.offset,
         limit: config.limit,
       },
