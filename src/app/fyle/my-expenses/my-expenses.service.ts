@@ -13,7 +13,7 @@ import { Filters } from './my-expenses-filters.model';
 export class MyExpensesService {
   maskNumber = new MaskNumber();
 
-  generateSortCategoryPills(filter: any, filterPills: FilterPill[]) {
+  private generateSortCategoryPills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -29,7 +29,7 @@ export class MyExpensesService {
     }
   }
 
-  generateSortAmountPills(filter: any, filterPills: FilterPill[]) {
+  generateSortAmountPills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
@@ -45,7 +45,7 @@ export class MyExpensesService {
     }
   }
 
-  generateSortTxnDatePills(filter: any, filterPills: FilterPill[]) {
+  generateSortTxnDatePills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -61,7 +61,7 @@ export class MyExpensesService {
     }
   }
 
-  generateTypeFilterPills(filter, filterPills: FilterPill[]) {
+  generateTypeFilterPills(filter: Filters, filterPills: FilterPill[]) {
     const combinedValue = filter.type
       .map((type) => {
         if (type === 'RegularExpenses') {
@@ -83,7 +83,7 @@ export class MyExpensesService {
     });
   }
 
-  generateDateFilterPills(filter, filterPills: FilterPill[]) {
+  generateDateFilterPills(filter: Filters, filterPills: FilterPill[]) {
     let filterPillsCopy = cloneDeep(filterPills);
     if (filter.date === DateFilters.thisWeek) {
       filterPillsCopy.push({
@@ -124,7 +124,7 @@ export class MyExpensesService {
     return filterPillsCopy;
   }
 
-  generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
+  generateCustomDatePill(filter: Filters, filterPills: FilterPill[]) {
     const filterPillsCopy = cloneDeep(filterPills);
     const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
     const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
@@ -273,7 +273,7 @@ export class MyExpensesService {
     }
   }
 
-  getFilters() {
+  getFilters(): FilterOptions<string>[] {
     return [
       {
         name: 'Type',
@@ -431,13 +431,13 @@ export class MyExpensesService {
     }
 
     if (filter.sortParam && filter.sortDir) {
-      this.addSortToGeneatedFilters(filter, generatedFilters);
+      this.addSortToGeneratedFilters(filter, generatedFilters);
     }
 
     return generatedFilters;
   }
 
-  addSortToGeneatedFilters(
+  addSortToGeneratedFilters(
     filter: Partial<{
       state: string[];
       date: string;

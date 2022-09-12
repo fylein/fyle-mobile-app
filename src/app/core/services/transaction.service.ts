@@ -19,6 +19,14 @@ import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
+import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+
+enum FilterState {
+  READY_TO_REPORT = 'READY_TO_REPORT',
+  POLICY_VIOLATED = 'POLICY_VIOLATED',
+  CANNOT_REPORT = 'CANNOT_REPORT',
+  DRAFT = 'DRAFT',
+}
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -770,7 +778,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/unlink_card_expense', data);
   }
 
-  isMergeAllowed(expenses: Expense[]) {
+  isMergeAllowed(expenses: Expense[]): boolean {
     if (expenses?.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
@@ -785,28 +793,33 @@ export class TransactionService {
     }
   }
 
-  generateStateFilters(newQueryParams, filters) {
-    const newQueryParamsCopy = cloneDeep(newQueryParams);
-    const stateOrFilter = [];
-
+  generateStateOrFilter(filters: Filters, newQueryParamsCopy): string[] {
+    const stateOrFilter: string[] = [];
     if (filters.state) {
       newQueryParamsCopy.tx_report_id = 'is.null';
-      if (filters.state.includes('READY_TO_REPORT')) {
+      if (filters.state.includes(FilterState.READY_TO_REPORT)) {
         stateOrFilter.push('and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
       }
 
-      if (filters.state.includes('POLICY_VIOLATED')) {
+      if (filters.state.includes(FilterState.POLICY_VIOLATED)) {
         stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
       }
 
-      if (filters.state.includes('CANNOT_REPORT')) {
+      if (filters.state.includes(FilterState.CANNOT_REPORT)) {
         stateOrFilter.push('tx_policy_amount.lt.0.0001');
       }
 
-      if (filters.state.includes('DRAFT')) {
+      if (filters.state.includes(FilterState.DRAFT)) {
         stateOrFilter.push('tx_state.in.(DRAFT)');
       }
     }
+
+    return stateOrFilter;
+  }
+
+  generateStateFilters(newQueryParams, filters: Filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
 
     if (stateOrFilter.length > 0) {
       let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
@@ -817,7 +830,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateCardNumberParams(newQueryParams, filters) {
+  generateCardNumberParams(newQueryParams, filters: Filters) {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
@@ -888,10 +901,8 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateTypeFilters(newQueryParams, filters) {
-    const newQueryParamsCopy = cloneDeep(newQueryParams);
-    const typeOrFilter = [];
-
+  generateTypeOrFilter(filters: Filters): string[] {
+    const typeOrFilter: string[] = [];
     if (filters.type) {
       if (filters.type.includes('Mileage')) {
         typeOrFilter.push('tx_fyle_category.eq.Mileage');
@@ -906,6 +917,13 @@ export class TransactionService {
         typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
       }
     }
+
+    return typeOrFilter;
+  }
+
+  generateTypeFilters(newQueryParams, filters: Filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const typeOrFilter = this.generateTypeOrFilter(filters);
 
     if (typeOrFilter.length > 0) {
       let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
