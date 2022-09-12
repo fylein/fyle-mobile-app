@@ -13,6 +13,54 @@ import { Filters } from './my-expenses-filters.model';
 export class MyExpensesService {
   maskNumber = new MaskNumber();
 
+  generateSortFilterPills(filter, filterPills: FilterPill[]) {
+    this.generateSortTxnDatePills(filter, filterPills);
+
+    this.generateSortAmountPills(filter, filterPills);
+
+    this.generateSortCategoryPills(filter, filterPills);
+  }
+
+  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
+    const generatedFilters: Filters = {};
+
+    const typeFilter = selectedFilters.find((filter) => filter.name === 'Type');
+    if (typeFilter) {
+      generatedFilters.state = typeFilter.value;
+    }
+
+    const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
+    if (dateFilter) {
+      generatedFilters.date = dateFilter.value;
+      generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
+      generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
+    }
+
+    const receiptAttachedFilter = selectedFilters.find((filter) => filter.name === 'Receipts Attached');
+
+    if (receiptAttachedFilter) {
+      generatedFilters.receiptsAttached = receiptAttachedFilter.value;
+    }
+
+    const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense Type');
+
+    if (expenseTypeFilter) {
+      generatedFilters.type = expenseTypeFilter.value;
+    }
+
+    const cardsFilter = selectedFilters.find((filter) => filter.name === 'Cards');
+
+    if (cardsFilter) {
+      generatedFilters.cardNumbers = cardsFilter.value;
+    }
+
+    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
+
+    this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
+
+    return generatedFilters;
+  }
+
   private generateSortCategoryPills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
       filterPills.push({
@@ -186,54 +234,6 @@ export class MyExpensesService {
         })
         .reduce((state1, state2) => `${state1}, ${state2}`),
     });
-  }
-
-  generateSortFilterPills(filter, filterPills: FilterPill[]) {
-    this.generateSortTxnDatePills(filter, filterPills);
-
-    this.generateSortAmountPills(filter, filterPills);
-
-    this.generateSortCategoryPills(filter, filterPills);
-  }
-
-  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
-    const generatedFilters: Filters = {};
-
-    const typeFilter = selectedFilters.find((filter) => filter.name === 'Type');
-    if (typeFilter) {
-      generatedFilters.state = typeFilter.value;
-    }
-
-    const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
-    if (dateFilter) {
-      generatedFilters.date = dateFilter.value;
-      generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
-      generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
-    }
-
-    const receiptAttachedFilter = selectedFilters.find((filter) => filter.name === 'Receipts Attached');
-
-    if (receiptAttachedFilter) {
-      generatedFilters.receiptsAttached = receiptAttachedFilter.value;
-    }
-
-    const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense Type');
-
-    if (expenseTypeFilter) {
-      generatedFilters.type = expenseTypeFilter.value;
-    }
-
-    const cardsFilter = selectedFilters.find((filter) => filter.name === 'Cards');
-
-    if (cardsFilter) {
-      generatedFilters.cardNumbers = cardsFilter.value;
-    }
-
-    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
-
-    this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
-
-    return generatedFilters;
   }
 
   convertSelectedSortFitlersToFilters(

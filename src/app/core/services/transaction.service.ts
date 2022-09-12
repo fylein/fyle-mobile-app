@@ -884,7 +884,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateCustomDateParams(newQueryParams: any, filters) {
+  generateCustomDateParams(newQueryParams, filters: Filters) {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date === DateFilters.custom) {
       const startDate = filters?.customDateStart?.toISOString();
