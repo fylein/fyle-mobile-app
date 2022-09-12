@@ -111,6 +111,13 @@ export class TasksComponent implements OnInit {
     }).subscribe(({ tasks, autoSubmissionReportDate }) => {
       const isIncompleteExpensesTaskShown = tasks.some((task) => task.header.includes('Incomplete expense'));
       const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
+
+      /*
+       * Show the auto-submission info card at the top of tasks page only if an auto-submission is scheduled
+       * and incomplete expenses task is not shown (else it'll be shown with that task)
+       * and hide it if the user is navigating to tasks section from teams section
+       * Since we don't have tasks for team advances, have added a check only for team reports filter
+       */
       this.showReportAutoSubmissionInfoCard =
         autoSubmissionReportDate && !isIncompleteExpensesTaskShown && paramFilters !== 'team_reports';
     });
