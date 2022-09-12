@@ -97,6 +97,22 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         .pipe(switchMap(() => from(that.proceed())))
         .subscribe(noop);
     } else {
+      if (performance.getEntriesByName('switch org launch time').length < 1) {
+        // Time taken to land on switch org page after sign-n
+        performance.mark('switch org launch time');
+
+        // Measure total time taken from launching the app to landing on switch org page
+        performance.measure('switch org launch time', 'app launch start time', 'switch org launch time');
+
+        const measureLaunchTime = performance.getEntriesByName('switch org launch time');
+
+        // Converting the duration to seconds and fix it to 3 decimal places
+        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
+
+        this.trackingService.switchOrgLaunchTime({
+          'Switch org time': launchTimeDuration,
+        });
+      }
       that.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())

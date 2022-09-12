@@ -991,4 +991,9 @@ export class TrackingService {
   captureSingleReceiptTime(properties = {}) {
     this.eventTrack('capture single receipt time', properties);
   }
+
+  // Track switch org launch time
+  switchOrgLaunchTime(properties = {}) {
+    this.eventTrack('switch org launch time', properties);
+  }
 }
