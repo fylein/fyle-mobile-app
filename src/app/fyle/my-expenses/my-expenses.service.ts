@@ -61,22 +61,6 @@ export class MyExpensesService {
     return generatedFilters;
   }
 
-  private generateSortCategoryPills(filter: Filters, filterPills: FilterPill[]) {
-    if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'category - a to z',
-      });
-    } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'category - z to a',
-      });
-    }
-  }
-
   generateSortAmountPills(filter: Filters, filterPills: FilterPill[]) {
     if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
       filterPills.push({
@@ -535,6 +519,22 @@ export class MyExpensesService {
       generatedFilters.push({
         name: 'Sort By',
         value: 'dateNewToOld',
+      });
+    }
+  }
+
+  private generateSortCategoryPills(filter: Filters, filterPills: FilterPill[]) {
+    if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'category - a to z',
+      });
+    } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
+      filterPills.push({
+        label: 'Sort By',
+        type: 'sort',
+        value: 'category - z to a',
       });
     }
   }
