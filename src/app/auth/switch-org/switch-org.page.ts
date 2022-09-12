@@ -53,8 +53,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isOfflineFormsRemoved = false;
 
-  userOrgsCount: number;
-
   constructor(
     private platform: Platform,
     private offlineService: OfflineService,
@@ -93,7 +91,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
     that.orgs$.subscribe((orgs) => {
-      that.userOrgsCount = orgs.length;
       that.cdRef.detectChanges();
     });
 
@@ -167,9 +164,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
     if (data?.action === 'close') {
       /*
-       * Case : When user is added to a SSO orgs, but he haven't verified his account through link.
-       * After showing the alert, he will be redirected to sign in page since there is no other org he is part of.
-       * If user have more than 1 org, user will stay on switch org page to choose another org.
+       * Case: When a user is added to an SSO org but hasn't verified their account through the link.
+       * After showing the alert, the user will be redirected to the sign-in page since there is no other org they are a part of.
+       * If the user has more than 1 org, the user will stay on the switch org page to choose another org.
        */
       this.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
@@ -187,9 +184,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  /*
-   * Mark User active in the selected org and redirect him to the dashboard.
-   */
+  // * Mark the user active in the selected org and redirect them to the dashboard.
   markUserActive(): Observable<OrgUserService | ExtendedOrgUser> {
     return from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.orgUserService.markActive()),
@@ -205,7 +200,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
    * If yes, Mark user active directly.
    * If no, Redirect user to setup password page.
    */
-  handleInviteLinkFlow(roles: string[]): Observable<OrgUserService | ExtendedOrgUser | null> {
+  handleInviteLinkFlow(roles: string[]): Observable<OrgUserService | ExtendedOrgUser> {
     return this.userService.getUserPasswordStatus().pipe(
       switchMap((passwordStatus) => {
         if (passwordStatus.is_password_required && !passwordStatus.is_password_set) {
@@ -219,13 +214,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   /*
-   * If user is coming from invite link, Follow invite link flow.
-   * Otherwise, show user popup to verify his email.
+   * If the user is coming from the invite link, Follow the invite link flow.
+   * Otherwise, show the user a popup to verify their email.
    */
-  handlePendingDetails(
-    roles: string[],
-    isFromInviteLink?: boolean
-  ): Observable<OrgUserService | ExtendedOrgUser | null> {
+  handlePendingDetails(roles: string[], isFromInviteLink?: boolean): Observable<OrgUserService | ExtendedOrgUser> {
     if (isFromInviteLink) {
       return this.handleInviteLinkFlow(roles);
     } else {
@@ -234,17 +226,17 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     return of(null);
   }
 
-  navigateBasedOnUserStatus(
-    isPendingDetails: boolean,
-    roles: string[],
-    eou: ExtendedOrgUser,
-    isFromInviteLink?: boolean
-  ): Observable<OrgUserService | ExtendedOrgUser | null> {
-    if (isPendingDetails) {
-      return this.handlePendingDetails(roles, isFromInviteLink);
-    } else if (eou.ou.status === 'ACTIVE') {
+  navigateBasedOnUserStatus(config: {
+    isPendingDetails: boolean;
+    roles: string[];
+    eou: ExtendedOrgUser;
+    isFromInviteLink?: boolean;
+  }): Observable<OrgUserService | ExtendedOrgUser> {
+    if (config.isPendingDetails) {
+      return this.handlePendingDetails(config.roles, config?.isFromInviteLink);
+    } else if (config.eou.ou.status === 'ACTIVE') {
       this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-    } else if (eou.ou.status === 'DISABLED') {
+    } else if (config.eou.ou.status === 'DISABLED') {
       this.router.navigate(['/', 'auth', 'disabled']);
     }
     return of(null);
@@ -274,7 +266,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         .pipe(
           switchMap(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
             this.setSentryUser(eou);
-            return this.navigateBasedOnUserStatus(isPendingDetails, roles, eou, isFromInviteLink);
+            return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
           }),
           finalize(() => from(this.loaderService.hideLoader()))
         )
