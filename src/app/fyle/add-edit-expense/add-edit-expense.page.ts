@@ -3822,7 +3822,7 @@ export class AddEditExpensePage implements OnInit {
           );
         }
 
-        if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
+        if (!this.fg.controls.currencyObj?.value?.amount && extractedData.amount && extractedData.currency) {
           const currencyObj = {
             amount: null,
             currency: homeCurrency,
