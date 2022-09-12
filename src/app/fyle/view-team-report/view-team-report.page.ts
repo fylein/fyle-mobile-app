@@ -333,12 +333,16 @@ export class ViewTeamReportPage implements OnInit {
   isUserActiveInCurrentSeqApprovalQueue(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
     const currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
 
-    const minRank = approvers
+    const approverRanks = approvers
       .filter((approver) => approver.state === 'APPROVAL_PENDING')
-      .map((approver) => approver.rank)
-      .reduce((prev, curr) => (prev < curr ? prev : curr));
+      .map((approver) => approver.rank);
 
-    return currentApproverRank === minRank;
+    if (approverRanks.length > 0) {
+      const minRank = approverRanks.reduce((prev, curr) => (prev < curr ? prev : curr));
+      return currentApproverRank === minRank;
+    }
+
+    return false;
   }
 
   async deleteReport() {
