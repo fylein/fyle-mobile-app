@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of } from 'rxjs';
-import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap, tap, flatMap } from 'rxjs/operators';
+import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -176,7 +176,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  goToSetupPassword(roles: string[]) {
+  navigateToSetupPage(roles: string[]) {
     if (roles.includes('OWNER')) {
       this.router.navigate(['/', 'post_verification', 'setup_account']);
     } else {
@@ -184,8 +184,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  // * Mark the user active in the selected org and redirect them to the dashboard.
-  markUserActive(): Observable<OrgUserService | ExtendedOrgUser> {
+  // Mark the user active in the selected org and redirect them to the dashboard.
+  markUserActive(): Observable<ExtendedOrgUser> {
     return from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.orgUserService.markActive()),
       finalize(() => {
@@ -204,7 +204,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     return this.userService.getUserPasswordStatus().pipe(
       switchMap((passwordStatus) => {
         if (passwordStatus.is_password_required && !passwordStatus.is_password_set) {
-          this.goToSetupPassword(roles);
+          this.navigateToSetupPage(roles);
         } else {
           return this.markUserActive();
         }
