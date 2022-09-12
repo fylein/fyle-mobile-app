@@ -223,14 +223,11 @@ export class ReportService {
         data: null,
       })
       .pipe(
-        map((res) => {
-          if (res.data.next_at) {
-            const dateObj = new Date(res.data.next_at);
-            res.data.next_at = dateObj;
-            return res;
-          }
-          return res;
-        })
+        map((res) => ({
+          data: {
+            next_at: new Date(),
+          },
+        }))
       );
 
     return this.launchDarklyService
