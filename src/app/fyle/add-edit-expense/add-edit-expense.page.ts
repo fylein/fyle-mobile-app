@@ -1529,7 +1529,7 @@ export class AddEditExpensePage implements OnInit {
       map((fileObjs) => (fileObjs && fileObjs.length) || 0)
     );
 
-    from(this.loaderService.showLoader('Loading expense...', 300))
+    from(this.loaderService.showLoader('Loading expense...', 15000))
       .pipe(
         switchMap(() =>
           forkJoin({
