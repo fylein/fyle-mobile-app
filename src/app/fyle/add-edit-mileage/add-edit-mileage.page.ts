@@ -1148,10 +1148,10 @@ export class AddEditMileagePage implements OnInit {
           }).pipe(
             map(({ etxn, mileageRates }) => {
               if (formValue) {
-                if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === formValue.vehicle_type) {
+                if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === formValue?.vehicle_type) {
                   return etxn.tx.mileage_rate;
                 } else {
-                  return this.getRateByVehicleType(mileageRates, formValue.vehicle_type);
+                  return this.getRateByVehicleType(mileageRates, formValue?.vehicle_type);
                 }
               }
             })
@@ -1916,7 +1916,7 @@ export class AddEditMileagePage implements OnInit {
             mileage_calculated_amount:
               (rate ||
                 etxn.tx.mileage_rate ||
-                this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name.vehicle_type)) *
+                this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name?.vehicle_type)) *
               calculatedDistance,
             project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,
