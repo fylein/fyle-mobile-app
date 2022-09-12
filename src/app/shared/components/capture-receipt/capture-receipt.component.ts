@@ -287,7 +287,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       'enterprise',
       'add_edit_expense',
       {
-        dataUrl: this.base64ImagesWithSource[0].base64Image,
+        dataUrl: this.base64ImagesWithSource[0]?.base64Image,
         canExtractData: this.isInstafyleEnabled,
       },
     ]);
@@ -369,7 +369,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             await modal.onDidDismiss();
             setTimeout(() => {
               this.modalController.dismiss({
-                dataUrl: this.base64ImagesWithSource[0].base64Image,
+                dataUrl: this.base64ImagesWithSource[0]?.base64Image,
               });
             }, 0);
           } else {
