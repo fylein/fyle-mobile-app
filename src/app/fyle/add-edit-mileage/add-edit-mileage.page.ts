@@ -1897,7 +1897,7 @@ export class AddEditMileagePage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
-            mileage_vehicle_type: formValue.mileage_rate_name.vehicle_type,
+            mileage_vehicle_type: formValue.mileage_rate_name?.vehicle_type,
             mileage_is_round_trip: formValue.route.roundTrip,
             mileage_rate: rate || etxn.tx.mileage_rate,
             source_account_id: formValue.paymentMode.acc.id,
