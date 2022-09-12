@@ -1426,18 +1426,18 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.paymentModeInvalid$ = iif(() => this.activatedRoute.snapshot.params.id, this.etxn$, of(null)).pipe(
       map((etxn) => {
-        if (this.fg.value.paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        if (this.fg.value.paymentMode?.acc?.type === 'PERSONAL_ADVANCE_ACCOUNT') {
           if (
             etxn &&
             etxn.id &&
-            this.fg.value.paymentMode.acc.id === etxn.source_account_id &&
+            this.fg.value.paymentMode?.acc?.id === etxn.source_account_id &&
             etxn.state !== 'DRAFT'
           ) {
             return (
-              this.fg.value.paymentMode.acc.tentative_balance_amount + etxn.amount < this.fg.value.currencyObj.amount
+              this.fg.value.paymentMode?.acc?.tentative_balance_amount + etxn.amount < this.fg.value.currencyObj.amount
             );
           } else {
-            return this.fg.value.paymentMode.acc.tentative_balance_amount < this.fg.value.currencyObj.amount;
+            return this.fg.value.paymentMode?.acc?.tentative_balance_amount < this.fg.value.currencyObj.amount;
           }
         } else {
           return false;
@@ -1461,7 +1461,8 @@ export class AddEditPerDiemPage implements OnInit {
           return customProperty;
         });
         const skipReimbursement =
-          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
+          this.fg.value.paymentMode?.acc?.type === 'PERSONAL_ACCOUNT' &&
+          !this.fg.value.paymentMode?.acc?.isReimbursable;
 
         const formValue = this.fg.value;
         const currencyObj = this.fg.controls.currencyObj.value;
