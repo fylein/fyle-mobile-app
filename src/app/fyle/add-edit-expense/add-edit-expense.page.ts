@@ -816,8 +816,8 @@ export class AddEditExpensePage implements OnInit {
               .pipe(switchMap(() => this.markCCCAsPersonal(id)));
           } else {
             return this.transactionService
-              .unmatchCCCExpense(id, this.matchedCCCTransaction.id)
-              .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction.id)));
+              .unmatchCCCExpense(id, this.matchedCCCTransaction?.id)
+              .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction?.id)));
           }
         },
       },
@@ -2747,7 +2747,7 @@ export class AddEditExpensePage implements OnInit {
           if (this.selectedCCCTransaction) {
             this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
             this.selectedCCCTransactionInSuggestions = this.matchingCCCTransactions.some(
-              (cccExpense) => cccExpense.id === this.matchedCCCTransaction.id
+              (cccExpense) => cccExpense.id === this.matchedCCCTransaction?.id
             );
           }
 
@@ -3481,7 +3481,10 @@ export class AddEditExpensePage implements OnInit {
           this.selectedCCCTransaction &&
           this.selectedCCCTransaction.id
         ) {
-          if (transaction.corporate_credit_card_expense_group_id !== this.selectedCCCTransaction.id) {
+          if (
+            transaction.corporate_credit_card_expense_group_id !== this.selectedCCCTransaction.id &&
+            this.matchedCCCTransaction
+          ) {
             return this.transactionService
               .unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id)
               .pipe(
@@ -3491,7 +3494,11 @@ export class AddEditExpensePage implements OnInit {
         }
 
         // Case is for unmatching a matched expense
-        if (!this.selectedCCCTransaction && transaction.corporate_credit_card_expense_group_id) {
+        if (
+          !this.selectedCCCTransaction &&
+          transaction.corporate_credit_card_expense_group_id &&
+          this.matchedCCCTransaction
+        ) {
           return this.transactionService.unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id);
         }
 
