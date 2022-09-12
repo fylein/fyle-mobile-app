@@ -1,4 +1,4 @@
-import { Component, forwardRef, Injector, Input, OnInit, TemplateRef } from '@angular/core';
+import { Component, forwardRef, Injector, Input, OnChanges, OnInit, TemplateRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
@@ -23,7 +23,7 @@ import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model'
     },
   ],
 })
-export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
+export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAccessor {
   @Input() options: { label: string; value: UnflattenedReport }[] = [];
 
   @Input() disabled = false;
@@ -87,7 +87,9 @@ export class FyAddToReportComponent implements OnInit, ControlValueAccessor {
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
+  }
 
+  ngOnChanges() {
     //If Report auto submission is scheduled, 'None' option won't be shown in reports list
     if (this.autoSubmissionReportName) {
       this.showNullOption = false;
