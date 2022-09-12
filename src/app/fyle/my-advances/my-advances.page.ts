@@ -270,7 +270,7 @@ export class MyAdvancesPage implements AfterViewChecked {
         map(() => {
           this.refreshAdvances$.next();
           if (event) {
-            event.target.complete();
+            event?.target?.complete();
           }
         })
       )
