@@ -142,10 +142,10 @@ export class AppComponent implements OnInit {
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
-    });
 
-    this.UXCam.optIntoSchematicRecordings();
-    this.UXCam.startWithKey('App-key from UXCam');
+      this.UXCam.optIntoSchematicRecordings();
+      this.UXCam.startWithKey('App-key from UXCam');
+    });
   }
 
   checkAppSupportedVersion() {
