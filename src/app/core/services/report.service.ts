@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
@@ -15,6 +15,7 @@ import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { TransactionService } from './transaction.service';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { UserEventService } from './user-event.service';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -23,6 +24,7 @@ const reportsCacheBuster$ = new Subject<void>();
 })
 export class ReportService {
   constructor(
+    @Inject(PAGINATION_SIZE) public paginationSize: number,
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
@@ -395,11 +397,16 @@ export class ReportService {
   getAllExtendedReports(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap((count) => {
-        count = count > 200 ? count / 200 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getMyReports({ offset: 200 * page, limit: 200, queryParams: config.queryParams, order: config.order })
+        this.getMyReports({
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+          queryParams: config.queryParams,
+          order: config.order,
+        })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
@@ -420,11 +427,16 @@ export class ReportService {
   ) {
     return this.getTeamReportsCount().pipe(
       switchMap((count) => {
-        count = count > 200 ? count / 200 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getTeamReports({ offset: 200 * page, limit: 200, ...config.queryParams, order: config.order })
+        this.getTeamReports({
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+          ...config.queryParams,
+          order: config.order,
+        })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
@@ -488,9 +500,9 @@ export class ReportService {
     if (!rptIds || rptIds.length === 0) {
       return of([]);
     }
-    const count = rptIds.length > 200 ? rptIds.length / 200 : 1;
+    const count = rptIds.length > this.paginationSize ? rptIds.length / this.paginationSize : 1;
     return range(0, count).pipe(
-      map((page) => rptIds.slice(page * 200, (page + 1) * 200)),
+      map((page) => rptIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize)),
       concatMap((rptIds) => this.apiService.get('/reports/approvers', { params: { report_ids: rptIds } })),
       reduce((acc, curr) => acc.concat(curr), [])
     );

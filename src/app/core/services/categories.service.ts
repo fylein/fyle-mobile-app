@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
@@ -6,6 +6,7 @@ import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformCategory } from '../models/platform/platform-category.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 const categoriesCacheBuster$ = new Subject<void>();
 
@@ -15,7 +16,10 @@ const categoriesCacheBuster$ = new Subject<void>();
 export class CategoriesService {
   skipCategories = ['activity', 'mileage', 'per diem', 'unspecified'];
 
-  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
+  constructor(
+    @Inject(PAGINATION_SIZE) public paginationSize: number,
+    private spenderPlatformApiService: SpenderPlatformApiService
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: categoriesCacheBuster$,
@@ -23,10 +27,10 @@ export class CategoriesService {
   getAll(): Observable<OrgCategory[]> {
     return this.getActiveCategoriesCount().pipe(
       switchMap((count) => {
-        count = count > 200 ? count / 200 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getCategories({ offset: 200 * page, limit: 200 })),
+      concatMap((page) => this.getCategories({ offset: this.paginationSize * page, limit: this.paginationSize })),
       reduce((acc, curr) => acc.concat(curr), [] as OrgCategory[])
     );
   }

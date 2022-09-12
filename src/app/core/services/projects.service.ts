@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { ApiV2Service } from './api-v2.service';
 import { map } from 'rxjs/operators';
@@ -6,12 +6,17 @@ import { DataTransformService } from './data-transform.service';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
 import { ExtendedProject } from '../models/v2/extended-project.model';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(private apiService: ApiService, private apiV2Service: ApiV2Service) {}
+  constructor(
+    @Inject(PAGINATION_SIZE) public paginationSize: number,
+    private apiService: ApiService,
+    private apiV2Service: ApiV2Service
+  ) {}
 
   @Cacheable()
   getByParamsUnformatted(
@@ -36,7 +41,7 @@ export class ProjectsService {
     const params: any = {
       project_org_id: 'eq.' + orgId,
       order: sortOrder + '.' + sortDirection,
-      limit: limit || 200,
+      limit: limit || this.paginationSize,
       offset: offset || 0,
     };
 

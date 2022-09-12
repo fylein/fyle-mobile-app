@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
@@ -6,6 +6,7 @@ import { CostCenter } from '../models/v1/cost-center.model';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 const costCentersCacheBuster$ = new Subject<void>();
 
@@ -13,7 +14,10 @@ const costCentersCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class CostCentersService {
-  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
+  constructor(
+    @Inject(PAGINATION_SIZE) public paginationSize: number,
+    private spenderPlatformApiService: SpenderPlatformApiService
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: costCentersCacheBuster$,
@@ -21,10 +25,10 @@ export class CostCentersService {
   getAllActive(): Observable<CostCenter[]> {
     return this.getActiveCostCentersCount().pipe(
       switchMap((count) => {
-        count = count > 200 ? count / 200 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getCostCenters({ offset: 200 * page, limit: 200 })),
+      concatMap((page) => this.getCostCenters({ offset: this.paginationSize * page, limit: this.paginationSize })),
       reduce((acc, curr) => acc.concat(curr), [] as CostCenter[])
     );
   }
