@@ -1438,7 +1438,7 @@ export class AddEditExpensePage implements OnInit {
 
         const paidByCompanyAccount = paymentModes
           .map((res) => res?.value)
-          .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
+          .find((paymentMode) => paymentMode?.acc?.displayName === 'Paid by Company');
 
         if (
           hasCCCAccount &&
@@ -2553,7 +2553,7 @@ export class AddEditExpensePage implements OnInit {
       if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
         this.taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
         this.taxGroupsOptions$ = this.taxGroups$.pipe(
-          map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
+          map((taxGroupsOptions) => taxGroupsOptions?.map((tg) => ({ label: tg.name, value: tg })))
         );
       } else {
         this.taxGroups$ = of(null);

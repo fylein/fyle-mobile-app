@@ -1463,11 +1463,13 @@ export class AddEditMileagePage implements OnInit {
             this.presetLocation = recentValue.recent_start_locations[0];
           }
           const mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type);
-          mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
-            etxn.tx.mileage_rate,
-            etxn.tx.currency,
-            etxn.tx.distance_unit
-          );
+          if (mileage_rate_name) {
+            mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
+              etxn.tx.mileage_rate,
+              etxn.tx.currency,
+              etxn.tx.distance_unit
+            );
+          }
           this.fg.patchValue({
             mileage_rate_name,
             dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
@@ -1891,7 +1893,8 @@ export class AddEditMileagePage implements OnInit {
         const calculatedDistance = +res.calculatedDistance;
         const amount = res.amount;
         const skipReimbursement =
-          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
+          this.fg.value.paymentMode?.acc?.type === 'PERSONAL_ACCOUNT' &&
+          !this.fg.value.paymentMode?.acc?.isReimbursable;
         const rate = res.rate;
         const formValue = this.fg.value;
         return {

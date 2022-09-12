@@ -173,7 +173,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
         const paidByCompanyAccount = paymentModes.find(
-          (paymentMode) => paymentMode?.acc.displayName === 'Paid by Company'
+          (paymentMode) => paymentMode?.acc?.displayName === 'Paid by Company'
         );
 
         let account;
@@ -185,10 +185,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
         ) {
           account = paymentModes.find(
-            (paymentMode) => paymentMode?.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+            (paymentMode) => paymentMode?.acc?.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
           );
         } else {
-          account = paymentModes.find((paymentMode) => paymentMode?.acc.displayName === 'Personal Card/Cash');
+          account = paymentModes.find((paymentMode) => paymentMode?.acc?.displayName === 'Personal Card/Cash');
         }
         return account;
       })
