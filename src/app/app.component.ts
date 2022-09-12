@@ -144,7 +144,7 @@ export class AppComponent implements OnInit {
       GlobalCacheConfig.maxCacheCount = 100;
 
       this.UXCam.optIntoSchematicRecordings();
-      this.UXCam.startWithKey('App-key from UXCam');
+      this.UXCam.startWithKey('ma8jrrtuaf8h58h');
     });
   }
 
