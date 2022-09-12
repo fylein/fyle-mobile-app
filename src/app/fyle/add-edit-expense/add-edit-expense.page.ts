@@ -1129,7 +1129,6 @@ export class AddEditExpensePage implements OnInit {
 
   getNewExpenseObservable() {
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
 
     return forkJoin({
@@ -1137,24 +1136,14 @@ export class AddEditExpensePage implements OnInit {
       orgUserSettings: this.orgUserSettings$,
       categories: this.offlineService.getAllEnabledCategories(),
       homeCurrency: this.homeCurrency$,
-      accounts: accounts$,
       eou: eou$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get('recent-currency-cache')),
       recentValue: this.recentlyUsedValues$,
     }).pipe(
       map((dependencies) => {
-        const {
-          orgSettings,
-          orgUserSettings,
-          categories,
-          homeCurrency,
-          accounts,
-          eou,
-          imageData,
-          recentCurrency,
-          recentValue,
-        } = dependencies;
+        const { orgSettings, orgUserSettings, categories, homeCurrency, eou, imageData, recentCurrency, recentValue } =
+          dependencies;
         const bankTxn =
           this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
         const personalCardTxn =
@@ -2318,10 +2307,8 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
-          return forkJoin({
-            allCategories: this.offlineService.getAllEnabledCategories(),
-          }).pipe(
-            switchMap(({ allCategories }) => {
+          return this.offlineService.getAllEnabledCategories().pipe(
+            switchMap((allCategories) => {
               if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
                 etxn.tx.amount = etxn.tx.extracted_data.amount;
               }
