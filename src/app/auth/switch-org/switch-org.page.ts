@@ -110,7 +110,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
 
         this.trackingService.switchOrgLaunchTime({
-          'Switch org time': launchTimeDuration,
+          'Switch org launch time': launchTimeDuration,
         });
       }
       that.orgs$.subscribe((orgs) => {
