@@ -630,4 +630,10 @@ export class TasksComponent implements OnInit {
   onExpensesToReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
     this.showOldReportsMatBottomSheet();
   }
+
+  autoSubmissionInfoCardClicked(isSeparateCard: boolean) {
+    this.trackingService.autoSubmissionInfoCardClicked({
+      isSeparateCard,
+    });
+  }
 }

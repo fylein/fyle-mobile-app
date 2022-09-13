@@ -45,7 +45,10 @@
       <ng-container *ngIf="showReportAutoSubmissionInfo">
         <ion-row>
           <ion-col class="ion-col-no-padding">
-            <app-auto-submission-info-card [autoSubmissionReportDate]="autoSubmissionReportDate">
+            <app-auto-submission-info-card
+              [autoSubmissionReportDate]="autoSubmissionReportDate"
+              (cardClicked)="onInfoCardClicked()"
+            >
             </app-auto-submission-info-card>
           </ion-col>
         </ion-row>
