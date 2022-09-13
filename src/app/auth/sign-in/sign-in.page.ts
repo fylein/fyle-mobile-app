@@ -14,6 +14,7 @@ import { PushNotificationService } from 'src/app/core/services/push-notification
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
+import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 
 @Component({
   selector: 'app-sign-in',
@@ -69,7 +70,7 @@ export class SignInPage implements OnInit {
             const markOptions: PerformanceMarkOptions = {
               detail: 'SAML Login',
             };
-            performance.mark('login start time', markOptions);
+            performance.mark(PerfTrackers.loginStartTime, markOptions);
             this.trackingService.onSignin(this.fg.value.email, {
               label: 'Email',
             });
@@ -186,7 +187,7 @@ export class SignInPage implements OnInit {
             const markOptions: PerformanceMarkOptions = {
               detail: 'Password Login',
             };
-            performance.mark('login start time', markOptions);
+            performance.mark(PerfTrackers.loginStartTime, markOptions);
             this.trackingService.onSignin(this.fg.value.email, {
               label: 'Email',
             });
@@ -230,7 +231,7 @@ export class SignInPage implements OnInit {
               const markOptions: PerformanceMarkOptions = {
                 detail: 'Google Login',
               };
-              performance.mark('login start time', markOptions);
+              performance.mark(PerfTrackers.loginStartTime, markOptions);
               this.trackingService.onSignin(this.fg.value.email, {
                 label: 'Email',
               });

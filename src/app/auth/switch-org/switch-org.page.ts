@@ -20,6 +20,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { RemoveOfflineFormsService } from 'src/app/core/services/remove-offline-forms.service';
+import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 
 @Component({
   selector: 'app-switch-org',
@@ -205,7 +206,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   async switchOrg(org: Org) {
     // Tracking the time on click of switch org
-    performance.mark('on click switch org');
+    performance.mark(PerfTrackers.onClickSwitchOrg);
     const originalEou = await this.authService.getEou();
     from(this.loaderService.showLoader('Please wait...', 2000))
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
@@ -288,17 +289,17 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   private trackSwitchOrgLaunchTime() {
     try {
-      if (performance.getEntriesByName('switch org launch time').length === 0) {
+      if (performance.getEntriesByName(PerfTrackers.switchOrgLaunchTime).length === 0) {
         // Time taken to land on switch org page after sign-in
-        performance.mark('switch org launch time');
+        performance.mark(PerfTrackers.switchOrgLaunchTime);
 
         // Measure total time taken from logging into the app to landing on switch org page
-        performance.measure('switch org launch time', 'login start time');
+        performance.measure(PerfTrackers.switchOrgLaunchTime, PerfTrackers.loginStartTime);
 
-        const measureLaunchTime = performance.getEntriesByName('switch org launch time');
+        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.switchOrgLaunchTime);
 
         // eslint-disable-next-line @typescript-eslint/dot-notation
-        const loginMethod = performance.getEntriesByName('login start time')[0]['detail'];
+        const loginMethod = performance.getEntriesByName(PerfTrackers.loginStartTime)[0]['detail'];
 
         // Converting the duration to seconds and fix it to 3 decimal places
         const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);

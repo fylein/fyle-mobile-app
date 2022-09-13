@@ -14,6 +14,7 @@ import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assig
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
+import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 
 @Component({
   selector: 'app-stats',
@@ -203,17 +204,17 @@ export class StatsComponent implements OnInit {
     this.offlineService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs?.length > 1;
 
-      if (performance.getEntriesByName('app launch time')?.length < 1) {
+      if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
         // Time taken for the app to launch and display the first screen
-        performance.mark('app launch end time');
+        performance.mark(PerfTrackers.appLaunchEndTime);
 
         // Measure time taken to launch app
-        performance.measure('app launch time', 'app launch start time', 'app launch end time');
+        performance.measure(PerfTrackers.appLaunchTime, PerfTrackers.appLaunchStartTime, PerfTrackers.appLaunchEndTime);
 
-        const measureLaunchTime = performance.getEntriesByName('app launch time');
+        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
 
         // eslint-disable-next-line @typescript-eslint/dot-notation
-        const isLoggedIn = performance.getEntriesByName('app launch start time')[0]['detail'];
+        const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
 
         // Converting the duration to seconds and fix it to 3 decimal places
         const launchTimeDuration = (measureLaunchTime[0].duration / 1000).toFixed(3);
@@ -273,14 +274,14 @@ export class StatsComponent implements OnInit {
 
   private trackDashboardLaunchTime() {
     try {
-      if (performance.getEntriesByName('dashboard launch time').length === 0) {
+      if (performance.getEntriesByName(PerfTrackers.dashboardLaunchTime).length === 0) {
         // Time taken to land on dashboard page after switching org
-        performance.mark('dashboard launch time');
+        performance.mark(PerfTrackers.dashboardLaunchTime);
 
         // Measure total time taken from switch org page to landing on dashboard page
-        performance.measure('dashboard launch time', 'on click switch org');
+        performance.measure(PerfTrackers.dashboardLaunchTime, PerfTrackers.onClickSwitchOrg);
 
-        const measureLaunchTime = performance.getEntriesByName('dashboard launch time');
+        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.dashboardLaunchTime);
 
         // Converting the duration to seconds and fix it to 3 decimal places
         const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
