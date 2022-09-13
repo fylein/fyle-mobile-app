@@ -335,6 +335,8 @@ export class AddEditExpensePage implements OnInit {
 
   corporateCreditCardExpenseGroupId: string;
 
+  autoSubmissionReportName$: Observable<string>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2838,6 +2840,8 @@ export class AddEditExpensePage implements OnInit {
         });
       }
     });
+
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     this.getPolicyDetails();
     this.getDuplicateExpenses();

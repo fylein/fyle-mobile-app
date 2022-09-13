@@ -179,6 +179,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   canRemoveFromReport = false;
 
+  autoSubmissionReportName$: Observable<string>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -1444,6 +1446,8 @@ export class AddEditPerDiemPage implements OnInit {
         }
       })
     );
+
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {

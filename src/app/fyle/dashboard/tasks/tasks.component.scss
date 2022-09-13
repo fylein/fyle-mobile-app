@@ -10,8 +10,7 @@
   }
 
   &--zero-state {
-    position: relative;
-    margin-top: 80px;
+    height: calc(100vh - 400px) !important;
   }
 
   &--container {
@@ -20,6 +19,18 @@
 
   &--container-row {
     height: 100%;
+  }
+}
+
+.task-card {
+  background-color: $pure-white;
+
+  &__container {
+    margin: 0 16px;
+
+    &--divider {
+      border-bottom: 1px solid $grey;
+    }
   }
 }
 
