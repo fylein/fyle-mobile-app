@@ -86,14 +86,19 @@ export class TasksComponent implements OnInit {
   }
 
   init() {
-    this.tasks$ = this.loadData$.pipe(
-      switchMap((taskFilters) => this.taskService.getTasks(taskFilters)),
-      shareReplay(1)
-    );
-
     this.autoSubmissionReportDate$ = this.reportService
       .getReportAutoSubmissionDetails()
       .pipe(map((autoSubmissionReportDetails) => autoSubmissionReportDetails?.data?.next_at));
+
+    this.tasks$ = combineLatest({
+      taskFilters: this.loadData$,
+      autoSubmissionReportDate: this.autoSubmissionReportDate$,
+    }).pipe(
+      switchMap(({ taskFilters, autoSubmissionReportDate }) =>
+        this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters)
+      ),
+      shareReplay(1)
+    );
 
     this.tasks$.subscribe((tasks) => {
       this.trackTasks(tasks);
@@ -105,7 +110,16 @@ export class TasksComponent implements OnInit {
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
     }).subscribe(({ tasks, autoSubmissionReportDate }) => {
       const isIncompleteExpensesTaskShown = tasks.some((task) => task.header.includes('Incomplete expense'));
-      this.showReportAutoSubmissionInfoCard = autoSubmissionReportDate && !isIncompleteExpensesTaskShown;
+      const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
+
+      /*
+       * Show the auto-submission info card at the top of tasks page only if an auto-submission is scheduled
+       * and incomplete expenses task is not shown (else it'll be shown with that task)
+       * and hide it if the user is navigating to tasks section from teams section
+       * Since we don't have tasks for team advances, have added a check only for team reports filter
+       */
+      this.showReportAutoSubmissionInfoCard =
+        autoSubmissionReportDate && !isIncompleteExpensesTaskShown && paramFilters !== 'team_reports';
     });
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
