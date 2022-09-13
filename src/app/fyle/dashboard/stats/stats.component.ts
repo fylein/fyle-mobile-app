@@ -144,7 +144,7 @@ export class StatsComponent implements OnInit {
           cards.forEach((card) => {
             if (
               this.cardTransactionsAndDetails.filter((cardDetail) => cardDetail.cardNumber === card.ba_account_number)
-                .length === 0
+                ?.length === 0
             ) {
               this.cardTransactionsAndDetails.push({
                 cardNumber: card.ba_account_number,
@@ -187,7 +187,7 @@ export class StatsComponent implements OnInit {
     that.initializeReportStats();
     that.initializeExpensesStats();
     that.offlineService.getOrgSettings().subscribe((orgSettings) => {
-      if (orgSettings.corporate_credit_card_settings?.enabled) {
+      if (orgSettings?.corporate_credit_card_settings?.enabled) {
         this.isUnifyCCCExpensesSettings =
           orgSettings.unify_ccce_expenses_settings &&
           orgSettings.unify_ccce_expenses_settings.allowed &&
@@ -201,9 +201,9 @@ export class StatsComponent implements OnInit {
     });
 
     this.offlineService.getOrgs().subscribe((orgs) => {
-      const isMultiOrg = orgs.length > 1;
+      const isMultiOrg = orgs?.length > 1;
 
-      if (performance.getEntriesByName('app launch time').length < 1) {
+      if (performance.getEntriesByName('app launch time')?.length < 1) {
         // Time taken for the app to launch and display the first screen
         performance.mark('app launch end time');
 
@@ -216,7 +216,7 @@ export class StatsComponent implements OnInit {
         const isLoggedIn = performance.getEntriesByName('app launch start time')[0]['detail'];
 
         // Converting the duration to seconds and fix it to 3 decimal places
-        const launchTimeDuration = (measureLaunchTime[0].duration / 1000).toFixed(3);
+        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
 
         this.trackingService.appLaunchTime({
           'App launch time': launchTimeDuration,

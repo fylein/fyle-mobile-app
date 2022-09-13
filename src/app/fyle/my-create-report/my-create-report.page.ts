@@ -97,7 +97,7 @@ export class MyCreateReportPage implements OnInit {
 
   ctaClickedEvent(reportActionType) {
     this.showReportNameError = false;
-    if (this.reportTitle.trim().length <= 0) {
+    if (this.reportTitle && this.reportTitle?.trim().length <= 0) {
       this.showReportNameError = true;
       return;
     }
@@ -109,7 +109,7 @@ export class MyCreateReportPage implements OnInit {
 
     this.sendFirstReportCreated();
 
-    const txnIds = this.selectedElements.map((expense) => expense.tx_id);
+    const txnIds = this.selectedElements?.map((expense) => expense.tx_id);
 
     if (reportActionType === 'create_draft_report') {
       this.saveDraftReportLoading = true;

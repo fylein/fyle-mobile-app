@@ -816,8 +816,8 @@ export class AddEditExpensePage implements OnInit {
               .pipe(switchMap(() => this.markCCCAsPersonal(id)));
           } else {
             return this.transactionService
-              .unmatchCCCExpense(id, this.matchedCCCTransaction.id)
-              .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction.id)));
+              .unmatchCCCExpense(id, this.matchedCCCTransaction?.id)
+              .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction?.id)));
           }
         },
       },
@@ -1438,7 +1438,7 @@ export class AddEditExpensePage implements OnInit {
 
         const paidByCompanyAccount = paymentModes
           .map((res) => res?.value)
-          .find((paymentMode) => paymentMode?.acc.displayName === 'Paid by Company');
+          .find((paymentMode) => paymentMode?.acc?.displayName === 'Paid by Company');
 
         if (
           hasCCCAccount &&
@@ -2553,7 +2553,7 @@ export class AddEditExpensePage implements OnInit {
       if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
         this.taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
         this.taxGroupsOptions$ = this.taxGroups$.pipe(
-          map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
+          map((taxGroupsOptions) => taxGroupsOptions?.map((tg) => ({ label: tg.name, value: tg })))
         );
       } else {
         this.taxGroups$ = of(null);
@@ -2747,7 +2747,7 @@ export class AddEditExpensePage implements OnInit {
           if (this.selectedCCCTransaction) {
             this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
             this.selectedCCCTransactionInSuggestions = this.matchingCCCTransactions.some(
-              (cccExpense) => cccExpense.id === this.matchedCCCTransaction.id
+              (cccExpense) => cccExpense.id === this.matchedCCCTransaction?.id
             );
           }
 
@@ -2914,44 +2914,43 @@ export class AddEditExpensePage implements OnInit {
           tx: {
             ...etxn.tx,
             source: this.source || etxn.tx.source,
-            source_account_id: this.fg.value.paymentMode.acc.id,
-            billable: this.fg.value.billable,
+            source_account_id: this.fg.value?.paymentMode?.acc?.id,
+            billable: this.fg.value?.billable,
             skip_reimbursement:
-              this.fg.value.paymentMode &&
-              this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' &&
-              !this.fg.value.paymentMode.acc.isReimbursable,
-            txn_dt: this.fg.value.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value.dateOfSpend)),
-            currency: this.fg.value.currencyObj && this.fg.value.currencyObj.currency,
-            amount: this.fg.value.currencyObj && this.fg.value.currencyObj.amount,
-            orig_currency: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_currency,
-            orig_amount: this.fg.value.currencyObj && this.fg.value.currencyObj.orig_amount,
-            project_id: this.fg.value.project && this.fg.value.project.project_id,
-            tax_amount: this.fg.value.tax_amount,
-            tax_group_id: this.fg.value.tax_group && this.fg.value.tax_group.id,
-            org_category_id: this.fg.value.category && this.fg.value.category.id,
-            fyle_category: this.fg.value.category && this.fg.value.category.fyle_category,
+              this.fg.value?.paymentMode?.acc?.type === 'PERSONAL_ACCOUNT' &&
+              !this.fg.value?.paymentMode?.acc?.isReimbursable,
+            txn_dt: this.fg.value?.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value?.dateOfSpend)),
+            currency: this.fg.value?.currencyObj?.currency,
+            amount: this.fg.value?.currencyObj?.amount,
+            orig_currency: this.fg.value?.currencyObj?.orig_currency,
+            orig_amount: this.fg.value?.currencyObj?.orig_amount,
+            project_id: this.fg.value?.project?.project_id,
+            tax_amount: this.fg.value?.tax_amount,
+            tax_group_id: this.fg.value?.tax_group?.id,
+            org_category_id: this.fg.value?.category?.id,
+            fyle_category: this.fg.value?.category?.fyle_category,
             policy_amount: null,
-            vendor: this.fg.value.vendor_id && this.fg.value.vendor_id.display_name,
-            purpose: this.fg.value.purpose,
+            vendor: this.fg.value?.vendor_id?.display_name,
+            purpose: this.fg.value?.purpose,
             locations: locations || [],
             custom_properties: customProperties || [],
             num_files: isPolicyEtxn
               ? (res.attachments as Array<FileObject>)?.length
-              : this.activatedRoute.snapshot.params.dataUrl
+              : this.activatedRoute.snapshot.params?.dataUrl
               ? 1
               : 0,
             ...policyProps,
             org_user_id: etxn.tx.org_user_id,
-            from_dt: this.fg.value.from_dt && this.dateService.getUTCDate(new Date(this.fg.value.from_dt)),
-            to_dt: this.fg.value.to_dt && this.dateService.getUTCDate(new Date(this.fg.value.to_dt)),
-            flight_journey_travel_class: this.fg.value.flight_journey_travel_class,
-            flight_return_travel_class: this.fg.value.flight_return_travel_class,
-            train_travel_class: this.fg.value.train_travel_class,
-            bus_travel_class: this.fg.value.bus_travel_class,
-            distance: this.fg.value.distance,
-            distance_unit: this.fg.value.distance_unit,
-            hotel_is_breakfast_provided: this.fg.value.hotel_is_breakfast_provided,
-            user_reason_for_duplicate_expenses: this.fg.value.duplicate_detection_reason,
+            from_dt: this.fg.value?.from_dt && this.dateService.getUTCDate(new Date(this.fg.value?.from_dt)),
+            to_dt: this.fg.value?.to_dt && this.dateService.getUTCDate(new Date(this.fg.value?.to_dt)),
+            flight_journey_travel_class: this.fg.value?.flight_journey_travel_class,
+            flight_return_travel_class: this.fg.value?.flight_return_travel_class,
+            train_travel_class: this.fg.value?.train_travel_class,
+            bus_travel_class: this.fg.value?.bus_travel_class,
+            distance: this.fg.value?.distance,
+            distance_unit: this.fg.value?.distance_unit,
+            hotel_is_breakfast_provided: this.fg.value?.hotel_is_breakfast_provided,
+            user_reason_for_duplicate_expenses: this.fg.value?.duplicate_detection_reason,
             ...costCenter,
           },
           ou: etxn.ou,
@@ -3482,7 +3481,10 @@ export class AddEditExpensePage implements OnInit {
           this.selectedCCCTransaction &&
           this.selectedCCCTransaction.id
         ) {
-          if (transaction.corporate_credit_card_expense_group_id !== this.selectedCCCTransaction.id) {
+          if (
+            transaction.corporate_credit_card_expense_group_id !== this.selectedCCCTransaction.id &&
+            this.matchedCCCTransaction
+          ) {
             return this.transactionService
               .unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id)
               .pipe(
@@ -3492,7 +3494,11 @@ export class AddEditExpensePage implements OnInit {
         }
 
         // Case is for unmatching a matched expense
-        if (!this.selectedCCCTransaction && transaction.corporate_credit_card_expense_group_id) {
+        if (
+          !this.selectedCCCTransaction &&
+          transaction.corporate_credit_card_expense_group_id &&
+          this.matchedCCCTransaction
+        ) {
           return this.transactionService.unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id);
         }
 
@@ -3823,7 +3829,7 @@ export class AddEditExpensePage implements OnInit {
           );
         }
 
-        if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
+        if (!this.fg.controls.currencyObj?.value?.amount && extractedData.amount && extractedData.currency) {
           const currencyObj = {
             amount: null,
             currency: homeCurrency,
@@ -4373,17 +4379,22 @@ export class AddEditExpensePage implements OnInit {
             const duplicateIds = duplicateSets
               .map((value) => value.transaction_ids)
               .reduce((acc, curVal) => acc.concat(curVal), []);
-            const params = {
-              tx_id: `in.(${duplicateIds.join(',')})`,
-            };
-            return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
-              map((expenses) => {
-                const expensesArray = expenses as [];
-                return duplicateSets.map((duplicateSet) =>
-                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
-                );
-              })
-            );
+
+            if (duplicateIds.length > 0) {
+              const params = {
+                tx_id: `in.(${duplicateIds.join(',')})`,
+              };
+              return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
+                map((expenses) => {
+                  const expensesArray = expenses as [];
+                  return duplicateSets.map((duplicateSet) =>
+                    this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                  );
+                })
+              );
+            } else {
+              return of([]);
+            }
           })
         )
         .subscribe((duplicateExpensesSet) => {

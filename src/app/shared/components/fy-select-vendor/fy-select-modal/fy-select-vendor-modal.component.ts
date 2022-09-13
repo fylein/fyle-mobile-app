@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
-import { Observable, fromEvent, from } from 'rxjs';
+import { Observable, fromEvent, from, combineLatest } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
 import { isEqual } from 'lodash';
@@ -24,6 +24,8 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
   value = '';
 
   isLoading = false;
+
+  selectableOptions: { label: string; value: any; selected?: boolean }[] = [];
 
   constructor(
     private modalController: ModalController,
@@ -115,6 +117,18 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
         )
       )
     );
+
+    combineLatest({
+      filteredOptions: this.filteredOptions$,
+      recentlyUsedItems: this.recentrecentlyUsedItems$,
+    }).subscribe(({ filteredOptions, recentlyUsedItems }) => {
+      const recentlyUsedItemsUpdated = recentlyUsedItems.map((recentItem) => {
+        recentItem.isRecentlyUsed = true;
+        return recentItem;
+      });
+      this.selectableOptions = [...recentlyUsedItemsUpdated, ...filteredOptions];
+      this.cdr.detectChanges();
+    });
 
     this.cdr.detectChanges();
   }

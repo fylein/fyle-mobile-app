@@ -16,7 +16,7 @@
   (press)="onSetMultiselectMode()"
 >
   <div class="expenses-card--divider" *ngIf="!showDt"></div>
-  <ng-container *ngIf="expenseFields$ | async as expenseFields">
+  <ng-container>
     <div class="d-flex">
       <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
         <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled>
@@ -181,20 +181,8 @@
             >
               {{ expense.vendorDetails }}
             </div>
-
             <div
-              class="expenses-card--vendor"
-              *ngIf="
-                !(isMileageExpense || isPerDiem) &&
-                !expense.vendorDetails &&
-                expenseFields?.vendor_id[0] &&
-                !expenseFields?.vendor_id[0].is_mandatory
-              "
-            >
-              Unspecified {{ expenseFields?.vendor_id[0].field_name }}
-            </div>
-            <div
-              *ngIf="isProjectEnabled$ | async"
+              *ngIf="expenseFields && isProjectEnabled$ | async"
               class="expenses-card--project"
               [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
             >

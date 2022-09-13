@@ -173,7 +173,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
 
         const paidByCompanyAccount = paymentModes.find(
-          (paymentMode) => paymentMode?.acc.displayName === 'Paid by Company'
+          (paymentMode) => paymentMode?.acc?.displayName === 'Paid by Company'
         );
 
         let account;
@@ -185,10 +185,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
         ) {
           account = paymentModes.find(
-            (paymentMode) => paymentMode?.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+            (paymentMode) => paymentMode?.acc?.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
           );
         } else {
-          account = paymentModes.find((paymentMode) => paymentMode?.acc.displayName === 'Personal Card/Cash');
+          account = paymentModes.find((paymentMode) => paymentMode?.acc?.displayName === 'Personal Card/Cash');
         }
         return account;
       })
@@ -287,7 +287,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       'enterprise',
       'add_edit_expense',
       {
-        dataUrl: this.base64ImagesWithSource[0].base64Image,
+        dataUrl: this.base64ImagesWithSource[0]?.base64Image,
         canExtractData: this.isInstafyleEnabled,
       },
     ]);
@@ -369,7 +369,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             await modal.onDidDismiss();
             setTimeout(() => {
               this.modalController.dismiss({
-                dataUrl: this.base64ImagesWithSource[0].base64Image,
+                dataUrl: this.base64ImagesWithSource[0]?.base64Image,
               });
             }, 0);
           } else {
@@ -521,10 +521,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngAfterViewInit() {
-    this.setUpAndStartCamera();
+    if (this.isModal) {
+      this.setUpAndStartCamera();
+    }
   }
 
   ngOnDestroy() {
-    this.stopCamera();
+    if (this.isModal) {
+      this.stopCamera();
+    }
   }
 }

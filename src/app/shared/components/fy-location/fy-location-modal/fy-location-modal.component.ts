@@ -145,7 +145,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
                 return that.locationService.getAutocompletePredictions(
                   searchText,
                   eou.us.id,
-                  `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`
+                  `${currentLocation?.coords.latitude},${currentLocation?.coords.longitude}`
                 );
               } else {
                 return that.locationService.getAutocompletePredictions(searchText, eou.us.id);
@@ -209,7 +209,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
             return this.locationService.getAutocompletePredictions(
               location,
               eou.us.id,
-              `${currentLocation.coords.latitude},${currentLocation.coords.longitude}`
+              `${currentLocation?.coords.latitude},${currentLocation?.coords.longitude}`
             );
           } else {
             return this.locationService.getAutocompletePredictions(location, eou.us.id);
@@ -296,7 +296,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
       .pipe(
         switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
         switchMap((coordinates) =>
-          this.gmapsService.getGeocode(coordinates.coords.latitude, coordinates.coords.longitude)
+          this.gmapsService.getGeocode(coordinates?.coords.latitude, coordinates?.coords.longitude)
         ),
         map(this.formatGeocodeResponse),
         catchError((err) => {

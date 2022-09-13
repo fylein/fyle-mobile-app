@@ -160,24 +160,26 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
     const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey();
-    from(this.storageService.get('isOfflineFormsRemoved')).subscribe((res) => {
-      this.isOfflineFormsRemoved = res;
+    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey().subscribe((isOfflineModeDisabled: boolean) => {
+      this.isOfflineFormsRemoved = isOfflineModeDisabled;
+
+      this.storageService.set('isOfflineFormsRemoved', isOfflineModeDisabled);
+
+      let offlineData$: Observable<any[]>;
+
+      if (this.isOfflineFormsRemoved) {
+        offlineData$ = this.offlineService.loadOptimized().pipe(shareReplay(1));
+      } else {
+        offlineData$ = this.offlineService.load().pipe(shareReplay(1));
+      }
+
+      forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
+        .pipe(finalize(() => from(this.loaderService.hideLoader())))
+        .subscribe(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
+          this.setSentryUser(eou);
+          this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
+        });
     });
-    let offlineData$: Observable<any[]>;
-
-    if (this.isOfflineFormsRemoved) {
-      offlineData$ = this.offlineService.loadOptimized().pipe(shareReplay(1));
-    } else {
-      offlineData$ = this.offlineService.load().pipe(shareReplay(1));
-    }
-
-    forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
-      .pipe(finalize(() => from(this.loaderService.hideLoader())))
-      .subscribe(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
-        this.setSentryUser(eou);
-        this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
-      });
   }
 
   trackSwitchOrg(org: Org, originalEou) {
@@ -202,7 +204,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   async switchOrg(org: Org) {
     const originalEou = await this.authService.getEou();
-    from(this.loaderService.showLoader())
+    from(this.loaderService.showLoader('Please wait...', 2000))
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
       .subscribe(
         () => {

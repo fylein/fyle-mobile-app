@@ -113,7 +113,7 @@ export class SidemenuComponent implements OnInit {
         this.activeOrg = currentOrg;
         this.orgSettings = orgSettings;
         this.orgUserSettings = orgUserSettings;
-        const isDelegatee = delegatedAccounts.length > 0;
+        const isDelegatee = delegatedAccounts?.length > 0;
         this.appVersion = (deviceInfo && deviceInfo.liveUpdateAppVersion) || '1.2.3';
         this.allowedActions = allowedActions;
         this.isSwitchedToDelegator = isSwitchedToDelegator;
@@ -141,7 +141,6 @@ export class SidemenuComponent implements OnInit {
         }
 
         this.switchDelegator.emit(this.isSwitchedToDelegator);
-        this.freshChatService.setupNetworkWatcher();
         this.setupSideMenu(isConnected, orgs, isDelegatee);
       }
     );

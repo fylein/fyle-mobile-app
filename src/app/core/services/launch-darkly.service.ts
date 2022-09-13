@@ -58,6 +58,10 @@ export class LaunchDarklyService {
     return this.ldClient;
   }
 
+  checkIfKeyboardPluginIsEnabled() {
+    return this.getVariation('keyboard_plugin_enabled', true);
+  }
+
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)
   private isTheSameUser(newUser: LDClient.LDUser): boolean {
     const previousUser = this.ldClient?.getUser();

@@ -351,7 +351,7 @@
                     class="add-edit-mileage--internal-block"
                     [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
                   >
-                    <app-fy-select
+                    <app-virtual-select
                       [cacheName]="'mileageCostCenterCache'"
                       [label]="txnFields.cost_center_id?.field_name"
                       [mandatory]="txnFields.cost_center_id.is_mandatory"
@@ -361,7 +361,7 @@
                       formControlName="costCenter"
                       [placeholder]="txnFields.cost_center_id?.placeholder"
                     >
-                    </app-fy-select>
+                    </app-virtual-select>
                   </div>
                   <div
                     *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"
