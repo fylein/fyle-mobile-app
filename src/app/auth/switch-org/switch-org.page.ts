@@ -200,7 +200,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
    * If yes, Mark user active directly.
    * If no, Redirect user to setup password page.
    */
-  handleInviteLinkFlow(roles: string[]): Observable<OrgUserService | ExtendedOrgUser> {
+  handleInviteLinkFlow(roles: string[]): Observable<ExtendedOrgUser> {
     return this.userService.getUserPasswordStatus().pipe(
       switchMap((passwordStatus) => {
         if (passwordStatus.is_password_required && !passwordStatus.is_password_set) {
@@ -217,7 +217,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
    * If the user is coming from the invite link, Follow the invite link flow.
    * Otherwise, show the user a popup to verify their email.
    */
-  handlePendingDetails(roles: string[], isFromInviteLink?: boolean): Observable<OrgUserService | ExtendedOrgUser> {
+  handlePendingDetails(roles: string[], isFromInviteLink?: boolean): Observable<ExtendedOrgUser> {
     if (isFromInviteLink) {
       return this.handleInviteLinkFlow(roles);
     } else {
@@ -231,7 +231,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     roles: string[];
     eou: ExtendedOrgUser;
     isFromInviteLink?: boolean;
-  }): Observable<OrgUserService | ExtendedOrgUser> {
+  }): Observable<ExtendedOrgUser> {
     if (config.isPendingDetails) {
       return this.handlePendingDetails(config.roles, config?.isFromInviteLink);
     } else if (config.eou.ou.status === 'ACTIVE') {
