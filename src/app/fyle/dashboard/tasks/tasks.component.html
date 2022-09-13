@@ -21,6 +21,7 @@
           <div class="task-card__container" [ngClass]="{ 'task-card__container--divider': tasks.length }">
             <app-auto-submission-info-card
               [autoSubmissionReportDate]="autoSubmissionReportDate$ | async"
+              (cardClicked)="autoSubmissionInfoCardClicked(true)"
             ></app-auto-submission-info-card>
           </div>
         </div>
@@ -31,6 +32,7 @@
             [task]="task"
             [autoSubmissionReportDate]="autoSubmissionReportDate$ | async"
             (ctaClicked)="onTaskClicked($event, task)"
+            (infoCardClicked)="autoSubmissionInfoCardClicked(false)"
           ></app-tasks-card>
         </ng-container>
       </ng-container>

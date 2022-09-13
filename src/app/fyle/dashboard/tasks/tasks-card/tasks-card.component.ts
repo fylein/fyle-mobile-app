@@ -18,6 +18,8 @@ export class TasksCardComponent implements OnInit {
 
   @Output() ctaClicked: EventEmitter<TaskCta> = new EventEmitter();
 
+  @Output() infoCardClicked = new EventEmitter();
+
   homeCurrency$: Observable<string>;
 
   currencySymbol$: Observable<string>;
@@ -37,5 +39,9 @@ export class TasksCardComponent implements OnInit {
 
   taskCtaClicked(event) {
     this.ctaClicked.emit(event);
+  }
+
+  onInfoCardClicked() {
+    this.infoCardClicked.emit();
   }
 }

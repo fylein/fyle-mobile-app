@@ -991,4 +991,8 @@ export class TrackingService {
   captureSingleReceiptTime(properties = {}) {
     this.eventTrack('capture single receipt time', properties);
   }
+
+  autoSubmissionInfoCardClicked(properties = {}) {
+    this.eventTrack('Auto Submission Info Card Clicked', properties);
+  }
 }
