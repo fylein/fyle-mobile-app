@@ -93,6 +93,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     //If Report auto submission is scheduled, 'None' option won't be shown in reports list
     if (this.autoSubmissionReportName) {
       this.showNullOption = false;
+      this.label = 'Expense Report';
     }
   }
 

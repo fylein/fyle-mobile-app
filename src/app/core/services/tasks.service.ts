@@ -54,7 +54,10 @@ export class TasksService {
     private advancesRequestService: AdvanceRequestService
   ) {
     this.userEventService.onTaskCacheClear(() => {
-      this.getTasks().subscribe(noop);
+      this.reportService.getReportAutoSubmissionDetails().subscribe((autoSubmissionReportDetails) => {
+        const isReportAutoSubmissionScheduled = !!autoSubmissionReportDetails?.data?.next_at;
+        this.getTasks(isReportAutoSubmissionScheduled).subscribe(noop);
+      });
     });
   }
 
@@ -288,12 +291,12 @@ export class TasksService {
     return filterPills;
   }
 
-  getTasks(filters?: TaskFilters): Observable<DashboardTask[]> {
+  getTasks(isReportAutoSubmissionScheduled = false, filters?: TaskFilters): Observable<DashboardTask[]> {
     return forkJoin({
       potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackReports: this.getSentBackReportTasks(),
-      unreportedExpenses: this.getUnreportedExpensesTasks(),
-      unsubmittedReports: this.getUnsubmittedReportsTasks(),
+      unreportedExpenses: this.getUnreportedExpensesTasks(isReportAutoSubmissionScheduled),
+      unsubmittedReports: this.getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled),
       draftExpenses: this.getDraftExpensesTasks(),
       teamReports: this.getTeamReportsTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
@@ -510,7 +513,12 @@ export class TasksService {
     return [task];
   }
 
-  private getUnsubmittedReportsTasks() {
+  private getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled = false) {
+    //Unsubmitted reports task should not be shown if report auto-submission is scheduled
+    if (isReportAutoSubmissionScheduled) {
+      return of([]);
+    }
+
     return forkJoin({
       reportsStats: this.getUnsubmittedReportsStats(),
       homeCurrency: this.offlineService.getHomeCurrency(),
@@ -530,7 +538,12 @@ export class TasksService {
     });
   }
 
-  private getUnreportedExpensesTasks() {
+  private getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false) {
+    //Unreported expenses task should not be shown if report auto submission is scheduled
+    if (isReportAutoSubmissionScheduled) {
+      return of([]);
+    }
+
     const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' };
 
     const openReports$ = this.reportService.getAllExtendedReports({ queryParams }).pipe(

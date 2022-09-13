@@ -120,7 +120,6 @@ $states: (
   'closed': #3375ad,
   'pulledBack': #34495e,
   'pulled': #34495e,
-  'default': $grey,
 );
 
 $fdl-state-bg-map: (
@@ -143,7 +142,6 @@ $fdl-state-bg-map: (
   'pulledBack': #ebedef,
   'pulled': #ebedef,
   'disabled': #ebedef,
-  'default': $pure-white,
 );
 
 $fdl-state-color-map: (
@@ -166,7 +164,6 @@ $fdl-state-color-map: (
   'pulledBack': #34495e,
   'pulled': #34495e,
   'disabled': #34495e,
-  'default': $black,
 );
 
 $fdl-state-border-color-map: (
@@ -189,5 +186,4 @@ $fdl-state-border-color-map: (
   'pulledBack': #c6ccd2,
   'pulled': #c6ccd2,
   'disabled': #c6ccd2,
-  'default': $grey,
 );

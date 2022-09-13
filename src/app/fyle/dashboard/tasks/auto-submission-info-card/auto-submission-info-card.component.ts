@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-auto-submission-info-card',
@@ -8,7 +8,13 @@ import { Component, OnInit, Input } from '@angular/core';
 export class AutoSubmissionInfoCardComponent implements OnInit {
   @Input() autoSubmissionReportDate: Date;
 
+  @Output() cardClicked = new EventEmitter<void>();
+
   constructor() {}
 
   ngOnInit() {}
+
+  onCardClicked() {
+    this.cardClicked.emit();
+  }
 }
