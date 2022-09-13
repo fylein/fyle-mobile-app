@@ -568,6 +568,7 @@
                                 [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
                                 [options]="reports"
                                 formControlName="report"
+                                [autoSubmissionReportName]="autoSubmissionReportName$|async"
                               ></app-fy-add-to-report>
                             </div>
                           </ng-container>
