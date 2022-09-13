@@ -52,6 +52,10 @@
 		"classpath": "com.capacitorjs.plugins.storage.StoragePlugin"
 	},
 	{
+		"pkg": "capacitor-rate-app",
+		"classpath": "com.capacitor.rateapp.CapacitorRateAppPlugin"
+	},
+	{
 		"pkg": "capacitor-secure-storage-plugin",
 		"classpath": "com.whitestein.securestorage.SecureStoragePlugin"
 	}

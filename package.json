@@ -61,6 +61,7 @@
     "@sentry/tracing": "^7.1.1",
     "@types/google.maps": "^3.49.2",
     "@types/hammerjs": "^2.0.41",
+    "capacitor-rate-app": "^2.0.0",
     "capacitor-secure-storage-plugin": "^0.6.2",
     "cordova-plugin-decimal-key": "^1.2.2",
     "cordova-plugin-googleplus": "^8.5.2",
