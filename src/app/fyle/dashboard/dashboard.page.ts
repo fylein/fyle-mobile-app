@@ -13,6 +13,7 @@ import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { RateApp } from 'capacitor-rate-app';
 
 enum DashboardState {
   home,
@@ -128,6 +129,10 @@ export class DashboardPage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'my_dashboard', { queryParams }]);
       }
     });
+  }
+
+  ionViewDidEnter() {
+    RateApp.requestReview();
   }
 
   ngOnInit() {
