@@ -273,12 +273,12 @@ export class StatsComponent implements OnInit {
 
   private trackDashboardLaunchTime() {
     try {
-      if (performance.getEntriesByName('dashboard launch time').length < 1) {
+      if (performance.getEntriesByName('dashboard launch time').length === 0) {
         // Time taken to land on dashboard page after switching org
         performance.mark('dashboard launch time');
 
         // Measure total time taken from switch org page to landing on dashboard page
-        performance.measure('dashboard launch time', 'on click switch org', 'dashboard launch time');
+        performance.measure('dashboard launch time', 'on click switch org');
 
         const measureLaunchTime = performance.getEntriesByName('dashboard launch time');
 

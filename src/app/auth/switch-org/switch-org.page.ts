@@ -204,8 +204,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   async switchOrg(org: Org) {
-    const originalEou = await this.authService.getEou();
+    // Tracking the time on click of switch org
     performance.mark('on click switch org');
+    const originalEou = await this.authService.getEou();
     from(this.loaderService.showLoader('Please wait...', 2000))
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
       .subscribe(
