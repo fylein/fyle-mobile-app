@@ -77,11 +77,6 @@ $advance_paid_color: darken(#5cb85c, 15%);
     padding: 36px 6px 16px 6px;
   }
 
-  &--approval-state-block-header {
-    padding: 18px 10px 0;
-    display: flex;
-  }
-
   &--approver-name {
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -100,9 +95,6 @@ $advance_paid_color: darken(#5cb85c, 15%);
     &_sent_back {
       color: $sent-back-color;
     }
-    &__approval {
-      background: $advance_pending_approval_color;
-    }
     &__approved {
       color: $approved-color;
     }
@@ -113,8 +105,8 @@ $advance_paid_color: darken(#5cb85c, 15%);
 
   &--approvers {
     color: $black-light;
-    padding-right: 10px;
-    width: min-content;
+    padding: 18px 10px 0;
+    font-weight: 500;
   }
 
   &--approvers-list {
