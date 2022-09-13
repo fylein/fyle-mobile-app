@@ -66,7 +66,6 @@ export class SignInPage implements OnInit {
           take(1),
           switchMap(() => this.authService.refreshEou()),
           tap(async () => {
-            await this.trackLoginInfo();
             const markOptions: PerformanceMarkOptions = {
               detail: 'SAML Login',
             };
@@ -74,6 +73,7 @@ export class SignInPage implements OnInit {
             this.trackingService.onSignin(this.fg.value.email, {
               label: 'Email',
             });
+            await this.trackLoginInfo();
           })
         )
         .subscribe(() => {
@@ -183,7 +183,6 @@ export class SignInPage implements OnInit {
           }),
           switchMap(() => this.authService.refreshEou()),
           tap(async () => {
-            await this.trackLoginInfo();
             const markOptions: PerformanceMarkOptions = {
               detail: 'Password Login',
             };
@@ -191,6 +190,7 @@ export class SignInPage implements OnInit {
             this.trackingService.onSignin(this.fg.value.email, {
               label: 'Email',
             });
+            await this.trackLoginInfo();
           }),
           finalize(() => (this.passwordLoading = false))
         )
@@ -227,7 +227,6 @@ export class SignInPage implements OnInit {
             }),
             switchMap((res) => this.authService.refreshEou()),
             tap(async () => {
-              await this.trackLoginInfo();
               const markOptions: PerformanceMarkOptions = {
                 detail: 'Google Login',
               };
@@ -235,6 +234,7 @@ export class SignInPage implements OnInit {
               this.trackingService.onSignin(this.fg.value.email, {
                 label: 'Email',
               });
+              await this.trackLoginInfo();
             })
           )
         ),
