@@ -12,6 +12,7 @@ import { RouterAuthService } from './core/services/router-auth.service';
 import { GlobalCacheConfig } from 'ts-cacheable';
 import { NetworkService } from './core/services/network.service';
 import { App } from '@capacitor/app';
+import { Example } from 'share-with';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { FreshChatService } from './core/services/fresh-chat.service';
@@ -127,6 +128,19 @@ export class AppComponent implements OnInit {
       this.zone.run(() => {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
       });
+    });
+
+    Example.addListener('imageShared', (data) => {
+      console.log('DATA IS', data.base64Image);
+      this.router.navigate([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        {
+          dataUrl: data,
+          canExtractData: true,
+        },
+      ]);
     });
 
     this.platform.ready().then(async () => {
