@@ -695,7 +695,13 @@ export class AddEditMileagePage implements OnInit {
             vehicleType = orgUserMileageSettings.mileage_rate_labels[0];
           }
 
-          if (!vehicleType && mileageRates && mileageRates.length > 0) {
+          const finalMileageRateNames = mileageRates.map((rate) => rate.vehicle_type);
+
+          if (
+            (!vehicleType || !finalMileageRateNames.includes(vehicleType)) &&
+            mileageRates &&
+            mileageRates.length > 0
+          ) {
             vehicleType = mileageRates[0].vehicle_type;
           }
 
@@ -810,7 +816,7 @@ export class AddEditMileagePage implements OnInit {
               mileage_calculated_distance: null,
               policy_amount: null,
               mileage_vehicle_type: defaultVehicleType,
-              mileage_rate: defaultMileageRate.rate,
+              mileage_rate: defaultMileageRate?.rate,
               distance_unit: distanceUnit,
               mileage_is_round_trip: false,
               fyle_category: 'Mileage',
@@ -956,20 +962,13 @@ export class AddEditMileagePage implements OnInit {
       mileageConfig: this.mileageConfig$,
     }).pipe(
       map(({ orgUserMileageSettings, allMileageRates, mileageConfig }) => {
-        const enabledMileageRates = allMileageRates.filter((rate) => !!rate.is_enabled);
+        let enabledMileageRates = allMileageRates.filter((rate) => !!rate.is_enabled);
         orgUserMileageSettings = orgUserMileageSettings?.mileage_rate_labels || [];
         if (orgUserMileageSettings.length > 0) {
-          const mileageRateNames = enabledMileageRates.map((res) => res.vehicle_type);
-
-          mileageRateNames.forEach((mileageLabel, index) => {
-            if (orgUserMileageSettings.indexOf(mileageLabel) === -1) {
-              // removing from enabledMileageRates array if the rate is not allowed.
-              mileageRateNames.splice(index, 1);
-              enabledMileageRates.splice(index, 1);
-            }
-          });
+          enabledMileageRates = enabledMileageRates.filter((rate) =>
+            orgUserMileageSettings.includes(rate.vehicle_type)
+          );
         }
-
         return enabledMileageRates;
       })
     );
