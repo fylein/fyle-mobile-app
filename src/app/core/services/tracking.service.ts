@@ -992,6 +992,10 @@ export class TrackingService {
     this.eventTrack('capture single receipt time', properties);
   }
 
+  autoSubmissionInfoCardClicked(properties = {}) {
+    this.eventTrack('Auto Submission Info Card Clicked', properties);
+  }
+
   // Track switch org launch time
   switchOrgLaunchTime(properties = {}) {
     this.eventTrack('switch org launch time', properties);
