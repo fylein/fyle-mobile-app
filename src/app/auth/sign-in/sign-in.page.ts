@@ -64,15 +64,15 @@ export class SignInPage implements OnInit {
         detail: 'SAML Login',
       };
       performance.mark('login start time', markOptions);
-      this.trackingService.onSignin(this.fg.value.email, {
-        label: 'Email',
-      });
       from(this.routerAuthService.handleSignInResponse(data))
         .pipe(
           take(1),
           switchMap(() => this.authService.refreshEou()),
           tap(async () => {
             await this.trackLoginInfo();
+            this.trackingService.onSignin(this.fg.value.email, {
+              label: 'Email',
+            });
           })
         )
         .subscribe(() => {
