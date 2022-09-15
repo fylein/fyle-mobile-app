@@ -63,6 +63,10 @@ body {
   --ion-grid-column-padding: 0;
 }
 
+.ion-col-no-padding {
+  --ion-grid-column-padding: 0;
+}
+
 input:focus,
 textarea:focus {
   outline: none !important;

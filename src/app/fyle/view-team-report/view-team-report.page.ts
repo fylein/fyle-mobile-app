@@ -316,7 +316,7 @@ export class ViewTeamReportPage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
     }).subscribe((res) => {
       this.reportEtxnIds = res.etxns.map((etxn) => etxn.tx_id);
-      this.isSequentialApprovalEnabled = res?.orgSettings.approval_settings?.enable_sequential_approvers;
+      this.isSequentialApprovalEnabled = res?.orgSettings?.approval_settings?.enable_sequential_approvers;
       this.canApprove = this.isSequentialApprovalEnabled
         ? this.isUserActiveInCurrentSeqApprovalQueue(res.eou, res.approvals)
         : true;

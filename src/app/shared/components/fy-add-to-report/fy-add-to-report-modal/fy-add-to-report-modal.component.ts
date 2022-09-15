@@ -34,7 +34,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
-  @Input() nullOption = true;
+  @Input() showNullOption = true;
 
   @Input() cacheName;
 
@@ -43,6 +43,8 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   @Input() subheader;
 
   @Input() enableSearch;
+
+  @Input() autoSubmissionReportName: string;
 
   reportCurrencySymbol: string;
 
@@ -82,9 +84,9 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss({ createDraftReport: true });
   }
 
-  onNoneSelect() {
+  dismissModal(event: { srcElement: { innerText: string } }) {
     this.modalController.dismiss({
-      label: 'None',
+      label: event.srcElement.innerText,
       value: null,
     });
   }

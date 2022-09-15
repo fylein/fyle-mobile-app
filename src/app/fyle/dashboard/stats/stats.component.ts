@@ -217,7 +217,7 @@ export class StatsComponent implements OnInit {
         const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
 
         // Converting the duration to seconds and fix it to 3 decimal places
-        const launchTimeDuration = (measureLaunchTime[0].duration / 1000).toFixed(3);
+        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
 
         this.trackingService.appLaunchTime({
           'App launch time': launchTimeDuration,
