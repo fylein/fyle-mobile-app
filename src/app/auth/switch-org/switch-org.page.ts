@@ -97,7 +97,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         .pipe(switchMap(() => from(that.proceed())))
         .subscribe(noop);
     } else {
-      that.trackSwitchOrgLaunchTime();
       that.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
@@ -120,7 +119,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       shareReplay(1)
     );
 
-    currentOrgs$.subscribe(() => (this.isLoading = false));
+    currentOrgs$.subscribe(() => {
+      this.isLoading = false;
+      this.trackSwitchOrgLaunchTime();
+    });
 
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),

@@ -60,19 +60,18 @@ export class SignInPage implements OnInit {
       this.handleError(err);
     } else {
       // Login Success
-
+      const markOptions: PerformanceMarkOptions = {
+        detail: 'SAML Login',
+      };
+      performance.mark('login start time', markOptions);
+      this.trackingService.onSignin(this.fg.value.email, {
+        label: 'Email',
+      });
       from(this.routerAuthService.handleSignInResponse(data))
         .pipe(
           take(1),
           switchMap(() => this.authService.refreshEou()),
           tap(async () => {
-            const markOptions: PerformanceMarkOptions = {
-              detail: 'SAML Login',
-            };
-            performance.mark('login start time', markOptions);
-            this.trackingService.onSignin(this.fg.value.email, {
-              label: 'Email',
-            });
             await this.trackLoginInfo();
           })
         )
