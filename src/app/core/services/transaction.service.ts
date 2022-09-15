@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
@@ -27,6 +27,7 @@ enum FilterState {
   CANNOT_REPORT = 'CANNOT_REPORT',
   DRAFT = 'DRAFT',
 }
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -40,6 +41,7 @@ type PaymentMode = {
 })
 export class TransactionService {
   constructor(
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
@@ -117,10 +119,10 @@ export class TransactionService {
   getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
       switchMap((res) => {
-        const count = res.count > 50 ? res.count / 50 : 1;
+        const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getETxnc({ offset: 50 * page, limit: 50, params })),
+      concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
       reduce((acc, curr) => acc.concat(curr))
     );
   }
@@ -170,11 +172,16 @@ export class TransactionService {
   getAllExpenses(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })
+        this.getMyExpenses({
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+          queryParams: config.queryParams,
+          order: config.order,
+        })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as any[])
@@ -310,11 +317,11 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$,
   })
   removeTxnsFromRptInBulk(txnIds, comment?) {
-    const count = txnIds.length > 50 ? txnIds.length / 50 : 1;
+    const count = txnIds.length > this.paginationSize ? txnIds.length / this.paginationSize : 1;
     return range(0, count).pipe(
       concatMap((page) => {
         const data: any = {
-          ids: txnIds.slice(page * 50, (page + 1) * 50),
+          ids: txnIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize),
         };
 
         if (comment) {

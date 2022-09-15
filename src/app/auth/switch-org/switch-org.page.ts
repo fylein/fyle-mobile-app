@@ -291,17 +291,17 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   private trackSwitchOrgLaunchTime() {
     try {
-      if (performance.getEntriesByName(PerfTrackers.switchOrgLaunchTime).length === 0) {
+      if (performance.getEntriesByName('switch org launch time').length === 0) {
         // Time taken to land on switch org page after sign-in
-        performance.mark(PerfTrackers.switchOrgLaunchTime);
+        performance.mark('switch org launch time');
 
         // Measure total time taken from logging into the app to landing on switch org page
-        performance.measure(PerfTrackers.switchOrgLaunchTime, PerfTrackers.loginStartTime);
+        performance.measure('switch org launch time', 'login start time');
 
-        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.switchOrgLaunchTime);
+        const measureLaunchTime = performance.getEntriesByName('switch org launch time');
 
         // eslint-disable-next-line @typescript-eslint/dot-notation
-        const loginMethod = performance.getEntriesByName(PerfTrackers.loginStartTime)[0]['detail'];
+        const loginMethod = performance.getEntriesByName('login start time')[0]['detail'];
 
         // Converting the duration to seconds and fix it to 3 decimal places
         const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
