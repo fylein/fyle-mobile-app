@@ -173,6 +173,10 @@ export class SignInPage implements OnInit {
     if (this.fg.controls.password.valid) {
       this.emailLoading = false;
       this.passwordLoading = true;
+      const markOptions: PerformanceMarkOptions = {
+        detail: 'Password Login',
+      };
+      performance.mark('login start time', markOptions);
       this.routerAuthService
         .basicSignin(this.fg.value.email, this.fg.value.password)
         .pipe(
@@ -182,10 +186,6 @@ export class SignInPage implements OnInit {
           }),
           switchMap(() => this.authService.refreshEou()),
           tap(async () => {
-            const markOptions: PerformanceMarkOptions = {
-              detail: 'Password Login',
-            };
-            performance.mark('login start time', markOptions);
             this.trackingService.onSignin(this.fg.value.email, {
               label: 'Email',
             });
@@ -205,6 +205,10 @@ export class SignInPage implements OnInit {
 
   googleSignIn() {
     this.googleSignInLoading = true;
+    const markOptions: PerformanceMarkOptions = {
+      detail: 'Google Login',
+    };
+    performance.mark('login start time', markOptions);
     from(this.googleAuthService.login())
       .pipe(
         switchMap((googleAuthResponse) => {
@@ -226,10 +230,6 @@ export class SignInPage implements OnInit {
             }),
             switchMap((res) => this.authService.refreshEou()),
             tap(async () => {
-              const markOptions: PerformanceMarkOptions = {
-                detail: 'Google Login',
-              };
-              performance.mark('login start time', markOptions);
               this.trackingService.onSignin(this.fg.value.email, {
                 label: 'Email',
               });
