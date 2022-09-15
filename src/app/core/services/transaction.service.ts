@@ -234,27 +234,6 @@ export class TransactionService {
     );
   }
 
-  getTxnAccount() {
-    return forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
-      accounts: this.offlineService.getAccounts(),
-      orgSettings: this.offlineService.getOrgSettings(),
-    }).pipe(
-      switchMap(({ orgUserSettings, accounts, orgSettings }) => {
-        return this.accountsService.getAccount(orgSettings, accounts, orgUserSettings).pipe(
-          filter((account) => !!account),
-          map((account) => {
-            const accountDetails = {
-              source_account_id: account.acc.id,
-              skip_reimbursement: !account.acc.isReimbursable || false,
-            };
-            return accountDetails;
-          })
-        );
-      })
-    );
-  }
-
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
@@ -996,5 +975,26 @@ export class TransactionService {
     }
 
     return currentParamsCopy;
+  }
+
+  getTxnAccount() {
+    return forkJoin({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      accounts: this.offlineService.getAccounts(),
+      orgSettings: this.offlineService.getOrgSettings(),
+    }).pipe(
+      switchMap(({ orgUserSettings, accounts, orgSettings }) =>
+        this.accountsService.getAccount(orgSettings, accounts, orgUserSettings).pipe(
+          filter((account) => !!account),
+          map((account) => {
+            const accountDetails = {
+              source_account_id: account.acc.id,
+              skip_reimbursement: !account.acc.isReimbursable || false,
+            };
+            return accountDetails;
+          })
+        )
+      )
+    );
   }
 }
