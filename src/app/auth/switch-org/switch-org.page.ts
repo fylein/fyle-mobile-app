@@ -20,6 +20,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { RemoveOfflineFormsService } from 'src/app/core/services/remove-offline-forms.service';
+import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 
 @Component({
   selector: 'app-switch-org',
@@ -206,6 +207,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   async switchOrg(org: Org) {
+    // Tracking the time on click of switch org
+    performance.mark(PerfTrackers.onClickSwitchOrg);
     const originalEou = await this.authService.getEou();
     from(this.loaderService.showLoader('Please wait...', 2000))
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))

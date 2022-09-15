@@ -17,6 +17,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { StorageService } from 'src/app/core/services/storage.service';
+import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 
 type Image = Partial<{
   source: string;
@@ -336,23 +337,19 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             const isMultiOrg = orgs.length > 1;
 
             if (
-              performance.getEntriesByName('capture single receipt time').length < 1 &&
-              performance.getEntriesByName('app launch time').length < 2
+              performance.getEntriesByName(PerfTrackers.captureSingleReceiptTime).length < 1 &&
+              performance.getEntriesByName(PerfTrackers.appLaunchTime).length < 2
             ) {
               // Time taken for capturing single receipt for the first time
-              performance.mark('capture single receipt time');
+              performance.mark(PerfTrackers.captureSingleReceiptTime);
 
               // Measure total time taken from launching the app to capturing first single receipt
-              performance.measure(
-                'capture single receipt time',
-                'app launch start time',
-                'capture single receipt time'
-              );
+              performance.measure(PerfTrackers.captureSingleReceiptTime, PerfTrackers.appLaunchStartTime);
 
-              const measureLaunchTime = performance.getEntriesByName('app launch time');
+              const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
 
               // eslint-disable-next-line @typescript-eslint/dot-notation
-              const isLoggedIn = performance.getEntriesByName('app launch start time')[0]['detail'];
+              const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
 
               // Converting the duration to seconds and fix it to 3 decimal places
               const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);

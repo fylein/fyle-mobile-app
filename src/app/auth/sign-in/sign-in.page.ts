@@ -14,6 +14,7 @@ import { PushNotificationService } from 'src/app/core/services/push-notification
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
+import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 
 @Component({
   selector: 'app-sign-in',
