@@ -697,6 +697,8 @@ export class AddEditMileagePage implements OnInit {
 
           const finalMileageRateNames = mileageRates.map((rate) => rate.vehicle_type);
 
+          // if mileage_vehicle_type is not set or if the set mileage rate is not enabled; set the 1st from mileageRates
+          // (when the org doesn't use employee restricted mileage rates)
           if (
             (!vehicleType || !finalMileageRateNames.includes(vehicleType)) &&
             mileageRates &&
@@ -1340,7 +1342,7 @@ export class AddEditMileagePage implements OnInit {
             selectedReport$,
             selectedCostCenter$,
             selectedCustomInputs$,
-            this.mileageRates$,
+            this.allMileageRates$,
             defaultPaymentMode$,
             orgUserSettings$,
             orgSettings$,
