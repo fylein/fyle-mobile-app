@@ -146,44 +146,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     );
   }
 
-  getAccount(
-    orgSettings: any,
-    accounts: ExtendedAccount[],
-    orgUserSettings: OrgUserSettings
-  ): Observable<ExtendedAccount> {
-    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
-
-    const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
-
-    return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
-      map((paymentModes) => {
-        const isCCCEnabled =
-          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
-
-        const paidByCompanyAccount = paymentModes.find(
-          (paymentMode) => paymentMode?.acc?.displayName === 'Paid by Company'
-        );
-
-        let account;
-
-        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT' && paidByCompanyAccount) {
-          account = paidByCompanyAccount;
-        } else if (
-          isCCCEnabled &&
-          orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-        ) {
-          account = paymentModes.find(
-            (paymentMode) => paymentMode?.acc?.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-          );
-        } else {
-          account = paymentModes.find((paymentMode) => paymentMode?.acc?.displayName === 'Personal Card/Cash');
-        }
-        return account;
-      })
-    );
-  }
-
   async stopCamera() {
     if (this.isCameraShown === true) {
       await CameraPreview.stop();
