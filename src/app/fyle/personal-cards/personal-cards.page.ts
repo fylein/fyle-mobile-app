@@ -317,7 +317,9 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         browser.close();
         this.zone.run(() => {
           const decodedData = JSON.parse(decodeURIComponent(event.url.slice(43)));
-          this.postAccounts([decodedData[0].requestId]);
+          if (decodedData && decodedData[0]) {
+            this.postAccounts([decodedData[0].requestId]);
+          }
         });
       }
     });
@@ -372,7 +374,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.loadData$.next(params);
 
     setTimeout(() => {
-      event.target.complete();
+      event?.target?.complete();
     }, 1000);
   }
 
@@ -761,7 +763,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     currentParams.pageNumber = this.currentPageNumber;
     this.loadData$.next(currentParams);
     if (event) {
-      event.target.complete();
+      event?.target?.complete();
     }
   }
 }

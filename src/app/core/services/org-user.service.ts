@@ -122,7 +122,7 @@ export class OrgUserService {
   }
 
   excludeByStatus(eous: ExtendedOrgUser[], status: string) {
-    const eousFiltered = eous.filter((eou) => status.indexOf(eou.ou.status) === -1);
+    const eousFiltered = eous?.filter((eou) => status.indexOf(eou.ou.status) === -1);
     return eousFiltered;
   }
 
