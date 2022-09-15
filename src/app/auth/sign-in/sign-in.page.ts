@@ -60,7 +60,10 @@ export class SignInPage implements OnInit {
       this.handleError(err);
     } else {
       // Login Success
-
+      const markOptions: PerformanceMarkOptions = {
+        detail: 'SAML Login',
+      };
+      performance.mark('login start time', markOptions);
       from(this.routerAuthService.handleSignInResponse(data))
         .pipe(
           take(1),
@@ -170,6 +173,10 @@ export class SignInPage implements OnInit {
     if (this.fg.controls.password.valid) {
       this.emailLoading = false;
       this.passwordLoading = true;
+      const markOptions: PerformanceMarkOptions = {
+        detail: 'Password Login',
+      };
+      performance.mark('login start time', markOptions);
       this.routerAuthService
         .basicSignin(this.fg.value.email, this.fg.value.password)
         .pipe(
@@ -179,10 +186,10 @@ export class SignInPage implements OnInit {
           }),
           switchMap(() => this.authService.refreshEou()),
           tap(async () => {
-            await this.trackLoginInfo();
             this.trackingService.onSignin(this.fg.value.email, {
               label: 'Email',
             });
+            await this.trackLoginInfo();
           }),
           finalize(() => (this.passwordLoading = false))
         )
@@ -198,6 +205,10 @@ export class SignInPage implements OnInit {
 
   googleSignIn() {
     this.googleSignInLoading = true;
+    const markOptions: PerformanceMarkOptions = {
+      detail: 'Google Login',
+    };
+    performance.mark('login start time', markOptions);
     from(this.googleAuthService.login())
       .pipe(
         switchMap((googleAuthResponse) => {
@@ -219,10 +230,10 @@ export class SignInPage implements OnInit {
             }),
             switchMap((res) => this.authService.refreshEou()),
             tap(async () => {
-              await this.trackLoginInfo();
               this.trackingService.onSignin(this.fg.value.email, {
                 label: 'Email',
               });
+              await this.trackLoginInfo();
             })
           )
         ),

@@ -119,7 +119,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       shareReplay(1)
     );
 
-    currentOrgs$.subscribe(() => (this.isLoading = false));
+    currentOrgs$.subscribe(() => {
+      this.isLoading = false;
+      this.trackSwitchOrgLaunchTime();
+    });
 
     this.filteredOrgs$ = fromEvent(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
@@ -281,5 +284,30 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.searchOrgsInput.nativeElement.blur();
     this.contentRef.nativeElement.classList.remove('switch-org__content-container__content-block--hide');
     this.searchRef.nativeElement.classList.remove('switch-org__content-container__search-block--show');
+  }
+
+  private trackSwitchOrgLaunchTime() {
+    try {
+      if (performance.getEntriesByName('switch org launch time').length === 0) {
+        // Time taken to land on switch org page after sign-in
+        performance.mark('switch org launch time');
+
+        // Measure total time taken from logging into the app to landing on switch org page
+        performance.measure('switch org launch time', 'login start time');
+
+        const measureLaunchTime = performance.getEntriesByName('switch org launch time');
+
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        const loginMethod = performance.getEntriesByName('login start time')[0]['detail'];
+
+        // Converting the duration to seconds and fix it to 3 decimal places
+        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
+
+        this.trackingService.switchOrgLaunchTime({
+          'Switch org launch time': launchTimeDuration,
+          'Login method': loginMethod,
+        });
+      }
+    } catch (error) {}
   }
 }
