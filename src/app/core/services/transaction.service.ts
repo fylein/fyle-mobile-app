@@ -289,12 +289,10 @@ export class TransactionService {
           transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
         }
 
-        transaction.source_account_id = transaction.source_account_id
-          ? transaction.source_account_id
-          : txnAccount.source_account_id;
-        transaction.skip_reimbursement = transaction.skip_reimbursement
-          ? transaction.skip_reimbursement
-          : txnAccount.skip_reimbursement;
+        if (!transaction.source_account_id) {
+          transaction.source_account_id = txnAccount.source_account_id;
+          transaction.skip_reimbursement = txnAccount.skip_reimbursement;
+        }
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
