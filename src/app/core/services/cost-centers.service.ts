@@ -15,7 +15,7 @@ const costCentersCacheBuster$ = new Subject<void>();
 })
 export class CostCentersService {
   constructor(
-    @Inject(PAGINATION_SIZE) public paginationSize: number,
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformApiService: SpenderPlatformApiService
   ) {}
 

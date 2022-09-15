@@ -27,7 +27,7 @@ const reportsCacheBuster$ = new Subject<void>();
 })
 export class ReportService {
   constructor(
-    @Inject(PAGINATION_SIZE) public paginationSize: number,
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,

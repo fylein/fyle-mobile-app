@@ -41,7 +41,7 @@ type PaymentMode = {
 })
 export class TransactionService {
   constructor(
-    @Inject(PAGINATION_SIZE) public paginationSize: number,
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,

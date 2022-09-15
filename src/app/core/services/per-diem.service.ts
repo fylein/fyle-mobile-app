@@ -15,7 +15,7 @@ const perDiemsCacheBuster$ = new Subject<void>();
 })
 export class PerDiemService {
   constructor(
-    @Inject(PAGINATION_SIZE) public paginationSize: number,
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformApiService: SpenderPlatformApiService
   ) {}
 

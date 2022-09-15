@@ -21,7 +21,7 @@ const orgUsersCacheBuster$ = new Subject<void>();
 })
 export class OrgUserService {
   constructor(
-    @Inject(PAGINATION_SIZE) public paginationSize: number,
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
     private apiService: ApiService,
