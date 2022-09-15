@@ -517,10 +517,7 @@ export class MergeExpensePage implements OnInit {
       (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
     );
     const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsForm.value.amount);
-    const CCCGroupIds = this.expenses.map(
-      (expense) =>
-        expense.tx_corporate_credit_card_expense_group_id && expense.tx_corporate_credit_card_expense_group_id
-    );
+    const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
     let locations;
     if (this.fg.value.location_1 && this.fg.value.location_2) {
       locations = [this.genericFieldsForm.value.location_1, this.genericFieldsForm.value.location_2];
@@ -542,7 +539,7 @@ export class MergeExpensePage implements OnInit {
       txn_dt: this.genericFieldsForm.value.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
       custom_properties: this.fg.controls.custom_inputs.value.fields,
-      ccce_group_id: CCCGroupIds && CCCGroupIds[0],
+      ccce_group_id: CCCMatchedExpense?.tx_corporate_credit_card_expense_group_id,
       from_dt: this.genericFieldsForm.value.from_dt,
       to_dt: this.genericFieldsForm.value.to_dt,
       flight_journey_travel_class: this.genericFieldsForm.value.flight_journey_travel_class,
