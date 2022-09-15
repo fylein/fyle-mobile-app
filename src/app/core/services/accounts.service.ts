@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { Cacheable } from 'ts-cacheable';
+import { OrgUserSettings } from '../models/org_user_settings.model';
 
 @Injectable({
   providedIn: 'root',
@@ -100,6 +101,44 @@ export class AccountsService {
         }
 
         return mappedAccounts;
+      })
+    );
+  }
+
+  getAccount(
+    orgSettings: any,
+    accounts: ExtendedAccount[],
+    orgUserSettings: OrgUserSettings
+  ): Observable<ExtendedAccount> {
+    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
+
+    const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
+    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
+
+    return this.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
+      map((paymentModes) => {
+        const isCCCEnabled =
+          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+
+        const paidByCompanyAccount = paymentModes.find(
+          (paymentMode) => paymentMode?.acc?.displayName === 'Paid by Company'
+        );
+
+        let account;
+
+        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT' && paidByCompanyAccount) {
+          account = paidByCompanyAccount;
+        } else if (
+          isCCCEnabled &&
+          orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+        ) {
+          account = paymentModes.find(
+            (paymentMode) => paymentMode?.acc?.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+          );
+        } else {
+          account = paymentModes.find((paymentMode) => paymentMode?.acc?.displayName === 'Personal Card/Cash');
+        }
+        return account;
       })
     );
   }

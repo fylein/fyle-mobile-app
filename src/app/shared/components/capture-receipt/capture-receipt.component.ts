@@ -113,48 +113,36 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   addExpenseToQueue(base64ImagesWithSource: Image, syncImmediately = false) {
     let source = base64ImagesWithSource.source;
 
-    return forkJoin({
-      isConnected: this.networkService.isOnline(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
-      accounts: this.offlineService.getAccounts(),
-      orgSettings: this.offlineService.getOrgSettings(),
-    }).pipe(
-      switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) =>
-        this.getAccount(orgSettings, accounts, orgUserSettings).pipe(
-          filter((account) => !!account),
-          switchMap((account) => {
-            if (!isConnected) {
-              source += '_OFFLINE';
-            }
-            const transaction = {
-              source_account_id: account.acc.id,
-              skip_reimbursement: !account.acc.isReimbursable || false,
-              source,
-              txn_dt: new Date(),
-              currency: this.homeCurrency,
-            };
+    return this.networkService.isOnline().pipe(
+      map((isConnected) => {
+        if (!isConnected) {
+          source += '_OFFLINE';
+        }
+        const transaction = {
+          source,
+          txn_dt: new Date(),
+          currency: this.homeCurrency,
+        };
 
-            const attachmentUrls = [
-              {
-                thumbnail: base64ImagesWithSource.base64Image,
-                type: 'image',
-                url: base64ImagesWithSource.base64Image,
-              },
-            ];
-            if (!syncImmediately) {
-              return this.transactionsOutboxService.addEntry(
-                transaction,
-                attachmentUrls,
-                null,
-                null,
-                this.isInstafyleEnabled
-              );
-            } else {
-              return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
-            }
-          })
-        )
-      )
+        const attachmentUrls = [
+          {
+            thumbnail: base64ImagesWithSource.base64Image,
+            type: 'image',
+            url: base64ImagesWithSource.base64Image,
+          },
+        ];
+        if (!syncImmediately) {
+          return this.transactionsOutboxService.addEntry(
+            transaction,
+            attachmentUrls,
+            null,
+            null,
+            this.isInstafyleEnabled
+          );
+        } else {
+          return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
+        }
+      })
     );
   }
 

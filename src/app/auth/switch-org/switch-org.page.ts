@@ -172,7 +172,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       let offlineData$: Observable<any[]>;
 
       if (this.isOfflineFormsRemoved) {
-        offlineData$ = this.offlineService.loadOptimized().pipe(shareReplay(1));
+        offlineData$ = of(null);
       } else {
         offlineData$ = this.offlineService.load().pipe(shareReplay(1));
       }

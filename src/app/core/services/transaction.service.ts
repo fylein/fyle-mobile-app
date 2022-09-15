@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
+import { map, switchMap, tap, concatMap, reduce, filter } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
 import { from, Observable, range, concat, forkJoin, Subject, of } from 'rxjs';
@@ -20,6 +20,8 @@ import { UndoMerge } from '../models/undo-merge.model';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { OfflineService } from './offline.service';
+import { AccountsService } from './accounts.service';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -54,7 +56,9 @@ export class TransactionService {
     private utilityService: UtilityService,
     private fileService: FileService,
     private policyApiService: PolicyApiService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private offlineService: OfflineService,
+    private accountsService: AccountsService
   ) {
     transactionsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -230,6 +234,27 @@ export class TransactionService {
     );
   }
 
+  getTxnAccount() {
+    return forkJoin({
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      accounts: this.offlineService.getAccounts(),
+      orgSettings: this.offlineService.getOrgSettings(),
+    }).pipe(
+      switchMap(({ orgUserSettings, accounts, orgSettings }) => {
+        return this.accountsService.getAccount(orgSettings, accounts, orgUserSettings).pipe(
+          filter((account) => !!account),
+          map((account) => {
+            const accountDetails = {
+              source_account_id: account.acc.id,
+              skip_reimbursement: !account.acc.isReimbursable || false,
+            };
+            return accountDetails;
+          })
+        );
+      })
+    );
+  }
+
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
   })
@@ -249,8 +274,11 @@ export class TransactionService {
       delete transaction.tax;
     }
 
-    return this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
+    return forkJoin({
+      orgUserSettings: this.orgUserSettingsService.get(),
+      txnAccount: this.getTxnAccount(),
+    }).pipe(
+      switchMap(({ orgUserSettings, txnAccount }) => {
         const offset = orgUserSettings.locale.offset;
 
         transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(
@@ -281,6 +309,13 @@ export class TransactionService {
           transaction.to_dt.setMilliseconds(0);
           transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
         }
+
+        transaction.source_account_id = transaction.source_account_id
+          ? transaction.source_account_id
+          : txnAccount.source_account_id;
+        transaction.skip_reimbursement = transaction.skip_reimbursement
+          ? transaction.skip_reimbursement
+          : txnAccount.skip_reimbursement;
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
