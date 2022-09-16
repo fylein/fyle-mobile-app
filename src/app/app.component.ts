@@ -137,7 +137,7 @@ export class AppComponent implements OnInit {
         'enterprise',
         'add_edit_expense',
         {
-          dataUrl: data,
+          dataUrl: data.base64Image,
           canExtractData: true,
         },
       ]);
