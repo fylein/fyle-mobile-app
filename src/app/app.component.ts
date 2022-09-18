@@ -131,7 +131,6 @@ export class AppComponent implements OnInit {
     });
 
     Example.addListener('imageShared', (data) => {
-      console.log('DATA IS', data.base64Image);
       this.router.navigate([
         '/',
         'enterprise',
