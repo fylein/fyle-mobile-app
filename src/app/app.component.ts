@@ -12,7 +12,7 @@ import { RouterAuthService } from './core/services/router-auth.service';
 import { GlobalCacheConfig } from 'ts-cacheable';
 import { NetworkService } from './core/services/network.service';
 import { App } from '@capacitor/app';
-import { Example } from 'share-with';
+import { ShareWith } from 'share-with';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { FreshChatService } from './core/services/fresh-chat.service';
@@ -130,7 +130,7 @@ export class AppComponent implements OnInit {
       });
     });
 
-    Example.addListener('imageShared', (data) => {
+    ShareWith.addListener('imageShared', (data) => {
       this.router.navigate([
         '/',
         'enterprise',
