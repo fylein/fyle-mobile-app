@@ -57,6 +57,6 @@
 	},
 	{
 		"pkg": "share-with",
-		"classpath": "com.mycompany.plugins.example.ExamplePlugin"
+		"classpath": "com.capacitor.plugins.sharewithplugin.ShareWithPlugin"
 	}
 ]
