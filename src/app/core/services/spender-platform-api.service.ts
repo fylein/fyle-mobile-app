@@ -20,4 +20,8 @@ export class SpenderPlatformApiService {
   get<T>(url: string, config = {}): Observable<T> {
     return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/platform/v1beta/spender' + url, config);
   }
+
+  post<T>(url: string, config = {}): Observable<T> {
+    return this.httpClient.post<T>(this.ROOT_ENDPOINT + '/platform/v1beta/spender' + url, config);
+  }
 }

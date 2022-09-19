@@ -130,7 +130,7 @@
                           <div class="add-edit-per-diem--type-name">{{label}}</div>
                           <ng-container *ngIf="perDiemType">
                             <ng-container>
-                              <div class="add-edit-per-diem--type-rate">{{perDiemType.readableRate}}</div>
+                              <div class="add-edit-per-diem--type-rate">{{perDiemType?.readableRate}}</div>
                             </ng-container>
                           </ng-container>
                         </div>
@@ -568,6 +568,7 @@
                                 [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
                                 [options]="reports"
                                 formControlName="report"
+                                [autoSubmissionReportName]="autoSubmissionReportName$|async"
                               ></app-fy-add-to-report>
                             </div>
                           </ng-container>

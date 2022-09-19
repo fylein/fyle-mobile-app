@@ -518,6 +518,7 @@
                           [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                           [options]="reports"
                           formControlName="report"
+                          [autoSubmissionReportName]="autoSubmissionReportName$|async"
                         ></app-fy-add-to-report>
                       </div>
                     </ng-container>

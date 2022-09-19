@@ -155,7 +155,7 @@ export class TeamAdvancePage implements AfterViewChecked {
       });
     });
     if (event) {
-      event.target.complete();
+      event?.target?.complete();
     }
   }
 

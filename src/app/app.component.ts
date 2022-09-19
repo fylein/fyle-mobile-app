@@ -23,6 +23,7 @@ import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.compone
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { OfflineService } from './core/services/offline.service';
+import { PerfTrackers } from './core/models/perf-trackers.enum';
 
 @Component({
   selector: 'app-root',
@@ -199,7 +200,7 @@ export class AppComponent implements OnInit {
       const markOptions: PerformanceMarkOptions = {
         detail: this.isUserLoggedIn,
       };
-      performance.mark('app launch start time', markOptions);
+      performance.mark(PerfTrackers.appLaunchStartTime, markOptions);
     });
 
     this.userEventService.onSetToken(() => {

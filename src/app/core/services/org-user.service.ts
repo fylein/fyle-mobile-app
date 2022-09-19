@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { JwtHelperService } from './jwt-helper.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
@@ -12,6 +12,7 @@ import { Cacheable, globalCacheBusterNotifier, CacheBuster } from 'ts-cacheable'
 import { TrackingService } from './tracking.service';
 import { ApiV2Service } from './api-v2.service';
 import { Employee } from '../models/spender/employee.model';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -20,6 +21,7 @@ const orgUsersCacheBuster$ = new Subject<void>();
 })
 export class OrgUserService {
   constructor(
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private jwtHelperService: JwtHelperService,
     private tokenService: TokenService,
     private apiService: ApiService,
@@ -77,10 +79,12 @@ export class OrgUserService {
   getEmployees(params): Observable<Employee[]> {
     return this.getEmployeesByParams({ ...params, limit: 1 }).pipe(
       switchMap((res) => {
-        const count = res.count > 200 ? res.count / 200 : 1;
+        const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getEmployeesByParams({ ...params, offset: 200 * page, limit: 200 })),
+      concatMap((page) =>
+        this.getEmployeesByParams({ ...params, offset: this.paginationSize * page, limit: this.paginationSize })
+      ),
       reduce((acc, curr) => acc.concat(curr.data), [] as Employee[])
     );
   }
@@ -118,7 +122,7 @@ export class OrgUserService {
   }
 
   excludeByStatus(eous: ExtendedOrgUser[], status: string) {
-    const eousFiltered = eous.filter((eou) => status.indexOf(eou.ou.status) === -1);
+    const eousFiltered = eous?.filter((eou) => status.indexOf(eou.ou.status) === -1);
     return eousFiltered;
   }
 

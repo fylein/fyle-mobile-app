@@ -316,7 +316,7 @@ export class ViewTeamReportPage implements OnInit {
       orgSettings: this.offlineService.getOrgSettings(),
     }).subscribe((res) => {
       this.reportEtxnIds = res.etxns.map((etxn) => etxn.tx_id);
-      this.isSequentialApprovalEnabled = res?.orgSettings.approval_settings?.enable_sequential_approvers;
+      this.isSequentialApprovalEnabled = res?.orgSettings?.approval_settings?.enable_sequential_approvers;
       this.canApprove = this.isSequentialApprovalEnabled
         ? this.isUserActiveInCurrentSeqApprovalQueue(res.eou, res.approvals)
         : true;
@@ -333,12 +333,16 @@ export class ViewTeamReportPage implements OnInit {
   isUserActiveInCurrentSeqApprovalQueue(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
     const currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
 
-    const minRank = approvers
+    const approverRanks = approvers
       .filter((approver) => approver.state === 'APPROVAL_PENDING')
-      .map((approver) => approver.rank)
-      .reduce((prev, curr) => (prev < curr ? prev : curr));
+      .map((approver) => approver.rank);
 
-    return currentApproverRank === minRank;
+    if (approverRanks.length > 0) {
+      const minRank = approverRanks.reduce((prev, curr) => (prev < curr ? prev : curr));
+      return currentApproverRank === minRank;
+    }
+
+    return false;
   }
 
   async deleteReport() {
