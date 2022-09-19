@@ -509,6 +509,11 @@ export class OfflineService {
     const delegatedAccounts$ = this.getDelegatedAccounts();
     const taxGroups$ = this.getEnabledTaxGroups();
 
+    this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
+      this.loadAppVersion(deviceInfo);
+      this.appVersionService.checkAppSupportedVersion(deviceInfo);
+    });
+
     return forkJoin([
       orgSettings$,
       orgUserSettings$,
@@ -535,6 +540,12 @@ export class OfflineService {
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const accounts$ = this.getAccounts();
+
+    this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
+      this.loadAppVersion(deviceInfo);
+      this.appVersionService.checkAppSupportedVersion(deviceInfo);
+    });
+
     return forkJoin([orgSettings$, orgUserSettings$, accounts$]);
   }
 
