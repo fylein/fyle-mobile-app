@@ -81,17 +81,17 @@ export class AppVersionService {
     };
 
     forkJoin({
-      appVersionDetails: this.isSupported(data),
+      appSupportDetails: this.isSupported(data),
       lastLoggedInVersion: this.loginInfoService.getLastLoggedInVersion(),
       eou: from(this.authService.getEou()),
-    }).subscribe(({ appVersionDetails, lastLoggedInVersion, eou }) => {
-      if (!appVersionDetails.supported && environment.production) {
+    }).subscribe(({ appSupportDetails, lastLoggedInVersion, eou }) => {
+      if (!appSupportDetails.supported && environment.production) {
         this.trackingService.eventTrack('Auto Logged out', {
           lastLoggedInVersion,
           user_email: eou?.us?.email,
           appVersion: deviceInfo.appVersion,
         });
-        this.router.navigate(['/', 'auth', 'app_version', { message: appVersionDetails.message }]);
+        this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);
       }
     });
   }
