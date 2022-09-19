@@ -1,21 +1,27 @@
 import { Injectable } from '@angular/core';
-import { DeviceService } from './device.service';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { map, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { forkJoin, noop, of } from 'rxjs';
+import { forkJoin, noop, of, from } from 'rxjs';
 import { RouterApiService } from './router-api.service';
 import { AppVersion } from '../models/app_version.model';
 import { environment } from 'src/environments/environment';
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
+import { LoginInfoService } from './login-info.service';
+import { AuthService } from './auth.service';
+import { TrackingService } from './tracking.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppVersionService {
   constructor(
-    private deviceService: DeviceService,
     private apiService: ApiService,
-    private routerApiService: RouterApiService
+    private routerApiService: RouterApiService,
+    private loginInfoService: LoginInfoService,
+    private authService: AuthService,
+    private trackingService: TrackingService,
+    private router: Router
   ) {}
 
   // not fixing since copied from somewhere
@@ -66,6 +72,28 @@ export class AppVersionService {
         })
       )
       .subscribe(noop); // because this needs to happen in the background
+  }
+
+  checkAppSupportedVersion(deviceInfo: ExtendedDeviceInfo) {
+    const data = {
+      app_version: deviceInfo.appVersion,
+      device_os: deviceInfo.platform,
+    };
+
+    forkJoin({
+      appVersionDetails: this.isSupported(data),
+      lastLoggedInVersion: this.loginInfoService.getLastLoggedInVersion(),
+      eou: from(this.authService.getEou()),
+    }).subscribe(({ appVersionDetails, lastLoggedInVersion, eou }) => {
+      if (!appVersionDetails.supported && environment.production) {
+        this.trackingService.eventTrack('Auto Logged out', {
+          lastLoggedInVersion,
+          user_email: eou?.us?.email,
+          appVersion: deviceInfo.appVersion,
+        });
+        this.router.navigate(['/', 'auth', 'app_version', { message: appVersionDetails.message }]);
+      }
+    });
   }
 
   isSupported(data) {

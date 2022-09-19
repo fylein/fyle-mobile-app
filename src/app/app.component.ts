@@ -144,33 +144,12 @@ export class AppComponent implements OnInit {
         )
         .subscribe((deviceInfo) => {
           this.offlineService.loadAppVersion(deviceInfo);
-          this.checkAppSupportedVersion(deviceInfo);
+          this.appVersionService.checkAppSupportedVersion(deviceInfo);
         });
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
-    });
-  }
-
-  checkAppSupportedVersion(deviceInfo: ExtendedDeviceInfo) {
-    const data = {
-      app_version: deviceInfo.appVersion,
-      device_os: deviceInfo.platform,
-    };
-
-    return this.appVersionService.isSupported(data).subscribe(async (res: { message: string; supported: boolean }) => {
-      if (!res.supported && environment.production) {
-        const eou = await this.authService.getEou();
-
-        this.trackingService.eventTrack('Auto Logged out', {
-          lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
-          user_email: eou && eou.us && eou.us.email,
-          appVersion: deviceInfo.appVersion,
-        });
-
-        this.router.navigate(['/', 'auth', 'app_version', { message: res.message }]);
-      }
     });
   }
 
