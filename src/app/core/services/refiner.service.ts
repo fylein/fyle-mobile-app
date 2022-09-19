@@ -265,7 +265,7 @@ export class RefinerService {
           is_admin: eou && eou.ou && eou.ou.roles && eou.ou.roles.indexOf('ADMIN') > -1 ? 'T' : 'F',
           action_name: properties.actionName,
         });
-        (window as any)._refiner('showForm', environment.REFINER_NPS_FORM_ID);
+        (window as any)._refiner('showForm', '786c1690-ae56-11ec-b0be-031fde0aa1f4');
       }
     });
   }
