@@ -47,10 +47,9 @@ export class AppVersionService {
   load(deviceInfo: ExtendedDeviceInfo) {
     const platformOS = deviceInfo.operatingSystem;
     const platformVersion = deviceInfo.osVersion;
-    const storedVersion$ = this.get(platformOS);
     const liveUpdateVersion = environment.LIVE_UPDATE_APP_VERSION;
 
-    storedVersion$
+    this.get(platformOS)
       .pipe(
         switchMap((storedVersion) => {
           const isLower = this.isVersionLower(storedVersion?.app_version, liveUpdateVersion);
