@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController, PopoverController } from '@ionic/angular';
 import { from, concat, Observable, noop } from 'rxjs';
-import { switchMap, shareReplay } from 'rxjs/operators';
+import { switchMap, shareReplay, filter } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -24,6 +24,7 @@ import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { OfflineService } from './core/services/offline.service';
 import { PerfTrackers } from './core/models/perf-trackers.enum';
+import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
 
 @Component({
   selector: 'app-root',
@@ -136,7 +137,15 @@ export class AppComponent implements OnInit {
       });
       setTimeout(async () => await SplashScreen.hide(), 1000);
 
-      this.offlineService.loadAppVersion();
+      from(this.routerAuthService.isLoggedIn())
+        .pipe(
+          filter((isLoggedIn) => !!isLoggedIn),
+          switchMap(() => this.deviceService.getDeviceInfo())
+        )
+        .subscribe((deviceInfo) => {
+          this.offlineService.loadAppVersion(deviceInfo);
+          this.checkAppSupportedVersion(deviceInfo);
+        });
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
@@ -144,33 +153,25 @@ export class AppComponent implements OnInit {
     });
   }
 
-  checkAppSupportedVersion() {
-    this.deviceService
-      .getDeviceInfo()
-      .pipe(
-        switchMap((deviceInfo) => {
-          const data = {
-            app_version: deviceInfo.appVersion,
-            device_os: deviceInfo.platform,
-          };
+  checkAppSupportedVersion(deviceInfo: ExtendedDeviceInfo) {
+    const data = {
+      app_version: deviceInfo.appVersion,
+      device_os: deviceInfo.platform,
+    };
 
-          return this.appVersionService.isSupported(data);
-        })
-      )
-      .subscribe(async (res: { message: string; supported: boolean }) => {
-        if (!res.supported && environment.production) {
-          const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
-          const eou = await this.authService.getEou();
+    return this.appVersionService.isSupported(data).subscribe(async (res: { message: string; supported: boolean }) => {
+      if (!res.supported && environment.production) {
+        const eou = await this.authService.getEou();
 
-          this.trackingService.eventTrack('Auto Logged out', {
-            lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
-            user_email: eou && eou.us && eou.us.email,
-            appVersion: deviceInfo.appVersion,
-          });
+        this.trackingService.eventTrack('Auto Logged out', {
+          lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
+          user_email: eou && eou.us && eou.us.email,
+          appVersion: deviceInfo.appVersion,
+        });
 
-          this.router.navigate(['/', 'auth', 'app_version', { message: res.message }]);
-        }
-      });
+        this.router.navigate(['/', 'auth', 'app_version', { message: res.message }]);
+      }
+    });
   }
 
   setupNetworkWatcher() {
@@ -189,7 +190,6 @@ export class AppComponent implements OnInit {
         .forEach((key) => lstorage.removeItem(key));
     }
 
-    this.checkAppSupportedVersion();
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       this.isUserLoggedIn = loggedInStatus;
       if (loggedInStatus) {

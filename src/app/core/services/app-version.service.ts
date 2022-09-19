@@ -6,6 +6,7 @@ import { forkJoin, noop, of } from 'rxjs';
 import { RouterApiService } from './router-api.service';
 import { AppVersion } from '../models/app_version.model';
 import { environment } from 'src/environments/environment';
+import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 
 @Injectable({
   providedIn: 'root',
@@ -43,30 +44,26 @@ export class AppVersionService {
     return false;
   }
 
-  load() {
-    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    const platformOS$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.operatingSystem as string));
-    const platformVersion$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.osVersion));
-    const storedVersion$ = platformOS$.pipe(switchMap((os) => this.get(os)));
+  load(deviceInfo: ExtendedDeviceInfo) {
+    const platformOS = deviceInfo.operatingSystem;
+    const platformVersion = deviceInfo.osVersion;
+    const storedVersion$ = this.get(platformOS);
     const liveUpdateVersion = environment.LIVE_UPDATE_APP_VERSION;
 
-    forkJoin([platformOS$, platformVersion$, storedVersion$])
+    storedVersion$
       .pipe(
-        switchMap((aggregatedResponses) => {
-          const [platformOS, platformVersion, storedVersion] = aggregatedResponses;
-          const data = {
-            app_version: liveUpdateVersion,
-            device_platform: platformOS,
-            platform_version: platformVersion,
-          };
-
-          const isLower = this.isVersionLower(storedVersion && storedVersion.app_version, liveUpdateVersion);
+        switchMap((storedVersion) => {
+          const isLower = this.isVersionLower(storedVersion?.app_version, liveUpdateVersion);
 
           if (isLower) {
+            const data = {
+              app_version: liveUpdateVersion,
+              device_platform: platformOS,
+              platform_version: platformVersion,
+            };
             return this.post(data);
-          } else {
-            return of(noop);
           }
+          return of(noop);
         })
       )
       .subscribe(noop); // because this needs to happen in the background

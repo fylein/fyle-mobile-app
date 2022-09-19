@@ -482,12 +482,10 @@ export class OfflineService {
     );
   }
 
-  loadAppVersion() {
-    this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
-      if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
-        this.appVersionService.load();
-      }
-    });
+  loadAppVersion(deviceInfo) {
+    if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
+      this.appVersionService.load(deviceInfo);
+    }
   }
 
   load() {
@@ -510,8 +508,6 @@ export class OfflineService {
     const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
     const taxGroups$ = this.getEnabledTaxGroups();
-
-    this.loadAppVersion();
 
     return forkJoin([
       orgSettings$,
@@ -539,9 +535,6 @@ export class OfflineService {
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const accounts$ = this.getAccounts();
-
-    this.loadAppVersion();
-
     return forkJoin([orgSettings$, orgUserSettings$, accounts$]);
   }
 
