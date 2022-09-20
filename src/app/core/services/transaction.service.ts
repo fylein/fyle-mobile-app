@@ -17,9 +17,11 @@ import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
+import { AccountType } from '../enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -27,7 +29,6 @@ enum FilterState {
   CANNOT_REPORT = 'CANNOT_REPORT',
   DRAFT = 'DRAFT',
 }
-import { PAGINATION_SIZE } from 'src/app/constants';
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -619,8 +620,7 @@ export class TransactionService {
   isEtxnInPaymentMode(etxn: Expense, paymentMode: string) {
     let etxnInPaymentMode = false;
     const isAdvanceOrCCCEtxn =
-      etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' ||
-      etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+      etxn.source_account_type === AccountType.ADVANCE || etxn.source_account_type === AccountType.CCC;
 
     if (paymentMode === 'reimbursable') {
       //Paid by Employee: reimbursable
@@ -630,10 +630,10 @@ export class TransactionService {
       etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
     } else if (paymentMode === 'advance') {
       //Paid from Advance account: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT';
+      etxnInPaymentMode = etxn.source_account_type === AccountType.ADVANCE;
     } else if (paymentMode === 'ccc') {
       //Paid from CCC: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+      etxnInPaymentMode = etxn.source_account_type === AccountType.CCC;
     }
     return etxnInPaymentMode;
   }

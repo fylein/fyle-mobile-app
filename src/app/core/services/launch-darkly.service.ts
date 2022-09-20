@@ -62,6 +62,14 @@ export class LaunchDarklyService {
     return this.getVariation('keyboard_plugin_enabled', true);
   }
 
+  checkIfPaymentModeConfigurationsIsEnabled(): Observable<boolean> {
+    return this.getVariation('payment_mode_configurations', false);
+  }
+
+  checkIfPaidByCompanyIsHidden(): Observable<boolean> {
+    return this.getVariation('hide_paid_by_company', false);
+  }
+
   checkIfAutomateReportSubmissionIsEnabled() {
     return this.getVariation('automate_report_submission_enabled', false);
   }
