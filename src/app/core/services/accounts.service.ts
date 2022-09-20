@@ -290,41 +290,19 @@ export class AccountsService {
     return personalAccount.value;
   }
 
-  getDefaultAccount(
-    orgSettings: any,
-    accounts: ExtendedAccount[],
-    orgUserSettings: OrgUserSettings
-  ): Observable<ExtendedAccount> {
-    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
+  getDefaultAccount(accounts: ExtendedAccount[], orgUserSettings: OrgUserSettings): ExtendedAccount {
+    const hasCCCAccount = accounts.some((paymentMode) => paymentMode.acc.type === AccountType.CCC);
 
-    const userAccounts = this.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
+    const paidByCompanyAccount = accounts.find((paymentMode) => paymentMode.acc.displayName === 'Paid by Company');
 
-    return this.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
-      map((paymentModes) => {
-        const isCCCEnabled =
-          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
+    if (hasCCCAccount && orgUserSettings?.preferences?.default_payment_mode === AccountType.CCC) {
+      const CCCAccount = accounts.find((paymentMode) => paymentMode.acc.type === AccountType.CCC);
+      return CCCAccount;
+    } else if (paidByCompanyAccount && orgUserSettings?.preferences?.default_payment_mode === AccountType.COMPANY) {
+      return paidByCompanyAccount;
+    }
 
-        const paidByCompanyAccount = paymentModes.find(
-          (paymentMode) => paymentMode?.acc?.displayName === 'Paid by Company'
-        );
-
-        let account;
-
-        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT' && paidByCompanyAccount) {
-          account = paidByCompanyAccount;
-        } else if (
-          isCCCEnabled &&
-          orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-        ) {
-          account = paymentModes.find(
-            (paymentMode) => paymentMode?.acc?.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-          );
-        } else {
-          account = paymentModes.find((paymentMode) => paymentMode?.acc?.displayName === 'Personal Card/Cash');
-        }
-        return account;
-      })
-    );
+    const personalAccount = accounts.find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash');
+    return personalAccount;
   }
 }
