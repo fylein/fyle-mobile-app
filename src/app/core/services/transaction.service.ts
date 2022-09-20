@@ -23,7 +23,7 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { OfflineService } from './offline.service';
-import { AccountsService } from './accounts.service';
+import { PaymentModesService } from './payment-modes.service';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -59,7 +59,7 @@ export class TransactionService {
     private policyApiService: PolicyApiService,
     private userEventService: UserEventService,
     private offlineService: OfflineService,
-    private accountsService: AccountsService
+    private paymentModesService: PaymentModesService
   ) {
     transactionsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -982,7 +982,7 @@ export class TransactionService {
       orgUserSettings: this.offlineService.getOrgUserSettings(),
     }).pipe(
       switchMap(({ orgSettings, accounts, orgUserSettings }) =>
-        this.accountsService.getDefaultAccount(orgSettings, accounts, orgUserSettings)
+        this.paymentModesService.getDefaultAccount(orgSettings, accounts, orgUserSettings)
       ),
       map((account) => {
         const accountDetails = {

@@ -3,7 +3,6 @@ import { map } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
-import { LaunchDarklyService } from './launch-darkly.service';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { Cacheable } from 'ts-cacheable';
@@ -12,9 +11,6 @@ import { Expense } from '../models/expense.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { ExpenseType } from '../enums/expense-type.enum';
-import { forkJoin, Observable } from 'rxjs';
-import { PaymentModesService } from './payment-modes.service';
-import { OfflineService } from './offline.service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,10 +19,7 @@ export class AccountsService {
   constructor(
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
-    private fyCurrencyPipe: FyCurrencyPipe,
-    private launchDarklyService: LaunchDarklyService,
-    private paymentModesService: PaymentModesService,
-    private offlineService: OfflineService
+    private fyCurrencyPipe: FyCurrencyPipe
   ) {}
 
   @Cacheable()
@@ -293,43 +286,5 @@ export class AccountsService {
       (paymentMode) => paymentMode.value.acc.displayName === 'Personal Card/Cash'
     );
     return personalAccount.value;
-  }
-
-  getDefaultAccount(
-    orgSettings: any,
-    accounts: ExtendedAccount[],
-    orgUserSettings: OrgUserSettings
-  ): Observable<ExtendedAccount> {
-    return forkJoin({
-      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
-    }).pipe(
-      map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden }) => {
-        let defaultAccountType = AccountType.PERSONAL;
-
-        if (isPaymentModeConfigurationsEnabled) {
-          defaultAccountType = allowedPaymentModes[0];
-        } else {
-          const userDefaultPaymentMode = orgUserSettings.preferences?.default_payment_mode;
-          const isCCCEnabled =
-            orgSettings?.corporate_credit_card_settings?.allowed &&
-            orgSettings?.corporate_credit_card_settings?.enabled;
-          if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
-            defaultAccountType = AccountType.CCC;
-          } else if (
-            orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY &&
-            !isPaidByCompanyHidden
-          ) {
-            defaultAccountType = AccountType.COMPANY;
-          }
-        }
-
-        const defaultAccount = accounts.find(
-          (account) => this.getAccountTypeFromPaymentMode(account) === defaultAccountType
-        );
-        return this.setAccountProperties(defaultAccount, defaultAccountType, false);
-      })
-    );
   }
 }
