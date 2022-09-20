@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, tap, concatMap, reduce, filter } from 'rxjs/operators';
+import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
 import { from, Observable, range, concat, forkJoin, Subject, of } from 'rxjs';
@@ -982,8 +982,7 @@ export class TransactionService {
       orgSettings: this.offlineService.getOrgSettings(),
     }).pipe(
       switchMap(({ orgUserSettings, accounts, orgSettings }) =>
-        this.accountsService.getAccount(orgSettings, accounts, orgUserSettings).pipe(
-          filter((account) => !!account),
+        this.accountsService.getDefaultAccount(orgSettings, accounts, orgUserSettings).pipe(
           map((account) => {
             const accountDetails = {
               source_account_id: account.acc.id,

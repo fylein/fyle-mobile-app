@@ -105,7 +105,7 @@ export class AccountsService {
     );
   }
 
-  getAccount(
+  getDefaultAccount(
     orgSettings: any,
     accounts: ExtendedAccount[],
     orgUserSettings: OrgUserSettings
