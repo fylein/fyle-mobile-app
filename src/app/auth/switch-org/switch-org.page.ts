@@ -2,7 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, Vie
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of } from 'rxjs';
 import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { Platform } from '@ionic/angular';
+import { Platform, PopoverController } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
@@ -18,9 +18,11 @@ import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
-import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { RemoveOfflineFormsService } from 'src/app/core/services/remove-offline-forms.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 @Component({
   selector: 'app-switch-org',
@@ -69,7 +71,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private cdRef: ChangeDetectorRef,
     private trackingService: TrackingService,
     private deviceService: DeviceService,
-    private removeOfflineFormsService: RemoveOfflineFormsService
+    private removeOfflineFormsService: RemoveOfflineFormsService,
+    private popoverController: PopoverController,
+    private orgUserService: OrgUserService
   ) {}
 
   ngOnInit() {
@@ -87,21 +91,23 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     that.orgs$ = that.offlineService.getOrgs().pipe(shareReplay(1));
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
-    that.orgs$.subscribe(() => {
+    that.orgs$.subscribe((orgs) => {
       that.cdRef.detectChanges();
     });
 
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
+    const isFromInviteLink: boolean =
+      that.activatedRoute.snapshot.params.invite_link && JSON.parse(that.activatedRoute.snapshot.params.invite_link);
 
     if (!choose) {
       from(that.loaderService.showLoader())
-        .pipe(switchMap(() => from(that.proceed())))
+        .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
         .subscribe(noop);
     } else {
       that.orgs$.subscribe((orgs) => {
         if (orgs.length === 1) {
           from(that.loaderService.showLoader())
-            .pipe(switchMap(() => from(that.proceed())))
+            .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
             .subscribe(noop);
         }
       });
@@ -143,21 +149,104 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  navigateBasedOnUserStatus(isPendingDetails: boolean, roles: string[], eou: ExtendedOrgUser) {
-    if (isPendingDetails) {
-      if (roles.indexOf('OWNER') > -1) {
-        this.router.navigate(['/', 'post_verification', 'setup_account']);
-      } else {
-        this.router.navigate(['/', 'post_verification', 'invited_user']);
-      }
-    } else if (eou.ou.status === 'ACTIVE') {
-      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-    } else if (eou.ou.status === 'DISABLED') {
-      this.router.navigate(['/', 'auth', 'disabled']);
+  async showEmailNotVerifiedAlert() {
+    const popover = await this.popoverController.create({
+      componentProps: {
+        title: 'Email Not Verified',
+        message: 'Your email is not verified. Please check your previous emails and accept the invite.',
+        primaryCta: {
+          text: 'OK',
+          action: 'close',
+        },
+      },
+      component: PopupAlertComponentComponent,
+      cssClass: 'pop-up-in-center',
+    });
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    if (data?.action === 'close') {
+      /*
+       * Case: When a user is added to an SSO org but hasn't verified their account through the link.
+       * After showing the alert, the user will be redirected to the sign-in page since there is no other org they are a part of.
+       * If the user has more than 1 org, the user will stay on the switch org page to choose another org.
+       */
+      this.orgs$.subscribe((orgs) => {
+        if (orgs.length === 1) {
+          this.signOut();
+        }
+      });
     }
   }
 
-  async proceed() {
+  navigateToSetupPage(roles: string[]) {
+    if (roles.includes('OWNER')) {
+      this.router.navigate(['/', 'post_verification', 'setup_account']);
+    } else {
+      this.router.navigate(['/', 'post_verification', 'invited_user']);
+    }
+  }
+
+  // Mark the user active in the selected org and redirect them to the dashboard.
+  markUserActive(): Observable<ExtendedOrgUser> {
+    return from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.orgUserService.markActive()),
+      finalize(() => {
+        this.loaderService.hideLoader();
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      })
+    );
+  }
+
+  /*
+   * Check if user is part of a SSO org or is a part of multiple Non SSO orgs.
+   * If yes, Mark user active directly.
+   * If no, Redirect user to setup password page.
+   */
+  handleInviteLinkFlow(roles: string[]): Observable<ExtendedOrgUser> {
+    return this.userService.getUserPasswordStatus().pipe(
+      switchMap((passwordStatus) => {
+        if (passwordStatus.is_password_required && !passwordStatus.is_password_set) {
+          this.navigateToSetupPage(roles);
+        } else {
+          return this.markUserActive();
+        }
+        return of(null);
+      })
+    );
+  }
+
+  /*
+   * If the user is coming from the invite link, Follow the invite link flow.
+   * Otherwise, show the user a popup to verify their email.
+   */
+  handlePendingDetails(roles: string[], isFromInviteLink?: boolean): Observable<ExtendedOrgUser> {
+    if (isFromInviteLink) {
+      return this.handleInviteLinkFlow(roles);
+    } else {
+      this.showEmailNotVerifiedAlert();
+    }
+    return of(null);
+  }
+
+  navigateBasedOnUserStatus(config: {
+    isPendingDetails: boolean;
+    roles: string[];
+    eou: ExtendedOrgUser;
+    isFromInviteLink?: boolean;
+  }): Observable<ExtendedOrgUser> {
+    if (config.isPendingDetails) {
+      return this.handlePendingDetails(config.roles, config?.isFromInviteLink);
+    } else if (config.eou.ou.status === 'ACTIVE') {
+      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+    } else if (config.eou.ou.status === 'DISABLED') {
+      this.router.navigate(['/', 'auth', 'disabled']);
+    }
+    return of(null);
+  }
+
+  async proceed(isFromInviteLink?: boolean) {
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
     const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
@@ -178,11 +267,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       }
 
       forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
-        .pipe(finalize(() => from(this.loaderService.hideLoader())))
-        .subscribe(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
-          this.setSentryUser(eou);
-          this.navigateBasedOnUserStatus(isPendingDetails, roles, eou);
-        });
+        .pipe(
+          switchMap(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
+            this.setSentryUser(eou);
+            return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
+          }),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe();
     });
   }
 

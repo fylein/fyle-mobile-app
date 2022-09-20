@@ -18,6 +18,9 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 
 type Image = Partial<{
   source: string;
@@ -70,7 +73,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private accountsService: AccountsService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
-    private storageService: StorageService
+    private launchDarklyService: LaunchDarklyService,
+    private storageService: StorageService,
+    private paymentModesService: PaymentModesService
   ) {}
 
   setupNetworkWatcher() {
