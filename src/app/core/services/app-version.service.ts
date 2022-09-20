@@ -75,13 +75,8 @@ export class AppVersionService {
   }
 
   checkAppSupportedVersion(deviceInfo: ExtendedDeviceInfo) {
-    const data = {
-      app_version: deviceInfo.appVersion,
-      device_os: deviceInfo.platform,
-    };
-
     forkJoin({
-      appSupportDetails: this.isSupported(data),
+      appSupportDetails: this.isSupported(deviceInfo),
       lastLoggedInVersion: this.loginInfoService.getLastLoggedInVersion(),
       eou: from(this.authService.getEou()),
     }).subscribe(({ appSupportDetails, lastLoggedInVersion, eou }) => {
@@ -96,7 +91,11 @@ export class AppVersionService {
     });
   }
 
-  isSupported(data) {
+  isSupported(deviceInfo: ExtendedDeviceInfo) {
+    const data = {
+      app_version: deviceInfo.appVersion,
+      device_os: deviceInfo.platform,
+    };
     return this.routerApiService.post('/mobileapp/check', data);
   }
 
