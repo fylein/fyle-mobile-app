@@ -119,7 +119,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     let source = base64ImagesWithSource.source;
 
     return this.networkService.isOnline().pipe(
-      map((isConnected) => {
+      switchMap((isConnected) => {
         if (!isConnected) {
           source += '_OFFLINE';
         }
