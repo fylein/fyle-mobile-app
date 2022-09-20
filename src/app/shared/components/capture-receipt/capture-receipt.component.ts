@@ -193,9 +193,16 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           }
         }
 
-        const defaultAccount = accounts.find(
-          (account) => this.accountsService.getAccountTypeFromPaymentMode(account) === defaultAccountType
-        );
+        const defaultAccount = accounts.find((account) => {
+          /*
+           * Accounts array does not have anything called COMPANY_ACCOUNT
+           * We map PERSONAL_ACCOUNT to 'Peronsal Card/Cash' and 'Paid by Company' in the frontend
+           * which happens in the setAccountProperties() method below
+           */
+          const mappedAccountType =
+            defaultAccountType === AccountType.COMPANY ? AccountType.PERSONAL : defaultAccountType;
+          return account.acc.type === mappedAccountType;
+        });
         return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
       })
     );
