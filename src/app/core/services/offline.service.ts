@@ -26,6 +26,7 @@ import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { TaxGroupService } from './tax-group.service';
+import { AccountType } from '../enums/account-type.enum';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -435,20 +436,11 @@ export class OfflineService {
     );
   }
 
-  getActiveExpenseTab() {
-    return from(this.storageService.get('activeExpenseTab'));
-  }
-
-  setActiveExpenseTab(activeTab) {
-    return from(this.storageService.set('activeExpenseTab', activeTab));
-  }
-
-  setActiveCorporateCardExpenseTab(activeTab) {
-    return from(this.storageService.set('activeCorporateCardExpenseTab', activeTab));
-  }
-
-  getActiveCorporateCardExpenseTab() {
-    return from(this.storageService.get('activeCorporateCardExpenseTab'));
+  @Cacheable()
+  getAllowedPaymentModes(): Observable<AccountType[]> {
+    return this.getOrgUserSettings().pipe(
+      map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes)
+    );
   }
 
   getReportActions(orgSettings) {
