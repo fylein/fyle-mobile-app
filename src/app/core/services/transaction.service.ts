@@ -977,10 +977,13 @@ export class TransactionService {
 
   getTxnAccount() {
     return forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
       accounts: this.offlineService.getAccounts(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
     }).pipe(
-      map(({ accounts, orgUserSettings }) => this.accountsService.getDefaultAccount(accounts, orgUserSettings)),
+      switchMap(({ orgSettings, accounts, orgUserSettings }) =>
+        this.accountsService.getDefaultAccount(orgSettings, accounts, orgUserSettings)
+      ),
       map((account) => {
         const accountDetails = {
           source_account_id: account.acc.id,
