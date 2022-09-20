@@ -150,6 +150,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   async showEmailNotVerifiedAlert() {
+    await this.storageService.delete('cachedCurrentOrg');
     const popover = await this.popoverController.create({
       componentProps: {
         title: 'Email Not Verified',
