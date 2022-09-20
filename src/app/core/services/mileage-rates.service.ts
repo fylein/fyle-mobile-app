@@ -77,4 +77,8 @@ export class MileageRatesService {
 
     return this.currencyPipe.transform(rate, currency, 'symbol', '1.2-2') + '/' + unit;
   }
+
+  filterEnabledMileageRates(allMileageRates: PlatformMileageRates[]): PlatformMileageRates[] {
+    return allMileageRates.filter((rate) => !!rate.is_enabled);
+  }
 }

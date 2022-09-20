@@ -126,6 +126,8 @@ export class AddEditMileagePage implements OnInit {
 
   mileageConfig$: Observable<any>;
 
+  individualMileageRatesEnabled$: Observable<boolean>;
+
   allMileageRates$: Observable<PlatformMileageRates[]>;
 
   mileageRates$: Observable<PlatformMileageRates[]>;
@@ -956,6 +958,10 @@ export class AddEditMileagePage implements OnInit {
       this.fg.controls.sub_category.updateValueAndValidity();
     });
 
+    this.individualMileageRatesEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates)
+    );
+
     this.allMileageRates$ = this.offlineService.getMileageRates();
 
     this.mileageRates$ = forkJoin({
@@ -964,7 +970,7 @@ export class AddEditMileagePage implements OnInit {
       mileageConfig: this.mileageConfig$,
     }).pipe(
       map(({ orgUserMileageSettings, allMileageRates, mileageConfig }) => {
-        let enabledMileageRates = allMileageRates.filter((rate) => !!rate.is_enabled);
+        let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
         orgUserMileageSettings = orgUserMileageSettings?.mileage_rate_labels || [];
         if (orgUserMileageSettings.length > 0) {
           enabledMileageRates = enabledMileageRates.filter((rate) =>

@@ -358,6 +358,31 @@
     padding: 16px;
   }
 
+  &--zero-state {
+    margin-top: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    &-img-container {
+      height: 260px;
+      width: 260px;
+      border: 1px solid #f6f6f6;
+      border-radius: 50%;
+      background-color: #f6f6f6;
+    }
+
+    &-img {
+      margin-top: 34px;
+      margin-left: 12px;
+      height: 150px;
+    }
+
+    &-text {
+      margin-top: 10px;
+      color: #464d57;
+    }
+  }
+
   &--duplicate-pointer-container {
     position: sticky;
     top: 60vh;
