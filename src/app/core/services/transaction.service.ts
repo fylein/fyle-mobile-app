@@ -982,16 +982,15 @@ export class TransactionService {
       orgSettings: this.offlineService.getOrgSettings(),
     }).pipe(
       switchMap(({ orgUserSettings, accounts, orgSettings }) =>
-        this.accountsService.getDefaultAccount(orgSettings, accounts, orgUserSettings).pipe(
-          map((account) => {
-            const accountDetails = {
-              source_account_id: account.acc.id,
-              skip_reimbursement: !account.acc.isReimbursable || false,
-            };
-            return accountDetails;
-          })
-        )
-      )
+        this.accountsService.getDefaultAccount(orgSettings, accounts, orgUserSettings)
+      ),
+      map((account) => {
+        const accountDetails = {
+          source_account_id: account.acc.id,
+          skip_reimbursement: !account.acc.isReimbursable || false,
+        };
+        return accountDetails;
+      })
     );
   }
 }
