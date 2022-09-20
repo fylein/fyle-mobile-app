@@ -204,6 +204,8 @@ export class AddEditMileagePage implements OnInit {
 
   showPaymentMode = true;
 
+  autoSubmissionReportName$: Observable<string>;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -1166,10 +1168,10 @@ export class AddEditMileagePage implements OnInit {
           }).pipe(
             map(({ etxn, mileageRates }) => {
               if (formValue) {
-                if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === formValue.vehicle_type) {
+                if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === formValue?.vehicle_type) {
                   return etxn.tx.mileage_rate;
                 } else {
-                  return this.getRateByVehicleType(mileageRates, formValue.vehicle_type);
+                  return this.getRateByVehicleType(mileageRates, formValue?.vehicle_type);
                 }
               }
             })
@@ -1315,6 +1317,8 @@ export class AddEditMileagePage implements OnInit {
         }
       })
     );
+
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>
@@ -1469,11 +1473,13 @@ export class AddEditMileagePage implements OnInit {
             this.presetLocation = recentValue.recent_start_locations[0];
           }
           const mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type);
-          mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
-            etxn.tx.mileage_rate,
-            etxn.tx.currency,
-            etxn.tx.distance_unit
-          );
+          if (mileage_rate_name) {
+            mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
+              etxn.tx.mileage_rate,
+              etxn.tx.currency,
+              etxn.tx.distance_unit
+            );
+          }
           this.fg.patchValue({
             mileage_rate_name,
             dateOfSpend: etxn.tx.txn_dt && moment(etxn.tx.txn_dt).format('y-MM-DD'),
@@ -1903,7 +1909,7 @@ export class AddEditMileagePage implements OnInit {
         return {
           tx: {
             ...etxn.tx,
-            mileage_vehicle_type: formValue.mileage_rate_name.vehicle_type,
+            mileage_vehicle_type: formValue.mileage_rate_name?.vehicle_type,
             mileage_is_round_trip: formValue.route.roundTrip,
             mileage_rate: rate || etxn.tx.mileage_rate,
             source_account_id: formValue.paymentMode.acc.id,
@@ -1922,7 +1928,7 @@ export class AddEditMileagePage implements OnInit {
             mileage_calculated_amount:
               (rate ||
                 etxn.tx.mileage_rate ||
-                this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name.vehicle_type)) *
+                this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name?.vehicle_type)) *
               calculatedDistance,
             project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,

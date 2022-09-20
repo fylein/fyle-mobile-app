@@ -1,0 +1,25 @@
+@import '../../../../../theme/colors.scss';
+
+.info-card {
+  padding: 16px 0;
+
+  &__container {
+    background: $grey-9;
+    border: 1px solid $alice-blue;
+    border-radius: 16px;
+    color: $black-light;
+    padding: 12px 16px;
+  }
+
+  &__date {
+    border-bottom: 1px solid $grey;
+    color: $blue-black;
+    font-size: 18px;
+    font-weight: 500;
+    padding: 4px 0 12px;
+  }
+
+  &__sub-header {
+    padding-top: 8px;
+  }
+}

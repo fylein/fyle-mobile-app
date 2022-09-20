@@ -6,6 +6,7 @@ import { cloneDeep } from 'lodash';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { Cacheable } from 'ts-cacheable';
 import { AccountOption } from '../models/account-option.model';
 import { Expense } from '../models/expense.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
@@ -23,6 +24,7 @@ export class AccountsService {
     private launchDarklyService: LaunchDarklyService
   ) {}
 
+  @Cacheable()
   getEMyAccounts() {
     return this.apiService.get('/eaccounts/').pipe(
       map((accountsRaw: any[]) => {

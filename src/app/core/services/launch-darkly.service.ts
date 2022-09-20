@@ -70,8 +70,8 @@ export class LaunchDarklyService {
     return this.getVariation('hide_paid_by_company', false);
   }
 
-  checkIfFixImplicitMergeIsEnabled(): Observable<boolean> {
-    return this.getVariation('fix_implicit_merge', false);
+  checkIfAutomateReportSubmissionIsEnabled() {
+    return this.getVariation('automate_report_submission_enabled', false);
   }
 
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)

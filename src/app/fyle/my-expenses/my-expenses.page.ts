@@ -2,8 +2,7 @@ import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular
 import { BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ActionSheetController, ModalController, PopoverController, ToastController } from '@ionic/angular';
-import { DateService } from 'src/app/core/services/date.service';
+import { ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   catchError,
@@ -20,8 +19,6 @@ import {
 } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { Expense } from 'src/app/core/models/expense.model';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -30,7 +27,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { StorageService } from '../../core/services/storage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { cloneDeep, indexOf, isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -45,33 +42,20 @@ import { FyDeleteDialogComponent } from '../../shared/components/fy-delete-dialo
 import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filters.component';
 import { FilterOptions } from '../../shared/components/fy-filters/filter-options.interface';
 import { FilterOptionType } from '../../shared/components/fy-filters/filter-option-type.enum';
-import { DateFilters } from '../../shared/components/fy-filters/date-filters.enum';
-import { SelectedFilters } from '../../shared/components/fy-filters/selected-filters.interface';
 import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
-import * as moment from 'moment';
 import { getCurrencySymbol } from '@angular/common';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
-
-type Filters = Partial<{
-  state: string[];
-  date: string;
-  customDateStart: Date;
-  customDateEnd: Date;
-  receiptsAttached: string;
-  type: string[];
-  sortParam: string;
-  sortDir: string;
-  cardNumbers: string[];
-}>;
-
+import { MyExpensesService } from './my-expenses.service';
+import { Filters } from './my-expenses-filters.model';
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
+  providers: [MyExpensesService],
 })
 export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
@@ -180,15 +164,15 @@ export class MyExpensesPage implements OnInit {
 
   allCardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned[]>;
 
+  isMergeAllowed: boolean;
+
   isOfflineFormsRemoved = false;
 
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
     private modalController: ModalController,
-    private dateService: DateService,
     private transactionService: TransactionService,
-    private currencyService: CurrencyService,
     private popoverController: PopoverController,
     private router: Router,
     private transactionOutboxService: TransactionsOutboxService,
@@ -206,7 +190,8 @@ export class MyExpensesPage implements OnInit {
     private actionSheetController: ActionSheetController,
     private snackbarProperties: SnackbarPropertiesService,
     private tasksService: TasksService,
-    private corporateCreditCardService: CorporateCreditCardExpenseService
+    private corporateCreditCardService: CorporateCreditCardExpenseService,
+    private myExpensesService: MyExpensesService
   ) {}
 
   get HeaderState() {
@@ -725,7 +710,7 @@ export class MyExpensesPage implements OnInit {
     this.loadData$.next(params);
 
     setTimeout(() => {
-      event.target.complete();
+      event?.target?.complete();
     }, 1000);
   }
 
@@ -760,7 +745,7 @@ export class MyExpensesPage implements OnInit {
       this.loadData$.next(params);
       if (event) {
         setTimeout(() => {
-          event.target.complete();
+          event?.target?.complete();
         }, 1000);
       }
     });
@@ -770,226 +755,49 @@ export class MyExpensesPage implements OnInit {
     const filterPills: FilterPill[] = [];
 
     if (filter.state?.length > 0) {
-      this.generateStateFilterPills(filterPills, filter);
+      this.myExpensesService.generateStateFilterPills(filterPills, filter);
     }
 
     if (filter.receiptsAttached) {
-      this.generateReceiptsAttachedFilterPills(filterPills, filter);
+      this.myExpensesService.generateReceiptsAttachedFilterPills(filterPills, filter);
     }
 
     if (filter.date) {
-      this.generateDateFilterPills(filter, filterPills);
+      this.myExpensesService.generateDateFilterPills(filter, filterPills);
     }
 
     if (filter.type?.length > 0) {
-      this.generateTypeFilterPills(filter, filterPills);
+      this.myExpensesService.generateTypeFilterPills(filter, filterPills);
     }
 
     if (filter.sortParam && filter.sortDir) {
-      this.generateSortFilterPills(filter, filterPills);
+      this.myExpensesService.generateSortFilterPills(filter, filterPills);
     }
 
     if (filter.cardNumbers?.length > 0) {
-      this.generateCardFilterPills(filterPills, filter);
+      this.myExpensesService.generateCardFilterPills(filterPills, filter);
     }
     return filterPills;
   }
 
-  generateSortFilterPills(filter, filterPills: FilterPill[]) {
-    this.generateSortTxnDatePills(filter, filterPills);
-
-    this.generateSortAmountPills(filter, filterPills);
-
-    this.generateSortCategoryPills(filter, filterPills);
-  }
-
-  generateSortCategoryPills(filter: any, filterPills: FilterPill[]) {
-    if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'category - a to z',
-      });
-    } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'category - z to a',
-      });
-    }
-  }
-
-  generateSortAmountPills(filter: any, filterPills: FilterPill[]) {
-    if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'amount - high to low',
-      });
-    } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'amount - low to high',
-      });
-    }
-  }
-
-  generateSortTxnDatePills(filter: any, filterPills: FilterPill[]) {
-    if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'date - old to new',
-      });
-    } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
-      filterPills.push({
-        label: 'Sort By',
-        type: 'sort',
-        value: 'date - new to old',
-      });
-    }
-  }
-
-  generateTypeFilterPills(filter, filterPills: FilterPill[]) {
-    const combinedValue = filter.type
-      .map((type) => {
-        if (type === 'RegularExpenses') {
-          return 'Regular Expenses';
-        } else if (type === 'PerDiem') {
-          return 'Per Diem';
-        } else if (type === 'Mileage') {
-          return 'Mileage';
-        } else {
-          return type;
-        }
-      })
-      .reduce((type1, type2) => `${type1}, ${type2}`);
-
-    filterPills.push({
-      label: 'Expense Type',
-      type: 'type',
-      value: combinedValue,
-    });
-  }
-
-  generateDateFilterPills(filter, filterPills: FilterPill[]) {
-    if (filter.date === DateFilters.thisWeek) {
-      filterPills.push({
-        label: 'Date',
-        type: 'date',
-        value: 'this Week',
-      });
-    }
-
-    if (filter.date === DateFilters.thisMonth) {
-      filterPills.push({
-        label: 'Date',
-        type: 'date',
-        value: 'this Month',
-      });
-    }
-
-    if (filter.date === DateFilters.all) {
-      filterPills.push({
-        label: 'Date',
-        type: 'date',
-        value: 'All',
-      });
-    }
-
-    if (filter.date === DateFilters.lastMonth) {
-      filterPills.push({
-        label: 'Date',
-        type: 'date',
-        value: 'Last Month',
-      });
-    }
-
-    if (filter.date === DateFilters.custom) {
-      this.generateCustomDatePill(filter, filterPills);
-    }
-  }
-
-  generateCustomDatePill(filter: any, filterPills: FilterPill[]) {
-    const startDate = filter.customDateStart && moment(filter.customDateStart).format('y-MM-D');
-    const endDate = filter.customDateEnd && moment(filter.customDateEnd).format('y-MM-D');
-
-    if (startDate && endDate) {
-      filterPills.push({
-        label: 'Date',
-        type: 'date',
-        value: `${startDate} to ${endDate}`,
-      });
-    } else if (startDate) {
-      filterPills.push({
-        label: 'Date',
-        type: 'date',
-        value: `>= ${startDate}`,
-      });
-    } else if (endDate) {
-      filterPills.push({
-        label: 'Date',
-        type: 'date',
-        value: `<= ${endDate}`,
-      });
-    }
-  }
-
-  generateReceiptsAttachedFilterPills(filterPills: FilterPill[], filter) {
-    filterPills.push({
-      label: 'Receipts Attached',
-      type: 'receiptsAttached',
-      value: filter.receiptsAttached.toLowerCase(),
-    });
-  }
-
-  generateCardFilterPills(filterPills: FilterPill[], filter) {
-    filterPills.push({
-      label: 'Cards',
-      type: 'cardNumbers',
-      value: filter.cardNumbers
-        .map((cardNumber) => this.maskNumber.transform(cardNumber))
-        .reduce((state1, state2) => `${state1}, ${state2}`),
-    });
-  }
-
-  generateStateFilterPills(filterPills: FilterPill[], filter) {
-    filterPills.push({
-      label: 'Type',
-      type: 'state',
-      value: filter.state
-        .map((state) => {
-          if (state === 'DRAFT') {
-            return 'Incomplete';
-          } else if (state === 'READY_TO_REPORT') {
-            return 'Unreported';
-          } else {
-            return state.replace(/_/g, ' ').toLowerCase();
-          }
-        })
-        .reduce((state1, state2) => `${state1}, ${state2}`),
-    });
-  }
-
   addNewFiltersToParams() {
-    const currentParams = this.loadData$.getValue();
+    let currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: any = {
+    let newQueryParams: any = {
       or: [],
     };
 
-    this.generateCardNumberParams(newQueryParams);
+    newQueryParams = this.transactionService.generateCardNumberParams(newQueryParams, this.filters);
 
-    this.generateDateParams(newQueryParams);
+    newQueryParams = this.transactionService.generateDateParams(newQueryParams, this.filters);
 
-    this.generateReceiptAttachedParams(newQueryParams);
+    newQueryParams = this.transactionService.generateReceiptAttachedParams(newQueryParams, this.filters);
 
-    this.generateStateFilters(newQueryParams);
+    newQueryParams = this.transactionService.generateStateFilters(newQueryParams, this.filters);
 
-    this.generateTypeFilters(newQueryParams);
+    newQueryParams = this.transactionService.generateTypeFilters(newQueryParams, this.filters);
 
-    this.setSortParams(currentParams);
+    currentParams = this.transactionService.setSortParams(currentParams, this.filters);
 
     currentParams.queryParams = newQueryParams;
 
@@ -1010,365 +818,8 @@ export class MyExpensesPage implements OnInit {
     return currentParams;
   }
 
-  setSortParams(
-    currentParams: Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  ) {
-    if (this.filters.sortParam && this.filters.sortDir) {
-      currentParams.sortParam = this.filters.sortParam;
-      currentParams.sortDir = this.filters.sortDir;
-    } else {
-      currentParams.sortParam = 'tx_txn_dt';
-      currentParams.sortDir = 'desc';
-    }
-  }
-
-  generateSelectedFilters(filter: Filters): SelectedFilters<any>[] {
-    const generatedFilters: SelectedFilters<any>[] = [];
-
-    if (filter.state) {
-      generatedFilters.push({
-        name: 'Type',
-        value: filter.state,
-      });
-    }
-
-    if (filter.receiptsAttached) {
-      generatedFilters.push({
-        name: 'Receipts Attached',
-        value: filter.receiptsAttached,
-      });
-    }
-
-    if (filter.date) {
-      generatedFilters.push({
-        name: 'Date',
-        value: filter.date,
-        associatedData: {
-          startDate: filter.customDateStart,
-          endDate: filter.customDateEnd,
-        },
-      });
-    }
-
-    if (filter.type) {
-      generatedFilters.push({
-        name: 'Expense Type',
-        value: filter.type,
-      });
-    }
-
-    if (filter.cardNumbers) {
-      generatedFilters.push({
-        name: 'Cards',
-        value: filter.cardNumbers,
-      });
-    }
-
-    if (filter.sortParam && filter.sortDir) {
-      this.addSortToGeneatedFilters(filter, generatedFilters);
-    }
-
-    return generatedFilters;
-  }
-
-  addSortToGeneatedFilters(
-    filter: Partial<{
-      state: string[];
-      date: string;
-      customDateStart: Date;
-      customDateEnd: Date;
-      receiptsAttached: string;
-      type: string[];
-      sortParam: string;
-      sortDir: string;
-      cardNumbers: string[];
-    }>,
-    generatedFilters: SelectedFilters<any>[]
-  ) {
-    this.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
-
-    this.convertAmountSortToSelectedFilters(filter, generatedFilters);
-
-    this.convertCategorySortToSelectedFilters(filter, generatedFilters);
-  }
-
-  convertCategorySortToSelectedFilters(
-    filter: Partial<{
-      state: string[];
-      date: string;
-      customDateStart: Date;
-      customDateEnd: Date;
-      receiptsAttached: string;
-      type: string[];
-      sortParam: string;
-      sortDir: string;
-      cardNumbers: string[];
-    }>,
-    generatedFilters: SelectedFilters<any>[]
-  ) {
-    if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'asc') {
-      generatedFilters.push({
-        name: 'Sort By',
-        value: 'categoryAToZ',
-      });
-    } else if (filter.sortParam === 'tx_org_category' && filter.sortDir === 'desc') {
-      generatedFilters.push({
-        name: 'Sort By',
-        value: 'categoryZToA',
-      });
-    }
-  }
-
-  convertAmountSortToSelectedFilters(
-    filter: Partial<{
-      state: string[];
-      date: string;
-      customDateStart: Date;
-      customDateEnd: Date;
-      receiptsAttached: string;
-      type: string[];
-      sortParam: string;
-      sortDir: string;
-      cardNumbers: string[];
-    }>,
-    generatedFilters: SelectedFilters<any>[]
-  ) {
-    if (filter.sortParam === 'tx_amount' && filter.sortDir === 'desc') {
-      generatedFilters.push({
-        name: 'Sort By',
-        value: 'amountHighToLow',
-      });
-    } else if (filter.sortParam === 'tx_amount' && filter.sortDir === 'asc') {
-      generatedFilters.push({
-        name: 'Sort By',
-        value: 'amountLowToHigh',
-      });
-    }
-  }
-
-  convertTxnDtSortToSelectedFilters(
-    filter: Partial<{
-      state: string[];
-      date: string;
-      customDateStart: Date;
-      customDateEnd: Date;
-      receiptsAttached: string;
-      type: string[];
-      sortParam: string;
-      sortDir: string;
-      cardNumbers: string[];
-    }>,
-    generatedFilters: SelectedFilters<any>[]
-  ) {
-    if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'asc') {
-      generatedFilters.push({
-        name: 'Sort By',
-        value: 'dateOldToNew',
-      });
-    } else if (filter.sortParam === 'tx_txn_dt' && filter.sortDir === 'desc') {
-      generatedFilters.push({
-        name: 'Sort By',
-        value: 'dateNewToOld',
-      });
-    }
-  }
-
-  convertFilters(selectedFilters: SelectedFilters<any>[]): Filters {
-    const generatedFilters: Filters = {};
-
-    const typeFilter = selectedFilters.find((filter) => filter.name === 'Type');
-    if (typeFilter) {
-      generatedFilters.state = typeFilter.value;
-    }
-
-    const dateFilter = selectedFilters.find((filter) => filter.name === 'Date');
-    if (dateFilter) {
-      generatedFilters.date = dateFilter.value;
-      generatedFilters.customDateStart = dateFilter.associatedData?.startDate;
-      generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
-    }
-
-    const receiptAttachedFilter = selectedFilters.find((filter) => filter.name === 'Receipts Attached');
-
-    if (receiptAttachedFilter) {
-      generatedFilters.receiptsAttached = receiptAttachedFilter.value;
-    }
-
-    const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense Type');
-
-    if (expenseTypeFilter) {
-      generatedFilters.type = expenseTypeFilter.value;
-    }
-
-    const cardsFilter = selectedFilters.find((filter) => filter.name === 'Cards');
-
-    if (cardsFilter) {
-      generatedFilters.cardNumbers = cardsFilter.value;
-    }
-
-    const sortBy = selectedFilters.find((filter) => filter.name === 'Sort By');
-
-    this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
-
-    return generatedFilters;
-  }
-
-  convertSelectedSortFitlersToFilters(
-    sortBy: SelectedFilters<any>,
-    generatedFilters: Partial<{
-      state: string[];
-      date: string;
-      customDateStart: Date;
-      customDateEnd: Date;
-      receiptsAttached: string;
-      type: string[];
-      sortParam: string;
-      sortDir: string;
-      cardNumbers: string[];
-    }>
-  ) {
-    if (sortBy) {
-      if (sortBy.value === 'dateNewToOld') {
-        generatedFilters.sortParam = 'tx_txn_dt';
-        generatedFilters.sortDir = 'desc';
-      } else if (sortBy.value === 'dateOldToNew') {
-        generatedFilters.sortParam = 'tx_txn_dt';
-        generatedFilters.sortDir = 'asc';
-      } else if (sortBy.value === 'amountHighToLow') {
-        generatedFilters.sortParam = 'tx_amount';
-        generatedFilters.sortDir = 'desc';
-      } else if (sortBy.value === 'amountLowToHigh') {
-        generatedFilters.sortParam = 'tx_amount';
-        generatedFilters.sortDir = 'asc';
-      } else if (sortBy.value === 'categoryAToZ') {
-        generatedFilters.sortParam = 'tx_org_category';
-        generatedFilters.sortDir = 'asc';
-      } else if (sortBy.value === 'categoryZToA') {
-        generatedFilters.sortParam = 'tx_org_category';
-        generatedFilters.sortDir = 'desc';
-      }
-    }
-  }
-
   async openFilters(activeFilterInitialName?: string) {
-    const filterMain = [
-      {
-        name: 'Type',
-        optionType: FilterOptionType.multiselect,
-        options: [
-          {
-            label: 'Unreported',
-            value: 'READY_TO_REPORT',
-          },
-          {
-            label: 'Policy Violated',
-            value: 'POLICY_VIOLATED',
-          },
-          {
-            label: 'Cannot Report',
-            value: 'CANNOT_REPORT',
-          },
-          {
-            label: 'Incomplete',
-            value: 'DRAFT',
-          },
-        ],
-      } as FilterOptions<string>,
-      {
-        name: 'Date',
-        optionType: FilterOptionType.date,
-        options: [
-          {
-            label: 'All',
-            value: DateFilters.all,
-          },
-          {
-            label: 'This Week',
-            value: DateFilters.thisWeek,
-          },
-          {
-            label: 'This Month',
-            value: DateFilters.thisMonth,
-          },
-          {
-            label: 'Last Month',
-            value: DateFilters.lastMonth,
-          },
-          {
-            label: 'Custom',
-            value: DateFilters.custom,
-          },
-        ],
-      } as FilterOptions<DateFilters>,
-      {
-        name: 'Receipts Attached',
-        optionType: FilterOptionType.singleselect,
-        options: [
-          {
-            label: 'Yes',
-            value: 'YES',
-          },
-          {
-            label: 'No',
-            value: 'NO',
-          },
-        ],
-      } as FilterOptions<string>,
-      {
-        name: 'Expense Type',
-        optionType: FilterOptionType.multiselect,
-        options: [
-          {
-            label: 'Mileage',
-            value: 'Mileage',
-          },
-          {
-            label: 'Per Diem',
-            value: 'PerDiem',
-          },
-          {
-            label: 'Regular Expenses',
-            value: 'RegularExpenses',
-          },
-        ],
-      } as FilterOptions<string>,
-      {
-        name: 'Sort By',
-        optionType: FilterOptionType.singleselect,
-        options: [
-          {
-            label: 'Date - New to Old',
-            value: 'dateNewToOld',
-          },
-          {
-            label: 'Date - Old to New',
-            value: 'dateOldToNew',
-          },
-          {
-            label: 'Amount - High to Low',
-            value: 'amountHighToLow',
-          },
-          {
-            label: 'Amount - Low to High',
-            value: 'amountLowToHigh',
-          },
-          {
-            label: 'Category - A to Z',
-            value: 'categoryAToZ',
-          },
-          {
-            label: 'Category - Z to A',
-            value: 'categoryZToA',
-          },
-        ],
-      } as FilterOptions<string>,
-    ];
+    const filterMain = this.myExpensesService.getFilters();
     this.isUnifyCCCEnabled$.subscribe((isEnabled) => {
       if (isEnabled && this.cardNumbers?.length > 0) {
         filterMain.push({
@@ -1383,7 +834,7 @@ export class MyExpensesPage implements OnInit {
       component: FyFiltersComponent,
       componentProps: {
         filterOptions: filterMain,
-        selectedFilterValues: this.generateSelectedFilters(this.filters),
+        selectedFilterValues: this.myExpensesService.generateSelectedFilters(this.filters),
         activeFilterInitialName,
       },
       cssClass: 'dialog-popover',
@@ -1393,7 +844,7 @@ export class MyExpensesPage implements OnInit {
 
     const { data } = await filterPopover.onWillDismiss();
     if (data) {
-      this.filters = this.convertFilters(data);
+      this.filters = this.myExpensesService.convertFilters(data);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
       this.loadData$.next(params);
@@ -1493,6 +944,7 @@ export class MyExpensesPage implements OnInit {
       this.selectAll = false;
     }
     this.setExpenseStatsOnSelect();
+    this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedElements);
   }
 
   async showCannotEditActivityDialog() {
@@ -2046,120 +1498,6 @@ export class MyExpensesPage implements OnInit {
     ]);
   }
 
-  generateTypeFilters(newQueryParams) {
-    const typeOrFilter = [];
-
-    if (this.filters.type) {
-      if (this.filters.type.includes('Mileage')) {
-        typeOrFilter.push('tx_fyle_category.eq.Mileage');
-      }
-
-      if (this.filters.type.includes('PerDiem')) {
-        // The space encoding is done by angular into %20 so no worries here
-        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
-      }
-
-      if (this.filters.type.includes('RegularExpenses')) {
-        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
-      }
-    }
-
-    if (typeOrFilter.length > 0) {
-      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
-      newQueryParams.or.push(combinedTypeOrFilter);
-    }
-  }
-
-  generateStateFilters(newQueryParams) {
-    const stateOrFilter = [];
-
-    if (this.filters.state) {
-      newQueryParams.tx_report_id = 'is.null';
-      if (this.filters.state.includes('READY_TO_REPORT')) {
-        stateOrFilter.push('and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
-      }
-
-      if (this.filters.state.includes('POLICY_VIOLATED')) {
-        stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
-      }
-
-      if (this.filters.state.includes('CANNOT_REPORT')) {
-        stateOrFilter.push('tx_policy_amount.lt.0.0001');
-      }
-
-      if (this.filters.state.includes('DRAFT')) {
-        stateOrFilter.push('tx_state.in.(DRAFT)');
-      }
-    }
-
-    if (stateOrFilter.length > 0) {
-      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParams.or.push(combinedStateOrFilter);
-    }
-  }
-
-  generateCardNumberParams(newQueryParams) {
-    if (this.filters.cardNumbers?.length > 0) {
-      let cardNumberString = '';
-      this.filters.cardNumbers?.forEach((cardNumber) => {
-        cardNumberString += cardNumber + ',';
-      });
-      cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
-      newQueryParams.corporate_credit_card_account_number = 'in.(' + cardNumberString + ')';
-    }
-  }
-
-  generateReceiptAttachedParams(newQueryParams) {
-    if (this.filters.receiptsAttached) {
-      if (this.filters.receiptsAttached === 'YES') {
-        newQueryParams.tx_num_files = 'gt.0';
-      }
-
-      if (this.filters.receiptsAttached === 'NO') {
-        newQueryParams.tx_num_files = 'eq.0';
-      }
-    }
-  }
-
-  generateDateParams(newQueryParams) {
-    if (this.filters.date) {
-      this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
-      this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
-      if (this.filters.date === DateFilters.thisMonth) {
-        const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and = `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`;
-      }
-
-      if (this.filters.date === DateFilters.thisWeek) {
-        const thisWeek = this.dateService.getThisWeekRange();
-        newQueryParams.and = `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`;
-      }
-
-      if (this.filters.date === DateFilters.lastMonth) {
-        const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and = `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
-      }
-
-      this.generateCustomDateParams(newQueryParams);
-    }
-  }
-
-  generateCustomDateParams(newQueryParams: any) {
-    if (this.filters.date === DateFilters.custom) {
-      const startDate = this.filters?.customDateStart?.toISOString();
-      const endDate = this.filters?.customDateEnd?.toISOString();
-      if (this.filters.customDateStart && this.filters.customDateEnd) {
-        newQueryParams.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
-      } else if (this.filters.customDateStart) {
-        newQueryParams.and = `(tx_txn_dt.gte.${startDate})`;
-      } else if (this.filters.customDateEnd) {
-        newQueryParams.and = `(tx_txn_dt.lt.${endDate})`;
-      }
-    }
-  }
-
   searchClick() {
     this.headerState = HeaderState.simpleSearch;
     const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
@@ -2178,21 +1516,6 @@ export class MyExpensesPage implements OnInit {
         from: 'MY_EXPENSES',
       },
     ]);
-  }
-
-  isMergeAllowed(expenses: Expense[]) {
-    if (expenses?.length === 2) {
-      const areSomeMileageOrPerDiemExpenses = expenses.some(
-        (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
-      );
-      const areAllExpensesSubmitted = expenses.every((expense) =>
-        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
-      );
-      const areAllCCCMatchedExpenses = expenses.every((expense) => expense.tx_corporate_credit_card_expense_group_id);
-      return !areSomeMileageOrPerDiemExpenses && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
-    } else {
-      return false;
-    }
   }
 
   showCamera(isCameraShown: boolean) {

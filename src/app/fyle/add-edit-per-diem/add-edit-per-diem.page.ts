@@ -185,6 +185,8 @@ export class AddEditPerDiemPage implements OnInit {
 
   showPaymentMode = true;
 
+  autoSubmissionReportName$: Observable<string>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private offlineService: OfflineService,
@@ -1438,20 +1440,22 @@ export class AddEditPerDiemPage implements OnInit {
           if (
             etxn &&
             etxn.id &&
-            this.fg.value.paymentMode.acc.id === etxn.source_account_id &&
+            this.fg.value.paymentMode?.acc?.id === etxn.source_account_id &&
             etxn.state !== 'DRAFT'
           ) {
             return (
-              this.fg.value.paymentMode.acc.tentative_balance_amount + etxn.amount < this.fg.value.currencyObj.amount
+              this.fg.value.paymentMode?.acc?.tentative_balance_amount + etxn.amount < this.fg.value.currencyObj.amount
             );
           } else {
-            return this.fg.value.paymentMode.acc.tentative_balance_amount < this.fg.value.currencyObj.amount;
+            return this.fg.value.paymentMode?.acc?.tentative_balance_amount < this.fg.value.currencyObj.amount;
           }
         } else {
           return false;
         }
       })
     );
+
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {

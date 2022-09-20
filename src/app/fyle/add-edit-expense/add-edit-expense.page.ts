@@ -340,6 +340,8 @@ export class AddEditExpensePage implements OnInit {
 
   showPaymentMode = true;
 
+  autoSubmissionReportName$: Observable<string>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -823,8 +825,8 @@ export class AddEditExpensePage implements OnInit {
               .pipe(switchMap(() => this.markCCCAsPersonal(id)));
           } else {
             return this.transactionService
-              .unmatchCCCExpense(id, this.matchedCCCTransaction.id)
-              .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction.id)));
+              .unmatchCCCExpense(id, this.matchedCCCTransaction?.id)
+              .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction?.id)));
           }
         },
       },
@@ -2508,7 +2510,7 @@ export class AddEditExpensePage implements OnInit {
       if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
         this.taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
         this.taxGroupsOptions$ = this.taxGroups$.pipe(
-          map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
+          map((taxGroupsOptions) => taxGroupsOptions?.map((tg) => ({ label: tg.name, value: tg })))
         );
       } else {
         this.taxGroups$ = of(null);
@@ -2718,7 +2720,7 @@ export class AddEditExpensePage implements OnInit {
           if (this.selectedCCCTransaction) {
             this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
             this.selectedCCCTransactionInSuggestions = this.matchingCCCTransactions.some(
-              (cccExpense) => cccExpense.id === this.matchedCCCTransaction.id
+              (cccExpense) => cccExpense.id === this.matchedCCCTransaction?.id
             );
           }
 
@@ -2809,6 +2811,8 @@ export class AddEditExpensePage implements OnInit {
         });
       }
     });
+
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     this.getPolicyDetails();
     this.getDuplicateExpenses();
@@ -3452,7 +3456,10 @@ export class AddEditExpensePage implements OnInit {
           this.selectedCCCTransaction &&
           this.selectedCCCTransaction.id
         ) {
-          if (transaction.corporate_credit_card_expense_group_id !== this.selectedCCCTransaction.id) {
+          if (
+            transaction.corporate_credit_card_expense_group_id !== this.selectedCCCTransaction.id &&
+            this.matchedCCCTransaction
+          ) {
             return this.transactionService
               .unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id)
               .pipe(
@@ -3462,7 +3469,11 @@ export class AddEditExpensePage implements OnInit {
         }
 
         // Case is for unmatching a matched expense
-        if (!this.selectedCCCTransaction && transaction.corporate_credit_card_expense_group_id) {
+        if (
+          !this.selectedCCCTransaction &&
+          transaction.corporate_credit_card_expense_group_id &&
+          this.matchedCCCTransaction
+        ) {
           return this.transactionService.unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id);
         }
 
@@ -3793,7 +3804,7 @@ export class AddEditExpensePage implements OnInit {
           );
         }
 
-        if (!this.fg.controls.currencyObj.value.amount && extractedData.amount && extractedData.currency) {
+        if (!this.fg.controls.currencyObj?.value?.amount && extractedData.amount && extractedData.currency) {
           const currencyObj = {
             amount: null,
             currency: homeCurrency,
@@ -4343,17 +4354,22 @@ export class AddEditExpensePage implements OnInit {
             const duplicateIds = duplicateSets
               .map((value) => value.transaction_ids)
               .reduce((acc, curVal) => acc.concat(curVal), []);
-            const params = {
-              tx_id: `in.(${duplicateIds.join(',')})`,
-            };
-            return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
-              map((expenses) => {
-                const expensesArray = expenses as [];
-                return duplicateSets.map((duplicateSet) =>
-                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
-                );
-              })
-            );
+
+            if (duplicateIds.length > 0) {
+              const params = {
+                tx_id: `in.(${duplicateIds.join(',')})`,
+              };
+              return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
+                map((expenses) => {
+                  const expensesArray = expenses as [];
+                  return duplicateSets.map((duplicateSet) =>
+                    this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                  );
+                })
+              );
+            } else {
+              return of([]);
+            }
           })
         )
         .subscribe((duplicateExpensesSet) => {

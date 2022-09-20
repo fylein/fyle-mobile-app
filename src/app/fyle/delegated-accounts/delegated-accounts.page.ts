@@ -96,7 +96,7 @@ export class DelegatedAccountsPage implements OnInit {
             delegatedAccList$.pipe(
               map(({ delegatedAcc }) => this.orgUserService.excludeByStatus(delegatedAcc, 'DISABLED')),
               map((delegatees) =>
-                delegatees.filter((delegatee) =>
+                delegatees?.filter((delegatee) =>
                   Object.values(delegatee.us).some(
                     (delegateeProp) =>
                       delegateeProp &&
@@ -109,7 +109,7 @@ export class DelegatedAccountsPage implements OnInit {
           )
         )
         .subscribe((delegatees) => {
-          this.delegatedAccList = delegatees;
+          this.delegatedAccList = delegatees || [];
         });
     }
   }

@@ -303,7 +303,7 @@ export class ViewExpensePage implements OnInit {
         this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
       ),
       map(({ report, etxn }) => {
-        if (report.rp_num_transactions === 1) {
+        if (report?.rp_num_transactions === 1) {
           return false;
         }
         return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
@@ -368,10 +368,11 @@ export class ViewExpensePage implements OnInit {
       this.isLoading = false;
     });
 
-    const etxnIds =
-      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
-    this.numEtxnsInReport = etxnIds.length;
-    this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
+    if (this.activatedRoute.snapshot.params.txnIds) {
+      const etxnIds = JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+      this.numEtxnsInReport = etxnIds.length;
+      this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
+    }
   }
 
   getReceiptExtension(name: string) {
