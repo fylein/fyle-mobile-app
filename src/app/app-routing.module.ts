@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
-import { OrgUserAuthGuard } from './core/guards/org-user-auth.guard';
+import { VerifiedOrgAuthGuard } from './core/guards/verified-org-auth.guard';
 
 const routes: Routes = [
   {
@@ -22,7 +22,7 @@ const routes: Routes = [
   {
     path: 'enterprise',
     loadChildren: () => import('./fyle/fyle-routing.module').then((m) => m.FyleRoutingModule),
-    canActivate: [AuthGuard, OrgUserAuthGuard],
+    canActivate: [AuthGuard, VerifiedOrgAuthGuard],
   },
   {
     path: 'deep_link_redirection',

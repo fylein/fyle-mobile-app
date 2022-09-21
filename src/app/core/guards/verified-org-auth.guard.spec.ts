@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { OrgUserAuthGuard } from './org-user-auth.guard';
+import { VerifiedOrgAuthGuard } from './verified-org-auth.guard';
 
 xdescribe('AuthGuard', () => {
-  let guard: OrgUserAuthGuard;
+  let guard: VerifiedOrgAuthGuard;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    guard = TestBed.inject(OrgUserAuthGuard);
+    guard = TestBed.inject(VerifiedOrgAuthGuard);
   });
 
   it('should be created', () => {
