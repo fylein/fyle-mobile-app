@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of } from 'rxjs';
-import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -19,9 +19,11 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
+import { AppVersionService } from 'src/app/core/services/app-version.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
 
 @Component({
   selector: 'app-switch-org',
@@ -69,7 +71,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private trackingService: TrackingService,
     private deviceService: DeviceService,
     private popoverController: PopoverController,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private appVersionService: AppVersionService
   ) {}
 
   ngOnInit() {
@@ -246,11 +249,32 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
+
     forkJoin([pendingDetails$, eou$, roles$])
       .pipe()
       .subscribe(([isPendingDetails, eou, roles]) => {
         this.setSentryUser(eou);
         return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
+      });
+
+    this.deviceService
+      .getDeviceInfo()
+      .pipe(
+        filter((deviceInfo: ExtendedDeviceInfo) => ['android', 'ios'].includes(deviceInfo.platform.toLowerCase())),
+        switchMap((deviceInfo) => {
+          this.appVersionService.load(deviceInfo);
+          return this.appVersionService.getUserAppVersionDetails(deviceInfo);
+        }),
+        filter((userAppVersionDetails) => !!userAppVersionDetails)
+      )
+      .subscribe((userAppVersionDetails) => {
+        const { appSupportDetails, lastLoggedInVersion, eou, deviceInfo } = userAppVersionDetails;
+        this.trackingService.eventTrack('Auto Logged out', {
+          lastLoggedInVersion,
+          user_email: eou?.us?.email,
+          appVersion: deviceInfo.appVersion,
+        });
+        this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);
       });
   }
 
