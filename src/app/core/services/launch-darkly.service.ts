@@ -23,7 +23,13 @@ export class LaunchDarklyService {
     }
 
     return from(this.storageService.get('cachedLDFlags')).pipe(
-      map((cachedFlags) => (cachedFlags[key] === undefined ? defaultValue : cachedFlags[key]))
+      map((cachedFlags) => {
+        if (cachedFlags) {
+          return cachedFlags[key] === undefined ? defaultValue : cachedFlags[key];
+        } else {
+          return defaultValue;
+        }
+      })
     );
   }
 
