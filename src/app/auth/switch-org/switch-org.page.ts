@@ -18,7 +18,6 @@ import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
-import { RemoveOfflineFormsService } from 'src/app/core/services/remove-offline-forms.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -52,8 +51,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isIos = false;
 
-  isOfflineFormsRemoved = false;
-
   constructor(
     private platform: Platform,
     private offlineService: OfflineService,
@@ -71,7 +68,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private cdRef: ChangeDetectorRef,
     private trackingService: TrackingService,
     private deviceService: DeviceService,
-    private removeOfflineFormsService: RemoveOfflineFormsService,
     private popoverController: PopoverController,
     private orgUserService: OrgUserService
   ) {}
@@ -249,33 +245,16 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   async proceed(isFromInviteLink?: boolean) {
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
-    const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
-    const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
-    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey().subscribe((isOfflineModeDisabled: boolean) => {
-      this.isOfflineFormsRemoved = isOfflineModeDisabled;
-
-      this.storageService.set('isOfflineFormsRemoved', isOfflineModeDisabled);
-
-      let offlineData$: Observable<any[]>;
-
-      if (this.isOfflineFormsRemoved) {
-        offlineData$ = of(null);
-      } else {
-        offlineData$ = this.offlineService.load().pipe(shareReplay(1));
-      }
-
-      forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
-        .pipe(
-          switchMap(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
-            this.setSentryUser(eou);
-            return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe();
-    });
+    forkJoin([pendingDetails$, eou$, roles$])
+      .pipe(
+        switchMap(([isPendingDetails, eou, roles]) => {
+          this.setSentryUser(eou);
+          return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
+        }),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe();
   }
 
   trackSwitchOrg(org: Org, originalEou) {
