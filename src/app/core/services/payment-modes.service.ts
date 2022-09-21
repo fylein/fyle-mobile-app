@@ -7,6 +7,8 @@ import { map } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
 import { ExpenseType } from '../enums/expense-type.enum';
 import { AccountType } from '../enums/account-type.enum';
+import { ExtendedAccount } from '../models/extended-account.model';
+import { OrgUserSettings } from '../models/org_user_settings.model';
 
 @Injectable({
   providedIn: 'root',
@@ -58,6 +60,51 @@ export class PaymentModesService {
           return allowedPaymentModes[0] !== etxnAccountType;
         }
         return true;
+      })
+    );
+  }
+
+  getDefaultAccount(
+    orgSettings: any,
+    accounts: ExtendedAccount[],
+    orgUserSettings: OrgUserSettings
+  ): Observable<ExtendedAccount> {
+    return forkJoin({
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
+    }).pipe(
+      map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden }) => {
+        let defaultAccountType = AccountType.PERSONAL;
+
+        if (isPaymentModeConfigurationsEnabled) {
+          defaultAccountType = allowedPaymentModes[0];
+        } else {
+          const userDefaultPaymentMode = orgUserSettings.preferences?.default_payment_mode;
+          const isCCCEnabled =
+            orgSettings?.corporate_credit_card_settings?.allowed &&
+            orgSettings?.corporate_credit_card_settings?.enabled;
+          if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
+            defaultAccountType = AccountType.CCC;
+          } else if (
+            orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY &&
+            !isPaidByCompanyHidden
+          ) {
+            defaultAccountType = AccountType.COMPANY;
+          }
+        }
+
+        const defaultAccount = accounts.find((account) => {
+          /*
+           * Accounts array does not have anything called COMPANY_ACCOUNT
+           * We map PERSONAL_ACCOUNT to 'Peronsal Card/Cash' and 'Paid by Company' in the frontend
+           * which happens in the setAccountProperties() method below
+           */
+          const mappedAccountType =
+            defaultAccountType === AccountType.COMPANY ? AccountType.PERSONAL : defaultAccountType;
+          return account.acc.type === mappedAccountType;
+        });
+        return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
       })
     );
   }
