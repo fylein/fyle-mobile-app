@@ -59,8 +59,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
-  isOfflineFormsRemoved = false;
-
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -101,10 +99,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
       this.isInstafyleEnabled =
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
-    });
-
-    from(this.storageService.get('isOfflineFormsRemoved')).subscribe((res) => {
-      this.isOfflineFormsRemoved = res;
     });
   }
 
@@ -250,19 +244,15 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   saveSingleCapture() {
-    if (this.isOfflineFormsRemoved) {
-      let isOnline: boolean;
-      this.networkService.isOnline().subscribe((res) => {
-        isOnline = res;
-        if (!isOnline) {
-          this.onSingleCaptureOffline();
-        } else {
-          this.navigateToExpenseForm();
-        }
-      });
-    } else {
-      this.navigateToExpenseForm();
-    }
+    let isOnline: boolean;
+    this.networkService.isOnline().subscribe((res) => {
+      isOnline = res;
+      if (!isOnline) {
+        this.onSingleCaptureOffline();
+      } else {
+        this.navigateToExpenseForm();
+      }
+    });
   }
 
   async onSingleCapture() {
