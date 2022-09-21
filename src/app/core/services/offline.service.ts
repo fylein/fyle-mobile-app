@@ -474,12 +474,6 @@ export class OfflineService {
     );
   }
 
-  loadAppVersion(deviceInfo) {
-    if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
-      this.appVersionService.load(deviceInfo);
-    }
-  }
-
   load() {
     globalCacheBusterNotifier.next();
     const orgSettings$ = this.getOrgSettings();
@@ -500,11 +494,6 @@ export class OfflineService {
     const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
     const taxGroups$ = this.getEnabledTaxGroups();
-
-    this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
-      this.loadAppVersion(deviceInfo);
-      this.appVersionService.checkAppSupportedVersion(deviceInfo);
-    });
 
     return forkJoin([
       orgSettings$,

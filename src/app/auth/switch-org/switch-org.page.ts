@@ -20,6 +20,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RemoveOfflineFormsService } from 'src/app/core/services/remove-offline-forms.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
+import { AppVersionService } from 'src/app/core/services/app-version.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -73,7 +74,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private deviceService: DeviceService,
     private removeOfflineFormsService: RemoveOfflineFormsService,
     private popoverController: PopoverController,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private appVersionService: AppVersionService
   ) {}
 
   ngOnInit() {
@@ -265,6 +267,13 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       } else {
         offlineData$ = this.offlineService.load().pipe(shareReplay(1));
       }
+
+      this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
+        if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
+          this.appVersionService.load(deviceInfo);
+          this.appVersionService.checkAppSupportedVersion(deviceInfo);
+        }
+      });
 
       forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
         .pipe(

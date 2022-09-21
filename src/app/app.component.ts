@@ -143,8 +143,10 @@ export class AppComponent implements OnInit {
           switchMap(() => this.deviceService.getDeviceInfo())
         )
         .subscribe((deviceInfo) => {
-          this.offlineService.loadAppVersion(deviceInfo);
-          this.appVersionService.checkAppSupportedVersion(deviceInfo);
+          if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
+            this.appVersionService.load(deviceInfo);
+            this.appVersionService.checkAppSupportedVersion(deviceInfo);
+          }
         });
 
       // Global cache config
