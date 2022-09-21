@@ -2432,7 +2432,9 @@ export class AddEditMileagePage implements OnInit {
   }
 
   async onRouteVisualizerClick() {
-    await this.routeSelector.openModal();
+    if (this.routeSelector) {
+      await this.routeSelector.openModal();
+    }
   }
 
   async openCommentsModal() {
