@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
@@ -17,6 +17,18 @@ import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
+import { AccountType } from '../enums/account-type.enum';
+import { cloneDeep } from 'lodash';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
+import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { PAGINATION_SIZE } from 'src/app/constants';
+
+enum FilterState {
+  READY_TO_REPORT = 'READY_TO_REPORT',
+  POLICY_VIOLATED = 'POLICY_VIOLATED',
+  CANNOT_REPORT = 'CANNOT_REPORT',
+  DRAFT = 'DRAFT',
+}
 
 const transactionsCacheBuster$ = new Subject<void>();
 
@@ -30,6 +42,7 @@ type PaymentMode = {
 })
 export class TransactionService {
   constructor(
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
@@ -107,10 +120,10 @@ export class TransactionService {
   getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
       switchMap((res) => {
-        const count = res.count > 50 ? res.count / 50 : 1;
+        const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getETxnc({ offset: 50 * page, limit: 50, params })),
+      concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
       reduce((acc, curr) => acc.concat(curr))
     );
   }
@@ -160,11 +173,16 @@ export class TransactionService {
   getAllExpenses(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })
+        this.getMyExpenses({
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+          queryParams: config.queryParams,
+          order: config.order,
+        })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as any[])
@@ -300,11 +318,11 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$,
   })
   removeTxnsFromRptInBulk(txnIds, comment?) {
-    const count = txnIds.length > 50 ? txnIds.length / 50 : 1;
+    const count = txnIds.length > this.paginationSize ? txnIds.length / this.paginationSize : 1;
     return range(0, count).pipe(
       concatMap((page) => {
         const data: any = {
-          ids: txnIds.slice(page * 50, (page + 1) * 50),
+          ids: txnIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize),
         };
 
         if (comment) {
@@ -602,8 +620,7 @@ export class TransactionService {
   isEtxnInPaymentMode(etxn: Expense, paymentMode: string) {
     let etxnInPaymentMode = false;
     const isAdvanceOrCCCEtxn =
-      etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' ||
-      etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+      etxn.source_account_type === AccountType.ADVANCE || etxn.source_account_type === AccountType.CCC;
 
     if (paymentMode === 'reimbursable') {
       //Paid by Employee: reimbursable
@@ -613,10 +630,10 @@ export class TransactionService {
       etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
     } else if (paymentMode === 'advance') {
       //Paid from Advance account: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT';
+      etxnInPaymentMode = etxn.source_account_type === AccountType.ADVANCE;
     } else if (paymentMode === 'ccc') {
       //Paid from CCC: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+      etxnInPaymentMode = etxn.source_account_type === AccountType.CCC;
     }
     return etxnInPaymentMode;
   }
@@ -766,5 +783,183 @@ export class TransactionService {
       txn_id: txnId,
     };
     return this.apiService.post('/transactions/unlink_card_expense', data);
+  }
+
+  isMergeAllowed(expenses: Expense[]): boolean {
+    if (expenses?.length === 2) {
+      const areSomeMileageOrPerDiemExpenses = expenses.some(
+        (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
+      );
+      const areAllExpensesSubmitted = expenses.every((expense) =>
+        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
+      );
+      const areAllCCCMatchedExpenses = expenses.every((expense) => expense.tx_corporate_credit_card_expense_group_id);
+      return !areSomeMileageOrPerDiemExpenses && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
+    } else {
+      return false;
+    }
+  }
+
+  generateStateOrFilter(filters: Filters, newQueryParamsCopy): string[] {
+    const stateOrFilter: string[] = [];
+    if (filters.state) {
+      newQueryParamsCopy.tx_report_id = 'is.null';
+      if (filters.state.includes(FilterState.READY_TO_REPORT)) {
+        stateOrFilter.push('and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (filters.state.includes(FilterState.POLICY_VIOLATED)) {
+        stateOrFilter.push('and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))');
+      }
+
+      if (filters.state.includes(FilterState.CANNOT_REPORT)) {
+        stateOrFilter.push('tx_policy_amount.lt.0.0001');
+      }
+
+      if (filters.state.includes(FilterState.DRAFT)) {
+        stateOrFilter.push('tx_state.in.(DRAFT)');
+      }
+    }
+
+    return stateOrFilter;
+  }
+
+  generateStateFilters(newQueryParams, filters: Filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
+
+    if (stateOrFilter.length > 0) {
+      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedStateOrFilter = `(${combinedStateOrFilter})`;
+      newQueryParamsCopy.or.push(combinedStateOrFilter);
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateCardNumberParams(newQueryParams, filters: Filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.cardNumbers?.length > 0) {
+      let cardNumberString = '';
+      filters.cardNumbers?.forEach((cardNumber) => {
+        cardNumberString += cardNumber + ',';
+      });
+      cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
+      newQueryParamsCopy.corporate_credit_card_account_number = 'in.(' + cardNumberString + ')';
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateReceiptAttachedParams(newQueryParams, filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.receiptsAttached) {
+      if (filters.receiptsAttached === 'YES') {
+        newQueryParamsCopy.tx_num_files = 'gt.0';
+      }
+
+      if (filters.receiptsAttached === 'NO') {
+        newQueryParamsCopy.tx_num_files = 'eq.0';
+      }
+    }
+    return newQueryParamsCopy;
+  }
+
+  generateDateParams(newQueryParams, filters) {
+    let newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date) {
+      filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
+      filters.customDateEnd = filters.customDateEnd && new Date(filters.customDateEnd);
+      if (filters.date === DateFilters.thisMonth) {
+        const thisMonth = this.dateService.getThisMonthRange();
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`;
+      }
+
+      if (filters.date === DateFilters.thisWeek) {
+        const thisWeek = this.dateService.getThisWeekRange();
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`;
+      }
+
+      if (filters.date === DateFilters.lastMonth) {
+        const lastMonth = this.dateService.getLastMonthRange();
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`;
+      }
+
+      newQueryParamsCopy = this.generateCustomDateParams(newQueryParams, filters);
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateCustomDateParams(newQueryParams, filters: Filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date === DateFilters.custom) {
+      const startDate = filters?.customDateStart?.toISOString();
+      const endDate = filters?.customDateEnd?.toISOString();
+      if (filters.customDateStart && filters.customDateEnd) {
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate},tx_txn_dt.lt.${endDate})`;
+      } else if (filters.customDateStart) {
+        newQueryParamsCopy.and = `(tx_txn_dt.gte.${startDate})`;
+      } else if (filters.customDateEnd) {
+        newQueryParamsCopy.and = `(tx_txn_dt.lt.${endDate})`;
+      }
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateTypeOrFilter(filters: Filters): string[] {
+    const typeOrFilter: string[] = [];
+    if (filters.type) {
+      if (filters.type.includes('Mileage')) {
+        typeOrFilter.push('tx_fyle_category.eq.Mileage');
+      }
+
+      if (filters.type.includes('PerDiem')) {
+        // The space encoding is done by angular into %20 so no worries here
+        typeOrFilter.push('tx_fyle_category.eq.Per Diem');
+      }
+
+      if (filters.type.includes('RegularExpenses')) {
+        typeOrFilter.push('and(tx_fyle_category.not.eq.Mileage, tx_fyle_category.not.eq.Per Diem)');
+      }
+    }
+
+    return typeOrFilter;
+  }
+
+  generateTypeFilters(newQueryParams, filters: Filters) {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const typeOrFilter = this.generateTypeOrFilter(filters);
+
+    if (typeOrFilter.length > 0) {
+      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
+      newQueryParamsCopy.or.push(combinedTypeOrFilter);
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  setSortParams(
+    currentParams: Partial<{
+      pageNumber: number;
+      queryParams: any;
+      sortParam: string;
+      sortDir: string;
+      searchString: string;
+    }>,
+    filters
+  ) {
+    const currentParamsCopy = cloneDeep(currentParams);
+    if (filters.sortParam && filters.sortDir) {
+      currentParamsCopy.sortParam = filters.sortParam;
+      currentParamsCopy.sortDir = filters.sortDir;
+    } else {
+      currentParamsCopy.sortParam = 'tx_txn_dt';
+      currentParamsCopy.sortDir = 'desc';
+    }
+
+    return currentParamsCopy;
   }
 }

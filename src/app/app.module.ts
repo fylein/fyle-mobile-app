@@ -87,7 +87,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     },
     {
       provide: PAGINATION_SIZE,
-      useValue: 50,
+      useValue: 200,
     },
     TitleCasePipe,
   ],

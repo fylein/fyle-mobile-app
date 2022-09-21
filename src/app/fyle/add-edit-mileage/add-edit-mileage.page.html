@@ -185,7 +185,7 @@
 
               <ion-grid class="ion-grid-no-padding">
                 <ion-row>
-                  <ion-col size="6">
+                  <ion-col [size]="showPaymentMode ? 6 : 12">
                     <ng-container *ngIf="txnFields$|async as txnFields">
                       <div
                         *ngIf="txnFields?.txn_dt"
@@ -216,10 +216,9 @@
                       </div>
                     </ng-container>
                   </ion-col>
-                  <ion-col size="6">
+                  <ion-col size="6" *ngIf="showPaymentMode">
                     <ng-container *ngIf="paymentModes$|async as paymentModes">
                       <div
-                        *ngIf="paymentModes.length > 0"
                         class="add-edit-mileage--payment-modes add-edit-mileage--internal-block"
                         [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
                       >
@@ -532,6 +531,7 @@
                             [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
                             [options]="reports"
                             formControlName="report"
+                            [autoSubmissionReportName]="autoSubmissionReportName$|async"
                           ></app-fy-add-to-report>
                         </div>
                       </ng-container>
@@ -590,10 +590,10 @@
             </ng-container>
           </form>
         </ng-container>
-        <div *ngIf="invalidPaymentMode" class="add-edit-mileage--error-message-block">
-          Expense greater than balance in selected Payment Mode. Please select a different Payment Mode.
-        </div>
       </ng-container>
+      <div *ngIf="invalidPaymentMode" class="add-edit-mileage--error-message-block">
+        Expense greater than balance in selected Payment Mode. Please select a different Payment Mode.
+      </div>
     </ng-container>
     <ng-template #showNoMileageWarning>
       <ng-container
@@ -632,7 +632,7 @@
     (saveAndGoToPrev)="saveExpenseAndGotoPrev()"
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
-  <ion-footer *ngIf="!reviewList?.length">
+  <ion-footer *ngIf="(mileageRatesOptions$|async)?.length > 0 && !reviewList?.length">
     <ion-toolbar
       mode="md"
       class="add-edit-mileage--footer-toolbar cta-footer-toolbar"

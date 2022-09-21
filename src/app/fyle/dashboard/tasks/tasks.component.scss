@@ -10,8 +10,7 @@
   }
 
   &--zero-state {
-    position: relative;
-    margin-top: 80px;
+    height: calc(100vh - 400px) !important;
   }
 
   &--container {
@@ -23,12 +22,24 @@
   }
 }
 
+.task-card {
+  background-color: $pure-white;
+
+  &__container {
+    margin: 0 16px;
+
+    &--divider {
+      border-bottom: 1px solid $grey;
+    }
+  }
+}
+
 .task-list {
   margin-bottom: 120px;
   &--filter-pills {
     position: fixed;
     width: 100%;
-    background-color: #fafafab0;
+    background-color: $white;
     z-index: 99;
   }
 
