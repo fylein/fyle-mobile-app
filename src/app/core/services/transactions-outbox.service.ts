@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
-import { from, empty, EMPTY, forkJoin, noop, concat, of } from 'rxjs';
-import { concatMap, switchMap, map, catchError, finalize } from 'rxjs/operators';
+import { from, noop } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { OfflineService } from './offline.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
 import { FileService } from './file.service';
@@ -42,7 +41,6 @@ export class TransactionsOutboxService {
     private httpClient: HttpClient,
     private receiptService: ReceiptService,
     private reportService: ReportService,
-    private offlineService: OfflineService,
     private trackingService: TrackingService,
     private currencyService: CurrencyService
   ) {
@@ -495,7 +493,7 @@ export class TransactionsOutboxService {
     const fileName = fileType && fileType === 'pdf' ? '000.pdf' : '000.jpeg';
 
     // send homeCurrency of the user's org as suggestedCurrency for data-extraction
-    return this.offlineService
+    return this.currencyService
       .getHomeCurrency()
       .toPromise()
       .then((homeCurrency) => {

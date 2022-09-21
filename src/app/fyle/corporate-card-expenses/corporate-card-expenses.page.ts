@@ -1,13 +1,10 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { NetworkService } from '../../core/services/network.service';
 import { LoaderService } from '../../core/services/loader.service';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 import { DateService } from '../../core/services/date.service';
 import { CurrencyService } from '../../core/services/currency.service';
 import { ActivatedRoute, Params, Router, NavigationEnd } from '@angular/router';
-import { TransactionsOutboxService } from '../../core/services/transactions-outbox.service';
-import { OfflineService } from '../../core/services/offline.service';
-import { PopupService } from '../../core/services/popup.service';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -111,7 +108,7 @@ export class CorporateCardExpensesPage implements OnInit {
 
     this.baseState = 'unclassified';
 
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getOrgHomeCurrency();
 
     this.simpleSearchInput.nativeElement.value = '';
 

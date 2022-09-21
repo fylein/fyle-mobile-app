@@ -180,7 +180,7 @@ export class StatsComponent implements OnInit {
    * **/
   init() {
     const that = this;
-    that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
+    that.homeCurrency$ = that.currencyService.getOrgHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
     );
@@ -231,7 +231,7 @@ export class StatsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
+    this.homeCurrency$ = this.currencyService.getOrgHomeCurrency().pipe(shareReplay(1));
     this.setupNetworkWatcher();
   }
 

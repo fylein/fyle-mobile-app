@@ -3,8 +3,6 @@ import { ModalController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
-import { getCurrencySymbol } from '@angular/common';
 
 @Component({
   selector: 'app-add-expenses-to-report',
@@ -28,11 +26,7 @@ export class AddExpensesToReportComponent implements OnInit {
 
   homeCurrency: string;
 
-  constructor(
-    private modalController: ModalController,
-    private currencyService: CurrencyService,
-    private offlineService: OfflineService
-  ) {}
+  constructor(private modalController: ModalController, private currencyService: CurrencyService) {}
 
   close() {
     this.modalController.dismiss();
@@ -82,7 +76,7 @@ export class AddExpensesToReportComponent implements OnInit {
 
   ionViewWillEnter() {
     this.isSelectedAll = true;
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getOrgHomeCurrency();
     const selectedTxns = [];
     this.unReportedEtxns.forEach((etxn, i) => {
       this.unReportedEtxns[i].isSelected = true;
@@ -93,7 +87,7 @@ export class AddExpensesToReportComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;
     });
   }

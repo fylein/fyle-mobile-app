@@ -143,7 +143,7 @@ export class MyReportsPage implements OnInit {
     this.loadData$ = new BehaviorSubject({
       pageNumber: 1,
     });
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getOrgHomeCurrency();
 
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent(this.simpleSearchInput.nativeElement, 'keyup')

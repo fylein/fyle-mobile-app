@@ -15,7 +15,6 @@ import { ReportSummaryComponent } from './report-summary/report-summary.componen
 import { TrackingService } from '../../core/services/tracking.service';
 import { StorageService } from '../../core/services/storage.service';
 import { NgModel } from '@angular/forms';
-import { getCurrencySymbol } from '@angular/common';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 
 @Component({
@@ -341,7 +340,7 @@ export class MyCreateReportPage implements OnInit {
         this.getReportTitle();
       });
 
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getOrgHomeCurrency();
   }
 
   addExpense() {
@@ -349,7 +348,7 @@ export class MyCreateReportPage implements OnInit {
   }
 
   ngOnInit() {
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;
     });
   }

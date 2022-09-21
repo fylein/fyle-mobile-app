@@ -3,16 +3,48 @@ import { OrgService } from './org.service';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
-import { from, of, Subject } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import * as moment from 'moment';
 import { Cacheable } from 'ts-cacheable';
 import { getNumberOfCurrencyDigits } from '@angular/common';
+import { NetworkService } from './network.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CurrencyService {
-  constructor(private orgService: OrgService, private authService: AuthService, private apiService: ApiService) {}
+  constructor(
+    private orgService: OrgService,
+    private authService: AuthService,
+    private apiService: ApiService,
+    private networkService: NetworkService
+  ) {}
+
+  @Cacheable()
+  getCurrencies(): Observable<string[]> {
+    return this.networkService.isOnline().pipe(
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.getAll();
+        } else {
+          return of(null);
+        }
+      })
+    );
+  }
+
+  @Cacheable()
+  getHomeCurrency(): Observable<string> {
+    return this.networkService.isOnline().pipe(
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.getOrgHomeCurrency();
+        } else {
+          return of(null);
+        }
+      })
+    );
+  }
 
   @Cacheable()
   getExchangeRate(fromCurrency, toCurrency, dt = new Date(), txnId?) {
@@ -50,7 +82,7 @@ export class CurrencyService {
     );
   }
 
-  getHomeCurrency() {
+  getOrgHomeCurrency(): Observable<string> {
     return this.orgService.getCurrentOrg().pipe(map((org) => org.currency));
   }
 

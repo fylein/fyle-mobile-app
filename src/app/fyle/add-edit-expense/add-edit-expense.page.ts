@@ -89,7 +89,6 @@ import { FileObject } from 'src/app/core/models/file_obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
-import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -377,7 +376,6 @@ export class AddEditExpensePage implements OnInit {
     private expenseFieldsService: ExpenseFieldsService,
     private modalProperties: ModalPropertiesService,
     private actionSheetController: ActionSheetController,
-    private taxGroupsService: TaxGroupService,
     private sanitizer: DomSanitizer,
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
@@ -1081,7 +1079,7 @@ export class AddEditExpensePage implements OnInit {
           };
 
           if (extractedDetails.parsedResponse) {
-            return this.offlineService.getHomeCurrency().pipe(
+            return this.currencyService.getHomeCurrency().pipe(
               switchMap((homeCurrency) => {
                 if (homeCurrency !== extractedDetails.parsedResponse.currency) {
                   return this.currencyService
@@ -1439,7 +1437,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.recentlyUsedCurrencies$ = forkJoin({
       recentValues: this.recentlyUsedValues$,
-      currencies: this.offlineService.getCurrencies(),
+      currencies: this.currencyService.getCurrencies(),
     }).pipe(
       switchMap(({ recentValues, currencies }) =>
         this.recentlyUsedItemsService.getRecentCurrencies(currencies, recentValues)
@@ -1510,7 +1508,7 @@ export class AddEditExpensePage implements OnInit {
             costCenter: selectedCostCenter$,
             customInputs: selectedCustomInputs$,
             txnReceiptsCount: txnReceiptsCount$,
-            homeCurrency: this.offlineService.getHomeCurrency(),
+            homeCurrency: this.currencyService.getHomeCurrency(),
             orgSettings: this.offlineService.getOrgSettings(),
             defaultPaymentMode: defaultPaymentMode$,
             orgUserSettings: this.orgUserSettings$,
@@ -2482,7 +2480,7 @@ export class AddEditExpensePage implements OnInit {
     const orgSettings$ = this.offlineService.getOrgSettings();
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const allCategories$ = this.offlineService.getAllEnabledCategories();
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
@@ -3745,7 +3743,7 @@ export class AddEditExpensePage implements OnInit {
 
   async getParsedReceipt(base64Image, fileType) {
     const parsedData: any = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
-    const homeCurrency = await this.offlineService.getHomeCurrency().toPromise();
+    const homeCurrency = await this.currencyService.getHomeCurrency().toPromise();
 
     if (parsedData && parsedData.data && parsedData.data.currency && homeCurrency !== parsedData.data.currency) {
       parsedData.exchangeRate = await this.currencyService
@@ -3782,7 +3780,7 @@ export class AddEditExpensePage implements OnInit {
           forkJoin({
             imageData: from(this.getParsedReceipt(base64Image, fileType)),
             filteredCategories: this.filteredCategories$.pipe(take(1)),
-            homeCurrency: this.offlineService.getHomeCurrency(),
+            homeCurrency: this.currencyService.getHomeCurrency(),
           })
         )
       )

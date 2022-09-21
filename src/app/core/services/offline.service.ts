@@ -12,15 +12,13 @@ import { CustomInputsService } from './custom-inputs.service';
 import { OrgService } from './org.service';
 import { AccountsService } from './accounts.service';
 import { StorageService } from './storage.service';
-import { CurrencyService } from './currency.service';
-import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { PermissionsService } from './permissions.service';
 import { Org } from '../models/org.model';
 import { Cacheable, CacheBuster, globalCacheBusterNotifier } from 'ts-cacheable';
 import { OrgUserService } from './org-user.service';
 import { intersection } from 'lodash';
-import { DeviceService } from './device.service';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
@@ -47,11 +45,9 @@ export class OfflineService {
     private customInputsService: CustomInputsService,
     private orgService: OrgService,
     private accountsService: AccountsService,
-    private currencyService: CurrencyService,
     private storageService: StorageService,
     private permissionsService: PermissionsService,
     private orgUserService: OrgUserService,
-    private deviceService: DeviceService,
     private expenseFieldsService: ExpenseFieldsService,
     private taxGroupService: TaxGroupService
   ) {}
@@ -68,23 +64,6 @@ export class OfflineService {
           );
         } else {
           return from(this.storageService.get('delegatedAccounts'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getCurrencies() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.currencyService.getAll().pipe(
-            tap((orgSettings) => {
-              this.storageService.set('cachedCurrencies', orgSettings);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedCurrencies'));
         }
       })
     );
@@ -184,23 +163,6 @@ export class OfflineService {
           );
         } else {
           return from(this.storageService.get('defaultCostCenter'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getHomeCurrency() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.currencyService.getHomeCurrency().pipe(
-            tap((homeCurrency) => {
-              this.storageService.set('cachedHomeCurrency', homeCurrency);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedHomeCurrency'));
         }
       })
     );
@@ -490,8 +452,6 @@ export class OfflineService {
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
-    const currencies$ = this.getCurrencies();
-    const homeCurrency$ = this.getHomeCurrency();
     const delegatedAccounts$ = this.getDelegatedAccounts();
     const taxGroups$ = this.getEnabledTaxGroups();
 
@@ -509,8 +469,6 @@ export class OfflineService {
       orgs$,
       accounts$,
       expenseFieldsMap$,
-      currencies$,
-      homeCurrency$,
       delegatedAccounts$,
       taxGroups$,
     ]);
