@@ -3,7 +3,6 @@ import { map } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
-import { LaunchDarklyService } from './launch-darkly.service';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { Cacheable } from 'ts-cacheable';
@@ -20,8 +19,7 @@ export class AccountsService {
   constructor(
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
-    private fyCurrencyPipe: FyCurrencyPipe,
-    private launchDarklyService: LaunchDarklyService
+    private fyCurrencyPipe: FyCurrencyPipe
   ) {}
 
   @Cacheable()

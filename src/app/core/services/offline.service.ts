@@ -527,20 +527,6 @@ export class OfflineService {
     ]);
   }
 
-  loadOptimized() {
-    globalCacheBusterNotifier.next();
-    const orgSettings$ = this.getOrgSettings();
-    const orgUserSettings$ = this.getOrgUserSettings();
-    const accounts$ = this.getAccounts();
-
-    this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
-      this.loadAppVersion(deviceInfo);
-      this.appVersionService.checkAppSupportedVersion(deviceInfo);
-    });
-
-    return forkJoin([orgSettings$, orgUserSettings$, accounts$]);
-  }
-
   getCurrentUser() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
