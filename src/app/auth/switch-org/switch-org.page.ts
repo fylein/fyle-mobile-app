@@ -251,8 +251,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       .subscribe(([isPendingDetails, eou, roles]) => {
         this.setSentryUser(eou);
         return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
-      }),
-      finalize(() => from(this.loaderService.hideLoader()));
+      });
   }
 
   trackSwitchOrg(org: Org, originalEou) {
