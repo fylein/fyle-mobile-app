@@ -14,8 +14,8 @@ export class ModalPropertiesService {
       canDismiss: true,
       backdropDismiss: true,
       animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
+      initialBreakpoint: 0.5,
+      breakpoints: [0, 0.25, 0.5, 1],
       handle: false,
     };
     return properties;
