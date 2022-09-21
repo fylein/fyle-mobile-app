@@ -246,15 +246,11 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
-    forkJoin([pendingDetails$, eou$, roles$])
-      .pipe(
-        switchMap(([isPendingDetails, eou, roles]) => {
-          this.setSentryUser(eou);
-          return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
-        }),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
-      .subscribe();
+    forkJoin([pendingDetails$, eou$, roles$]).subscribe(([isPendingDetails, eou, roles]) => {
+      this.setSentryUser(eou);
+      return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
+    }),
+      finalize(() => from(this.loaderService.hideLoader()));
   }
 
   trackSwitchOrg(org: Org, originalEou) {
