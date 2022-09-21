@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { map, switchMap } from 'rxjs/operators';
+import { filter, map, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { forkJoin, noop, of, from } from 'rxjs';
 import { RouterApiService } from './router-api.service';
@@ -74,21 +74,15 @@ export class AppVersionService {
       .subscribe(noop); // because this needs to happen in the background
   }
 
-  checkAppSupportedVersion(deviceInfo: ExtendedDeviceInfo) {
-    forkJoin({
+  getUserAppVersionDetails(deviceInfo: ExtendedDeviceInfo) {
+    return forkJoin({
       appSupportDetails: this.isSupported(deviceInfo),
       lastLoggedInVersion: this.loginInfoService.getLastLoggedInVersion(),
       eou: from(this.authService.getEou()),
-    }).subscribe(({ appSupportDetails, lastLoggedInVersion, eou }) => {
-      if (!appSupportDetails.supported && environment.production) {
-        this.trackingService.eventTrack('Auto Logged out', {
-          lastLoggedInVersion,
-          user_email: eou?.us?.email,
-          appVersion: deviceInfo.appVersion,
-        });
-        this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);
-      }
-    });
+    }).pipe(
+      filter((res) => !res.appSupportDetails.supported && environment.production),
+      map((res) => ({ ...res, deviceInfo }))
+    );
   }
 
   isSupported(deviceInfo: ExtendedDeviceInfo) {

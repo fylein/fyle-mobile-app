@@ -140,13 +140,22 @@ export class AppComponent implements OnInit {
       from(this.routerAuthService.isLoggedIn())
         .pipe(
           filter((isLoggedIn) => !!isLoggedIn),
-          switchMap(() => this.deviceService.getDeviceInfo())
-        )
-        .subscribe((deviceInfo) => {
-          if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
+          switchMap(() => this.deviceService.getDeviceInfo()),
+          filter((deviceInfo: ExtendedDeviceInfo) => ['android', 'ios'].includes(deviceInfo.platform.toLowerCase())),
+          switchMap((deviceInfo) => {
             this.appVersionService.load(deviceInfo);
-            this.appVersionService.checkAppSupportedVersion(deviceInfo);
-          }
+            return this.appVersionService.getUserAppVersionDetails(deviceInfo);
+          }),
+          filter((userAppVersionDetails) => !!userAppVersionDetails)
+        )
+        .subscribe((userAppVersionDetails) => {
+          const { appSupportDetails, lastLoggedInVersion, eou, deviceInfo } = userAppVersionDetails;
+          this.trackingService.eventTrack('Auto Logged out', {
+            lastLoggedInVersion,
+            user_email: eou?.us?.email,
+            appVersion: deviceInfo.appVersion,
+          });
+          this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);
         });
 
       // Global cache config
