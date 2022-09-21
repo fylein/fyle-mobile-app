@@ -18,6 +18,9 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 
 type Image = Partial<{
   source: string;
@@ -70,7 +73,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private accountsService: AccountsService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
-    private storageService: StorageService
+    private launchDarklyService: LaunchDarklyService,
+    private storageService: StorageService,
+    private paymentModesService: PaymentModesService
   ) {}
 
   setupNetworkWatcher() {
@@ -115,12 +120,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     return forkJoin({
       isConnected: this.networkService.isOnline(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
       accounts: this.offlineService.getAccounts(),
       orgSettings: this.offlineService.getOrgSettings(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
     }).pipe(
-      switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) =>
-        this.getAccount(orgSettings, accounts, orgUserSettings).pipe(
+      switchMap(({ isConnected, accounts, orgSettings, orgUserSettings }) =>
+        this.getDefaultAccount(orgSettings, accounts, orgUserSettings).pipe(
           filter((account) => !!account),
           switchMap((account) => {
             if (!isConnected) {
@@ -158,40 +163,47 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     );
   }
 
-  getAccount(
+  getDefaultAccount(
     orgSettings: any,
     accounts: ExtendedAccount[],
     orgUserSettings: OrgUserSettings
   ): Observable<ExtendedAccount> {
-    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
+    return forkJoin({
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
+    }).pipe(
+      map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden }) => {
+        let defaultAccountType = AccountType.PERSONAL;
 
-    const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
-
-    return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
-      map((paymentModes) => {
-        const isCCCEnabled =
-          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
-
-        const paidByCompanyAccount = paymentModes.find(
-          (paymentMode) => paymentMode?.acc?.displayName === 'Paid by Company'
-        );
-
-        let account;
-
-        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT' && paidByCompanyAccount) {
-          account = paidByCompanyAccount;
-        } else if (
-          isCCCEnabled &&
-          orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-        ) {
-          account = paymentModes.find(
-            (paymentMode) => paymentMode?.acc?.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-          );
+        if (isPaymentModeConfigurationsEnabled) {
+          defaultAccountType = allowedPaymentModes[0];
         } else {
-          account = paymentModes.find((paymentMode) => paymentMode?.acc?.displayName === 'Personal Card/Cash');
+          const userDefaultPaymentMode = orgUserSettings.preferences?.default_payment_mode;
+          const isCCCEnabled =
+            orgSettings?.corporate_credit_card_settings?.allowed &&
+            orgSettings?.corporate_credit_card_settings?.enabled;
+          if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
+            defaultAccountType = AccountType.CCC;
+          } else if (
+            orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY &&
+            !isPaidByCompanyHidden
+          ) {
+            defaultAccountType = AccountType.COMPANY;
+          }
         }
-        return account;
+
+        const defaultAccount = accounts.find((account) => {
+          /*
+           * Accounts array does not have anything called COMPANY_ACCOUNT
+           * We map PERSONAL_ACCOUNT to 'Peronsal Card/Cash' and 'Paid by Company' in the frontend
+           * which happens in the setAccountProperties() method below
+           */
+          const mappedAccountType =
+            defaultAccountType === AccountType.COMPANY ? AccountType.PERSONAL : defaultAccountType;
+          return account.acc.type === mappedAccountType;
+        });
+        return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
       })
     );
   }
