@@ -14,6 +14,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { Org } from 'src/app/core/models/org.model';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { DelegatedAccountsService } from 'src/app/core/services/delegated-accounts.service';
 
 @Component({
   selector: 'app-sidemenu',
@@ -51,7 +52,8 @@ export class SidemenuComponent implements OnInit {
     private freshChatService: FreshChatService,
     private networkService: NetworkService,
     private sidemenuService: SidemenuService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private delegatedAccountsService: DelegatedAccountsService
   ) {}
 
   ngOnInit(): void {
@@ -75,7 +77,7 @@ export class SidemenuComponent implements OnInit {
     const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const delegatedAccounts$ = this.offlineService
+    const delegatedAccounts$ = this.delegatedAccountsService
       .getDelegatedAccounts()
       .pipe(map((res) => this.orgUserService.excludeByStatus(res, 'DISABLED')));
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
