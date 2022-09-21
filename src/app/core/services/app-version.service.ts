@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { forkJoin, noop, of, from } from 'rxjs';
@@ -9,7 +8,6 @@ import { environment } from 'src/environments/environment';
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 import { LoginInfoService } from './login-info.service';
 import { AuthService } from './auth.service';
-import { TrackingService } from './tracking.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,9 +17,7 @@ export class AppVersionService {
     private apiService: ApiService,
     private routerApiService: RouterApiService,
     private loginInfoService: LoginInfoService,
-    private authService: AuthService,
-    private trackingService: TrackingService,
-    private router: Router
+    private authService: AuthService
   ) {}
 
   // not fixing since copied from somewhere
