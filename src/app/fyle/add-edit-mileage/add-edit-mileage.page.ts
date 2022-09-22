@@ -244,7 +244,8 @@ export class AddEditMileagePage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private launchDarklyService: LaunchDarklyService,
-    private paymentModesService: PaymentModesService
+    private paymentModesService: PaymentModesService,
+    private mileageRateService: MileageRatesService
   ) {}
 
   get showSaveAndNext() {
@@ -975,11 +976,11 @@ export class AddEditMileagePage implements OnInit {
       map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates)
     );
 
-    this.allMileageRates$ = this.offlineService.getMileageRates();
+    this.allMileageRates$ = this.mileageRateService.getAllMileageRates();
 
     this.mileageRates$ = forkJoin({
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
-      allMileageRates: this.offlineService.getMileageRates(),
+      allMileageRates: this.mileageRateService.getAllMileageRates(),
       mileageConfig: this.mileageConfig$,
     }).pipe(
       map(({ orgUserMileageSettings, allMileageRates, mileageConfig }) => {
