@@ -256,6 +256,7 @@ export class StatsComponent implements OnInit {
 
         this.trackingService.dashboardLaunchTime({
           'Dashboard launch time': launchTimeDuration,
+          oldBuild: true,
         });
       }
     } catch (err) {}

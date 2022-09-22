@@ -992,20 +992,12 @@ export class TrackingService {
     this.eventTrack('capture single receipt time', properties);
   }
 
-  switchOrgLaunchTime(
-    properties = {
-      oldBuild: true,
-    }
-  ) {
+  switchOrgLaunchTime(properties = {}) {
     this.eventTrack('switch org launch time', properties);
   }
 
   // Track dashboard launch time
-  dashboardLaunchTime(
-    properties = {
-      oldBuild: true,
-    }
-  ) {
+  dashboardLaunchTime(properties = {}) {
     this.eventTrack('dashboard launch time', properties);
   }
 }

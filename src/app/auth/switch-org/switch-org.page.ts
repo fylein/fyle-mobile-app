@@ -147,6 +147,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         this.trackingService.switchOrgLaunchTime({
           'Switch org launch time': launchTimeDuration,
           'Login method': loginMethod,
+          oldBuild: true,
         });
       }
     } catch (error) {}
