@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { throwError } from 'rxjs';
+import { throwError, noop } from 'rxjs';
 import { TrackingService } from '../../core/services/tracking.service';
 
 enum VerifyPageState {
@@ -46,8 +46,9 @@ export class VerifyPage implements OnInit {
           return throwError(err);
         })
       )
-      .subscribe(() => {
-        this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]);
+      .subscribe({
+        next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),
+        error: noop,
       });
   }
 }

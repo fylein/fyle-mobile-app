@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { throwError } from 'rxjs';
+import { noop, throwError } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
@@ -40,8 +40,9 @@ export class PendingVerificationPage implements OnInit {
           return throwError(err);
         })
       )
-      .subscribe(() => {
-        this.currentPageState = PageState.success;
+      .subscribe({
+        next: () => (this.currentPageState = PageState.success),
+        error: noop,
       });
   }
 }
