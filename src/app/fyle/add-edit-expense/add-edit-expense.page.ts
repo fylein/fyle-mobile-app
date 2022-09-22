@@ -386,7 +386,8 @@ export class AddEditExpensePage implements OnInit {
     private titleCasePipe: TitleCasePipe,
     private handleDuplicates: HandleDuplicatesService,
     private launchDarklyService: LaunchDarklyService,
-    private paymentModesService: PaymentModesService
+    private paymentModesService: PaymentModesService,
+    private taxGroupService: TaxGroupService
   ) {}
 
   @HostListener('keydown')
@@ -2508,7 +2509,7 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings.enabled;
 
       if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
-        this.taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
+        this.taxGroups$ = this.taxGroupService.get().pipe(shareReplay(1));
         this.taxGroupsOptions$ = this.taxGroups$.pipe(
           map((taxGroupsOptions) => taxGroupsOptions?.map((tg) => ({ label: tg.name, value: tg })))
         );
