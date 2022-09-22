@@ -572,7 +572,7 @@ export class AddEditPerDiemPage implements OnInit {
   getNewExpense() {
     return forkJoin({
       categoryContainer: this.getPerDiemCategories(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
       currentEou: this.authService.getEou(),
     }).pipe(
       map(({ categoryContainer, homeCurrency, currentEou }) => ({
@@ -861,7 +861,7 @@ export class AddEditPerDiemPage implements OnInit {
       );
 
     this.txnFields$ = this.getTransactionFields();
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
 
