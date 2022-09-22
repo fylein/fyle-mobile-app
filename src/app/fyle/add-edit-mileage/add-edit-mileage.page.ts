@@ -59,6 +59,10 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AccountOption } from 'src/app/core/models/account-option.model';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -90,7 +94,7 @@ export class AddEditMileagePage implements OnInit {
 
   txnFields$: Observable<any>;
 
-  paymentModes$: Observable<any>;
+  paymentModes$: Observable<AccountOption[]>;
 
   homeCurrency$: Observable<any>;
 
@@ -125,6 +129,10 @@ export class AddEditMileagePage implements OnInit {
   amount$: Observable<number>;
 
   mileageConfig$: Observable<any>;
+
+  individualMileageRatesEnabled$: Observable<boolean>;
+
+  allMileageRates$: Observable<PlatformMileageRates[]>;
 
   mileageRates$: Observable<PlatformMileageRates[]>;
 
@@ -198,6 +206,8 @@ export class AddEditMileagePage implements OnInit {
 
   canRemoveFromReport = false;
 
+  showPaymentMode = true;
+
   autoSubmissionReportName$: Observable<string>;
 
   constructor(
@@ -232,7 +242,9 @@ export class AddEditMileagePage implements OnInit {
     private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private launchDarklyService: LaunchDarklyService,
+    private paymentModesService: PaymentModesService
   ) {}
 
   get showSaveAndNext() {
@@ -518,30 +530,34 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getPaymentModes(): Observable<AccountOption[]> {
-    const orgSettings$ = this.offlineService.getOrgSettings();
-    const accounts$ = this.offlineService.getAccounts();
     return forkJoin({
-      accounts: accounts$,
-      orgSettings: orgSettings$,
+      accounts: this.offlineService.getAccounts(),
+      orgSettings: this.offlineService.getOrgSettings(),
+      etxn: this.etxn$,
+      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      switchMap(({ accounts, orgSettings }) => {
-        const isAdvanceEnabled =
-          (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled);
-        const isMultipleAdvanceEnabled =
-          orgSettings && orgSettings.advance_account_settings && orgSettings.advance_account_settings.multiple_accounts;
-        const userAccounts = this.accountsService
-          .filterAccountsWithSufficientBalance(
-            accounts.filter((account) => account.acc.type),
-            isAdvanceEnabled
-          )
-          .filter((userAccount) => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
-
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
-      }),
-      map((paymentModes) =>
-        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
-      )
+      map(
+        ({
+          accounts,
+          orgSettings,
+          etxn,
+          allowedPaymentModes,
+          isPaymentModeConfigurationsEnabled,
+          isPaidByCompanyHidden,
+        }) => {
+          const config = {
+            etxn,
+            orgSettings,
+            expenseType: ExpenseType.MILEAGE,
+            isPaymentModeConfigurationsEnabled,
+            isPaidByCompanyHidden,
+          };
+          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+        }
+      ),
+      shareReplay(1)
     );
   }
 
@@ -695,7 +711,15 @@ export class AddEditMileagePage implements OnInit {
             vehicleType = orgUserMileageSettings.mileage_rate_labels[0];
           }
 
-          if (!vehicleType && mileageRates && mileageRates.length > 0) {
+          const finalMileageRateNames = mileageRates.map((rate) => rate.vehicle_type);
+
+          // if mileage_vehicle_type is not set or if the set mileage rate is not enabled; set the 1st from mileageRates
+          // (when the org doesn't use employee restricted mileage rates)
+          if (
+            (!vehicleType || !finalMileageRateNames.includes(vehicleType)) &&
+            mileageRates &&
+            mileageRates.length > 0
+          ) {
             vehicleType = mileageRates[0].vehicle_type;
           }
 
@@ -810,7 +834,7 @@ export class AddEditMileagePage implements OnInit {
               mileage_calculated_distance: null,
               policy_amount: null,
               mileage_vehicle_type: defaultVehicleType,
-              mileage_rate: defaultMileageRate.rate,
+              mileage_rate: defaultMileageRate?.rate,
               distance_unit: distanceUnit,
               mileage_is_round_trip: false,
               fyle_category: 'Mileage',
@@ -929,7 +953,6 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.txnFields$ = this.getTransactionFields();
-    this.paymentModes$ = this.getPaymentModes();
     this.homeCurrency$ = this.offlineService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
@@ -948,26 +971,26 @@ export class AddEditMileagePage implements OnInit {
       this.fg.controls.sub_category.updateValueAndValidity();
     });
 
+    this.individualMileageRatesEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates)
+    );
+
+    this.allMileageRates$ = this.offlineService.getMileageRates();
+
     this.mileageRates$ = forkJoin({
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
-      mileageRates: this.offlineService.getMileageRates(),
+      allMileageRates: this.offlineService.getMileageRates(),
       mileageConfig: this.mileageConfig$,
     }).pipe(
-      map(({ orgUserMileageSettings, mileageRates, mileageConfig }) => {
+      map(({ orgUserMileageSettings, allMileageRates, mileageConfig }) => {
+        let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
         orgUserMileageSettings = orgUserMileageSettings?.mileage_rate_labels || [];
         if (orgUserMileageSettings.length > 0) {
-          const mileageRateNames = mileageRates.map((res) => res.vehicle_type);
-
-          mileageRateNames.forEach((mileageLabel, index) => {
-            if (orgUserMileageSettings.indexOf(mileageLabel) === -1) {
-              // removing from mileageRates array if the rate is not allowed.
-              mileageRateNames.splice(index, 1);
-              mileageRates.splice(index, 1);
-            }
-          });
+          enabledMileageRates = enabledMileageRates.filter((rate) =>
+            orgUserMileageSettings.includes(rate.vehicle_type)
+          );
         }
-
-        return mileageRates;
+        return enabledMileageRates;
       })
     );
 
@@ -1007,6 +1030,16 @@ export class AddEditMileagePage implements OnInit {
     this.customInputs$ = this.getCustomInputs();
 
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
+
+    this.paymentModes$ = this.getPaymentModes();
+
+    forkJoin({
+      paymentModes: this.paymentModes$,
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
+    }).subscribe(
+      ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
+        (this.showPaymentMode = !isPaymentModeConfigurationsEnabled || paymentModes.length > 1)
+    );
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
@@ -1119,7 +1152,7 @@ export class AddEditMileagePage implements OnInit {
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
-        if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
+        if (paymentMode?.acc?.type === AccountType.PERSONAL) {
           return this.offlineService
             .getAccounts()
             .pipe(
@@ -1127,10 +1160,7 @@ export class AddEditMileagePage implements OnInit {
                 (accounts) =>
                   accounts.filter(
                     (account) =>
-                      account &&
-                      account.acc &&
-                      account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' &&
-                      account.acc.tentative_balance_amount > 0
+                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
                   ).length > 0
               )
             );
@@ -1206,31 +1236,19 @@ export class AddEditMileagePage implements OnInit {
       })
     );
 
-    const selectedPaymentMode$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.source_account_id,
-          this.paymentModes$.pipe(
-            map((paymentModes) =>
-              paymentModes
-                .map((res) => res.value)
-                .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
-                    return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
-                  } else {
-                    return paymentMode.acc.id === etxn.tx.source_account_id;
-                  }
-                })
-            )
-          ),
-          of(null)
-        )
-      )
-    );
+    const selectedPaymentMode$ = forkJoin({
+      etxn: this.etxn$,
+      paymentModes: this.paymentModes$,
+    }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
 
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
-        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash')
+        paymentModes
+          .map((extendedPaymentMode) => extendedPaymentMode.value)
+          .find((paymentMode) => {
+            const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
+            return accountType === AccountType.PERSONAL;
+          })
       )
     );
 
@@ -1340,7 +1358,7 @@ export class AddEditMileagePage implements OnInit {
             selectedReport$,
             selectedCostCenter$,
             selectedCustomInputs$,
-            this.mileageRates$,
+            this.allMileageRates$,
             defaultPaymentMode$,
             orgUserSettings$,
             orgSettings$,
@@ -1362,7 +1380,7 @@ export class AddEditMileagePage implements OnInit {
           report,
           costCenter,
           customInputs,
-          mileageRates,
+          allMileageRates,
           defaultPaymentMode,
           orgUserSettings,
           orgSettings,
@@ -1466,7 +1484,7 @@ export class AddEditMileagePage implements OnInit {
           if (isRecentLocationPresent) {
             this.presetLocation = recentValue.recent_start_locations[0];
           }
-          const mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type);
+          const mileage_rate_name = this.getMileageByVehicleType(allMileageRates, etxn.tx.mileage_vehicle_type);
           if (mileage_rate_name) {
             mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
               etxn.tx.mileage_rate,
@@ -1564,7 +1582,7 @@ export class AddEditMileagePage implements OnInit {
         const paymentAccount = this.fg.value.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         let isPaymentModeInvalid = false;
-        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        if (paymentAccount?.acc?.type === AccountType.ADVANCE) {
           if (paymentAccount.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid = paymentAccount.acc.tentative_balance_amount < amount;
           } else {
@@ -1897,8 +1915,7 @@ export class AddEditMileagePage implements OnInit {
         const calculatedDistance = +res.calculatedDistance;
         const amount = res.amount;
         const skipReimbursement =
-          this.fg.value.paymentMode?.acc?.type === 'PERSONAL_ACCOUNT' &&
-          !this.fg.value.paymentMode?.acc?.isReimbursable;
+          this.fg.value.paymentMode.acc.type === AccountType.PERSONAL && !this.fg.value.paymentMode.acc.isReimbursable;
         const rate = res.rate;
         const formValue = this.fg.value;
         return {
@@ -2427,7 +2444,9 @@ export class AddEditMileagePage implements OnInit {
   }
 
   async onRouteVisualizerClick() {
-    await this.routeSelector.openModal();
+    if (this.routeSelector) {
+      await this.routeSelector.openModal();
+    }
   }
 
   async openCommentsModal() {

@@ -995,4 +995,14 @@ export class TrackingService {
   autoSubmissionInfoCardClicked(properties = {}) {
     this.eventTrack('Auto Submission Info Card Clicked', properties);
   }
+
+  // Track switch org launch time
+  switchOrgLaunchTime(properties = {}) {
+    this.eventTrack('switch org launch time', properties);
+  }
+
+  // Track dashboard launch time
+  dashboardLaunchTime(properties = {}) {
+    this.eventTrack('dashboard launch time', properties);
+  }
 }

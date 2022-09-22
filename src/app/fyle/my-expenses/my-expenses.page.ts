@@ -166,8 +166,6 @@ export class MyExpensesPage implements OnInit {
 
   isMergeAllowed: boolean;
 
-  isOfflineFormsRemoved = false;
-
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -411,10 +409,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    from(this.storageService.get('isOfflineFormsRemoved')).subscribe((res) => {
-      this.isOfflineFormsRemoved = res;
-    });
-
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
     });

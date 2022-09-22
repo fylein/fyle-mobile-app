@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
@@ -18,6 +18,7 @@ import { UserEventService } from './user-event.service';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { LaunchDarklyService } from './launch-darkly.service';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -26,6 +27,7 @@ const reportsCacheBuster$ = new Subject<void>();
 })
 export class ReportService {
   constructor(
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
@@ -441,11 +443,16 @@ export class ReportService {
   getAllExtendedReports(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getMyReports({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })
+        this.getMyReports({
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+          queryParams: config.queryParams,
+          order: config.order,
+        })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
@@ -466,11 +473,16 @@ export class ReportService {
   ) {
     return this.getTeamReportsCount().pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getTeamReports({ offset: 50 * page, limit: 50, ...config.queryParams, order: config.order })
+        this.getTeamReports({
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+          ...config.queryParams,
+          order: config.order,
+        })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
@@ -534,9 +546,9 @@ export class ReportService {
     if (!rptIds || rptIds.length === 0) {
       return of([]);
     }
-    const count = rptIds.length > 50 ? rptIds.length / 50 : 1;
+    const count = rptIds.length > this.paginationSize ? rptIds.length / this.paginationSize : 1;
     return range(0, count).pipe(
-      map((page) => rptIds.slice(page * 50, (page + 1) * 50)),
+      map((page) => rptIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize)),
       concatMap((rptIds) => this.apiService.get('/reports/approvers', { params: { report_ids: rptIds } })),
       reduce((acc, curr) => acc.concat(curr), [])
     );

@@ -45,8 +45,6 @@ export class DashboardPage implements OnInit {
 
   taskCount = 0;
 
-  isOfflineFormsRemoved = false;
-
   constructor(
     private offlineService: OfflineService,
     private transactionService: TransactionService,
@@ -91,9 +89,6 @@ export class DashboardPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
-    from(this.storageService.get('isOfflineFormsRemoved')).subscribe((res) => {
-      this.isOfflineFormsRemoved = res;
-    });
     this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;

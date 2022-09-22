@@ -11,7 +11,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 })
 export class TaxGroupService {
   constructor(
-    @Inject(PAGINATION_SIZE) public paginationSize: number,
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformApiService: SpenderPlatformApiService
   ) {}
 

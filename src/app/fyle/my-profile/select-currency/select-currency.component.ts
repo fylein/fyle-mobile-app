@@ -32,7 +32,7 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
       concatMap(() => this.currencyService.getAll()),
       map((currenciesObj) =>
-        Object.keys(currenciesObj).map((shortCode) => ({ shortCode, longName: currenciesObj[shortCode] }))
+        Object.keys(currenciesObj).map((shortCode) => ({ shortCode, longName: currenciesObj[shortCode] || shortCode }))
       ),
       finalize(() => {
         from(this.loaderService.hideLoader()).subscribe(noop);

@@ -23,7 +23,13 @@ export class LaunchDarklyService {
     }
 
     return from(this.storageService.get('cachedLDFlags')).pipe(
-      map((cachedFlags) => (cachedFlags[key] === undefined ? defaultValue : cachedFlags[key]))
+      map((cachedFlags) => {
+        if (cachedFlags) {
+          return cachedFlags[key] === undefined ? defaultValue : cachedFlags[key];
+        } else {
+          return defaultValue;
+        }
+      })
     );
   }
 
@@ -60,6 +66,14 @@ export class LaunchDarklyService {
 
   checkIfKeyboardPluginIsEnabled() {
     return this.getVariation('keyboard_plugin_enabled', true);
+  }
+
+  checkIfPaymentModeConfigurationsIsEnabled(): Observable<boolean> {
+    return this.getVariation('payment_mode_configurations', false);
+  }
+
+  checkIfPaidByCompanyIsHidden(): Observable<boolean> {
+    return this.getVariation('hide_paid_by_company', false);
   }
 
   checkIfAutomateReportSubmissionIsEnabled() {

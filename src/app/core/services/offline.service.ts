@@ -26,6 +26,7 @@ import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { TaxGroupService } from './tax-group.service';
+import { AccountType } from '../enums/account-type.enum';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -435,20 +436,11 @@ export class OfflineService {
     );
   }
 
-  getActiveExpenseTab() {
-    return from(this.storageService.get('activeExpenseTab'));
-  }
-
-  setActiveExpenseTab(activeTab) {
-    return from(this.storageService.set('activeExpenseTab', activeTab));
-  }
-
-  setActiveCorporateCardExpenseTab(activeTab) {
-    return from(this.storageService.set('activeCorporateCardExpenseTab', activeTab));
-  }
-
-  getActiveCorporateCardExpenseTab() {
-    return from(this.storageService.get('activeCorporateCardExpenseTab'));
+  @Cacheable()
+  getAllowedPaymentModes(): Observable<AccountType[]> {
+    return this.getOrgUserSettings().pipe(
+      map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes)
+    );
   }
 
   getReportActions(orgSettings) {
@@ -482,14 +474,6 @@ export class OfflineService {
     );
   }
 
-  loadAppVersion() {
-    this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
-      if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
-        this.appVersionService.load();
-      }
-    });
-  }
-
   load() {
     globalCacheBusterNotifier.next();
     const orgSettings$ = this.getOrgSettings();
@@ -511,8 +495,6 @@ export class OfflineService {
     const delegatedAccounts$ = this.getDelegatedAccounts();
     const taxGroups$ = this.getEnabledTaxGroups();
 
-    this.loadAppVersion();
-
     return forkJoin([
       orgSettings$,
       orgUserSettings$,
@@ -532,17 +514,6 @@ export class OfflineService {
       delegatedAccounts$,
       taxGroups$,
     ]);
-  }
-
-  loadOptimized() {
-    globalCacheBusterNotifier.next();
-    const orgSettings$ = this.getOrgSettings();
-    const orgUserSettings$ = this.getOrgUserSettings();
-    const accounts$ = this.getAccounts();
-
-    this.loadAppVersion();
-
-    return forkJoin([orgSettings$, orgUserSettings$, accounts$]);
   }
 
   getCurrentUser() {

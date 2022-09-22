@@ -16,6 +16,7 @@ import { FileResponse } from './file-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { FormControl } from '@angular/forms';
 import { DateService } from './date.service';
+import { AccountType } from '../enums/account-type.enum';
 
 type Option = Partial<{
   label: string;
@@ -69,11 +70,11 @@ export class MergeExpensesService {
   }
 
   isAllAdvanceExpenses(expenses: Expense[]): boolean {
-    return expenses.every((expense) => expense?.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT');
+    return expenses.every((expense) => expense?.source_account_type === AccountType.ADVANCE);
   }
 
   checkIfAdvanceExpensePresent(expenses: Expense[]): Expense[] {
-    return expenses.filter((expense) => expense?.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT');
+    return expenses.filter((expense) => expense?.source_account_type === AccountType.ADVANCE);
   }
 
   setDefaultExpenseToKeep(expenses: Expense[]): ExpensesInfo {
@@ -672,11 +673,11 @@ export class MergeExpensesService {
   }
 
   formatPaymentModeOptions(option: Option): Option {
-    if (option.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+    if (option.value === AccountType.CCC) {
       option.label = 'Corporate Card';
-    } else if (option.value === 'PERSONAL_ACCOUNT') {
+    } else if (option.value === AccountType.PERSONAL) {
       option.label = 'Personal Card/Cash';
-    } else if (option.value === 'PERSONAL_ADVANCE_ACCOUNT') {
+    } else if (option.value === AccountType.ADVANCE) {
       option.label = 'Advance';
     }
     return option;

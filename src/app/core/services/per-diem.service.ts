@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { PlatformPerDiemRates } from '../models/platform/platform-per-diem-rates.model';
@@ -6,6 +6,7 @@ import { PerDiemRates } from '../models/v1/per-diem-rates.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { switchMap, concatMap, tap, map, reduce } from 'rxjs/operators';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 const perDiemsCacheBuster$ = new Subject<void>();
 
@@ -13,7 +14,10 @@ const perDiemsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class PerDiemService {
-  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
+  constructor(
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
+    private spenderPlatformApiService: SpenderPlatformApiService
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: perDiemsCacheBuster$,
@@ -21,10 +25,10 @@ export class PerDiemService {
   getRates(): Observable<PerDiemRates[]> {
     return this.getActivePerDiemRatesCount().pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getPerDiemRates({ offset: 50 * page, limit: 50 })),
+      concatMap((page) => this.getPerDiemRates({ offset: this.paginationSize * page, limit: this.paginationSize })),
       reduce((acc, curr) => acc.concat(curr), [] as PerDiemRates[])
     );
   }

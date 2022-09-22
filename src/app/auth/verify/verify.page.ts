@@ -47,7 +47,7 @@ export class VerifyPage implements OnInit {
         })
       )
       .subscribe(() => {
-        this.router.navigate(['/', 'auth', 'switch_org']);
+        this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]);
       });
   }
 }

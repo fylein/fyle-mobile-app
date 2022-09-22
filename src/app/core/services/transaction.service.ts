@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
@@ -17,9 +17,13 @@ import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
+import { AccountType } from '../enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { PAGINATION_SIZE } from 'src/app/constants';
+import { OfflineService } from './offline.service';
+import { PaymentModesService } from './payment-modes.service';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -40,6 +44,7 @@ type PaymentMode = {
 })
 export class TransactionService {
   constructor(
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
@@ -52,7 +57,9 @@ export class TransactionService {
     private utilityService: UtilityService,
     private fileService: FileService,
     private policyApiService: PolicyApiService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private offlineService: OfflineService,
+    private paymentModesService: PaymentModesService
   ) {
     transactionsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -117,10 +124,10 @@ export class TransactionService {
   getAllETxnc(params) {
     return this.getETxnCount(params).pipe(
       switchMap((res) => {
-        const count = res.count > 50 ? res.count / 50 : 1;
+        const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
         return range(0, count);
       }),
-      concatMap((page) => this.getETxnc({ offset: 50 * page, limit: 50, params })),
+      concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
       reduce((acc, curr) => acc.concat(curr))
     );
   }
@@ -170,11 +177,16 @@ export class TransactionService {
   getAllExpenses(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getMyExpenses({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })
+        this.getMyExpenses({
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+          queryParams: config.queryParams,
+          order: config.order,
+        })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as any[])
@@ -242,8 +254,11 @@ export class TransactionService {
       delete transaction.tax;
     }
 
-    return this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
+    return forkJoin({
+      orgUserSettings: this.orgUserSettingsService.get(),
+      txnAccount: this.getTxnAccount(),
+    }).pipe(
+      switchMap(({ orgUserSettings, txnAccount }) => {
         const offset = orgUserSettings.locale.offset;
 
         transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(
@@ -273,6 +288,11 @@ export class TransactionService {
           transaction.to_dt.setSeconds(0);
           transaction.to_dt.setMilliseconds(0);
           transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
+        }
+
+        if (!transaction.source_account_id) {
+          transaction.source_account_id = txnAccount.source_account_id;
+          transaction.skip_reimbursement = txnAccount.skip_reimbursement;
         }
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
@@ -310,11 +330,11 @@ export class TransactionService {
     cacheBusterNotifier: transactionsCacheBuster$,
   })
   removeTxnsFromRptInBulk(txnIds, comment?) {
-    const count = txnIds.length > 50 ? txnIds.length / 50 : 1;
+    const count = txnIds.length > this.paginationSize ? txnIds.length / this.paginationSize : 1;
     return range(0, count).pipe(
       concatMap((page) => {
         const data: any = {
-          ids: txnIds.slice(page * 50, (page + 1) * 50),
+          ids: txnIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize),
         };
 
         if (comment) {
@@ -612,8 +632,7 @@ export class TransactionService {
   isEtxnInPaymentMode(etxn: Expense, paymentMode: string) {
     let etxnInPaymentMode = false;
     const isAdvanceOrCCCEtxn =
-      etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT' ||
-      etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+      etxn.source_account_type === AccountType.ADVANCE || etxn.source_account_type === AccountType.CCC;
 
     if (paymentMode === 'reimbursable') {
       //Paid by Employee: reimbursable
@@ -623,10 +642,10 @@ export class TransactionService {
       etxnInPaymentMode = etxn.tx_skip_reimbursement && !isAdvanceOrCCCEtxn;
     } else if (paymentMode === 'advance') {
       //Paid from Advance account: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT';
+      etxnInPaymentMode = etxn.source_account_type === AccountType.ADVANCE;
     } else if (paymentMode === 'ccc') {
       //Paid from CCC: not reimbursable
-      etxnInPaymentMode = etxn.source_account_type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT';
+      etxnInPaymentMode = etxn.source_account_type === AccountType.CCC;
     }
     return etxnInPaymentMode;
   }
@@ -954,5 +973,24 @@ export class TransactionService {
     }
 
     return currentParamsCopy;
+  }
+
+  getTxnAccount() {
+    return forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      accounts: this.offlineService.getAccounts(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+    }).pipe(
+      switchMap(({ orgSettings, accounts, orgUserSettings }) =>
+        this.paymentModesService.getDefaultAccount(orgSettings, accounts, orgUserSettings)
+      ),
+      map((account) => {
+        const accountDetails = {
+          source_account_id: account.acc.id,
+          skip_reimbursement: !account.acc.isReimbursable || false,
+        };
+        return accountDetails;
+      })
+    );
   }
 }
