@@ -15,6 +15,17 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 
+export enum PerfTrackers {
+  appLaunchTime = 'app launch time',
+  appLaunchStartTime = 'app launch start time',
+  appLaunchEndTime = 'app launch end time',
+  loginStartTime = 'login start time',
+  switchOrgLaunchTime = 'switch org launch time',
+  dashboardLaunchTime = 'dashboard launch time',
+  onClickSwitchOrg = 'on click switch org',
+  captureSingleReceiptTime = 'capture single receipt time',
+}
+
 @Component({
   selector: 'app-stats',
   templateUrl: './stats.component.html',
@@ -223,8 +234,31 @@ export class StatsComponent implements OnInit {
           'Is logged in': isLoggedIn,
           'Is multi org': isMultiOrg,
         });
+
+        this.trackDashboardLaunchTime();
       }
     });
+  }
+
+  private trackDashboardLaunchTime() {
+    try {
+      if (performance.getEntriesByName(PerfTrackers.dashboardLaunchTime).length === 0) {
+        // Time taken to land on dashboard page after switching org
+        performance.mark(PerfTrackers.dashboardLaunchTime);
+
+        // Measure total time taken from switch org page to landing on dashboard page
+        performance.measure(PerfTrackers.dashboardLaunchTime, PerfTrackers.onClickSwitchOrg);
+
+        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.dashboardLaunchTime);
+
+        // Converting the duration to seconds and fix it to 3 decimal places
+        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
+
+        this.trackingService.dashboardLaunchTime({
+          'Dashboard launch time': launchTimeDuration,
+        });
+      }
+    } catch (err) {}
   }
 
   ngOnInit() {

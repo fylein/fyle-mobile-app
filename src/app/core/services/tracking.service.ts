@@ -991,4 +991,13 @@ export class TrackingService {
   captureSingleReceiptTime(properties = {}) {
     this.eventTrack('capture single receipt time', properties);
   }
+
+  switchOrgLaunchTime(properties = {}) {
+    this.eventTrack('switch org launch time', properties);
+  }
+
+  // Track dashboard launch time
+  dashboardLaunchTime(properties = {}) {
+    this.eventTrack('dashboard launch time', properties);
+  }
 }
