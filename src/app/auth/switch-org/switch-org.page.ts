@@ -1,7 +1,7 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of } from 'rxjs';
-import { distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -18,11 +18,12 @@ import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
-import { RemoveOfflineFormsService } from 'src/app/core/services/remove-offline-forms.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
+import { AppVersionService } from 'src/app/core/services/app-version.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
 
 @Component({
   selector: 'app-switch-org',
@@ -52,8 +53,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isIos = false;
 
-  isOfflineFormsRemoved = false;
-
   constructor(
     private platform: Platform,
     private offlineService: OfflineService,
@@ -71,9 +70,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private cdRef: ChangeDetectorRef,
     private trackingService: TrackingService,
     private deviceService: DeviceService,
-    private removeOfflineFormsService: RemoveOfflineFormsService,
     private popoverController: PopoverController,
-    private orgUserService: OrgUserService
+    private orgUserService: OrgUserService,
+    private appVersionService: AppVersionService
   ) {}
 
   ngOnInit() {
@@ -249,33 +248,37 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   async proceed(isFromInviteLink?: boolean) {
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
-    const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
-    const isOnline$ = this.networkService.isOnline().pipe(shareReplay(1));
-    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    this.removeOfflineFormsService.getRemoveOfflineFormsLDKey().subscribe((isOfflineModeDisabled: boolean) => {
-      this.isOfflineFormsRemoved = isOfflineModeDisabled;
 
-      this.storageService.set('isOfflineFormsRemoved', isOfflineModeDisabled);
+    forkJoin([pendingDetails$, eou$, roles$])
+      .pipe(
+        switchMap(([isPendingDetails, eou, roles]) => {
+          this.setSentryUser(eou);
+          return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
+        }),
+        finalize(() => this.loaderService.hideLoader())
+      )
+      .subscribe();
 
-      let offlineData$: Observable<any[]>;
-
-      if (this.isOfflineFormsRemoved) {
-        offlineData$ = this.offlineService.loadOptimized().pipe(shareReplay(1));
-      } else {
-        offlineData$ = this.offlineService.load().pipe(shareReplay(1));
-      }
-
-      forkJoin([offlineData$, pendingDetails$, eou$, roles$, isOnline$, deviceInfo$])
-        .pipe(
-          switchMap(([loadedOfflineData, isPendingDetails, eou, roles, isOnline, deviceInfo]) => {
-            this.setSentryUser(eou);
-            return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
-          }),
-          finalize(() => from(this.loaderService.hideLoader()))
-        )
-        .subscribe();
-    });
+    this.deviceService
+      .getDeviceInfo()
+      .pipe(
+        filter((deviceInfo: ExtendedDeviceInfo) => ['android', 'ios'].includes(deviceInfo.platform.toLowerCase())),
+        switchMap((deviceInfo) => {
+          this.appVersionService.load(deviceInfo);
+          return this.appVersionService.getUserAppVersionDetails(deviceInfo);
+        }),
+        filter((userAppVersionDetails) => !!userAppVersionDetails)
+      )
+      .subscribe((userAppVersionDetails) => {
+        const { appSupportDetails, lastLoggedInVersion, eou, deviceInfo } = userAppVersionDetails;
+        this.trackingService.eventTrack('Auto Logged out', {
+          lastLoggedInVersion,
+          user_email: eou?.us?.email,
+          appVersion: deviceInfo.appVersion,
+        });
+        this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);
+      });
   }
 
   trackSwitchOrg(org: Org, originalEou) {

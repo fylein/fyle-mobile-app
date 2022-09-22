@@ -130,6 +130,10 @@ export class AddEditMileagePage implements OnInit {
 
   mileageConfig$: Observable<any>;
 
+  individualMileageRatesEnabled$: Observable<boolean>;
+
+  allMileageRates$: Observable<PlatformMileageRates[]>;
+
   mileageRates$: Observable<PlatformMileageRates[]>;
 
   mileageRatesOptions$: Observable<any>;
@@ -707,7 +711,15 @@ export class AddEditMileagePage implements OnInit {
             vehicleType = orgUserMileageSettings.mileage_rate_labels[0];
           }
 
-          if (!vehicleType && mileageRates && mileageRates.length > 0) {
+          const finalMileageRateNames = mileageRates.map((rate) => rate.vehicle_type);
+
+          // if mileage_vehicle_type is not set or if the set mileage rate is not enabled; set the 1st from mileageRates
+          // (when the org doesn't use employee restricted mileage rates)
+          if (
+            (!vehicleType || !finalMileageRateNames.includes(vehicleType)) &&
+            mileageRates &&
+            mileageRates.length > 0
+          ) {
             vehicleType = mileageRates[0].vehicle_type;
           }
 
@@ -822,7 +834,7 @@ export class AddEditMileagePage implements OnInit {
               mileage_calculated_distance: null,
               policy_amount: null,
               mileage_vehicle_type: defaultVehicleType,
-              mileage_rate: defaultMileageRate.rate,
+              mileage_rate: defaultMileageRate?.rate,
               distance_unit: distanceUnit,
               mileage_is_round_trip: false,
               fyle_category: 'Mileage',
@@ -959,26 +971,26 @@ export class AddEditMileagePage implements OnInit {
       this.fg.controls.sub_category.updateValueAndValidity();
     });
 
+    this.individualMileageRatesEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates)
+    );
+
+    this.allMileageRates$ = this.offlineService.getMileageRates();
+
     this.mileageRates$ = forkJoin({
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
-      mileageRates: this.offlineService.getMileageRates(),
+      allMileageRates: this.offlineService.getMileageRates(),
       mileageConfig: this.mileageConfig$,
     }).pipe(
-      map(({ orgUserMileageSettings, mileageRates, mileageConfig }) => {
+      map(({ orgUserMileageSettings, allMileageRates, mileageConfig }) => {
+        let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
         orgUserMileageSettings = orgUserMileageSettings?.mileage_rate_labels || [];
         if (orgUserMileageSettings.length > 0) {
-          const mileageRateNames = mileageRates.map((res) => res.vehicle_type);
-
-          mileageRateNames.forEach((mileageLabel, index) => {
-            if (orgUserMileageSettings.indexOf(mileageLabel) === -1) {
-              // removing from mileageRates array if the rate is not allowed.
-              mileageRateNames.splice(index, 1);
-              mileageRates.splice(index, 1);
-            }
-          });
+          enabledMileageRates = enabledMileageRates.filter((rate) =>
+            orgUserMileageSettings.includes(rate.vehicle_type)
+          );
         }
-
-        return mileageRates;
+        return enabledMileageRates;
       })
     );
 
@@ -1346,7 +1358,7 @@ export class AddEditMileagePage implements OnInit {
             selectedReport$,
             selectedCostCenter$,
             selectedCustomInputs$,
-            this.mileageRates$,
+            this.allMileageRates$,
             defaultPaymentMode$,
             orgUserSettings$,
             orgSettings$,
@@ -1368,7 +1380,7 @@ export class AddEditMileagePage implements OnInit {
           report,
           costCenter,
           customInputs,
-          mileageRates,
+          allMileageRates,
           defaultPaymentMode,
           orgUserSettings,
           orgSettings,
@@ -1472,7 +1484,7 @@ export class AddEditMileagePage implements OnInit {
           if (isRecentLocationPresent) {
             this.presetLocation = recentValue.recent_start_locations[0];
           }
-          const mileage_rate_name = this.getMileageByVehicleType(mileageRates, etxn.tx.mileage_vehicle_type);
+          const mileage_rate_name = this.getMileageByVehicleType(allMileageRates, etxn.tx.mileage_vehicle_type);
           if (mileage_rate_name) {
             mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
               etxn.tx.mileage_rate,
@@ -2432,7 +2444,9 @@ export class AddEditMileagePage implements OnInit {
   }
 
   async onRouteVisualizerClick() {
-    await this.routeSelector.openModal();
+    if (this.routeSelector) {
+      await this.routeSelector.openModal();
+    }
   }
 
   async openCommentsModal() {

@@ -59,8 +59,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
-  isOfflineFormsRemoved = false;
-
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -102,10 +100,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       this.isInstafyleEnabled =
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
-
-    from(this.storageService.get('isOfflineFormsRemoved')).subscribe((res) => {
-      this.isOfflineFormsRemoved = res;
-    });
   }
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
@@ -118,92 +112,35 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   addExpenseToQueue(base64ImagesWithSource: Image, syncImmediately = false) {
     let source = base64ImagesWithSource.source;
 
-    return forkJoin({
-      isConnected: this.networkService.isOnline(),
-      accounts: this.offlineService.getAccounts(),
-      orgSettings: this.offlineService.getOrgSettings(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
-    }).pipe(
-      switchMap(({ isConnected, accounts, orgSettings, orgUserSettings }) =>
-        this.getDefaultAccount(orgSettings, accounts, orgUserSettings).pipe(
-          filter((account) => !!account),
-          switchMap((account) => {
-            if (!isConnected) {
-              source += '_OFFLINE';
-            }
-            const transaction = {
-              source_account_id: account.acc.id,
-              skip_reimbursement: !account.acc.isReimbursable || false,
-              source,
-              txn_dt: new Date(),
-              currency: this.homeCurrency,
-            };
-
-            const attachmentUrls = [
-              {
-                thumbnail: base64ImagesWithSource.base64Image,
-                type: 'image',
-                url: base64ImagesWithSource.base64Image,
-              },
-            ];
-            if (!syncImmediately) {
-              return this.transactionsOutboxService.addEntry(
-                transaction,
-                attachmentUrls,
-                null,
-                null,
-                this.isInstafyleEnabled
-              );
-            } else {
-              return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
-            }
-          })
-        )
-      )
-    );
-  }
-
-  getDefaultAccount(
-    orgSettings: any,
-    accounts: ExtendedAccount[],
-    orgUserSettings: OrgUserSettings
-  ): Observable<ExtendedAccount> {
-    return forkJoin({
-      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
-      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
-    }).pipe(
-      map(({ allowedPaymentModes, isPaymentModeConfigurationsEnabled, isPaidByCompanyHidden }) => {
-        let defaultAccountType = AccountType.PERSONAL;
-
-        if (isPaymentModeConfigurationsEnabled) {
-          defaultAccountType = allowedPaymentModes[0];
-        } else {
-          const userDefaultPaymentMode = orgUserSettings.preferences?.default_payment_mode;
-          const isCCCEnabled =
-            orgSettings?.corporate_credit_card_settings?.allowed &&
-            orgSettings?.corporate_credit_card_settings?.enabled;
-          if (isCCCEnabled && userDefaultPaymentMode === AccountType.CCC) {
-            defaultAccountType = AccountType.CCC;
-          } else if (
-            orgUserSettings.preferences?.default_payment_mode === AccountType.COMPANY &&
-            !isPaidByCompanyHidden
-          ) {
-            defaultAccountType = AccountType.COMPANY;
-          }
+    return this.networkService.isOnline().pipe(
+      switchMap((isConnected) => {
+        if (!isConnected) {
+          source += '_OFFLINE';
         }
+        const transaction = {
+          source,
+          txn_dt: new Date(),
+          currency: this.homeCurrency,
+        };
 
-        const defaultAccount = accounts.find((account) => {
-          /*
-           * Accounts array does not have anything called COMPANY_ACCOUNT
-           * We map PERSONAL_ACCOUNT to 'Peronsal Card/Cash' and 'Paid by Company' in the frontend
-           * which happens in the setAccountProperties() method below
-           */
-          const mappedAccountType =
-            defaultAccountType === AccountType.COMPANY ? AccountType.PERSONAL : defaultAccountType;
-          return account.acc.type === mappedAccountType;
-        });
-        return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
+        const attachmentUrls = [
+          {
+            thumbnail: base64ImagesWithSource.base64Image,
+            type: 'image',
+            url: base64ImagesWithSource.base64Image,
+          },
+        ];
+        if (!syncImmediately) {
+          return this.transactionsOutboxService.addEntry(
+            transaction,
+            attachmentUrls,
+            null,
+            null,
+            this.isInstafyleEnabled
+          );
+        } else {
+          return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
+        }
       })
     );
   }
@@ -307,19 +244,15 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   saveSingleCapture() {
-    if (this.isOfflineFormsRemoved) {
-      let isOnline: boolean;
-      this.networkService.isOnline().subscribe((res) => {
-        isOnline = res;
-        if (!isOnline) {
-          this.onSingleCaptureOffline();
-        } else {
-          this.navigateToExpenseForm();
-        }
-      });
-    } else {
-      this.navigateToExpenseForm();
-    }
+    let isOnline: boolean;
+    this.networkService.isOnline().subscribe((res) => {
+      isOnline = res;
+      if (!isOnline) {
+        this.onSingleCaptureOffline();
+      } else {
+        this.navigateToExpenseForm();
+      }
+    });
   }
 
   async onSingleCapture() {

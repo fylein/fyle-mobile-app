@@ -474,14 +474,6 @@ export class OfflineService {
     );
   }
 
-  loadAppVersion() {
-    this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
-      if (deviceInfo.platform.toLowerCase() === 'ios' || deviceInfo.platform.toLowerCase() === 'android') {
-        this.appVersionService.load();
-      }
-    });
-  }
-
   load() {
     globalCacheBusterNotifier.next();
     const orgSettings$ = this.getOrgSettings();
@@ -503,8 +495,6 @@ export class OfflineService {
     const delegatedAccounts$ = this.getDelegatedAccounts();
     const taxGroups$ = this.getEnabledTaxGroups();
 
-    this.loadAppVersion();
-
     return forkJoin([
       orgSettings$,
       orgUserSettings$,
@@ -524,17 +514,6 @@ export class OfflineService {
       delegatedAccounts$,
       taxGroups$,
     ]);
-  }
-
-  loadOptimized() {
-    globalCacheBusterNotifier.next();
-    const orgSettings$ = this.getOrgSettings();
-    const orgUserSettings$ = this.getOrgUserSettings();
-    const accounts$ = this.getAccounts();
-
-    this.loadAppVersion();
-
-    return forkJoin([orgSettings$, orgUserSettings$, accounts$]);
   }
 
   getCurrentUser() {

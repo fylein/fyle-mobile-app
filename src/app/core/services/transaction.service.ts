@@ -22,6 +22,8 @@ import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { OfflineService } from './offline.service';
+import { PaymentModesService } from './payment-modes.service';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -55,7 +57,9 @@ export class TransactionService {
     private utilityService: UtilityService,
     private fileService: FileService,
     private policyApiService: PolicyApiService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private offlineService: OfflineService,
+    private paymentModesService: PaymentModesService
   ) {
     transactionsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -250,8 +254,11 @@ export class TransactionService {
       delete transaction.tax;
     }
 
-    return this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
+    return forkJoin({
+      orgUserSettings: this.orgUserSettingsService.get(),
+      txnAccount: this.getTxnAccount(),
+    }).pipe(
+      switchMap(({ orgUserSettings, txnAccount }) => {
         const offset = orgUserSettings.locale.offset;
 
         transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(
@@ -281,6 +288,11 @@ export class TransactionService {
           transaction.to_dt.setSeconds(0);
           transaction.to_dt.setMilliseconds(0);
           transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
+        }
+
+        if (!transaction.source_account_id) {
+          transaction.source_account_id = txnAccount.source_account_id;
+          transaction.skip_reimbursement = txnAccount.skip_reimbursement;
         }
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
@@ -961,5 +973,24 @@ export class TransactionService {
     }
 
     return currentParamsCopy;
+  }
+
+  getTxnAccount() {
+    return forkJoin({
+      orgSettings: this.offlineService.getOrgSettings(),
+      accounts: this.offlineService.getAccounts(),
+      orgUserSettings: this.offlineService.getOrgUserSettings(),
+    }).pipe(
+      switchMap(({ orgSettings, accounts, orgUserSettings }) =>
+        this.paymentModesService.getDefaultAccount(orgSettings, accounts, orgUserSettings)
+      ),
+      map((account) => {
+        const accountDetails = {
+          source_account_id: account.acc.id,
+          skip_reimbursement: !account.acc.isReimbursable || false,
+        };
+        return accountDetails;
+      })
+    );
   }
 }
