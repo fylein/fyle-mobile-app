@@ -282,23 +282,6 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getPerDiemRates() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.perDiemsService.getRates().pipe(
-            tap((rates) => {
-              this.storageService.set('cachedPerDiemRates', rates);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedPerDiemRates'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getMileageRates() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -482,7 +465,6 @@ export class OfflineService {
     const allEnabledCategories$ = this.getAllEnabledCategories();
     const costCenters$ = this.getCostCenters();
     const projects$ = this.getProjects();
-    const perDiemRates$ = this.getPerDiemRates();
     const mileageRates$ = this.getMileageRates();
     const customInputs$ = this.getCustomInputs();
     const currentOrg$ = this.getCurrentOrg();
@@ -502,7 +484,6 @@ export class OfflineService {
       allEnabledCategories$,
       costCenters$,
       projects$,
-      perDiemRates$,
       customInputs$,
       currentOrg$,
       primaryOrg$,

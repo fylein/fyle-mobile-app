@@ -62,6 +62,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { PerDiemService } from 'src/app/core/services/per-diem.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -220,7 +221,8 @@ export class AddEditPerDiemPage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private launchDarklyService: LaunchDarklyService,
-    private paymentModesService: PaymentModesService
+    private paymentModesService: PaymentModesService,
+    private perDiemsService: PerDiemService
   ) {}
 
   get minPerDiemDate() {
@@ -778,7 +780,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.isExpandedView = this.mode !== 'add';
 
     const orgSettings$ = this.offlineService.getOrgSettings();
-    const perDiemRates$ = this.offlineService.getPerDiemRates();
+    const perDiemRates$ = this.perDiemsService.getRates();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
