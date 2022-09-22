@@ -14,6 +14,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { Org } from 'src/app/core/models/org.model';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-sidemenu',
@@ -48,7 +49,7 @@ export class SidemenuComponent implements OnInit {
     private deviceService: DeviceService,
     private routerAuthService: RouterAuthService,
     private orgUserService: OrgUserService,
-    private freshChatService: FreshChatService,
+    private orgSettingsService: OrgSettingsService,
     private networkService: NetworkService,
     private sidemenuService: SidemenuService,
     private launchDarklyService: LaunchDarklyService
@@ -73,7 +74,7 @@ export class SidemenuComponent implements OnInit {
     }
     const orgs$ = this.offlineService.getOrgs();
     const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
-    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const delegatedAccounts$ = this.offlineService
       .getDelegatedAccounts()
