@@ -25,6 +25,7 @@ import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -87,7 +88,7 @@ export class SplitExpensePage implements OnInit {
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,
-    private popoverController: PopoverController,
+    private currencyService: CurrencyService,
     private transactionService: TransactionService,
     private fileService: FileService,
     private navController: NavController,
@@ -464,7 +465,7 @@ export class SplitExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
       const orgSettings$ = this.orgSettingsService.get();
       this.splitType = this.activatedRoute.snapshot.params.splitType;

@@ -23,6 +23,7 @@ import { SnackbarPropertiesService } from '../../../core/services/snackbar-prope
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 type ReceiptDetail = {
@@ -132,7 +133,8 @@ export class ExpensesCardComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private trackingService: TrackingService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private currencyService: CurrencyService
   ) {}
 
   get isSelected() {
@@ -294,7 +296,7 @@ export class ExpensesCardComponent implements OnInit {
       this.expenseFields = expenseFields;
     });
 
-    this.offlineService
+    this.currencyService
       .getHomeCurrency()
       .pipe(
         map((homeCurrency) => {

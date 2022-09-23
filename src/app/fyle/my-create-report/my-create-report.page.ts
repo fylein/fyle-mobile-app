@@ -351,7 +351,7 @@ export class MyCreateReportPage implements OnInit {
   }
 
   ngOnInit() {
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;
     });
   }

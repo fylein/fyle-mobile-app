@@ -63,6 +63,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PerDiemService } from 'src/app/core/services/per-diem.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -222,6 +223,7 @@ export class AddEditPerDiemPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
+    private perDiemsService: PerDiemService,
     private orgSettingsService: OrgSettingsService
   ) {}
 
@@ -574,7 +576,7 @@ export class AddEditPerDiemPage implements OnInit {
   getNewExpense() {
     return forkJoin({
       categoryContainer: this.getPerDiemCategories(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
       currentEou: this.authService.getEou(),
     }).pipe(
       map(({ categoryContainer, homeCurrency, currentEou }) => ({
@@ -780,7 +782,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.isExpandedView = this.mode !== 'add';
 
     const orgSettings$ = this.orgSettingsService.get();
-    const perDiemRates$ = this.offlineService.getPerDiemRates();
+    const perDiemRates$ = this.perDiemsService.getRates();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
@@ -863,7 +865,7 @@ export class AddEditPerDiemPage implements OnInit {
       );
 
     this.txnFields$ = this.getTransactionFields();
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
 

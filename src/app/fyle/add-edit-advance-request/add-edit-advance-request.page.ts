@@ -28,6 +28,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -96,7 +97,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private networkService: NetworkService,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private currencyService: CurrencyService
   ) {}
 
   @HostListener('keydown')
@@ -536,7 +538,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
     this.customFieldValues = [];

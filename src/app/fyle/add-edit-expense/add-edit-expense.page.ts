@@ -1081,7 +1081,7 @@ export class AddEditExpensePage implements OnInit {
           };
 
           if (extractedDetails.parsedResponse) {
-            return this.offlineService.getHomeCurrency().pipe(
+            return this.currencyService.getHomeCurrency().pipe(
               switchMap((homeCurrency) => {
                 if (homeCurrency !== extractedDetails.parsedResponse.currency) {
                   return this.currencyService
@@ -1439,7 +1439,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.recentlyUsedCurrencies$ = forkJoin({
       recentValues: this.recentlyUsedValues$,
-      currencies: this.offlineService.getCurrencies(),
+      currencies: this.currencyService.getAll(),
     }).pipe(
       switchMap(({ recentValues, currencies }) =>
         this.recentlyUsedItemsService.getRecentCurrencies(currencies, recentValues)
@@ -1510,7 +1510,7 @@ export class AddEditExpensePage implements OnInit {
             costCenter: selectedCostCenter$,
             customInputs: selectedCustomInputs$,
             txnReceiptsCount: txnReceiptsCount$,
-            homeCurrency: this.offlineService.getHomeCurrency(),
+            homeCurrency: this.currencyService.getHomeCurrency(),
             orgSettings: this.orgSettingsService.get(),
             defaultPaymentMode: defaultPaymentMode$,
             orgUserSettings: this.orgUserSettings$,
@@ -2482,7 +2482,7 @@ export class AddEditExpensePage implements OnInit {
     const orgSettings$ = this.orgSettingsService.get();
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const allCategories$ = this.offlineService.getAllEnabledCategories();
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
@@ -3745,7 +3745,7 @@ export class AddEditExpensePage implements OnInit {
 
   async getParsedReceipt(base64Image, fileType) {
     const parsedData: any = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
-    const homeCurrency = await this.offlineService.getHomeCurrency().toPromise();
+    const homeCurrency = await this.currencyService.getHomeCurrency().toPromise();
 
     if (parsedData && parsedData.data && parsedData.data.currency && homeCurrency !== parsedData.data.currency) {
       parsedData.exchangeRate = await this.currencyService
@@ -3782,7 +3782,7 @@ export class AddEditExpensePage implements OnInit {
           forkJoin({
             imageData: from(this.getParsedReceipt(base64Image, fileType)),
             filteredCategories: this.filteredCategories$.pipe(take(1)),
-            homeCurrency: this.offlineService.getHomeCurrency(),
+            homeCurrency: this.currencyService.getHomeCurrency(),
           })
         )
       )

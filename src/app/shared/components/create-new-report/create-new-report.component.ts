@@ -1,4 +1,3 @@
-import { getCurrencySymbol } from '@angular/common';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
@@ -10,6 +9,7 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-create-new-report',
@@ -44,7 +44,8 @@ export class CreateNewReportComponent implements OnInit {
     private modalController: ModalController,
     private reportService: ReportService,
     private trackingService: TrackingService,
-    private refinerService: RefinerService
+    private refinerService: RefinerService,
+    private currencyService: CurrencyService
   ) {}
 
   getReportTitle() {
@@ -68,7 +69,7 @@ export class CreateNewReportComponent implements OnInit {
     this.isSelectedAll = true;
     this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
     this.selectedElements = this.selectedExpensesToReport;
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;
     });
   }

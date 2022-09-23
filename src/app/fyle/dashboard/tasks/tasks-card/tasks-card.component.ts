@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { DashboardTask } from 'src/app/core/models/task.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-tasks-card',
@@ -26,10 +26,10 @@ export class TasksCardComponent implements OnInit {
 
   showReportAutoSubmissionInfo = false;
 
-  constructor(private offlineService: OfflineService) {}
+  constructor(private currencyService: CurrencyService) {}
 
   ngOnInit(): void {
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.currencySymbol$ = this.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
     );

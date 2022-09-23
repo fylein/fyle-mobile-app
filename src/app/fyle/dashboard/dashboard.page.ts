@@ -1,10 +1,8 @@
 import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { OfflineService } from 'src/app/core/services/offline.service';
-import { concat, forkJoin, from, Observable, of, Subject } from 'rxjs';
-import { filter, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { StorageService } from 'src/app/core/services/storage.service';
-import { ActionSheetController, PopoverController } from '@ionic/angular';
+import { concat, Observable, of, Subject } from 'rxjs';
+import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
+import { ActionSheetController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
@@ -13,6 +11,7 @@ import { FooterState } from '../../shared/components/footer/footer-state';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 enum DashboardState {
@@ -48,9 +47,7 @@ export class DashboardPage implements OnInit {
 
   constructor(
     private offlineService: OfflineService,
-    private transactionService: TransactionService,
-    private storageService: StorageService,
-    private popoverController: PopoverController,
+    private currencyService: CurrencyService,
     private networkService: NetworkService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -102,7 +99,7 @@ export class DashboardPage implements OnInit {
 
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    this.homeCurrency$ = this.offlineService.getHomeCurrency().pipe(shareReplay(1));
+    this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
     this.statsComponent.init();
     this.tasksComponent.init();

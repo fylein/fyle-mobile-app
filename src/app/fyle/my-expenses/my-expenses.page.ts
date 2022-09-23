@@ -51,6 +51,7 @@ import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { MyExpensesService } from './my-expenses.service';
 import { Filters } from './my-expenses-filters.model';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 @Component({
   selector: 'app-my-expenses',
@@ -191,7 +192,8 @@ export class MyExpensesPage implements OnInit {
     private tasksService: TasksService,
     private corporateCreditCardService: CorporateCreditCardExpenseService,
     private myExpensesService: MyExpensesService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private currencyService: CurrencyService
   ) {}
 
   get HeaderState() {
@@ -515,9 +517,9 @@ export class MyExpensesPage implements OnInit {
       }
     });
 
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
 
