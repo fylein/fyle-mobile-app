@@ -814,7 +814,7 @@ export class AddEditPerDiemPage implements OnInit {
           forkJoin({
             orgSettings: orgSettings$,
             allowedPerDiemRates: perDiemRates$.pipe(
-              switchMap((perDiemRates) => this.offlineService.getAllowedPerDiems(perDiemRates))
+              switchMap((perDiemRates) => this.perDiemsService.getAllowedPerDiems(perDiemRates))
             ),
           })
         ),

@@ -7,6 +7,7 @@ import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { switchMap, concatMap, tap, map, reduce } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { OrgUserSettingsService } from './org-user-settings.service';
 
 const perDiemsCacheBuster$ = new Subject<void>();
 
@@ -16,7 +17,8 @@ const perDiemsCacheBuster$ = new Subject<void>();
 export class PerDiemService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformApiService: SpenderPlatformApiService
+    private spenderPlatformApiService: SpenderPlatformApiService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   @Cacheable({
@@ -30,6 +32,25 @@ export class PerDiemService {
       }),
       concatMap((page) => this.getPerDiemRates({ offset: this.paginationSize * page, limit: this.paginationSize })),
       reduce((acc, curr) => acc.concat(curr), [] as PerDiemRates[])
+    );
+  }
+
+  @Cacheable()
+  getAllowedPerDiems(allPerDiemRates) {
+    return this.orgUserSettingsService.get().pipe(
+      map((settings) => {
+        let allowedPerDiems = [];
+
+        if (settings && settings.per_diem_rate_settings && settings.per_diem_rate_settings.allowed_per_diem_ids) {
+          const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids;
+
+          if (allPerDiemRates && allPerDiemRates.length > 0) {
+            allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.indexOf(perDiem.id) > -1);
+          }
+        }
+
+        return allowedPerDiems;
+      })
     );
   }
 
