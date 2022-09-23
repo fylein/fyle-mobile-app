@@ -63,6 +63,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -244,7 +245,9 @@ export class AddEditMileagePage implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private launchDarklyService: LaunchDarklyService,
-    private paymentModesService: PaymentModesService
+    private paymentModesService: PaymentModesService,
+    private currencyService: CurrencyService,
+    private mileageRateService: MileageRatesService
   ) {}
 
   get showSaveAndNext() {
@@ -953,7 +956,7 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.txnFields$ = this.getTransactionFields();
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
     this.projectCategoryIds$ = this.getProjectCategoryIds();
@@ -975,11 +978,11 @@ export class AddEditMileagePage implements OnInit {
       map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates)
     );
 
-    this.allMileageRates$ = this.offlineService.getMileageRates();
+    this.allMileageRates$ = this.mileageRateService.getAllMileageRates();
 
     this.mileageRates$ = forkJoin({
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
-      allMileageRates: this.offlineService.getMileageRates(),
+      allMileageRates: this.mileageRateService.getAllMileageRates(),
       mileageConfig: this.mileageConfig$,
     }).pipe(
       map(({ orgUserMileageSettings, allMileageRates, mileageConfig }) => {

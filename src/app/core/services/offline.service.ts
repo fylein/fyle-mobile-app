@@ -7,7 +7,6 @@ import { CategoriesService } from './categories.service';
 import { CostCentersService } from './cost-centers.service';
 import { ProjectsService } from './projects.service';
 import { PerDiemService } from './per-diem.service';
-import { MileageRatesService } from './mileage-rates.service';
 import { CustomInputsService } from './custom-inputs.service';
 import { OrgService } from './org.service';
 import { AccountsService } from './accounts.service';
@@ -43,7 +42,6 @@ export class OfflineService {
     private costCentersService: CostCentersService,
     private projectsService: ProjectsService,
     private perDiemsService: PerDiemService,
-    private mileageRateService: MileageRatesService,
     private customInputsService: CustomInputsService,
     private orgService: OrgService,
     private accountsService: AccountsService,
@@ -55,40 +53,6 @@ export class OfflineService {
     private expenseFieldsService: ExpenseFieldsService,
     private taxGroupService: TaxGroupService
   ) {}
-
-  @Cacheable()
-  getDelegatedAccounts() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgUserService.findDelegatedAccounts().pipe(
-            tap((orgSettings) => {
-              this.storageService.set('delegatedAccounts', orgSettings);
-            })
-          );
-        } else {
-          return from(this.storageService.get('delegatedAccounts'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getCurrencies() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.currencyService.getAll().pipe(
-            tap((orgSettings) => {
-              this.storageService.set('cachedCurrencies', orgSettings);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedCurrencies'));
-        }
-      })
-    );
-  }
 
   @Cacheable()
   getOrgSettings() {
@@ -190,23 +154,6 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getHomeCurrency() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.currencyService.getHomeCurrency().pipe(
-            tap((homeCurrency) => {
-              this.storageService.set('cachedHomeCurrency', homeCurrency);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedHomeCurrency'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getAllCategories() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -276,23 +223,6 @@ export class OfflineService {
           );
         } else {
           return from(this.storageService.get('cachedProjects'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getMileageRates() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.mileageRateService.getAllMileageRates().pipe(
-            tap((rates) => {
-              this.storageService.set('cachedMileageRates', rates);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedMileageRates'));
         }
       })
     );
@@ -465,16 +395,12 @@ export class OfflineService {
     const allEnabledCategories$ = this.getAllEnabledCategories();
     const costCenters$ = this.getCostCenters();
     const projects$ = this.getProjects();
-    const mileageRates$ = this.getMileageRates();
     const customInputs$ = this.getCustomInputs();
     const currentOrg$ = this.getCurrentOrg();
     const primaryOrg$ = this.getPrimaryOrg();
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
-    const currencies$ = this.getCurrencies();
-    const homeCurrency$ = this.getHomeCurrency();
-    const delegatedAccounts$ = this.getDelegatedAccounts();
     const taxGroups$ = this.getEnabledTaxGroups();
 
     return forkJoin([
@@ -490,9 +416,6 @@ export class OfflineService {
       orgs$,
       accounts$,
       expenseFieldsMap$,
-      currencies$,
-      homeCurrency$,
-      delegatedAccounts$,
       taxGroups$,
     ]);
   }
