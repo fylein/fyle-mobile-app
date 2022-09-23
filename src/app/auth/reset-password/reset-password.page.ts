@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { throwError, noop } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
 
@@ -27,22 +26,18 @@ export class ResetPasswordPage implements OnInit {
 
     this.routerAuthService
       .sendResetPassword(email)
-      .pipe(
-        finalize(async () => {
-          this.isLoading = false;
-        }),
-        catchError((err) => {
-          if (err.status === 422) {
-            this.router.navigate(['/', 'auth', 'disabled']);
-          } else {
-            this.currentPageState = PageState.failure;
-          }
-          return throwError(err);
-        })
-      )
+      .pipe(tap(() => (this.isLoading = false)))
       .subscribe({
         next: () => (this.currentPageState = PageState.success),
-        error: noop,
+        error: (err) => this.handleError(err),
       });
+  }
+
+  handleError(err) {
+    if (err.status === 422) {
+      this.router.navigate(['/', 'auth', 'disabled']);
+    } else {
+      this.currentPageState = PageState.failure;
+    }
   }
 }
