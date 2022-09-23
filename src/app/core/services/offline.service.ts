@@ -90,11 +90,6 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getOrgUserMileageSettings() {
-    return this.getOrgUserSettings().pipe(map((res: any) => res.mileage_settings));
-  }
-
-  @Cacheable()
   getEnabledTaxGroups() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
