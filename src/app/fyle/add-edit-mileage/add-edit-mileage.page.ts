@@ -674,7 +674,7 @@ export class AddEditMileagePage implements OnInit {
   getNewExpense() {
     const defaultVehicle$ = forkJoin({
       vehicleType: this.transactionService.getDefaultVehicleType(),
-      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
+      orgUserMileageSettings: this.mileageService.getOrgUserMileageSettings(),
       orgSettings: this.offlineService.getOrgSettings(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValue: this.recentlyUsedValues$,
@@ -981,7 +981,7 @@ export class AddEditMileagePage implements OnInit {
     this.allMileageRates$ = this.mileageRateService.getAllMileageRates();
 
     this.mileageRates$ = forkJoin({
-      orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
+      orgUserMileageSettings: this.mileageService.getOrgUserMileageSettings(),
       allMileageRates: this.mileageRateService.getAllMileageRates(),
       mileageConfig: this.mileageConfig$,
     }).pipe(
