@@ -24,6 +24,7 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -100,7 +101,8 @@ export class ViewMileagePage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private paymentModesService: PaymentModesService
+    private paymentModesService: PaymentModesService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get ExpenseView() {
@@ -286,8 +288,8 @@ export class ViewMileagePage implements OnInit {
       )
       .subscribe(noop);
 
-    this.offlineService
-      .getOrgSettings()
+    this.orgSettingsService
+      .get()
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;

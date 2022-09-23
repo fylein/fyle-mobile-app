@@ -24,6 +24,7 @@ import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { OfflineService } from './offline.service';
 import { PaymentModesService } from './payment-modes.service';
+import { OrgSettingsService } from './org-settings.service';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -59,7 +60,8 @@ export class TransactionService {
     private policyApiService: PolicyApiService,
     private userEventService: UserEventService,
     private offlineService: OfflineService,
-    private paymentModesService: PaymentModesService
+    private paymentModesService: PaymentModesService,
+    private orgSettingsService: OrgSettingsService
   ) {
     transactionsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -977,7 +979,7 @@ export class TransactionService {
 
   getTxnAccount() {
     return forkJoin({
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgSettings: this.orgSettingsService.get(),
       accounts: this.offlineService.getAccounts(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
     }).pipe(
