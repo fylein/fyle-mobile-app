@@ -36,16 +36,16 @@ export class PerDiemService {
   }
 
   @Cacheable()
-  getAllowedPerDiems(allPerDiemRates) {
+  getAllowedPerDiems(allPerDiemRates: PerDiemRates[]) {
     return this.orgUserSettingsService.get().pipe(
       map((settings) => {
         let allowedPerDiems = [];
 
-        if (settings && settings.per_diem_rate_settings && settings.per_diem_rate_settings.allowed_per_diem_ids) {
+        if (settings?.per_diem_rate_settings?.allowed_per_diem_ids) {
           const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids;
 
-          if (allPerDiemRates && allPerDiemRates.length > 0) {
-            allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.indexOf(perDiem.id) > -1);
+          if (allPerDiemRates?.length > 0) {
+            allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.includes(perDiem.id));
           }
         }
 
