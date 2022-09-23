@@ -48,7 +48,6 @@ export class SidemenuComponent implements OnInit {
     private deviceService: DeviceService,
     private routerAuthService: RouterAuthService,
     private orgUserService: OrgUserService,
-    private freshChatService: FreshChatService,
     private networkService: NetworkService,
     private sidemenuService: SidemenuService,
     private launchDarklyService: LaunchDarklyService
@@ -75,8 +74,8 @@ export class SidemenuComponent implements OnInit {
     const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const delegatedAccounts$ = this.offlineService
-      .getDelegatedAccounts()
+    const delegatedAccounts$ = this.orgUserService
+      .findDelegatedAccounts()
       .pipe(map((res) => this.orgUserService.excludeByStatus(res, 'DISABLED')));
     const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
     const isSwitchedToDelegator$ = from(this.orgUserService.isSwitchedToDelegator());

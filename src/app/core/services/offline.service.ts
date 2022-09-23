@@ -57,23 +57,6 @@ export class OfflineService {
   ) {}
 
   @Cacheable()
-  getDelegatedAccounts() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgUserService.findDelegatedAccounts().pipe(
-            tap((orgSettings) => {
-              this.storageService.set('delegatedAccounts', orgSettings);
-            })
-          );
-        } else {
-          return from(this.storageService.get('delegatedAccounts'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getCurrencies() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -492,7 +475,6 @@ export class OfflineService {
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
     const currencies$ = this.getCurrencies();
     const homeCurrency$ = this.getHomeCurrency();
-    const delegatedAccounts$ = this.getDelegatedAccounts();
     const taxGroups$ = this.getEnabledTaxGroups();
 
     return forkJoin([
@@ -511,7 +493,6 @@ export class OfflineService {
       expenseFieldsMap$,
       currencies$,
       homeCurrency$,
-      delegatedAccounts$,
       taxGroups$,
     ]);
   }
