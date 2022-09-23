@@ -59,6 +59,19 @@ export class OrgUserService {
       .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
   }
 
+  @Cacheable()
+  findDelegatedAccounts() {
+    return this.apiService.get('/eous/current/delegated_eous').pipe(
+      map((delegatedAccounts) => {
+        delegatedAccounts = delegatedAccounts.map((delegatedAccount) =>
+          this.dataTransformService.unflatten(delegatedAccount)
+        );
+
+        return delegatedAccounts;
+      })
+    );
+  }
+
   postUser(user: User) {
     globalCacheBusterNotifier.next();
     return this.apiService.post('/users', user);
@@ -106,19 +119,6 @@ export class OrgUserService {
 
   exclude(eous: ExtendedOrgUser[], userIds: string[]) {
     return eous.filter((eou) => userIds.indexOf(eou.ou.id) === -1);
-  }
-
-  @Cacheable()
-  findDelegatedAccounts() {
-    return this.apiService.get('/eous/current/delegated_eous').pipe(
-      map((delegatedAccounts) => {
-        delegatedAccounts = delegatedAccounts.map((delegatedAccount) =>
-          this.dataTransformService.unflatten(delegatedAccount)
-        );
-
-        return delegatedAccounts;
-      })
-    );
   }
 
   excludeByStatus(eous: ExtendedOrgUser[], status: string) {
