@@ -213,6 +213,7 @@ export class StatsComponent implements OnInit {
 
     this.offlineService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs.length > 1;
+      this.trackDashboardLaunchTime();
 
       if (performance.getEntriesByName('app launch time').length < 1) {
         // Time taken for the app to launch and display the first screen
@@ -234,8 +235,6 @@ export class StatsComponent implements OnInit {
           'Is logged in': isLoggedIn,
           'Is multi org': isMultiOrg,
         });
-
-        this.trackDashboardLaunchTime();
       }
     });
   }
