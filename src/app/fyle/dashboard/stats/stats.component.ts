@@ -253,7 +253,7 @@ export class StatsComponent implements OnInit {
 
         // Converting the duration to seconds and fix it to 3 decimal places
         const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
-
+        console.log('dashboard launch time', launchTimeDuration);
         this.trackingService.dashboardLaunchTime({
           'Dashboard launch time': launchTimeDuration,
           oldBuild: true,

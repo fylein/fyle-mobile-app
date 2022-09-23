@@ -144,6 +144,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         // Converting the duration to seconds and fix it to 3 decimal places
         const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
 
+        console.log('switch org launch time', launchTimeDuration);
         this.trackingService.switchOrgLaunchTime({
           'Switch org launch time': launchTimeDuration,
           'Login method': loginMethod,
