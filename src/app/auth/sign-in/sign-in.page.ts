@@ -4,7 +4,7 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { from, throwError, Observable, of, noop } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
-import { shareReplay, catchError, filter, finalize, switchMap, map, concatMap, tap, take } from 'rxjs/operators';
+import { shareReplay, filter, finalize, switchMap, map, tap, take } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -118,10 +118,6 @@ export class SignInPage implements OnInit {
       this.emailLoading = true;
 
       const checkEmailExists$ = this.routerAuthService.checkEmailExists(this.fg.controls.email.value).pipe(
-        catchError((err) => {
-          this.handleError(err);
-          return throwError(() => err);
-        }),
         shareReplay(1),
         finalize(async () => {
           this.emailLoading = false;
@@ -134,12 +130,12 @@ export class SignInPage implements OnInit {
 
       basicSignIn$.subscribe({
         next: () => (this.emailSet = true),
-        error: noop,
+        error: (err) => this.handleError(err),
       });
 
       saml$.subscribe({
         next: (res) => this.handleSamlSignIn(res),
-        error: noop,
+        error: (err) => this.handleError(err),
       });
     } else {
       this.fg.controls.email.markAsTouched();
@@ -183,10 +179,6 @@ export class SignInPage implements OnInit {
       this.routerAuthService
         .basicSignin(this.fg.value.email, this.fg.value.password)
         .pipe(
-          catchError((err) => {
-            this.handleError(err);
-            return throwError(() => err);
-          }),
           switchMap(() => this.authService.refreshEou()),
           tap(async () => {
             this.trackingService.onSignin(this.fg.value.email, {
@@ -202,7 +194,7 @@ export class SignInPage implements OnInit {
             this.fg.reset();
             this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
           },
-          error: noop,
+          error: (err) => this.handleError(err),
         });
     } else {
       this.fg.controls.password.markAsTouched();
@@ -230,10 +222,6 @@ export class SignInPage implements OnInit {
         }),
         switchMap((googleAuthResponse) =>
           this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
-            catchError((err) => {
-              this.handleError(err);
-              return throwError(() => err);
-            }),
             switchMap((res) => this.authService.refreshEou()),
             tap(async () => {
               this.trackingService.onSignin(this.fg.value.email, {
@@ -254,7 +242,7 @@ export class SignInPage implements OnInit {
           this.fg.reset();
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         },
-        error: noop,
+        error: (err) => this.handleError(err),
       });
   }
 
