@@ -8,8 +8,6 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { Cacheable } from 'ts-cacheable';
 
-const taxGroupsCacheBuster$ = new Subject<void>();
-
 @Injectable({
   providedIn: 'root',
 })
@@ -19,9 +17,7 @@ export class TaxGroupService {
     private spenderPlatformApiService: SpenderPlatformApiService
   ) {}
 
-  @Cacheable({
-    cacheBusterObserver: taxGroupsCacheBuster$,
-  })
+  @Cacheable()
   get(): Observable<TaxGroup[]> {
     return this.getEnabledTaxGroupsCount().pipe(
       switchMap((count) => {
