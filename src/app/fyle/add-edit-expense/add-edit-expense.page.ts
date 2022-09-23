@@ -89,7 +89,6 @@ import { FileObject } from 'src/app/core/models/file_obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
-import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -104,6 +103,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -377,7 +377,7 @@ export class AddEditExpensePage implements OnInit {
     private expenseFieldsService: ExpenseFieldsService,
     private modalProperties: ModalPropertiesService,
     private actionSheetController: ActionSheetController,
-    private taxGroupsService: TaxGroupService,
+    private orgSettingsService: OrgSettingsService,
     private sanitizer: DomSanitizer,
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
@@ -865,7 +865,7 @@ export class AddEditExpensePage implements OnInit {
 
   async moreActions() {
     return forkJoin({
-      orgSettings$: this.offlineService.getOrgSettings(),
+      orgSettings$: this.orgSettingsService.get(),
       costCenters: this.costCenters$,
       projects: this.offlineService.getProjects(),
       txnFields: this.txnFields$.pipe(take(1)),
@@ -966,7 +966,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupCostCenters() {
-    const orgSettings$ = this.offlineService.getOrgSettings();
+    const orgSettings$ = this.orgSettingsService.get();
 
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
@@ -1013,7 +1013,7 @@ export class AddEditExpensePage implements OnInit {
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
       accounts: this.offlineService.getAccounts(),
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
@@ -1082,7 +1082,7 @@ export class AddEditExpensePage implements OnInit {
           };
 
           if (extractedDetails.parsedResponse) {
-            return this.offlineService.getHomeCurrency().pipe(
+            return this.currencyService.getHomeCurrency().pipe(
               switchMap((homeCurrency) => {
                 if (homeCurrency !== extractedDetails.parsedResponse.currency) {
                   return this.currencyService
@@ -1121,7 +1121,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getNewExpenseObservable() {
-    const orgSettings$ = this.offlineService.getOrgSettings();
+    const orgSettings$ = this.orgSettingsService.get();
     const accounts$ = this.offlineService.getAccounts();
     const eou$ = from(this.authService.getEou());
 
@@ -1324,7 +1324,7 @@ export class AddEditExpensePage implements OnInit {
           return of(etxn.tx.project_id);
         } else {
           return forkJoin({
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             orgUserSettings: this.orgUserSettings$,
           }).pipe(
             map(({ orgSettings, orgUserSettings }) => {
@@ -1440,7 +1440,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.recentlyUsedCurrencies$ = forkJoin({
       recentValues: this.recentlyUsedValues$,
-      currencies: this.offlineService.getCurrencies(),
+      currencies: this.currencyService.getAll(),
     }).pipe(
       switchMap(({ recentValues, currencies }) =>
         this.recentlyUsedItemsService.getRecentCurrencies(currencies, recentValues)
@@ -1453,7 +1453,7 @@ export class AddEditExpensePage implements OnInit {
           return of(etxn.tx.cost_center_id);
         } else {
           return forkJoin({
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             costCenters: this.costCenters$,
           }).pipe(
             map(({ orgSettings, costCenters }) => {
@@ -1511,8 +1511,8 @@ export class AddEditExpensePage implements OnInit {
             costCenter: selectedCostCenter$,
             customInputs: selectedCustomInputs$,
             txnReceiptsCount: txnReceiptsCount$,
-            homeCurrency: this.offlineService.getHomeCurrency(),
-            orgSettings: this.offlineService.getOrgSettings(),
+            homeCurrency: this.currencyService.getHomeCurrency(),
+            orgSettings: this.orgSettingsService.get(),
             defaultPaymentMode: defaultPaymentMode$,
             orgUserSettings: this.orgUserSettings$,
             recentValue: this.recentlyUsedValues$,
@@ -1816,7 +1816,7 @@ export class AddEditExpensePage implements OnInit {
   getCategoryOnEdit(category) {
     return forkJoin({
       orgUserSettings: this.offlineService.getOrgUserSettings(),
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgSettings: this.orgSettingsService.get(),
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
       etxn: this.etxn$,
@@ -1877,7 +1877,7 @@ export class AddEditExpensePage implements OnInit {
     } else {
       return forkJoin({
         orgUserSettings: this.offlineService.getOrgUserSettings(),
-        orgSettings: this.offlineService.getOrgSettings(),
+        orgSettings: this.orgSettingsService.get(),
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
@@ -2031,7 +2031,7 @@ export class AddEditExpensePage implements OnInit {
         switchMap((txnFields) =>
           forkJoin({
             isConnected: this.isConnected$.pipe(take(1)),
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             costCenters: this.costCenters$,
             taxGroups: this.taxGroups$,
             isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
@@ -2480,10 +2480,10 @@ export class AddEditExpensePage implements OnInit {
 
     this.setUpTaxCalculations();
 
-    const orgSettings$ = this.offlineService.getOrgSettings();
+    const orgSettings$ = this.orgSettingsService.get();
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const allCategories$ = this.offlineService.getAllEnabledCategories();
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
@@ -3746,7 +3746,7 @@ export class AddEditExpensePage implements OnInit {
 
   async getParsedReceipt(base64Image, fileType) {
     const parsedData: any = await this.transactionOutboxService.parseReceipt(base64Image, fileType);
-    const homeCurrency = await this.offlineService.getHomeCurrency().toPromise();
+    const homeCurrency = await this.currencyService.getHomeCurrency().toPromise();
 
     if (parsedData && parsedData.data && parsedData.data.currency && homeCurrency !== parsedData.data.currency) {
       parsedData.exchangeRate = await this.currencyService
@@ -3783,7 +3783,7 @@ export class AddEditExpensePage implements OnInit {
           forkJoin({
             imageData: from(this.getParsedReceipt(base64Image, fileType)),
             filteredCategories: this.filteredCategories$.pipe(take(1)),
-            homeCurrency: this.offlineService.getHomeCurrency(),
+            homeCurrency: this.currencyService.getHomeCurrency(),
           })
         )
       )

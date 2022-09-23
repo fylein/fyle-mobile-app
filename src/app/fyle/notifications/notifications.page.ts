@@ -9,6 +9,7 @@ import { FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-notifications',
@@ -50,6 +51,7 @@ export class NotificationsPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private formBuilder: FormBuilder,
     private offlineService: OfflineService,
+    private orgSettingsService: OrgSettingsService,
     private router: Router,
     private navController: NavController
   ) {}
@@ -278,7 +280,7 @@ export class NotificationsPage implements OnInit {
 
     this.isDelegateePresent$ = from(this.authService.getEou()).pipe(map((eou) => eou.ou.delegatee_id !== null));
 
-    this.orgSettings$ = this.offlineService.getOrgSettings();
+    this.orgSettings$ = this.orgSettingsService.get();
     this.notificationEvents$ = this.orgUserSettingsService.getNotificationEvents();
 
     const mergedData$ = zip(this.notificationEvents$, this.orgUserSettings$, this.orgSettings$)

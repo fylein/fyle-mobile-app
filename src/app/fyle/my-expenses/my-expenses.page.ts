@@ -51,6 +51,8 @@ import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
 import { MyExpensesService } from './my-expenses.service';
 import { Filters } from './my-expenses-filters.model';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
@@ -189,7 +191,9 @@ export class MyExpensesPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private tasksService: TasksService,
     private corporateCreditCardService: CorporateCreditCardExpenseService,
-    private myExpensesService: MyExpensesService
+    private myExpensesService: MyExpensesService,
+    private orgSettingsService: OrgSettingsService,
+    private currencyService: CurrencyService
   ) {}
 
   get HeaderState() {
@@ -426,14 +430,10 @@ export class MyExpensesPage implements OnInit {
       .getOrgUserSettings()
       .pipe(map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled));
 
-    this.isMileageEnabled$ = this.offlineService
-      .getOrgSettings()
-      .pipe(map((orgSettings) => orgSettings.mileage.enabled));
-    this.isPerDiemEnabled$ = this.offlineService
-      .getOrgSettings()
-      .pipe(map((orgSettings) => orgSettings.per_diem.enabled));
+    this.isMileageEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage.enabled));
+    this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.per_diem.enabled));
 
-    this.offlineService.getOrgSettings().subscribe((orgSettings) => {
+    this.orgSettingsService.get().subscribe((orgSettings) => {
       this.isUnifyCCCExpensesSettings =
         orgSettings.unify_ccce_expenses_settings &&
         orgSettings.unify_ccce_expenses_settings.allowed &&
@@ -446,8 +446,8 @@ export class MyExpensesPage implements OnInit {
       shareReplay(1)
     );
 
-    this.isUnifyCCCEnabled$ = this.offlineService
-      .getOrgSettings()
+    this.isUnifyCCCEnabled$ = this.orgSettingsService
+      .get()
       .pipe(
         map(
           (orgSettings) =>
@@ -517,9 +517,9 @@ export class MyExpensesPage implements OnInit {
       }
     });
 
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
 
