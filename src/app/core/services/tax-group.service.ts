@@ -3,9 +3,13 @@ import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { TaxGroup } from '../models/tax-group.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { PlatformTaxGroup } from '../models/platform/platform-tax-group.model';
-import { Observable, range } from 'rxjs';
+import { Observable, range, Subject } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { Cacheable } from 'ts-cacheable';
+
+const taxGroupsCacheBuster$ = new Subject<void>();
+
 @Injectable({
   providedIn: 'root',
 })
@@ -15,6 +19,9 @@ export class TaxGroupService {
     private spenderPlatformApiService: SpenderPlatformApiService
   ) {}
 
+  @Cacheable({
+    cacheBusterObserver: taxGroupsCacheBuster$,
+  })
   get(): Observable<TaxGroup[]> {
     return this.getEnabledTaxGroupsCount().pipe(
       switchMap((count) => {
