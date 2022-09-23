@@ -346,8 +346,8 @@ export class OrgSettingsService {
         enabled: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.enabled,
       },
       ccc_draft_expense_settings: {
-        allowed: incoming.ccc_draft_expense_settings && incoming.ccc_draft_expense_settings.allowed,
-        enabled: incoming.ccc_draft_expense_settings && incoming.ccc_draft_expense_settings.enabled,
+        allowed: incoming.ccc_draft_expense_settings?.allowed,
+        enabled: incoming.ccc_draft_expense_settings?.enabled,
       },
     };
 
