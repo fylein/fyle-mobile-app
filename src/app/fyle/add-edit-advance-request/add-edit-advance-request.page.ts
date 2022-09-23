@@ -5,7 +5,6 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { FileObject } from 'src/app/core/models/file_obj.model';
 import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
@@ -28,6 +27,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -93,7 +93,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private popoverController: PopoverController,
     private transactionsOutboxService: TransactionsOutboxService,
     private fileService: FileService,
-    private popupService: PopupService,
+    private currencyService: CurrencyService,
     private networkService: NetworkService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService
@@ -536,7 +536,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
     const orgSettings$ = this.offlineService.getOrgSettings();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
     this.customFieldValues = [];

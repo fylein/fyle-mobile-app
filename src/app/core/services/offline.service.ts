@@ -57,23 +57,6 @@ export class OfflineService {
   ) {}
 
   @Cacheable()
-  getCurrencies() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.currencyService.getAll().pipe(
-            tap((orgSettings) => {
-              this.storageService.set('cachedCurrencies', orgSettings);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedCurrencies'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getOrgSettings() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -167,23 +150,6 @@ export class OfflineService {
           );
         } else {
           return from(this.storageService.get('defaultCostCenter'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getHomeCurrency() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.currencyService.getHomeCurrency().pipe(
-            tap((homeCurrency) => {
-              this.storageService.set('cachedHomeCurrency', homeCurrency);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedHomeCurrency'));
         }
       })
     );
@@ -473,8 +439,6 @@ export class OfflineService {
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
-    const currencies$ = this.getCurrencies();
-    const homeCurrency$ = this.getHomeCurrency();
     const taxGroups$ = this.getEnabledTaxGroups();
 
     return forkJoin([
@@ -491,8 +455,6 @@ export class OfflineService {
       orgs$,
       accounts$,
       expenseFieldsMap$,
-      currencies$,
-      homeCurrency$,
       taxGroups$,
     ]);
   }

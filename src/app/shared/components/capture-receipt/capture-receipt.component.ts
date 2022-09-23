@@ -8,19 +8,13 @@ import { Router } from '@angular/router';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
-import { concat, forkJoin, from, noop, Observable } from 'rxjs';
+import { concat, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { AccountsService } from 'src/app/core/services/accounts.service';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
-import { StorageService } from 'src/app/core/services/storage.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 type Image = Partial<{
   source: string;
@@ -68,12 +62,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private transactionsOutboxService: TransactionsOutboxService,
     private imagePicker: ImagePicker,
     private networkService: NetworkService,
-    private accountsService: AccountsService,
+    private currencyService: CurrencyService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService,
-    private launchDarklyService: LaunchDarklyService,
-    private storageService: StorageService,
-    private paymentModesService: PaymentModesService
+    private loaderService: LoaderService
   ) {}
 
   setupNetworkWatcher() {
@@ -91,7 +82,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
     this.flashMode = null;
-    this.offlineService.getHomeCurrency().subscribe((res) => {
+    this.currencyService.getHomeCurrency().subscribe((res) => {
       this.homeCurrency = res;
     });
     this.captureCount = 0;
