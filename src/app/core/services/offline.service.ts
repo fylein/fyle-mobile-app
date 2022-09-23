@@ -57,23 +57,6 @@ export class OfflineService {
   ) {}
 
   @Cacheable()
-  getDelegatedAccounts() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgUserService.findDelegatedAccounts().pipe(
-            tap((orgSettings) => {
-              this.storageService.set('delegatedAccounts', orgSettings);
-            })
-          );
-        } else {
-          return from(this.storageService.get('delegatedAccounts'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getOrgSettings() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -456,7 +439,6 @@ export class OfflineService {
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
-    const delegatedAccounts$ = this.getDelegatedAccounts();
     const taxGroups$ = this.getEnabledTaxGroups();
 
     return forkJoin([
@@ -473,7 +455,6 @@ export class OfflineService {
       orgs$,
       accounts$,
       expenseFieldsMap$,
-      delegatedAccounts$,
       taxGroups$,
     ]);
   }
