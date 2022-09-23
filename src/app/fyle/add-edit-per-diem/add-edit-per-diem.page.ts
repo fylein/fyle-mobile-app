@@ -223,7 +223,7 @@ export class AddEditPerDiemPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
-    private perDiemsService: PerDiemService,
+    private perDiemService: PerDiemService,
     private orgSettingsService: OrgSettingsService
   ) {}
 
@@ -782,7 +782,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.isExpandedView = this.mode !== 'add';
 
     const orgSettings$ = this.orgSettingsService.get();
-    const perDiemRates$ = this.perDiemsService.getRates();
+    const perDiemRates$ = this.perDiemService.getRates();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
@@ -816,7 +816,7 @@ export class AddEditPerDiemPage implements OnInit {
           forkJoin({
             orgSettings: orgSettings$,
             allowedPerDiemRates: perDiemRates$.pipe(
-              switchMap((perDiemRates) => this.offlineService.getAllowedPerDiems(perDiemRates))
+              switchMap((perDiemRates) => this.perDiemService.getAllowedPerDiems(perDiemRates))
             ),
           })
         ),

@@ -1,17 +1,14 @@
 import { Injectable } from '@angular/core';
 import { NetworkService } from './network.service';
-import { AppVersionService } from './app-version.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { CategoriesService } from './categories.service';
 import { CostCentersService } from './cost-centers.service';
 import { ProjectsService } from './projects.service';
-import { PerDiemService } from './per-diem.service';
 import { CustomInputsService } from './custom-inputs.service';
 import { OrgService } from './org.service';
 import { AccountsService } from './accounts.service';
 import { StorageService } from './storage.service';
-import { CurrencyService } from './currency.service';
 import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { PermissionsService } from './permissions.service';
@@ -19,7 +16,6 @@ import { Org } from '../models/org.model';
 import { Cacheable, CacheBuster, globalCacheBusterNotifier } from 'ts-cacheable';
 import { OrgUserService } from './org-user.service';
 import { intersection } from 'lodash';
-import { DeviceService } from './device.service';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
@@ -35,21 +31,17 @@ const orgUserSettingsCacheBuster$ = new Subject<void>();
 export class OfflineService {
   constructor(
     private networkService: NetworkService,
-    private appVersionService: AppVersionService,
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
     private categoriesService: CategoriesService,
     private costCentersService: CostCentersService,
     private projectsService: ProjectsService,
-    private perDiemsService: PerDiemService,
     private customInputsService: CustomInputsService,
     private orgService: OrgService,
     private accountsService: AccountsService,
-    private currencyService: CurrencyService,
     private storageService: StorageService,
     private permissionsService: PermissionsService,
     private orgUserService: OrgUserService,
-    private deviceService: DeviceService,
     private expenseFieldsService: ExpenseFieldsService,
     private taxGroupService: TaxGroupService
   ) {}
@@ -309,25 +301,6 @@ export class OfflineService {
         } else {
           return from(this.storageService.get('cachedExpenseFieldsMap'));
         }
-      })
-    );
-  }
-
-  @Cacheable()
-  getAllowedPerDiems(allPerDiemRates) {
-    return this.getOrgUserSettings().pipe(
-      map((settings) => {
-        let allowedPerDiems = [];
-
-        if (settings && settings.per_diem_rate_settings && settings.per_diem_rate_settings.allowed_per_diem_ids) {
-          const allowedPerDiemIds = settings.per_diem_rate_settings.allowed_per_diem_ids;
-
-          if (allPerDiemRates && allPerDiemRates.length > 0) {
-            allowedPerDiems = allPerDiemRates.filter((perDiem) => allowedPerDiemIds.indexOf(perDiem.id) > -1);
-          }
-        }
-
-        return allowedPerDiems;
       })
     );
   }
