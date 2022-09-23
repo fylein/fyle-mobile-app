@@ -18,6 +18,7 @@ import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { HandleDuplicatesService } from './handle-duplicates.service';
 import { DuplicateSet } from '../models/v2/duplicate-sets.model';
+import { CurrencyService } from './currency.service';
 
 type TaskDict = {
   sentBackReports: DashboardTask[];
@@ -51,7 +52,8 @@ export class TasksService {
     private userEventService: UserEventService,
     private authService: AuthService,
     private handleDuplicatesService: HandleDuplicatesService,
-    private advancesRequestService: AdvanceRequestService
+    private advancesRequestService: AdvanceRequestService,
+    private currencyService: CurrencyService
   ) {
     this.userEventService.onTaskCacheClear(() => {
       this.reportService.getReportAutoSubmissionDetails().subscribe((autoSubmissionReportDetails) => {
@@ -411,7 +413,7 @@ export class TasksService {
   private getSentBackReportTasks(): Observable<DashboardTask[]> {
     return forkJoin({
       reportsStats: this.getSentBackReports(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
       map(({ reportsStats, homeCurrency }) =>
         this.mapSentBackReportsToTasks(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
@@ -439,7 +441,7 @@ export class TasksService {
   private getSentBackAdvanceTasks(): Observable<DashboardTask[]> {
     return forkJoin({
       advancesStats: this.getSentBackAdvancesStats(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
       map(({ advancesStats, homeCurrency }) =>
         this.mapSentBackAdvancesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
@@ -468,7 +470,7 @@ export class TasksService {
   private getTeamReportsTasks() {
     return forkJoin({
       reportsStats: this.getTeamReportsStats(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
       map(({ reportsStats, homeCurrency }) =>
         this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
@@ -516,7 +518,7 @@ export class TasksService {
 
     return forkJoin({
       reportsStats: this.getUnsubmittedReportsStats(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
       map(({ reportsStats, homeCurrency }) =>
         this.mapAggregateToUnsubmittedReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
@@ -555,7 +557,7 @@ export class TasksService {
     );
     return forkJoin({
       transactionStats: this.getUnreportedExpensesStats(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
       openReports: openReports$,
     }).pipe(
       map(({ transactionStats, homeCurrency, openReports }) =>
@@ -579,7 +581,7 @@ export class TasksService {
   private getDraftExpensesTasks() {
     return forkJoin({
       transactionStats: this.getDraftExpensesStats(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
       map(({ transactionStats, homeCurrency }) =>
         this.mapAggregateToDraftExpensesTask(this.mapScalarStatsResponse(transactionStats), homeCurrency)

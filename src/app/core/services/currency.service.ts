@@ -50,6 +50,7 @@ export class CurrencyService {
     );
   }
 
+  @Cacheable()
   getHomeCurrency() {
     return this.orgService.getCurrentOrg().pipe(map((org) => org.currency));
   }

@@ -495,7 +495,7 @@ export class TransactionsOutboxService {
     const fileName = fileType && fileType === 'pdf' ? '000.pdf' : '000.jpeg';
 
     // send homeCurrency of the user's org as suggestedCurrency for data-extraction
-    return this.offlineService
+    return this.currencyService
       .getHomeCurrency()
       .toPromise()
       .then((homeCurrency) => {
