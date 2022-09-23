@@ -108,9 +108,7 @@ export class OrgUserService {
     return eous.filter((eou) => userIds.indexOf(eou.ou.id) === -1);
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: orgUsersCacheBuster$,
-  })
+  @Cacheable()
   findDelegatedAccounts() {
     return this.apiService.get('/eous/current/delegated_eous').pipe(
       map((delegatedAccounts) => {
