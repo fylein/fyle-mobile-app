@@ -273,6 +273,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
+            performance.clearMarks();
+            performance.clearMeasures();
           })
         )
         .subscribe(noop);
