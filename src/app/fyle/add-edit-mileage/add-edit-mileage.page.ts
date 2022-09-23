@@ -63,6 +63,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
@@ -247,7 +248,8 @@ export class AddEditMileagePage implements OnInit {
     private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
     private currencyService: CurrencyService,
-    private mileageRateService: MileageRatesService
+    private mileageRateService: MileageRatesService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get showSaveAndNext() {
@@ -535,7 +537,7 @@ export class AddEditMileagePage implements OnInit {
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
       accounts: this.offlineService.getAccounts(),
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
@@ -675,7 +677,7 @@ export class AddEditMileagePage implements OnInit {
     const defaultVehicle$ = forkJoin({
       vehicleType: this.transactionService.getDefaultVehicleType(),
       orgUserMileageSettings: this.offlineService.getOrgUserMileageSettings(),
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgSettings: this.orgSettingsService.get(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
       recentValue: this.recentlyUsedValues$,
       mileageRates: this.mileageRates$,
@@ -742,7 +744,7 @@ export class AddEditMileagePage implements OnInit {
       eou: this.authService.getEou(),
       currentLocation: this.locationService.getCurrentLocation(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgSettings: this.orgSettingsService.get(),
       recentValue: this.recentlyUsedValues$,
     }).pipe(
       map(({ eou, currentLocation, orgUserSettings, orgSettings, recentValue }) => {
@@ -799,7 +801,7 @@ export class AddEditMileagePage implements OnInit {
     return forkJoin({
       mileageContainer: this.getMileageCategories(),
       homeCurrency: this.homeCurrency$,
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgSettings: this.orgSettingsService.get(),
       defaultVehicleType: defaultVehicle$,
       defaultMileageRate: defaultMileage$.pipe(take(1)),
       currentEou: this.authService.getEou(),
@@ -922,7 +924,7 @@ export class AddEditMileagePage implements OnInit {
 
     this.isExpandedView = this.mode !== 'add';
 
-    const orgSettings$ = this.offlineService.getOrgSettings();
+    const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
 
     this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
@@ -1082,7 +1084,7 @@ export class AddEditMileagePage implements OnInit {
         switchMap((txnFields) =>
           forkJoin({
             isConnected: this.isConnected$.pipe(take(1)),
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             costCenters: this.costCenters$,
             isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
             individualProjectIds: this.individualProjectIds$,
@@ -1219,7 +1221,7 @@ export class AddEditMileagePage implements OnInit {
           return of(etxn.tx.project_id);
         } else {
           return forkJoin({
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             orgUserSettings: this.offlineService.getOrgUserSettings(),
           }).pipe(
             map(({ orgSettings, orgUserSettings }) => {
@@ -1307,7 +1309,7 @@ export class AddEditMileagePage implements OnInit {
           return of(etxn.tx.cost_center_id);
         } else {
           return forkJoin({
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             costCenters: this.costCenters$,
           }).pipe(
             map(({ orgSettings, costCenters }) => {

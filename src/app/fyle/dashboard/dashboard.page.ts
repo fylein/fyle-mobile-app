@@ -12,6 +12,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 enum DashboardState {
   home,
@@ -52,7 +53,8 @@ export class DashboardPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get displayedTaskCount() {
@@ -96,7 +98,7 @@ export class DashboardPage implements OnInit {
     }
 
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
-    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+    this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
     this.statsComponent.init();
@@ -124,7 +126,7 @@ export class DashboardPage implements OnInit {
 
   ngOnInit() {
     const that = this;
-    that.offlineService.getOrgSettings().subscribe((orgSettings) => {
+    that.orgSettingsService.get().subscribe((orgSettings) => {
       this.setupActionSheet(orgSettings);
     });
   }

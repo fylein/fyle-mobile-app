@@ -46,23 +46,6 @@ export class OfflineService {
     private taxGroupService: TaxGroupService
   ) {}
 
-  @Cacheable()
-  getOrgSettings() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgSettingsService.get().pipe(
-            tap((orgSettings) => {
-              this.storageService.set('cachedOrgSettings', orgSettings);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedOrgSettings'));
-        }
-      })
-    );
-  }
-
   @CacheBuster({
     cacheBusterNotifier: orgUserSettingsCacheBuster$,
   })
@@ -362,7 +345,6 @@ export class OfflineService {
 
   load() {
     globalCacheBusterNotifier.next();
-    const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const allCategories$ = this.getAllCategories();
     const allEnabledCategories$ = this.getAllEnabledCategories();
@@ -377,7 +359,6 @@ export class OfflineService {
     const taxGroups$ = this.getEnabledTaxGroups();
 
     return forkJoin([
-      orgSettings$,
       orgUserSettings$,
       allCategories$,
       allEnabledCategories$,
