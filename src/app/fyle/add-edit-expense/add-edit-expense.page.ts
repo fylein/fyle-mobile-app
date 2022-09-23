@@ -104,6 +104,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -386,7 +387,8 @@ export class AddEditExpensePage implements OnInit {
     private titleCasePipe: TitleCasePipe,
     private handleDuplicates: HandleDuplicatesService,
     private launchDarklyService: LaunchDarklyService,
-    private paymentModesService: PaymentModesService
+    private paymentModesService: PaymentModesService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   @HostListener('keydown')
@@ -1814,7 +1816,7 @@ export class AddEditExpensePage implements OnInit {
 
   getCategoryOnEdit(category) {
     return forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgUserSettings: this.orgUserSettingsService.get(),
       orgSettings: this.offlineService.getOrgSettings(),
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
@@ -1875,7 +1877,7 @@ export class AddEditExpensePage implements OnInit {
       return of(category);
     } else {
       return forkJoin({
-        orgUserSettings: this.offlineService.getOrgUserSettings(),
+        orgUserSettings: this.orgUserSettingsService.get(),
         orgSettings: this.offlineService.getOrgSettings(),
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
@@ -2480,7 +2482,7 @@ export class AddEditExpensePage implements OnInit {
     this.setUpTaxCalculations();
 
     const orgSettings$ = this.offlineService.getOrgSettings();
-    this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    this.orgUserSettings$ = this.orgUserSettingsService.get();
     const allCategories$ = this.offlineService.getAllEnabledCategories();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();

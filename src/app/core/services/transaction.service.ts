@@ -979,7 +979,7 @@ export class TransactionService {
     return forkJoin({
       orgSettings: this.offlineService.getOrgSettings(),
       accounts: this.offlineService.getAccounts(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgUserSettings: this.orgUserSettingsService.get(),
     }).pipe(
       switchMap(({ orgSettings, accounts, orgUserSettings }) =>
         this.paymentModesService.getDefaultAccount(orgSettings, accounts, orgUserSettings)

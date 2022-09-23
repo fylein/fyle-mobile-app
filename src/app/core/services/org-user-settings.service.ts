@@ -40,6 +40,13 @@ export class OrgUserSettingsService {
     return this.apiService.get('/org_user_settings/' + userSettingsId).pipe(map((res) => res as OrgUserSettings));
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: orgUserSettingsCacheBuster$,
+  })
+  clearOrgUserSettings() {
+    return of(null);
+  }
+
   getOrgUserSettingsById(ouId: string) {
     return this.orgUserService.getUserById(ouId).pipe(switchMap((user) => this.getUserSettings(user.ou_settings_id)));
   }

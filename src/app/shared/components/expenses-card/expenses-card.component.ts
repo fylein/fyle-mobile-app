@@ -24,6 +24,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -132,7 +133,8 @@ export class ExpensesCardComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private trackingService: TrackingService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   get isSelected() {
@@ -236,7 +238,7 @@ export class ExpensesCardComponent implements OnInit {
     that.isScanCompleted = false;
 
     if (!that.isOutboxExpense) {
-      that.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
+      that.orgUserSettingsService.get().subscribe((orgUserSettings) => {
         if (
           orgUserSettings.insta_fyle_settings.allowed &&
           orgUserSettings.insta_fyle_settings.enabled &&

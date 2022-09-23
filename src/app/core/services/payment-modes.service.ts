@@ -9,6 +9,7 @@ import { ExpenseType } from '../enums/expense-type.enum';
 import { AccountType } from '../enums/account-type.enum';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
+import { OrgUserSettingsService } from './org-user-settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,13 +18,14 @@ export class PaymentModesService {
   constructor(
     private accountsService: AccountsService,
     private offlineService: OfflineService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   checkIfPaymentModeConfigurationsIsEnabled() {
     return forkJoin({
       isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgUserSettings: this.orgUserSettingsService.get(),
     }).pipe(
       map(
         ({ isPaymentModeConfigurationsEnabled, orgUserSettings }) =>

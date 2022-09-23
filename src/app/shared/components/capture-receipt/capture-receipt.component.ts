@@ -15,6 +15,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 type Image = Partial<{
   source: string;
@@ -64,7 +65,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private networkService: NetworkService,
     private currencyService: CurrencyService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   setupNetworkWatcher() {
@@ -87,7 +89,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
     this.captureCount = 0;
 
-    this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
+    this.orgUserSettingsService.get().subscribe((orgUserSettings) => {
       this.isInstafyleEnabled =
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });

@@ -25,6 +25,7 @@ import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -99,7 +100,8 @@ export class SplitExpensePage implements OnInit {
     private trackingService: TrackingService,
     private policyService: PolicyService,
     private modalController: ModalController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   ngOnInit() {}
@@ -480,7 +482,7 @@ export class SplitExpensePage implements OnInit {
 
       if (this.splitType === 'cost centers') {
         const orgSettings$ = this.offlineService.getOrgSettings();
-        const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+        const orgUserSettings$ = this.orgUserSettingsService.get();
         this.costCenters$ = forkJoin({
           orgSettings: orgSettings$,
           orgUserSettings: orgUserSettings$,

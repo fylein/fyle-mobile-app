@@ -18,6 +18,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -56,7 +57,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     private offlineService: OfflineService,
     private authService: AuthService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   ngOnInit() {}
@@ -67,7 +69,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
     // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
     this.cdr.detectChanges();
-    const defaultProject$ = this.offlineService.getOrgUserSettings().pipe(
+    const defaultProject$ = this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
           return this.projectService.getbyId(orgUserSettings.preferences.default_project_id);
@@ -81,9 +83,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
-          this.offlineService
-            .getOrgUserSettings()
-            .pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
+          this.orgUserSettingsService.get().pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
           of(null)
         )
       ),

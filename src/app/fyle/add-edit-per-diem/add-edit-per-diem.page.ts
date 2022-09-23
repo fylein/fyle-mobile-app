@@ -63,6 +63,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -222,7 +223,8 @@ export class AddEditPerDiemPage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
-    private perDiemService: PerDiemService
+    private perDiemService: PerDiemService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   get minPerDiemDate() {
@@ -781,7 +783,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     const orgSettings$ = this.offlineService.getOrgSettings();
     const perDiemRates$ = this.perDiemService.getRates();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    const orgUserSettings$ = this.orgUserSettingsService.get();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
@@ -1150,7 +1152,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return forkJoin({
             orgSettings: this.offlineService.getOrgSettings(),
-            orgUserSettings: this.offlineService.getOrgUserSettings(),
+            orgUserSettings: this.orgUserSettingsService.get(),
           }).pipe(
             map(({ orgSettings, orgUserSettings }) => {
               if (orgSettings.projects.enabled) {

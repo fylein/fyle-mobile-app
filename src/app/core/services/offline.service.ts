@@ -63,35 +63,9 @@ export class OfflineService {
     );
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: orgUserSettingsCacheBuster$,
-  })
-  clearOrgUserSettings() {
-    return of(null);
-  }
-
-  @Cacheable({
-    cacheBusterObserver: orgUserSettingsCacheBuster$,
-  })
-  getOrgUserSettings(): Observable<OrgUserSettings> {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgUserSettingsService.get().pipe(
-            tap((orgUserSettings) => {
-              this.storageService.set('cachedOrgUserSettings', orgUserSettings);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedOrgUserSettings'));
-        }
-      })
-    );
-  }
-
   @Cacheable()
   getOrgUserMileageSettings() {
-    return this.getOrgUserSettings().pipe(map((res: any) => res.mileage_settings));
+    return this.orgUserSettingsService.get().pipe(map((res: any) => res.mileage_settings));
   }
 
   @Cacheable()
@@ -324,9 +298,9 @@ export class OfflineService {
 
   @Cacheable()
   getAllowedPaymentModes(): Observable<AccountType[]> {
-    return this.getOrgUserSettings().pipe(
-      map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes)
-    );
+    return this.orgUserSettingsService
+      .get()
+      .pipe(map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes));
   }
 
   getReportActions(orgSettings) {
@@ -363,7 +337,6 @@ export class OfflineService {
   load() {
     globalCacheBusterNotifier.next();
     const orgSettings$ = this.getOrgSettings();
-    const orgUserSettings$ = this.getOrgUserSettings();
     const allCategories$ = this.getAllCategories();
     const allEnabledCategories$ = this.getAllEnabledCategories();
     const costCenters$ = this.getCostCenters();
@@ -378,7 +351,6 @@ export class OfflineService {
 
     return forkJoin([
       orgSettings$,
-      orgUserSettings$,
       allCategories$,
       allEnabledCategories$,
       costCenters$,

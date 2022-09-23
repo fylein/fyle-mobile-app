@@ -12,6 +12,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 enum DashboardState {
   home,
@@ -52,7 +53,8 @@ export class DashboardPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   get displayedTaskCount() {
@@ -95,7 +97,7 @@ export class DashboardPage implements OnInit {
       this.currentStateIndex = 0;
     }
 
-    this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
+    this.orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
