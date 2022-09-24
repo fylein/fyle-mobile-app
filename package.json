@@ -63,6 +63,7 @@
     "@types/google.maps": "^3.49.2",
     "@types/hammerjs": "^2.0.41",
     "capacitor-secure-storage-plugin": "^0.6.2",
+    "capacitor-share-with-plugin": "file:../../share-with-plugin/share-with",
     "cordova-plugin-decimal-key": "^1.2.2",
     "cordova-plugin-googleplus": "^8.5.2",
     "cordova-plugin-inappbrowser": "^5.0.0",

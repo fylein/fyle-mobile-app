@@ -60,6 +60,10 @@
 		"classpath": "com.whitestein.securestorage.SecureStoragePlugin"
 	},
 	{
+		"pkg": "capacitor-share-with-plugin",
+		"classpath": "com.capacitor.plugins.sharewithplugin.ShareWithPlugin"
+	},
+	{
 		"pkg": "share-with",
 		"classpath": "com.capacitor.plugins.sharewithplugin.ShareWithPlugin"
 	}

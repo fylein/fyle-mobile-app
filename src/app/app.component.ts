@@ -12,6 +12,7 @@ import { RouterAuthService } from './core/services/router-auth.service';
 import { GlobalCacheConfig } from 'ts-cacheable';
 import { NetworkService } from './core/services/network.service';
 import { App } from '@capacitor/app';
+import { Filesystem } from '@capacitor/filesystem';
 import { ShareWith } from 'share-with';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -130,13 +131,17 @@ export class AppComponent implements OnInit {
       });
     });
 
-    ShareWith.addListener('imageShared', (data) => {
+    ShareWith.addListener('imageShared', async (data) => {
+      const file = await Filesystem.readFile({
+        path: data?.uri,
+      });
+
       this.router.navigate([
         '/',
         'enterprise',
         'add_edit_expense',
         {
-          dataUrl: data?.base64,
+          dataUrl: 'data:image/jpeg;base64,' + file?.data,
           canExtractData: true,
         },
       ]);

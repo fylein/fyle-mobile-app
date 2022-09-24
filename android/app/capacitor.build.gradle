@@ -24,6 +24,7 @@ dependencies {
     implementation project(':capacitor-status-bar')
     implementation project(':capacitor-storage')
     implementation project(':capacitor-secure-storage-plugin')
+    implementation project(':capacitor-share-with-plugin')
     implementation project(':share-with')
     implementation "com.google.android.gms:play-services-auth:15.0.1"
     implementation "com.google.android.gms:play-services-identity:15.0.1"
