@@ -1069,7 +1069,7 @@ export class AddEditExpensePage implements OnInit {
 
       //Need to pass the image extension from plugin instead of hardcoding here
       //Also need to replace \n in the base64 at the plugin level only
-      const b64Image = dataUrl.replace('data:image/jpg;base64,', '').replaceAll('\n', '');
+      const b64Image = dataUrl.replace('data:image/jpg;base64,', '');
 
       return from(this.transactionOutboxService.parseReceipt(b64Image)).pipe(
         timeout(15000),
@@ -1086,9 +1086,9 @@ export class AddEditExpensePage implements OnInit {
         ),
         switchMap((extractedDetails: any) => {
           const instaFyleImageData = {
-            thumbnail: this.activatedRoute.snapshot.params.dataUrl.replaceAll('\n', ''),
+            thumbnail: this.activatedRoute.snapshot.params.dataUrl,
             type: 'image',
-            url: this.activatedRoute.snapshot.params.dataUrl.replaceAll('\n', ''),
+            url: this.activatedRoute.snapshot.params.dataUrl,
             ...extractedDetails,
           };
 
@@ -1121,9 +1121,9 @@ export class AddEditExpensePage implements OnInit {
       );
     } else if (this.activatedRoute.snapshot.params.dataUrl) {
       const instaFyleImageData = {
-        thumbnail: this.activatedRoute.snapshot.params.dataUrl.replaceAll('\n', ''),
+        thumbnail: this.activatedRoute.snapshot.params.dataUrl,
         type: 'image',
-        url: this.activatedRoute.snapshot.params.dataUrl.replaceAll('\n', ''),
+        url: this.activatedRoute.snapshot.params.dataUrl,
       };
       return of(instaFyleImageData);
     } else {
