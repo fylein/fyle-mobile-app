@@ -131,7 +131,7 @@ export class AppComponent implements OnInit {
       });
     });
 
-    ShareWith.addListener('imageShared', async (data) => {
+    ShareWith.addListener('FILE_SINGLE', async (data) => {
       const file = await Filesystem.readFile({
         path: data?.uri,
       });
