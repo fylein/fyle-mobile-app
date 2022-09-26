@@ -246,6 +246,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   async proceed(isFromInviteLink?: boolean) {
+    // Tracking the time on click of switch org
+    performance.mark(PerfTrackers.onClickSwitchOrg);
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
@@ -302,8 +304,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   async switchOrg(org: Org) {
-    // Tracking the time on click of switch org
-    performance.mark(PerfTrackers.onClickSwitchOrg);
     const originalEou = await this.authService.getEou();
     from(this.loaderService.showLoader('Please wait...', 2000))
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
@@ -345,6 +345,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
+            performance.clearMarks();
+            performance.clearMeasures();
           })
         )
         .subscribe(noop);

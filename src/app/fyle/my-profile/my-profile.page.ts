@@ -92,6 +92,8 @@ export class MyProfilePage implements OnInit {
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
+            performance.clearMarks();
+            performance.clearMeasures();
           })
         )
         .subscribe(noop);
