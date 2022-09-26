@@ -199,6 +199,31 @@ export class StatsComponent implements OnInit {
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
     );
 
+    try {
+      // if (performance.getEntriesByName(PerfTrackers.dashboardLaunchTime).length === 0) {
+      // Time taken to land on dashboard page after switching org
+      performance.mark(PerfTrackers.dashboardLaunchTime);
+
+      // Measure total time taken from switch org page to landing on dashboard page
+      performance.measure(PerfTrackers.dashboardLaunchTime, PerfTrackers.onClickSwitchOrg);
+
+      const measureLaunchTime = performance.getEntriesByName(PerfTrackers.dashboardLaunchTime);
+
+      const measureSwitchOrgTime = performance.getEntriesByName(PerfTrackers.switchOrgLaunchTime);
+      const switchOrglaunchTimeDuration = (measureSwitchOrgTime[0]?.duration / 1000)?.toFixed(3);
+      this.switchOrgLaunchTime = switchOrglaunchTimeDuration;
+
+      // Converting the duration to seconds and fix it to 3 decimal places
+      const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
+      console.log('dashboard launch time', launchTimeDuration);
+      this.dashboardLaunchTime = launchTimeDuration;
+      this.trackingService.dashboardLaunchTime({
+        'Dashboard launch time': launchTimeDuration,
+        oldBuild: true,
+      });
+      // }
+    } catch (err) {}
+
     that.initializeReportStats();
     that.initializeExpensesStats();
     that.offlineService.getOrgSettings().subscribe((orgSettings) => {
@@ -217,7 +242,6 @@ export class StatsComponent implements OnInit {
 
     this.offlineService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs.length > 1;
-      this.trackDashboardLaunchTime();
 
       if (performance.getEntriesByName('app launch time').length < 1) {
         // Time taken for the app to launch and display the first screen
@@ -245,28 +269,28 @@ export class StatsComponent implements OnInit {
 
   private trackDashboardLaunchTime() {
     try {
-      if (performance.getEntriesByName(PerfTrackers.dashboardLaunchTime).length === 0) {
-        // Time taken to land on dashboard page after switching org
-        performance.mark(PerfTrackers.dashboardLaunchTime);
+      // if (performance.getEntriesByName(PerfTrackers.dashboardLaunchTime).length === 0) {
+      // Time taken to land on dashboard page after switching org
+      performance.mark(PerfTrackers.dashboardLaunchTime);
 
-        // Measure total time taken from switch org page to landing on dashboard page
-        performance.measure(PerfTrackers.dashboardLaunchTime, PerfTrackers.onClickSwitchOrg);
+      // Measure total time taken from switch org page to landing on dashboard page
+      performance.measure(PerfTrackers.dashboardLaunchTime, PerfTrackers.onClickSwitchOrg);
 
-        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.dashboardLaunchTime);
+      const measureLaunchTime = performance.getEntriesByName(PerfTrackers.dashboardLaunchTime);
 
-        const measureSwitchOrgTime = performance.getEntriesByName(PerfTrackers.switchOrgLaunchTime);
-        const switchOrglaunchTimeDuration = (measureSwitchOrgTime[0]?.duration / 1000)?.toFixed(3);
-        this.switchOrgLaunchTime = switchOrglaunchTimeDuration;
+      const measureSwitchOrgTime = performance.getEntriesByName(PerfTrackers.switchOrgLaunchTime);
+      const switchOrglaunchTimeDuration = (measureSwitchOrgTime[0]?.duration / 1000)?.toFixed(3);
+      this.switchOrgLaunchTime = switchOrglaunchTimeDuration;
 
-        // Converting the duration to seconds and fix it to 3 decimal places
-        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
-        console.log('dashboard launch time', launchTimeDuration);
-        this.dashboardLaunchTime = launchTimeDuration;
-        this.trackingService.dashboardLaunchTime({
-          'Dashboard launch time': launchTimeDuration,
-          oldBuild: true,
-        });
-      }
+      // Converting the duration to seconds and fix it to 3 decimal places
+      const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
+      console.log('dashboard launch time', launchTimeDuration);
+      this.dashboardLaunchTime = launchTimeDuration;
+      this.trackingService.dashboardLaunchTime({
+        'Dashboard launch time': launchTimeDuration,
+        oldBuild: true,
+      });
+      // }
     } catch (err) {}
   }
 

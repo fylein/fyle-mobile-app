@@ -129,32 +129,34 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   private trackSwitchOrgLaunchTime() {
     try {
-      if (performance.getEntriesByName('switch org launch time').length === 0) {
-        // Time taken to land on switch org page after sign-in
-        performance.mark('switch org launch time');
+      // if (performance.getEntriesByName('switch org launch time').length === 0) {
+      // Time taken to land on switch org page after sign-in
+      performance.mark('switch org launch time');
 
-        // Measure total time taken from logging into the app to landing on switch org page
-        performance.measure('switch org launch time', 'login start time');
+      // Measure total time taken from logging into the app to landing on switch org page
+      performance.measure('switch org launch time', 'login start time');
 
-        const measureLaunchTime = performance.getEntriesByName('switch org launch time');
+      const measureLaunchTime = performance.getEntriesByName('switch org launch time');
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        const loginMethod = performance.getEntriesByName('login start time')[0]['detail'];
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      const loginMethod = performance.getEntriesByName('login start time')[0]['detail'];
 
-        // Converting the duration to seconds and fix it to 3 decimal places
-        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
+      // Converting the duration to seconds and fix it to 3 decimal places
+      const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
 
-        console.log('switch org launch time', launchTimeDuration);
-        this.trackingService.switchOrgLaunchTime({
-          'Switch org launch time': launchTimeDuration,
-          'Login method': loginMethod,
-          oldBuild: true,
-        });
-      }
+      console.log('switch org launch time', launchTimeDuration);
+      this.trackingService.switchOrgLaunchTime({
+        'Switch org launch time': launchTimeDuration,
+        'Login method': loginMethod,
+        oldBuild: true,
+      });
+      // }
     } catch (error) {}
   }
 
   async proceed() {
+    performance.mark('on click switch org');
+    console.log('on click switch org', performance.getEntriesByName('on click switch org'));
     const offlineData$ = this.offlineService.load().pipe(shareReplay(1));
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
@@ -232,6 +234,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   async switchOrg(org: Org) {
     performance.mark('on click switch org');
+    console.log('on click switch org', performance.getEntriesByName('on click switch org'));
     const originalEou = await this.authService.getEou();
     from(this.loaderService.showLoader())
       .pipe(switchMap(() => this.orgService.switchOrg(org.id)))
