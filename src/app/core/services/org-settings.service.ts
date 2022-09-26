@@ -300,6 +300,7 @@ export class OrgSettingsService {
         enabled: incoming.sso_integration_settings && incoming.sso_integration_settings.enabled,
         idp_name: incoming.sso_integration_settings && incoming.sso_integration_settings.idp_name,
         meta_data_file_id: incoming.sso_integration_settings && incoming.sso_integration_settings.meta_data_file_id,
+        email_regex: incoming.sso_integration_settings && incoming.sso_integration_settings.email_regex,
       },
       advanced_access_delegation_settings: {
         allowed: incoming.advanced_access_delegation_settings && incoming.advanced_access_delegation_settings.allowed,
