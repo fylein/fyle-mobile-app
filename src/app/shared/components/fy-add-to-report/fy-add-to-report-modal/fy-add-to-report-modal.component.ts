@@ -10,9 +10,9 @@ import {
 } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { getCurrencySymbol } from '@angular/common';
 import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 type Option = {
   label: string;
@@ -51,7 +51,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
-    private offlineService: OfflineService
+    private currencyService: CurrencyService
   ) {}
 
   ngOnInit() {
@@ -63,7 +63,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
         .sort((a, b) => (a.selected === b.selected ? 0 : a.selected ? -1 : 1));
     }
 
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
   }
