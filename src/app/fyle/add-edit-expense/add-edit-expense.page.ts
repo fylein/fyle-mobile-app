@@ -1065,13 +1065,23 @@ export class AddEditExpensePage implements OnInit {
 
   getInstaFyleImageData() {
     if (this.activatedRoute.snapshot.params.dataUrl && this.activatedRoute.snapshot.params.canExtractData !== 'false') {
-      const dataUrl = this.activatedRoute.snapshot.params.dataUrl;
+      let dataUrl = this.activatedRoute.snapshot.params.dataUrl;
+      const fileExt = this.activatedRoute.snapshot.params.ext;
 
       //Need to pass the image extension from plugin instead of hardcoding here
       //Also need to replace \n in the base64 at the plugin level only
-      const b64Image = dataUrl.replace('data:image/jpg;base64,', '');
+      let b64Image = dataUrl.replace('data:image/jpg;base64,', '');
 
-      return from(this.transactionOutboxService.parseReceipt(b64Image)).pipe(
+      if (!dataUrl.startsWith('data')) {
+        if (fileExt === 'pdf') {
+          b64Image = dataUrl;
+          dataUrl = 'data:application/pdf;base64,' + dataUrl;
+        } else {
+          dataUrl = 'data:image/jpg;base64,' + dataUrl;
+        }
+      }
+
+      return from(this.transactionOutboxService.parseReceipt(b64Image, fileExt)).pipe(
         timeout(15000),
         map((parsedResponse) => ({
           parsedResponse: parsedResponse.data,
@@ -1086,9 +1096,9 @@ export class AddEditExpensePage implements OnInit {
         ),
         switchMap((extractedDetails: any) => {
           const instaFyleImageData = {
-            thumbnail: this.activatedRoute.snapshot.params.dataUrl,
-            type: 'image',
-            url: this.activatedRoute.snapshot.params.dataUrl,
+            thumbnail: fileExt === 'pdf' ? null : dataUrl,
+            type: fileExt === 'pdf' ? 'pdf' : 'image',
+            url: dataUrl,
             ...extractedDetails,
           };
 
@@ -1315,8 +1325,8 @@ export class AddEditExpensePage implements OnInit {
         if (imageData && imageData.url) {
           etxn.dataUrls.push({
             url: imageData.url,
-            type: 'image',
-            thumbnail: imageData.url,
+            type: imageData.type,
+            thumbnail: imageData.thumbnail,
           });
           etxn.tx.num_files = etxn.dataUrls.length;
           this.source = 'MOBILE_DASHCAM_SINGLE';
