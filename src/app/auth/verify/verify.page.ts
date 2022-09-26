@@ -42,7 +42,13 @@ export class VerifyPage implements OnInit {
           this.trackingService.onSignin(eou.us.email);
         }),
         catchError((err) => {
-          this.currentPageState = VerifyPageState.error;
+          if (err.status === 422) {
+            this.router.navigate(['/', 'auth', 'disabled']);
+          } else if (err.status === 440) {
+            this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true }]);
+          } else {
+            this.currentPageState = VerifyPageState.error;
+          }
           return throwError(err);
         })
       )

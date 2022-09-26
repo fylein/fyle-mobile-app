@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { throwError } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -14,9 +14,17 @@ export class PendingVerificationPage implements OnInit {
 
   isLoading = false;
 
-  constructor(private routerAuthService: RouterAuthService, private router: Router) {}
+  hasTokenExpired = false;
 
-  ngOnInit() {}
+  constructor(
+    private routerAuthService: RouterAuthService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+  ) {}
+
+  ngOnInit() {
+    this.hasTokenExpired = this.activatedRoute.snapshot.params.hasTokenExpired || false;
+  }
 
   ionViewWillEnter() {
     this.currentPageState = PageState.notSent;
