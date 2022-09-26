@@ -6,6 +6,11 @@
           <div class="stats--header">EXPENSE REPORTS</div>
         </ion-col>
       </ion-row>
+      <ion-row>
+        Launch time:
+        <ion-col>Switch org Launch time -- {{ switchOrgLaunchTime }}</ion-col>
+        <ion-col>Dashboard Launch time -- {{ dashboardLaunchTime }}</ion-col>
+      </ion-row>
       <ion-row *ngIf="isConnected$ | async">
         <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
           <app-stat-badge

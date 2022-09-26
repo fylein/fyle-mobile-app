@@ -72,6 +72,10 @@ export class StatsComponent implements OnInit {
 
   isUnifyCCCExpensesSettings: boolean;
 
+  switchOrgLaunchTime: string;
+
+  dashboardLaunchTime: string;
+
   constructor(
     private dashboardService: DashboardService,
     private currencyService: CurrencyService,
@@ -250,9 +254,14 @@ export class StatsComponent implements OnInit {
 
         const measureLaunchTime = performance.getEntriesByName(PerfTrackers.dashboardLaunchTime);
 
+        const measureSwitchOrgTime = performance.getEntriesByName(PerfTrackers.switchOrgLaunchTime);
+        const switchOrglaunchTimeDuration = (measureSwitchOrgTime[0]?.duration / 1000)?.toFixed(3);
+        this.switchOrgLaunchTime = switchOrglaunchTimeDuration;
+
         // Converting the duration to seconds and fix it to 3 decimal places
         const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
         console.log('dashboard launch time', launchTimeDuration);
+        this.dashboardLaunchTime = launchTimeDuration;
         this.trackingService.dashboardLaunchTime({
           'Dashboard launch time': launchTimeDuration,
           oldBuild: true,
