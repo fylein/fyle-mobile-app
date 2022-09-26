@@ -345,7 +345,7 @@ export class TransactionsOutboxService {
     const fileObjPromiseArray = [];
     const reportId = entry.reportId;
 
-    if (!entry.receiptsData) {
+    if (!entry.receiptsData && !entry.fileUploadCompleted) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
           const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates);
@@ -369,6 +369,7 @@ export class TransactionsOutboxService {
           const comments = entry.comments;
           // adding created transaction id into entry object to get created transaction id when promise is resolved.
           entry.transaction.id = resp.id;
+          entry.fileUploadCompleted = true;
           if (comments && comments.length > 0) {
             comments.forEach((comment) => {
               that.statusService.post('transactions', resp.id, { comment }, true).subscribe(noop);
