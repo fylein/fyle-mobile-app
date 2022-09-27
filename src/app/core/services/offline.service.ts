@@ -20,7 +20,6 @@ import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
-import { TaxGroupService } from './tax-group.service';
 import { AccountType } from '../enums/account-type.enum';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
@@ -42,8 +41,7 @@ export class OfflineService {
     private storageService: StorageService,
     private permissionsService: PermissionsService,
     private orgUserService: OrgUserService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private taxGroupService: TaxGroupService
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   @CacheBuster({
@@ -67,23 +65,6 @@ export class OfflineService {
           );
         } else {
           return from(this.storageService.get('cachedOrgUserSettings'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getEnabledTaxGroups() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.taxGroupService.get().pipe(
-            tap((taxGroups) => {
-              this.storageService.set('cachedTaxGroups', taxGroups);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedTaxGroups'));
         }
       })
     );
@@ -351,7 +332,6 @@ export class OfflineService {
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
-    const taxGroups$ = this.getEnabledTaxGroups();
 
     return forkJoin([
       orgUserSettings$,
@@ -365,7 +345,6 @@ export class OfflineService {
       orgs$,
       accounts$,
       expenseFieldsMap$,
-      taxGroups$,
     ]);
   }
 
