@@ -24,6 +24,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 type ReceiptDetail = {
@@ -133,6 +134,7 @@ export class ExpensesCardComponent implements OnInit {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private trackingService: TrackingService,
+    private orgSettingsService: OrgSettingsService,
     private currencyService: CurrencyService,
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
@@ -277,7 +279,7 @@ export class ExpensesCardComponent implements OnInit {
 
   ngOnInit() {
     this.setupNetworkWatcher();
-    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
     this.isSycing$ = this.isConnected$.pipe(
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)

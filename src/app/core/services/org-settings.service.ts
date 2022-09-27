@@ -300,6 +300,7 @@ export class OrgSettingsService {
         enabled: incoming.sso_integration_settings && incoming.sso_integration_settings.enabled,
         idp_name: incoming.sso_integration_settings && incoming.sso_integration_settings.idp_name,
         meta_data_file_id: incoming.sso_integration_settings && incoming.sso_integration_settings.meta_data_file_id,
+        email_regex: incoming.sso_integration_settings && incoming.sso_integration_settings.email_regex,
       },
       advanced_access_delegation_settings: {
         allowed: incoming.advanced_access_delegation_settings && incoming.advanced_access_delegation_settings.allowed,
@@ -344,6 +345,10 @@ export class OrgSettingsService {
       unify_ccce_expenses_settings: {
         allowed: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.allowed,
         enabled: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.enabled,
+      },
+      ccc_draft_expense_settings: {
+        allowed: incoming.ccc_draft_expense_settings?.allowed,
+        enabled: incoming.ccc_draft_expense_settings?.enabled,
       },
     };
 
@@ -491,6 +496,7 @@ export class OrgSettingsService {
       recurrences_settings: outgoing.recurrences_settings,
       workflow_settings: outgoing.workflow_settings,
       unify_ccce_expenses_settings: outgoing.unify_ccce_expenses_settings,
+      ccc_draft_expense_settings: outgoing.ccc_draft_expense_settings,
     };
   }
 }

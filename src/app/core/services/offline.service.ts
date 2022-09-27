@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { NetworkService } from './network.service';
-import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { CategoriesService } from './categories.service';
 import { CostCentersService } from './cost-centers.service';
@@ -19,11 +18,8 @@ import { intersection } from 'lodash';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
-import { OrgUserSettings } from '../models/org_user_settings.model';
 import { TaxGroupService } from './tax-group.service';
 import { AccountType } from '../enums/account-type.enum';
-
-const orgUserSettingsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +27,6 @@ const orgUserSettingsCacheBuster$ = new Subject<void>();
 export class OfflineService {
   constructor(
     private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
     private categoriesService: CategoriesService,
     private costCentersService: CostCentersService,
@@ -45,23 +40,6 @@ export class OfflineService {
     private expenseFieldsService: ExpenseFieldsService,
     private taxGroupService: TaxGroupService
   ) {}
-
-  @Cacheable()
-  getOrgSettings() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgSettingsService.get().pipe(
-            tap((orgSettings) => {
-              this.storageService.set('cachedOrgSettings', orgSettings);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedOrgSettings'));
-        }
-      })
-    );
-  }
 
   @Cacheable()
   getOrgUserMileageSettings() {
@@ -336,7 +314,6 @@ export class OfflineService {
 
   load() {
     globalCacheBusterNotifier.next();
-    const orgSettings$ = this.getOrgSettings();
     const allCategories$ = this.getAllCategories();
     const allEnabledCategories$ = this.getAllEnabledCategories();
     const costCenters$ = this.getCostCenters();
@@ -350,7 +327,6 @@ export class OfflineService {
     const taxGroups$ = this.getEnabledTaxGroups();
 
     return forkJoin([
-      orgSettings$,
       allCategories$,
       allEnabledCategories$,
       costCenters$,
