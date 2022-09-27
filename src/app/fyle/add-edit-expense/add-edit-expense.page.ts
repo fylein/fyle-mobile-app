@@ -105,6 +105,7 @@ import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -388,6 +389,7 @@ export class AddEditExpensePage implements OnInit {
     private handleDuplicates: HandleDuplicatesService,
     private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
+    private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
@@ -2510,7 +2512,7 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings.enabled;
 
       if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
-        this.taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
+        this.taxGroups$ = this.taxGroupService.get().pipe(shareReplay(1));
         this.taxGroupsOptions$ = this.taxGroups$.pipe(
           map((taxGroupsOptions) => taxGroupsOptions?.map((tg) => ({ label: tg.name, value: tg })))
         );

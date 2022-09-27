@@ -17,6 +17,7 @@ import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model'
 import { FormControl } from '@angular/forms';
 import { DateService } from './date.service';
 import { AccountType } from '../enums/account-type.enum';
+import { TaxGroupService } from './tax-group.service';
 
 type Option = Partial<{
   label: string;
@@ -58,7 +59,8 @@ export class MergeExpensesService {
     private humanizeCurrency: HumanizeCurrencyPipe,
     private projectService: ProjectsService,
     private categoriesService: CategoriesService,
-    private dateService: DateService
+    private dateService: DateService,
+    private taxGroupService: TaxGroupService
   ) {}
 
   mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields: mergeFormValues): Observable<string> {
@@ -602,7 +604,7 @@ export class MergeExpensesService {
   }
 
   formatTaxGroupOption(option: Option): Observable<OptionsData> {
-    const taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
+    const taxGroups$ = this.taxGroupService.get().pipe(shareReplay(1));
     const taxGroupsOptions$ = taxGroups$.pipe(
       map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
     );
