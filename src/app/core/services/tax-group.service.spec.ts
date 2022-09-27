@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { TaxGroupService } from './tax-group.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
 
 const taxGroupPlatformResponse = {
   count: 2,
@@ -110,6 +111,7 @@ describe('TaxGroupService', () => {
     });
     taxGroupService = TestBed.inject(TaxGroupService);
     spenderPlatformApiService = TestBed.inject(SpenderPlatformApiService) as jasmine.SpyObj<SpenderPlatformApiService>;
+    globalCacheBusterNotifier.next();
   });
 
   it('should be created', () => {
