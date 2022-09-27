@@ -17,6 +17,7 @@ export class TaxGroupService {
     private spenderPlatformApiService: SpenderPlatformApiService
   ) {}
 
+  @Cacheable()
   get(): Observable<TaxGroup[]> {
     return this.getEnabledTaxGroupsCount().pipe(
       switchMap((count) => {
