@@ -25,7 +25,7 @@ import { PopupAlertComponentComponent } from './shared/components/popup-alert-co
 import { OfflineService } from './core/services/offline.service';
 import { PerfTrackers } from './core/models/perf-trackers.enum';
 import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
-import { Smartlook, SmartlookSetupConfig, SmartlookRenderingMode } from '@awesome-cordova-plugins/smartlook/ngx';
+import { Smartlook, SmartlookSetupConfigBuilder, SmartlookRenderingMode } from '@awesome-cordova-plugins/smartlook/ngx';
 
 @Component({
   selector: 'app-root',
@@ -134,8 +134,10 @@ export class AppComponent implements OnInit {
     });
 
     this.platform.ready().then(async () => {
-      this.smartlook.setupAndStartRecording(new SmartlookSetupConfig('5ff95a96c307f837166d53d2294198a912ab462d'));
-      this.smartlook.setRenderingMode(SmartlookRenderingMode.NATIVE());
+      const setupConfig = new SmartlookSetupConfigBuilder('5ff95a96c307f837166d53d2294198a912ab462d').renderingMode(
+        SmartlookRenderingMode.NATIVE()
+      );
+      this.smartlook.setupAndStartRecording(setupConfig.build());
       await StatusBar.setStyle({
         style: Style.Default,
       });
