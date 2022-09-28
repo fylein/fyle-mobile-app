@@ -22,6 +22,7 @@
           type="email"
           matInput
           placeholder="Work Email"
+          class="smartlook-show"
         />
       </mat-form-field>
       <div
@@ -62,7 +63,6 @@
           [type]="hide ? 'password': 'text'"
           matInput
           placeholder="Password"
-          class="smartlook-hide"
         />
         <mat-icon class="sign-in--password-visibility-icon" color="accent" matSuffix (click)="hide = !hide">
           {{hide ? 'visibility' : 'visibility_off'}}
