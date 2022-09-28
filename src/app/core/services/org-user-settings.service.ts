@@ -40,6 +40,23 @@ export class OrgUserSettingsService {
     return this.apiService.get('/org_user_settings/' + userSettingsId).pipe(map((res) => res as OrgUserSettings));
   }
 
+  @Cacheable()
+  getAllowedCostCenteres(orgUserSettings, filters = { isUserSpecific: false }) {
+    return this.costCentersService.getAllActive().pipe(
+      map((costCenters) => {
+        let allowedCostCenters = [];
+        if (orgUserSettings.cost_center_ids && orgUserSettings.cost_center_ids.length > 0) {
+          allowedCostCenters = costCenters.filter(
+            (costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1
+          );
+        } else if (!filters.isUserSpecific) {
+          allowedCostCenters = costCenters;
+        }
+        return allowedCostCenters;
+      })
+    );
+  }
+
   getOrgUserSettingsById(ouId: string) {
     return this.orgUserService.getUserById(ouId).pipe(switchMap((user) => this.getUserSettings(user.ou_settings_id)));
   }
@@ -218,23 +235,6 @@ export class OrgUserSettingsService {
       },
     };
     return featuresList;
-  }
-
-  @Cacheable()
-  getAllowedCostCenteres(orgUserSettings, filters = { isUserSpecific: false }) {
-    return this.costCentersService.getAllActive().pipe(
-      map((costCenters) => {
-        let allowedCostCenters = [];
-        if (orgUserSettings.cost_center_ids && orgUserSettings.cost_center_ids.length > 0) {
-          allowedCostCenters = costCenters.filter(
-            (costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1
-          );
-        } else if (!filters.isUserSpecific) {
-          allowedCostCenters = costCenters;
-        }
-        return allowedCostCenters;
-      })
-    );
   }
 
   getNotificationEvents() {
