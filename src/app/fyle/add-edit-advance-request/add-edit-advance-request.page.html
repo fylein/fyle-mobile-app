@@ -117,7 +117,7 @@
           Additional Notes
         </div>
         <input
-          class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input"
+          class="add-edit-advance-request--text-input add-edit-advance-request--additional-notes-input smartlook-show"
           formControlName="notes"
           placeholder="Enter Additional Notes"
         />
@@ -140,7 +140,7 @@
                     <span class="add-edit-advance-request--mandatory" *ngIf="customInput.mandatory">*</span>
                   </div>
                   <input
-                    class="add-edit-advance-request--text-input"
+                    class="add-edit-advance-request--text-input smartlook-show"
                     type="text"
                     formControlName="value"
                     *ngIf="customInput.type === 'TEXT'"
@@ -156,7 +156,7 @@
 
                   <input
                     appFormatDate
-                    class="add-edit-advance-request--date-input date-input__format"
+                    class="add-edit-advance-request--date-input date-input__format smartlook-show"
                     *ngIf="customInput.type === 'DATE'"
                     type="date"
                     formControlName="value"

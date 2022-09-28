@@ -201,7 +201,7 @@
                           (keydown)="$event.preventDefault()"
                           [max]="maxDate"
                           [min]="minDate"
-                          class="add-edit-mileage--date-input date-input__format"
+                          class="add-edit-mileage--date-input date-input__format smartlook-show"
                           [name]="txnFields?.txn_dt?.field_name"
                           formControlName="dateOfSpend"
                           type="date"
@@ -403,7 +403,7 @@
                         [placeholder]="txnFields.purpose?.placeholder || 'Enter '+ txnFields.purpose?.field_name | slice: 0:30"
                         [required]="txnFields.purpose?.is_mandatory"
                         [title]="'Enter'+txnFields.purpose?.field_name"
-                        class="add-edit-mileage--text-input"
+                        class="add-edit-mileage--text-input smartlook-show"
                         formControlName="purpose"
                       />
                     </div>
@@ -444,7 +444,7 @@
                         </div>
                         <input
                           *ngIf="customInput.type === 'TEXT'"
-                          class="add-edit-mileage--text-input"
+                          class="add-edit-mileage--text-input smartlook-show"
                           formControlName="value"
                           type="text"
                           [placeholder]="customInput.placeholder || 'Enter ' + customInput.name| ellipsis: 30"
@@ -459,7 +459,7 @@
                         <input
                           appFormatDate
                           *ngIf="customInput.type === 'DATE'"
-                          class="add-edit-mileage--date-input date-input__format"
+                          class="add-edit-mileage--date-input date-input__format smartlook-show"
                           formControlName="value"
                           type="date"
                           [name]="customInput.placeholder || customInput.name"
