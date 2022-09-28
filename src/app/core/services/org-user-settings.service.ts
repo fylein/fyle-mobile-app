@@ -220,6 +220,7 @@ export class OrgUserSettingsService {
     return featuresList;
   }
 
+  @Cacheable()
   getAllowedCostCenteres(orgUserSettings, filters = { isUserSpecific: false }) {
     return this.costCentersService.getAllActive().pipe(
       map((costCenters) => {
@@ -252,16 +253,5 @@ export class OrgUserSettingsService {
       });
     });
     return of(notificationEvents);
-  }
-
-  getDefaultCostCenter() {
-    return forkJoin([this.costCentersService.getAllActive(), this.get()]).pipe(
-      map((aggregatedResponse) => {
-        const [costCenters, settings] = aggregatedResponse;
-        const defaultCostCenterId =
-          settings.cost_center_settings && settings.cost_center_settings.default_cost_center_id;
-        return costCenters.find((costCenter) => costCenter.id === defaultCostCenterId);
-      })
-    );
   }
 }
