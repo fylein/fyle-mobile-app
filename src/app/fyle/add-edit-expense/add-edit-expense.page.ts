@@ -1056,7 +1056,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getActiveCategories() {
-    const allCategories$ = this.offlineService.getAllEnabledCategories();
+    const allCategories$ = this.categoriesService.getAll();
 
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
@@ -1133,7 +1133,7 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$,
-      categories: this.offlineService.getAllEnabledCategories(),
+      categories: this.categoriesService.getAll(),
       homeCurrency: this.homeCurrency$,
       accounts: accounts$,
       eou: eou$,
@@ -1825,7 +1825,7 @@ export class AddEditExpensePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
       etxn: this.etxn$,
-      categories: this.offlineService.getAllEnabledCategories(),
+      categories: this.categoriesService.getAll(),
     }).pipe(
       map(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn, categories }) => {
         const isAutofillsEnabled =
@@ -1886,7 +1886,7 @@ export class AddEditExpensePage implements OnInit {
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
-        categories: this.offlineService.getAllEnabledCategories(),
+        categories: this.categoriesService.getAll(),
       }).pipe(
         map(({ orgUserSettings, orgSettings, recentValues, recentCategories, etxn, categories }) => {
           const isAutofillsEnabled =
@@ -1907,7 +1907,7 @@ export class AddEditExpensePage implements OnInit {
               recentValue: recentValues,
               recentCategories,
               etxn,
-              category: categories,
+              category: categories[0],
             });
           } else {
             return null;
@@ -2283,7 +2283,7 @@ export class AddEditExpensePage implements OnInit {
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           return forkJoin({
-            allCategories: this.offlineService.getAllEnabledCategories(),
+            allCategories: this.categoriesService.getAll(),
           }).pipe(
             switchMap(({ allCategories }) => {
               if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
@@ -2487,7 +2487,7 @@ export class AddEditExpensePage implements OnInit {
 
     const orgSettings$ = this.orgSettingsService.get();
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    const allCategories$ = this.offlineService.getAllEnabledCategories();
+    const allCategories$ = this.categoriesService.getAll();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.offlineService.getAccounts();
 
@@ -2967,7 +2967,7 @@ export class AddEditExpensePage implements OnInit {
 
         policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
 
-        return this.offlineService.getAllEnabledCategories().pipe(
+        return this.categoriesService.getAll().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {

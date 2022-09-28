@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { NetworkService } from './network.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { CategoriesService } from './categories.service';
 import { CostCentersService } from './cost-centers.service';
 import { ProjectsService } from './projects.service';
 import { CustomInputsService } from './custom-inputs.service';
@@ -32,7 +31,6 @@ export class OfflineService {
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private categoriesService: CategoriesService,
     private costCentersService: CostCentersService,
     private projectsService: ProjectsService,
     private customInputsService: CustomInputsService,
@@ -101,30 +99,6 @@ export class OfflineService {
           return from(this.storageService.get('defaultCostCenter'));
         }
       })
-    );
-  }
-
-  @Cacheable()
-  getAllCategories() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.categoriesService.getAll().pipe(
-            tap((categories) => {
-              this.storageService.set('cachedCategories', categories);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedCategories'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getAllEnabledCategories() {
-    return this.getAllCategories().pipe(
-      map((categories) => categories.filter((category) => category.enabled === true))
     );
   }
 
@@ -322,8 +296,6 @@ export class OfflineService {
   load() {
     globalCacheBusterNotifier.next();
     const orgUserSettings$ = this.getOrgUserSettings();
-    const allCategories$ = this.getAllCategories();
-    const allEnabledCategories$ = this.getAllEnabledCategories();
     const costCenters$ = this.getCostCenters();
     const projects$ = this.getProjects();
     const customInputs$ = this.getCustomInputs();
@@ -335,8 +307,6 @@ export class OfflineService {
 
     return forkJoin([
       orgUserSettings$,
-      allCategories$,
-      allEnabledCategories$,
       costCenters$,
       projects$,
       customInputs$,
