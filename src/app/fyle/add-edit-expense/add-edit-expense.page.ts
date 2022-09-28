@@ -996,7 +996,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupBalanceFlag() {
-    const accounts$ = this.offlineService.getAccounts();
+    const accounts$ = this.accountsService.getEMyAccounts();
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
@@ -1017,7 +1017,7 @@ export class AddEditExpensePage implements OnInit {
 
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
-      accounts: this.offlineService.getAccounts(),
+      accounts: this.accountsService.getEMyAccounts(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
@@ -1127,7 +1127,7 @@ export class AddEditExpensePage implements OnInit {
 
   getNewExpenseObservable() {
     const orgSettings$ = this.orgSettingsService.get();
-    const accounts$ = this.offlineService.getAccounts();
+    const accounts$ = this.accountsService.getEMyAccounts();
     const eou$ = from(this.authService.getEou());
 
     return forkJoin({
@@ -2489,7 +2489,7 @@ export class AddEditExpensePage implements OnInit {
     this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const allCategories$ = this.offlineService.getAllEnabledCategories();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-    const accounts$ = this.offlineService.getAccounts();
+    const accounts$ = this.accountsService.getEMyAccounts();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(

@@ -129,23 +129,6 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getAccounts() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.accountsService.getEMyAccounts().pipe(
-            tap((accounts) => {
-              this.storageService.set('cachedPaymentModeAccounts', accounts);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedPaymentModeAccounts'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getCostCenters() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -330,7 +313,6 @@ export class OfflineService {
     const currentOrg$ = this.getCurrentOrg();
     const primaryOrg$ = this.getPrimaryOrg();
     const orgs$ = this.getOrgs();
-    const accounts$ = this.getAccounts();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
 
     return forkJoin([
@@ -343,7 +325,6 @@ export class OfflineService {
       currentOrg$,
       primaryOrg$,
       orgs$,
-      accounts$,
       expenseFieldsMap$,
     ]);
   }
