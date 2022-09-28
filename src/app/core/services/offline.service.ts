@@ -214,23 +214,6 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getPrimaryOrg() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgService.getPrimaryOrg().pipe(
-            tap((primaryOrg) => {
-              this.storageService.set('cachedPrimaryOrg', primaryOrg);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedPrimaryOrg'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getOrgs() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -328,7 +311,6 @@ export class OfflineService {
     const projects$ = this.getProjects();
     const customInputs$ = this.getCustomInputs();
     const currentOrg$ = this.getCurrentOrg();
-    const primaryOrg$ = this.getPrimaryOrg();
     const orgs$ = this.getOrgs();
     const accounts$ = this.getAccounts();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
@@ -341,7 +323,6 @@ export class OfflineService {
       projects$,
       customInputs$,
       currentOrg$,
-      primaryOrg$,
       orgs$,
       accounts$,
       expenseFieldsMap$,
