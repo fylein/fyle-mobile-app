@@ -14,7 +14,6 @@ import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { PermissionsService } from './permissions.service';
 import { Org } from '../models/org.model';
 import { Cacheable, CacheBuster, globalCacheBusterNotifier } from 'ts-cacheable';
-import { OrgUserService } from './org-user.service';
 import { intersection } from 'lodash';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
@@ -40,7 +39,6 @@ export class OfflineService {
     private accountsService: AccountsService,
     private storageService: StorageService,
     private permissionsService: PermissionsService,
-    private orgUserService: OrgUserService,
     private expenseFieldsService: ExpenseFieldsService
   ) {}
 
@@ -346,22 +344,6 @@ export class OfflineService {
       accounts$,
       expenseFieldsMap$,
     ]);
-  }
-
-  getCurrentUser() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgUserService.getCurrent().pipe(
-            tap((currentUser) => {
-              this.storageService.set('currentUser', currentUser);
-            })
-          );
-        } else {
-          return from(this.storageService.get('currentUser'));
-        }
-      })
-    );
   }
 
   private getReportPermissions(orgSettings) {

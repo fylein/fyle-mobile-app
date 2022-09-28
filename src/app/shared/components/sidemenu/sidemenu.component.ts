@@ -93,7 +93,7 @@ export class SidemenuComponent implements OnInit {
         allowedActions: allowedActions$,
         deviceInfo: deviceInfo$,
         isSwitchedToDelegator: isSwitchedToDelegator$,
-        eou: this.offlineService.getCurrentUser(),
+        eou: this.orgUserService.getCurrent(),
       }),
       this.isConnected$,
     ]).subscribe(
