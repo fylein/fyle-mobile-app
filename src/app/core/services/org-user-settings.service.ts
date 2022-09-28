@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { CostCentersService } from './cost-centers.service';
 import { map, switchMap } from 'rxjs/operators';
-import { forkJoin, Subject, of } from 'rxjs';
+import { forkJoin, Subject, of, Observable } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { OrgUserService } from './org-user.service';
+import { AccountType } from '../enums/account-type.enum';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -38,6 +39,11 @@ export class OrgUserSettingsService {
   })
   getUserSettings(userSettingsId: string) {
     return this.apiService.get('/org_user_settings/' + userSettingsId).pipe(map((res) => res as OrgUserSettings));
+  }
+
+  @Cacheable()
+  getAllowedPaymentModes(): Observable<AccountType[]> {
+    return this.get().pipe(map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes));
   }
 
   getOrgUserSettingsById(ouId: string) {

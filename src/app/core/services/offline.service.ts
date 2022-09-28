@@ -20,7 +20,6 @@ import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
-import { AccountType } from '../enums/account-type.enum';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -278,13 +277,6 @@ export class OfflineService {
           return from(this.storageService.get('cachedExpenseFieldsMap'));
         }
       })
-    );
-  }
-
-  @Cacheable()
-  getAllowedPaymentModes(): Observable<AccountType[]> {
-    return this.getOrgUserSettings().pipe(
-      map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes)
     );
   }
 
