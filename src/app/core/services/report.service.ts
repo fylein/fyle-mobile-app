@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { concatMap, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { catchError, concatMap, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { from, Observable, of, range, Subject, iif } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
@@ -19,6 +19,7 @@ import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-de
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { PermissionsService } from './permissions.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -39,7 +40,8 @@ export class ReportService {
     private userEventService: UserEventService,
     private spenderPlatformApiService: SpenderPlatformApiService,
     private datePipe: DatePipe,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private permissionsService: PermissionsService
   ) {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -242,6 +244,13 @@ export class ReportService {
           iif(() => isAutomateReportSubmissionEnabled, reportAutoSubmissionDetails$, of(null))
         )
       );
+  }
+
+  @Cacheable()
+  getReportPermissions(orgSettings) {
+    return this.permissionsService
+      .allowedActions('reports', ['approve', 'create', 'delete'], orgSettings)
+      .pipe(catchError((err) => []));
   }
 
   getAutoSubmissionReportName() {
