@@ -2495,6 +2495,20 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
+    this.taxGroups$ = orgSettings$.pipe(
+      switchMap((orgSettings) => {
+        if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
+          return this.taxGroupService.get().pipe(shareReplay(1));
+        } else {
+          return of(null);
+        }
+      })
+    );
+
+    this.taxGroupsOptions$ = this.taxGroups$.pipe(
+      map((taxGroupsOptions) => taxGroupsOptions?.map((tg) => ({ label: tg.name, value: tg })))
+    );
+
     orgSettings$.subscribe((orgSettings) => {
       this.isUnifyCcceExpensesSettingsEnabled =
         orgSettings.unify_ccce_expenses_settings &&
@@ -2508,16 +2522,6 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings &&
         orgSettings.ccc_draft_expense_settings.allowed &&
         orgSettings.ccc_draft_expense_settings.enabled;
-
-      if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
-        this.taxGroups$ = this.taxGroupService.get().pipe(shareReplay(1));
-        this.taxGroupsOptions$ = this.taxGroups$.pipe(
-          map((taxGroupsOptions) => taxGroupsOptions?.map((tg) => ({ label: tg.name, value: tg })))
-        );
-      } else {
-        this.taxGroups$ = of(null);
-        this.taxGroupsOptions$ = of(null);
-      }
     });
 
     this.setupNetworkWatcher();
