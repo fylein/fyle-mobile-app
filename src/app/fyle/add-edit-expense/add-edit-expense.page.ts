@@ -729,6 +729,8 @@ export class AddEditExpensePage implements OnInit {
         if (res) {
           this.trackingService.deleteExpense({ Type: 'Marked Personal' });
           return this.corporateCreditCardExpenseService.markPersonal(this.corporateCreditCardExpenseGroupId);
+        } else {
+          return of(null);
         }
       })
     );
@@ -740,6 +742,8 @@ export class AddEditExpensePage implements OnInit {
         if (res) {
           this.trackingService.deleteExpense({ Type: 'Dismiss as Card Payment' });
           return this.corporateCreditCardExpenseService.dismissCreditTransaction(corporateCreditCardExpenseId);
+        } else {
+          return of(null);
         }
       })
     );
