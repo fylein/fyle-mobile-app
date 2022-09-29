@@ -13,6 +13,7 @@ import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { Smartlook, SmartlookNavigationEvent } from '@awesome-cordova-plugins/smartlook/ngx';
 
 enum DashboardState {
   home,
@@ -54,7 +55,8 @@ export class DashboardPage implements OnInit {
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
     private tasksService: TasksService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private smartlook: Smartlook
   ) {}
 
   get displayedTaskCount() {
@@ -87,6 +89,7 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.smartlook.trackNavigationEvent(new SmartlookNavigationEvent('dashboard'));
     this.setupNetworkWatcher();
     this.taskCount = 0;
     const currentState =

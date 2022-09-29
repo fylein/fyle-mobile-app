@@ -105,6 +105,7 @@ import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
+import { Smartlook, SmartlookViewState, SmartlookNavigationEvent } from '@awesome-cordova-plugins/smartlook/ngx';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -388,7 +389,8 @@ export class AddEditExpensePage implements OnInit {
     private handleDuplicates: HandleDuplicatesService,
     private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
-    private taxGroupService: TaxGroupService
+    private taxGroupService: TaxGroupService,
+    private smartlook: Smartlook
   ) {}
 
   @HostListener('keydown')
@@ -2417,6 +2419,8 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.smartlook.trackNavigationEvent(new SmartlookNavigationEvent('add-edit-expense'));
+
     this.newExpenseDataUrls = [];
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
