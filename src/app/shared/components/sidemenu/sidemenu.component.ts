@@ -136,7 +136,7 @@ export class SidemenuComponent implements OnInit {
                 org_id: eou.ou.org_id,
                 org_user_id: eou.ou.id,
                 org_currency: currentOrg?.currency,
-                org_created_at: (currentOrg?.created_at).toString(),
+                org_created_at: currentOrg?.created_at?.toString(),
                 asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
               },
             });
