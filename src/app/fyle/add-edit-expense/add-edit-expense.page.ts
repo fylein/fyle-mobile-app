@@ -1022,7 +1022,7 @@ export class AddEditExpensePage implements OnInit {
       accounts: this.accountsService.getEMyAccounts(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
-      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
       isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
