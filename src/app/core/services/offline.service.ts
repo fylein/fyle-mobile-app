@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { NetworkService } from './network.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { CategoriesService } from './categories.service';
-import { CostCentersService } from './cost-centers.service';
 import { ProjectsService } from './projects.service';
 import { CustomInputsService } from './custom-inputs.service';
 import { OrgService } from './org.service';
@@ -31,8 +29,6 @@ export class OfflineService {
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private categoriesService: CategoriesService,
-    private costCentersService: CostCentersService,
     private projectsService: ProjectsService,
     private customInputsService: CustomInputsService,
     private orgService: OrgService,
@@ -64,98 +60,6 @@ export class OfflineService {
           );
         } else {
           return from(this.storageService.get('cachedOrgUserSettings'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getAllowedCostCenters(orgUserSettings) {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgUserSettingsService.getAllowedCostCenteres(orgUserSettings).pipe(
-            tap((allowedCostCenters) => {
-              this.storageService.set('allowedCostCenters', allowedCostCenters);
-            })
-          );
-        } else {
-          return from(this.storageService.get('allowedCostCenters'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getDefaultCostCenter() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgUserSettingsService.getDefaultCostCenter().pipe(
-            tap((defaultCostCenter) => {
-              this.storageService.set('defaultCostCenter', defaultCostCenter);
-            })
-          );
-        } else {
-          return from(this.storageService.get('defaultCostCenter'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getAllCategories() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.categoriesService.getAll().pipe(
-            tap((categories) => {
-              this.storageService.set('cachedCategories', categories);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedCategories'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getAllEnabledCategories() {
-    return this.getAllCategories().pipe(
-      map((categories) => categories.filter((category) => category.enabled === true))
-    );
-  }
-
-  @Cacheable()
-  getAccounts() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.accountsService.getEMyAccounts().pipe(
-            tap((accounts) => {
-              this.storageService.set('cachedPaymentModeAccounts', accounts);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedPaymentModeAccounts'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getCostCenters() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.costCentersService.getAllActive().pipe(
-            tap((costCenters) => {
-              this.storageService.set('cachedCostCenters', costCenters);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedCostCenters'));
         }
       })
     );
@@ -207,23 +111,6 @@ export class OfflineService {
           );
         } else {
           return from(this.storageService.get('cachedCurrentOrg'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getPrimaryOrg() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgService.getPrimaryOrg().pipe(
-            tap((primaryOrg) => {
-              this.storageService.set('cachedPrimaryOrg', primaryOrg);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedPrimaryOrg'));
         }
       })
     );
@@ -314,30 +201,13 @@ export class OfflineService {
   load() {
     globalCacheBusterNotifier.next();
     const orgUserSettings$ = this.getOrgUserSettings();
-    const allCategories$ = this.getAllCategories();
-    const allEnabledCategories$ = this.getAllEnabledCategories();
-    const costCenters$ = this.getCostCenters();
     const projects$ = this.getProjects();
     const customInputs$ = this.getCustomInputs();
     const currentOrg$ = this.getCurrentOrg();
-    const primaryOrg$ = this.getPrimaryOrg();
     const orgs$ = this.getOrgs();
-    const accounts$ = this.getAccounts();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
 
-    return forkJoin([
-      orgUserSettings$,
-      allCategories$,
-      allEnabledCategories$,
-      costCenters$,
-      projects$,
-      customInputs$,
-      currentOrg$,
-      primaryOrg$,
-      orgs$,
-      accounts$,
-      expenseFieldsMap$,
-    ]);
+    return forkJoin([orgUserSettings$, projects$, customInputs$, currentOrg$, orgs$, expenseFieldsMap$]);
   }
 
   getCurrentUser() {

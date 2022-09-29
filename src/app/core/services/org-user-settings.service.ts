@@ -46,13 +46,29 @@ export class OrgUserSettingsService {
     return this.get().pipe(map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes));
   }
 
+  getAllowedCostCenters(orgUserSettings, filters = { isUserSpecific: false }) {
+    return this.costCentersService.getAllActive().pipe(
+      map((costCenters) => {
+        let allowedCostCenters = [];
+        if (orgUserSettings.cost_center_ids && orgUserSettings.cost_center_ids.length > 0) {
+          allowedCostCenters = costCenters.filter(
+            (costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1
+          );
+        } else if (!filters.isUserSpecific) {
+          allowedCostCenters = costCenters;
+        }
+        return allowedCostCenters;
+      })
+    );
+  }
+
   getOrgUserSettingsById(ouId: string) {
     return this.orgUserService.getUserById(ouId).pipe(switchMap((user) => this.getUserSettings(user.ou_settings_id)));
   }
 
   getAllowedCostCentersByOuId(ouId: string) {
     return this.getOrgUserSettingsById(ouId).pipe(
-      switchMap((orgUserSettings) => this.getAllowedCostCenteres(orgUserSettings, { isUserSpecific: true }))
+      switchMap((orgUserSettings) => this.getAllowedCostCenters(orgUserSettings, { isUserSpecific: true }))
     );
   }
 
@@ -226,22 +242,6 @@ export class OrgUserSettingsService {
     return featuresList;
   }
 
-  getAllowedCostCenteres(orgUserSettings, filters = { isUserSpecific: false }) {
-    return this.costCentersService.getAllActive().pipe(
-      map((costCenters) => {
-        let allowedCostCenters = [];
-        if (orgUserSettings.cost_center_ids && orgUserSettings.cost_center_ids.length > 0) {
-          allowedCostCenters = costCenters.filter(
-            (costCenter) => orgUserSettings.cost_center_ids.indexOf(costCenter.id) > -1
-          );
-        } else if (!filters.isUserSpecific) {
-          allowedCostCenters = costCenters;
-        }
-        return allowedCostCenters;
-      })
-    );
-  }
-
   getNotificationEvents() {
     // TODO: convert this is rxjs
     const emailEvents = this.getEmailEvents();
@@ -258,16 +258,5 @@ export class OrgUserSettingsService {
       });
     });
     return of(notificationEvents);
-  }
-
-  getDefaultCostCenter() {
-    return forkJoin([this.costCentersService.getAllActive(), this.get()]).pipe(
-      map((aggregatedResponse) => {
-        const [costCenters, settings] = aggregatedResponse;
-        const defaultCostCenterId =
-          settings.cost_center_settings && settings.cost_center_settings.default_cost_center_id;
-        return costCenters.find((costCenter) => costCenter.id === defaultCostCenterId);
-      })
-    );
   }
 }
