@@ -112,7 +112,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       });
     }
     this.activeOrg$ = this.offlineService.getCurrentOrg();
-    this.primaryOrg$ = this.offlineService.getPrimaryOrg();
+    this.primaryOrg$ = this.orgService.getPrimaryOrg();
 
     const currentOrgs$ = forkJoin([this.orgs$, this.primaryOrg$, this.activeOrg$]).pipe(
       map(([orgs, primaryOrg, activeOrg]) => {
