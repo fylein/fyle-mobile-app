@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { NetworkService } from './network.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { CostCentersService } from './cost-centers.service';
 import { ProjectsService } from './projects.service';
 import { CustomInputsService } from './custom-inputs.service';
 import { OrgService } from './org.service';
@@ -31,7 +30,6 @@ export class OfflineService {
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private costCentersService: CostCentersService,
     private projectsService: ProjectsService,
     private customInputsService: CustomInputsService,
     private orgService: OrgService,
@@ -69,40 +67,6 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getAllowedCostCenters(orgUserSettings) {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgUserSettingsService.getAllowedCostCenteres(orgUserSettings).pipe(
-            tap((allowedCostCenters) => {
-              this.storageService.set('allowedCostCenters', allowedCostCenters);
-            })
-          );
-        } else {
-          return from(this.storageService.get('allowedCostCenters'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getDefaultCostCenter() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgUserSettingsService.getDefaultCostCenter().pipe(
-            tap((defaultCostCenter) => {
-              this.storageService.set('defaultCostCenter', defaultCostCenter);
-            })
-          );
-        } else {
-          return from(this.storageService.get('defaultCostCenter'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getAccounts() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -114,23 +78,6 @@ export class OfflineService {
           );
         } else {
           return from(this.storageService.get('cachedPaymentModeAccounts'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getCostCenters() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.costCentersService.getAllActive().pipe(
-            tap((costCenters) => {
-              this.storageService.set('cachedCostCenters', costCenters);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedCostCenters'));
         }
       })
     );
@@ -296,7 +243,6 @@ export class OfflineService {
   load() {
     globalCacheBusterNotifier.next();
     const orgUserSettings$ = this.getOrgUserSettings();
-    const costCenters$ = this.getCostCenters();
     const projects$ = this.getProjects();
     const customInputs$ = this.getCustomInputs();
     const currentOrg$ = this.getCurrentOrg();
@@ -307,7 +253,6 @@ export class OfflineService {
 
     return forkJoin([
       orgUserSettings$,
-      costCenters$,
       projects$,
       customInputs$,
       currentOrg$,
