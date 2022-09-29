@@ -65,6 +65,7 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -226,6 +227,7 @@ export class AddEditPerDiemPage implements OnInit {
     private paymentModesService: PaymentModesService,
     private perDiemService: PerDiemService,
     private orgSettingsService: OrgSettingsService,
+    private categoriesService: CategoriesService,
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
@@ -532,7 +534,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getSubCategories() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const parentCategoryName = 'per diem';
         return categories.filter(
@@ -546,11 +548,11 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getProjectCategoryIds() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const perDiemCategories = categories
           .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1)
-          .map((category) => category.id as string);
+          .map((category) => category.id.toString());
 
         return perDiemCategories;
       })
@@ -558,7 +560,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getPerDiemCategories() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const orgCategoryName = 'per diem';
         const defaultPerDiemCategory = categories.find(
@@ -657,8 +659,8 @@ export class AddEditPerDiemPage implements OnInit {
             switchMap((etxn) =>
               iif(
                 () => etxn.tx.org_category_id,
-                this.offlineService
-                  .getAllEnabledCategories()
+                this.categoriesService
+                  .getAll()
                   .pipe(map((categories) => categories.find((category) => category.id === etxn.tx.org_category_id))),
                 this.getPerDiemCategories().pipe(map((perDiemContainer) => perDiemContainer.defaultPerDiemCategory))
               )
@@ -1547,7 +1549,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         }
 
-        return this.offlineService.getAllEnabledCategories().pipe(
+        return this.categoriesService.getAll().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {

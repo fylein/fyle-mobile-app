@@ -461,7 +461,7 @@ export class SplitExpensePage implements OnInit {
   }
 
   getActiveCategories() {
-    const allCategories$ = this.offlineService.getAllEnabledCategories();
+    const allCategories$ = this.categoriesService.getAll();
 
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
