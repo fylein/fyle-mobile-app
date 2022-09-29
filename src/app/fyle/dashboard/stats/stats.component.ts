@@ -16,6 +16,7 @@ import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgService } from 'src/app/core/services/org.service';
 
 @Component({
   selector: 'app-stats',
@@ -70,7 +71,8 @@ export class StatsComponent implements OnInit {
     private networkService: NetworkService,
     private offlineService: OfflineService,
     private trackingService: TrackingService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private orgService: OrgService
   ) {}
 
   get ReportStates() {
@@ -203,7 +205,7 @@ export class StatsComponent implements OnInit {
       }
     });
 
-    this.offlineService.getOrgs().subscribe((orgs) => {
+    this.orgService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs?.length > 1;
 
       if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
