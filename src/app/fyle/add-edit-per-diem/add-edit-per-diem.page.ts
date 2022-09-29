@@ -64,6 +64,7 @@ import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -224,7 +225,8 @@ export class AddEditPerDiemPage implements OnInit {
     private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
     private perDiemService: PerDiemService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   get minPerDiemDate() {
@@ -928,7 +930,7 @@ export class AddEditPerDiemPage implements OnInit {
     }).pipe(
       switchMap(({ orgSettings, orgUserSettings }) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.offlineService.getAllowedCostCenters(orgUserSettings);
+          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
         } else {
           return of([]);
         }
