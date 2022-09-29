@@ -117,23 +117,6 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getOrgs() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgService.getOrgs().pipe(
-            tap((orgs) => {
-              this.storageService.set('cachedOrgs', orgs);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedOrgs')).pipe(map((data) => data as Org[]));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getAllEnabledExpenseFields(): Observable<ExpenseField[]> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -204,10 +187,9 @@ export class OfflineService {
     const projects$ = this.getProjects();
     const customInputs$ = this.getCustomInputs();
     const currentOrg$ = this.getCurrentOrg();
-    const orgs$ = this.getOrgs();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
 
-    return forkJoin([orgUserSettings$, projects$, customInputs$, currentOrg$, orgs$, expenseFieldsMap$]);
+    return forkJoin([orgUserSettings$, projects$, customInputs$, currentOrg$, expenseFieldsMap$]);
   }
 
   getCurrentUser() {
