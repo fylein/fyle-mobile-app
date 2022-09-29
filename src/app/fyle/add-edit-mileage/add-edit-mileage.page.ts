@@ -1054,7 +1054,7 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       switchMap(({ orgSettings, orgUserSettings }) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.orgUserSettingsService.getAllowedCostCenteres(orgUserSettings);
+          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
         } else {
           return of([]);
         }

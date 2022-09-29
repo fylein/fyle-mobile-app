@@ -41,7 +41,7 @@ export class OrgUserSettingsService {
   }
 
   @Cacheable()
-  getAllowedCostCenteres(orgUserSettings, filters = { isUserSpecific: false }) {
+  getAllowedCostCenters(orgUserSettings, filters = { isUserSpecific: false }) {
     return this.costCentersService.getAllActive().pipe(
       map((costCenters) => {
         let allowedCostCenters = [];
@@ -63,7 +63,7 @@ export class OrgUserSettingsService {
 
   getAllowedCostCentersByOuId(ouId: string) {
     return this.getOrgUserSettingsById(ouId).pipe(
-      switchMap((orgUserSettings) => this.getAllowedCostCenteres(orgUserSettings, { isUserSpecific: true }))
+      switchMap((orgUserSettings) => this.getAllowedCostCenters(orgUserSettings, { isUserSpecific: true }))
     );
   }
 
