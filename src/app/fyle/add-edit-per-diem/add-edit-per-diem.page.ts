@@ -503,7 +503,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
-      accounts: this.offlineService.getAccounts(),
+      accounts: this.accountsService.getEMyAccounts(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
       allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
@@ -1133,8 +1133,8 @@ export class AddEditPerDiemPage implements OnInit {
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
-          return this.offlineService
-            .getAccounts()
+          return this.accountsService
+            .getEMyAccounts()
             .pipe(
               map(
                 (accounts) =>
