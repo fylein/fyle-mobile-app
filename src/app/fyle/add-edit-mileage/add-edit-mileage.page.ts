@@ -65,6 +65,8 @@ import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -249,7 +251,9 @@ export class AddEditMileagePage implements OnInit {
     private paymentModesService: PaymentModesService,
     private currencyService: CurrencyService,
     private mileageRateService: MileageRatesService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private orgUserSettingsService: OrgUserSettingsService,
+    private categoriesService: CategoriesService
   ) {}
 
   get showSaveAndNext() {
@@ -419,11 +423,11 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getProjectCategoryIds(): Observable<string[]> {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const mileageCategories = categories
           .filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1)
-          .map((category) => category.id as string);
+          .map((category) => category.id.toString());
 
         return mileageCategories;
       })
@@ -431,7 +435,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getMileageCategories() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const orgCategoryName = 'mileage';
 
@@ -567,7 +571,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getSubCategories() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const parentCategoryName = 'mileage';
         return categories.filter(
@@ -591,8 +595,8 @@ export class AddEditMileagePage implements OnInit {
             switchMap((etxn) =>
               iif(
                 () => etxn.tx.org_category_id,
-                this.offlineService
-                  .getAllEnabledCategories()
+                this.categoriesService
+                  .getAll()
                   .pipe(
                     map((categories) =>
                       categories.find((innerCategory) => innerCategory.id === etxn.tx.org_category_id)
@@ -1052,7 +1056,7 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       switchMap(({ orgSettings, orgUserSettings }) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.offlineService.getAllowedCostCenters(orgUserSettings);
+          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
         } else {
           return of([]);
         }
@@ -1275,8 +1279,8 @@ export class AddEditMileagePage implements OnInit {
       switchMap((etxn) =>
         iif(
           () => etxn.tx.org_category_id,
-          this.offlineService
-            .getAllEnabledCategories()
+          this.categoriesService
+            .getAll()
             .pipe(
               map((subCategories) =>
                 subCategories
@@ -1842,7 +1846,7 @@ export class AddEditMileagePage implements OnInit {
           }
         }
 
-        return this.offlineService.getAllEnabledCategories().pipe(
+        return this.categoriesService.getAll().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {

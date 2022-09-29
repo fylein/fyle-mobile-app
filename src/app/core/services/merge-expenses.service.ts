@@ -618,7 +618,7 @@ export class MergeExpensesService {
   }
 
   formatCategoryOption(option: Option): Observable<Option> {
-    const allCategories$ = this.offlineService.getAllEnabledCategories();
+    const allCategories$ = this.categoriesService.getAll();
 
     return allCategories$.pipe(
       map((catogories) => this.categoriesService.filterRequired(catogories)),
@@ -686,9 +686,9 @@ export class MergeExpensesService {
   }
 
   getCategoryName(categoryId: string): Observable<string> {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const category = categories.find((category) => category.id === categoryId);
+        const category = categories.find((category) => category.id.toString() === categoryId);
         return category?.name;
       })
     );
