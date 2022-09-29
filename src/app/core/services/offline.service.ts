@@ -9,7 +9,6 @@ import { AccountsService } from './accounts.service';
 import { StorageService } from './storage.service';
 import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
-import { PermissionsService } from './permissions.service';
 import { Org } from '../models/org.model';
 import { Cacheable, CacheBuster, globalCacheBusterNotifier } from 'ts-cacheable';
 import { OrgUserService } from './org-user.service';
@@ -34,7 +33,6 @@ export class OfflineService {
     private orgService: OrgService,
     private accountsService: AccountsService,
     private storageService: StorageService,
-    private permissionsService: PermissionsService,
     private orgUserService: OrgUserService,
     private expenseFieldsService: ExpenseFieldsService
   ) {}
@@ -150,22 +148,6 @@ export class OfflineService {
     );
   }
 
-  getReportActions(orgSettings) {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.getReportPermissions(orgSettings).pipe(
-            tap((allowedActions) => {
-              this.storageService.set('cachedReportActions', allowedActions);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedReportActions'));
-        }
-      })
-    );
-  }
-
   getProjectCount(params: { categoryIds: string[] } = { categoryIds: [] }) {
     return this.getProjects().pipe(
       map((projects) => {
@@ -206,11 +188,5 @@ export class OfflineService {
         }
       })
     );
-  }
-
-  private getReportPermissions(orgSettings) {
-    return this.permissionsService
-      .allowedActions('reports', ['approve', 'create', 'delete'], orgSettings)
-      .pipe(catchError((err) => []));
   }
 }
