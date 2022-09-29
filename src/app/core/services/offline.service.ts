@@ -37,6 +37,23 @@ export class OfflineService {
     private expenseFieldsService: ExpenseFieldsService
   ) {}
 
+  @Cacheable()
+  getOrgSettings() {
+    return this.networkService.isOnline().pipe(
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.orgSettingsService.get().pipe(
+            tap((orgSettings) => {
+              this.storageService.set('cachedOrgSettings', orgSettings);
+            })
+          );
+        } else {
+          return from(this.storageService.get('cachedOrgSettings'));
+        }
+      })
+    );
+  }
+
   @CacheBuster({
     cacheBusterNotifier: orgUserSettingsCacheBuster$,
   })
@@ -165,13 +182,14 @@ export class OfflineService {
 
   load() {
     globalCacheBusterNotifier.next();
+    const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const projects$ = this.getProjects();
     const customInputs$ = this.getCustomInputs();
     const currentOrg$ = this.getCurrentOrg();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
 
-    return forkJoin([orgUserSettings$, projects$, customInputs$, currentOrg$, expenseFieldsMap$]);
+    return forkJoin([orgSettings$, orgUserSettings$, projects$, customInputs$, currentOrg$, expenseFieldsMap$]);
   }
 
   getCurrentUser() {
