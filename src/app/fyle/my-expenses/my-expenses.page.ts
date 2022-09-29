@@ -52,7 +52,6 @@ import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assig
 import { MyExpensesService } from './my-expenses.service';
 import { Filters } from './my-expenses-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
@@ -192,7 +191,6 @@ export class MyExpensesPage implements OnInit {
     private tasksService: TasksService,
     private corporateCreditCardService: CorporateCreditCardExpenseService,
     private myExpensesService: MyExpensesService,
-    private orgSettingsService: OrgSettingsService,
     private currencyService: CurrencyService
   ) {}
 
@@ -430,10 +428,14 @@ export class MyExpensesPage implements OnInit {
       .getOrgUserSettings()
       .pipe(map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled));
 
-    this.isMileageEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage.enabled));
-    this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.per_diem.enabled));
+    this.isMileageEnabled$ = this.offlineService
+      .getOrgSettings()
+      .pipe(map((orgSettings) => orgSettings.mileage.enabled));
+    this.isPerDiemEnabled$ = this.offlineService
+      .getOrgSettings()
+      .pipe(map((orgSettings) => orgSettings.per_diem.enabled));
 
-    this.orgSettingsService.get().subscribe((orgSettings) => {
+    this.offlineService.getOrgSettings().subscribe((orgSettings) => {
       this.isUnifyCCCExpensesSettings =
         orgSettings.unify_ccce_expenses_settings &&
         orgSettings.unify_ccce_expenses_settings.allowed &&
@@ -446,8 +448,8 @@ export class MyExpensesPage implements OnInit {
       shareReplay(1)
     );
 
-    this.isUnifyCCCEnabled$ = this.orgSettingsService
-      .get()
+    this.isUnifyCCCEnabled$ = this.offlineService
+      .getOrgSettings()
       .pipe(
         map(
           (orgSettings) =>

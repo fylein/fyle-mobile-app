@@ -11,7 +11,6 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 type AmountDetails = {
   'Total Amount': number;
@@ -67,7 +66,7 @@ export class FyViewReportInfoComponent implements OnInit {
     public platform: Platform,
     private elementRef: ElementRef,
     private trackingService: TrackingService,
-    private orgSettingsService: OrgSettingsService,
+    private offlineService: OfflineService,
     private authService: AuthService
   ) {}
 
@@ -92,7 +91,7 @@ export class FyViewReportInfoComponent implements OnInit {
       }
     });
 
-    const orgSettings$ = this.orgSettingsService.get();
+    const orgSettings$ = this.offlineService.getOrgSettings();
     combineLatest([this.etxns$, this.erpt$, orgSettings$]).subscribe(([etxns, erpt, orgSettings]) => {
       const paymentModeWiseData: PaymentMode = this.transactionService.getPaymentModeWiseSummary(etxns);
       this.amountComponentWiseDetails = {

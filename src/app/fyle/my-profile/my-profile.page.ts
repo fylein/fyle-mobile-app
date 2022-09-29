@@ -17,7 +17,6 @@ import { environment } from 'src/environments/environment';
 import { Currency } from 'src/app/core/models/currency.model';
 import { Org } from 'src/app/core/models/org.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -70,8 +69,7 @@ export class MyProfilePage implements OnInit {
     private deviceService: DeviceService,
     private loaderService: LoaderService,
     private tokenService: TokenService,
-    private trackingService: TrackingService,
-    private orgSettingsService: OrgSettingsService
+    private trackingService: TrackingService
   ) {}
 
   signOut() {
@@ -131,7 +129,7 @@ export class MyProfilePage implements OnInit {
     this.eou$ = from(this.authService.getEou());
     const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
     this.org$ = this.offlineService.getCurrentOrg();
-    const orgSettings$ = this.orgSettingsService.get();
+    const orgSettings$ = this.offlineService.getOrgSettings();
 
     from(this.loaderService.showLoader())
       .pipe(
