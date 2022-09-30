@@ -20,7 +20,7 @@ import { StorageService } from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { PAGINATION_SIZE } from './constants';
-import { Smartlook, SmartlookSetupConfig } from '@awesome-cordova-plugins/smartlook/ngx';
+import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
