@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { SmartlookService } from './smartlook.service';
 
-describe('SmartlookService', () => {
+xdescribe('SmartlookService', () => {
   let service: SmartlookService;
 
   beforeEach(() => {
