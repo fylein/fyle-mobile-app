@@ -62,8 +62,9 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -224,7 +225,8 @@ export class AddEditPerDiemPage implements OnInit {
     private launchDarklyService: LaunchDarklyService,
     private paymentModesService: PaymentModesService,
     private perDiemService: PerDiemService,
-    private orgSettingsService: OrgSettingsService
+    private categoriesService: CategoriesService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   get minPerDiemDate() {
@@ -499,10 +501,10 @@ export class AddEditPerDiemPage implements OnInit {
 
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
-      accounts: this.offlineService.getAccounts(),
-      orgSettings: this.orgSettingsService.get(),
+      accounts: this.accountsService.getEMyAccounts(),
+      orgSettings: this.offlineService.getOrgSettings(),
       etxn: this.etxn$,
-      allowedPaymentModes: this.offlineService.getAllowedPaymentModes(),
+      allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
       isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
@@ -530,7 +532,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getSubCategories() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const parentCategoryName = 'per diem';
         return categories.filter(
@@ -544,11 +546,11 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getProjectCategoryIds() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const perDiemCategories = categories
           .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1)
-          .map((category) => category.id as string);
+          .map((category) => category.id.toString());
 
         return perDiemCategories;
       })
@@ -556,7 +558,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getPerDiemCategories() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const orgCategoryName = 'per diem';
         const defaultPerDiemCategory = categories.find(
@@ -655,8 +657,8 @@ export class AddEditPerDiemPage implements OnInit {
             switchMap((etxn) =>
               iif(
                 () => etxn.tx.org_category_id,
-                this.offlineService
-                  .getAllEnabledCategories()
+                this.categoriesService
+                  .getAll()
                   .pipe(map((categories) => categories.find((category) => category.id === etxn.tx.org_category_id))),
                 this.getPerDiemCategories().pipe(map((perDiemContainer) => perDiemContainer.defaultPerDiemCategory))
               )
@@ -781,7 +783,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.isExpandedView = this.mode !== 'add';
 
-    const orgSettings$ = this.orgSettingsService.get();
+    const orgSettings$ = this.offlineService.getOrgSettings();
     const perDiemRates$ = this.perDiemService.getRates();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
 
@@ -928,7 +930,7 @@ export class AddEditPerDiemPage implements OnInit {
     }).pipe(
       switchMap(({ orgSettings, orgUserSettings }) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.offlineService.getAllowedCostCenters(orgUserSettings);
+          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
         } else {
           return of([]);
         }
@@ -960,7 +962,7 @@ export class AddEditPerDiemPage implements OnInit {
         switchMap((txnFields) =>
           forkJoin({
             isConnected: this.isConnected$.pipe(take(1)),
-            orgSettings: this.orgSettingsService.get(),
+            orgSettings: this.offlineService.getOrgSettings(),
             costCenters: this.costCenters$,
             isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
             individualProjectIds: this.individualProjectIds$,
@@ -1129,8 +1131,8 @@ export class AddEditPerDiemPage implements OnInit {
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
         if (paymentMode?.acc?.type === AccountType.PERSONAL) {
-          return this.offlineService
-            .getAccounts()
+          return this.accountsService
+            .getEMyAccounts()
             .pipe(
               map(
                 (accounts) =>
@@ -1151,7 +1153,7 @@ export class AddEditPerDiemPage implements OnInit {
           return of(etxn.tx.project_id);
         } else {
           return forkJoin({
-            orgSettings: this.orgSettingsService.get(),
+            orgSettings: this.offlineService.getOrgSettings(),
             orgUserSettings: this.offlineService.getOrgUserSettings(),
           }).pipe(
             map(({ orgSettings, orgUserSettings }) => {
@@ -1249,7 +1251,7 @@ export class AddEditPerDiemPage implements OnInit {
           return of(etxn.tx.cost_center_id);
         } else {
           return forkJoin({
-            orgSettings: this.orgSettingsService.get(),
+            orgSettings: this.offlineService.getOrgSettings(),
             costCenters: this.costCenters$,
           }).pipe(
             map(({ orgSettings, costCenters }) => {
@@ -1545,7 +1547,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         }
 
-        return this.offlineService.getAllEnabledCategories().pipe(
+        return this.categoriesService.getAll().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {

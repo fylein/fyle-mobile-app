@@ -53,6 +53,7 @@ export class SetupAccountPage implements OnInit {
     private toastController: ToastController,
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,
+    private offlineService: OfflineService,
     private orgSettingsService: OrgSettingsService,
     private router: Router,
     private trackingService: TrackingService
@@ -100,7 +101,7 @@ export class SetupAccountPage implements OnInit {
 
   saveGuessedMileage() {
     return forkJoin({
-      orgSettings: this.orgSettingsService.get(),
+      orgSettings: this.offlineService.getOrgSettings(),
       org: this.org$,
     }).pipe(
       concatMap(({ orgSettings, org }) => {

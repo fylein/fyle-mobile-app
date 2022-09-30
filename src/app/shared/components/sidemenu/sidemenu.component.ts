@@ -15,6 +15,7 @@ import { Org } from 'src/app/core/models/org.model';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgService } from 'src/app/core/services/org.service';
 
 @Component({
   selector: 'app-sidemenu',
@@ -49,10 +50,10 @@ export class SidemenuComponent implements OnInit {
     private deviceService: DeviceService,
     private routerAuthService: RouterAuthService,
     private orgUserService: OrgUserService,
-    private orgSettingsService: OrgSettingsService,
     private networkService: NetworkService,
     private sidemenuService: SidemenuService,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private orgService: OrgService
   ) {}
 
   ngOnInit(): void {
@@ -72,9 +73,9 @@ export class SidemenuComponent implements OnInit {
     if (!isLoggedIn) {
       return 0;
     }
-    const orgs$ = this.offlineService.getOrgs();
+    const orgs$ = this.orgService.getOrgs();
     const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
-    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const delegatedAccounts$ = this.orgUserService
       .findDelegatedAccounts()
