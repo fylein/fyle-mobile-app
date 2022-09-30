@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { forkJoin, from } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { CurrencyService } from './currency.service';
 import { DeviceService } from './device.service';
@@ -24,10 +25,11 @@ export class SmartlookService {
   init() {
     forkJoin({
       homeCurrency: this.currencyService.getHomeCurrency(),
-      eou: this.authService.getEou(),
+      eou: from(this.authService.getEou()),
       deviceInfo: this.deviceService.getDeviceInfo(),
-    }).subscribe(({ homeCurrency, eou, deviceInfo }) => {
-      if (homeCurrency === 'USD') {
+    })
+      .pipe(filter(({ homeCurrency, eou }) => eou && !eou.us.email.includes('fyle') && homeCurrency === 'USD'))
+      .subscribe(({ eou, deviceInfo }) => {
         const setupConfig = new SmartlookSetupConfigBuilder(environment.SMARTLOOK_API_KEY);
         this.smartlook.setup(setupConfig.build());
 
@@ -45,7 +47,6 @@ export class SmartlookService {
           })
         );
         this.smartlook.startRecording();
-      }
-    });
+      });
   }
 }
