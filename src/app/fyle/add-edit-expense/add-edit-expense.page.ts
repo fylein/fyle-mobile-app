@@ -344,6 +344,8 @@ export class AddEditExpensePage implements OnInit {
 
   autoSubmissionReportName$: Observable<string>;
 
+  isIncompleteExpense = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2284,6 +2286,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
+          this.isIncompleteExpense = true;
           return forkJoin({
             allCategories: this.categoriesService.getAll(),
           }).pipe(
