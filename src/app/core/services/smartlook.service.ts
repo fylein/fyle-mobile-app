@@ -8,6 +8,7 @@ import {
   SmartlookSetupConfigBuilder,
   SmartlookUserIdentifier,
 } from '@awesome-cordova-plugins/smartlook/ngx';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +28,7 @@ export class SmartlookService {
       deviceInfo: this.deviceService.getDeviceInfo(),
     }).subscribe(({ homeCurrency, eou, deviceInfo }) => {
       if (homeCurrency === 'USD') {
-        const setupConfig = new SmartlookSetupConfigBuilder('5ff95a96c307f837166d53d2294198a912ab462d');
+        const setupConfig = new SmartlookSetupConfigBuilder(environment.SMARTLOOK_API_KEY);
         this.smartlook.setup(setupConfig.build());
 
         this.smartlook.setUserIdentifier(
