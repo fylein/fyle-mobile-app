@@ -38,6 +38,10 @@ export class SecureStorageService {
   }
 
   async clearAll() {
-    return await SecureStoragePlugin.clear();
+    try {
+      return await SecureStoragePlugin.clear();
+    } catch {
+      return null;
+    }
   }
 }
