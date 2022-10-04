@@ -425,7 +425,7 @@ export class AddEditMileagePage implements OnInit {
       map((categories) => {
         const mileageCategories = categories
           .filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1)
-          .map((category) => category.id.toString());
+          .map((category) => category?.id?.toString());
 
         return mileageCategories;
       })
