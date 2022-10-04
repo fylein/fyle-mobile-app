@@ -688,7 +688,7 @@ export class MergeExpensesService {
   getCategoryName(categoryId: string): Observable<string> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const category = categories.find((category) => category.id.toString() === categoryId);
+        const category = categories.find((category) => category?.id?.toString() === categoryId);
         return category?.name;
       })
     );
