@@ -74,7 +74,7 @@ export class SidemenuComponent implements OnInit {
       return 0;
     }
     const orgs$ = this.orgService.getOrgs();
-    const currentOrg$ = this.offlineService.getCurrentOrg().pipe(shareReplay(1));
+    const currentOrg$ = this.orgService.getCurrentOrg().pipe(shareReplay(1));
     const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const delegatedAccounts$ = this.orgUserService
@@ -135,7 +135,7 @@ export class SidemenuComponent implements OnInit {
                 org_id: eou.ou.org_id,
                 org_user_id: eou.ou.id,
                 org_currency: currentOrg?.currency,
-                org_created_at: currentOrg?.created_at,
+                org_created_at: currentOrg?.created_at?.toString(),
                 asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
               },
             });
