@@ -346,10 +346,6 @@ export class OrgSettingsService {
         allowed: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.allowed,
         enabled: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.enabled,
       },
-      ccc_draft_expense_settings: {
-        allowed: incoming.ccc_draft_expense_settings?.allowed,
-        enabled: incoming.ccc_draft_expense_settings?.enabled,
-      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
@@ -496,7 +492,6 @@ export class OrgSettingsService {
       recurrences_settings: outgoing.recurrences_settings,
       workflow_settings: outgoing.workflow_settings,
       unify_ccce_expenses_settings: outgoing.unify_ccce_expenses_settings,
-      ccc_draft_expense_settings: outgoing.ccc_draft_expense_settings,
     };
   }
 }

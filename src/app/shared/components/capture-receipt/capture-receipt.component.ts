@@ -15,6 +15,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgService } from 'src/app/core/services/org.service';
 
 type Image = Partial<{
   source: string;
@@ -64,7 +65,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private networkService: NetworkService,
     private currencyService: CurrencyService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private orgService: OrgService
   ) {}
 
   setupNetworkWatcher() {
@@ -269,7 +271,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          this.offlineService.getOrgs().subscribe((orgs) => {
+          this.orgService.getOrgs().subscribe((orgs) => {
             const isMultiOrg = orgs.length > 1;
 
             if (
