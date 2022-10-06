@@ -9,7 +9,6 @@ import { AccountsService } from './accounts.service';
 import { StorageService } from './storage.service';
 import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
-import { PermissionsService } from './permissions.service';
 import { Org } from '../models/org.model';
 import { Cacheable, CacheBuster, globalCacheBusterNotifier } from 'ts-cacheable';
 import { OrgUserService } from './org-user.service';
@@ -18,7 +17,6 @@ import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
-import { AccountType } from '../enums/account-type.enum';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
 
@@ -35,10 +33,26 @@ export class OfflineService {
     private orgService: OrgService,
     private accountsService: AccountsService,
     private storageService: StorageService,
-    private permissionsService: PermissionsService,
     private orgUserService: OrgUserService,
     private expenseFieldsService: ExpenseFieldsService
   ) {}
+
+  @Cacheable()
+  getOrgSettings() {
+    return this.networkService.isOnline().pipe(
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.orgSettingsService.get().pipe(
+            tap((orgSettings) => {
+              this.storageService.set('cachedOrgSettings', orgSettings);
+            })
+          );
+        } else {
+          return from(this.storageService.get('cachedOrgSettings'));
+        }
+      })
+    );
+  }
 
   @CacheBuster({
     cacheBusterNotifier: orgUserSettingsCacheBuster$,
@@ -101,40 +115,6 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getPrimaryOrg() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgService.getPrimaryOrg().pipe(
-            tap((primaryOrg) => {
-              this.storageService.set('cachedPrimaryOrg', primaryOrg);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedPrimaryOrg'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getOrgs() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgService.getOrgs().pipe(
-            tap((orgs) => {
-              this.storageService.set('cachedOrgs', orgs);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedOrgs')).pipe(map((data) => data as Org[]));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getAllEnabledExpenseFields(): Observable<ExpenseField[]> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -168,29 +148,6 @@ export class OfflineService {
     );
   }
 
-  @Cacheable()
-  getAllowedPaymentModes(): Observable<AccountType[]> {
-    return this.getOrgUserSettings().pipe(
-      map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes)
-    );
-  }
-
-  getReportActions(orgSettings) {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.getReportPermissions(orgSettings).pipe(
-            tap((allowedActions) => {
-              this.storageService.set('cachedReportActions', allowedActions);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedReportActions'));
-        }
-      })
-    );
-  }
-
   getProjectCount(params: { categoryIds: string[] } = { categoryIds: [] }) {
     return this.getProjects().pipe(
       map((projects) => {
@@ -208,14 +165,13 @@ export class OfflineService {
 
   load() {
     globalCacheBusterNotifier.next();
+    const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
     const projects$ = this.getProjects();
     const customInputs$ = this.getCustomInputs();
-    const primaryOrg$ = this.getPrimaryOrg();
-    const orgs$ = this.getOrgs();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
 
-    return forkJoin([orgUserSettings$, projects$, customInputs$, primaryOrg$, orgs$, expenseFieldsMap$]);
+    return forkJoin([orgUserSettings$, projects$, customInputs$, expenseFieldsMap$]);
   }
 
   getCurrentUser() {
@@ -232,11 +188,5 @@ export class OfflineService {
         }
       })
     );
-  }
-
-  private getReportPermissions(orgSettings) {
-    return this.permissionsService
-      .allowedActions('reports', ['approve', 'create', 'delete'], orgSettings)
-      .pipe(catchError((err) => []));
   }
 }

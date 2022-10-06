@@ -18,7 +18,6 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -57,8 +56,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     private offlineService: OfflineService,
     private authService: AuthService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService,
-    private orgSettingsService: OrgSettingsService
+    private utilityService: UtilityService
   ) {}
 
   ngOnInit() {}
@@ -79,7 +77,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       })
     );
 
-    return this.orgSettingsService.get().pipe(
+    return this.offlineService.getOrgSettings().pipe(
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,

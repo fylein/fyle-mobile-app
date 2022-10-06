@@ -24,7 +24,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
@@ -102,7 +101,6 @@ export class SplitExpensePage implements OnInit {
     private policyService: PolicyService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
@@ -469,7 +467,7 @@ export class SplitExpensePage implements OnInit {
   ionViewWillEnter() {
     this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
-      const orgSettings$ = this.orgSettingsService.get();
+      const orgSettings$ = this.offlineService.getOrgSettings();
       this.splitType = this.activatedRoute.snapshot.params.splitType;
       this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields);
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
@@ -483,7 +481,7 @@ export class SplitExpensePage implements OnInit {
       this.getCategoryList();
 
       if (this.splitType === 'cost centers') {
-        const orgSettings$ = this.orgSettingsService.get();
+        const orgSettings$ = this.offlineService.getOrgSettings();
         const orgUserSettings$ = this.offlineService.getOrgUserSettings();
         this.costCenters$ = forkJoin({
           orgSettings: orgSettings$,

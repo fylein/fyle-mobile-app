@@ -87,7 +87,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const that = this;
     that.searchInput = '';
     that.isLoading = true;
-    that.orgs$ = that.offlineService.getOrgs().pipe(shareReplay(1));
+    that.orgs$ = that.orgService.getOrgs().pipe(shareReplay(1));
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
     that.orgs$.subscribe((orgs) => {
@@ -112,7 +112,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       });
     }
     this.activeOrg$ = this.orgService.getCurrentOrg();
-    this.primaryOrg$ = this.offlineService.getPrimaryOrg();
+    this.primaryOrg$ = this.orgService.getPrimaryOrg();
 
     const currentOrgs$ = forkJoin([this.orgs$, this.primaryOrg$, this.activeOrg$]).pipe(
       map(([orgs, primaryOrg, activeOrg]) => {

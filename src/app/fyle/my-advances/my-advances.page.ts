@@ -34,7 +34,6 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -88,7 +87,6 @@ export class MyAdvancesPage implements AfterViewChecked {
     private titleCasePipe: TitleCasePipe,
     private trackingService: TrackingService,
     private tasksService: TasksService,
-    private orgSettingsService: OrgSettingsService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -178,7 +176,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     const sortResults = map((res: any[]) => res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)));
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
-      concatMap(() => this.orgSettingsService.get()),
+      concatMap(() => this.offlineService.getOrgSettings()),
       switchMap((orgSettings) =>
         combineLatest([
           iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),
