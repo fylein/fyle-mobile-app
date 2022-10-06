@@ -1488,8 +1488,8 @@ export class AddEditExpensePage implements OnInit {
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>
-        this.offlineService
-          .getCustomInputs()
+        this.customInputsService
+          .getAll(true)
           .pipe(
             map((customFields) =>
               this.customFieldsService.standardizeCustomFields(
@@ -1928,8 +1928,8 @@ export class AddEditExpensePage implements OnInit {
       ),
       switchMap((category) => {
         const formValue = this.fg.value;
-        return this.offlineService
-          .getCustomInputs()
+        return this.customInputsService
+          .getAll(true)
           .pipe(
             map((customFields) =>
               this.customFieldsService.standardizeCustomFields(
