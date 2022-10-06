@@ -7,12 +7,10 @@ import { CustomInputsService } from './custom-inputs.service';
 import { OrgService } from './org.service';
 import { AccountsService } from './accounts.service';
 import { StorageService } from './storage.service';
-import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
+import { switchMap, tap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
-import { Org } from '../models/org.model';
 import { Cacheable, CacheBuster, globalCacheBusterNotifier } from 'ts-cacheable';
 import { OrgUserService } from './org-user.service';
-import { intersection } from 'lodash';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
@@ -81,23 +79,6 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getProjects() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.projectsService.getAllActive().pipe(
-            tap((projects) => {
-              this.storageService.set('cachedProjects', projects);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedProjects'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getCustomInputs(): Observable<ExpenseField[]> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -148,30 +129,14 @@ export class OfflineService {
     );
   }
 
-  getProjectCount(params: { categoryIds: string[] } = { categoryIds: [] }) {
-    return this.getProjects().pipe(
-      map((projects) => {
-        const filterdProjects = projects.filter((project) => {
-          if (params.categoryIds.length) {
-            return intersection(params.categoryIds, project.org_category_ids).length > 0;
-          } else {
-            return true;
-          }
-        });
-        return filterdProjects.length;
-      })
-    );
-  }
-
   load() {
     globalCacheBusterNotifier.next();
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
-    const projects$ = this.getProjects();
     const customInputs$ = this.getCustomInputs();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
 
-    return forkJoin([orgUserSettings$, projects$, customInputs$, expenseFieldsMap$]);
+    return forkJoin([orgSettings$, orgUserSettings$, customInputs$, expenseFieldsMap$]);
   }
 
   getCurrentUser() {
