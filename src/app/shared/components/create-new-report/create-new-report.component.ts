@@ -10,6 +10,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-create-new-report',
@@ -45,7 +46,8 @@ export class CreateNewReportComponent implements OnInit {
     private reportService: ReportService,
     private trackingService: TrackingService,
     private refinerService: RefinerService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   getReportTitle() {
@@ -67,7 +69,7 @@ export class CreateNewReportComponent implements OnInit {
     this.submitReportLoader = false;
     this.saveDraftReportLoader = false;
     this.isSelectedAll = true;
-    this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
+    this.expenseFields$ = this.expenseFieldsService.getAllMap();
     this.selectedElements = this.selectedExpensesToReport;
     this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;

@@ -28,6 +28,7 @@ import { CustomField } from 'src/app/core/models/custom_field.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -124,7 +125,8 @@ export class ViewExpensePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private paymentModesService: PaymentModesService
+    private paymentModesService: PaymentModesService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   get ExpenseView() {
@@ -271,7 +273,7 @@ export class ViewExpensePage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(etxn.tx_currency, 'wide');
     });
 
-    forkJoin([this.offlineService.getExpenseFieldsMap(), this.etxn$.pipe(take(1))])
+    forkJoin([this.expenseFieldsService.getAllMap(), this.etxn$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, etxn]) => {
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
@@ -321,8 +323,8 @@ export class ViewExpensePage implements OnInit {
         this.orgSettings?.unify_ccce_expenses_settings?.enabled;
     });
 
-    this.offlineService
-      .getExpenseFieldsMap()
+    this.expenseFieldsService
+      .getAllMap()
       .pipe(
         map((expenseFieldsMap) => {
           this.merchantFieldName = expenseFieldsMap.vendor_id[0]?.field_name;

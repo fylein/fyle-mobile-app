@@ -1981,7 +1981,7 @@ export class AddEditExpensePage implements OnInit {
     const txnFieldsMap$ = this.fg.valueChanges.pipe(
       startWith({}),
       switchMap((formValue) =>
-        this.offlineService.getExpenseFieldsMap().pipe(
+        this.expenseFieldsService.getAllMap().pipe(
           switchMap((expenseFieldsMap) => {
             const fields = [
               'purpose',

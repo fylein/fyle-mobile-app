@@ -24,6 +24,7 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -96,7 +97,8 @@ export class ViewPerDiemPage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private paymentModesService: PaymentModesService
+    private paymentModesService: PaymentModesService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   get ExpenseView() {
@@ -174,7 +176,7 @@ export class ViewPerDiemPage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(extendedPerDiem.tx_currency, 'wide');
     });
 
-    forkJoin([this.offlineService.getExpenseFieldsMap(), this.extendedPerDiem$.pipe(take(1))])
+    forkJoin([this.expenseFieldsService.getAllMap(), this.extendedPerDiem$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, extendedPerDiem]) => {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
