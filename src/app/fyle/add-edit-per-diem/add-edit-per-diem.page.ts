@@ -674,8 +674,8 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       switchMap((category: any) => {
         const formValue = this.fg.value;
-        return this.offlineService
-          .getCustomInputs()
+        return this.customInputsService
+          .getAll(true)
           .pipe(
             map((customFields: any) =>
               this.customFieldsService.standardizeCustomFields(
@@ -1279,8 +1279,8 @@ export class AddEditPerDiemPage implements OnInit {
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>
-        this.offlineService
-          .getCustomInputs()
+        this.customInputsService
+          .getAll(true)
           .pipe(
             map((customFields) =>
               this.customFieldsService.standardizeCustomFields(

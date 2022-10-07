@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { NetworkService } from './network.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { CustomInputsService } from './custom-inputs.service';
 import { OrgService } from './org.service';
 import { AccountsService } from './accounts.service';
 import { StorageService } from './storage.service';
@@ -24,7 +23,6 @@ export class OfflineService {
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private customInputsService: CustomInputsService,
     private orgService: OrgService,
     private accountsService: AccountsService,
     private storageService: StorageService,
@@ -75,23 +73,6 @@ export class OfflineService {
   }
 
   @Cacheable()
-  getCustomInputs(): Observable<ExpenseField[]> {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.customInputsService.getAll(true).pipe(
-            tap((customInputs) => {
-              this.storageService.set('cachedCustomInputs', customInputs);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedCustomInputs'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
   getAllEnabledExpenseFields(): Observable<ExpenseField[]> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -129,9 +110,8 @@ export class OfflineService {
     globalCacheBusterNotifier.next();
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
-    const customInputs$ = this.getCustomInputs();
     const expenseFieldsMap$ = this.getExpenseFieldsMap();
 
-    return forkJoin([orgSettings$, orgUserSettings$, customInputs$, expenseFieldsMap$]);
+    return forkJoin([orgSettings$, orgUserSettings$, expenseFieldsMap$]);
   }
 }
