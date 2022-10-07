@@ -3850,7 +3850,8 @@ export class AddEditExpensePage implements OnInit {
         }
 
         // If category is auto-filled and there exists extracted category, priority is given to extracted category
-        if ((!this.fg.controls.category.value || this.presetCategoryId) && extractedData.category) {
+        const isExtractedCategoryValid = extractedData.category && extractedData.category !== 'Unspecified';
+        if ((!this.fg.controls.category.value || this.presetCategoryId) && isExtractedCategoryValid) {
           const categoryName = extractedData.category || 'Unspecified';
           const category = filteredCategories.find((orgCategory) => orgCategory.value.fyle_category === categoryName);
           this.fg.patchValue({
