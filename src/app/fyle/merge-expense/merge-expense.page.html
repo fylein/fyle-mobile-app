@@ -59,7 +59,7 @@
       </ng-container>
 
       <ng-template #categoryDependentFields>
-        <ng-container *ngIf="['Bus', 'Flight', 'Hotel', 'Train'].includes(selectedCategoryName)">
+        <ng-container *ngIf="['Bus', 'Flight', 'Airlines', 'Hotel', 'Lodging', 'Train'].includes(selectedCategoryName)">
           <ng-container *ngIf="categoryDependentFieldsOptions$|async as categoryDependentFieldsOptions">
             <app-category-dependent-fields-form
               formControlName="categoryDependent"

@@ -2132,7 +2132,9 @@ export class AddEditExpensePage implements OnInit {
                 if (
                   this.fg.value.category &&
                   this.fg.value.category.fyle_category &&
-                  ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
+                  ['Bus', 'Flight', 'Airlines', 'Hotel', 'Lodging', 'Train'].includes(
+                    this.fg.value.category.fyle_category
+                  ) &&
                   isConnected
                 ) {
                   control.setValidators(Validators.required);
