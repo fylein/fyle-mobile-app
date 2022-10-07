@@ -12,6 +12,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { SmartlookService } from 'src/app/core/services/smartlook.service';
 
 enum DashboardState {
   home,
@@ -52,7 +53,8 @@ export class DashboardPage implements OnInit {
     private router: Router,
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
-    private tasksService: TasksService
+    private tasksService: TasksService,
+    private smartlookService: SmartlookService
   ) {}
 
   get displayedTaskCount() {
@@ -86,6 +88,7 @@ export class DashboardPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+    this.smartlookService.init();
     this.taskCount = 0;
     const currentState =
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;

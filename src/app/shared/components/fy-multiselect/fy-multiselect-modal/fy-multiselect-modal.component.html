@@ -40,7 +40,7 @@
         <input
           #searchBar
           [(ngModel)]="value"
-          class="selection-modal--form-input"
+          class="selection-modal--form-input smartlook-show"
           [ngClass]="{ 'selection-modal--form-input__chips': currentSelections?.length > 0 }"
           [matChipInputFor]="chipList"
           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"

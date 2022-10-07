@@ -614,8 +614,8 @@ export class AddEditMileagePage implements OnInit {
       }),
       switchMap((category) => {
         const formValue = this.fg.value;
-        return this.offlineService
-          .getCustomInputs()
+        return this.customInputsService
+          .getAll(true)
           .pipe(
             map((customFields) =>
               this.customFieldsService.standardizeCustomFields(
@@ -965,7 +965,7 @@ export class AddEditMileagePage implements OnInit {
     this.setupFilteredCategories(this.subCategories$);
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.offlineService.getProjectCount({ categoryIds: projectCategoryIds }))
+      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds }))
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
@@ -1341,8 +1341,8 @@ export class AddEditMileagePage implements OnInit {
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>
-        this.offlineService
-          .getCustomInputs()
+        this.customInputsService
+          .getAll(true)
           .pipe(
             map((customFields) =>
               this.customFieldsService.standardizeCustomFields(

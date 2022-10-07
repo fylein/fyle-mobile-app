@@ -13,7 +13,13 @@
   <ion-toolbar class="text-center">
     <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
       <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
-      <input #searchBar class="selection-modal--search-input" matInput placeholder="Search" [(ngModel)]="value" />
+      <input
+        #searchBar
+        class="selection-modal--search-input smartlook-show"
+        matInput
+        placeholder="Search"
+        [(ngModel)]="value"
+      />
       <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
         <mat-icon>close</mat-icon>
       </button>

@@ -7,7 +7,15 @@
   <div class="share-report--details">Share report via email.</div>
   <div class="share-report--form">
     <mat-form-field appearance="outline" class="share-report--form-input mat-form-field-no-padding">
-      <input matInput type="email" placeholder="Enter email" [(ngModel)]="email" email #emailInput="ngModel" />
+      <input
+        class="smartlook-show"
+        matInput
+        type="email"
+        placeholder="Enter email"
+        [(ngModel)]="email"
+        email
+        #emailInput="ngModel"
+      />
     </mat-form-field>
   </div>
   <div class="share-report--validation" *ngIf="emailInput.touched && emailInput.invalid">

@@ -1,6 +1,6 @@
 <ng-container *ngIf="isIos && isKeyboardPluginEnabled; else inputWithoutPlugin">
   <input
-    class="fy-number--input"
+    class="fy-number--input smartlook-show"
     [min]="min"
     [disabled]="disabled"
     [formControl]="fc"
@@ -15,7 +15,7 @@
 
 <ng-template #inputWithoutPlugin>
   <input
-    class="fy-number--input"
+    class="fy-number--input smartlook-show"
     [min]="min"
     [disabled]="disabled"
     [formControl]="fc"

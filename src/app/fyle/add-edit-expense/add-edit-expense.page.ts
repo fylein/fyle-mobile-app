@@ -344,6 +344,8 @@ export class AddEditExpensePage implements OnInit {
 
   autoSubmissionReportName$: Observable<string>;
 
+  isIncompleteExpense = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -352,7 +354,7 @@ export class AddEditExpensePage implements OnInit {
     private formBuilder: FormBuilder,
     private categoriesService: CategoriesService,
     private dateService: DateService,
-    private projectService: ProjectsService,
+    private projectsService: ProjectsService,
     private reportService: ReportService,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
@@ -874,7 +876,7 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       orgSettings$: this.offlineService.getOrgSettings(),
       costCenters: this.costCenters$,
-      projects: this.offlineService.getProjects(),
+      projects: this.projectsService.getAllActive(),
       txnFields: this.txnFields$.pipe(take(1)),
     }).subscribe(async (res) => {
       const orgSettings = res.orgSettings$;
@@ -1344,7 +1346,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectService.getbyId(projectId);
+          return this.projectsService.getbyId(projectId);
         } else {
           return of(null);
         }
@@ -1488,8 +1490,8 @@ export class AddEditExpensePage implements OnInit {
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>
-        this.offlineService
-          .getCustomInputs()
+        this.customInputsService
+          .getAll(true)
           .pipe(
             map((customFields) =>
               this.customFieldsService.standardizeCustomFields(
@@ -1928,8 +1930,8 @@ export class AddEditExpensePage implements OnInit {
       ),
       switchMap((category) => {
         const formValue = this.fg.value;
-        return this.offlineService
-          .getCustomInputs()
+        return this.customInputsService
+          .getAll(true)
           .pipe(
             map((customFields) =>
               this.customFieldsService.standardizeCustomFields(
@@ -2242,7 +2244,7 @@ export class AddEditExpensePage implements OnInit {
     this.filteredCategories$ = this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
-          return this.projectService.getbyId(etxn.tx.project_id);
+          return this.projectsService.getbyId(etxn.tx.project_id);
         } else {
           return of(null);
         }
@@ -2259,7 +2261,7 @@ export class AddEditExpensePage implements OnInit {
           startWith(initialProject),
           concatMap((project) =>
             activeCategories$.pipe(
-              map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
+              map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
             )
           ),
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
@@ -2284,6 +2286,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
+          this.isIncompleteExpense = true;
           return forkJoin({
             allCategories: this.categoriesService.getAll(),
           }).pipe(
@@ -2554,7 +2557,7 @@ export class AddEditExpensePage implements OnInit {
     this.isProjectsVisible$ = forkJoin({
       individualProjectIds: this.individualProjectIds$,
       isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-      projectsCount: this.offlineService.getProjectCount(),
+      projectsCount: this.projectsService.getProjectCount(),
     }).pipe(
       map(({ individualProjectIds, isIndividualProjectsEnabled, projectsCount }) => {
         if (!isIndividualProjectsEnabled) {
@@ -3847,7 +3850,8 @@ export class AddEditExpensePage implements OnInit {
         }
 
         // If category is auto-filled and there exists extracted category, priority is given to extracted category
-        if ((!this.fg.controls.category.value || this.presetCategoryId) && extractedData.category) {
+        const isExtractedCategoryValid = extractedData.category && extractedData.category !== 'Unspecified';
+        if ((!this.fg.controls.category.value || this.presetCategoryId) && isExtractedCategoryValid) {
           const categoryName = extractedData.category || 'Unspecified';
           const category = filteredCategories.find((orgCategory) => orgCategory.value.fyle_category === categoryName);
           this.fg.patchValue({
