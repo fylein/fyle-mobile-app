@@ -76,7 +76,7 @@
     "jetifier": "^2.0.0",
     "launchdarkly-js-client-sdk": "^2.22.1",
     "lodash": "^4.17.21",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "ng2-pdf-viewer": "^9.0.0",
     "ngx-image-cropper": "^6.1.0",
     "ngx-pinch-zoom": "^2.6.2",
