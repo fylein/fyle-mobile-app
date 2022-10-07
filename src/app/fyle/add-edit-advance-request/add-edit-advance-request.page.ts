@@ -28,6 +28,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -96,7 +97,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private currencyService: CurrencyService,
     private networkService: NetworkService,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   @HostListener('keydown')
@@ -136,7 +138,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       };
     }
 
-    this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
+    this.expenseFields$ = this.expenseFieldsService.getAllMap();
   }
 
   goBack() {

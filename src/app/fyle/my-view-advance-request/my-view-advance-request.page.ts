@@ -19,8 +19,8 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { getCurrencySymbol } from '@angular/common';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -59,7 +59,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private offlineService: OfflineService,
+    private expenseFieldsService: ExpenseFieldsService,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
@@ -102,7 +102,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
   // TODO - replace forEach with find
   getAndUpdateProjectName() {
-    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+    this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       expenseFields.forEach((expenseField) => {
         if (expenseField.column_name === 'project_id') {
           this.projectFieldName = expenseField.field_name;

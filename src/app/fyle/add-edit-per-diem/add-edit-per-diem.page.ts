@@ -420,7 +420,7 @@ export class AddEditPerDiemPage implements OnInit {
       startWith({}),
       switchMap((formValue) =>
         forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+          expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories(),
         }).pipe(
           switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {
@@ -453,7 +453,7 @@ export class AddEditPerDiemPage implements OnInit {
       startWith({}),
       switchMap((formValue) =>
         forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+          expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories(),
         }).pipe(
           switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {

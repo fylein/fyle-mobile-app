@@ -456,7 +456,7 @@ export class AddEditMileagePage implements OnInit {
       startWith({}),
       switchMap((formValue) =>
         forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+          expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           mileageCategoriesContainer: this.getMileageCategories(),
         }).pipe(
           switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
@@ -491,7 +491,7 @@ export class AddEditMileagePage implements OnInit {
       startWith({}),
       switchMap((formValue) =>
         forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+          expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           mileageCategoriesContainer: this.getMileageCategories(),
         }).pipe(
           switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {

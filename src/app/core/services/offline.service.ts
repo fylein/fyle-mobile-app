@@ -2,15 +2,10 @@ import { Injectable } from '@angular/core';
 import { NetworkService } from './network.service';
 import { OrgSettingsService } from './org-settings.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { OrgService } from './org.service';
-import { AccountsService } from './accounts.service';
 import { StorageService } from './storage.service';
 import { switchMap, tap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 import { Cacheable, CacheBuster, globalCacheBusterNotifier } from 'ts-cacheable';
-import { ExpenseFieldsService } from './expense-fields.service';
-import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
-import { ExpenseField } from '../models/v1/expense-field.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 
 const orgUserSettingsCacheBuster$ = new Subject<void>();
@@ -23,13 +18,9 @@ export class OfflineService {
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private orgService: OrgService,
-    private accountsService: AccountsService,
-    private storageService: StorageService,
-    private expenseFieldsService: ExpenseFieldsService
+    private storageService: StorageService
   ) {}
 
-  @Cacheable()
   getOrgSettings() {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -72,46 +63,11 @@ export class OfflineService {
     );
   }
 
-  @Cacheable()
-  getAllEnabledExpenseFields(): Observable<ExpenseField[]> {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.expenseFieldsService.getAllEnabled().pipe(
-            tap((allExpenseFields) => {
-              this.storageService.set('cachedAllExpenseFields', allExpenseFields);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedAllExpenseFields'));
-        }
-      })
-    );
-  }
-
-  @Cacheable()
-  getExpenseFieldsMap(): Observable<Partial<ExpenseFieldsMap>> {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.expenseFieldsService.getAllMap().pipe(
-            tap((expenseFieldMap) => {
-              this.storageService.set('cachedExpenseFieldsMap', expenseFieldMap);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedExpenseFieldsMap'));
-        }
-      })
-    );
-  }
-
   load() {
     globalCacheBusterNotifier.next();
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
-    const expenseFieldsMap$ = this.getExpenseFieldsMap();
 
-    return forkJoin([orgSettings$, orgUserSettings$, expenseFieldsMap$]);
+    return forkJoin([orgSettings$, orgUserSettings$]);
   }
 }
