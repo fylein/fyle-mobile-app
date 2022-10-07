@@ -5,7 +5,12 @@
         Currency
         <span class="fy-currency--mandatory"> * </span>
       </div>
-      <input class="fy-currency--input" (click)="openCurrencyModal()" formControlName="currency" (blur)="onBlur()" />
+      <input
+        class="fy-currency--input smartlook-show"
+        (click)="openCurrencyModal()"
+        formControlName="currency"
+        (blur)="onBlur()"
+      />
     </div>
     <div class="fy-currency--input-container fy-currency--amount-block" [ngClass]="{ 'fy-currency__invalid': !valid }">
       <div class="fy-currency--label">
