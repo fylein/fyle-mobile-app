@@ -6,6 +6,7 @@ import { DataTransformService } from './data-transform.service';
 import { Cacheable } from 'ts-cacheable';
 import { Observable } from 'rxjs';
 import { ExtendedProject } from '../models/v2/extended-project.model';
+import { intersection } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
@@ -65,6 +66,22 @@ export class ProjectsService {
           }))
         )
       );
+  }
+
+  @Cacheable()
+  getProjectCount(params: { categoryIds: string[] } = { categoryIds: [] }) {
+    return this.getAllActive().pipe(
+      map((projects) => {
+        const filterdProjects = projects.filter((project) => {
+          if (params.categoryIds.length) {
+            return intersection(params.categoryIds, project.org_category_ids).length > 0;
+          } else {
+            return true;
+          }
+        });
+        return filterdProjects.length;
+      })
+    );
   }
 
   addNameSearchFilter(searchNameText: any, params: any) {

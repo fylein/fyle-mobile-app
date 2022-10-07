@@ -89,7 +89,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private modalController: ModalController,
     private statusService: StatusService,
     private loaderService: LoaderService,
-    private projectService: ProjectsService,
+    private projectsService: ProjectsService,
     private popoverController: PopoverController,
     private transactionsOutboxService: TransactionsOutboxService,
     private fileService: FileService,
@@ -564,7 +564,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
         if (res.areq.project_id) {
           const projectId = res.areq.project_id;
-          this.projectService.getbyId(projectId).subscribe((selectedProject) => {
+          this.projectsService.getbyId(projectId).subscribe((selectedProject) => {
             this.fg.patchValue({
               project: selectedProject,
             });
@@ -608,7 +608,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
     );
-    this.projects$ = this.offlineService.getProjects();
+    this.projects$ = this.projectsService.getAllActive();
 
     this.isProjectsVisible$ = this.offlineService.getOrgSettings().pipe(
       switchMap((orgSettings) =>
