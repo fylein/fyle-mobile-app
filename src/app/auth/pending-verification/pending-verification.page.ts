@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { throwError } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
+import { tap } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
 
@@ -35,21 +34,18 @@ export class PendingVerificationPage implements OnInit {
 
     this.routerAuthService
       .resendVerificationLink(email)
-      .pipe(
-        finalize(async () => {
-          this.isLoading = false;
-        }),
-        catchError((err) => {
-          if (err.status === 422) {
-            this.router.navigate(['/', 'auth', 'disabled']);
-          } else {
-            this.currentPageState = PageState.failure;
-          }
-          return throwError(err);
-        })
-      )
-      .subscribe(() => {
-        this.currentPageState = PageState.success;
+      .pipe(tap(() => (this.isLoading = false)))
+      .subscribe({
+        next: () => (this.currentPageState = PageState.success),
+        error: (err) => this.handleError(err),
       });
+  }
+
+  handleError(err: any) {
+    if (err.status === 422) {
+      this.router.navigate(['/', 'auth', 'disabled']);
+    } else {
+      this.currentPageState = PageState.failure;
+    }
   }
 }

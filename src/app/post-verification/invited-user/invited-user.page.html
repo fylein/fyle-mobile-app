@@ -13,7 +13,7 @@
           Full Name
         </div>
         <mat-form-field class="mat-form-field-no-padding invited-user--form-field" appearance="outline">
-          <input formControlName="fullName" type="text" matInput placeholder="John Doe" />
+          <input class="smartlook-show" formControlName="fullName" type="text" matInput placeholder="John Doe" />
         </mat-form-field>
         <div
           [ngClass]="{'invited-user--form-label__invalid': (!fg.controls.password.valid && fg.controls.password.touched) }"
@@ -28,6 +28,7 @@
             matInput
             [type]="hide ? 'text': 'password'"
             placeholder="minimum 12 chars"
+            class="smartlook-show"
           />
           <div class="invited-user--password-visibility" matSuffix (click)="hide = !hide">
             {{hide ? 'Hide' : 'Show'}}

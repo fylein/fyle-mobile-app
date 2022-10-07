@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { catchError, switchMap, tap } from 'rxjs/operators';
+import { switchMap, tap, catchError } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { throwError } from 'rxjs';
 import { TrackingService } from '../../core/services/tracking.service';
+import { throwError } from 'rxjs';
 
 enum VerifyPageState {
   verifying,
@@ -52,8 +52,9 @@ export class VerifyPage implements OnInit {
           return throwError(err);
         })
       )
-      .subscribe(() => {
-        this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]);
+      .subscribe({
+        next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),
+        error: () => (this.currentPageState = VerifyPageState.error),
       });
   }
 }

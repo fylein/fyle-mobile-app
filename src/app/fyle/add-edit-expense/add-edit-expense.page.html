@@ -26,7 +26,7 @@
           </div>
         </ng-container>
         <ng-template #editMode>
-          <div>Edit Expense</div>
+          <div>{{isIncompleteExpense ? 'Review' : 'Edit'}} Expense</div>
         </ng-template>
       </div>
     </ion-title>
@@ -70,6 +70,10 @@
   <ng-container *ngIf="fg">
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
+        <div *ngIf="isIncompleteExpense" class="add-edit-expense--alert-offline">
+          <app-fy-alert-info message="Please save the expense after reviewing it." type="warning"></app-fy-alert-info>
+        </div>
+
         <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
           <app-fy-alert-info
             [message]="'This expense might be a duplicate of an existing expense.'"
@@ -264,7 +268,7 @@
                       [max]="maxDate"
                       [min]="minDate"
                       [placeholder]="txnFields.txn_dt?.placeholder || 'Date of Spend'"
-                      class="add-edit-expense--date-input date-input__format"
+                      class="add-edit-expense--date-input date-input__format smartlook-show"
                       formControlName="dateOfSpend"
                       type="date"
                       [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
@@ -585,7 +589,7 @@
                         <input
                           appFormatDate
                           [disabled]="!txnFields.from_dt?.canEdit"
-                          class="add-edit-expense--date-input date-input__format"
+                          class="add-edit-expense--date-input date-input__format smartlook-show"
                           formControlName="from_dt"
                           [name]="txnFields.from_dt?.field_name"
                           type="date"
@@ -610,7 +614,7 @@
                         <input
                           appFormatDate
                           [disabled]="!txnFields.to_dt?.canEdit"
-                          class="add-edit-expense--date-input date-input__format"
+                          class="add-edit-expense--date-input date-input__format smartlook-show"
                           formControlName="to_dt"
                           [name]="txnFields.to_dt?.field_name"
                           type="date"
@@ -685,7 +689,7 @@
                       (focus)="focusState = true"
                       [disabled]="!txnFields.train_travel_class?.canEdit"
                       [placeholder]="txnFields.train_travel_class.placeholder || 'Enter ' + txnFields.train_travel_class.field_name"
-                      class="add-edit-expense--text-input add-edit-expense--text-input__large"
+                      class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
                       formControlName="train_travel_class"
                       type="text"
                     />
@@ -722,7 +726,7 @@
                     [placeholder]="txnFields.bus_travel_class?.placeholder || 'Enter ' + txnFields.bus_travel_class?.field_name"
                     *ngIf="txnFields.bus_travel_class?.type === 'TEXT'"
                     [disabled]="!txnFields.bus_travel_class?.canEdit"
-                    class="add-edit-expense--text-input add-edit-expense--text-input__large"
+                    class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
                     formControlName="bus_travel_class"
                     type="text"
                   />
@@ -864,7 +868,7 @@
                     [placeholder]="txnFields.purpose?.placeholder || 'Enter '+txnFields.purpose?.field_name | slice: 0:30"
                     [required]="txnFields.purpose?.is_mandatory"
                     [title]="'Enter'+txnFields.purpose?.field_name"
-                    class="add-edit-expense--text-input"
+                    class="add-edit-expense--text-input smartlook-show"
                     formControlName="purpose"
                   />
                 </div>
@@ -921,7 +925,7 @@
                       (focus)="focusState = true"
                       *ngIf="customInput.type === 'TEXT'"
                       [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
-                      class="add-edit-expense--text-input"
+                      class="add-edit-expense--text-input smartlook-show"
                       formControlName="value"
                       type="text"
                     />
@@ -936,7 +940,7 @@
                     <input
                       appFormatDate
                       *ngIf="customInput.type === 'DATE'"
-                      class="add-edit-expense--date-input date-input__format"
+                      class="add-edit-expense--date-input date-input__format smartlook-show"
                       formControlName="value"
                       type="date"
                       [name]="customInput.placeholder || customInput.name"

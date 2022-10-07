@@ -6,6 +6,8 @@ import { PlatformTaxGroup } from '../models/platform/platform-tax-group.model';
 import { Observable, range } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { Cacheable } from 'ts-cacheable';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -15,6 +17,7 @@ export class TaxGroupService {
     private spenderPlatformApiService: SpenderPlatformApiService
   ) {}
 
+  @Cacheable()
   get(): Observable<TaxGroup[]> {
     return this.getEnabledTaxGroupsCount().pipe(
       switchMap((count) => {
