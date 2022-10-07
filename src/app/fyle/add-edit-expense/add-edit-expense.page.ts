@@ -344,6 +344,8 @@ export class AddEditExpensePage implements OnInit {
 
   autoSubmissionReportName$: Observable<string>;
 
+  isIncompleteExpense = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2284,6 +2286,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
+          this.isIncompleteExpense = true;
           return forkJoin({
             allCategories: this.categoriesService.getAll(),
           }).pipe(
@@ -3847,7 +3850,8 @@ export class AddEditExpensePage implements OnInit {
         }
 
         // If category is auto-filled and there exists extracted category, priority is given to extracted category
-        if ((!this.fg.controls.category.value || this.presetCategoryId) && extractedData.category) {
+        const isExtractedCategoryValid = extractedData.category && extractedData.category !== 'Unspecified';
+        if ((!this.fg.controls.category.value || this.presetCategoryId) && isExtractedCategoryValid) {
           const categoryName = extractedData.category || 'Unspecified';
           const category = filteredCategories.find((orgCategory) => orgCategory.value.fyle_category === categoryName);
           this.fg.patchValue({

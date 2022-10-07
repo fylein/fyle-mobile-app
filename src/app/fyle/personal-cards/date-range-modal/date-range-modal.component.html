@@ -34,8 +34,8 @@
   </ion-list>
 </div>
 <mat-date-range-input [rangePicker]="picker" class="date-range-modal--range-picker">
-  <input matStartDate placeholder="Start date" #dateRangeStart />
-  <input matEndDate placeholder="End date" (dateChange)="datePicked()" #dateRangeEnd />
+  <input matStartDate placeholder="Start date" class="smartlook-show" #dateRangeStart />
+  <input matEndDate placeholder="End date" class="smartlook-show" (dateChange)="datePicked()" #dateRangeEnd />
 </mat-date-range-input>
 <mat-date-range-picker
   touchUi="true"
