@@ -18,6 +18,7 @@ import { FormControl } from '@angular/forms';
 import { DateService } from './date.service';
 import { AccountType } from '../enums/account-type.enum';
 import { TaxGroupService } from './tax-group.service';
+import { CustomInputsService } from './custom-inputs.service';
 
 type Option = Partial<{
   label: string;
@@ -55,7 +56,7 @@ export class MergeExpensesService {
     private apiService: ApiService,
     private fileService: FileService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private offlineService: OfflineService,
+    private customInputsService: CustomInputsService,
     private humanizeCurrency: HumanizeCurrencyPipe,
     private projectService: ProjectsService,
     private categoriesService: CategoriesService,
@@ -172,7 +173,7 @@ export class MergeExpensesService {
   }
 
   getCardCardTransactions(expenses: Expense[]): Observable<CorporateCardExpense[]> {
-    return this.offlineService.getCustomInputs().pipe(
+    return this.customInputsService.getAll(true).pipe(
       switchMap(() => {
         const CCCGroupIds = expenses.map((expense) => expense?.tx_corporate_credit_card_expense_group_id);
 
