@@ -27,6 +27,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
@@ -94,11 +95,12 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private popoverController: PopoverController,
     private transactionsOutboxService: TransactionsOutboxService,
     private fileService: FileService,
-    private currencyService: CurrencyService,
+    private orgSettingsService: OrgSettingsService,
     private networkService: NetworkService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private currencyService: CurrencyService
   ) {}
 
   @HostListener('keydown')
@@ -536,7 +538,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   ionViewWillEnter() {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
-    const orgSettings$ = this.offlineService.getOrgSettings();
+    const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
@@ -612,7 +614,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
     this.projects$ = this.projectsService.getAllActive();
 
-    this.isProjectsVisible$ = this.offlineService.getOrgSettings().pipe(
+    this.isProjectsVisible$ = this.orgSettingsService.get().pipe(
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,

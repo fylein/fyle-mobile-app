@@ -191,7 +191,7 @@ export class StatsComponent implements OnInit {
 
     that.initializeReportStats();
     that.initializeExpensesStats();
-    that.offlineService.getOrgSettings().subscribe((orgSettings) => {
+    that.orgSettingsService.get().subscribe((orgSettings) => {
       if (orgSettings?.corporate_credit_card_settings?.enabled) {
         this.isUnifyCCCExpensesSettings =
           orgSettings.unify_ccce_expenses_settings &&

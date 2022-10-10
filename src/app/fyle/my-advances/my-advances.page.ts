@@ -35,6 +35,7 @@ import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -89,6 +90,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     private trackingService: TrackingService,
     private tasksService: TasksService,
     private expenseFieldsService: ExpenseFieldsService,
+    private orgSettingsService: OrgSettingsService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -178,7 +180,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     const sortResults = map((res: any[]) => res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)));
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
-      concatMap(() => this.offlineService.getOrgSettings()),
+      concatMap(() => this.orgSettingsService.get()),
       switchMap((orgSettings) =>
         combineLatest([
           iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),

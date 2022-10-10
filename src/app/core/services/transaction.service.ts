@@ -981,7 +981,7 @@ export class TransactionService {
 
   getTxnAccount() {
     return forkJoin({
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgSettings: this.orgSettingsService.get(),
       accounts: this.accountsService.getEMyAccounts(),
       orgUserSettings: this.offlineService.getOrgUserSettings(),
     }).pipe(

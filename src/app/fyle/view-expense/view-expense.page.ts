@@ -29,6 +29,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -126,7 +127,8 @@ export class ViewExpensePage implements OnInit {
     private trackingService: TrackingService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private paymentModesService: PaymentModesService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get ExpenseView() {
@@ -316,7 +318,7 @@ export class ViewExpensePage implements OnInit {
       map((etxn) => this.isNumber(etxn.tx_admin_amount) || this.isNumber(etxn.tx_policy_amount))
     );
 
-    this.offlineService.getOrgSettings().subscribe((orgSettings) => {
+    this.orgSettingsService.get().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
       this.isUnifyCcceExpensesSettingsEnabled =
         this.orgSettings?.unify_ccce_expenses_settings?.allowed &&
