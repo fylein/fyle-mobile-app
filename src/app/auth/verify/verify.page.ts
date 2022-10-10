@@ -33,6 +33,7 @@ export class VerifyPage implements OnInit {
 
   ngOnInit() {
     const verificationCode = this.activatedRoute.snapshot.params.verification_code;
+    const orgId = this.activatedRoute.snapshot.params.org_id;
     this.routerAuthService
       .emailVerify(verificationCode)
       .pipe(
@@ -45,7 +46,7 @@ export class VerifyPage implements OnInit {
           if (err.status === 422) {
             this.router.navigate(['/', 'auth', 'disabled']);
           } else if (err.status === 440) {
-            this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true }]);
+            this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true, orgId: orgId }]);
           } else {
             this.currentPageState = VerifyPageState.error;
           }

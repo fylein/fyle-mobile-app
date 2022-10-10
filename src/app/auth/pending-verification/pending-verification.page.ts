@@ -21,19 +21,19 @@ export class PendingVerificationPage implements OnInit {
     private activatedRoute: ActivatedRoute
   ) {}
 
-  ngOnInit() {
-    this.hasTokenExpired = this.activatedRoute.snapshot.params.hasTokenExpired || false;
-  }
+  ngOnInit() {}
 
   ionViewWillEnter() {
+    this.hasTokenExpired = this.activatedRoute.snapshot.params.hasTokenExpired || false;
     this.currentPageState = PageState.notSent;
   }
 
   resendVerificationLink(email: string) {
     this.isLoading = true;
+    const orgId = this.activatedRoute.snapshot.params.orgId;
 
     this.routerAuthService
-      .resendVerificationLink(email)
+      .resendVerificationLink(email, orgId)
       .pipe(tap(() => (this.isLoading = false)))
       .subscribe({
         next: () => (this.currentPageState = PageState.success),
