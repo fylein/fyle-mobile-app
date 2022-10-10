@@ -159,7 +159,7 @@ export class AppComponent implements OnInit {
         });
 
       // Global cache config
-      GlobalCacheConfig.maxAge = 10 * 60 * 1000;
+      GlobalCacheConfig.maxAge = 10 * 60 * 100;
       GlobalCacheConfig.maxCacheCount = 100;
     });
   }
