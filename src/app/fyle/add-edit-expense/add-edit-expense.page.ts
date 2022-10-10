@@ -346,6 +346,10 @@ export class AddEditExpensePage implements OnInit {
 
   isIncompleteExpense = false;
 
+  systemCategories: string[];
+
+  breakfastSystemCategories: string[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2132,9 +2136,7 @@ export class AddEditExpensePage implements OnInit {
                 if (
                   this.fg.value.category &&
                   this.fg.value.category.fyle_category &&
-                  ['Bus', 'Flight', 'Airlines', 'Hotel', 'Lodging', 'Train'].includes(
-                    this.fg.value.category.fyle_category
-                  ) &&
+                  this.systemCategories?.includes(this.fg.value.category.fyle_category) &&
                   isConnected
                 ) {
                   control.setValidators(Validators.required);
@@ -2464,6 +2466,9 @@ export class AddEditExpensePage implements OnInit {
       costCenter: [],
       hotel_is_breakfast_provided: [],
     });
+
+    this.systemCategories = this.categoriesService.getSystemCategories();
+    this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
