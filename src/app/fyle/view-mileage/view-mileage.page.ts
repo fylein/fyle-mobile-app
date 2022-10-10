@@ -24,6 +24,7 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -100,7 +101,8 @@ export class ViewMileagePage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private paymentModesService: PaymentModesService
+    private paymentModesService: PaymentModesService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   get ExpenseView() {
@@ -275,7 +277,7 @@ export class ViewMileagePage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(extendedMileage.tx_currency, 'wide');
     });
 
-    forkJoin([this.offlineService.getExpenseFieldsMap(), this.extendedMileage$.pipe(take(1))])
+    forkJoin([this.expenseFieldsService.getAllMap(), this.extendedMileage$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, extendedMileage]) => {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;

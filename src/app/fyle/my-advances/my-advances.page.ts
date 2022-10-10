@@ -34,6 +34,7 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -87,6 +88,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     private titleCasePipe: TitleCasePipe,
     private trackingService: TrackingService,
     private tasksService: TasksService,
+    private expenseFieldsService: ExpenseFieldsService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -110,7 +112,7 @@ export class MyAdvancesPage implements AfterViewChecked {
   }
 
   getAndUpdateProjectName() {
-    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+    this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
       this.projectFieldName = projectField?.field_name;
     });

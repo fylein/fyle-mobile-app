@@ -28,6 +28,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -89,14 +90,15 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private modalController: ModalController,
     private statusService: StatusService,
     private loaderService: LoaderService,
-    private projectService: ProjectsService,
+    private projectsService: ProjectsService,
     private popoverController: PopoverController,
     private transactionsOutboxService: TransactionsOutboxService,
     private fileService: FileService,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   @HostListener('keydown')
@@ -136,7 +138,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       };
     }
 
-    this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
+    this.expenseFields$ = this.expenseFieldsService.getAllMap();
   }
 
   goBack() {
@@ -564,7 +566,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
         if (res.areq.project_id) {
           const projectId = res.areq.project_id;
-          this.projectService.getbyId(projectId).subscribe((selectedProject) => {
+          this.projectsService.getbyId(projectId).subscribe((selectedProject) => {
             this.fg.patchValue({
               project: selectedProject,
             });
@@ -608,7 +610,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
     );
-    this.projects$ = this.offlineService.getProjects();
+    this.projects$ = this.projectsService.getAllActive();
 
     this.isProjectsVisible$ = this.offlineService.getOrgSettings().pipe(
       switchMap((orgSettings) =>

@@ -5,8 +5,8 @@ import { finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { getCurrencySymbol } from '@angular/common';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-my-view-advance',
@@ -24,7 +24,7 @@ export class MyViewAdvancePage implements OnInit {
     private advanceService: AdvanceService,
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
-    private offlineService: OfflineService
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   get StatisticTypes() {
@@ -33,7 +33,7 @@ export class MyViewAdvancePage implements OnInit {
 
   // TODO replace forEach with find
   getAndUpdateProjectName() {
-    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+    this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       expenseFields.forEach((expenseField) => {
         if (expenseField.column_name === 'project_id') {
           this.projectFieldName = expenseField.field_name;
