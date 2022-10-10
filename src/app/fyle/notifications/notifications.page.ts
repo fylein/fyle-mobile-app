@@ -152,7 +152,7 @@ export class NotificationsPage implements OnInit {
 
     this.orgUserSettingsService
       .post(this.orgUserSettings)
-      .pipe(() => this.offlineService.clearOrgUserSettings())
+      .pipe(() => this.orgUserSettingsService.clearOrgUserSettings())
       .pipe(finalize(() => (this.saveNotifLoading = false)))
       .subscribe(() => {
         this.navController.back();

@@ -131,7 +131,7 @@ export class MyProfilePage implements OnInit {
 
   reset() {
     this.eou$ = from(this.authService.getEou());
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
+    const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 

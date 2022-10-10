@@ -53,6 +53,7 @@ import { MyExpensesService } from './my-expenses.service';
 import { Filters } from './my-expenses-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
@@ -193,7 +194,8 @@ export class MyExpensesPage implements OnInit {
     private corporateCreditCardService: CorporateCreditCardExpenseService,
     private myExpensesService: MyExpensesService,
     private orgSettingsService: OrgSettingsService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   get HeaderState() {
@@ -417,8 +419,8 @@ export class MyExpensesPage implements OnInit {
       this.expensesTaskCount = expensesTaskCount;
     });
 
-    this.isInstaFyleEnabled$ = this.offlineService
-      .getOrgUserSettings()
+    this.isInstaFyleEnabled$ = this.orgUserSettingsService
+      .get()
       .pipe(
         map(
           (orgUserSettings) =>
@@ -426,8 +428,8 @@ export class MyExpensesPage implements OnInit {
         )
       );
 
-    this.isBulkFyleEnabled$ = this.offlineService
-      .getOrgUserSettings()
+    this.isBulkFyleEnabled$ = this.orgUserSettingsService
+      .get()
       .pipe(map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled));
 
     this.isMileageEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage.enabled));

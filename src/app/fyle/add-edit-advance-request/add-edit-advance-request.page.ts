@@ -30,6 +30,7 @@ import { CaptureReceiptComponent } from 'src/app/shared/components/capture-recei
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -100,7 +101,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   @HostListener('keydown')
@@ -539,7 +541,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   ionViewWillEnter() {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    const orgUserSettings$ = this.orgUserSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
@@ -618,9 +620,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
-          this.offlineService
-            .getOrgUserSettings()
-            .pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
+          this.orgUserSettingsService.get().pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
           this.projects$
         )
       ),

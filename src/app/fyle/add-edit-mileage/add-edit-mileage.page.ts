@@ -682,7 +682,7 @@ export class AddEditMileagePage implements OnInit {
       vehicleType: this.transactionService.getDefaultVehicleType(),
       orgUserMileageSettings: this.mileageService.getOrgUserMileageSettings(),
       orgSettings: this.orgSettingsService.get(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgUserSettings: this.orgUserSettingsService.get(),
       recentValue: this.recentlyUsedValues$,
       mileageRates: this.mileageRates$,
       mileageConfig: this.mileageConfig$,
@@ -747,7 +747,7 @@ export class AddEditMileagePage implements OnInit {
     const autofillLocation$ = forkJoin({
       eou: this.authService.getEou(),
       currentLocation: this.locationService.getCurrentLocation(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgUserSettings: this.orgUserSettingsService.get(),
       orgSettings: this.orgSettingsService.get(),
       recentValue: this.recentlyUsedValues$,
     }).pipe(
@@ -929,7 +929,7 @@ export class AddEditMileagePage implements OnInit {
     this.isExpandedView = this.mode !== 'add';
 
     const orgSettings$ = this.orgSettingsService.get();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    const orgUserSettings$ = this.orgUserSettingsService.get();
 
     this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
     this.isAdvancesEnabled$ = orgSettings$.pipe(
@@ -1226,7 +1226,7 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return forkJoin({
             orgSettings: this.orgSettingsService.get(),
-            orgUserSettings: this.offlineService.getOrgUserSettings(),
+            orgUserSettings: this.orgUserSettingsService.get(),
           }).pipe(
             map(({ orgSettings, orgUserSettings }) => {
               if (orgSettings.projects.enabled) {

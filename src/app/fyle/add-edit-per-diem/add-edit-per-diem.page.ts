@@ -787,7 +787,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     const orgSettings$ = this.orgSettingsService.get();
     const perDiemRates$ = this.perDiemService.getRates();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    const orgUserSettings$ = this.orgUserSettingsService.get();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
@@ -1156,7 +1156,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return forkJoin({
             orgSettings: this.orgSettingsService.get(),
-            orgUserSettings: this.offlineService.getOrgUserSettings(),
+            orgUserSettings: this.orgUserSettingsService.get(),
           }).pipe(
             map(({ orgSettings, orgUserSettings }) => {
               if (orgSettings.projects.enabled) {

@@ -62,6 +62,13 @@ export class OrgUserSettingsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: orgUserSettingsCacheBuster$,
+  })
+  clearOrgUserSettings() {
+    return of(null);
+  }
+
   getOrgUserSettingsById(ouId: string) {
     return this.orgUserService.getUserById(ouId).pipe(switchMap((user) => this.getUserSettings(user.ou_settings_id)));
   }

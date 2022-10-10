@@ -25,7 +25,7 @@ export class PaymentModesService {
   checkIfPaymentModeConfigurationsIsEnabled() {
     return forkJoin({
       isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgUserSettings: this.orgUserSettingsService.get(),
     }).pipe(
       map(
         ({ isPaymentModeConfigurationsEnabled, orgUserSettings }) =>

@@ -14,6 +14,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 enum DashboardState {
   home,
@@ -56,6 +57,7 @@ export class DashboardPage implements OnInit {
     private actionSheetController: ActionSheetController,
     private tasksService: TasksService,
     private smartlookService: SmartlookService,
+    private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService
   ) {}
 
@@ -100,7 +102,7 @@ export class DashboardPage implements OnInit {
       this.currentStateIndex = 0;
     }
 
-    this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
+    this.orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
