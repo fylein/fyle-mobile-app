@@ -1,7 +1,8 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit } from '@angular/core';
 import { CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor } from '@capacitor/core';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { Camera } from '@capacitor/camera';
+import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -16,6 +17,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgService } from 'src/app/core/services/org.service';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 
 type Image = Partial<{
   source: string;
@@ -66,7 +68,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private currencyService: CurrencyService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
-    private orgService: OrgService
+    private orgService: OrgService,
+    private platform: Platform
   ) {}
 
   setupNetworkWatcher() {
@@ -181,7 +184,64 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  setUpAndStartCamera() {
+  async showPermissionDeniedMessage(permissionType: 'CAMERA' | 'GALLERY') {
+    const isIos = this.platform.is('ios');
+
+    const title = `${permissionType === 'CAMERA' ? 'Camera' : 'Gallery'} Permission`;
+    let cameraPermissionMessage = `To capture and attach photos, please allow Fyle access to your camera. Click on Settings `;
+    cameraPermissionMessage += isIos
+      ? 'and allow Camera and Photos access'
+      : '> Permissions, and allow Camera and Storage access.';
+
+    let galleryPermissionMessage =
+      'To attach photos, please allow Fyle access to your device’s photos. Tap Settings > Permissions, and allow Storage access.';
+    galleryPermissionMessage += isIos ? 'and allow Photos access' : '> Permissions, and allow Storage access.';
+
+    const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
+
+    const permission = await this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title,
+        message,
+        primaryCta: {
+          text: 'Open Settings',
+          action: 'OPEN_SETTINGS',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'CANCEL',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+      backdropDismiss: false,
+    });
+
+    await permission.present();
+
+    const { data } = await permission.onWillDismiss();
+
+    if (data?.action === 'OPEN_SETTINGS') {
+      NativeSettings.open({
+        optionAndroid: AndroidSettings.ApplicationDetails,
+        optionIOS: IOSSettings.App,
+      });
+    }
+    this.close();
+  }
+
+  async setUpAndStartCamera() {
+    let permissions;
+    if (this.allowGalleryUploads) {
+      permissions = await Camera.requestPermissions();
+    } else {
+      permissions = await Camera.requestPermissions({ permissions: ['camera'] });
+    }
+
+    if (permissions?.camera === 'denied') {
+      return this.showPermissionDeniedMessage('CAMERA');
+    }
+
     if (!this.isCameraShown) {
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
@@ -406,7 +466,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.trackingService.instafyleGalleryUploadOpened({});
     this.stopCamera();
 
-    this.imagePicker.hasReadPermission().then((permission) => {
+    this.imagePicker.hasReadPermission().then(async (permission) => {
       if (permission) {
         const options = {
           maximumImagesCount: 10,
@@ -449,7 +509,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           }
         });
       } else {
-        this.imagePicker.requestReadPermission();
+        const permissions = await Camera.requestPermissions({ permissions: ['photos'] });
+        if (permissions?.photos === 'denied') {
+          return this.showPermissionDeniedMessage('GALLERY');
+        }
         this.galleryUpload();
       }
     });
