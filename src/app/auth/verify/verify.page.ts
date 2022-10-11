@@ -53,9 +53,8 @@ export class VerifyPage implements OnInit {
           return throwError(err);
         })
       )
-      .subscribe({
-        next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),
-        error: () => (this.currentPageState = VerifyPageState.error),
+      .subscribe(() => {
+        this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]);
       });
   }
 }
