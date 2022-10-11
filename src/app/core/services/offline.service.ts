@@ -21,22 +21,6 @@ export class OfflineService {
     private storageService: StorageService
   ) {}
 
-  getOrgSettings() {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.orgSettingsService.get().pipe(
-            tap((orgSettings) => {
-              this.storageService.set('cachedOrgSettings', orgSettings);
-            })
-          );
-        } else {
-          return from(this.storageService.get('cachedOrgSettings'));
-        }
-      })
-    );
-  }
-
   @CacheBuster({
     cacheBusterNotifier: orgUserSettingsCacheBuster$,
   })
@@ -58,6 +42,23 @@ export class OfflineService {
           );
         } else {
           return from(this.storageService.get('cachedOrgUserSettings'));
+        }
+      })
+    );
+  }
+
+  @Cacheable()
+  getOrgSettings() {
+    return this.networkService.isOnline().pipe(
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.orgSettingsService.get().pipe(
+            tap((orgSettings) => {
+              this.storageService.set('cachedOrgSettings', orgSettings);
+            })
+          );
+        } else {
+          return from(this.storageService.get('cachedOrgSettings'));
         }
       })
     );
