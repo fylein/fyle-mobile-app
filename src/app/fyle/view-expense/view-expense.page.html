@@ -354,7 +354,7 @@
         </ion-row>
       </ion-grid>
 
-      <ng-container *ngIf="systemCategories?.includes(etxn.tx_fyle_category)">
+      <ng-container *ngIf="systemCategoriesWithTaxi?.includes(etxn.tx_fyle_category)">
         <div class="view-expense--divider"></div>
         <ng-container *ngIf="etxn.tx_fyle_category === 'Taxi'">
           <ion-grid *ngIf="etxn.tx_distance" class="view-expense--grid">
@@ -386,7 +386,7 @@
           </ion-grid>
         </ng-container>
 
-        <ng-container *ngIf="travelSystemCategories.includes(etxn.tx_fyle_category)">
+        <ng-container *ngIf="travelSystemCategories?.includes(etxn.tx_fyle_category)">
           <ion-grid
             *ngIf="etxn.tx_locations && etxn.tx_locations.length && etxn.tx_locations[0]?.display"
             class="view-expense--grid"

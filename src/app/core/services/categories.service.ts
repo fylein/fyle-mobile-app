@@ -148,6 +148,11 @@ export class CategoriesService {
     return systemCategories;
   }
 
+  getSystemCategoriesWithTaxi(): string[] {
+    const systemCategoriesWithTaxi = ['Taxi', 'Bus', 'Flight', 'Airlines', 'Hotel', 'Lodging', 'Train'];
+    return systemCategoriesWithTaxi;
+  }
+
   getBreakfastSystemCategories(): string[] {
     const breakfastSystemCategories = ['Hotel', 'Lodging'];
     return breakfastSystemCategories;

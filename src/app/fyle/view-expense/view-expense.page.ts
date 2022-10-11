@@ -117,6 +117,8 @@ export class ViewExpensePage implements OnInit {
 
   breakfastSystemCategories: string[];
 
+  systemCategoriesWithTaxi: string[];
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -221,6 +223,7 @@ export class ViewExpensePage implements OnInit {
     const txId = this.activatedRoute.snapshot.params.id;
 
     this.systemCategories = this.categoriesService.getSystemCategories();
+    this.systemCategoriesWithTaxi = this.categoriesService.getSystemCategoriesWithTaxi();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
     this.travelSystemCategories = this.categoriesService.getTravelSystemCategories();
     this.flightSystemCategories = this.categoriesService.getFlightSystemCategories();
