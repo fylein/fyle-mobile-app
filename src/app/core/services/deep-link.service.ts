@@ -20,6 +20,7 @@ export class DeepLinkService {
   redirect(redirectionParam) {
     const redirectUri: string = redirectionParam.redirect_uri;
     const verificationCode: string = redirectionParam.verification_code;
+    const orgId: string = redirectionParam.org_id;
     const refreshToken: string = redirectionParam.refresh_token;
 
     if (redirectUri) {
@@ -30,6 +31,7 @@ export class DeepLinkService {
           'verify',
           {
             verification_code: verificationCode,
+            org_id: orgId,
           },
         ]);
       } else if (redirectUri.match('new_password')) {
