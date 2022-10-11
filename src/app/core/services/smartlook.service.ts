@@ -50,7 +50,7 @@ export class SmartlookService {
       )
       .subscribe(({ eou, deviceInfo }) => {
         const setupConfig = new SmartlookSetupConfigBuilder(environment.SMARTLOOK_API_KEY);
-        this.smartlook.setup(setupConfig.build());
+        this.smartlook.setupAndStartRecording(setupConfig.build());
 
         this.smartlook.setUserIdentifier(
           new SmartlookUserIdentifier(eou.us.id, {
@@ -65,7 +65,6 @@ export class SmartlookService {
             is_approver: eou.ou.roles.includes('APPROVER') ? 'true' : 'false',
           })
         );
-        this.smartlook.startRecording();
       });
   }
 }
