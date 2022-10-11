@@ -212,8 +212,8 @@ export class TasksComponent implements OnInit {
                 value: 'UNREPORTED',
               },
               {
-                label: 'Draft',
-                value: 'DRAFT',
+                label: 'Incomplete',
+                value: 'INCOMPLETE',
               },
               {
                 label: 'Duplicate',
