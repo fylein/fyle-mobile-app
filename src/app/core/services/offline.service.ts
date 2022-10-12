@@ -69,6 +69,6 @@ export class OfflineService {
     const orgSettings$ = this.getOrgSettings();
     const orgUserSettings$ = this.getOrgUserSettings();
 
-    return forkJoin([orgSettings$, orgUserSettings$]);
+    return of(null);
   }
 }
