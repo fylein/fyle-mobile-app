@@ -149,7 +149,7 @@ export class ReceiptPreviewComponent implements OnInit {
         const options = {
           maximumImagesCount: 10,
           outputType: 1,
-          quality: 70,
+          quality: 100,
         };
         // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
         from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
