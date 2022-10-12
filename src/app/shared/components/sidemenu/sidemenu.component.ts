@@ -309,7 +309,13 @@ export class SidemenuComponent implements OnInit {
         icon: 'expense',
         route: ['/', 'enterprise', 'my_expenses'],
       },
-    ].filter((sidemenuItem) => sidemenuItem.isVisible);
+      {
+        title: 'Settings',
+        isVisible: true,
+        icon: 'fy-settings',
+        route: ['/', 'enterprise', 'my_profile'],
+      },
+    ];
   }
 
   getSecondarySidemenuOptions(orgs: Org[], isDelegatee: boolean, isConnected: boolean) {

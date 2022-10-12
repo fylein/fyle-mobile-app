@@ -175,6 +175,8 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setupNetworkWatcher();
+
     if ((window as any) && (window as any).localStorage) {
       const lstorage = (window as any).localStorage;
       Object.keys(lstorage)
@@ -220,8 +222,6 @@ export class AppComponent implements OnInit {
       this.isSwitchedToDelegator = false;
       this.router.navigate(['/', 'auth', 'sign_in']);
     });
-
-    this.setupNetworkWatcher();
 
     this.router.events.subscribe((ev) => {
       // adding try catch because this may fail due to network issues
