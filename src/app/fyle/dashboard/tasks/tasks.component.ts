@@ -213,7 +213,7 @@ export class TasksComponent implements OnInit {
               },
               {
                 label: 'Incomplete',
-                value: 'INCOMPLETE',
+                value: 'DRAFT',
               },
               {
                 label: 'Duplicate',

@@ -19,7 +19,6 @@ import { UserEventService } from './user-event.service';
 import { HandleDuplicatesService } from './handle-duplicates.service';
 import { DuplicateSet } from '../models/v2/duplicate-sets.model';
 import { CurrencyService } from './currency.service';
-import { filter } from 'lodash';
 
 type TaskDict = {
   sentBackReports: DashboardTask[];
@@ -97,7 +96,7 @@ export class TasksService {
     if (filters.draftExpenses) {
       selectedFilters.push({
         name: 'Expenses',
-        value: ['INCOMPLETE'],
+        value: ['DRAFT'],
       });
     }
 
@@ -191,7 +190,7 @@ export class TasksService {
       generatedFilters.unreportedExpenses = true;
     }
 
-    if (selectedFilters.some((filter) => filter.name === 'Expenses' && filter.value.includes('INCOMPLETE'))) {
+    if (selectedFilters.some((filter) => filter.name === 'Expenses' && filter.value.includes('DRAFT'))) {
       generatedFilters.draftExpenses = true;
     }
 
