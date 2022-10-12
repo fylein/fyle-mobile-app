@@ -29,7 +29,7 @@ export class SidemenuComponent implements OnInit {
 
   appVersion: string;
 
-  activeOrg: Org | string;
+  activeOrg: Org | { name: string };
 
   isConnected$: Observable<any>;
 
@@ -66,7 +66,6 @@ export class SidemenuComponent implements OnInit {
     this.authService.getEou().then((eou) => {
       this.eou = eou;
     });
-    this.deviceInfo = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
   }
 
   setupNetworkWatcher() {
@@ -87,7 +86,9 @@ export class SidemenuComponent implements OnInit {
       .pipe(shareReplay(1))
       .subscribe((deviceInfo) => {
         this.appVersion = (deviceInfo && deviceInfo.liveUpdateAppVersion) || '1.2.3';
-        this.activeOrg = this.eou.ou.org_name;
+        this.activeOrg = {
+          name: this.eou.ou.org_name,
+        };
         this.setupSideMenu();
       });
   }

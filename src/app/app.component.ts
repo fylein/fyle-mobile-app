@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
 
   isUserLoggedIn = false;
 
-  isOnline;
+  isOnline: boolean;
 
   constructor(
     private platform: Platform,
