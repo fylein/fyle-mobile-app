@@ -34,7 +34,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   @Input() allowBulkFyle = true;
 
-  isCameraShown: boolean;
+  //isCameraPreviewInitiated denotes that a camera preview has been initiated, but may or may not have started yet.
+  isCameraPreviewInitiated = false;
+
+  //isCameraPreviewStarted tracks if the camera preview has started.
+  isCameraPreviewStarted = false;
 
   isBulkMode: boolean;
 
@@ -80,7 +84,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   ngOnInit() {
     this.setupNetworkWatcher();
-    this.isCameraShown = false;
+    this.isCameraPreviewStarted = false;
+    this.isCameraPreviewInitiated = false;
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
     this.flashMode = null;
@@ -139,9 +144,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async stopCamera() {
-    if (this.isCameraShown === true) {
+    if (this.isCameraPreviewInitiated) {
+      this.isCameraPreviewInitiated = false;
       await CameraPreview.stop();
-      this.isCameraShown = false;
+      this.isCameraPreviewStarted = false;
     }
   }
 
@@ -182,7 +188,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   setUpAndStartCamera() {
-    if (!this.isCameraShown) {
+    if (!this.isCameraPreviewInitiated) {
+      this.isCameraPreviewInitiated = true;
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
         toBack: true,
@@ -194,7 +201,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
       this.loaderService.showLoader();
       CameraPreview.start(cameraPreviewOptions).then((res) => {
-        this.isCameraShown = true;
+        this.isCameraPreviewStarted = true;
         this.getFlashModes();
         this.loaderService.hideLoader();
       });

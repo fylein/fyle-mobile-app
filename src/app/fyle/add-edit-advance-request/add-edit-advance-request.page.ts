@@ -76,7 +76,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
 
-  isCameraShown = false;
+  isCameraPreviewStarted = false;
 
   constructor(
     private offlineService: OfflineService,
@@ -397,10 +397,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
         cssClass: 'hide-modal',
       });
       await captureReceiptModal.present();
-      this.isCameraShown = true;
+      this.isCameraPreviewStarted = true;
 
       const { data } = await captureReceiptModal.onWillDismiss();
-      this.isCameraShown = false;
+      this.isCameraPreviewStarted = false;
 
       if (data && data.dataUrl) {
         receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };

@@ -324,7 +324,7 @@ export class AddEditExpensePage implements OnInit {
 
   source = 'MOBILE';
 
-  isCameraShown = false;
+  isCameraPreviewStarted = false;
 
   isIos = false;
 
@@ -3978,10 +3978,10 @@ export class AddEditExpensePage implements OnInit {
         });
 
         await captureReceiptModal.present();
-        this.isCameraShown = true;
+        this.isCameraPreviewStarted = true;
 
         const { data } = await captureReceiptModal.onWillDismiss();
-        this.isCameraShown = false;
+        this.isCameraPreviewStarted = false;
 
         if (data && data.dataUrl) {
           receiptDetails = {

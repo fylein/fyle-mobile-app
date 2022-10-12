@@ -1,4 +1,4 @@
-<ion-header [ngClass]="{'d-none': isCameraShown}" mode="md">
+<ion-header [ngClass]="{'d-none': isCameraPreviewStarted}" mode="md">
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
@@ -66,7 +66,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [ngClass]="{'d-none': isCameraShown}">
+<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}">
   <ng-container *ngIf="fg">
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
@@ -1155,7 +1155,7 @@
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
   <ion-footer
-    [ngClass]="{'d-none': isCameraShown}"
+    [ngClass]="{'d-none': isCameraPreviewStarted}"
     class="add-edit-expense--footer-container"
     *ngIf="!reviewList?.length"
   >
