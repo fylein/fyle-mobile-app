@@ -50,6 +50,8 @@ export class AppComponent implements OnInit {
 
   isUserLoggedIn = false;
 
+  isOnline;
+
   constructor(
     private platform: Platform,
     private router: Router,
@@ -180,10 +182,19 @@ export class AppComponent implements OnInit {
         .forEach((key) => lstorage.removeItem(key));
     }
 
+    this.isConnected$.subscribe((isOnline) => {
+      this.isOnline = isOnline;
+    });
+
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       this.isUserLoggedIn = loggedInStatus;
       if (loggedInStatus) {
-        this.sidemenuRef.showSideMenu();
+        if (this.isOnline) {
+          this.sidemenuRef.showSideMenuOnline();
+        } else {
+          this.sidemenuRef.showSideMenuOffline();
+        }
+
         this.pushNotificationService.initPush();
       }
 
@@ -195,7 +206,11 @@ export class AppComponent implements OnInit {
 
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
-        this.sidemenuRef.showSideMenu();
+        if (this.isOnline) {
+          this.sidemenuRef.showSideMenuOnline();
+        } else {
+          this.sidemenuRef.showSideMenuOffline();
+        }
       }, 500);
     });
 
