@@ -30,17 +30,6 @@ export class VerifyPage implements OnInit {
     return VerifyPageState;
   }
 
-  handleError(err: any) {
-    const orgId = this.activatedRoute.snapshot.params.org_id;
-    if (err.status === 422) {
-      this.router.navigate(['/', 'auth', 'disabled']);
-    } else if (err.status === 440) {
-      this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true, orgId }]);
-    } else {
-      this.currentPageState = VerifyPageState.error;
-    }
-  }
-
   ngOnInit() {
     const verificationCode = this.activatedRoute.snapshot.params.verification_code;
     this.routerAuthService
@@ -56,5 +45,16 @@ export class VerifyPage implements OnInit {
         next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),
         error: (err) => this.handleError(err),
       });
+  }
+
+  handleError(err: any) {
+    const orgId = this.activatedRoute.snapshot.params.org_id;
+    if (err.status === 422) {
+      this.router.navigate(['/', 'auth', 'disabled']);
+    } else if (err.status === 440) {
+      this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true, orgId }]);
+    } else {
+      this.currentPageState = VerifyPageState.error;
+    }
   }
 }
