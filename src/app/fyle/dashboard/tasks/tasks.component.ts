@@ -212,7 +212,7 @@ export class TasksComponent implements OnInit {
                 value: 'UNREPORTED',
               },
               {
-                label: 'Incomplete',
+                label: 'Draft',
                 value: 'DRAFT',
               },
               {
