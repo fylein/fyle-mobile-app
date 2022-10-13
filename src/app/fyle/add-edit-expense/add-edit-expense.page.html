@@ -536,11 +536,11 @@
                 <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
-                      *ngIf="txnFields.location1?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.location1?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
                         class="add-edit-expense--internal-block"
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_1.touched && !fg.controls.location_1.valid, 'add-edit-expense--internal-block__margin': txnFields.location2?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)}"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_1.touched && !fg.controls.location_1.valid, 'add-edit-expense--internal-block__margin': txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
                       >
                         <app-fy-location
                           [label]="txnFields.location1?.field_name"
@@ -552,7 +552,7 @@
                       </div>
                     </ion-col>
                     <ion-col
-                      *ngIf="txnFields.location2?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
                         class="add-edit-expense--internal-block"
@@ -573,10 +573,10 @@
                 <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
-                      *ngIf="txnFields.from_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.from_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)}"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
                         class="add-edit-expense--date add-edit-expense--internal-block"
                       >
                         <div
@@ -598,7 +598,7 @@
                       </div>
                     </ion-col>
                     <ion-col
-                      *ngIf="txnFields.to_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
                         [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
@@ -628,11 +628,11 @@
                 <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
-                      *ngIf="txnFields.flight_journey_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.flight_journey_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
                         class="add-edit-expense--internal-block"
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid, 'add-edit-expense--internal-block__margin': txnFields.flight_return_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)}"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid, 'add-edit-expense--internal-block__margin': txnFields.flight_return_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
                       >
                         <app-fy-select
                           *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
@@ -648,7 +648,7 @@
                       </div>
                     </ion-col>
                     <ion-col
-                      *ngIf="txnFields.flight_return_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.flight_return_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
                         class="add-edit-expense--internal-block"
@@ -672,7 +672,7 @@
                 </ion-grid>
 
                 <div
-                  *ngIf="txnFields.train_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                  *ngIf="txnFields.train_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
                   class="add-edit-expense--internal-block add-edit-expense--text"
                 >
@@ -708,7 +708,7 @@
                 </div>
 
                 <div
-                  *ngIf="txnFields.bus_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                  *ngIf="txnFields.bus_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid}"
                   class="add-edit-expense--internal-block add-edit-expense--text"
                 >
@@ -745,7 +745,7 @@
                 </div>
 
                 <div
-                  *ngIf="fg.value?.category?.fyle_category === 'Hotel' && isExpandedView"
+                  *ngIf="breakfastSystemCategories?.includes(fg?.value?.category?.fyle_category) && isExpandedView"
                   class="add-edit-expense--internal-block"
                 >
                   <mat-checkbox formControlName="hotel_is_breakfast_provided">
