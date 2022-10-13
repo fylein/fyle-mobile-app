@@ -76,8 +76,8 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
-  async showSideMenuOffline() {
-    const isLoggedIn = await this.routerAuthService.isLoggedIn();
+  showSideMenuOffline() {
+    const isLoggedIn = this.routerAuthService.isLoggedIn();
     if (!isLoggedIn) {
       return 0;
     }
