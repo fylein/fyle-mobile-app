@@ -93,7 +93,6 @@ export class TasksService {
 
   generateSelectedFilters(filters: TaskFilters): SelectedFilters<any>[] {
     let selectedFilters = [];
-
     if (filters.draftExpenses) {
       selectedFilters.push({
         name: 'Expenses',
