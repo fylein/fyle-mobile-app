@@ -324,7 +324,7 @@ export class AddEditExpensePage implements OnInit {
 
   source = 'MOBILE';
 
-  isCameraShown = false;
+  isCameraPreviewStarted = false;
 
   isIos = false;
 
@@ -345,6 +345,10 @@ export class AddEditExpensePage implements OnInit {
   autoSubmissionReportName$: Observable<string>;
 
   isIncompleteExpense = false;
+
+  systemCategories: string[];
+
+  breakfastSystemCategories: string[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2132,7 +2136,7 @@ export class AddEditExpensePage implements OnInit {
                 if (
                   this.fg.value.category &&
                   this.fg.value.category.fyle_category &&
-                  ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
+                  this.systemCategories?.includes(this.fg.value.category.fyle_category) &&
                   isConnected
                 ) {
                   control.setValidators(Validators.required);
@@ -2462,6 +2466,9 @@ export class AddEditExpensePage implements OnInit {
       costCenter: [],
       hotel_is_breakfast_provided: [],
     });
+
+    this.systemCategories = this.categoriesService.getSystemCategories();
+    this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
@@ -3978,10 +3985,10 @@ export class AddEditExpensePage implements OnInit {
         });
 
         await captureReceiptModal.present();
-        this.isCameraShown = true;
+        this.isCameraPreviewStarted = true;
 
         const { data } = await captureReceiptModal.onWillDismiss();
-        this.isCameraShown = false;
+        this.isCameraPreviewStarted = false;
 
         if (data && data.dataUrl) {
           receiptDetails = {

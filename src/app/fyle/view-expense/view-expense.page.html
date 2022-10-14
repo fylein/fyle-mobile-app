@@ -354,7 +354,7 @@
         </ion-row>
       </ion-grid>
 
-      <ng-container *ngIf="['Taxi', 'Train', 'Flight', 'Bus', 'Hotel'].includes(etxn.tx_fyle_category)">
+      <ng-container *ngIf="systemCategoriesWithTaxi?.includes(etxn.tx_fyle_category)">
         <div class="view-expense--divider"></div>
         <ng-container *ngIf="etxn.tx_fyle_category === 'Taxi'">
           <ion-grid *ngIf="etxn.tx_distance" class="view-expense--grid">
@@ -386,7 +386,7 @@
           </ion-grid>
         </ng-container>
 
-        <ng-container *ngIf="['Bus', 'Flight', 'Train'].includes(etxn.tx_fyle_category)">
+        <ng-container *ngIf="travelSystemCategories?.includes(etxn.tx_fyle_category)">
           <ion-grid
             *ngIf="etxn.tx_locations && etxn.tx_locations.length && etxn.tx_locations[0]?.display"
             class="view-expense--grid"
@@ -492,7 +492,9 @@
           </ion-grid>
         </ng-container>
 
-        <ng-container *ngIf="etxn.tx_fyle_category === 'Flight' && etxn.tx_flight_journey_travel_class">
+        <ng-container
+          *ngIf="flightSystemCategories?.includes(etxn.tx_fyle_category) && etxn.tx_flight_journey_travel_class"
+        >
           <ion-grid class="view-expense--grid">
             <ion-row>
               <ion-col size="6">
@@ -536,7 +538,7 @@
         </ng-container>
 
         <ng-container
-          *ngIf="etxn.tx_fyle_category === 'Hotel' && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)"
+          *ngIf="breakfastSystemCategories?.includes(etxn?.tx_fyle_category) && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)"
         >
           <ion-grid *ngIf="etxn.tx_locations[0]?.display" class="view-expense--grid">
             <ion-row>

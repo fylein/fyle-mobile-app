@@ -142,4 +142,29 @@ export class CategoriesService {
       return this.skipCategories.indexOf(category.fyle_category.toLowerCase()) === -1;
     });
   }
+
+  getSystemCategories(): string[] {
+    const systemCategories = ['Bus', 'Flight', 'Airlines', 'Hotel', 'Lodging', 'Train'];
+    return systemCategories;
+  }
+
+  getSystemCategoriesWithTaxi(): string[] {
+    const systemCategoriesWithTaxi = ['Taxi', 'Bus', 'Flight', 'Airlines', 'Hotel', 'Lodging', 'Train'];
+    return systemCategoriesWithTaxi;
+  }
+
+  getBreakfastSystemCategories(): string[] {
+    const breakfastSystemCategories = ['Hotel', 'Lodging'];
+    return breakfastSystemCategories;
+  }
+
+  getTravelSystemCategories(): string[] {
+    const travelSystemCategories = ['Bus', 'Flight', 'Airlines', 'Train'];
+    return travelSystemCategories;
+  }
+
+  getFlightSystemCategories(): string[] {
+    const flightSystemCategories = ['Flight', 'Airlines'];
+    return flightSystemCategories;
+  }
 }

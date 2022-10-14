@@ -149,7 +149,7 @@ export class MyExpensesPage implements OnInit {
 
   expensesTaskCount = 0;
 
-  isCameraShown = false;
+  isCameraPreviewStarted = false;
 
   isUnifyCCCEnabled$: Observable<boolean>;
 
@@ -1514,7 +1514,7 @@ export class MyExpensesPage implements OnInit {
     ]);
   }
 
-  showCamera(isCameraShown: boolean) {
-    this.isCameraShown = isCameraShown;
+  showCamera(isCameraPreviewStarted: boolean) {
+    this.isCameraPreviewStarted = isCameraPreviewStarted;
   }
 }
