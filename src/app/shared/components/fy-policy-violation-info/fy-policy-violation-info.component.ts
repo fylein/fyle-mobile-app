@@ -24,7 +24,7 @@ export class FyPolicyViolationInfoComponent implements OnInit {
   ngOnInit() {
     this.policyViolations = [];
     this.policyViolations = this.policyDetails?.individual_desired_states
-      .filter((ids) => ids.run_status == 'VIOLATED_ACTION_SUCCESS')
+      .filter((ids) => ids.run_status === 'VIOLATED_ACTION_SUCCESS')
       .map((ids) => ids.expense_policy_rule.description);
     this.showPolicyInfo = this.policyViolations?.length > 0 || this.criticalPolicyViolated;
   }
