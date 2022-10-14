@@ -187,15 +187,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   async showPermissionDeniedMessage(permissionType: 'CAMERA' | 'GALLERY') {
     const isIos = this.platform.is('ios');
 
-    const title = `${permissionType === 'CAMERA' ? 'Camera' : 'Gallery'} Permission`;
-    let cameraPermissionMessage = `To capture and attach photos, please allow Fyle access to your camera. Click on Settings `;
-    cameraPermissionMessage += isIos
-      ? 'and allow Camera and Photos access'
-      : '> Permissions, and allow Camera and Storage access.';
+    const galleryPermissionName = isIos ? 'Photos' : 'Storage';
+    const title = `${permissionType === 'CAMERA' ? 'Camera' : galleryPermissionName} Permission`;
 
-    let galleryPermissionMessage =
-      'To attach photos, please allow Fyle access to your device’s photos. Tap Settings > Permissions, and allow Storage access.';
-    galleryPermissionMessage += isIos ? 'and allow Photos access' : '> Permissions, and allow Storage access.';
+    const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and ${galleryPermissionName}`;
+    const galleryPermissionMessage = `Please allow Fyle to access device photos. Click Settings and allow ${galleryPermissionName} access`;
 
     const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
 
