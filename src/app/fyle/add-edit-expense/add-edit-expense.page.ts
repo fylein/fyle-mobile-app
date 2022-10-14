@@ -4196,12 +4196,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getPolicyDetails() {
-    const txnId = this.activatedRoute.snapshot.params.id;
-    if (txnId) {
-      from(this.policyService.getPolicyViolationRules(txnId))
+    const expenseId = this.activatedRoute.snapshot.params.id;
+    if (expenseId) {
+      from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
         .pipe()
-        .subscribe((details) => {
-          this.policyDetails = details;
+        .subscribe((response) => {
+          this.policyDetails = response.count > 0 ? response.data[0] : [];
         });
     }
   }

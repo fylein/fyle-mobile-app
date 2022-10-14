@@ -193,12 +193,12 @@ export class ViewExpensePage implements OnInit {
     return estatus.st_org_user_id === 'POLICY';
   }
 
-  getPolicyDetails(txId: string) {
-    if (txId) {
-      from(this.policyService.getPolicyViolationRules(txId))
+  getPolicyDetails(expenseId: string) {
+    if (expenseId) {
+      from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
         .pipe()
-        .subscribe((details) => {
-          this.policyDetails = details;
+        .subscribe((response) => {
+          this.policyDetails = response.count > 0 ? response.data[0] : [];
         });
     }
   }

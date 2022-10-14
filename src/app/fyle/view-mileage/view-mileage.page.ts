@@ -132,12 +132,12 @@ export class ViewMileagePage implements OnInit {
     return typeof val === 'number';
   }
 
-  getPolicyDetails(txId: string) {
-    if (txId) {
-      from(this.policyService.getPolicyViolationRules(txId))
+  getPolicyDetails(expenseId: string) {
+    if (expenseId) {
+      from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
         .pipe()
-        .subscribe((details) => {
-          this.policyDetails = details;
+        .subscribe((response) => {
+          this.policyDetails = response.count > 0 ? response.data[0] : [];
         });
     }
   }
@@ -331,7 +331,7 @@ export class ViewMileagePage implements OnInit {
     );
 
     if (id) {
-      this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+      this.policyViloations$ = this.policyService.getSpenderExpensePolicyViolations(id);
     } else {
       this.policyViloations$ = of(null);
     }

@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { PolicyApiService } from './policy-api.service';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PolicyService {
-  constructor(private policyApiService: PolicyApiService) {}
+  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
 
   getCriticalPolicyRules(result) {
     const criticalPopupRules = [];
@@ -32,11 +34,13 @@ export class PolicyService {
     return popupRules;
   }
 
-  getPolicyViolationRules(txnId) {
+  getSpenderExpensePolicyViolations(expenseId) {
     const params = {
-      txn_id: txnId,
+      expense_id: `eq.${expenseId}`,
     };
-    return this.policyApiService.get('/policy/violating_transactions', { params });
+    return this.spenderPlatformApiService.get<PlatformApiResponse<ExpensePolicyStates>>('/expense_policy_states', {
+      params,
+    });
   }
 
   checkIfViolationsExist(violations: { [id: string]: PolicyViolation }): boolean {
