@@ -277,7 +277,7 @@ export class MyCreateReportPage implements OnInit {
       0
     );
 
-    if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
+    if (this.reportTitleInput && !this.reportTitleInput.dirty) {
       return this.reportService.getReportPurpose({ ids: txnIds }).subscribe((res) => {
         this.reportTitle = res;
       });
