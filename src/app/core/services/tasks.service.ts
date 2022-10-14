@@ -220,7 +220,7 @@ export class TasksService {
 
   getExpensePill(filters: TaskFilters): FilterPill {
     const expensePills = [];
-    const draftExpensesContent = filters.draftExpenses ? 'Draft' : '';
+    const draftExpensesContent = filters.draftExpenses ? 'Incomplete' : '';
     if (draftExpensesContent) {
       expensePills.push(draftExpensesContent);
     }
