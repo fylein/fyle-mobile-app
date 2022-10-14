@@ -190,7 +190,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  async showPermissionDeniedMessage(permissionType: 'CAMERA' | 'GALLERY') {
+  async showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
     const isIos = this.platform.is('ios');
 
     const galleryPermissionName = isIos ? 'Photos' : 'Storage';
@@ -241,7 +241,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
 
     if (permissions?.camera === 'denied') {
-      return this.showPermissionDeniedMessage('CAMERA');
+      return this.showPermissionDeniedPopover('CAMERA');
     }
 
     if (!this.isCameraPreviewInitiated) {
@@ -514,7 +514,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       } else {
         const permissions = await Camera.requestPermissions({ permissions: ['photos'] });
         if (permissions?.photos === 'denied') {
-          return this.showPermissionDeniedMessage('GALLERY');
+          return this.showPermissionDeniedPopover('GALLERY');
         }
         this.galleryUpload();
       }
