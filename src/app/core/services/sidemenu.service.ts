@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, iif, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { OfflineService } from './offline.service';
 import { OrgSettingsService } from './org-settings.service';
 import { PermissionsService } from './permissions.service';
 import { ReportService } from './report.service';
@@ -11,7 +10,6 @@ import { ReportService } from './report.service';
 })
 export class SidemenuService {
   constructor(
-    private offlineService: OfflineService,
     private permissionsService: PermissionsService,
     private reportService: ReportService,
     private orgSettingsService: OrgSettingsService

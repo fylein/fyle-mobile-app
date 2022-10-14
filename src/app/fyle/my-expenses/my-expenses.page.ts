@@ -20,7 +20,6 @@ import {
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -178,7 +177,6 @@ export class MyExpensesPage implements OnInit {
     private router: Router,
     private transactionOutboxService: TransactionsOutboxService,
     private activatedRoute: ActivatedRoute,
-    private offlineService: OfflineService,
     private popupService: PopupService,
     private trackingService: TrackingService,
     private storageService: StorageService,

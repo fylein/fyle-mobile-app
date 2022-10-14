@@ -11,7 +11,6 @@ import { ReportStates } from '../stat-badge/report-states';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
@@ -69,7 +68,6 @@ export class StatsComponent implements OnInit {
     private currencyService: CurrencyService,
     private router: Router,
     private networkService: NetworkService,
-    private offlineService: OfflineService,
     private trackingService: TrackingService,
     private orgSettingsService: OrgSettingsService,
     private orgService: OrgService

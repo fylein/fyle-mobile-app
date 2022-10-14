@@ -4,7 +4,6 @@ import { DateService } from './date.service';
 import { from, empty, EMPTY, forkJoin, noop, concat, of } from 'rxjs';
 import { concatMap, switchMap, map, catchError, finalize } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { OfflineService } from './offline.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
 import { FileService } from './file.service';
@@ -42,7 +41,6 @@ export class TransactionsOutboxService {
     private httpClient: HttpClient,
     private receiptService: ReceiptService,
     private reportService: ReportService,
-    private offlineService: OfflineService,
     private trackingService: TrackingService,
     private currencyService: CurrencyService
   ) {

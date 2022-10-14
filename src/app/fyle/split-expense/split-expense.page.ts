@@ -9,7 +9,6 @@ import { catchError, concatMap, finalize, map, mergeMap, switchMap, tap, toArray
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -85,7 +84,6 @@ export class SplitExpensePage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private offlineService: OfflineService,
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,

@@ -34,7 +34,6 @@ import {
   withLatestFrom,
 } from 'rxjs/operators';
 import { AccountsService } from 'src/app/core/services/accounts.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import {
   AbstractControl,
@@ -353,7 +352,6 @@ export class AddEditExpensePage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
-    private offlineService: OfflineService,
     private authService: AuthService,
     private formBuilder: FormBuilder,
     private categoriesService: CategoriesService,

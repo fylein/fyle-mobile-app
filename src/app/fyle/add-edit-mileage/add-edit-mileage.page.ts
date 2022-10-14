@@ -3,7 +3,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { combineLatest, concat, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
 import {
@@ -217,7 +216,6 @@ export class AddEditMileagePage implements OnInit {
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private offlineService: OfflineService,
     private loaderService: LoaderService,
     private transactionService: TransactionService,
     private authService: AuthService,

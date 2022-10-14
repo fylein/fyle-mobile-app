@@ -22,7 +22,6 @@ import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { OfflineService } from './offline.service';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
 import { AccountsService } from './accounts.service';
@@ -60,7 +59,6 @@ export class TransactionService {
     private fileService: FileService,
     private policyApiService: PolicyApiService,
     private userEventService: UserEventService,
-    private offlineService: OfflineService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
     private accountsService: AccountsService

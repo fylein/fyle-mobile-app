@@ -11,7 +11,6 @@ import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advanc
 import { AuthService } from 'src/app/core/services/auth.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -81,7 +80,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   isCameraPreviewStarted = false;
 
   constructor(
-    private offlineService: OfflineService,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private router: Router,

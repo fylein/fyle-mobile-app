@@ -5,7 +5,6 @@ import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -87,7 +86,6 @@ export class ViewPerDiemPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
     private loaderService: LoaderService,
-    private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private perDiemService: PerDiemService,
     private policyService: PolicyService,

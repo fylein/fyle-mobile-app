@@ -1,5 +1,4 @@
 import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { concat, Observable, of, Subject } from 'rxjs';
 import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetController } from '@ionic/angular';
@@ -48,7 +47,6 @@ export class DashboardPage implements OnInit {
   taskCount = 0;
 
   constructor(
-    private offlineService: OfflineService,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
     private activatedRoute: ActivatedRoute,

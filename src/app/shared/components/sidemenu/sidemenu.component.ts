@@ -3,7 +3,6 @@ import * as Sentry from '@sentry/angular';
 import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { DeviceService } from 'src/app/core/services/device.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
@@ -47,7 +46,6 @@ export class SidemenuComponent implements OnInit {
   primaryOptionsCount: number;
 
   constructor(
-    private offlineService: OfflineService,
     private deviceService: DeviceService,
     private routerAuthService: RouterAuthService,
     private orgUserService: OrgUserService,

@@ -4,7 +4,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import {
   catchError,
   concatMap,
@@ -193,7 +192,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private offlineService: OfflineService,
     private fb: FormBuilder,
     private dateService: DateService,
     private accountsService: AccountsService,

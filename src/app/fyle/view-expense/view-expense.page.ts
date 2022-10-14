@@ -4,7 +4,6 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, reduce, takeUntil, take, filter } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -125,7 +124,6 @@ export class ViewExpensePage implements OnInit {
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
-    private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private statusService: StatusService,
     private fileService: FileService,

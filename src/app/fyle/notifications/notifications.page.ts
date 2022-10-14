@@ -4,7 +4,6 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { map, tap, switchMap, mergeMap, finalize } from 'rxjs/operators';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Router } from '@angular/router';
@@ -50,7 +49,6 @@ export class NotificationsPage implements OnInit {
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private formBuilder: FormBuilder,
-    private offlineService: OfflineService,
     private orgSettingsService: OrgSettingsService,
     private router: Router,
     private navController: NavController

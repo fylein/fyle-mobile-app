@@ -13,7 +13,6 @@ import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, tap, concatMap, finalize } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
@@ -55,7 +54,6 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
     private projectService: ProjectsService,
-    private offlineService: OfflineService,
     private authService: AuthService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private utilityService: UtilityService,

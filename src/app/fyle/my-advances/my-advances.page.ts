@@ -19,7 +19,6 @@ import { concatMap, map, reduce, shareReplay, startWith, switchMap, takeUntil, t
 
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceService } from 'src/app/core/services/advance.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NetworkService } from '../../core/services/network.service';
@@ -83,7 +82,6 @@ export class MyAdvancesPage implements AfterViewChecked {
     private router: Router,
     private advanceService: AdvanceService,
     private networkService: NetworkService,
-    private offlineService: OfflineService,
     private filtersHelperService: FiltersHelperService,
     private utilityService: UtilityService,
     private titleCasePipe: TitleCasePipe,

@@ -2,7 +2,6 @@ import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular
 import { BehaviorSubject, forkJoin, noop, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, take, tap, toArray } from 'rxjs/operators';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as moment from 'moment';
