@@ -237,6 +237,15 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       if (permissions?.camera === 'denied') {
         return this.showPermissionDeniedPopover('CAMERA');
       }
+
+      /*
+       * 'prompt-with-rationale' means that the user has denied permission, but has not disabled the permission prompt.
+       * So, we can use the native dialog to ask the user for camera permission.
+       */
+      if (permissions?.camera === 'prompt-with-rationale') {
+        return this.setUpAndStartCamera();
+      }
+
       if (!this.isCameraPreviewInitiated) {
         this.isCameraPreviewInitiated = true;
         const cameraPreviewOptions: CameraPreviewOptions = {
