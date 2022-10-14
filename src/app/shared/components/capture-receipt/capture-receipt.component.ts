@@ -11,7 +11,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
@@ -201,7 +201,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
 
-    const permissionDeniedPopover = await this.popoverController.create({
+    const permissionDeniedPopover = this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
         title,
@@ -219,17 +219,20 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       backdropDismiss: false,
     });
 
-    await permissionDeniedPopover.present();
-
-    const { data } = await permissionDeniedPopover.onWillDismiss();
-
-    if (data?.action === 'OPEN_SETTINGS') {
-      NativeSettings.open({
-        optionAndroid: AndroidSettings.ApplicationDetails,
-        optionIOS: IOSSettings.App,
+    from(permissionDeniedPopover)
+      .pipe(
+        tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
+        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss())
+      )
+      .subscribe(({ data }) => {
+        if (data?.action === 'OPEN_SETTINGS') {
+          NativeSettings.open({
+            optionAndroid: AndroidSettings.ApplicationDetails,
+            optionIOS: IOSSettings.App,
+          });
+        }
+        this.close();
       });
-    }
-    this.close();
   }
 
   setUpAndStartCamera() {
