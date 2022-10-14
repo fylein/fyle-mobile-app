@@ -232,36 +232,30 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.close();
   }
 
-  async setUpAndStartCamera() {
-    let permissions;
-    if (this.allowGalleryUploads) {
-      permissions = await Camera.requestPermissions();
-    } else {
-      permissions = await Camera.requestPermissions({ permissions: ['camera'] });
-    }
+  setUpAndStartCamera() {
+    from(Camera.requestPermissions()).subscribe((permissions) => {
+      if (permissions?.camera === 'denied') {
+        return this.showPermissionDeniedPopover('CAMERA');
+      }
+      if (!this.isCameraPreviewInitiated) {
+        this.isCameraPreviewInitiated = true;
+        const cameraPreviewOptions: CameraPreviewOptions = {
+          position: 'rear',
+          toBack: true,
+          width: window.innerWidth,
+          height: window.innerHeight,
+          parent: 'cameraPreview',
+          disableAudio: true,
+        };
 
-    if (permissions?.camera === 'denied') {
-      return this.showPermissionDeniedPopover('CAMERA');
-    }
-
-    if (!this.isCameraPreviewInitiated) {
-      this.isCameraPreviewInitiated = true;
-      const cameraPreviewOptions: CameraPreviewOptions = {
-        position: 'rear',
-        toBack: true,
-        width: window.innerWidth,
-        height: window.innerHeight,
-        parent: 'cameraPreview',
-        disableAudio: true,
-      };
-
-      this.loaderService.showLoader();
-      CameraPreview.start(cameraPreviewOptions).then((res) => {
-        this.isCameraPreviewStarted = true;
-        this.getFlashModes();
-        this.loaderService.hideLoader();
-      });
-    }
+        this.loaderService.showLoader();
+        CameraPreview.start(cameraPreviewOptions).then((res) => {
+          this.isCameraPreviewStarted = true;
+          this.getFlashModes();
+          this.loaderService.hideLoader();
+        });
+      }
+    });
   }
 
   switchMode() {
@@ -469,7 +463,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.trackingService.instafyleGalleryUploadOpened({});
     this.stopCamera();
 
-    this.imagePicker.hasReadPermission().then(async (permission) => {
+    this.imagePicker.hasReadPermission().then((permission) => {
       if (permission) {
         const options = {
           maximumImagesCount: 10,
@@ -512,11 +506,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           }
         });
       } else {
-        const permissions = await Camera.requestPermissions({ permissions: ['photos'] });
-        if (permissions?.photos === 'denied') {
-          return this.showPermissionDeniedPopover('GALLERY');
-        }
-        this.galleryUpload();
+        from(Camera.requestPermissions({ permissions: ['photos'] })).subscribe((permissions) => {
+          if (permissions?.photos === 'denied') {
+            return this.showPermissionDeniedPopover('GALLERY');
+          }
+          this.galleryUpload();
+        });
       }
     });
   }
