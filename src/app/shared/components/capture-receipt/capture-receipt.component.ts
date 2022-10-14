@@ -201,7 +201,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
 
-    const permission = await this.popoverController.create({
+    const permissionDeniedPopover = await this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
         title,
@@ -219,9 +219,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       backdropDismiss: false,
     });
 
-    await permission.present();
+    await permissionDeniedPopover.present();
 
-    const { data } = await permission.onWillDismiss();
+    const { data } = await permissionDeniedPopover.onWillDismiss();
 
     if (data?.action === 'OPEN_SETTINGS') {
       NativeSettings.open({
