@@ -17,6 +17,7 @@ import { MergeExpensesService } from 'src/app/core/services/merge-expenses.servi
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 type Option = Partial<{
   label: string;
@@ -142,9 +143,11 @@ export class MergeExpensePage implements OnInit {
 
   touchedCategoryDepedentFields: string[];
 
+  systemCategories: string[];
+
   constructor(
     private router: Router,
-    private offlineService: OfflineService,
+    private categoriesService: CategoriesService,
     private formBuilder: FormBuilder,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
@@ -176,6 +179,8 @@ export class MergeExpensePage implements OnInit {
       categoryDependent: [],
       custom_inputs: [],
     });
+
+    this.systemCategories = this.categoriesService.getSystemCategories();
 
     this.expenseOptions$ = this.mergeExpensesService.generateExpenseToKeepOptions(this.expenses);
 

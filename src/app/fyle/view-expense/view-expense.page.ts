@@ -30,6 +30,7 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -109,6 +110,16 @@ export class ViewExpensePage implements OnInit {
 
   showPaymentMode = true;
 
+  systemCategories: string[];
+
+  travelSystemCategories: string[];
+
+  flightSystemCategories: string[];
+
+  breakfastSystemCategories: string[];
+
+  systemCategoriesWithTaxi: string[];
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -128,7 +139,8 @@ export class ViewExpensePage implements OnInit {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private paymentModesService: PaymentModesService,
     private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private categoriesService: CategoriesService
   ) {}
 
   get ExpenseView() {
@@ -211,6 +223,12 @@ export class ViewExpensePage implements OnInit {
   ionViewWillEnter() {
     this.setupNetworkWatcher();
     const txId = this.activatedRoute.snapshot.params.id;
+
+    this.systemCategories = this.categoriesService.getSystemCategories();
+    this.systemCategoriesWithTaxi = this.categoriesService.getSystemCategoriesWithTaxi();
+    this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
+    this.travelSystemCategories = this.categoriesService.getTravelSystemCategories();
+    this.flightSystemCategories = this.categoriesService.getFlightSystemCategories();
 
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
       switchMap(() => this.transactionService.getEtxn(txId)),
