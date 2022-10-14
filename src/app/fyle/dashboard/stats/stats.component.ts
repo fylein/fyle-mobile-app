@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
-import { delay, map, switchMap, tap } from 'rxjs/operators';
+import { delay, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
@@ -130,13 +130,10 @@ export class StatsComponent implements OnInit {
   }
 
   initializeCCCStats() {
-    this.dashboardService
-      .getCCCDetails()
-      .pipe()
-      .subscribe((details) => {
-        this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-        this.isCCCStatsLoading = false;
-      });
+    this.dashboardService.getCCCDetails().subscribe((details) => {
+      this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
+    }),
+      finalize(() => (this.isCCCStatsLoading = false));
   }
 
   /*
