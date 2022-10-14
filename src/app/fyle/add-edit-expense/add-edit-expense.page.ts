@@ -4200,8 +4200,8 @@ export class AddEditExpensePage implements OnInit {
     if (expenseId) {
       from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
         .pipe()
-        .subscribe((response) => {
-          this.policyDetails = response.count > 0 ? response.data[0] : [];
+        .subscribe((policyDetails) => {
+          this.policyDetails = policyDetails;
         });
     }
   }

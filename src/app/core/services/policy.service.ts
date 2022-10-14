@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { ExpensePolicyIndividualDesiredState } from '../models/platform/platform-expense-policy-individual-desired-state.model';
 import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
 import { PolicyViolation } from '../models/policy-violation.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
@@ -34,13 +36,15 @@ export class PolicyService {
     return popupRules;
   }
 
-  getSpenderExpensePolicyViolations(expenseId) {
+  getSpenderExpensePolicyViolations(expenseId: string): Observable<ExpensePolicyIndividualDesiredState[]> {
     const params = {
       expense_id: `eq.${expenseId}`,
     };
-    return this.spenderPlatformApiService.get<PlatformApiResponse<ExpensePolicyStates>>('/expense_policy_states', {
-      params,
-    });
+    return this.spenderPlatformApiService
+      .get<PlatformApiResponse<ExpensePolicyStates>>('/expense_policy_states', {
+        params,
+      })
+      .pipe(map((policyStates) => (policyStates.count > 0 ? policyStates.data[0].individual_desired_states : [])));
   }
 
   checkIfViolationsExist(violations: { [id: string]: PolicyViolation }): boolean {
