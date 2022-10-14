@@ -46,6 +46,13 @@ export class OrgUserSettingsService {
     return this.get().pipe(map((orgUserSettings) => orgUserSettings?.payment_mode_settings?.allowed_payment_modes));
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: orgUserSettingsCacheBuster$,
+  })
+  clearOrgUserSettings() {
+    return of(null);
+  }
+
   getAllowedCostCenters(orgUserSettings, filters = { isUserSpecific: false }) {
     return this.costCentersService.getAllActive().pipe(
       map((costCenters) => {
@@ -60,13 +67,6 @@ export class OrgUserSettingsService {
         return allowedCostCenters;
       })
     );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: orgUserSettingsCacheBuster$,
-  })
-  clearOrgUserSettings() {
-    return of(null);
   }
 
   getOrgUserSettingsById(ouId: string) {
