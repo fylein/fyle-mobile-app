@@ -130,9 +130,9 @@ export class StatsComponent implements OnInit {
   }
 
   initializeCCCStats() {
-    this.dashboardService.getCCCDetails().subscribe((details) => {
-      this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-    }),
+    this.dashboardService
+      .getCCCDetails()
+      .subscribe((details) => (this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails))),
       finalize(() => (this.isCCCStatsLoading = false));
   }
 
