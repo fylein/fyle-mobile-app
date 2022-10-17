@@ -119,7 +119,11 @@ export class ViewPerDiemPage implements OnInit {
 
   getPolicyDetails(expenseId: string) {
     if (expenseId) {
-      from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
+      from(
+        this.view == ExpenseView.team
+          ? this.policyService.getApproverExpensePolicyViolations(expenseId)
+          : this.policyService.getSpenderExpensePolicyViolations(expenseId)
+      )
         .pipe()
         .subscribe((policyDetails) => {
           this.policyDetails = policyDetails;
@@ -237,7 +241,10 @@ export class ViewPerDiemPage implements OnInit {
     );
 
     if (id) {
-      this.policyViloations$ = this.policyService.getSpenderExpensePolicyViolations(id);
+      this.policyViloations$ =
+        this.view == ExpenseView.team
+          ? this.policyService.getApproverExpensePolicyViolations(id)
+          : this.policyService.getSpenderExpensePolicyViolations(id);
     } else {
       this.policyViloations$ = of(null);
     }
