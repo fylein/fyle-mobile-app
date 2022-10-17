@@ -195,15 +195,19 @@ export class ViewExpensePage implements OnInit {
 
   getPolicyDetails(expenseId: string) {
     if (expenseId) {
-      from(
-        this.view == ExpenseView.team
-          ? this.policyService.getApproverExpensePolicyViolations(expenseId)
-          : this.policyService.getSpenderExpensePolicyViolations(expenseId)
-      )
-        .pipe()
-        .subscribe((policyDetails) => {
-          this.policyDetails = policyDetails;
-        });
+      if (this.view == ExpenseView.team) {
+        from(this.policyService.getApproverExpensePolicyViolations(expenseId))
+          .pipe()
+          .subscribe((policyDetails) => {
+            this.policyDetails = policyDetails;
+          });
+      } else {
+        from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
+          .pipe()
+          .subscribe((policyDetails) => {
+            this.policyDetails = policyDetails;
+          });
+      }
     }
   }
 
