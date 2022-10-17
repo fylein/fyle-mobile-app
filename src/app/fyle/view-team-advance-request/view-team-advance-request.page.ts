@@ -20,12 +20,12 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { FileObject } from 'src/app/core/models/file_obj.model';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-view-team-advance',
@@ -77,7 +77,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private offlineService: OfflineService,
+    private expenseFieldsService: ExpenseFieldsService,
     private humanizeCurrency: HumanizeCurrencyPipe,
     @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
@@ -87,7 +87,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
   }
 
   async getAndUpdateProjectName() {
-    const expenseFields = await this.offlineService.getAllEnabledExpenseFields().toPromise();
+    const expenseFields = await this.expenseFieldsService.getAllEnabled().toPromise();
     return expenseFields.filter((expenseField) => expenseField.column_name === 'project_id')[0];
   }
 

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { OfflineService } from './offline.service';
+import { SmartlookService } from './smartlook.service';
 
-xdescribe('OfflineService', () => {
-  let service: OfflineService;
+xdescribe('SmartlookService', () => {
+  let service: SmartlookService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(OfflineService);
+    service = TestBed.inject(SmartlookService);
   });
 
   it('should be created', () => {

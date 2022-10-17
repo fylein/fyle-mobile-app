@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
+import { Cacheable } from 'ts-cacheable';
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
@@ -13,6 +14,7 @@ import { AuthService } from './auth.service';
 export class ExpenseFieldsService {
   constructor(private apiService: ApiService, private authService: AuthService) {}
 
+  @Cacheable()
   getAllEnabled(): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>

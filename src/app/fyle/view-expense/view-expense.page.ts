@@ -4,7 +4,6 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, reduce, takeUntil, take, filter } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -28,7 +27,9 @@ import { CustomField } from 'src/app/core/models/custom_field.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -108,12 +109,21 @@ export class ViewExpensePage implements OnInit {
 
   showPaymentMode = true;
 
+  systemCategories: string[];
+
+  travelSystemCategories: string[];
+
+  flightSystemCategories: string[];
+
+  breakfastSystemCategories: string[];
+
+  systemCategoriesWithTaxi: string[];
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
-    private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private statusService: StatusService,
     private fileService: FileService,
@@ -126,7 +136,9 @@ export class ViewExpensePage implements OnInit {
     private trackingService: TrackingService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private paymentModesService: PaymentModesService,
-    private orgSettingsService: OrgSettingsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private orgSettingsService: OrgSettingsService,
+    private categoriesService: CategoriesService
   ) {}
 
   get ExpenseView() {
@@ -210,6 +222,12 @@ export class ViewExpensePage implements OnInit {
     this.setupNetworkWatcher();
     const txId = this.activatedRoute.snapshot.params.id;
 
+    this.systemCategories = this.categoriesService.getSystemCategories();
+    this.systemCategoriesWithTaxi = this.categoriesService.getSystemCategoriesWithTaxi();
+    this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
+    this.travelSystemCategories = this.categoriesService.getTravelSystemCategories();
+    this.flightSystemCategories = this.categoriesService.getFlightSystemCategories();
+
     this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
       switchMap(() => this.transactionService.getEtxn(txId)),
       shareReplay(1)
@@ -273,7 +291,7 @@ export class ViewExpensePage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(etxn.tx_currency, 'wide');
     });
 
-    forkJoin([this.offlineService.getExpenseFieldsMap(), this.etxn$.pipe(take(1))])
+    forkJoin([this.expenseFieldsService.getAllMap(), this.etxn$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, etxn]) => {
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
@@ -323,8 +341,8 @@ export class ViewExpensePage implements OnInit {
         this.orgSettings?.unify_ccce_expenses_settings?.enabled;
     });
 
-    this.offlineService
-      .getExpenseFieldsMap()
+    this.expenseFieldsService
+      .getAllMap()
       .pipe(
         map((expenseFieldsMap) => {
           this.merchantFieldName = expenseFieldsMap.vendor_id[0]?.field_name;

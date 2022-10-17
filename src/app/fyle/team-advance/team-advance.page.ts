@@ -13,8 +13,8 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { TitleCasePipe } from '@angular/common';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -59,7 +59,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     private cdRef: ChangeDetectorRef,
     private router: Router,
     private filtersHelperService: FiltersHelperService,
-    private offlineService: OfflineService,
+    private expenseFieldsService: ExpenseFieldsService,
     private titleCasePipe: TitleCasePipe
   ) {}
 
@@ -160,7 +160,7 @@ export class TeamAdvancePage implements AfterViewChecked {
   }
 
   getAndUpdateProjectName() {
-    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+    this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
       this.projectFieldName = projectField?.field_name;
     });

@@ -20,7 +20,6 @@ import {
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -53,6 +52,7 @@ import { MyExpensesService } from './my-expenses.service';
 import { Filters } from './my-expenses-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
@@ -150,7 +150,7 @@ export class MyExpensesPage implements OnInit {
 
   expensesTaskCount = 0;
 
-  isCameraShown = false;
+  isCameraPreviewStarted = false;
 
   isUnifyCCCEnabled$: Observable<boolean>;
 
@@ -177,7 +177,6 @@ export class MyExpensesPage implements OnInit {
     private router: Router,
     private transactionOutboxService: TransactionsOutboxService,
     private activatedRoute: ActivatedRoute,
-    private offlineService: OfflineService,
     private popupService: PopupService,
     private trackingService: TrackingService,
     private storageService: StorageService,
@@ -193,7 +192,8 @@ export class MyExpensesPage implements OnInit {
     private corporateCreditCardService: CorporateCreditCardExpenseService,
     private myExpensesService: MyExpensesService,
     private orgSettingsService: OrgSettingsService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   get HeaderState() {
@@ -417,8 +417,8 @@ export class MyExpensesPage implements OnInit {
       this.expensesTaskCount = expensesTaskCount;
     });
 
-    this.isInstaFyleEnabled$ = this.offlineService
-      .getOrgUserSettings()
+    this.isInstaFyleEnabled$ = this.orgUserSettingsService
+      .get()
       .pipe(
         map(
           (orgUserSettings) =>
@@ -426,8 +426,8 @@ export class MyExpensesPage implements OnInit {
         )
       );
 
-    this.isBulkFyleEnabled$ = this.offlineService
-      .getOrgUserSettings()
+    this.isBulkFyleEnabled$ = this.orgUserSettingsService
+      .get()
       .pipe(map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled));
 
     this.isMileageEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage.enabled));
@@ -1512,7 +1512,7 @@ export class MyExpensesPage implements OnInit {
     ]);
   }
 
-  showCamera(isCameraShown: boolean) {
-    this.isCameraShown = isCameraShown;
+  showCamera(isCameraPreviewStarted: boolean) {
+    this.isCameraPreviewStarted = isCameraPreviewStarted;
   }
 }

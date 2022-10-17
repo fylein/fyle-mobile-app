@@ -1,5 +1,5 @@
 <app-fy-header
-  [ngClass]="{'d-none': isCameraShown}"
+  [ngClass]="{'d-none': isCameraPreviewStarted}"
   [currentState]="headerState"
   [navigateBack]="navigateBack"
   [title]="'Expenses'"
@@ -33,7 +33,7 @@
           <input
             #simpleSearchInput
             [(ngModel)]="simpleSearchText"
-            class="my-expenses--simple-search-input"
+            class="my-expenses--simple-search-input smartlook-show"
             matInput
             placeholder="Search"
             (focus)="onSearchBarFocus()"
@@ -83,7 +83,7 @@
   </ng-container>
 </app-fy-header>
 
-<ion-content [ngClass]="{'d-none': isCameraShown}" class="my-expenses--content">
+<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}" class="my-expenses--content">
   <div
     class="my-expenses--body"
     [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}"
@@ -213,7 +213,7 @@
   </ng-container>
 </ion-content>
 
-<ion-footer [ngClass]="{'d-none': isCameraShown}" *ngIf="!isSearchBarFocused">
+<ion-footer [ngClass]="{'d-none': isCameraPreviewStarted}" *ngIf="!isSearchBarFocused">
   <app-fy-footer
     *ngIf="!selectionMode"
     (homeClicked)="onHomeClicked()"

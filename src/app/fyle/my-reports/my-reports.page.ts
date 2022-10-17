@@ -375,6 +375,10 @@ export class MyReportsPage implements OnInit {
         stateOrFilter.push('rp_state.in.(PAYMENT_PENDING)');
       }
 
+      if (this.filters.state.includes('PAYMENT_PROCESSING')) {
+        stateOrFilter.push('rp_state.in.(PAYMENT_PROCESSING)');
+      }
+
       if (this.filters.state.includes('PAID')) {
         stateOrFilter.push('rp_state.in.(PAID)');
       }
@@ -922,6 +926,10 @@ export class MyReportsPage implements OnInit {
               {
                 label: 'Payment Pending',
                 value: 'PAYMENT_PENDING',
+              },
+              {
+                label: 'Payment Processing',
+                value: 'PAYMENT_PROCESSING',
               },
               {
                 label: 'Paid',

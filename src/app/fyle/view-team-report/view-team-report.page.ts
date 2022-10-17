@@ -27,7 +27,6 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { Approver } from 'src/app/core/models/v1/approver.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 @Component({

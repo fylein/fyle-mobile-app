@@ -1,7 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { switchMap } from 'rxjs/operators';
-
-import { OfflineService } from 'src/app/core/services/offline.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-audit-history',
@@ -13,11 +11,11 @@ export class AuditHistoryComponent implements OnInit {
 
   projectFieldName = 'project';
 
-  constructor(private offlineService: OfflineService) {}
+  constructor(private expenseFieldsService: ExpenseFieldsService) {}
 
   // TODO - replace forEach with find
   getAndUpdateProjectName() {
-    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+    this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       expenseFields.forEach((expenseField) => {
         if (expenseField.column_name === 'project_id') {
           this.projectFieldName = expenseField.field_name;

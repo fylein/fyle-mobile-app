@@ -14,6 +14,7 @@ export const environment = {
   SENTRY_DSN: '${process.env.FYLE_MOBILE_SENTRY_DSN}',
   REFINER_NPS_FORM_ID: '${process.env.REFINER_NPS_FORM_ID}',
   LAUNCH_DARKLY_CLIENT_ID: '${process.env.LAUNCH_DARKLY_CLIENT_ID}',
-  LIVE_UPDATE_APP_VERSION: '${process.env.LIVE_UPDATE_APP_VERSION}'
+  LIVE_UPDATE_APP_VERSION: '${process.env.LIVE_UPDATE_APP_VERSION}',
+  SMARTLOOK_API_KEY: '${process.env.SMARTLOOK_API_KEY}'
 };
 `

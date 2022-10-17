@@ -9,7 +9,6 @@ import { catchError, concatMap, finalize, map, mergeMap, switchMap, tap, toArray
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -26,6 +25,7 @@ import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-v
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -84,7 +84,6 @@ export class SplitExpensePage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private offlineService: OfflineService,
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,
@@ -101,6 +100,7 @@ export class SplitExpensePage implements OnInit {
     private policyService: PolicyService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
+    private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService
   ) {}
 
@@ -459,7 +459,7 @@ export class SplitExpensePage implements OnInit {
   }
 
   getActiveCategories() {
-    const allCategories$ = this.offlineService.getAllEnabledCategories();
+    const allCategories$ = this.categoriesService.getAll();
 
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
@@ -482,14 +482,14 @@ export class SplitExpensePage implements OnInit {
 
       if (this.splitType === 'cost centers') {
         const orgSettings$ = this.orgSettingsService.get();
-        const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+        const orgUserSettings$ = this.orgUserSettingsService.get();
         this.costCenters$ = forkJoin({
           orgSettings: orgSettings$,
           orgUserSettings: orgUserSettings$,
         }).pipe(
           switchMap(({ orgSettings, orgUserSettings }) => {
             if (orgSettings.cost_centers.enabled) {
-              return this.offlineService.getAllowedCostCenters(orgUserSettings);
+              return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
             } else {
               return of([]);
             }

@@ -5,7 +5,6 @@ import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, sw
 import { Platform, PopoverController } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
@@ -55,7 +54,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   constructor(
     private platform: Platform,
-    private offlineService: OfflineService,
     private loaderService: LoaderService,
     private userService: UserService,
     private activatedRoute: ActivatedRoute,
@@ -87,7 +85,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const that = this;
     that.searchInput = '';
     that.isLoading = true;
-    that.orgs$ = that.offlineService.getOrgs().pipe(shareReplay(1));
+    that.orgs$ = that.orgService.getOrgs().pipe(shareReplay(1));
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
     that.orgs$.subscribe((orgs) => {
@@ -111,8 +109,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         }
       });
     }
-    this.activeOrg$ = this.offlineService.getCurrentOrg();
-    this.primaryOrg$ = this.offlineService.getPrimaryOrg();
+    this.activeOrg$ = this.orgService.getCurrentOrg();
+    this.primaryOrg$ = this.orgService.getPrimaryOrg();
 
     const currentOrgs$ = forkJoin([this.orgs$, this.primaryOrg$, this.activeOrg$]).pipe(
       map(([orgs, primaryOrg, activeOrg]) => {

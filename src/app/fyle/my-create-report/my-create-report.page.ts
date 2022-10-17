@@ -7,7 +7,6 @@ import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -59,7 +58,6 @@ export class MyCreateReportPage implements OnInit {
     private loaderService: LoaderService,
     private router: Router,
     private popoverController: PopoverController,
-    private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
     private trackingService: TrackingService,
     private storageService: StorageService,
@@ -279,7 +277,7 @@ export class MyCreateReportPage implements OnInit {
       0
     );
 
-    if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
+    if (this.reportTitleInput && !this.reportTitleInput.dirty) {
       return this.reportService.getReportPurpose({ ids: txnIds }).subscribe((res) => {
         this.reportTitle = res;
       });

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { throwError } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
+import { tap } from 'rxjs/operators';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { PageState } from 'src/app/core/models/page-state.enum';
 
@@ -14,34 +13,39 @@ export class PendingVerificationPage implements OnInit {
 
   isLoading = false;
 
-  constructor(private routerAuthService: RouterAuthService, private router: Router) {}
+  hasTokenExpired = false;
+
+  constructor(
+    private routerAuthService: RouterAuthService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+  ) {}
 
   ngOnInit() {}
 
   ionViewWillEnter() {
+    this.hasTokenExpired = this.activatedRoute.snapshot.params.hasTokenExpired || false;
     this.currentPageState = PageState.notSent;
   }
 
   resendVerificationLink(email: string) {
     this.isLoading = true;
+    const orgId = this.activatedRoute.snapshot.params.orgId;
 
     this.routerAuthService
-      .resendVerificationLink(email)
-      .pipe(
-        finalize(async () => {
-          this.isLoading = false;
-        }),
-        catchError((err) => {
-          if (err.status === 422) {
-            this.router.navigate(['/', 'auth', 'disabled']);
-          } else {
-            this.currentPageState = PageState.failure;
-          }
-          return throwError(err);
-        })
-      )
-      .subscribe(() => {
-        this.currentPageState = PageState.success;
+      .resendVerificationLink(email, orgId)
+      .pipe(tap(() => (this.isLoading = false)))
+      .subscribe({
+        next: () => (this.currentPageState = PageState.success),
+        error: (err) => this.handleError(err),
       });
+  }
+
+  handleError(err: any) {
+    if (err.status === 422) {
+      this.router.navigate(['/', 'auth', 'disabled']);
+    } else {
+      this.currentPageState = PageState.failure;
+    }
   }
 }

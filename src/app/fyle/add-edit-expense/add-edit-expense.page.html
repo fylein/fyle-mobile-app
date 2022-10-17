@@ -1,4 +1,4 @@
-<ion-header [ngClass]="{'d-none': isCameraShown}" mode="md">
+<ion-header [ngClass]="{'d-none': isCameraPreviewStarted}" mode="md">
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
@@ -26,7 +26,7 @@
           </div>
         </ng-container>
         <ng-template #editMode>
-          <div>Edit Expense</div>
+          <div>{{isIncompleteExpense ? 'Review' : 'Edit'}} Expense</div>
         </ng-template>
       </div>
     </ion-title>
@@ -66,10 +66,14 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [ngClass]="{'d-none': isCameraShown}">
+<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}">
   <ng-container *ngIf="fg">
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
+        <div *ngIf="isIncompleteExpense" class="add-edit-expense--alert-offline">
+          <app-fy-alert-info message="Please save the expense after reviewing it." type="warning"></app-fy-alert-info>
+        </div>
+
         <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
           <app-fy-alert-info
             [message]="'This expense might be a duplicate of an existing expense.'"
@@ -264,7 +268,7 @@
                       [max]="maxDate"
                       [min]="minDate"
                       [placeholder]="txnFields.txn_dt?.placeholder || 'Date of Spend'"
-                      class="add-edit-expense--date-input date-input__format"
+                      class="add-edit-expense--date-input date-input__format smartlook-show"
                       formControlName="dateOfSpend"
                       type="date"
                       [name]="txnFields.txn_dt?.field_name || 'Date of Spend'"
@@ -532,11 +536,11 @@
                 <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
-                      *ngIf="txnFields.location1?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.location1?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
                         class="add-edit-expense--internal-block"
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_1.touched && !fg.controls.location_1.valid, 'add-edit-expense--internal-block__margin': txnFields.location2?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)}"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.location_1.touched && !fg.controls.location_1.valid, 'add-edit-expense--internal-block__margin': txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
                       >
                         <app-fy-location
                           [label]="txnFields.location1?.field_name"
@@ -548,7 +552,7 @@
                       </div>
                     </ion-col>
                     <ion-col
-                      *ngIf="txnFields.location2?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
                         class="add-edit-expense--internal-block"
@@ -569,10 +573,10 @@
                 <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
-                      *ngIf="txnFields.from_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.from_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)}"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.from_dt.touched && !fg.controls.from_dt.valid, 'add-edit-expense--internal-block__margin': txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
                         class="add-edit-expense--date add-edit-expense--internal-block"
                       >
                         <div
@@ -585,7 +589,7 @@
                         <input
                           appFormatDate
                           [disabled]="!txnFields.from_dt?.canEdit"
-                          class="add-edit-expense--date-input date-input__format"
+                          class="add-edit-expense--date-input date-input__format smartlook-show"
                           formControlName="from_dt"
                           [name]="txnFields.from_dt?.field_name"
                           type="date"
@@ -594,7 +598,7 @@
                       </div>
                     </ion-col>
                     <ion-col
-                      *ngIf="txnFields.to_dt?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
                         [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.to_dt.touched && !fg.controls.to_dt.valid}"
@@ -610,7 +614,7 @@
                         <input
                           appFormatDate
                           [disabled]="!txnFields.to_dt?.canEdit"
-                          class="add-edit-expense--date-input date-input__format"
+                          class="add-edit-expense--date-input date-input__format smartlook-show"
                           formControlName="to_dt"
                           [name]="txnFields.to_dt?.field_name"
                           type="date"
@@ -624,11 +628,11 @@
                 <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     <ion-col
-                      *ngIf="txnFields.flight_journey_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.flight_journey_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
                         class="add-edit-expense--internal-block"
-                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid, 'add-edit-expense--internal-block__margin': txnFields.flight_return_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)}"
+                        [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.flight_journey_travel_class.touched && !fg.controls.flight_journey_travel_class.valid, 'add-edit-expense--internal-block__margin': txnFields.flight_return_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)}"
                       >
                         <app-fy-select
                           *ngIf="flightJourneyTravelClassOptions$|async as flightJourneyTravelClassOptions"
@@ -644,7 +648,7 @@
                       </div>
                     </ion-col>
                     <ion-col
-                      *ngIf="txnFields.flight_return_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                      *ngIf="txnFields.flight_return_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                     >
                       <div
                         class="add-edit-expense--internal-block"
@@ -668,7 +672,7 @@
                 </ion-grid>
 
                 <div
-                  *ngIf="txnFields.train_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                  *ngIf="txnFields.train_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.train_travel_class.touched && !fg.controls.train_travel_class.valid}"
                   class="add-edit-expense--internal-block add-edit-expense--text"
                 >
@@ -685,7 +689,7 @@
                       (focus)="focusState = true"
                       [disabled]="!txnFields.train_travel_class?.canEdit"
                       [placeholder]="txnFields.train_travel_class.placeholder || 'Enter ' + txnFields.train_travel_class.field_name"
-                      class="add-edit-expense--text-input add-edit-expense--text-input__large"
+                      class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
                       formControlName="train_travel_class"
                       type="text"
                     />
@@ -704,7 +708,7 @@
                 </div>
 
                 <div
-                  *ngIf="txnFields.bus_travel_class?.is_mandatory && ['Bus', 'Flight', 'Hotel', 'Train'].includes(fg.value.category?.fyle_category)"
+                  *ngIf="txnFields.bus_travel_class?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)"
                   [ngClass]="{'add-edit-expense--internal-block__invalid': fg.controls.bus_travel_class.touched && !fg.controls.bus_travel_class.valid}"
                   class="add-edit-expense--internal-block add-edit-expense--text"
                 >
@@ -722,7 +726,7 @@
                     [placeholder]="txnFields.bus_travel_class?.placeholder || 'Enter ' + txnFields.bus_travel_class?.field_name"
                     *ngIf="txnFields.bus_travel_class?.type === 'TEXT'"
                     [disabled]="!txnFields.bus_travel_class?.canEdit"
-                    class="add-edit-expense--text-input add-edit-expense--text-input__large"
+                    class="add-edit-expense--text-input add-edit-expense--text-input__large smartlook-show"
                     formControlName="bus_travel_class"
                     type="text"
                   />
@@ -741,7 +745,7 @@
                 </div>
 
                 <div
-                  *ngIf="fg.value?.category?.fyle_category === 'Hotel' && isExpandedView"
+                  *ngIf="breakfastSystemCategories?.includes(fg?.value?.category?.fyle_category) && isExpandedView"
                   class="add-edit-expense--internal-block"
                 >
                   <mat-checkbox formControlName="hotel_is_breakfast_provided">
@@ -864,7 +868,7 @@
                     [placeholder]="txnFields.purpose?.placeholder || 'Enter '+txnFields.purpose?.field_name | slice: 0:30"
                     [required]="txnFields.purpose?.is_mandatory"
                     [title]="'Enter'+txnFields.purpose?.field_name"
-                    class="add-edit-expense--text-input"
+                    class="add-edit-expense--text-input smartlook-show"
                     formControlName="purpose"
                   />
                 </div>
@@ -921,7 +925,7 @@
                       (focus)="focusState = true"
                       *ngIf="customInput.type === 'TEXT'"
                       [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
-                      class="add-edit-expense--text-input"
+                      class="add-edit-expense--text-input smartlook-show"
                       formControlName="value"
                       type="text"
                     />
@@ -936,7 +940,7 @@
                     <input
                       appFormatDate
                       *ngIf="customInput.type === 'DATE'"
-                      class="add-edit-expense--date-input date-input__format"
+                      class="add-edit-expense--date-input date-input__format smartlook-show"
                       formControlName="value"
                       type="date"
                       [name]="customInput.placeholder || customInput.name"
@@ -1151,7 +1155,7 @@
     (saveAndGoToNext)="saveExpenseAndGotoNext()"
   ></app-review-footer>
   <ion-footer
-    [ngClass]="{'d-none': isCameraShown}"
+    [ngClass]="{'d-none': isCameraPreviewStarted}"
     class="add-edit-expense--footer-container"
     *ngIf="!reviewList?.length"
   >

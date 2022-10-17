@@ -8,7 +8,6 @@ import { KeyValue, DatePipe } from '@angular/common';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';

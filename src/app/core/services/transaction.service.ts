@@ -22,9 +22,9 @@ import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { OfflineService } from './offline.service';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
+import { AccountsService } from './accounts.service';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -59,9 +59,9 @@ export class TransactionService {
     private fileService: FileService,
     private policyApiService: PolicyApiService,
     private userEventService: UserEventService,
-    private offlineService: OfflineService,
     private paymentModesService: PaymentModesService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private accountsService: AccountsService
   ) {
     transactionsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -980,8 +980,8 @@ export class TransactionService {
   getTxnAccount() {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
-      accounts: this.offlineService.getAccounts(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      accounts: this.accountsService.getEMyAccounts(),
+      orgUserSettings: this.orgUserSettingsService.get(),
     }).pipe(
       switchMap(({ orgSettings, accounts, orgUserSettings }) =>
         this.paymentModesService.getDefaultAccount(orgSettings, accounts, orgUserSettings)

@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
-import { delay, map, switchMap, tap } from 'rxjs/operators';
+import { delay, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
@@ -11,11 +11,11 @@ import { ReportStates } from '../stat-badge/report-states';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { CardAggregateStat } from 'src/app/core/models/card-aggregate-stat.model';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgService } from 'src/app/core/services/org.service';
 
 @Component({
   selector: 'app-stats',
@@ -51,12 +51,6 @@ export class StatsComponent implements OnInit {
 
   isCCCStatsLoading: boolean;
 
-  allCardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned[]>;
-
-  cardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned>;
-
-  cardTransactionsAndDetailsNonUnifyCCC: BankAccountsAssigned;
-
   cardTransactionsAndDetails$: Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }>;
 
   cardTransactionsAndDetails: CardDetail[];
@@ -68,9 +62,9 @@ export class StatsComponent implements OnInit {
     private currencyService: CurrencyService,
     private router: Router,
     private networkService: NetworkService,
-    private offlineService: OfflineService,
     private trackingService: TrackingService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private orgService: OrgService
   ) {}
 
   get ReportStates() {
@@ -134,45 +128,10 @@ export class StatsComponent implements OnInit {
   }
 
   initializeCCCStats() {
-    if (this.isUnifyCCCExpensesSettings) {
-      this.dashboardService
-        .getCCCDetails()
-        .pipe(
-          switchMap((details) =>
-            this.dashboardService.getNonUnifyCCCDetails().pipe(map((cards) => ({ details, cards })))
-          )
-        )
-        .subscribe(({ details, cards }) => {
-          this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-          cards.forEach((card) => {
-            if (
-              this.cardTransactionsAndDetails.filter((cardDetail) => cardDetail.cardNumber === card.ba_account_number)
-                ?.length === 0
-            ) {
-              this.cardTransactionsAndDetails.push({
-                cardNumber: card.ba_account_number,
-                cardName: card.ba_bank_name,
-                totalAmountValue: 0,
-                totalCompleteExpensesValue: 0,
-                totalCompleteTxns: 0,
-                totalDraftTxns: 0,
-                totalDraftValue: 0,
-                totalTxnsCount: 0,
-              });
-            }
-          });
-          this.isCCCStatsLoading = false;
-        });
-    } else {
-      this.cardTransactionsAndDetailsNonUnifyCCC$ = this.dashboardService.getNonUnifyCCCDetails().pipe(
-        map((res) => res[0]),
-        shareReplay(1)
-      );
-      this.cardTransactionsAndDetailsNonUnifyCCC$.subscribe((details) => {
-        this.cardTransactionsAndDetailsNonUnifyCCC = details;
-        this.isCCCStatsLoading = false;
-      });
-    }
+    this.dashboardService.getCCCDetails().subscribe((details) => {
+      this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
+    });
+    finalize(() => (this.isCCCStatsLoading = false));
   }
 
   /*
@@ -182,6 +141,7 @@ export class StatsComponent implements OnInit {
    * **/
   init() {
     const that = this;
+    that.cardTransactionsAndDetails = [];
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
@@ -199,11 +159,10 @@ export class StatsComponent implements OnInit {
         that.initializeCCCStats();
       } else {
         this.cardTransactionsAndDetails$ = of(null);
-        this.cardTransactionsAndDetailsNonUnifyCCC$ = of(null);
       }
     });
 
-    this.offlineService.getOrgs().subscribe((orgs) => {
+    this.orgService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs?.length > 1;
 
       if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
