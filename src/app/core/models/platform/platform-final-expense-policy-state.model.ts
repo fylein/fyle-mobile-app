@@ -1,4 +1,4 @@
-export interface ExpensePolicyFinalDesiredState {
+export interface FinalExpensePolicyState {
   add_approver_user_ids: string[];
   expense_id: string;
   amount: number;

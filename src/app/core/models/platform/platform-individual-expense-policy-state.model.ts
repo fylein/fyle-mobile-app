@@ -1,4 +1,4 @@
-export interface ExpensePolicyIndividualDesiredState {
+export interface IndividualExpensePolicyState {
   add_approver_user_ids: string[];
   run_status: string;
   run_result: string[];

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { ExpensePolicyIndividualDesiredState } from '../models/platform/platform-expense-policy-individual-desired-state.model';
 import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
+import { IndividualExpensePolicyState } from '../models/platform/platform-individual-expense-policy-state.model';
 import { PolicyViolation } from '../models/policy-violation.model';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 
@@ -36,7 +36,7 @@ export class PolicyService {
     return popupRules;
   }
 
-  getSpenderExpensePolicyViolations(expenseId: string): Observable<ExpensePolicyIndividualDesiredState[]> {
+  getSpenderExpensePolicyViolations(expenseId: string): Observable<IndividualExpensePolicyState[]> {
     const params = {
       expense_id: `eq.${expenseId}`,
     };

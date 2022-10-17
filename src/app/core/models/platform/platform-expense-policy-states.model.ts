@@ -1,8 +1,8 @@
-import { ExpensePolicyFinalDesiredState } from './platform-expense-policy-final-desired-state.model';
-import { ExpensePolicyIndividualDesiredState } from './platform-expense-policy-individual-desired-state.model';
+import { FinalExpensePolicyState } from './platform-final-expense-policy-state.model';
+import { IndividualExpensePolicyState } from './platform-individual-expense-policy-state.model';
 
 export interface ExpensePolicyStates {
   expense_id: string;
-  individual_desired_states: ExpensePolicyIndividualDesiredState[];
-  final_desired_state: ExpensePolicyFinalDesiredState;
+  individual_desired_states: IndividualExpensePolicyState[];
+  final_desired_state: FinalExpensePolicyState;
 }
