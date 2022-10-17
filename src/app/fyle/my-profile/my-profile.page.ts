@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { forkJoin, from, noop, Observable } from 'rxjs';
 import { finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
@@ -18,6 +17,7 @@ import { Currency } from 'src/app/core/models/currency.model';
 import { Org } from 'src/app/core/models/org.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OrgService } from 'src/app/core/services/org.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -62,7 +62,6 @@ export class MyProfilePage implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
     private userEventService: UserEventService,
     private secureStorageService: SecureStorageService,
@@ -71,7 +70,8 @@ export class MyProfilePage implements OnInit {
     private loaderService: LoaderService,
     private tokenService: TokenService,
     private trackingService: TrackingService,
-    private orgService: OrgService
+    private orgService: OrgService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   signOut() {
@@ -129,9 +129,9 @@ export class MyProfilePage implements OnInit {
 
   reset() {
     this.eou$ = from(this.authService.getEou());
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
+    const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
-    const orgSettings$ = this.offlineService.getOrgSettings();
+    const orgSettings$ = this.orgSettingsService.get();
 
     from(this.loaderService.showLoader())
       .pipe(

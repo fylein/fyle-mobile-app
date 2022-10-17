@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { AccountsService } from './accounts.service';
-import { OfflineService } from './offline.service';
 import { LaunchDarklyService } from './launch-darkly.service';
 import { Expense } from '../models/expense.model';
 import { map } from 'rxjs/operators';
@@ -17,7 +16,6 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 export class PaymentModesService {
   constructor(
     private accountsService: AccountsService,
-    private offlineService: OfflineService,
     private launchDarklyService: LaunchDarklyService,
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
@@ -25,7 +23,7 @@ export class PaymentModesService {
   checkIfPaymentModeConfigurationsIsEnabled() {
     return forkJoin({
       isPaymentModeConfigurationsEnabled: this.launchDarklyService.checkIfPaymentModeConfigurationsIsEnabled(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
+      orgUserSettings: this.orgUserSettingsService.get(),
     }).pipe(
       map(
         ({ isPaymentModeConfigurationsEnabled, orgUserSettings }) =>

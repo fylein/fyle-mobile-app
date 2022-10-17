@@ -22,7 +22,6 @@ import { LoginInfoService } from './core/services/login-info.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
-import { OfflineService } from './core/services/offline.service';
 import { PerfTrackers } from './core/models/perf-trackers.enum';
 import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
 
@@ -66,7 +65,6 @@ export class AppComponent implements OnInit {
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
-    private offlineService: OfflineService,
     private navController: NavController,
     private popoverController: PopoverController
   ) {

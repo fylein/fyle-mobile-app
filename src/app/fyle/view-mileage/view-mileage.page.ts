@@ -5,7 +5,6 @@ import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, concatMap, takeUntil, take, filter } from 'rxjs/operators';
@@ -25,6 +24,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -90,7 +90,6 @@ export class ViewMileagePage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private transactionService: TransactionService,
-    private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
     private reportService: ReportService,
@@ -102,7 +101,8 @@ export class ViewMileagePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private paymentModesService: PaymentModesService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get ExpenseView() {
@@ -288,8 +288,8 @@ export class ViewMileagePage implements OnInit {
       )
       .subscribe(noop);
 
-    this.offlineService
-      .getOrgSettings()
+    this.orgSettingsService
+      .get()
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;
