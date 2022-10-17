@@ -190,11 +190,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  async showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
+  showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
     const isIos = this.platform.is('ios');
 
     const galleryPermissionName = isIos ? 'Photos' : 'Storage';
-    const title = `${permissionType === 'CAMERA' ? 'Camera' : galleryPermissionName} Permission`;
+    let title = 'Camera Permission';
+    if (permissionType === 'GALLERY') {
+      title = galleryPermissionName + ' Permission';
+    }
 
     const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and ${galleryPermissionName}`;
     const galleryPermissionMessage = `Please allow Fyle to access device photos. Click Settings and allow ${galleryPermissionName} access`;
