@@ -20,7 +20,6 @@ import {
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { Expense } from 'src/app/core/models/expense.model';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -52,6 +51,8 @@ import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assig
 import { MyExpensesService } from './my-expenses.service';
 import { Filters } from './my-expenses-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
@@ -149,7 +150,7 @@ export class MyExpensesPage implements OnInit {
 
   expensesTaskCount = 0;
 
-  isCameraShown = false;
+  isCameraPreviewStarted = false;
 
   isUnifyCCCEnabled$: Observable<boolean>;
 
@@ -176,7 +177,6 @@ export class MyExpensesPage implements OnInit {
     private router: Router,
     private transactionOutboxService: TransactionsOutboxService,
     private activatedRoute: ActivatedRoute,
-    private offlineService: OfflineService,
     private popupService: PopupService,
     private trackingService: TrackingService,
     private storageService: StorageService,
@@ -191,7 +191,9 @@ export class MyExpensesPage implements OnInit {
     private tasksService: TasksService,
     private corporateCreditCardService: CorporateCreditCardExpenseService,
     private myExpensesService: MyExpensesService,
-    private currencyService: CurrencyService
+    private orgSettingsService: OrgSettingsService,
+    private currencyService: CurrencyService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   get HeaderState() {
@@ -415,8 +417,8 @@ export class MyExpensesPage implements OnInit {
       this.expensesTaskCount = expensesTaskCount;
     });
 
-    this.isInstaFyleEnabled$ = this.offlineService
-      .getOrgUserSettings()
+    this.isInstaFyleEnabled$ = this.orgUserSettingsService
+      .get()
       .pipe(
         map(
           (orgUserSettings) =>
@@ -424,18 +426,14 @@ export class MyExpensesPage implements OnInit {
         )
       );
 
-    this.isBulkFyleEnabled$ = this.offlineService
-      .getOrgUserSettings()
+    this.isBulkFyleEnabled$ = this.orgUserSettingsService
+      .get()
       .pipe(map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled));
 
-    this.isMileageEnabled$ = this.offlineService
-      .getOrgSettings()
-      .pipe(map((orgSettings) => orgSettings.mileage.enabled));
-    this.isPerDiemEnabled$ = this.offlineService
-      .getOrgSettings()
-      .pipe(map((orgSettings) => orgSettings.per_diem.enabled));
+    this.isMileageEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage.enabled));
+    this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.per_diem.enabled));
 
-    this.offlineService.getOrgSettings().subscribe((orgSettings) => {
+    this.orgSettingsService.get().subscribe((orgSettings) => {
       this.isUnifyCCCExpensesSettings =
         orgSettings.unify_ccce_expenses_settings &&
         orgSettings.unify_ccce_expenses_settings.allowed &&
@@ -448,8 +446,8 @@ export class MyExpensesPage implements OnInit {
       shareReplay(1)
     );
 
-    this.isUnifyCCCEnabled$ = this.offlineService
-      .getOrgSettings()
+    this.isUnifyCCCEnabled$ = this.orgSettingsService
+      .get()
       .pipe(
         map(
           (orgSettings) =>
@@ -1514,7 +1512,7 @@ export class MyExpensesPage implements OnInit {
     ]);
   }
 
-  showCamera(isCameraShown: boolean) {
-    this.isCameraShown = isCameraShown;
+  showCamera(isCameraPreviewStarted: boolean) {
+    this.isCameraPreviewStarted = isCameraPreviewStarted;
   }
 }

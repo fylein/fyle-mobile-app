@@ -5,7 +5,6 @@ import { ModalController, NavController, PopoverController } from '@ionic/angula
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, from, noop, Observable } from 'rxjs';
@@ -16,6 +15,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgService } from 'src/app/core/services/org.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 type Image = Partial<{
   source: string;
@@ -34,7 +34,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   @Input() allowBulkFyle = true;
 
-  isCameraShown: boolean;
+  //isCameraPreviewInitiated denotes that a camera preview has been initiated, but may or may not have started yet.
+  isCameraPreviewInitiated = false;
+
+  //isCameraPreviewStarted tracks if the camera preview has started.
+  isCameraPreviewStarted = false;
 
   isBulkMode: boolean;
 
@@ -59,14 +63,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private trackingService: TrackingService,
     private router: Router,
     private navController: NavController,
-    private offlineService: OfflineService,
     private transactionsOutboxService: TransactionsOutboxService,
     private imagePicker: ImagePicker,
     private networkService: NetworkService,
     private currencyService: CurrencyService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
-    private orgService: OrgService
+    private orgService: OrgService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   setupNetworkWatcher() {
@@ -80,7 +84,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   ngOnInit() {
     this.setupNetworkWatcher();
-    this.isCameraShown = false;
+    this.isCameraPreviewStarted = false;
+    this.isCameraPreviewInitiated = false;
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
     this.flashMode = null;
@@ -89,7 +94,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
     this.captureCount = 0;
 
-    this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
+    this.orgUserSettingsService.get().subscribe((orgUserSettings) => {
       this.isInstafyleEnabled =
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
@@ -139,9 +144,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async stopCamera() {
-    if (this.isCameraShown === true) {
+    if (this.isCameraPreviewInitiated) {
+      this.isCameraPreviewInitiated = false;
       await CameraPreview.stop();
-      this.isCameraShown = false;
+      this.isCameraPreviewStarted = false;
     }
   }
 
@@ -182,7 +188,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   setUpAndStartCamera() {
-    if (!this.isCameraShown) {
+    if (!this.isCameraPreviewInitiated) {
+      this.isCameraPreviewInitiated = true;
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
         toBack: true,
@@ -194,7 +201,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
       this.loaderService.showLoader();
       CameraPreview.start(cameraPreviewOptions).then((res) => {
-        this.isCameraShown = true;
+        this.isCameraPreviewStarted = true;
         this.getFlashModes();
         this.loaderService.hideLoader();
       });

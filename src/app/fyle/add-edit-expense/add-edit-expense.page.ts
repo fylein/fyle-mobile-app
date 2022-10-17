@@ -34,7 +34,6 @@ import {
   withLatestFrom,
 } from 'rxjs/operators';
 import { AccountsService } from 'src/app/core/services/accounts.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import {
   AbstractControl,
@@ -89,7 +88,6 @@ import { FileObject } from 'src/app/core/models/file_obj.model';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
-import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -104,8 +102,9 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -324,7 +323,7 @@ export class AddEditExpensePage implements OnInit {
 
   source = 'MOBILE';
 
-  isCameraShown = false;
+  isCameraPreviewStarted = false;
 
   isIos = false;
 
@@ -346,10 +345,13 @@ export class AddEditExpensePage implements OnInit {
 
   isIncompleteExpense = false;
 
+  systemCategories: string[];
+
+  breakfastSystemCategories: string[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
-    private offlineService: OfflineService,
     private authService: AuthService,
     private formBuilder: FormBuilder,
     private categoriesService: CategoriesService,
@@ -381,7 +383,7 @@ export class AddEditExpensePage implements OnInit {
     private expenseFieldsService: ExpenseFieldsService,
     private modalProperties: ModalPropertiesService,
     private actionSheetController: ActionSheetController,
-    private taxGroupsService: TaxGroupService,
+    private orgSettingsService: OrgSettingsService,
     private sanitizer: DomSanitizer,
     private personalCardsService: PersonalCardsService,
     private matSnackBar: MatSnackBar,
@@ -874,7 +876,7 @@ export class AddEditExpensePage implements OnInit {
 
   async moreActions() {
     return forkJoin({
-      orgSettings$: this.offlineService.getOrgSettings(),
+      orgSettings$: this.orgSettingsService.get(),
       costCenters: this.costCenters$,
       projects: this.projectsService.getAllActive(),
       txnFields: this.txnFields$.pipe(take(1)),
@@ -975,7 +977,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupCostCenters() {
-    const orgSettings$ = this.offlineService.getOrgSettings();
+    const orgSettings$ = this.orgSettingsService.get();
 
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
@@ -1022,7 +1024,7 @@ export class AddEditExpensePage implements OnInit {
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
       accounts: this.accountsService.getEMyAccounts(),
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
       allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
@@ -1130,7 +1132,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getNewExpenseObservable() {
-    const orgSettings$ = this.offlineService.getOrgSettings();
+    const orgSettings$ = this.orgSettingsService.get();
     const accounts$ = this.accountsService.getEMyAccounts();
     const eou$ = from(this.authService.getEou());
 
@@ -1333,7 +1335,7 @@ export class AddEditExpensePage implements OnInit {
           return of(etxn.tx.project_id);
         } else {
           return forkJoin({
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             orgUserSettings: this.orgUserSettings$,
           }).pipe(
             map(({ orgSettings, orgUserSettings }) => {
@@ -1462,7 +1464,7 @@ export class AddEditExpensePage implements OnInit {
           return of(etxn.tx.cost_center_id);
         } else {
           return forkJoin({
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             costCenters: this.costCenters$,
           }).pipe(
             map(({ orgSettings, costCenters }) => {
@@ -1521,7 +1523,7 @@ export class AddEditExpensePage implements OnInit {
             customInputs: selectedCustomInputs$,
             txnReceiptsCount: txnReceiptsCount$,
             homeCurrency: this.currencyService.getHomeCurrency(),
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             defaultPaymentMode: defaultPaymentMode$,
             orgUserSettings: this.orgUserSettings$,
             recentValue: this.recentlyUsedValues$,
@@ -1824,8 +1826,8 @@ export class AddEditExpensePage implements OnInit {
 
   getCategoryOnEdit(category) {
     return forkJoin({
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgUserSettings: this.orgUserSettingsService.get(),
+      orgSettings: this.orgSettingsService.get(),
       recentValues: this.recentlyUsedValues$,
       recentCategories: this.recentlyUsedCategories$,
       etxn: this.etxn$,
@@ -1885,8 +1887,8 @@ export class AddEditExpensePage implements OnInit {
       return of(category);
     } else {
       return forkJoin({
-        orgUserSettings: this.offlineService.getOrgUserSettings(),
-        orgSettings: this.offlineService.getOrgSettings(),
+        orgUserSettings: this.orgUserSettingsService.get(),
+        orgSettings: this.orgSettingsService.get(),
         recentValues: this.recentlyUsedValues$,
         recentCategories: this.recentlyUsedCategories$,
         etxn: this.etxn$,
@@ -2040,7 +2042,7 @@ export class AddEditExpensePage implements OnInit {
         switchMap((txnFields) =>
           forkJoin({
             isConnected: this.isConnected$.pipe(take(1)),
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             costCenters: this.costCenters$,
             taxGroups: this.taxGroups$,
             isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
@@ -2132,7 +2134,7 @@ export class AddEditExpensePage implements OnInit {
                 if (
                   this.fg.value.category &&
                   this.fg.value.category.fyle_category &&
-                  ['Bus', 'Flight', 'Hotel', 'Train'].includes(this.fg.value.category.fyle_category) &&
+                  this.systemCategories?.includes(this.fg.value.category.fyle_category) &&
                   isConnected
                 ) {
                   control.setValidators(Validators.required);
@@ -2463,6 +2465,9 @@ export class AddEditExpensePage implements OnInit {
       hotel_is_breakfast_provided: [],
     });
 
+    this.systemCategories = this.categoriesService.getSystemCategories();
+    this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
+
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
         this.activatedRoute.snapshot.params.bankTxn && JSON.parse(this.activatedRoute.snapshot.params.bankTxn);
@@ -2490,8 +2495,8 @@ export class AddEditExpensePage implements OnInit {
 
     this.setUpTaxCalculations();
 
-    const orgSettings$ = this.offlineService.getOrgSettings();
-    this.orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    const orgSettings$ = this.orgSettingsService.get();
+    this.orgUserSettings$ = this.orgUserSettingsService.get();
     const allCategories$ = this.categoriesService.getAll();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.accountsService.getEMyAccounts();
@@ -3978,10 +3983,10 @@ export class AddEditExpensePage implements OnInit {
         });
 
         await captureReceiptModal.present();
-        this.isCameraShown = true;
+        this.isCameraPreviewStarted = true;
 
         const { data } = await captureReceiptModal.onWillDismiss();
-        this.isCameraShown = false;
+        this.isCameraPreviewStarted = false;
 
         if (data && data.dataUrl) {
           receiptDetails = {
