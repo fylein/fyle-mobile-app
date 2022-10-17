@@ -7,7 +7,6 @@ import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -17,6 +16,7 @@ import { StorageService } from '../../core/services/storage.service';
 import { NgModel } from '@angular/forms';
 import { getCurrencySymbol } from '@angular/common';
 import { RefinerService } from 'src/app/core/services/refiner.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-my-create-report',
@@ -58,11 +58,11 @@ export class MyCreateReportPage implements OnInit {
     private loaderService: LoaderService,
     private router: Router,
     private popoverController: PopoverController,
-    private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
     private trackingService: TrackingService,
     private storageService: StorageService,
-    private refinerService: RefinerService
+    private refinerService: RefinerService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   cancel() {
@@ -301,7 +301,7 @@ export class MyCreateReportPage implements OnInit {
       or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
     };
 
-    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     const orgUserSettings$ = this.orgUserSettingsService.get();
 
     from(this.loaderService.showLoader())
