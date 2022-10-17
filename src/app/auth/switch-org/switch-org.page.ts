@@ -23,6 +23,10 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ResendEmailVerificationResponse } from 'src/app/core/models/resend-email-verification-response.model';
 
 @Component({
   selector: 'app-switch-org',
@@ -70,7 +74,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private deviceService: DeviceService,
     private popoverController: PopoverController,
     private orgUserService: OrgUserService,
-    private appVersionService: AppVersionService
+    private appVersionService: AppVersionService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   ngOnInit() {
@@ -146,24 +152,24 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     }
   }
 
-  async showEmailNotVerifiedAlert() {
-    const popover = await this.popoverController.create({
-      componentProps: {
-        title: 'Email Not Verified',
-        message: 'Your email is not verified. Please check your previous emails and accept the invite.',
-        primaryCta: {
-          text: 'OK',
-          action: 'close',
-        },
-      },
-      component: PopupAlertComponentComponent,
-      cssClass: 'pop-up-in-center',
+  resendInvite(email: string, orgId: string): Observable<ResendEmailVerificationResponse> {
+    return this.authService.resendVerification(email, orgId);
+  }
+
+  showToastNotification(msg: string) {
+    const toastMessageData = {
+      message: msg,
+    };
+
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-info'],
     });
-    await popover.present();
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+  }
 
-    const { data } = await popover.onWillDismiss();
-
-    if (data?.action === 'close') {
+  handlePopupDismiss(action: string, email: string, orgId: string) {
+    if (action === 'close') {
       /*
        * Case: When a user is added to an SSO org but hasn't verified their account through the link.
        * After showing the alert, the user will be redirected to the sign-in page since there is no other org they are a part of.
@@ -174,7 +180,46 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.signOut();
         }
       });
+    } else if (action === 'resend') {
+      // If user clicks on resend Button, Resend Invite to the user and then logout if user have only one org.
+      this.resendInvite(email, orgId)
+        .pipe(switchMap(() => this.orgs$))
+        .subscribe((orgs) => {
+          if (orgs.length === 1) {
+            this.signOut();
+          }
+          this.showToastNotification('Verification Email Sent');
+        });
     }
+  }
+
+  async showEmailNotVerifiedAlert() {
+    const eou = await this.authService.getEou();
+    const orgName = eou.ou.org_name;
+    const orgId = eou.ou.org_id;
+    const email = eou.us.email;
+
+    const popover = await this.popoverController.create({
+      componentProps: {
+        title: 'Invite Not Accepted',
+        message: `You have been invited to ${orgName} organization, please check your previous emails and accept the invite or resend invite.`,
+        primaryCta: {
+          text: 'Resend Invite',
+          action: 'resend',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'close',
+        },
+      },
+      component: PopupAlertComponentComponent,
+      cssClass: 'pop-up-in-center',
+    });
+    await popover.present();
+
+    const { data } = await popover.onWillDismiss();
+
+    this.handlePopupDismiss(data.action, email, orgId);
   }
 
   navigateToSetupPage(roles: string[]) {
