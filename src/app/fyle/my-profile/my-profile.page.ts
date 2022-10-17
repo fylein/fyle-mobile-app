@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { forkJoin, from, noop, Observable } from 'rxjs';
+import { Component, EventEmitter, OnInit } from '@angular/core';
+import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
@@ -17,6 +17,7 @@ import { Currency } from 'src/app/core/models/currency.model';
 import { Org } from 'src/app/core/models/org.model';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { OrgService } from 'src/app/core/services/org.service';
+import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 type EventData = {
@@ -52,6 +53,8 @@ export class MyProfilePage implements OnInit {
 
   ROUTER_API_ENDPOINT: string;
 
+  isConnected$: Observable<boolean>;
+
   settingsMap = {
     instaFyle: 'insta_fyle_settings',
     defaultCurrency: 'currency_settings',
@@ -71,8 +74,17 @@ export class MyProfilePage implements OnInit {
     private tokenService: TokenService,
     private trackingService: TrackingService,
     private orgService: OrgService,
+    private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService
   ) {}
+
+  setupNetworkWatcher() {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      shareReplay(1)
+    );
+  }
 
   signOut() {
     try {
@@ -119,6 +131,7 @@ export class MyProfilePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.setupNetworkWatcher();
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
