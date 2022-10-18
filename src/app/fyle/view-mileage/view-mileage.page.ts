@@ -340,7 +340,7 @@ export class ViewMileagePage implements OnInit {
 
     if (id) {
       this.policyViloations$ =
-        this.view == ExpenseView.team
+        this.view === ExpenseView.team
           ? this.policyService.getApproverExpensePolicyViolations(id)
           : this.policyService.getSpenderExpensePolicyViolations(id);
     } else {
