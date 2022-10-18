@@ -1,4 +1,7 @@
-<ion-content class="camera-preview" [ngClass]="{ 'camera-preview--active': isCameraPreviewStarted }">
+<!-- <ion-content
+  class="camera-preview"
+  [ngClass]="{ 'camera-preview--active': isCameraPreviewStarted }"
+>
   <div id="cameraPreview"></div>
   <div *ngIf="hasModeChanged" class="camera-preview__flash-msg text-center">
     <div class="camera-preview__flash-msg__content">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode' }}</div>
@@ -67,9 +70,7 @@
       </ng-container>
       <ng-container *ngIf="captureCount > 0">
         <div (click)="review()">
-          <div class="camera-preview__bottom-container__thumbnail__count text-center">
-            {{ base64ImagesWithSource.length }}
-          </div>
+          <div class="camera-preview__bottom-container__thumbnail__count text-center">{{ base64ImagesWithSource.length }}</div>
           <div class="camera-preview__bottom-container__thumbnail">
             <ion-img [src]="lastImage"></ion-img>
           </div>
@@ -78,4 +79,4 @@
       </ng-container>
     </div>
   </div>
-</ion-content>
+</ion-content> -->

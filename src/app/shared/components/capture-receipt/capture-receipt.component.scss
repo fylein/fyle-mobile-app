@@ -1,141 +1,133 @@
 @import '../../../../theme/colors.scss';
 
-.capture-receipt {
-  &--camera-preview {
-    --background: #{$pure-black};
+.camera-preview {
+  --background: #{$pure-black};
 
-    &__is-active {
-      --background: transparent;
-    }
+  &--active {
+    --background: transparent;
   }
 
-  &--close-flash-container {
-    position: fixed;
-    top: calc(env(safe-area-inset-top) + 10px);
-    padding: 0 16px;
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  &--close-icon,
-  &--flash-icon {
-    height: 42px;
-    width: 42px;
-  }
-
-  &--camera-pointer-container {
-    &__common {
-      display: flex;
-      justify-content: space-between;
-      position: fixed;
-      width: 100%;
-      padding: 0 18px;
-    }
-
-    &__top {
-      top: calc(env(safe-area-inset-top) + 102px);
-    }
-
-    &__bottom {
-      bottom: calc(env(safe-area-inset-bottom) + 184px);
-    }
-  }
-
-  &--switch-mode-info {
+  &__flash-msg {
     background-color: $black-3;
     width: 180px;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
     color: $pure-white;
     border-radius: 8px;
+
+    &__content {
+      padding: 20px;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.3;
+    }
   }
 
-  &--switch-mode-text {
-    padding: 20px;
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 1.3;
+  &__top-container {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 10px);
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    &__icon {
+      height: 42px;
+      width: 42px;
+    }
   }
 
-  &--single-bulk-gallery-container {
+  &__middle-container {
+    display: flex;
+    justify-content: space-between;
+    position: fixed;
+    width: 100%;
+    padding: 0 18px;
+
+    &--top-section {
+      @extend .camera-preview__middle-container;
+      top: calc(env(safe-area-inset-top) + 102px);
+    }
+
+    &--bottom-section {
+      @extend .camera-preview__middle-container;
+      bottom: calc(env(safe-area-inset-bottom) + 184px);
+    }
+  }
+
+  &__bottom-container {
     position: fixed;
     bottom: calc(env(safe-area-inset-bottom) + 30px);
     padding: 0 16px;
     display: flex;
     justify-content: space-between;
     width: 100%;
-    &__offline {
+
+    &--offline {
       bottom: calc(env(safe-area-inset-bottom) + 45px);
     }
-  }
 
-  &--gallery-icon-block,
-  &--bulk-mode-icon-block {
-    align-self: flex-end;
-    min-width: 82px;
-  }
+    &__icon-block {
+      align-self: flex-end;
+      min-width: 82px;
 
-  &--gallery-icon,
-  &--bulk-mode-icon {
-    height: 52px;
-    width: 52px;
-  }
+      &--primary {
+        min-width: 84px;
+        margin: auto;
+      }
 
-  &--footer-text {
-    color: $pure-white;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.26;
-    letter-spacing: -0.3px;
-  }
+      &__icon {
+        height: 52px;
+        width: 52px;
 
-  &--gallery-icon-text,
-  &--bulk-icon-text {
-    margin-top: 8px;
-  }
+        &--primary {
+          height: 68px;
+          width: 68px;
+        }
+      }
+    }
 
-  &--capture-icon-block {
-    min-width: 84px;
-    margin: auto;
-  }
+    &__text {
+      color: $pure-white;
+      font-size: 15px;
+      font-weight: 500;
 
-  &--capture-icon {
-    height: 68px;
-    width: 68px;
-  }
+      &--primary {
+        @extend .camera-preview__bottom-container__text;
+        margin-top: 22px;
+      }
 
-  &--capture-icon-text {
-    margin-top: 22px;
-  }
+      &--secondary {
+        @extend .camera-preview__bottom-container__text;
+        margin-top: 8px;
+      }
+    }
 
-  &--image-count {
-    border-radius: 50%;
-    background: $pink-gradient-light;
-    color: $pure-white;
-    width: 22px;
-    height: 22px;
-    margin: 0;
-    z-index: 1;
-    font-size: 12px;
-    border: 1px solid $pink-gradient-light;
-    left: 54px;
-    position: relative;
-    top: 10px;
-    font-weight: 500;
-  }
+    &__thumbnail {
+      background-color: $black-4;
+      border-radius: 8px;
+      display: flex;
+      padding: 4px 12px;
+      height: 52px;
+      width: 52px;
+      margin: auto;
 
-  &--image-thumbnail {
-    display: flex;
-    padding: 3px 12px;
-    height: 52px;
-    width: 52px;
-    background-color: $black-4;
-    border-radius: 8px;
-    margin-left: auto;
-    margin-right: auto;
+      &__count {
+        background: $pink-gradient-light;
+        border: 1px solid $pink-gradient-light;
+        border-radius: 50%;
+        color: $pure-white;
+        font-weight: 500;
+        position: relative;
+        left: 54px;
+        top: 10px;
+        width: 22px;
+        height: 22px;
+        margin: 0;
+        z-index: 1;
+      }
+    }
   }
 }
