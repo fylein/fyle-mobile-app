@@ -134,7 +134,7 @@ export class ViewMileagePage implements OnInit {
 
   getPolicyDetails(expenseId: string) {
     if (expenseId) {
-      if (this.view == ExpenseView.team) {
+      if (this.view === ExpenseView.team) {
         from(this.policyService.getApproverExpensePolicyViolations(expenseId))
           .pipe()
           .subscribe((policyDetails) => {
