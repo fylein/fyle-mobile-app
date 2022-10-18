@@ -58,8 +58,8 @@ export class AuthService {
     );
   }
 
-  resendVerification(email: string, org_id?: string): Observable<ResendEmailVerificationResponse> {
-    return this.apiService.post('/auth/resend_email_verification', { email, org_id });
+  resendVerification(email: string, orgId?: string): Observable<ResendEmailVerificationResponse> {
+    return this.apiService.post('/auth/resend_email_verification', { email, org_id: orgId });
   }
 
   getRoles() {
