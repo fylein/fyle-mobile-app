@@ -15,6 +15,7 @@ import { VendorService } from './vendor.service';
 import { PushNotificationService } from './push-notification.service';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 import { CommonPlatformApiService } from './common-platform-api.service';
+import { ApproverPlatformApiService } from './approver-platform-api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +34,7 @@ export class RouterAuthService {
     private vendorService: VendorService,
     private pushNotificationService: PushNotificationService,
     private spenderPlatformApiService: SpenderPlatformApiService,
+    private approverPlatformApiService: ApproverPlatformApiService,
     private commonPlatfromApiService: CommonPlatformApiService
   ) {}
 
@@ -62,6 +64,7 @@ export class RouterAuthService {
     this.vendorService.setRoot(domain);
     this.pushNotificationService.setRoot(domain);
     this.spenderPlatformApiService.setRoot(domain);
+    this.approverPlatformApiService.setRoot(domain);
     this.commonPlatfromApiService.setRoot(domain);
 
     await this.tokenService.setClusterDomain(domain);

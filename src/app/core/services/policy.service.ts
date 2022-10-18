@@ -4,13 +4,17 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
 import { IndividualExpensePolicyState } from '../models/platform/platform-individual-expense-policy-state.model';
 import { PolicyViolation } from '../models/policy-violation.model';
+import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PolicyService {
-  constructor(private spenderPlatformApiService: SpenderPlatformApiService) {}
+  constructor(
+    private spenderPlatformApiService: SpenderPlatformApiService,
+    private approverPlatformApiService: ApproverPlatformApiService
+  ) {}
 
   getCriticalPolicyRules(result) {
     const criticalPopupRules = [];
@@ -34,6 +38,17 @@ export class PolicyService {
     });
 
     return popupRules;
+  }
+
+  getApproverExpensePolicyViolations(expenseId: string): Observable<IndividualExpensePolicyState[]> {
+    const params = {
+      expense_id: `eq.${expenseId}`,
+    };
+    return this.approverPlatformApiService
+      .get<PlatformApiResponse<ExpensePolicyStates>>('/expense_policy_states', {
+        params,
+      })
+      .pipe(map((policyStates) => (policyStates.count > 0 ? policyStates.data[0].individual_desired_states : [])));
   }
 
   getSpenderExpensePolicyViolations(expenseId: string): Observable<IndividualExpensePolicyState[]> {
