@@ -9,7 +9,6 @@ import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingValue } from '../models/sorting-value.model';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
-import { OfflineService } from './offline.service';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -21,11 +20,7 @@ type Filters = Partial<{
   providedIn: 'root',
 })
 export class FiltersHelperService {
-  constructor(
-    private titleCasePipe: TitleCasePipe,
-    private modalController: ModalController,
-    private offlineService: OfflineService
-  ) {}
+  constructor(private titleCasePipe: TitleCasePipe, private modalController: ModalController) {}
 
   generateFilterPills(filters: Filters, projectFieldName?: string) {
     const filterPills: FilterPill[] = [];

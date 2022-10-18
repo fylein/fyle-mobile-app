@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import { EventEmitter, Injectable } from '@angular/core';
-import { OfflineService } from './offline.service';
 import { AuthService } from './auth.service';
 import { StorageService } from './storage.service';
 import { Device } from '@capacitor/device';
@@ -14,7 +13,6 @@ import { environment } from 'src/environments/environment';
 })
 export class FreshChatService {
   constructor(
-    private offlineService: OfflineService,
     private authService: AuthService,
     private storageService: StorageService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -53,7 +51,7 @@ export class FreshChatService {
   }
 
   private getOrgUserSettings() {
-    return this.offlineService.getOrgUserSettings().toPromise();
+    return this.orgUserSettingsService.get().toPromise();
   }
 
   private async initFreshChat() {

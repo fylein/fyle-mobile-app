@@ -12,7 +12,6 @@ import { DashboardTask } from '../models/task.model';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { AdvanceRequestService } from './advance-request.service';
 import { AuthService } from './auth.service';
-import { OfflineService } from './offline.service';
 import { ReportService } from './report.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
@@ -48,7 +47,6 @@ export class TasksService {
     private reportService: ReportService,
     private transactionService: TransactionService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    private offlineService: OfflineService,
     private userEventService: UserEventService,
     private authService: AuthService,
     private handleDuplicatesService: HandleDuplicatesService,
@@ -220,7 +218,7 @@ export class TasksService {
 
   getExpensePill(filters: TaskFilters): FilterPill {
     const expensePills = [];
-    const draftExpensesContent = filters.draftExpenses ? 'Draft' : '';
+    const draftExpensesContent = filters.draftExpenses ? 'Incomplete' : '';
     if (draftExpensesContent) {
       expensePills.push(draftExpensesContent);
     }

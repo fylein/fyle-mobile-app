@@ -138,9 +138,10 @@ export class RouterAuthService {
       .pipe(switchMap((data) => this.handleSignInResponse(data)));
   }
 
-  resendVerificationLink(email: string) {
+  resendVerificationLink(email: string, orgId: string) {
     return this.routerApiService.post('/auth/resend_email_verification', {
       email: email?.trim().toLowerCase(),
+      org_id: orgId,
     });
   }
 

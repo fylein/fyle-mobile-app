@@ -43,7 +43,18 @@ export class VerifyPage implements OnInit {
       )
       .subscribe({
         next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),
-        error: () => (this.currentPageState = VerifyPageState.error),
+        error: (err) => this.handleError(err),
       });
+  }
+
+  handleError(err: any) {
+    const orgId = this.activatedRoute.snapshot.params.org_id;
+    if (err.status === 422) {
+      this.router.navigate(['/', 'auth', 'disabled']);
+    } else if (err.status === 440) {
+      this.router.navigate(['/', 'auth', 'pending_verification', { hasTokenExpired: true, orgId }]);
+    } else {
+      this.currentPageState = VerifyPageState.error;
+    }
   }
 }

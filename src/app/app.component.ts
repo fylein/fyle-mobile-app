@@ -22,7 +22,6 @@ import { LoginInfoService } from './core/services/login-info.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
-import { OfflineService } from './core/services/offline.service';
 import { PerfTrackers } from './core/models/perf-trackers.enum';
 import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
 
@@ -50,6 +49,8 @@ export class AppComponent implements OnInit {
 
   isUserLoggedIn = false;
 
+  isOnline: boolean;
+
   constructor(
     private platform: Platform,
     private router: Router,
@@ -66,7 +67,6 @@ export class AppComponent implements OnInit {
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
-    private offlineService: OfflineService,
     private navController: NavController,
     private popoverController: PopoverController
   ) {
@@ -173,6 +173,8 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setupNetworkWatcher();
+
     if ((window as any) && (window as any).localStorage) {
       const lstorage = (window as any).localStorage;
       Object.keys(lstorage)
@@ -180,10 +182,19 @@ export class AppComponent implements OnInit {
         .forEach((key) => lstorage.removeItem(key));
     }
 
+    this.isConnected$.subscribe((isOnline) => {
+      this.isOnline = isOnline;
+    });
+
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       this.isUserLoggedIn = loggedInStatus;
       if (loggedInStatus) {
-        this.sidemenuRef.showSideMenu();
+        if (this.isOnline) {
+          this.sidemenuRef.showSideMenuOnline();
+        } else {
+          this.sidemenuRef.showSideMenuOffline();
+        }
+
         this.pushNotificationService.initPush();
       }
 
@@ -195,7 +206,11 @@ export class AppComponent implements OnInit {
 
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
-        this.sidemenuRef.showSideMenu();
+        if (this.isOnline) {
+          this.sidemenuRef.showSideMenuOnline();
+        } else {
+          this.sidemenuRef.showSideMenuOffline();
+        }
       }, 500);
     });
 
@@ -205,8 +220,6 @@ export class AppComponent implements OnInit {
       this.isSwitchedToDelegator = false;
       this.router.navigate(['/', 'auth', 'sign_in']);
     });
-
-    this.setupNetworkWatcher();
 
     this.router.events.subscribe((ev) => {
       // adding try catch because this may fail due to network issues
