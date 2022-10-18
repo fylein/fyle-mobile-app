@@ -1,6 +1,6 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, from, fromEvent, noop, Observable, of } from 'rxjs';
+import { forkJoin, from, fromEvent, noop, Observable, of, catchError, throwError } from 'rxjs';
 import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
@@ -183,7 +183,13 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     } else if (action === 'resend') {
       // If user clicks on resend Button, Resend Invite to the user and then logout if user have only one org.
       this.resendInvite(email, orgId)
-        .pipe(switchMap(() => this.orgs$))
+        .pipe(
+          switchMap(() => this.orgs$),
+          catchError((error) => {
+            this.showToastNotification('Oops! Something went wrong. Please try again.');
+            return throwError(() => error);
+          })
+        )
         .subscribe((orgs) => {
           if (orgs.length === 1) {
             this.signOut();
