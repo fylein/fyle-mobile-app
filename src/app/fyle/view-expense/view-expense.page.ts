@@ -25,8 +25,6 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -107,8 +105,6 @@ export class ViewExpensePage implements OnInit {
 
   cardNumber: string;
 
-  showPaymentMode = true;
-
   systemCategories: string[];
 
   travelSystemCategories: string[];
@@ -135,7 +131,6 @@ export class ViewExpensePage implements OnInit {
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private paymentModesService: PaymentModesService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
     private categoriesService: CategoriesService
@@ -355,14 +350,6 @@ export class ViewExpensePage implements OnInit {
     );
 
     this.getPolicyDetails(txId);
-
-    if (this.view === ExpenseView.team) {
-      this.showPaymentMode = true;
-    } else {
-      this.etxn$
-        .pipe(switchMap((etxn) => this.paymentModesService.shouldPaymentModeBeShown(etxn, ExpenseType.EXPENSE)))
-        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
-    }
 
     const editExpenseAttachments = this.etxn$.pipe(
       take(1),
