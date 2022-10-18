@@ -68,7 +68,7 @@ export class MyCreateReportPage implements OnInit {
   ) {}
 
   detectTitleChange() {
-    if (this.reportTitle === '') {
+    if (!this.reportTitle && this.reportTitle === '') {
       this.emptyInput = true;
       this.showReportNameError = true;
     }
