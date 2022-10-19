@@ -2656,8 +2656,8 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    // Hide payment mode if Unify CCC is enabled and it is a CCC expense
-    this.showPaymentMode = !(this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense);
+    // Show payment mode if it is not a CCC expense
+    this.showPaymentMode = !this.isCccExpense;
 
     orgSettings$
       .pipe(
