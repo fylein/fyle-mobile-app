@@ -2285,10 +2285,10 @@ export class AddEditExpensePage implements OnInit {
 
   getEditExpenseObservable() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
+      tap((etxn) => (this.isIncompleteExpense = etxn.tx.state === 'DRAFT')),
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
-          this.isIncompleteExpense = true;
           return forkJoin({
             allCategories: this.categoriesService.getAll(),
           }).pipe(
