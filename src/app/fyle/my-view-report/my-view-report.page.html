@@ -330,7 +330,7 @@
 
 <ion-footer
   class="view-reports--add-expense-footer"
-  *ngIf="!isCommentsView && ((erpt$|async)?.rp_state === 'APPROVER_PENDING') && unReportedEtxns && unReportedEtxns.length > 0"
+  *ngIf="!isCommentsView && !isHistoryView && ((erpt$|async)?.rp_state === 'APPROVER_PENDING') && unReportedEtxns"
 >
   <div class="view-reports--add-expense-footer__block">
     <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">

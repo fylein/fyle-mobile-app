@@ -1,7 +1,8 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild } from '@angular/core';
 import { CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor } from '@capacitor/core';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { Camera } from '@capacitor/camera';
+import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -9,12 +10,13 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgService } from 'src/app/core/services/org.service';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
 
@@ -73,7 +75,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private orgService: OrgService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private platform: Platform
   ) {}
 
   setupNetworkWatcher() {
@@ -402,8 +405,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           }
         });
       } else {
-        this.imagePicker.requestReadPermission();
-        this.onGalleryUpload();
+        from(Camera.requestPermissions({ permissions: ['photos'] })).subscribe((permissions) => {
+          if (permissions?.photos === 'denied') {
+            return this.cameraPreview.showPermissionDeniedPopover('GALLERY');
+          }
+          this.onGalleryUpload();
+        });
       }
     });
   }

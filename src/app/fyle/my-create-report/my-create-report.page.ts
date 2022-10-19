@@ -50,6 +50,8 @@ export class MyCreateReportPage implements OnInit {
 
   isSelectedAll: boolean;
 
+  emptyInput = false;
+
   constructor(
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
@@ -64,6 +66,17 @@ export class MyCreateReportPage implements OnInit {
     private refinerService: RefinerService,
     private orgSettingsService: OrgSettingsService
   ) {}
+
+  detectTitleChange() {
+    if (!this.reportTitle && this.reportTitle === '') {
+      this.emptyInput = true;
+      this.showReportNameError = true;
+    }
+    if (this.reportTitle !== '') {
+      this.emptyInput = false;
+      this.showReportNameError = false;
+    }
+  }
 
   cancel() {
     if (this.selectedTxnIds.length > 0) {
@@ -97,63 +110,65 @@ export class MyCreateReportPage implements OnInit {
 
   ctaClickedEvent(reportActionType) {
     this.showReportNameError = false;
-    if (this.reportTitle && this.reportTitle?.trim().length <= 0) {
+    if (this.reportTitle && this.reportTitle?.trim().length <= 0 && this.emptyInput) {
       this.showReportNameError = true;
       return;
     }
 
-    const report = {
-      purpose: this.reportTitle,
-      source: 'MOBILE',
-    };
+    if (!this.emptyInput) {
+      const report = {
+        purpose: this.reportTitle,
+        source: 'MOBILE',
+      };
 
-    this.sendFirstReportCreated();
+      this.sendFirstReportCreated();
 
-    const txnIds = this.selectedElements?.map((expense) => expense.tx_id);
+      const txnIds = this.selectedElements?.map((expense) => expense.tx_id);
 
-    if (reportActionType === 'create_draft_report') {
-      this.saveDraftReportLoading = true;
-      return this.reportService
-        .createDraft(report)
-        .pipe(
-          tap(() =>
-            this.trackingService.createReport({
-              Expense_Count: txnIds.length,
-              Report_Value: this.selectedTotalAmount,
+      if (reportActionType === 'create_draft_report') {
+        this.saveDraftReportLoading = true;
+        return this.reportService
+          .createDraft(report)
+          .pipe(
+            tap(() =>
+              this.trackingService.createReport({
+                Expense_Count: txnIds.length,
+                Report_Value: this.selectedTotalAmount,
+              })
+            ),
+            switchMap((report) => {
+              if (txnIds.length > 0) {
+                return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
+              } else {
+                return of(report);
+              }
+            }),
+            finalize(() => {
+              this.saveDraftReportLoading = false;
+              this.router.navigate(['/', 'enterprise', 'my_reports']);
             })
-          ),
-          switchMap((report) => {
-            if (txnIds.length > 0) {
-              return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
-            } else {
-              return of(report);
-            }
-          }),
-          finalize(() => {
-            this.saveDraftReportLoading = false;
-            this.router.navigate(['/', 'enterprise', 'my_reports']);
-          })
-        )
-        .subscribe(noop);
-    } else {
-      this.saveReportLoading = true;
-      this.reportService
-        .create(report, txnIds)
-        .pipe(
-          tap(() =>
-            this.trackingService.createReport({
-              Expense_Count: txnIds.length,
-              Report_Value: this.selectedTotalAmount,
-            })
-          ),
-          finalize(() => {
-            this.saveReportLoading = false;
-            this.router.navigate(['/', 'enterprise', 'my_reports']);
+          )
+          .subscribe(noop);
+      } else {
+        this.saveReportLoading = true;
+        this.reportService
+          .create(report, txnIds)
+          .pipe(
+            tap(() =>
+              this.trackingService.createReport({
+                Expense_Count: txnIds.length,
+                Report_Value: this.selectedTotalAmount,
+              })
+            ),
+            finalize(() => {
+              this.saveReportLoading = false;
+              this.router.navigate(['/', 'enterprise', 'my_reports']);
 
-            this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
-          })
-        )
-        .subscribe(noop);
+              this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
+            })
+          )
+          .subscribe(noop);
+      }
     }
   }
 
