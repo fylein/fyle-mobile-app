@@ -127,13 +127,21 @@ export class ViewMileagePage implements OnInit {
     return typeof val === 'number';
   }
 
-  getPolicyDetails(txId: string) {
-    if (txId) {
-      from(this.policyService.getPolicyViolationRules(txId))
-        .pipe()
-        .subscribe((details) => {
-          this.policyDetails = details;
-        });
+  getPolicyDetails(expenseId: string) {
+    if (expenseId) {
+      if (this.view === ExpenseView.team) {
+        from(this.policyService.getApproverExpensePolicyViolations(expenseId))
+          .pipe()
+          .subscribe((policyDetails) => {
+            this.policyDetails = policyDetails;
+          });
+      } else {
+        from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
+          .pipe()
+          .subscribe((policyDetails) => {
+            this.policyDetails = policyDetails;
+          });
+      }
     }
   }
 
@@ -326,7 +334,10 @@ export class ViewMileagePage implements OnInit {
     );
 
     if (id) {
-      this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+      this.policyViloations$ =
+        this.view === ExpenseView.team
+          ? this.policyService.getApproverExpensePolicyViolations(id)
+          : this.policyService.getSpenderExpensePolicyViolations(id);
     } else {
       this.policyViloations$ = of(null);
     }

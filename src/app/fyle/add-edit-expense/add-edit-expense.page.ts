@@ -2285,10 +2285,10 @@ export class AddEditExpensePage implements OnInit {
 
   getEditExpenseObservable() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
+      tap((etxn) => (this.isIncompleteExpense = etxn.tx.state === 'DRAFT')),
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
-          this.isIncompleteExpense = true;
           return forkJoin({
             allCategories: this.categoriesService.getAll(),
           }).pipe(
@@ -3843,7 +3843,11 @@ export class AddEditExpensePage implements OnInit {
 
         // If category is auto-filled and there exists extracted category, priority is given to extracted category
         const isExtractedCategoryValid = extractedData.category && extractedData.category !== 'Unspecified';
-        if ((!this.fg.controls.category.value || this.presetCategoryId) && isExtractedCategoryValid) {
+        if (
+          (!this.fg.controls.category.value || this.presetCategoryId) &&
+          !this.fg.controls.category.dirty &&
+          isExtractedCategoryValid
+        ) {
           const categoryName = extractedData.category || 'Unspecified';
           const category = filteredCategories.find((orgCategory) => orgCategory.value.fyle_category === categoryName);
           this.fg.patchValue({
@@ -4181,12 +4185,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getPolicyDetails() {
-    const txnId = this.activatedRoute.snapshot.params.id;
-    if (txnId) {
-      from(this.policyService.getPolicyViolationRules(txnId))
+    const expenseId = this.activatedRoute.snapshot.params.id;
+    if (expenseId) {
+      from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
         .pipe()
-        .subscribe((details) => {
-          this.policyDetails = details;
+        .subscribe((policyDetails) => {
+          this.policyDetails = policyDetails;
         });
     }
   }

@@ -29,6 +29,7 @@
         placeholder="Enter Report Title"
         [(ngModel)]="reportTitle"
         required
+        (ngModelChange)="detectTitleChange()"
         #reportTitleInput="ngModel"
       />
     </div>
@@ -84,7 +85,7 @@
         appFormButtonValidation
         [loading]="saveDraftReportLoading"
         [loadingText]="'Saving Report'"
-        [disabled]="saveDraftReportLoading || saveReportLoading"
+        [disabled]="emptyInput"
       >
         Save as Draft
       </ion-button>

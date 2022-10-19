@@ -1,7 +1,8 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit } from '@angular/core';
 import { CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor } from '@capacitor/core';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { Camera } from '@capacitor/camera';
+import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -9,12 +10,13 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgService } from 'src/app/core/services/org.service';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 type Image = Partial<{
@@ -70,7 +72,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private orgService: OrgService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private platform: Platform
   ) {}
 
   setupNetworkWatcher() {
@@ -187,25 +190,87 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  setUpAndStartCamera() {
-    if (!this.isCameraPreviewInitiated) {
-      this.isCameraPreviewInitiated = true;
-      const cameraPreviewOptions: CameraPreviewOptions = {
-        position: 'rear',
-        toBack: true,
-        width: window.innerWidth,
-        height: window.innerHeight,
-        parent: 'cameraPreview',
-        disableAudio: true,
-      };
+  showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
+    const isIos = this.platform.is('ios');
 
-      this.loaderService.showLoader();
-      CameraPreview.start(cameraPreviewOptions).then((res) => {
-        this.isCameraPreviewStarted = true;
-        this.getFlashModes();
-        this.loaderService.hideLoader();
-      });
+    const galleryPermissionName = isIos ? 'Photos' : 'Storage';
+    let title = 'Camera Permission';
+    if (permissionType === 'GALLERY') {
+      title = galleryPermissionName + ' Permission';
     }
+
+    const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and ${galleryPermissionName}`;
+    const galleryPermissionMessage = `Please allow Fyle to access device photos. Click Settings and allow ${galleryPermissionName} access`;
+
+    const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
+
+    const permissionDeniedPopover = this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title,
+        message,
+        primaryCta: {
+          text: 'Open Settings',
+          action: 'OPEN_SETTINGS',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'CANCEL',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+      backdropDismiss: false,
+    });
+
+    from(permissionDeniedPopover)
+      .pipe(
+        tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
+        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss())
+      )
+      .subscribe(({ data }) => {
+        if (data?.action === 'OPEN_SETTINGS') {
+          NativeSettings.open({
+            optionAndroid: AndroidSettings.ApplicationDetails,
+            optionIOS: IOSSettings.App,
+          });
+        }
+        this.close();
+      });
+  }
+
+  setUpAndStartCamera() {
+    from(Camera.requestPermissions()).subscribe((permissions) => {
+      if (permissions?.camera === 'denied') {
+        return this.showPermissionDeniedPopover('CAMERA');
+      }
+
+      /*
+       * 'prompt-with-rationale' means that the user has denied permission, but has not disabled the permission prompt.
+       * So, we can use the native dialog to ask the user for camera permission.
+       */
+      if (permissions?.camera === 'prompt-with-rationale') {
+        return this.setUpAndStartCamera();
+      }
+
+      if (!this.isCameraPreviewInitiated) {
+        this.isCameraPreviewInitiated = true;
+        const cameraPreviewOptions: CameraPreviewOptions = {
+          position: 'rear',
+          toBack: true,
+          width: window.innerWidth,
+          height: window.innerHeight,
+          parent: 'cameraPreview',
+          disableAudio: true,
+        };
+
+        this.loaderService.showLoader();
+        CameraPreview.start(cameraPreviewOptions).then((res) => {
+          this.isCameraPreviewStarted = true;
+          this.getFlashModes();
+          this.loaderService.hideLoader();
+        });
+      }
+    });
   }
 
   switchMode() {
@@ -456,8 +521,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           }
         });
       } else {
-        this.imagePicker.requestReadPermission();
-        this.galleryUpload();
+        from(Camera.requestPermissions({ permissions: ['photos'] })).subscribe((permissions) => {
+          if (permissions?.photos === 'denied') {
+            return this.showPermissionDeniedPopover('GALLERY');
+          }
+          this.galleryUpload();
+        });
       }
     });
   }
