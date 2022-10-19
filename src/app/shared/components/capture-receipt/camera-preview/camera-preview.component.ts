@@ -146,7 +146,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.isBulkMode) {
+    if (changes.isBulkMode?.previousValue !== undefined) {
       this.hasModeChanged = true;
       setTimeout(() => {
         this.hasModeChanged = false;
