@@ -1,133 +1,133 @@
-// @import '../../../../theme/colors.scss';
+@import '../../../../../theme/colors.scss';
 
-// .camera-preview {
-//   --background: #{$pure-black};
+.camera-preview {
+  --background: #{$pure-black};
 
-//   &--active {
-//     --background: transparent;
-//   }
+  &--active {
+    --background: transparent;
+  }
 
-//   &__flash-msg {
-//     background-color: $black-3;
-//     width: 180px;
-//     position: absolute;
-//     top: 50%;
-//     left: 50%;
-//     transform: translate(-50%, -50%);
-//     color: $pure-white;
-//     border-radius: 8px;
+  &__flash-msg {
+    background-color: $black-3;
+    width: 180px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: $pure-white;
+    border-radius: 8px;
 
-//     &__content {
-//       padding: 20px;
-//       font-weight: 500;
-//       font-size: 20px;
-//       line-height: 1.3;
-//     }
-//   }
+    &__content {
+      padding: 20px;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.3;
+    }
+  }
 
-//   &__top-container {
-//     position: fixed;
-//     top: calc(env(safe-area-inset-top) + 10px);
-//     padding: 0 16px;
-//     display: flex;
-//     justify-content: space-between;
-//     width: 100%;
+  &__top-container {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 10px);
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
 
-//     &__icon {
-//       height: 42px;
-//       width: 42px;
-//     }
-//   }
+    &__icon {
+      height: 42px;
+      width: 42px;
+    }
+  }
 
-//   &__middle-container {
-//     display: flex;
-//     justify-content: space-between;
-//     position: fixed;
-//     width: 100%;
-//     padding: 0 18px;
+  &__middle-container {
+    display: flex;
+    justify-content: space-between;
+    position: fixed;
+    width: 100%;
+    padding: 0 18px;
 
-//     &--top-section {
-//       @extend .camera-preview__middle-container;
-//       top: calc(env(safe-area-inset-top) + 102px);
-//     }
+    &--top-section {
+      @extend .camera-preview__middle-container;
+      top: calc(env(safe-area-inset-top) + 102px);
+    }
 
-//     &--bottom-section {
-//       @extend .camera-preview__middle-container;
-//       bottom: calc(env(safe-area-inset-bottom) + 184px);
-//     }
-//   }
+    &--bottom-section {
+      @extend .camera-preview__middle-container;
+      bottom: calc(env(safe-area-inset-bottom) + 184px);
+    }
+  }
 
-//   &__bottom-container {
-//     position: fixed;
-//     bottom: calc(env(safe-area-inset-bottom) + 30px);
-//     padding: 0 16px;
-//     display: flex;
-//     justify-content: space-between;
-//     width: 100%;
+  &__bottom-container {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom) + 30px);
+    padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
 
-//     &--offline {
-//       bottom: calc(env(safe-area-inset-bottom) + 45px);
-//     }
+    &--offline {
+      bottom: calc(env(safe-area-inset-bottom) + 45px);
+    }
 
-//     &__icon-block {
-//       align-self: flex-end;
-//       min-width: 82px;
+    &__icon-block {
+      align-self: flex-end;
+      min-width: 82px;
 
-//       &--primary {
-//         min-width: 84px;
-//         margin: auto;
-//       }
+      &--primary {
+        min-width: 84px;
+        margin: auto;
+      }
 
-//       &__icon {
-//         height: 52px;
-//         width: 52px;
+      &__icon {
+        height: 52px;
+        width: 52px;
 
-//         &--primary {
-//           height: 68px;
-//           width: 68px;
-//         }
-//       }
-//     }
+        &--primary {
+          height: 68px;
+          width: 68px;
+        }
+      }
+    }
 
-//     &__text {
-//       color: $pure-white;
-//       font-size: 15px;
-//       font-weight: 500;
+    &__text {
+      color: $pure-white;
+      font-size: 15px;
+      font-weight: 500;
 
-//       &--primary {
-//         @extend .camera-preview__bottom-container__text;
-//         margin-top: 22px;
-//       }
+      &--primary {
+        @extend .camera-preview__bottom-container__text;
+        margin-top: 22px;
+      }
 
-//       &--secondary {
-//         @extend .camera-preview__bottom-container__text;
-//         margin-top: 8px;
-//       }
-//     }
+      &--secondary {
+        @extend .camera-preview__bottom-container__text;
+        margin-top: 8px;
+      }
+    }
 
-//     &__thumbnail {
-//       background-color: $black-4;
-//       border-radius: 8px;
-//       display: flex;
-//       padding: 4px 12px;
-//       height: 52px;
-//       width: 52px;
-//       margin: auto;
+    &__thumbnail {
+      background-color: $black-4;
+      border-radius: 8px;
+      display: flex;
+      padding: 4px 12px;
+      height: 52px;
+      width: 52px;
+      margin: auto;
 
-//       &__count {
-//         background: $pink-gradient-light;
-//         border: 1px solid $pink-gradient-light;
-//         border-radius: 50%;
-//         color: $pure-white;
-//         font-weight: 500;
-//         position: relative;
-//         left: 54px;
-//         top: 10px;
-//         width: 22px;
-//         height: 22px;
-//         margin: 0;
-//         z-index: 1;
-//       }
-//     }
-//   }
-// }
+      &__count {
+        background: $pink-gradient-light;
+        border: 1px solid $pink-gradient-light;
+        border-radius: 50%;
+        color: $pure-white;
+        font-weight: 500;
+        position: relative;
+        left: 54px;
+        top: 10px;
+        width: 22px;
+        height: 22px;
+        margin: 0;
+        z-index: 1;
+      }
+    }
+  }
+}
