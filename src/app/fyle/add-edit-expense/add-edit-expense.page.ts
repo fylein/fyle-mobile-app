@@ -2656,21 +2656,8 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    forkJoin({
-      paymentModes: this.paymentModes$,
-      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-    }).subscribe(({ paymentModes, isPaymentModeConfigurationsEnabled }) => {
-      // Hide payment mode if Unify CCC is enabled and it is a CCC expense
-      const hidePaymentModeForCCCExpense = this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense;
-
-      /*
-       * Show payment mode if payment_mode_configurations LD flag is disabled
-       * or if it is enabled and there is more than one payment mode
-       * and hidePaymentModeForCCCExpense is false
-       */
-      this.showPaymentMode =
-        (!isPaymentModeConfigurationsEnabled || paymentModes?.length > 1) && !hidePaymentModeForCCCExpense;
-    });
+    // Show payment mode if it is not a CCC expense
+    this.showPaymentMode = !this.isCccExpense;
 
     orgSettings$
       .pipe(

@@ -186,8 +186,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   canRemoveFromReport = false;
 
-  showPaymentMode = true;
-
   autoSubmissionReportName$: Observable<string>;
 
   constructor(
@@ -915,14 +913,6 @@ export class AddEditPerDiemPage implements OnInit {
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
     this.paymentModes$ = this.getPaymentModes();
-
-    forkJoin({
-      paymentModes: this.paymentModes$,
-      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-    }).subscribe(
-      ({ paymentModes, isPaymentModeConfigurationsEnabled }) =>
-        (this.showPaymentMode = !isPaymentModeConfigurationsEnabled || paymentModes.length > 1)
-    );
 
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
