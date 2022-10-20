@@ -186,7 +186,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         .pipe(
           switchMap(() => this.orgs$),
           catchError((error) => {
-            this.showToastNotification('Oops! Something went wrong. Please try again.');
+            this.showToastNotification('Verification link could not be sent. Please try again!');
             return throwError(() => error);
           })
         )
