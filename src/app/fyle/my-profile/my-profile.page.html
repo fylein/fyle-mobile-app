@@ -12,33 +12,35 @@
     <app-employee-details-card [eou]="eou"></app-employee-details-card>
   </ng-container>
   <div class="my-profile__content-container__content">
-    <div class="my-profile__section-header">Notifications</div>
-    <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
-      <div class="my-profile__card__title">Manage Notifications</div>
-      <ion-icon
-        class="my-profile__navigate-icon"
-        src="../../../assets/svg/navigate-right.svg"
-        slot="icon-only"
-      ></ion-icon>
-    </div>
-
-    <div class="my-profile__section-header">Preferences</div>
-    <div class="my-profile__preference-container">
-      <div
-        *ngFor="let preferenceSetting of preferenceSettings;let i=index, last as isLast"
-        [ngClass]="{'my-profile__preference-container__card': !isLast}"
-      >
-        <app-preference-setting
-          [title]="preferenceSetting.title"
-          [content]="preferenceSetting.content"
-          [isEnabled]="preferenceSetting.isEnabled"
-          [key]="preferenceSetting.key"
-          [defaultCurrency]="preferenceSetting.defaultCurrency"
-          (preferenceChanged)="toggleSetting($event)"
-        >
-        </app-preference-setting>
+    <ng-container *ngIf="isConnected$ | async">
+      <div class="my-profile__section-header">Notifications</div>
+      <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
+        <div class="my-profile__card__title">Manage Notifications</div>
+        <ion-icon
+          class="my-profile__navigate-icon"
+          src="../../../assets/svg/navigate-right.svg"
+          slot="icon-only"
+        ></ion-icon>
       </div>
-    </div>
+
+      <div class="my-profile__section-header">Preferences</div>
+      <div class="my-profile__preference-container">
+        <div
+          *ngFor="let preferenceSetting of preferenceSettings;let i=index, last as isLast"
+          [ngClass]="{'my-profile__preference-container__card': !isLast}"
+        >
+          <app-preference-setting
+            [title]="preferenceSetting.title"
+            [content]="preferenceSetting.content"
+            [isEnabled]="preferenceSetting.isEnabled"
+            [key]="preferenceSetting.key"
+            [defaultCurrency]="preferenceSetting.defaultCurrency"
+            (preferenceChanged)="toggleSetting($event)"
+          >
+          </app-preference-setting>
+        </div>
+      </div>
+    </ng-container>
 
     <div class="my-profile__card" (click)="signOut()" matRipple>
       <div class="my-profile__signout-container d-flex">

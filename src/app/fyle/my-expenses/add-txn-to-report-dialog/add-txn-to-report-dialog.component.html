@@ -15,11 +15,11 @@
             <div class="report-list--currency-amount-container">
               <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
               <span class="report-list--amount">{{
-                report.rp_amount || 0 | humanizeCurrency: report.rp_currency:2:true
+                report.rp_amount || 0 | humanizeCurrency: report.rp_currency:true
               }}</span>
             </div>
             <div class="ion-text-right">
-              <div class="text-center report-list--state report-list--state__{{ report.rp_state | reportState }}">
+              <div class="text-center report-list--state state-pill state-{{ report.rp_state | reportState }}">
                 {{ report.rp_state | reportState | snakeCaseToSpaceCase | titlecase }}
               </div>
             </div>

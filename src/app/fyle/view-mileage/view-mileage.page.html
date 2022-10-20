@@ -72,7 +72,7 @@
         <div>
           <span>{{ etxnCurrencySymbol }}</span>
           <span class="view-mileage--card-container__amount">
-            {{ extendedMileage.tx_amount || 0 | humanizeCurrency: extendedMileage.tx_currency:2:true }}
+            {{ extendedMileage.tx_amount || 0 | humanizeCurrency: extendedMileage.tx_currency:true }}
           </span>
           <ion-icon
             class="view-mileage--card-container__icon"
@@ -84,7 +84,7 @@
           class="view-mileage--card-container__state-pill ion-text-right"
           [ngClass]="{'view-mileage--card-container__state-pill--with-project': isProjectShown}"
         >
-          <div class="view-mileage--card-container__state-pill__state">
+          <div class="state-pill state-{{extendedMileage.tx_state | expenseState}}">
             {{ extendedMileage.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
@@ -271,6 +271,11 @@
             </ion-row>
           </ion-grid>
         </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid class="view-mileage--grid">
+      <ion-row>
         <ion-col>
           <ion-grid>
             <ion-row>
@@ -283,8 +288,12 @@
                 </div>
               </ion-col>
               <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Vehicle Type</div>
-                <div class="view-mileage--value">{{ vehicleType === 'car' ? 'Four Wheeler' : 'Two Wheeler'}}</div>
+                <div class="view-mileage--label">Mileage Rate</div>
+                <div class="view-mileage--value">
+                  {{ extendedMileage.tx_mileage_vehicle_type | mileageRateName }} ({{extendedMileage.tx_mileage_rate |
+                  currency:extendedMileage.tx_currency: 'symbol-narrow'}} / {{extendedMileage.tx_distance_unit |
+                  titlecase}})
+                </div>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -354,26 +363,6 @@
             </ion-row>
           </ion-grid>
         </ion-col>
-        <ion-col *ngIf="extendedMileage.tx_mileage_rate">
-          <ion-grid>
-            <ion-row>
-              <ion-col class="view-mileage--icon-container">
-                <div class="view-mileage--icon-container__background">
-                  <ion-icon
-                    class="view-mileage--icon-container__icon-lg"
-                    [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
-                  ></ion-icon>
-                </div>
-              </ion-col>
-              <ion-col class="view-mileage--content-container">
-                <div class="view-mileage--label">Rate / {{extendedMileage.tx_distance_unit | titlecase}}</div>
-                <div class="view-mileage--value">
-                  {{extendedMileage.tx_mileage_rate | currency:extendedMileage.tx_currency: 'symbol-narrow'}}
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-col>
       </ion-row>
     </ion-grid>
 
@@ -400,7 +389,7 @@
             </ion-row>
           </ion-grid>
         </ion-col>
-        <ion-col>
+        <ion-col size="6" *ngIf="extendedMileage.tx_cost_center_code">
           <ion-grid>
             <ion-row>
               <ion-col class="view-mileage--icon-container">
@@ -413,7 +402,7 @@
               </ion-col>
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Cost Center Code</div>
-                <div class="view-mileage--value">{{ extendedMileage.tx_cost_center_id }}</div>
+                <div class="view-mileage--value">{{ extendedMileage.tx_cost_center_code }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>

@@ -1,8 +1,22 @@
 <app-send-email
+  *ngIf="!hasTokenExpired"
   class="full-height"
   title="Please verify your email"
   content="An activation link has been sent to your email. Please click on it to verify your account and proceed with Fyle."
   subcontent="Didn't receive the email? Please use the below form to request it again."
+  ctaText="Resend Verification Link"
+  successTitle="Verification email sent"
+  successContent="An activation link has been sent to your email. Please click on it to verify your account and proceed with Fyle."
+  [sendEmailPageState]="currentPageState"
+  [isLoading]="isLoading"
+  (sendEmail)="resendVerificationLink($event)"
+></app-send-email>
+
+<app-send-email
+  *ngIf="hasTokenExpired"
+  class="full-height"
+  title="Verification link expired"
+  content="Please use the below form to request the verification link again."
   ctaText="Resend Verification Link"
   successTitle="Verification email sent"
   successContent="An activation link has been sent to your email. Please click on it to verify your account and proceed with Fyle."

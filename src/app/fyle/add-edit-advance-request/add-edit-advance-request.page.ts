@@ -5,14 +5,12 @@ import { ModalController, PopoverController } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { FileObject } from 'src/app/core/models/file_obj.model';
 import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -28,6 +26,10 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -75,10 +77,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   expenseFields$: Observable<Partial<ExpenseFieldsMap>>;
 
-  isCameraShown = false;
+  isCameraPreviewStarted = false;
 
   constructor(
-    private offlineService: OfflineService,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private router: Router,
@@ -89,14 +90,17 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private modalController: ModalController,
     private statusService: StatusService,
     private loaderService: LoaderService,
-    private projectService: ProjectsService,
+    private projectsService: ProjectsService,
     private popoverController: PopoverController,
     private transactionsOutboxService: TransactionsOutboxService,
     private fileService: FileService,
-    private popupService: PopupService,
+    private orgSettingsService: OrgSettingsService,
     private networkService: NetworkService,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private expenseFieldsService: ExpenseFieldsService,
+    private currencyService: CurrencyService,
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   @HostListener('keydown')
@@ -136,7 +140,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       };
     }
 
-    this.expenseFields$ = this.offlineService.getExpenseFieldsMap();
+    this.expenseFields$ = this.expenseFieldsService.getAllMap();
   }
 
   goBack() {
@@ -395,10 +399,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
         cssClass: 'hide-modal',
       });
       await captureReceiptModal.present();
-      this.isCameraShown = true;
+      this.isCameraPreviewStarted = true;
 
       const { data } = await captureReceiptModal.onWillDismiss();
-      this.isCameraShown = false;
+      this.isCameraPreviewStarted = false;
 
       if (data && data.dataUrl) {
         receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };
@@ -534,9 +538,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   ionViewWillEnter() {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
-    const orgSettings$ = this.offlineService.getOrgSettings();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    const orgSettings$ = this.orgSettingsService.get();
+    const orgUserSettings$ = this.orgUserSettingsService.get();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
     this.customFieldValues = [];
@@ -564,7 +568,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
         if (res.areq.project_id) {
           const projectId = res.areq.project_id;
-          this.projectService.getbyId(projectId).subscribe((selectedProject) => {
+          this.projectsService.getbyId(projectId).subscribe((selectedProject) => {
             this.fg.patchValue({
               project: selectedProject,
             });
@@ -608,15 +612,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
     );
-    this.projects$ = this.offlineService.getProjects();
+    this.projects$ = this.projectsService.getAllActive();
 
-    this.isProjectsVisible$ = this.offlineService.getOrgSettings().pipe(
+    this.isProjectsVisible$ = this.orgSettingsService.get().pipe(
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
-          this.offlineService
-            .getOrgUserSettings()
-            .pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
+          this.orgUserSettingsService.get().pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
           this.projects$
         )
       ),

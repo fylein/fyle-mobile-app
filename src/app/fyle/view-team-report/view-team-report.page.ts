@@ -27,8 +27,8 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { Approver } from 'src/app/core/models/v1/approver.model';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -132,7 +132,7 @@ export class ViewTeamReportPage implements OnInit {
     private refinerService: RefinerService,
     private statusService: StatusService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    private offlineService: OfflineService
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   ngOnInit() {}
@@ -313,10 +313,10 @@ export class ViewTeamReportPage implements OnInit {
       etxns: this.etxns$,
       eou: this.eou$,
       approvals: this.reportApprovals$.pipe(take(1)),
-      orgSettings: this.offlineService.getOrgSettings(),
+      orgSettings: this.orgSettingsService.get(),
     }).subscribe((res) => {
       this.reportEtxnIds = res.etxns.map((etxn) => etxn.tx_id);
-      this.isSequentialApprovalEnabled = res?.orgSettings.approval_settings?.enable_sequential_approvers;
+      this.isSequentialApprovalEnabled = res?.orgSettings?.approval_settings?.enable_sequential_approvers;
       this.canApprove = this.isSequentialApprovalEnabled
         ? this.isUserActiveInCurrentSeqApprovalQueue(res.eou, res.approvals)
         : true;
@@ -333,12 +333,16 @@ export class ViewTeamReportPage implements OnInit {
   isUserActiveInCurrentSeqApprovalQueue(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
     const currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
 
-    const minRank = approvers
+    const approverRanks = approvers
       .filter((approver) => approver.state === 'APPROVAL_PENDING')
-      .map((approver) => approver.rank)
-      .reduce((prev, curr) => (prev < curr ? prev : curr));
+      .map((approver) => approver.rank);
 
-    return currentApproverRank === minRank;
+    if (approverRanks.length > 0) {
+      const minRank = approverRanks.reduce((prev, curr) => (prev < curr ? prev : curr));
+      return currentApproverRank === minRank;
+    }
+
+    return false;
   }
 
   async deleteReport() {
@@ -376,7 +380,7 @@ export class ViewTeamReportPage implements OnInit {
       const erpt = await this.erpt$.pipe(take(1)).toPromise();
       const etxns = await this.etxns$.toPromise();
 
-      const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, 2, false);
+      const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, false);
       const popover = await this.popoverController.create({
         componentProps: {
           etxns,

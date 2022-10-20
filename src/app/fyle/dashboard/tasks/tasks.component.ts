@@ -3,7 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { Observable, BehaviorSubject, forkJoin, from, of, concat } from 'rxjs';
+import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
@@ -14,7 +14,6 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -50,6 +49,10 @@ export class TasksComponent implements OnInit {
 
   taskCount = 0;
 
+  showReportAutoSubmissionInfoCard = false;
+
+  autoSubmissionReportDate$: Observable<Date>;
+
   constructor(
     private taskService: TasksService,
     private transactionService: TransactionService,
@@ -64,8 +67,7 @@ export class TasksComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService,
-    private offlineService: OfflineService
+    private networkService: NetworkService
   ) {}
 
   ngOnInit() {
@@ -82,12 +84,41 @@ export class TasksComponent implements OnInit {
   }
 
   init() {
-    this.tasks$ = this.loadData$.pipe(
-      switchMap((taskFilters) => this.taskService.getTasks(taskFilters)),
-      tap((tasks) => this.trackTasks(tasks)),
-      tap((tasks) => (this.taskCount = tasks.length)),
+    this.autoSubmissionReportDate$ = this.reportService
+      .getReportAutoSubmissionDetails()
+      .pipe(map((autoSubmissionReportDetails) => autoSubmissionReportDetails?.data?.next_at));
+
+    this.tasks$ = combineLatest({
+      taskFilters: this.loadData$,
+      autoSubmissionReportDate: this.autoSubmissionReportDate$,
+    }).pipe(
+      switchMap(({ taskFilters, autoSubmissionReportDate }) =>
+        this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters)
+      ),
       shareReplay(1)
     );
+
+    this.tasks$.subscribe((tasks) => {
+      this.trackTasks(tasks);
+      this.taskCount = tasks.length;
+    });
+
+    combineLatest({
+      tasks: this.tasks$,
+      autoSubmissionReportDate: this.autoSubmissionReportDate$,
+    }).subscribe(({ tasks, autoSubmissionReportDate }) => {
+      const isIncompleteExpensesTaskShown = tasks.some((task) => task.header.includes('Incomplete expense'));
+      const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
+
+      /*
+       * Show the auto-submission info card at the top of tasks page only if an auto-submission is scheduled
+       * and incomplete expenses task is not shown (else it'll be shown with that task)
+       * and hide it if the user is navigating to tasks section from teams section
+       * Since we don't have tasks for team advances, have added a check only for team reports filter
+       */
+      this.showReportAutoSubmissionInfoCard =
+        autoSubmissionReportDate && !isIncompleteExpensesTaskShown && paramFilters !== 'team_reports';
+    });
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
     if (paramFilters === 'expenses') {
@@ -154,7 +185,7 @@ export class TasksComponent implements OnInit {
       this.loadData$.next(this.loadData$.getValue());
       if (event) {
         setTimeout(() => {
-          event.target.complete();
+          event?.target?.complete();
         }, 1500);
       }
     });
@@ -446,22 +477,14 @@ export class TasksComponent implements OnInit {
 
   onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask) {
     if (task.count === 1) {
+      const queryParams = {
+        rp_approval_state: ['in.(APPROVAL_PENDING)'],
+        rp_state: ['in.(APPROVER_PENDING)'],
+        sequential_approval_turn: ['in.(true)'],
+      };
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
-          switchMap(() =>
-            forkJoin({
-              eou: from(this.authService.getEou()),
-              sequentalApproversEnabled: this.offlineService
-                .getOrgSettings()
-                .pipe(map((orgSettings) => orgSettings.approval_settings.enable_sequential_approvers)),
-            })
-          ),
-          map(({ eou, sequentalApproversEnabled }) => ({
-            rp_approval_state: ['in.(APPROVAL_PENDING)'],
-            rp_state: ['in.(APPROVER_PENDING)'],
-            sequential_approval_turn: sequentalApproversEnabled ? ['in.(true)'] : ['in.(true)'],
-          })),
-          switchMap((queryParams) => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
+          switchMap(() => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
@@ -596,5 +619,11 @@ export class TasksComponent implements OnInit {
 
   onExpensesToReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
     this.showOldReportsMatBottomSheet();
+  }
+
+  autoSubmissionInfoCardClicked(isSeparateCard: boolean) {
+    this.trackingService.autoSubmissionInfoCardClicked({
+      isSeparateCard,
+    });
   }
 }

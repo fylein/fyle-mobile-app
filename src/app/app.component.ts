@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController, PopoverController } from '@ionic/angular';
 import { from, concat, Observable, noop } from 'rxjs';
-import { switchMap, shareReplay } from 'rxjs/operators';
+import { switchMap, shareReplay, filter } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -22,7 +22,8 @@ import { LoginInfoService } from './core/services/login-info.service';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
-import { OfflineService } from './core/services/offline.service';
+import { PerfTrackers } from './core/models/perf-trackers.enum';
+import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
 
 @Component({
   selector: 'app-root',
@@ -46,6 +47,10 @@ export class AppComponent implements OnInit {
 
   isSwitchedToDelegator: boolean;
 
+  isUserLoggedIn = false;
+
+  isOnline: boolean;
+
   constructor(
     private platform: Platform,
     private router: Router,
@@ -62,7 +67,6 @@ export class AppComponent implements OnInit {
     private pushNotificationService: PushNotificationService,
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
-    private offlineService: OfflineService,
     private navController: NavController,
     private popoverController: PopoverController
   ) {
@@ -120,6 +124,7 @@ export class AppComponent implements OnInit {
   initializeApp() {
     // eslint-disable-next-line max-len
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
+
     App.addListener('appUrlOpen', (data) => {
       this.zone.run(() => {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
@@ -132,41 +137,31 @@ export class AppComponent implements OnInit {
       });
       setTimeout(async () => await SplashScreen.hide(), 1000);
 
-      this.offlineService.loadAppVersion();
+      from(this.routerAuthService.isLoggedIn())
+        .pipe(
+          filter((isLoggedIn) => !!isLoggedIn),
+          switchMap(() => this.deviceService.getDeviceInfo()),
+          filter((deviceInfo: ExtendedDeviceInfo) => ['android', 'ios'].includes(deviceInfo.platform.toLowerCase())),
+          switchMap((deviceInfo) => {
+            this.appVersionService.load(deviceInfo);
+            return this.appVersionService.getUserAppVersionDetails(deviceInfo);
+          }),
+          filter((userAppVersionDetails) => !!userAppVersionDetails)
+        )
+        .subscribe((userAppVersionDetails) => {
+          const { appSupportDetails, lastLoggedInVersion, eou, deviceInfo } = userAppVersionDetails;
+          this.trackingService.eventTrack('Auto Logged out', {
+            lastLoggedInVersion,
+            user_email: eou?.us?.email,
+            appVersion: deviceInfo.appVersion,
+          });
+          this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);
+        });
 
       // Global cache config
       GlobalCacheConfig.maxAge = 10 * 60 * 1000;
       GlobalCacheConfig.maxCacheCount = 100;
     });
-  }
-
-  checkAppSupportedVersion() {
-    this.deviceService
-      .getDeviceInfo()
-      .pipe(
-        switchMap((deviceInfo) => {
-          const data = {
-            app_version: deviceInfo.appVersion,
-            device_os: deviceInfo.platform,
-          };
-
-          return this.appVersionService.isSupported(data);
-        })
-      )
-      .subscribe(async (res: { message: string; supported: boolean }) => {
-        if (!res.supported && environment.production) {
-          const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
-          const eou = await this.authService.getEou();
-
-          this.trackingService.eventTrack('Auto Logged out', {
-            lastLoggedInVersion: await this.loginInfoService.getLastLoggedInVersion(),
-            user_email: eou && eou.us && eou.us.email,
-            appVersion: deviceInfo.appVersion,
-          });
-
-          this.router.navigate(['/', 'auth', 'app_version', { message: res.message }]);
-        }
-      });
   }
 
   setupNetworkWatcher() {
@@ -178,6 +173,8 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setupNetworkWatcher();
+
     if ((window as any) && (window as any).localStorage) {
       const lstorage = (window as any).localStorage;
       Object.keys(lstorage)
@@ -185,17 +182,35 @@ export class AppComponent implements OnInit {
         .forEach((key) => lstorage.removeItem(key));
     }
 
-    this.checkAppSupportedVersion();
+    this.isConnected$.subscribe((isOnline) => {
+      this.isOnline = isOnline;
+    });
+
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+      this.isUserLoggedIn = loggedInStatus;
       if (loggedInStatus) {
-        this.sidemenuRef.showSideMenu();
+        if (this.isOnline) {
+          this.sidemenuRef.showSideMenuOnline();
+        } else {
+          this.sidemenuRef.showSideMenuOffline();
+        }
+
         this.pushNotificationService.initPush();
       }
+
+      const markOptions: PerformanceMarkOptions = {
+        detail: this.isUserLoggedIn,
+      };
+      performance.mark(PerfTrackers.appLaunchStartTime, markOptions);
     });
 
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
-        this.sidemenuRef.showSideMenu();
+        if (this.isOnline) {
+          this.sidemenuRef.showSideMenuOnline();
+        } else {
+          this.sidemenuRef.showSideMenuOffline();
+        }
       }, 500);
     });
 
@@ -205,8 +220,6 @@ export class AppComponent implements OnInit {
       this.isSwitchedToDelegator = false;
       this.router.navigate(['/', 'auth', 'sign_in']);
     });
-
-    this.setupNetworkWatcher();
 
     this.router.events.subscribe((ev) => {
       // adding try catch because this may fail due to network issues

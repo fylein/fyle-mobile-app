@@ -7,7 +7,6 @@ import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -17,6 +16,7 @@ import { StorageService } from '../../core/services/storage.service';
 import { NgModel } from '@angular/forms';
 import { getCurrencySymbol } from '@angular/common';
 import { RefinerService } from 'src/app/core/services/refiner.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-my-create-report',
@@ -46,11 +46,11 @@ export class MyCreateReportPage implements OnInit {
 
   showReportNameError = false;
 
-  homeCurrencySymbol: string;
-
   homeCurrency: string;
 
   isSelectedAll: boolean;
+
+  emptyInput = false;
 
   constructor(
     private transactionService: TransactionService,
@@ -60,12 +60,23 @@ export class MyCreateReportPage implements OnInit {
     private loaderService: LoaderService,
     private router: Router,
     private popoverController: PopoverController,
-    private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
     private trackingService: TrackingService,
     private storageService: StorageService,
-    private refinerService: RefinerService
+    private refinerService: RefinerService,
+    private orgSettingsService: OrgSettingsService
   ) {}
+
+  detectTitleChange() {
+    if (!this.reportTitle && this.reportTitle === '') {
+      this.emptyInput = true;
+      this.showReportNameError = true;
+    }
+    if (this.reportTitle !== '') {
+      this.emptyInput = false;
+      this.showReportNameError = false;
+    }
+  }
 
   cancel() {
     if (this.selectedTxnIds.length > 0) {
@@ -99,63 +110,65 @@ export class MyCreateReportPage implements OnInit {
 
   ctaClickedEvent(reportActionType) {
     this.showReportNameError = false;
-    if (this.reportTitle.trim().length <= 0) {
+    if (this.reportTitle && this.reportTitle?.trim().length <= 0 && this.emptyInput) {
       this.showReportNameError = true;
       return;
     }
 
-    const report = {
-      purpose: this.reportTitle,
-      source: 'MOBILE',
-    };
+    if (!this.emptyInput) {
+      const report = {
+        purpose: this.reportTitle,
+        source: 'MOBILE',
+      };
 
-    this.sendFirstReportCreated();
+      this.sendFirstReportCreated();
 
-    const txnIds = this.selectedElements.map((expense) => expense.tx_id);
+      const txnIds = this.selectedElements?.map((expense) => expense.tx_id);
 
-    if (reportActionType === 'create_draft_report') {
-      this.saveDraftReportLoading = true;
-      return this.reportService
-        .createDraft(report)
-        .pipe(
-          tap(() =>
-            this.trackingService.createReport({
-              Expense_Count: txnIds.length,
-              Report_Value: this.selectedTotalAmount,
+      if (reportActionType === 'create_draft_report') {
+        this.saveDraftReportLoading = true;
+        return this.reportService
+          .createDraft(report)
+          .pipe(
+            tap(() =>
+              this.trackingService.createReport({
+                Expense_Count: txnIds.length,
+                Report_Value: this.selectedTotalAmount,
+              })
+            ),
+            switchMap((report) => {
+              if (txnIds.length > 0) {
+                return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
+              } else {
+                return of(report);
+              }
+            }),
+            finalize(() => {
+              this.saveDraftReportLoading = false;
+              this.router.navigate(['/', 'enterprise', 'my_reports']);
             })
-          ),
-          switchMap((report) => {
-            if (txnIds.length > 0) {
-              return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
-            } else {
-              return of(report);
-            }
-          }),
-          finalize(() => {
-            this.saveDraftReportLoading = false;
-            this.router.navigate(['/', 'enterprise', 'my_reports']);
-          })
-        )
-        .subscribe(noop);
-    } else {
-      this.saveReportLoading = true;
-      this.reportService
-        .create(report, txnIds)
-        .pipe(
-          tap(() =>
-            this.trackingService.createReport({
-              Expense_Count: txnIds.length,
-              Report_Value: this.selectedTotalAmount,
-            })
-          ),
-          finalize(() => {
-            this.saveReportLoading = false;
-            this.router.navigate(['/', 'enterprise', 'my_reports']);
+          )
+          .subscribe(noop);
+      } else {
+        this.saveReportLoading = true;
+        this.reportService
+          .create(report, txnIds)
+          .pipe(
+            tap(() =>
+              this.trackingService.createReport({
+                Expense_Count: txnIds.length,
+                Report_Value: this.selectedTotalAmount,
+              })
+            ),
+            finalize(() => {
+              this.saveReportLoading = false;
+              this.router.navigate(['/', 'enterprise', 'my_reports']);
 
-            this.refinerService.startSurvey({ actionName: 'Submit Report' });
-          })
-        )
-        .subscribe(noop);
+              this.refinerService.startSurvey({ actionName: 'Submit Newly Created Report' });
+            })
+          )
+          .subscribe(noop);
+      }
     }
   }
 
@@ -279,7 +292,7 @@ export class MyCreateReportPage implements OnInit {
       0
     );
 
-    if (this.reportTitleInput && !this.reportTitleInput.dirty && txnIds.length > 0) {
+    if (this.reportTitleInput && !this.reportTitleInput.dirty) {
       return this.reportService.getReportPurpose({ ids: txnIds }).subscribe((res) => {
         this.reportTitle = res;
       });
@@ -303,7 +316,7 @@ export class MyCreateReportPage implements OnInit {
       or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
     };
 
-    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     const orgUserSettings$ = this.orgUserSettingsService.get();
 
     from(this.loaderService.showLoader())
@@ -351,9 +364,8 @@ export class MyCreateReportPage implements OnInit {
   }
 
   ngOnInit() {
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;
-      this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
   }
 }

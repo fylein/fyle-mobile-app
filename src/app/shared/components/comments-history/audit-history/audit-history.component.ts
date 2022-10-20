@@ -1,7 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { switchMap } from 'rxjs/operators';
-
-import { OfflineService } from 'src/app/core/services/offline.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 
 @Component({
   selector: 'app-audit-history',
@@ -13,11 +11,11 @@ export class AuditHistoryComponent implements OnInit {
 
   projectFieldName = 'project';
 
-  constructor(private offlineService: OfflineService) {}
+  constructor(private expenseFieldsService: ExpenseFieldsService) {}
 
   // TODO - replace forEach with find
   getAndUpdateProjectName() {
-    this.offlineService.getAllEnabledExpenseFields().subscribe((expenseFields) => {
+    this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       expenseFields.forEach((expenseField) => {
         if (expenseField.column_name === 'project_id') {
           this.projectFieldName = expenseField.field_name;
@@ -29,7 +27,7 @@ export class AuditHistoryComponent implements OnInit {
   }
 
   updateProjectNameKey() {
-    this.estatuses = this.estatuses.map((estatus) => {
+    this.estatuses = this.estatuses?.map((estatus) => {
       if (estatus && estatus.st_diff && estatus.st_diff['project name']) {
         const project = estatus.st_diff['project name'];
         delete estatus.st_diff['project name'];
@@ -46,7 +44,7 @@ export class AuditHistoryComponent implements OnInit {
   }
 
   hasDetails() {
-    this.estatuses = this.estatuses.map(function (estatus) {
+    this.estatuses = this.estatuses?.map(function (estatus) {
       if (estatus) {
         estatus.has_details = estatus.st_diff !== null && Object.keys(estatus.st_diff).length > 0;
       }
@@ -55,7 +53,7 @@ export class AuditHistoryComponent implements OnInit {
   }
 
   setReimbursable() {
-    this.estatuses = this.estatuses.map(function (status) {
+    this.estatuses = this.estatuses?.map(function (status) {
       if (status && status.st_diff && status.st_diff.hasOwnProperty('non-reimbursable')) {
         status.st_diff.reimbursable = status.st_diff['non-reimbursable'] ? 'No' : 'Yes';
         delete status.st_diff['non-reimbursable'];

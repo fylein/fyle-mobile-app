@@ -6,7 +6,6 @@ import { DateService } from '../../core/services/date.service';
 import { CurrencyService } from '../../core/services/currency.service';
 import { ActivatedRoute, Params, Router, NavigationEnd } from '@angular/router';
 import { TransactionsOutboxService } from '../../core/services/transactions-outbox.service';
-import { OfflineService } from '../../core/services/offline.service';
 import { PopupService } from '../../core/services/popup.service';
 import {
   debounceTime,
@@ -280,7 +279,7 @@ export class CorporateCardExpensesPage implements OnInit {
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     setTimeout(() => {
-      event.target.complete();
+      event?.target?.complete();
     }, 1000);
   }
 
@@ -290,7 +289,7 @@ export class CorporateCardExpensesPage implements OnInit {
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     if (event) {
-      event.target.complete();
+      event?.target?.complete();
     }
   }
 

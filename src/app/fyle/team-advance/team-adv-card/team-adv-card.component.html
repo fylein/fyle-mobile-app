@@ -12,7 +12,7 @@
       <div class="advance-card--amount-block">
         <span class="advance-card--currency">{{ currencySymbol }}</span>
         <span class="advance-card--amount" *ngIf="advanceRequest.areq_amount && advanceRequest.areq_currency"
-          >{{ advanceRequest.areq_amount || 0 | humanizeCurrency: advanceRequest.areq_currency:2:true }}
+          >{{ advanceRequest.areq_amount || 0 | humanizeCurrency: advanceRequest.areq_currency:true }}
         </span>
       </div>
     </div>
@@ -25,7 +25,7 @@
           <span>Approved on {{ advanceRequest.areq_approved_at | date: 'MMM dd, yyyy' }}</span>
         </div>
       </div>
-      <div class="advance-card--pill" [class]="'advance-card--pill__' + internalState.state">
+      <div class="state-pill" [class]="'state-' + internalState.state">
         {{ internalState.name }}
       </div>
     </div>

@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { from } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 
 @Injectable({
@@ -29,13 +31,7 @@ export class LoginInfoService {
     await this.storageService.set('loginInfo', loginInfo);
   }
 
-  async getLastLoggedInVersion() {
-    let loginInfo = await this.storageService.get('loginInfo');
-
-    if (!loginInfo) {
-      loginInfo = {};
-    }
-
-    return loginInfo.lastLoggedInVersion;
+  getLastLoggedInVersion() {
+    return from(this.storageService.get('loginInfo')).pipe(map((loginInfo) => loginInfo?.lastLoggedInVersion));
   }
 }

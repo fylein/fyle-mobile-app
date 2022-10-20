@@ -1,5 +1,5 @@
-import { Component, forwardRef, Injector, Input, OnInit, TemplateRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { Component, forwardRef, Injector, Input, OnChanges, OnInit, TemplateRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
 import { ModalController, PopoverController } from '@ionic/angular';
@@ -23,7 +23,7 @@ import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model'
     },
   ],
 })
-export class FyAddToReportComponent implements OnInit {
+export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAccessor {
   @Input() options: { label: string; value: UnflattenedReport }[] = [];
 
   @Input() disabled = false;
@@ -34,7 +34,7 @@ export class FyAddToReportComponent implements OnInit {
 
   @Input() selectionElement: TemplateRef<any>;
 
-  @Input() nullOption = true;
+  @Input() showNullOption = true;
 
   @Input() cacheName = '';
 
@@ -44,7 +44,9 @@ export class FyAddToReportComponent implements OnInit {
 
   @Input() enableSearch = false;
 
-  displayValue;
+  @Input() autoSubmissionReportName: string;
+
+  displayValue: string;
 
   private ngControl: NgControl;
 
@@ -78,23 +80,21 @@ export class FyAddToReportComponent implements OnInit {
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
-      if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-        if (selectedOption) {
-          this.displayValue = selectedOption && selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
-          this.displayValue = this.innerValue;
-        } else {
-          this.displayValue = '';
-        }
-      }
-
+      this.setDisplayValue();
       this.onChangeCallback(v);
     }
   }
 
   ngOnInit() {
     this.ngControl = this.injector.get(NgControl);
+  }
+
+  ngOnChanges() {
+    //If Report auto submission is scheduled, 'None' option won't be shown in reports list
+    if (this.autoSubmissionReportName) {
+      this.showNullOption = false;
+      this.label = 'Expense Report';
+    }
   }
 
   async openModal() {
@@ -104,11 +104,12 @@ export class FyAddToReportComponent implements OnInit {
         options: this.options,
         currentSelection: this.value,
         selectionElement: this.selectionElement,
-        nullOption: this.nullOption,
+        showNullOption: this.showNullOption,
         cacheName: this.cacheName,
         customInput: this.customInput,
         subheader: this.subheader,
         enableSearch: this.enableSearch,
+        autoSubmissionReportName: this.autoSubmissionReportName,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -175,15 +176,19 @@ export class FyAddToReportComponent implements OnInit {
   writeValue(value: any): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
-      if (this.options) {
-        const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-        if (selectedOption) {
-          this.displayValue = selectedOption.label;
-        } else if (typeof this.innerValue === 'string') {
-          this.displayValue = this.innerValue;
-        } else {
-          this.displayValue = '';
-        }
+      this.setDisplayValue();
+    }
+  }
+
+  setDisplayValue() {
+    if (this.options) {
+      const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
+      if (selectedOption) {
+        this.displayValue = selectedOption.label;
+      } else if (typeof this.innerValue === 'string') {
+        this.displayValue = this.innerValue;
+      } else {
+        this.displayValue = this.autoSubmissionReportName || '';
       }
     }
   }

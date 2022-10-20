@@ -2,7 +2,6 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin, from, fromEvent, throwError } from 'rxjs';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import {
   concatMap,
@@ -17,6 +16,7 @@ import {
 } from 'rxjs/operators';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { OrgService } from 'src/app/core/services/org.service';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -34,7 +34,7 @@ export class DelegatedAccountsPage implements OnInit {
 
   constructor(
     private orgUserService: OrgUserService,
-    private offlineService: OfflineService,
+    private orgService: OrgService,
     private router: Router,
     private loaderService: LoaderService,
     private activatedRoute: ActivatedRoute,
@@ -80,7 +80,7 @@ export class DelegatedAccountsPage implements OnInit {
     } else {
       const delegatedAccList$ = forkJoin({
         delegatedAcc: this.orgUserService.findDelegatedAccounts(),
-        currentOrg: this.offlineService.getCurrentOrg(),
+        currentOrg: this.orgService.getCurrentOrg(),
       }).pipe(shareReplay(1));
 
       delegatedAccList$.subscribe((res) => {
@@ -96,7 +96,7 @@ export class DelegatedAccountsPage implements OnInit {
             delegatedAccList$.pipe(
               map(({ delegatedAcc }) => this.orgUserService.excludeByStatus(delegatedAcc, 'DISABLED')),
               map((delegatees) =>
-                delegatees.filter((delegatee) =>
+                delegatees?.filter((delegatee) =>
                   Object.values(delegatee.us).some(
                     (delegateeProp) =>
                       delegateeProp &&
@@ -109,7 +109,7 @@ export class DelegatedAccountsPage implements OnInit {
           )
         )
         .subscribe((delegatees) => {
-          this.delegatedAccList = delegatees;
+          this.delegatedAccList = delegatees || [];
         });
     }
   }

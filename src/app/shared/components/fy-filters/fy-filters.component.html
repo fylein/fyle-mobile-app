@@ -120,14 +120,26 @@
             <div class="fy-filters--custom-date-filters">
               <mat-form-field>
                 <mat-label>Start date</mat-label>
-                <input matInput [(ngModel)]="startDate" (ngModelChange)="onDateChange()" [matDatepicker]="picker1" />
+                <input
+                  class="smartlook-show"
+                  matInput
+                  [(ngModel)]="startDate"
+                  (ngModelChange)="onDateChange()"
+                  [matDatepicker]="picker1"
+                />
                 <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                 <mat-datepicker #picker1></mat-datepicker>
               </mat-form-field>
 
               <mat-form-field>
                 <mat-label>End date</mat-label>
-                <input matInput [(ngModel)]="endDate" (ngModelChange)="onDateChange()" [matDatepicker]="picker2" />
+                <input
+                  class="smartlook-show"
+                  matInput
+                  [(ngModel)]="endDate"
+                  (ngModelChange)="onDateChange()"
+                  [matDatepicker]="picker2"
+                />
                 <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
                 <mat-datepicker #picker2></mat-datepicker>
               </mat-form-field>

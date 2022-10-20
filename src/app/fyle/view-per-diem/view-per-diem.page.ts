@@ -5,7 +5,6 @@ import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -21,6 +20,9 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -80,7 +82,6 @@ export class ViewPerDiemPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
     private loaderService: LoaderService,
-    private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private perDiemService: PerDiemService,
     private policyService: PolicyService,
@@ -90,7 +91,9 @@ export class ViewPerDiemPage implements OnInit {
     private statusService: StatusService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private expenseFieldsService: ExpenseFieldsService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get ExpenseView() {
@@ -109,13 +112,21 @@ export class ViewPerDiemPage implements OnInit {
     }
   }
 
-  getPolicyDetails(txId: string) {
-    if (txId) {
-      from(this.policyService.getPolicyViolationRules(txId))
-        .pipe()
-        .subscribe((details) => {
-          this.policyDetails = details;
-        });
+  getPolicyDetails(expenseId: string) {
+    if (expenseId) {
+      if (this.view === ExpenseView.team) {
+        from(this.policyService.getApproverExpensePolicyViolations(expenseId))
+          .pipe()
+          .subscribe((policyDetails) => {
+            this.policyDetails = policyDetails;
+          });
+      } else {
+        from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
+          .pipe()
+          .subscribe((policyDetails) => {
+            this.policyDetails = policyDetails;
+          });
+      }
     }
   }
 
@@ -154,7 +165,7 @@ export class ViewPerDiemPage implements OnInit {
     this.extendedPerDiem$.subscribe((extendedPerDiem) => {
       this.reportId = extendedPerDiem.tx_report_id;
 
-      if (extendedPerDiem.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT') {
+      if (extendedPerDiem.source_account_type === AccountType.ADVANCE) {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else if (extendedPerDiem.tx_skip_reimbursement) {
@@ -168,7 +179,7 @@ export class ViewPerDiemPage implements OnInit {
       this.etxnCurrencySymbol = getCurrencySymbol(extendedPerDiem.tx_currency, 'wide');
     });
 
-    forkJoin([this.offlineService.getExpenseFieldsMap(), this.extendedPerDiem$.pipe(take(1))])
+    forkJoin([this.expenseFieldsService.getAllMap(), this.extendedPerDiem$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, extendedPerDiem]) => {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
@@ -179,8 +190,8 @@ export class ViewPerDiemPage implements OnInit {
       )
       .subscribe(noop);
 
-    this.offlineService
-      .getOrgSettings()
+    this.orgSettingsService
+      .get()
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;
@@ -229,7 +240,10 @@ export class ViewPerDiemPage implements OnInit {
     );
 
     if (id) {
-      this.policyViloations$ = this.policyService.getPolicyViolationRules(id);
+      this.policyViloations$ =
+        this.view === ExpenseView.team
+          ? this.policyService.getApproverExpensePolicyViolations(id)
+          : this.policyService.getSpenderExpensePolicyViolations(id);
     } else {
       this.policyViloations$ = of(null);
     }

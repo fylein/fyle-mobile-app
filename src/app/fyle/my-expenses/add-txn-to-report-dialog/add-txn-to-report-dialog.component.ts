@@ -1,10 +1,8 @@
 import { Component, OnInit, Input, Inject } from '@angular/core';
-import { noop } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { getCurrencySymbol } from '@angular/common';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { MatBottomSheet, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { ExtendedReport } from 'src/app/core/models/report.model';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-add-txn-to-report-dialog',
@@ -17,7 +15,7 @@ export class AddTxnToReportDialogComponent implements OnInit {
   reportCurrencySymbol: string;
 
   constructor(
-    private offlineService: OfflineService,
+    private currencyService: CurrencyService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: { openReports: ExtendedReport[] },
     private matBottomsheet: MatBottomSheet
   ) {}
@@ -31,7 +29,7 @@ export class AddTxnToReportDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
   }

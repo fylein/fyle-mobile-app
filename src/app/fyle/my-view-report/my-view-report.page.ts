@@ -7,7 +7,7 @@ import { map, switchMap, finalize, shareReplay, takeUntil, tap, startWith } from
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent } from '@ionic/angular';
+import { PopoverController, ModalController, IonContent, IonSegment } from '@ionic/angular';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ShareReportComponent } from './share-report/share-report.component';
@@ -25,7 +25,7 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import * as moment from 'moment';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AddExpensesToReportComponent } from '../my-edit-report/add-expenses-to-report/add-expenses-to-report.component';
+import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { cloneDeep, isEqual } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -40,6 +40,8 @@ export class MyViewReportPage implements OnInit {
   @ViewChild('commentInput') commentInput: ElementRef;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
+
+  @ViewChild('ionSegment') ionSegment: IonSegment;
 
   erpt$: Observable<ExtendedReport>;
 
@@ -238,6 +240,11 @@ export class MyViewReportPage implements OnInit {
       this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
       this.reportName = erpt?.rp_purpose;
       this.reportId = erpt?.rp_id;
+
+      //For sent back reports, show the comments section instead of expenses when opening the report
+      if (erpt.rp_state === 'APPROVER_INQUIRY') {
+        this.ionSegment.value = 'comments';
+      }
     });
 
     this.sharedWith$ = this.reportService.getExports(this.activatedRoute.snapshot.params.id).pipe(
@@ -304,10 +311,6 @@ export class MyViewReportPage implements OnInit {
         })
       )
       .subscribe(noop);
-  }
-
-  goToEditReport() {
-    this.router.navigate(['/', 'enterprise', 'my_edit_report', { id: this.activatedRoute.snapshot.params.id }]);
   }
 
   updateReportName(erpt: ExtendedReport, reportName: string) {

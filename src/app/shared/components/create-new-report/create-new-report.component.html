@@ -6,7 +6,7 @@
         <div class="create-new-report--title">Create new report</div>
         <div class="create-new-report--sub-title">
           {{ selectedElements.length }} {{ selectedElements.length > 1 ? 'Expenses' : 'Expense' }} -
-          {{ homeCurrencySymbol }} {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency:2:true }}
+          {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency }}
         </div>
       </div>
     </ion-title>
@@ -28,7 +28,7 @@
           <span class="create-new-report--mandatory">*</span>
         </div>
         <input
-          class="create-new-report--text-input create-new-report--internal-block"
+          class="create-new-report--text-input create-new-report--internal-block smartlook-show"
           name="reportName"
           type="text"
           placeholder="Enter Report Title"

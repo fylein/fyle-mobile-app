@@ -1,13 +1,20 @@
 import { Injectable } from '@angular/core';
 import { LocationService } from './location.service';
 import { from, of } from 'rxjs';
-import { concatMap, reduce } from 'rxjs/operators';
+import { concatMap, map, reduce } from 'rxjs/operators';
+import { OrgUserSettingsService } from './org-user-settings.service';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MileageService {
-  constructor(private locationService: LocationService) {}
+  constructor(private locationService: LocationService, private orgUserSettingsService: OrgUserSettingsService) {}
+
+  @Cacheable()
+  getOrgUserMileageSettings() {
+    return this.orgUserSettingsService.get().pipe(map((res: any) => res.mileage_settings));
+  }
 
   getDistanceInternal(fromLocation, toLocation) {
     return this.locationService.getDistance(fromLocation, toLocation);

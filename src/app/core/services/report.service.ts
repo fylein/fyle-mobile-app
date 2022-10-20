@@ -1,20 +1,25 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { ApiService } from './api.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
-import { concatMap, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { from, of, range, Subject } from 'rxjs';
+import { catchError, concatMap, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { from, Observable, of, range, Subject, iif } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ApiV2Service } from './api-v2.service';
 import { DateService } from './date.service';
 import { ExtendedReport } from '../models/report.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { isEqual } from 'lodash';
 import { DataTransformService } from './data-transform.service';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { TransactionService } from './transaction.service';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { UserEventService } from './user-event.service';
+import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { LaunchDarklyService } from './launch-darkly.service';
+import { PAGINATION_SIZE } from 'src/app/constants';
+import { PermissionsService } from './permissions.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -23,6 +28,7 @@ const reportsCacheBuster$ = new Subject<void>();
 })
 export class ReportService {
   constructor(
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
     private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
@@ -31,7 +37,11 @@ export class ReportService {
     private dateService: DateService,
     private dataTransformService: DataTransformService,
     private transactionService: TransactionService,
-    private userEventService: UserEventService
+    private userEventService: UserEventService,
+    private spenderPlatformApiService: SpenderPlatformApiService,
+    private datePipe: DatePipe,
+    private launchDarklyService: LaunchDarklyService,
+    private permissionsService: PermissionsService
   ) {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -206,6 +216,53 @@ export class ReportService {
     return this.apiService
       .post('/reports', reportData.rp)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
+  }
+
+  @Cacheable({
+    cacheBusterObserver: reportsCacheBuster$,
+  })
+  getReportAutoSubmissionDetails(): Observable<ReportAutoSubmissionDetails> {
+    const reportAutoSubmissionDetails$ = this.spenderPlatformApiService
+      .post<ReportAutoSubmissionDetails>('/automations/report_submissions/next_at', {
+        data: null,
+      })
+      .pipe(
+        map((res) => {
+          if (res.data.next_at) {
+            const dateObj = new Date(res.data.next_at);
+            res.data.next_at = dateObj;
+            return res;
+          }
+          return res;
+        })
+      );
+
+    return this.launchDarklyService
+      .checkIfAutomateReportSubmissionIsEnabled()
+      .pipe(
+        switchMap((isAutomateReportSubmissionEnabled) =>
+          iif(() => isAutomateReportSubmissionEnabled, reportAutoSubmissionDetails$, of(null))
+        )
+      );
+  }
+
+  @Cacheable()
+  getReportPermissions(orgSettings) {
+    return this.permissionsService
+      .allowedActions('reports', ['approve', 'create', 'delete'], orgSettings)
+      .pipe(catchError((err) => []));
+  }
+
+  getAutoSubmissionReportName() {
+    return this.getReportAutoSubmissionDetails().pipe(
+      map((reportAutoSubmissionDetails) => {
+        const nextReportAutoSubmissionDate = reportAutoSubmissionDetails?.data?.next_at;
+        if (nextReportAutoSubmissionDate) {
+          return '(Automatic Submission On ' + this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d') + ')';
+        }
+        return null;
+      })
+    );
   }
 
   getUserReportParams(state: string) {
@@ -395,11 +452,16 @@ export class ReportService {
   getAllExtendedReports(config: Partial<{ order: string; queryParams: any }>) {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getMyReports({ offset: 50 * page, limit: 50, queryParams: config.queryParams, order: config.order })
+        this.getMyReports({
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+          queryParams: config.queryParams,
+          order: config.order,
+        })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
@@ -420,11 +482,16 @@ export class ReportService {
   ) {
     return this.getTeamReportsCount().pipe(
       switchMap((count) => {
-        count = count > 50 ? count / 50 : 1;
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) =>
-        this.getTeamReports({ offset: 50 * page, limit: 50, ...config.queryParams, order: config.order })
+        this.getTeamReports({
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+          ...config.queryParams,
+          order: config.order,
+        })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
@@ -488,9 +555,9 @@ export class ReportService {
     if (!rptIds || rptIds.length === 0) {
       return of([]);
     }
-    const count = rptIds.length > 50 ? rptIds.length / 50 : 1;
+    const count = rptIds.length > this.paginationSize ? rptIds.length / this.paginationSize : 1;
     return range(0, count).pipe(
-      map((page) => rptIds.slice(page * 50, (page + 1) * 50)),
+      map((page) => rptIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize)),
       concatMap((rptIds) => this.apiService.get('/reports/approvers', { params: { report_ids: rptIds } })),
       reduce((acc, curr) => acc.concat(curr), [])
     );

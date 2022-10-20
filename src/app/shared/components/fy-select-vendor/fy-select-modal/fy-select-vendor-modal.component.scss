@@ -13,6 +13,17 @@ $list-element-color: #333;
     @extend %fy-select-list-element-layout;
   }
 
+  &--list-item {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  &--virtual-scroll {
+    height: 100%;
+  }
+
   &--title {
     @extend %fy-select-title;
   }

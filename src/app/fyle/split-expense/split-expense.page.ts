@@ -9,7 +9,6 @@ import { catchError, concatMap, finalize, map, mergeMap, switchMap, tap, toArray
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -24,6 +23,9 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-split-expense',
@@ -82,11 +84,10 @@ export class SplitExpensePage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private offlineService: OfflineService,
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,
-    private popoverController: PopoverController,
+    private currencyService: CurrencyService,
     private transactionService: TransactionService,
     private fileService: FileService,
     private navController: NavController,
@@ -98,7 +99,9 @@ export class SplitExpensePage implements OnInit {
     private trackingService: TrackingService,
     private policyService: PolicyService,
     private modalController: ModalController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private orgUserSettingsService: OrgUserSettingsService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   ngOnInit() {}
@@ -116,7 +119,9 @@ export class SplitExpensePage implements OnInit {
       const otherIndex = index === 0 ? 1 : 0;
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
-      const amount = parseFloat((this.amount - splitExpenseForm.value.amount).toFixed(3));
+      const rawAmount = this.amount - splitExpenseForm.value.amount;
+      const amount = parseFloat(rawAmount.toFixed(3));
+
       const percentage = parseFloat(((amount / this.amount) * 100).toFixed(3));
 
       otherSplitExpenseForm.patchValue(
@@ -152,7 +157,9 @@ export class SplitExpensePage implements OnInit {
       const otherSplitExpenseForm = this.splitExpensesFormArray.at(otherIndex);
 
       const percentage = Math.min(100, Math.max(0, 100 - splitExpenseForm.value.percentage));
-      const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
+
+      const rawAmount = (this.amount * percentage) / 100;
+      const amount = parseFloat(rawAmount.toFixed(3));
 
       otherSplitExpenseForm.patchValue(
         {
@@ -452,15 +459,15 @@ export class SplitExpensePage implements OnInit {
   }
 
   getActiveCategories() {
-    const allCategories$ = this.offlineService.getAllEnabledCategories();
+    const allCategories$ = this.categoriesService.getAll();
 
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
 
   ionViewWillEnter() {
-    this.offlineService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
-      const orgSettings$ = this.offlineService.getOrgSettings();
+      const orgSettings$ = this.orgSettingsService.get();
       this.splitType = this.activatedRoute.snapshot.params.splitType;
       this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields);
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
@@ -468,21 +475,21 @@ export class SplitExpensePage implements OnInit {
       this.selectedCCCTransaction = JSON.parse(this.activatedRoute.snapshot.params.selectedCCCTransaction);
       this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId);
 
-      if (this.splitType === 'categories') {
-        this.categories$ = this.getActiveCategories().pipe(
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-        );
-        this.getCategoryList();
-      } else if (this.splitType === 'cost centers') {
-        const orgSettings$ = this.offlineService.getOrgSettings();
-        const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+      this.categories$ = this.getActiveCategories().pipe(
+        map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+      );
+      this.getCategoryList();
+
+      if (this.splitType === 'cost centers') {
+        const orgSettings$ = this.orgSettingsService.get();
+        const orgUserSettings$ = this.orgUserSettingsService.get();
         this.costCenters$ = forkJoin({
           orgSettings: orgSettings$,
           orgUserSettings: orgUserSettings$,
         }).pipe(
           switchMap(({ orgSettings, orgUserSettings }) => {
             if (orgSettings.cost_centers.enabled) {
-              return this.offlineService.getAllowedCostCenters(orgUserSettings);
+              return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
             } else {
               return of([]);
             }
@@ -584,7 +591,9 @@ export class SplitExpensePage implements OnInit {
       const lastSplitExpenseForm = this.splitExpensesFormArray.at(1);
 
       const percentage = Math.min(100, Math.max(0, 100 - firstSplitExpenseForm.value.percentage));
-      const amount = parseFloat(((this.amount * percentage) / 100).toFixed(3));
+
+      const rawAmount = (this.amount * percentage) / 100;
+      const amount = parseFloat(rawAmount.toFixed(3));
 
       lastSplitExpenseForm.patchValue(
         {

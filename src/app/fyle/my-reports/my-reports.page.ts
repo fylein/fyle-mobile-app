@@ -298,7 +298,7 @@ export class MyReportsPage implements OnInit {
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     setTimeout(() => {
-      event.target.complete();
+      event?.target?.complete();
     }, 1000);
   }
 
@@ -309,7 +309,7 @@ export class MyReportsPage implements OnInit {
     this.reportService.clearTransactionCache().subscribe(() => {
       this.loadData$.next(params);
       if (event) {
-        event.target.complete();
+        event?.target?.complete();
       }
     });
   }
@@ -373,6 +373,10 @@ export class MyReportsPage implements OnInit {
 
       if (this.filters.state.includes('PAYMENT_PENDING')) {
         stateOrFilter.push('rp_state.in.(PAYMENT_PENDING)');
+      }
+
+      if (this.filters.state.includes('PAYMENT_PROCESSING')) {
+        stateOrFilter.push('rp_state.in.(PAYMENT_PROCESSING)');
       }
 
       if (this.filters.state.includes('PAID')) {
@@ -922,6 +926,10 @@ export class MyReportsPage implements OnInit {
               {
                 label: 'Payment Pending',
                 value: 'PAYMENT_PENDING',
+              },
+              {
+                label: 'Payment Processing',
+                value: 'PAYMENT_PROCESSING',
               },
               {
                 label: 'Paid',

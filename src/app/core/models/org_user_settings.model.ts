@@ -1,3 +1,5 @@
+import { AccountType } from '../enums/account-type.enum';
+
 export interface AutoFyleSettings {
   allowed: boolean;
   enabled: boolean;
@@ -127,6 +129,12 @@ export interface PersonalCardsSettings {
   personal_cards_data_aggregator: string;
 }
 
+export interface PaymentModeSettings {
+  allowed: boolean;
+  enabled: boolean;
+  allowed_payment_modes: AccountType[];
+}
+
 export interface OrgUserSettings {
   id: string;
   created_at: Date;
@@ -153,4 +161,5 @@ export interface OrgUserSettings {
   in_app_chat_settings: InAppChatSettings;
   expense_form_autofills: ExpenseFormAutofills;
   personal_cards_settings: PersonalCardsSettings;
+  payment_mode_settings: PaymentModeSettings;
 }

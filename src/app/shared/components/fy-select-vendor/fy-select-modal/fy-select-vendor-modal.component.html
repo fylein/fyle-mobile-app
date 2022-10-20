@@ -16,7 +16,7 @@
       <input
         #searchBar
         id="selection-modal--search-input"
-        class="selection-modal--search-input"
+        class="selection-modal--search-input smartlook-show"
         matInput
         placeholder="Search"
         [(ngModel)]="value"
@@ -42,60 +42,55 @@
 </ion-header>
 
 <ion-content>
-  <div class="selection-modal--container">
-    <div *ngIf="value && value.trim().length">
-      <div
-        *ngIf="!((filteredOptions$ | async)?.length > 0 && (recentrecentlyUsedItems$ | async)?.length > 0)"
-        class="selection-modal--list-element"
-      >
-        <i> No Results Found </i>
+  <cdk-virtual-scroll-viewport
+    class="selection-modal--virtual-scroll"
+    itemSize="56"
+    minBufferPx="900"
+    maxBufferPx="1350"
+  >
+    <div class="selection-modal--container">
+      <div *ngIf="value && value.trim().length">
+        <div *ngIf="!(selectableOptions?.length > 0)" class="selection-modal--list-element">
+          <i> No Results Found </i>
+        </div>
+        <div matRipple class="selection-modal--list-element" (click)="onNewSelect()">
+          <div class="selection-modal--add-item-block">
+            <mat-icon class="selection-modal--add-item-icon"> add_circle_outline </mat-icon>
+            <span
+              >Add "<span class="selection-modal--new-item-name"
+                ><strong>{{ value }}</strong></span
+              >"</span
+            >
+          </div>
+        </div>
       </div>
-      <div matRipple class="selection-modal--list-element" (click)="onNewSelect()">
-        <div class="selection-modal--add-item-block">
-          <mat-icon class="selection-modal--add-item-icon"> add_circle_outline </mat-icon>
-          <span
-            >Add "<span class="selection-modal--new-item-name"
-              ><strong>{{ value }}</strong></span
-            >"</span
-          >
+      <!-- All Vendors -->
+      <div *ngIf="selectableOptions?.length > 0" [ngClass]="{ 'selection-modal--all-merchants__margin-top': value }">
+        <div
+          matRipple
+          class="selection-modal--list-element"
+          *cdkVirtualFor="let filteredListItem of selectableOptions"
+          (click)="onElementSelect(filteredListItem)"
+        >
+          <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
+            <div *ngIf="filteredListItem.isRecentlyUsed" class="selection-modal--recently-used-item-content">
+              <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
+              <div class="selection-modal--label">
+                <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+              </div>
+              <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+            </div>
+
+            <div *ngIf="!filteredListItem.isRecentlyUsed" class="selection-modal--list-item">
+              <div class="selection-modal--label">
+                <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+              </div>
+              <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+            </div>
+          </ng-template>
+          <ng-container *ngTemplateOutlet="defaultSelectionElement; context: filteredListItem"> </ng-container>
         </div>
       </div>
     </div>
-    <!-- Recently Used Vendors -->
-    <div class="selection-modal--recently-used-block" *ngIf="(recentrecentlyUsedItems$ | async)?.length > 0">
-      <div
-        matRipple
-        class="selection-modal--list-element"
-        *ngFor="let recentrecentlyUsedItem of recentrecentlyUsedItems$ | async as list"
-        (click)="onElementSelect(recentrecentlyUsedItem)"
-      >
-        <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-          <div class="selection-modal--recently-used-item-content">
-            <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
-            <span class="selection-modal--label">
-              <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-            </span>
-          </div>
-          <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-        </ng-template>
-        <ng-container *ngTemplateOutlet="defaultSelectionElement; context: recentrecentlyUsedItem"> </ng-container>
-      </div>
-    </div>
-    <!-- All Vendors -->
-    <div
-      class=""
-      *ngIf="(filteredOptions$ | async)?.length > 0"
-      [ngClass]="{ 'selection-modal--all-merchants__margin-top': value }"
-    >
-      <div
-        matRipple
-        class="selection-modal--list-element"
-        *ngFor="let filteredListItem of filteredOptions$ | async as list"
-        (click)="onElementSelect(filteredListItem)"
-      >
-        <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
-        <mat-icon *ngIf="filteredListItem.selected" class="selection-modal--check">check</mat-icon>
-      </div>
-    </div>
-  </div>
+  </cdk-virtual-scroll-viewport>
 </ion-content>

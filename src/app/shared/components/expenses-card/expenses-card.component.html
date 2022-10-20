@@ -16,7 +16,7 @@
   (press)="onSetMultiselectMode()"
 >
   <div class="expenses-card--divider" *ngIf="!showDt"></div>
-  <ng-container *ngIf="expenseFields$ | async as expenseFields">
+  <ng-container>
     <div class="d-flex">
       <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
         <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled>
@@ -133,13 +133,17 @@
                   Scan failed
                 </div>
               </div>
-              <ng-container *ngIf="expense.isDraft && !isFromViewReports">
-                <div class="expenses-card--state-container ion-text-right expenses-card--state-container__center">
-                  <span class="expenses-card--state">
+              <div *ngIf="expense.isDraft && !isFromViewReports">
+                <div
+                  class="expenses-card--state-container expenses-card--state-container__center state-pill state-{{
+                    expense.tx_state | expenseState | lowercase
+                  }}"
+                >
+                  <span>
                     {{ expense.tx_state | expenseState | titlecase }}
                   </span>
                 </div>
-              </ng-container>
+              </div>
             </ng-template>
           </ng-container>
         </ng-template>
@@ -177,20 +181,8 @@
             >
               {{ expense.vendorDetails }}
             </div>
-
             <div
-              class="expenses-card--vendor"
-              *ngIf="
-                !(isMileageExpense || isPerDiem) &&
-                !expense.vendorDetails &&
-                expenseFields?.vendor_id[0] &&
-                !expenseFields?.vendor_id[0].is_mandatory
-              "
-            >
-              Unspecified {{ expenseFields?.vendor_id[0].field_name }}
-            </div>
-            <div
-              *ngIf="isProjectEnabled$ | async"
+              *ngIf="expenseFields && isProjectEnabled$ | async"
               class="expenses-card--project"
               [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
             >
@@ -207,43 +199,51 @@
             <div>Expense information</div>
             <div>missing</div>
           </div>
-          <div class="d-flex">
-            <div>
-              <div class="expenses-card--currency-amount-container ion-text-right">
-                <span class="expenses-card--currency"> {{ expense.tx_currency || homeCurrencySymbol }} </span>
-                <span class="expenses-card--amount">{{
-                  expense.tx_amount | humanizeCurrency: expense.tx_currency || homeCurrencySymbol:2:true
-                }}</span>
-                <mat-icon
-                  *ngIf="!isUnifyCcceExpensesSettings"
-                  class="expenses-card--icon"
-                  svgIcon="{{ paymentModeIcon }}"
-                ></mat-icon>
-                <mat-icon
-                  *ngIf="isUnifyCcceExpensesSettings && showPaymentModeIcon"
-                  class="expenses-card--icon"
-                  svgIcon="fy-reimbursable"
-                ></mat-icon>
-              </div>
+          <div class="expenses-card--default-view-container">
+            <div class="expenses-card--currency-amount-container ion-text-right">
+              <span class="expenses-card--currency">
+                {{ (expense.tx_currency | currencySymbol: 'wide') || (homeCurrency | currencySymbol: 'wide') }}
+              </span>
 
-              <div
-                *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
-                class="expenses-card--exchange-rate ion-text-right"
-              >
-                ({{ foreignCurrencySymbol
-                }}{{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency:2:true }} at
-                {{ expense.tx_currency }} {{ expense.tx_amount / expense.tx_orig_amount | number: '1.0-2' }})
-              </div>
+              <span class="expenses-card--amount">
+                <ng-container *ngIf="expense.tx_currency">
+                  {{ expense.tx_amount | humanizeCurrency: expense.tx_currency:true }}
+                </ng-container>
+                <ng-container *ngIf="!expense.tx_currency">
+                  {{ expense.tx_amount | humanizeCurrency: homeCurrency:true }}
+                </ng-container>
+              </span>
+              <mat-icon
+                *ngIf="!isUnifyCcceExpensesSettings"
+                class="expenses-card--icon"
+                svgIcon="{{ paymentModeIcon }}"
+              ></mat-icon>
+              <mat-icon
+                *ngIf="isUnifyCcceExpensesSettings && showPaymentModeIcon"
+                class="expenses-card--icon"
+                svgIcon="fy-reimbursable"
+              ></mat-icon>
+            </div>
 
-              <div *ngIf="expense.isDraft && !isFromViewReports" class="expenses-card--state-container ion-text-right">
-                <span class="expenses-card--state">
-                  {{ expense.tx_state | expenseState | titlecase }}
-                </span>
-              </div>
+            <div
+              *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
+              class="expenses-card--exchange-rate ion-text-right"
+            >
+              ({{ expense.tx_orig_amount | humanizeCurrency: expense.tx_orig_currency }} at
+              {{ expense.tx_amount / expense.tx_orig_amount | currency: expense.tx_currency:'code' }})
+            </div>
 
-              <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
-                Critical Policy violations
-              </div>
+            <div
+              *ngIf="expense.isDraft && !isFromViewReports"
+              class="expenses-card--state-container state-pill state-{{ expense.tx_state | expenseState }}"
+            >
+              <span>
+                {{ expense.tx_state | expenseState | titlecase }}
+              </span>
+            </div>
+
+            <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
+              Critical Policy violations
             </div>
           </div>
         </ng-template>

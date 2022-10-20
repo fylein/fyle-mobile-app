@@ -4,7 +4,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import {
   catchError,
   concatMap,
@@ -42,7 +41,6 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { CurrencyPipe } from '@angular/common';
 import { TokenService } from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
@@ -58,6 +56,15 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AccountOption } from 'src/app/core/models/account-option.model';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PerDiemService } from 'src/app/core/services/per-diem.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -83,7 +90,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   allowedPerDiemRateOptions$: Observable<any[]>;
 
-  paymentModes$: Observable<any[]>;
+  paymentModes$: Observable<AccountOption[]>;
 
   homeCurrency$: Observable<string>;
 
@@ -179,9 +186,10 @@ export class AddEditPerDiemPage implements OnInit {
 
   canRemoveFromReport = false;
 
+  autoSubmissionReportName$: Observable<string>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
-    private offlineService: OfflineService,
     private fb: FormBuilder,
     private dateService: DateService,
     private accountsService: AccountsService,
@@ -203,14 +211,20 @@ export class AddEditPerDiemPage implements OnInit {
     private popupService: PopupService,
     private navController: NavController,
     private trackingService: TrackingService,
-    private currencyPipe: CurrencyPipe,
+    private fyCurrencyPipe: FyCurrencyPipe,
     private tokenService: TokenService,
     private recentlyUsedItemsService: RecentlyUsedItemsService,
     private expenseFieldsService: ExpenseFieldsService,
     private popoverController: PopoverController,
     private modalProperties: ModalPropertiesService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private launchDarklyService: LaunchDarklyService,
+    private paymentModesService: PaymentModesService,
+    private perDiemService: PerDiemService,
+    private categoriesService: CategoriesService,
+    private orgUserSettingsService: OrgUserSettingsService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get minPerDiemDate() {
@@ -383,7 +397,7 @@ export class AddEditPerDiemPage implements OnInit {
         const paymentAccount = this.fg.value.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         let isPaymentModeInvalid = false;
-        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        if (paymentAccount?.acc?.type === AccountType.ADVANCE) {
           if (paymentAccount.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid =
               paymentAccount.acc.tentative_balance_amount <
@@ -404,7 +418,7 @@ export class AddEditPerDiemPage implements OnInit {
       startWith({}),
       switchMap((formValue) =>
         forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+          expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories(),
         }).pipe(
           switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {
@@ -437,7 +451,7 @@ export class AddEditPerDiemPage implements OnInit {
       startWith({}),
       switchMap((formValue) =>
         forkJoin({
-          expenseFieldsMap: this.offlineService.getExpenseFieldsMap(),
+          expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories(),
         }).pipe(
           switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {
@@ -484,33 +498,39 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getPaymentModes(): Observable<AccountOption[]> {
-    const orgSettings$ = this.offlineService.getOrgSettings();
-    const accounts$ = this.offlineService.getAccounts();
-
     return forkJoin({
-      accounts: accounts$,
-      orgSettings: orgSettings$,
+      accounts: this.accountsService.getEMyAccounts(),
+      orgSettings: this.orgSettingsService.get(),
+      etxn: this.etxn$,
+      allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
+      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
+      isPaidByCompanyHidden: this.launchDarklyService.checkIfPaidByCompanyIsHidden(),
     }).pipe(
-      switchMap(({ accounts, orgSettings }) => {
-        const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
-        const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
-        const userAccounts = this.accountsService
-          .filterAccountsWithSufficientBalance(
-            accounts.filter((account) => account.acc.type),
-            isAdvanceEnabled
-          )
-          .filter((userAccount) => ['PERSONAL_ACCOUNT', 'PERSONAL_ADVANCE_ACCOUNT'].includes(userAccount.acc.type));
-
-        return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled);
-      }),
-      map((paymentModes) =>
-        paymentModes.map((paymentMode) => ({ label: paymentMode.acc.displayName, value: paymentMode }))
-      )
+      map(
+        ({
+          accounts,
+          orgSettings,
+          etxn,
+          allowedPaymentModes,
+          isPaymentModeConfigurationsEnabled,
+          isPaidByCompanyHidden,
+        }) => {
+          const config = {
+            etxn,
+            orgSettings,
+            expenseType: ExpenseType.MILEAGE,
+            isPaymentModeConfigurationsEnabled,
+            isPaidByCompanyHidden,
+          };
+          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+        }
+      ),
+      shareReplay(1)
     );
   }
 
   getSubCategories() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const parentCategoryName = 'per diem';
         return categories.filter(
@@ -524,11 +544,11 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getProjectCategoryIds() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const perDiemCategories = categories
           .filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1)
-          .map((category) => category.id as string);
+          .map((category) => category?.id?.toString());
 
         return perDiemCategories;
       })
@@ -536,7 +556,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getPerDiemCategories() {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
         const orgCategoryName = 'per diem';
         const defaultPerDiemCategory = categories.find(
@@ -556,7 +576,7 @@ export class AddEditPerDiemPage implements OnInit {
   getNewExpense() {
     return forkJoin({
       categoryContainer: this.getPerDiemCategories(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
       currentEou: this.authService.getEou(),
     }).pipe(
       map(({ categoryContainer, homeCurrency, currentEou }) => ({
@@ -635,8 +655,8 @@ export class AddEditPerDiemPage implements OnInit {
             switchMap((etxn) =>
               iif(
                 () => etxn.tx.org_category_id,
-                this.offlineService
-                  .getAllEnabledCategories()
+                this.categoriesService
+                  .getAll()
                   .pipe(map((categories) => categories.find((category) => category.id === etxn.tx.org_category_id))),
                 this.getPerDiemCategories().pipe(map((perDiemContainer) => perDiemContainer.defaultPerDiemCategory))
               )
@@ -652,8 +672,8 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       switchMap((category: any) => {
         const formValue = this.fg.value;
-        return this.offlineService
-          .getCustomInputs()
+        return this.customInputsService
+          .getAll(true)
           .pipe(
             map((customFields: any) =>
               this.customFieldsService.standardizeCustomFields(
@@ -761,9 +781,9 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.isExpandedView = this.mode !== 'add';
 
-    const orgSettings$ = this.offlineService.getOrgSettings();
-    const perDiemRates$ = this.offlineService.getPerDiemRates();
-    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
+    const orgSettings$ = this.orgSettingsService.get();
+    const perDiemRates$ = this.perDiemService.getRates();
+    const orgUserSettings$ = this.orgUserSettingsService.get();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
@@ -796,7 +816,7 @@ export class AddEditPerDiemPage implements OnInit {
           forkJoin({
             orgSettings: orgSettings$,
             allowedPerDiemRates: perDiemRates$.pipe(
-              switchMap((perDiemRates) => this.offlineService.getAllowedPerDiems(perDiemRates))
+              switchMap((perDiemRates) => this.perDiemService.getAllowedPerDiems(perDiemRates))
             ),
           })
         ),
@@ -845,14 +865,13 @@ export class AddEditPerDiemPage implements OnInit {
       );
 
     this.txnFields$ = this.getTransactionFields();
-    this.paymentModes$ = this.getPaymentModes();
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
     this.setupFilteredCategories(this.subCategories$);
 
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.offlineService.getProjectCount({ categoryIds: projectCategoryIds }))
+      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds }))
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id);
 
@@ -869,7 +888,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.allowedPerDiemRateOptions$ = allowedPerDiemRates$.pipe(
       map((allowedPerDiemRates) =>
         allowedPerDiemRates.map((rate) => {
-          rate.readableRate = this.currencyPipe.transform(rate.rate, rate.currency, 'symbol', '1.2-2') + ' per day';
+          rate.readableRate = this.fyCurrencyPipe.transform(rate.rate, rate.currency) + ' per day';
           return { label: rate.name, value: rate };
         })
       )
@@ -893,13 +912,15 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.isCostCentersEnabled$ = orgSettings$.pipe(map((orgSettings) => orgSettings.cost_centers.enabled));
 
+    this.paymentModes$ = this.getPaymentModes();
+
     this.costCenters$ = forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: orgUserSettings$,
     }).pipe(
       switchMap(({ orgSettings, orgUserSettings }) => {
         if (orgSettings.cost_centers.enabled) {
-          return this.offlineService.getAllowedCostCenters(orgUserSettings);
+          return this.orgUserSettingsService.getAllowedCostCenters(orgUserSettings);
         } else {
           return of([]);
         }
@@ -931,7 +952,7 @@ export class AddEditPerDiemPage implements OnInit {
         switchMap((txnFields) =>
           forkJoin({
             isConnected: this.isConnected$.pipe(take(1)),
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             costCenters: this.costCenters$,
             isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
             individualProjectIds: this.individualProjectIds$,
@@ -1056,7 +1077,10 @@ export class AddEditPerDiemPage implements OnInit {
           if (perDiemRate.currency === homeCurrency) {
             this.fg.controls.currencyObj.setValue({
               currency: perDiemRate.currency,
-              amount: (perDiemRate.rate * numDays).toFixed(2),
+              amount: this.currencyService.getAmountWithCurrencyFraction(
+                perDiemRate.rate * numDays,
+                perDiemRate.currency
+              ),
               orig_currency: null,
               orig_amount: null,
             });
@@ -1082,26 +1106,29 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]) => {
         this.fg.controls.currencyObj.setValue({
           currency: homeCurrency,
-          amount: (perDiemRate.rate * numDays * exchangeRate).toFixed(2),
+          amount: this.currencyService.getAmountWithCurrencyFraction(
+            perDiemRate.rate * numDays * exchangeRate,
+            homeCurrency
+          ),
           orig_currency: perDiemRate.currency,
-          orig_amount: (perDiemRate.rate * numDays).toFixed(2),
+          orig_amount: this.currencyService.getAmountWithCurrencyFraction(
+            perDiemRate.rate * numDays,
+            perDiemRate.currency
+          ),
         });
       });
 
     this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
       switchMap((paymentMode) => {
-        if (paymentMode && paymentMode.acc && paymentMode.acc.type === 'PERSONAL_ACCOUNT') {
-          return this.offlineService
-            .getAccounts()
+        if (paymentMode?.acc?.type === AccountType.PERSONAL) {
+          return this.accountsService
+            .getEMyAccounts()
             .pipe(
               map(
                 (accounts) =>
                   accounts.filter(
                     (account) =>
-                      account &&
-                      account.acc &&
-                      account.acc.type === 'PERSONAL_ADVANCE_ACCOUNT' &&
-                      account.acc.tentative_balance_amount > 0
+                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
                   ).length > 0
               )
             );
@@ -1116,8 +1143,8 @@ export class AddEditPerDiemPage implements OnInit {
           return of(etxn.tx.project_id);
         } else {
           return forkJoin({
-            orgSettings: this.offlineService.getOrgSettings(),
-            orgUserSettings: this.offlineService.getOrgUserSettings(),
+            orgSettings: this.orgSettingsService.get(),
+            orgUserSettings: this.orgUserSettingsService.get(),
           }).pipe(
             map(({ orgSettings, orgUserSettings }) => {
               if (orgSettings.projects.enabled) {
@@ -1136,31 +1163,19 @@ export class AddEditPerDiemPage implements OnInit {
       })
     );
 
-    const selectedPaymentMode$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.source_account_id,
-          this.paymentModes$.pipe(
-            map((paymentModes) =>
-              paymentModes
-                .map((res) => res.value)
-                .find((paymentMode) => {
-                  if (paymentMode.acc.displayName === 'Personal Card/Cash') {
-                    return paymentMode.acc.id === etxn.tx.source_account_id && !etxn.tx.skip_reimbursement;
-                  } else {
-                    return paymentMode.acc.id === etxn.tx.source_account_id;
-                  }
-                })
-            )
-          ),
-          of(null)
-        )
-      )
-    );
+    const selectedPaymentMode$ = forkJoin({
+      etxn: this.etxn$,
+      paymentModes: this.paymentModes$,
+    }).pipe(map(({ etxn, paymentModes }) => this.accountsService.getEtxnSelectedPaymentMode(etxn, paymentModes)));
 
     const defaultPaymentMode$ = this.paymentModes$.pipe(
       map((paymentModes) =>
-        paymentModes.map((res) => res.value).find((paymentMode) => paymentMode.acc.displayName === 'Personal Card/Cash')
+        paymentModes
+          .map((extendedPaymentMode) => extendedPaymentMode.value)
+          .find((paymentMode) => {
+            const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
+            return accountType === AccountType.PERSONAL;
+          })
       )
     );
 
@@ -1226,7 +1241,7 @@ export class AddEditPerDiemPage implements OnInit {
           return of(etxn.tx.cost_center_id);
         } else {
           return forkJoin({
-            orgSettings: this.offlineService.getOrgSettings(),
+            orgSettings: this.orgSettingsService.get(),
             costCenters: this.costCenters$,
           }).pipe(
             map(({ orgSettings, costCenters }) => {
@@ -1254,8 +1269,8 @@ export class AddEditPerDiemPage implements OnInit {
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>
-        this.offlineService
-          .getCustomInputs()
+        this.customInputsService
+          .getAll(true)
           .pipe(
             map((customFields) =>
               this.customFieldsService.standardizeCustomFields(
@@ -1417,24 +1432,26 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.paymentModeInvalid$ = iif(() => this.activatedRoute.snapshot.params.id, this.etxn$, of(null)).pipe(
       map((etxn) => {
-        if (this.fg.value.paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT') {
+        if (this.fg.value.paymentMode.acc.type === AccountType.ADVANCE) {
           if (
             etxn &&
             etxn.id &&
-            this.fg.value.paymentMode.acc.id === etxn.source_account_id &&
+            this.fg.value.paymentMode?.acc?.id === etxn.source_account_id &&
             etxn.state !== 'DRAFT'
           ) {
             return (
-              this.fg.value.paymentMode.acc.tentative_balance_amount + etxn.amount < this.fg.value.currencyObj.amount
+              this.fg.value.paymentMode?.acc?.tentative_balance_amount + etxn.amount < this.fg.value.currencyObj.amount
             );
           } else {
-            return this.fg.value.paymentMode.acc.tentative_balance_amount < this.fg.value.currencyObj.amount;
+            return this.fg.value.paymentMode?.acc?.tentative_balance_amount < this.fg.value.currencyObj.amount;
           }
         } else {
           return false;
         }
       })
     );
+
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
@@ -1452,7 +1469,7 @@ export class AddEditPerDiemPage implements OnInit {
           return customProperty;
         });
         const skipReimbursement =
-          this.fg.value.paymentMode.acc.type === 'PERSONAL_ACCOUNT' && !this.fg.value.paymentMode.acc.isReimbursable;
+          this.fg.value.paymentMode.acc.type === AccountType.PERSONAL && !this.fg.value.paymentMode.acc.isReimbursable;
 
         const formValue = this.fg.value;
         const currencyObj = this.fg.controls.currencyObj.value;
@@ -1473,7 +1490,7 @@ export class AddEditPerDiemPage implements OnInit {
             per_diem_rate_id: formValue.per_diem_rate.id,
             source: 'MOBILE',
             currency: amountData.currency,
-            amount: parseInt(amountData.amount, 10),
+            amount: parseFloat(amountData.amount),
             orig_currency: amountData.orig_currency,
             orig_amount: amountData.orig_amount,
             project_id: formValue.project && formValue.project.project_id,
@@ -1520,7 +1537,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         }
 
-        return this.offlineService.getAllEnabledCategories().pipe(
+        return this.categoriesService.getAll().pipe(
           map((categories: any[]) => {
             // policy engine expects org_category and sub_category fields
             if (policyETxn.tx.org_category_id) {
@@ -2232,12 +2249,12 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getPolicyDetails() {
-    const txnId = this.activatedRoute.snapshot.params.id;
-    if (txnId) {
-      from(this.policyService.getPolicyViolationRules(txnId))
+    const expenseId = this.activatedRoute.snapshot.params.id;
+    if (expenseId) {
+      from(this.policyService.getSpenderExpensePolicyViolations(expenseId))
         .pipe()
-        .subscribe((details) => {
-          this.policyDetails = details;
+        .subscribe((policyDetails) => {
+          this.policyDetails = policyDetails;
         });
     }
   }

@@ -1,0 +1,98 @@
+<ion-header mode="md">
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <ion-toolbar mode="md" class="fy-modal-toolbar">
+    <ion-title>
+      <div class="selection-modal--title">
+        {{ selectModalHeader }}
+      </div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="onDoneClick()">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="enableSearch" class="text-center">
+    <mat-form-field appearance="none" class="selection-modal--form-field mat-form-field-no-padding">
+      <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+      <input
+        #searchBar
+        [(ngModel)]="value"
+        class="selection-modal--search-input smartlook-show"
+        id="election-modal--search-input"
+        matInput
+        placeholder="{{ placeholder || 'Search' }}"
+      />
+      <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <cdk-virtual-scroll-viewport
+    class="selection-modal--virtual-scroll"
+    itemSize="56"
+    minBufferPx="900"
+    maxBufferPx="1350"
+  >
+    <div class="selection-modal--container">
+      <div *ngIf="selectableOptions.length === 0">
+        <app-fy-zero-state
+          [header]="'No such ' + label + ' found'"
+          [submessage]="'Search for another ' + label + ' or select one from the list.'"
+          [image]="'../../../../assets/images/zero-states/search-not-found.svg'"
+          [unscaledImage]="true"
+          [useNewStyling]="true"
+        ></app-fy-zero-state>
+      </div>
+
+      <div *ngIf="selectableOptions.length > 0">
+        <ng-container *cdkVirtualFor="let filteredListItem of selectableOptions">
+          <div
+            (click)="onElementSelect(filteredListItem)"
+            *ngIf="filteredListItem.label.length > 0"
+            class="selection-modal--list-element"
+            matRipple
+          >
+            <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
+              <div *ngIf="filteredListItem.isRecentlyUsed" class="selection-modal--recently-used-item-content">
+                <mat-icon class="selection-modal--recently-used-icon" svgIcon="fy-recently-used"></mat-icon>
+                <span class="selection-modal--label">
+                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                </span>
+                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+              </div>
+
+              <ng-container *ngIf="!filteredListItem.isRecentlyUsed">
+                <div class="selection-modal--label">
+                  <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                </div>
+                <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
+              </ng-container>
+            </ng-template>
+
+            <ng-container
+              *ngTemplateOutlet="
+                selectionElement ? selectionElement : defaultSelectionElement;
+                context: filteredListItem
+              "
+            >
+            </ng-container>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </cdk-virtual-scroll-viewport>
+</ion-content>
+
+<ion-footer *ngIf="showSaveButton">
+  <ion-toolbar>
+    <div class="selection-modal--cta-container">
+      <ion-button (click)="saveToCacheAndUse()" class="selection-modal--primary-cta" color="fyle-primary" fill="solid">
+        SAVE
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

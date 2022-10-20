@@ -125,6 +125,13 @@ import { PolicyViolationRuleComponent } from './components/policy-violation-rule
 import { FyCurrencyComponent } from './components/fy-currency/fy-currency.component';
 import { FyCurrencyChooseCurrencyComponent } from './components/fy-currency/fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-currency-exchange-rate/fy-currency-exchange-rate.component';
+import { FyCurrencyPipe } from './pipes/fy-currency.pipe';
+import { CurrencySymbolPipe } from './pipes/currency-symbol.pipe';
+import { MileageRateName } from './pipes/mileage-rate-name.pipe';
+import { SingularPipe } from './pipes/singular.pipe';
+import { VirtualSelectComponent } from './components/virtual-select/virtual-select.component';
+import { VirtualSelectModalComponent } from './components/virtual-select/virtual-select-modal/virtual-select-modal.component';
+import { AutoSubmissionInfoCardComponent } from '../fyle/dashboard/tasks/auto-submission-info-card/auto-submission-info-card.component';
 
 @NgModule({
   declarations: [
@@ -228,6 +235,13 @@ import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-cur
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
+    FyCurrencyPipe,
+    CurrencySymbolPipe,
+    MileageRateName,
+    SingularPipe,
+    VirtualSelectComponent,
+    VirtualSelectModalComponent,
+    AutoSubmissionInfoCardComponent,
   ],
   imports: [
     CommonModule,
@@ -255,6 +269,7 @@ import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-cur
     RouterModule,
     MatBottomSheetModule,
     ImageCropperModule,
+    ScrollingModule,
   ],
   exports: [
     EllipsisPipe,
@@ -338,7 +353,13 @@ import { FyCurrencyExchangeRateComponent } from './components/fy-currency/fy-cur
     FyCurrencyComponent,
     FyCurrencyChooseCurrencyComponent,
     FyCurrencyExchangeRateComponent,
+    FyCurrencyPipe,
+    CurrencySymbolPipe,
+    MileageRateName,
+    SingularPipe,
+    VirtualSelectComponent,
+    AutoSubmissionInfoCardComponent,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
 })
 export class SharedModule {}

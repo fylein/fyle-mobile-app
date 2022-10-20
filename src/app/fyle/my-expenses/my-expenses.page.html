@@ -1,5 +1,5 @@
 <app-fy-header
-  [ngClass]="{'d-none': isCameraShown}"
+  [ngClass]="{'d-none': isCameraPreviewStarted}"
   [currentState]="headerState"
   [navigateBack]="navigateBack"
   [title]="'Expenses'"
@@ -19,7 +19,7 @@
           <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
         </ng-template>
       </ion-button>
-      <ion-button class="my-expenses--header-btn" (click)="openActionSheet()">
+      <ion-button *ngIf="isConnected$ | async" class="my-expenses--header-btn" (click)="openActionSheet()">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -33,7 +33,7 @@
           <input
             #simpleSearchInput
             [(ngModel)]="simpleSearchText"
-            class="my-expenses--simple-search-input"
+            class="my-expenses--simple-search-input smartlook-show"
             matInput
             placeholder="Search"
             (focus)="onSearchBarFocus()"
@@ -58,12 +58,12 @@
       <ng-container *ngIf="allExpensesStats$ | async as allExpensesStats">
         <ion-title class="my-expenses--multiselect-title page-title">
           {{selectedElements?.length}} {{(selectedElements?.length > 1) ? 'expenses' : 'expense'}} worth
-          {{homeCurrencySymbol}} {{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency: 2: true }}
+          {{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency }}
         </ion-title>
       </ng-container>
     </ng-container>
     <ion-buttons mode="md" slot="end">
-      <ion-button *ngIf="isMergeAllowed(selectedElements)" (click)="mergeExpenses()">
+      <ion-button *ngIf="isMergeAllowed" (click)="mergeExpenses()">
         <ion-icon src="../../../assets/svg/fy-merge.svg"></ion-icon>
       </ion-button>
       <ion-button
@@ -83,7 +83,7 @@
   </ng-container>
 </app-fy-header>
 
-<ion-content [ngClass]="{'d-none': isCameraShown}" class="my-expenses--content">
+<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}" class="my-expenses--content">
   <div
     class="my-expenses--body"
     [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}"
@@ -213,7 +213,7 @@
   </ng-container>
 </ion-content>
 
-<ion-footer [ngClass]="{'d-none': isCameraShown}" *ngIf="!isSearchBarFocused">
+<ion-footer [ngClass]="{'d-none': isCameraPreviewStarted}" *ngIf="!isSearchBarFocused">
   <app-fy-footer
     *ngIf="!selectionMode"
     (homeClicked)="onHomeClicked()"

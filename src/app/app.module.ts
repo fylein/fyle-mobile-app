@@ -21,6 +21,7 @@ import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-br
 import { GoogleMapsModule } from '@angular/google-maps';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { PAGINATION_SIZE } from './constants';
+import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -50,6 +51,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
   providers: [
     GooglePlus,
     InAppBrowser,
+    Smartlook,
     {
       provide: HAMMER_GESTURE_CONFIG,
       useClass: MyHammerConfig,
@@ -87,7 +89,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     },
     {
       provide: PAGINATION_SIZE,
-      useValue: 50,
+      useValue: 200,
     },
     TitleCasePipe,
   ],

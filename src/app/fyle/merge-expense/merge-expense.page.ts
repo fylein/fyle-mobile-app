@@ -2,7 +2,6 @@ import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular
 import { BehaviorSubject, forkJoin, noop, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, take, tap, toArray } from 'rxjs/operators';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as moment from 'moment';
@@ -17,6 +16,7 @@ import { MergeExpensesService } from 'src/app/core/services/merge-expenses.servi
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 type Option = Partial<{
   label: string;
@@ -142,9 +142,11 @@ export class MergeExpensePage implements OnInit {
 
   touchedCategoryDepedentFields: string[];
 
+  systemCategories: string[];
+
   constructor(
     private router: Router,
-    private offlineService: OfflineService,
+    private categoriesService: CategoriesService,
     private formBuilder: FormBuilder,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
@@ -176,6 +178,8 @@ export class MergeExpensePage implements OnInit {
       categoryDependent: [],
       custom_inputs: [],
     });
+
+    this.systemCategories = this.categoriesService.getSystemCategories();
 
     this.expenseOptions$ = this.mergeExpensesService.generateExpenseToKeepOptions(this.expenses);
 
@@ -517,10 +521,7 @@ export class MergeExpensePage implements OnInit {
       (expense) => expense.source_account_type === this.genericFieldsForm.value.paymentMode
     );
     const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsForm.value.amount);
-    const CCCGroupIds = this.expenses.map(
-      (expense) =>
-        expense.tx_corporate_credit_card_expense_group_id && expense.tx_corporate_credit_card_expense_group_id
-    );
+    const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
     let locations;
     if (this.fg.value.location_1 && this.fg.value.location_2) {
       locations = [this.genericFieldsForm.value.location_1, this.genericFieldsForm.value.location_2];
@@ -542,7 +543,7 @@ export class MergeExpensePage implements OnInit {
       txn_dt: this.genericFieldsForm.value.dateOfSpend,
       receipt_ids: this.selectedReceiptsId,
       custom_properties: this.fg.controls.custom_inputs.value.fields,
-      ccce_group_id: CCCGroupIds && CCCGroupIds[0],
+      ccce_group_id: CCCMatchedExpense?.tx_corporate_credit_card_expense_group_id,
       from_dt: this.genericFieldsForm.value.from_dt,
       to_dt: this.genericFieldsForm.value.to_dt,
       flight_journey_travel_class: this.genericFieldsForm.value.flight_journey_travel_class,
@@ -566,7 +567,7 @@ export class MergeExpensePage implements OnInit {
     this.customInputs$ = this.loadCustomFields$.pipe(
       startWith({}),
       switchMap((categoryId) =>
-        this.offlineService.getCustomInputs().pipe(
+        this.customInputsService.getAll(true).pipe(
           switchMap((fields) => {
             const customFields = this.customFieldsService.standardizeCustomFields(
               this.fg.controls.custom_inputs?.value?.fields || [],

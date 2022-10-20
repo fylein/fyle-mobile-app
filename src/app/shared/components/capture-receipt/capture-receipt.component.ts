@@ -1,21 +1,23 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit } from '@angular/core';
 import { CameraPreview, CameraPreviewOptions, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Capacitor } from '@capacitor/core';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { Camera } from '@capacitor/camera';
+import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
-import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
-import { concat, forkJoin, from, noop, Observable } from 'rxjs';
+import { concat, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { AccountsService } from 'src/app/core/services/accounts.service';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take } from 'rxjs/operators';
+import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OrgService } from 'src/app/core/services/org.service';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 type Image = Partial<{
   source: string;
@@ -34,7 +36,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   @Input() allowBulkFyle = true;
 
-  isCameraShown: boolean;
+  //isCameraPreviewInitiated denotes that a camera preview has been initiated, but may or may not have started yet.
+  isCameraPreviewInitiated = false;
+
+  //isCameraPreviewStarted tracks if the camera preview has started.
+  isCameraPreviewStarted = false;
 
   isBulkMode: boolean;
 
@@ -59,13 +65,15 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private trackingService: TrackingService,
     private router: Router,
     private navController: NavController,
-    private offlineService: OfflineService,
     private transactionsOutboxService: TransactionsOutboxService,
     private imagePicker: ImagePicker,
     private networkService: NetworkService,
-    private accountsService: AccountsService,
+    private currencyService: CurrencyService,
     private popoverController: PopoverController,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private orgService: OrgService,
+    private orgUserSettingsService: OrgUserSettingsService,
+    private platform: Platform
   ) {}
 
   setupNetworkWatcher() {
@@ -79,16 +87,17 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   ngOnInit() {
     this.setupNetworkWatcher();
-    this.isCameraShown = false;
+    this.isCameraPreviewStarted = false;
+    this.isCameraPreviewInitiated = false;
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
     this.flashMode = null;
-    this.offlineService.getHomeCurrency().subscribe((res) => {
+    this.currencyService.getHomeCurrency().subscribe((res) => {
       this.homeCurrency = res;
     });
     this.captureCount = 0;
 
-    this.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
+    this.orgUserSettingsService.get().subscribe((orgUserSettings) => {
       this.isInstafyleEnabled =
         orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
     });
@@ -104,93 +113,44 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   addExpenseToQueue(base64ImagesWithSource: Image, syncImmediately = false) {
     let source = base64ImagesWithSource.source;
 
-    return forkJoin({
-      isConnected: this.networkService.isOnline(),
-      orgUserSettings: this.offlineService.getOrgUserSettings(),
-      accounts: this.offlineService.getAccounts(),
-      orgSettings: this.offlineService.getOrgSettings(),
-    }).pipe(
-      switchMap(({ isConnected, orgUserSettings, accounts, orgSettings }) =>
-        this.getAccount(orgSettings, accounts, orgUserSettings).pipe(
-          filter((account) => !!account),
-          switchMap((account) => {
-            if (!isConnected) {
-              source += '_OFFLINE';
-            }
-            const transaction = {
-              source_account_id: account.acc.id,
-              skip_reimbursement: !account.acc.isReimbursable || false,
-              source,
-              txn_dt: new Date(),
-              currency: this.homeCurrency,
-            };
+    return this.networkService.isOnline().pipe(
+      switchMap((isConnected) => {
+        if (!isConnected) {
+          source += '_OFFLINE';
+        }
+        const transaction = {
+          source,
+          txn_dt: new Date(),
+          currency: this.homeCurrency,
+        };
 
-            const attachmentUrls = [
-              {
-                thumbnail: base64ImagesWithSource.base64Image,
-                type: 'image',
-                url: base64ImagesWithSource.base64Image,
-              },
-            ];
-            if (!syncImmediately) {
-              return this.transactionsOutboxService.addEntry(
-                transaction,
-                attachmentUrls,
-                null,
-                null,
-                this.isInstafyleEnabled
-              );
-            } else {
-              return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
-            }
-          })
-        )
-      )
-    );
-  }
-
-  getAccount(
-    orgSettings: any,
-    accounts: ExtendedAccount[],
-    orgUserSettings: OrgUserSettings
-  ): Observable<ExtendedAccount> {
-    const isAdvanceEnabled = orgSettings?.advances?.enabled || orgSettings?.advance_requests?.enabled;
-
-    const userAccounts = this.accountsService.filterAccountsWithSufficientBalance(accounts, isAdvanceEnabled);
-    const isMultipleAdvanceEnabled = orgSettings?.advance_account_settings?.multiple_accounts;
-
-    return this.accountsService.constructPaymentModes(userAccounts, isMultipleAdvanceEnabled).pipe(
-      map((paymentModes) => {
-        const isCCCEnabled =
-          orgSettings?.corporate_credit_card_settings?.allowed && orgSettings?.corporate_credit_card_settings?.enabled;
-
-        const paidByCompanyAccount = paymentModes.find(
-          (paymentMode) => paymentMode?.acc.displayName === 'Paid by Company'
-        );
-
-        let account;
-
-        if (orgUserSettings.preferences?.default_payment_mode === 'COMPANY_ACCOUNT' && paidByCompanyAccount) {
-          account = paidByCompanyAccount;
-        } else if (
-          isCCCEnabled &&
-          orgUserSettings.preferences?.default_payment_mode === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
-        ) {
-          account = paymentModes.find(
-            (paymentMode) => paymentMode?.acc.type === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT'
+        const attachmentUrls = [
+          {
+            thumbnail: base64ImagesWithSource.base64Image,
+            type: 'image',
+            url: base64ImagesWithSource.base64Image,
+          },
+        ];
+        if (!syncImmediately) {
+          return this.transactionsOutboxService.addEntry(
+            transaction,
+            attachmentUrls,
+            null,
+            null,
+            this.isInstafyleEnabled
           );
         } else {
-          account = paymentModes.find((paymentMode) => paymentMode?.acc.displayName === 'Personal Card/Cash');
+          return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
         }
-        return account;
       })
     );
   }
 
   async stopCamera() {
-    if (this.isCameraShown === true) {
+    if (this.isCameraPreviewInitiated) {
+      this.isCameraPreviewInitiated = false;
       await CameraPreview.stop();
-      this.isCameraShown = false;
+      this.isCameraPreviewStarted = false;
     }
   }
 
@@ -230,8 +190,80 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
+    const isIos = this.platform.is('ios');
+
+    const galleryPermissionName = isIos ? 'Photos' : 'Storage';
+    let title = 'Camera Permission';
+    if (permissionType === 'GALLERY') {
+      title = galleryPermissionName + ' Permission';
+    }
+
+    const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and ${galleryPermissionName}`;
+    const galleryPermissionMessage = `Please allow Fyle to access device photos. Click Settings and allow ${galleryPermissionName} access`;
+
+    const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
+
+    const permissionDeniedPopover = this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title,
+        message,
+        primaryCta: {
+          text: 'Open Settings',
+          action: 'OPEN_SETTINGS',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'CANCEL',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+      backdropDismiss: false,
+    });
+
+    from(permissionDeniedPopover)
+      .pipe(
+        tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
+        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss())
+      )
+      .subscribe(({ data }) => {
+        if (data?.action === 'OPEN_SETTINGS') {
+          NativeSettings.open({
+            optionAndroid: AndroidSettings.ApplicationDetails,
+            optionIOS: IOSSettings.App,
+          });
+        }
+        this.close();
+      });
+  }
+
   setUpAndStartCamera() {
-    if (!this.isCameraShown) {
+    if (Capacitor.getPlatform() === 'web') {
+      this.startCameraPreview();
+      return;
+    }
+
+    from(Camera.requestPermissions()).subscribe((permissions) => {
+      if (permissions?.camera === 'denied') {
+        return this.showPermissionDeniedPopover('CAMERA');
+      }
+
+      /*
+       * 'prompt-with-rationale' means that the user has denied permission, but has not disabled the permission prompt.
+       * So, we can use the native dialog to ask the user for camera permission.
+       */
+      if (permissions?.camera === 'prompt-with-rationale') {
+        return this.setUpAndStartCamera();
+      }
+
+      this.startCameraPreview();
+    });
+  }
+
+  startCameraPreview() {
+    if (!this.isCameraPreviewInitiated) {
+      this.isCameraPreviewInitiated = true;
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
         toBack: true,
@@ -243,7 +275,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
       this.loaderService.showLoader();
       CameraPreview.start(cameraPreviewOptions).then((res) => {
-        this.isCameraShown = true;
+        this.isCameraPreviewStarted = true;
         this.getFlashModes();
         this.loaderService.hideLoader();
       });
@@ -262,6 +294,39 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     } else {
       this.trackingService.switchedToInstafyleSingleMode({});
     }
+  }
+
+  onSingleCaptureOffline() {
+    this.loaderService.showLoader();
+    this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe(() => {
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      });
+  }
+
+  navigateToExpenseForm() {
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'add_edit_expense',
+      {
+        dataUrl: this.base64ImagesWithSource[0]?.base64Image,
+        canExtractData: this.isInstafyleEnabled,
+      },
+    ]);
+  }
+
+  saveSingleCapture() {
+    let isOnline: boolean;
+    this.networkService.isOnline().subscribe((res) => {
+      isOnline = res;
+      if (!isOnline) {
+        this.onSingleCaptureOffline();
+      } else {
+        this.navigateToExpenseForm();
+      }
+    });
   }
 
   async onSingleCapture() {
@@ -287,24 +352,44 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
+          this.orgService.getOrgs().subscribe((orgs) => {
+            const isMultiOrg = orgs.length > 1;
+
+            if (
+              performance.getEntriesByName(PerfTrackers.captureSingleReceiptTime).length < 1 &&
+              performance.getEntriesByName(PerfTrackers.appLaunchTime).length < 2
+            ) {
+              // Time taken for capturing single receipt for the first time
+              performance.mark(PerfTrackers.captureSingleReceiptTime);
+
+              // Measure total time taken from launching the app to capturing first single receipt
+              performance.measure(PerfTrackers.captureSingleReceiptTime, PerfTrackers.appLaunchStartTime);
+
+              const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
+
+              // eslint-disable-next-line @typescript-eslint/dot-notation
+              const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
+
+              // Converting the duration to seconds and fix it to 3 decimal places
+              const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
+
+              this.trackingService.captureSingleReceiptTime({
+                'Capture receipt time': launchTimeDuration,
+                'Is logged in': isLoggedIn,
+                'Is multi org': isMultiOrg,
+              });
+            }
+          });
           this.loaderService.showLoader();
           if (this.isModal) {
             await modal.onDidDismiss();
             setTimeout(() => {
               this.modalController.dismiss({
-                dataUrl: this.base64ImagesWithSource[0].base64Image,
+                dataUrl: this.base64ImagesWithSource[0]?.base64Image,
               });
             }, 0);
           } else {
-            this.router.navigate([
-              '/',
-              'enterprise',
-              'add_edit_expense',
-              {
-                dataUrl: this.base64ImagesWithSource[0].base64Image,
-                canExtractData: this.isInstafyleEnabled,
-              },
-            ]);
+            this.saveSingleCapture();
           }
           this.loaderService.hideLoader();
         }
@@ -445,17 +530,25 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           }
         });
       } else {
-        this.imagePicker.requestReadPermission();
-        this.galleryUpload();
+        from(Camera.requestPermissions({ permissions: ['photos'] })).subscribe((permissions) => {
+          if (permissions?.photos === 'denied') {
+            return this.showPermissionDeniedPopover('GALLERY');
+          }
+          this.galleryUpload();
+        });
       }
     });
   }
 
   ngAfterViewInit() {
-    this.setUpAndStartCamera();
+    if (this.isModal) {
+      this.setUpAndStartCamera();
+    }
   }
 
   ngOnDestroy() {
-    this.stopCamera();
+    if (this.isModal) {
+      this.stopCamera();
+    }
   }
 }

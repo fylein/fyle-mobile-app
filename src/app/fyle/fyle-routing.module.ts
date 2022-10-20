@@ -62,7 +62,10 @@ const routes: Routes = [
   },
   {
     path: 'view_team_advance',
-    loadChildren: () => import('./view-team-advance/view-team-advance.module').then((m) => m.ViewTeamAdvancePageModule),
+    loadChildren: () =>
+      import('./view-team-advance-request/view-team-advance-request.module').then(
+        (m) => m.ViewTeamAdvanceRequestPageModule
+      ),
   },
   {
     path: 'notifications',
@@ -71,10 +74,6 @@ const routes: Routes = [
   {
     path: 'my_create_report',
     loadChildren: () => import('./my-create-report/my-create-report.module').then((m) => m.MyCreateReportPageModule),
-  },
-  {
-    path: 'my_edit_report',
-    loadChildren: () => import('./my-edit-report/my-edit-report.module').then((m) => m.MyEditReportPageModule),
   },
   {
     path: 'add_edit_per_diem',

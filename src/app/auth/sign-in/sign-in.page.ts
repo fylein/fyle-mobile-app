@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
-import { from, throwError, Observable, of } from 'rxjs';
+import { from, throwError, Observable, of, noop } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
 import { ErrorComponent } from './error/error.component';
-import { shareReplay, catchError, filter, finalize, switchMap, map, concatMap, tap, take } from 'rxjs/operators';
+import { shareReplay, filter, finalize, switchMap, map, tap, take } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -14,6 +14,7 @@ import { PushNotificationService } from 'src/app/core/services/push-notification
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
+import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 
 @Component({
   selector: 'app-sign-in',
@@ -60,7 +61,10 @@ export class SignInPage implements OnInit {
       this.handleError(err);
     } else {
       // Login Success
-
+      const markOptions: PerformanceMarkOptions = {
+        detail: 'SAML Login',
+      };
+      performance.mark('login start time', markOptions);
       from(this.routerAuthService.handleSignInResponse(data))
         .pipe(
           take(1),
@@ -114,10 +118,6 @@ export class SignInPage implements OnInit {
       this.emailLoading = true;
 
       const checkEmailExists$ = this.routerAuthService.checkEmailExists(this.fg.controls.email.value).pipe(
-        catchError((err) => {
-          this.handleError(err);
-          return throwError(err);
-        }),
         shareReplay(1),
         finalize(async () => {
           this.emailLoading = false;
@@ -128,12 +128,14 @@ export class SignInPage implements OnInit {
 
       const basicSignIn$ = checkEmailExists$.pipe(filter((res) => (!res.saml ? true : false)));
 
-      basicSignIn$.subscribe(() => {
-        this.emailSet = true;
+      basicSignIn$.subscribe({
+        next: () => (this.emailSet = true),
+        error: (err) => this.handleError(err),
       });
 
-      saml$.subscribe((res) => {
-        this.handleSamlSignIn(res);
+      saml$.subscribe({
+        next: (res) => this.handleSamlSignIn(res),
+        error: (err) => this.handleError(err),
       });
     } else {
       this.fg.controls.email.markAsTouched();
@@ -170,26 +172,29 @@ export class SignInPage implements OnInit {
     if (this.fg.controls.password.valid) {
       this.emailLoading = false;
       this.passwordLoading = true;
+      const markOptions: PerformanceMarkOptions = {
+        detail: 'Password Login',
+      };
+      performance.mark('login start time', markOptions);
       this.routerAuthService
         .basicSignin(this.fg.value.email, this.fg.value.password)
         .pipe(
-          catchError((err) => {
-            this.handleError(err);
-            return throwError(err);
-          }),
           switchMap(() => this.authService.refreshEou()),
           tap(async () => {
-            await this.trackLoginInfo();
             this.trackingService.onSignin(this.fg.value.email, {
               label: 'Email',
             });
+            await this.trackLoginInfo();
           }),
           finalize(() => (this.passwordLoading = false))
         )
-        .subscribe(() => {
-          this.pushNotificationService.initPush();
-          this.fg.reset();
-          this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+        .subscribe({
+          next: () => {
+            this.pushNotificationService.initPush();
+            this.fg.reset();
+            this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+          },
+          error: (err) => this.handleError(err),
         });
     } else {
       this.fg.controls.password.markAsTouched();
@@ -198,13 +203,17 @@ export class SignInPage implements OnInit {
 
   googleSignIn() {
     this.googleSignInLoading = true;
+    const markOptions: PerformanceMarkOptions = {
+      detail: 'Google Login',
+    };
+    performance.mark('login start time', markOptions);
     from(this.googleAuthService.login())
       .pipe(
         switchMap((googleAuthResponse) => {
           if (googleAuthResponse.accessToken) {
             return of(googleAuthResponse);
           } else {
-            return throwError({});
+            return throwError(noop);
           }
         }),
         map((googleAuthResponse) => {
@@ -213,16 +222,12 @@ export class SignInPage implements OnInit {
         }),
         switchMap((googleAuthResponse) =>
           this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
-            catchError((err) => {
-              this.handleError(err);
-              return throwError(err);
-            }),
             switchMap((res) => this.authService.refreshEou()),
             tap(async () => {
-              await this.trackLoginInfo();
               this.trackingService.onSignin(this.fg.value.email, {
                 label: 'Email',
               });
+              await this.trackLoginInfo();
             })
           )
         ),
@@ -231,10 +236,13 @@ export class SignInPage implements OnInit {
           this.googleSignInLoading = false;
         })
       )
-      .subscribe(() => {
-        this.pushNotificationService.initPush();
-        this.fg.reset();
-        this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+      .subscribe({
+        next: () => {
+          this.pushNotificationService.initPush();
+          this.fg.reset();
+          this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
+        },
+        error: (err) => this.handleError(err),
       });
   }
 

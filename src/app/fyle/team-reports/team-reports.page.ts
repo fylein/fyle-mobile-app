@@ -257,7 +257,7 @@ export class TeamReportsPage implements OnInit {
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     setTimeout(() => {
-      event.target.complete();
+      event?.target?.complete();
     }, 1000);
   }
 
@@ -267,7 +267,7 @@ export class TeamReportsPage implements OnInit {
     params.pageNumber = this.currentPageNumber;
     this.loadData$.next(params);
     if (event) {
-      event.target.complete();
+      event?.target?.complete();
     }
   }
 

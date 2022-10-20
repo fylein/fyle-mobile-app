@@ -1,20 +1,23 @@
 import { Injectable } from '@angular/core';
-import { DeviceService } from './device.service';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { filter, map, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { forkJoin, noop, of } from 'rxjs';
+import { forkJoin, noop, of, from } from 'rxjs';
 import { RouterApiService } from './router-api.service';
 import { AppVersion } from '../models/app_version.model';
 import { environment } from 'src/environments/environment';
+import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
+import { LoginInfoService } from './login-info.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppVersionService {
   constructor(
-    private deviceService: DeviceService,
     private apiService: ApiService,
-    private routerApiService: RouterApiService
+    private routerApiService: RouterApiService,
+    private loginInfoService: LoginInfoService,
+    private authService: AuthService
   ) {}
 
   // not fixing since copied from somewhere
@@ -43,36 +46,46 @@ export class AppVersionService {
     return false;
   }
 
-  load() {
-    const deviceInfo$ = this.deviceService.getDeviceInfo().pipe(shareReplay(1));
-    const platformOS$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.operatingSystem as string));
-    const platformVersion$ = deviceInfo$.pipe(map((deviceInfo) => deviceInfo.osVersion));
-    const storedVersion$ = platformOS$.pipe(switchMap((os) => this.get(os)));
+  load(deviceInfo: ExtendedDeviceInfo) {
+    const platformOS = deviceInfo.operatingSystem;
+    const platformVersion = deviceInfo.osVersion;
     const liveUpdateVersion = environment.LIVE_UPDATE_APP_VERSION;
 
-    forkJoin([platformOS$, platformVersion$, storedVersion$])
+    this.get(platformOS)
       .pipe(
-        switchMap((aggregatedResponses) => {
-          const [platformOS, platformVersion, storedVersion] = aggregatedResponses;
-          const data = {
-            app_version: liveUpdateVersion,
-            device_platform: platformOS,
-            platform_version: platformVersion,
-          };
-
-          const isLower = this.isVersionLower(storedVersion && storedVersion.app_version, liveUpdateVersion);
+        switchMap((storedVersion) => {
+          const isLower = this.isVersionLower(storedVersion?.app_version, liveUpdateVersion);
 
           if (isLower) {
+            const data = {
+              app_version: liveUpdateVersion,
+              device_platform: platformOS,
+              platform_version: platformVersion,
+            };
             return this.post(data);
-          } else {
-            return of(noop);
           }
+          return of(noop);
         })
       )
       .subscribe(noop); // because this needs to happen in the background
   }
 
-  isSupported(data) {
+  getUserAppVersionDetails(deviceInfo: ExtendedDeviceInfo) {
+    return forkJoin({
+      appSupportDetails: this.isSupported(deviceInfo),
+      lastLoggedInVersion: this.loginInfoService.getLastLoggedInVersion(),
+      eou: from(this.authService.getEou()),
+    }).pipe(
+      filter((res) => !res.appSupportDetails.supported && environment.production),
+      map((res) => ({ ...res, deviceInfo }))
+    );
+  }
+
+  isSupported(deviceInfo: ExtendedDeviceInfo) {
+    const data = {
+      app_version: deviceInfo.appVersion,
+      device_os: deviceInfo.platform,
+    };
     return this.routerApiService.post('/mobileapp/check', data);
   }
 

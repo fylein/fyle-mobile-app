@@ -74,7 +74,7 @@
           <div class="view-expense--card-container__amount-section">
             <span class="view-expense--card-container__currency">{{ etxnCurrencySymbol }}</span>
             <span class="view-expense--card-container__amount">
-              {{ etxn.tx_amount | humanizeCurrency: etxn.tx_currency:2:true }}
+              {{ etxn.tx_amount | humanizeCurrency: etxn.tx_currency:true }}
             </span>
             <div *ngIf="isUnifyCcceExpensesSettingsEnabled && isCCCTransaction">
               <div
@@ -91,14 +91,14 @@
           </div>
 
           <div class="view-expense--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
-            {{ foreignCurrencySymbol }}{{ etxn.tx_orig_amount | humanizeCurrency: etxn.tx_orig_currency:2:true }} at {{
-            etxnCurrencySymbol }}{{ etxn.tx_amount / etxn.tx_orig_amount | number: '1.0-2' }}
+            {{ etxn.tx_orig_amount | humanizeCurrency: etxn.tx_orig_currency }} at {{ etxn.tx_amount /
+            etxn.tx_orig_amount | currency: etxn.tx_currency: 'symbol-narrow' }}
           </div>
           <div
             class="view-expense--card-container__state-pill ion-text-right"
             [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
           >
-            <div class="view-expense--card-container__state-pill__state">
+            <div class="state-pill state-{{etxn.tx_state | expenseState}}">
               {{ etxn.tx_state | expenseState | snakeCaseToSpaceCase | titlecase }}
             </div>
           </div>
@@ -331,7 +331,7 @@
               </ion-row>
             </ion-grid>
           </ion-col>
-          <ion-col *ngIf="etxn.tx_cost_center_id">
+          <ion-col size="6" *ngIf="etxn.tx_cost_center_code">
             <ion-grid>
               <ion-row>
                 <ion-col class="view-expense--icon-container">
@@ -344,7 +344,7 @@
                 </ion-col>
                 <ion-col class="view-expense--content-container">
                   <div class="view-expense--label">Cost Center Code</div>
-                  <div class="view-expense--value">{{ etxn.tx_cost_center_id }}</div>
+                  <div class="view-expense--value">{{ etxn.tx_cost_center_code }}</div>
                 </ion-col>
               </ion-row>
             </ion-grid>
@@ -352,7 +352,7 @@
         </ion-row>
       </ion-grid>
 
-      <ng-container *ngIf="['Taxi', 'Train', 'Flight', 'Bus', 'Hotel'].includes(etxn.tx_fyle_category)">
+      <ng-container *ngIf="systemCategoriesWithTaxi?.includes(etxn.tx_fyle_category)">
         <div class="view-expense--divider"></div>
         <ng-container *ngIf="etxn.tx_fyle_category === 'Taxi'">
           <ion-grid *ngIf="etxn.tx_distance" class="view-expense--grid">
@@ -384,7 +384,7 @@
           </ion-grid>
         </ng-container>
 
-        <ng-container *ngIf="['Bus', 'Flight', 'Train'].includes(etxn.tx_fyle_category)">
+        <ng-container *ngIf="travelSystemCategories?.includes(etxn.tx_fyle_category)">
           <ion-grid
             *ngIf="etxn.tx_locations && etxn.tx_locations.length && etxn.tx_locations[0]?.display"
             class="view-expense--grid"
@@ -490,7 +490,9 @@
           </ion-grid>
         </ng-container>
 
-        <ng-container *ngIf="etxn.tx_fyle_category === 'Flight' && etxn.tx_flight_journey_travel_class">
+        <ng-container
+          *ngIf="flightSystemCategories?.includes(etxn.tx_fyle_category) && etxn.tx_flight_journey_travel_class"
+        >
           <ion-grid class="view-expense--grid">
             <ion-row>
               <ion-col size="6">
@@ -534,7 +536,7 @@
         </ng-container>
 
         <ng-container
-          *ngIf="etxn.tx_fyle_category === 'Hotel' && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)"
+          *ngIf="breakfastSystemCategories?.includes(etxn?.tx_fyle_category) && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)"
         >
           <ion-grid *ngIf="etxn.tx_locations[0]?.display" class="view-expense--grid">
             <ion-row>

@@ -10,7 +10,7 @@
         <div class="my-create-report--title">Create New Report</div>
         <div class="my-create-report--sub-title">
           {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }} - {{
-          homeCurrencySymbol }} {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency:2:true }}
+          selectedTotalAmount || 0 | humanizeCurrency: homeCurrency }}
         </div>
       </div>
     </ion-toolbar>
@@ -23,12 +23,13 @@
       <div class="my-create-report--report-title">Report Name</div>
       <span class="my-create-report--mandatory"> * </span>
       <input
-        class="my-create-report--report-name"
+        class="my-create-report--report-name smartlook-show"
         name="reportName"
         type="text"
         placeholder="Enter Report Title"
         [(ngModel)]="reportTitle"
         required
+        (ngModelChange)="detectTitleChange()"
         #reportTitleInput="ngModel"
       />
     </div>
@@ -84,7 +85,7 @@
         appFormButtonValidation
         [loading]="saveDraftReportLoading"
         [loadingText]="'Saving Report'"
-        [disabled]="saveDraftReportLoading || saveReportLoading"
+        [disabled]="emptyInput"
       >
         Save as Draft
       </ion-button>

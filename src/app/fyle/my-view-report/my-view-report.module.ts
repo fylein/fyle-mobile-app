@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { MyViewReportPageRoutingModule } from './my-view-report-routing.module';
 import { MyViewReportPage } from './my-view-report.page';
@@ -16,6 +16,8 @@ import { SubmitReportPopoverComponent } from './submit-report-popover/submit-rep
 import { ResubmitReportPopoverComponent } from './resubmit-report-popover/resubmit-report-popover.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
+import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   imports: [
@@ -30,6 +32,7 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
     MatInputModule,
     MatFormFieldModule,
     MatSnackBarModule,
+    MatCheckboxModule,
   ],
   declarations: [
     MyViewReportPage,
@@ -38,6 +41,7 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
     SubmitReportPopoverComponent,
     ResubmitReportPopoverComponent,
     EditReportNamePopoverComponent,
+    AddExpensesToReportComponent,
   ],
 })
 export class MyViewReportPageModule {}

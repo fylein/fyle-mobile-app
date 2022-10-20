@@ -37,7 +37,7 @@
     </div>
     <div class="split-expense--amount-block__label">
       Remaining:
-      <div class="split-expense--split-amount">{{ currency }} {{ remainingAmount }}</div>
+      <div class="split-expense--split-amount">{{ currency }} {{remainingAmount }}</div>
     </div>
   </div>
 </div>
@@ -73,7 +73,7 @@
               inputmode="decimal"
               [min]="(isCorporateCardsEnabled$|async) ? null : 0.01"
               type="number"
-              class="split-expense--input"
+              class="split-expense--input smartlook-show"
               formControlName="amount"
               (ngModelChange)="onChangeAmount(splitExpenseForm, i)"
             />
@@ -84,7 +84,7 @@
             <input
               inputmode="decimal"
               type="number"
-              class="split-expense--input"
+              class="split-expense--input smartlook-show"
               formControlName="percentage"
               [min]="0.01"
               (ngModelChange)="onChangePercentage(splitExpenseForm, i)"
@@ -158,7 +158,7 @@
               <span class="split-expense--mandatory">*</span>
               <input
                 appFormatDate
-                class="split-expense--date-input date-input__format"
+                class="split-expense--date-input date-input__format smartlook-show"
                 type="date"
                 formControlName="txn_dt"
                 [min]="minDate"

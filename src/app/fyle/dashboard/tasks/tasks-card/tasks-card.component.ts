@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { DashboardTask } from 'src/app/core/models/task.model';
-import { OfflineService } from 'src/app/core/services/offline.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({
   selector: 'app-tasks-card',
@@ -14,22 +14,34 @@ import { OfflineService } from 'src/app/core/services/offline.service';
 export class TasksCardComponent implements OnInit {
   @Input() task: DashboardTask;
 
+  @Input() autoSubmissionReportDate: Date;
+
   @Output() ctaClicked: EventEmitter<TaskCta> = new EventEmitter();
+
+  @Output() infoCardClicked = new EventEmitter();
 
   homeCurrency$: Observable<string>;
 
   currencySymbol$: Observable<string>;
 
-  constructor(private offlineService: OfflineService) {}
+  showReportAutoSubmissionInfo = false;
+
+  constructor(private currencyService: CurrencyService) {}
 
   ngOnInit(): void {
-    this.homeCurrency$ = this.offlineService.getHomeCurrency();
+    this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.currencySymbol$ = this.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
     );
+    this.showReportAutoSubmissionInfo =
+      this.task.header.includes('Incomplete expense') && !!this.autoSubmissionReportDate;
   }
 
   taskCtaClicked(event) {
     this.ctaClicked.emit(event);
+  }
+
+  onInfoCardClicked() {
+    this.infoCardClicked.emit();
   }
 }

@@ -2,7 +2,9 @@
   <div class="d-flex">
     <div class="summary-tile--card-container__block">
       <div *ngIf="category" class="summary-tile--card-container__category">{{ category }}</div>
-      <div *ngIf="purpose" class="summary-tile--card-container__purpose">{{ purpose }}</div>
+      <div *ngIf="purpose" class="summary-tile--card-container__purpose">
+        {{ purpose | ellipsis: 25 }}
+      </div>
 
       <div *ngIf="merchant" class="summary-tile--card-container__merchant">
         {{ merchant }}
@@ -13,7 +15,7 @@
       <div>
         <span *ngIf="currency">{{ currency }}</span>
         <span class="summary-tile--card-container__amount">
-          {{ amount | humanizeCurrency: currency:2:true }}
+          {{ amount | humanizeCurrency: currency:true }}
         </span>
       </div>
 
@@ -21,11 +23,7 @@
         class="ion-text-right"
         [ngClass]="{ 'summary-tile--card-container__no-exchange': !orig_currency && project }"
       >
-        <div
-          class="summary-tile--card-container__state-pill summary-tile--card-container__state-pill__{{
-            status | lowercase
-          }}"
-        >
+        <div class="summary-tile--card-container__state-pill state-pill state-{{ status | lowercase }}">
           {{ status | snakeCaseToSpaceCase | titlecase }}
         </div>
       </div>
@@ -35,7 +33,18 @@
 
 <div *ngIf="approvals?.length > 0" class="summary-tile--approval-container">
   <div class="summary-tile--approval-state-block">
-    <div class="summary-tile--approvers">Approvers</div>
+    <div class="summary-tile--approval-state-block-header">
+      <div class="summary-tile--approvers">Approvers</div>
+      <div class="summary-tile--approvers-add-approver">
+        <app-fy-approver
+          *ngIf="actions?.can_add_approver"
+          [approverEmailsList]="approverEmails"
+          [id]="id"
+          [ownerEmail]="ownerEmail"
+          [type]="'ADVANCE_REQUEST'"
+        ></app-fy-approver>
+      </div>
+    </div>
     <div *ngFor="let ap of approvals">
       <div class="summary-tile--approvers-list">
         <div class="summary-tile--approver-name">{{ ap.approver_name }}</div>

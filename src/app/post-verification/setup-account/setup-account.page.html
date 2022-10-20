@@ -14,7 +14,13 @@
           Company Name
         </div>
         <mat-form-field class="mat-form-field-no-padding setup-account--form-field" appearance="outline">
-          <input formControlName="companyName" type="text" matInput placeholder="{{(fullname$|async)}}'s Account" />
+          <input
+            class="smartlook-show"
+            formControlName="companyName"
+            type="text"
+            matInput
+            placeholder="{{(fullname$|async)}}'s Account"
+          />
         </mat-form-field>
         <div
           [ngClass]="{'setup-account--form-label__invalid': (!fg.controls.homeCurrency.valid && fg.controls.homeCurrency.touched) }"
@@ -27,7 +33,12 @@
           appearance="outline"
           (click)="openCurrenySelectionModal()"
         >
-          <input formControlName="homeCurrency" placeholder="Set default currency for all expenses" matInput />
+          <input
+            class="smartlook-show"
+            formControlName="homeCurrency"
+            placeholder="Set default currency for all expenses"
+            matInput
+          />
         </mat-form-field>
         <div
           [ngClass]="{'setup-account--form-label__invalid': (!fg.controls.password.valid && fg.controls.password.touched) }"

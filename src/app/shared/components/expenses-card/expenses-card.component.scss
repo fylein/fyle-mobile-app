@@ -217,6 +217,11 @@
     }
   }
 
+  &--default-view-container {
+    display: flex;
+    flex-direction: column;
+  }
+
   &--currency-amount-container {
     width: 100%;
     white-space: nowrap;
@@ -263,27 +268,18 @@
     padding: 2px 3px;
     border-radius: 3px;
     margin-top: 6px;
-    min-width: 117px;
     white-space: nowrap;
   }
 
   &--state-container {
-    margin-top: 6px;
-    width: 100%;
-    white-space: nowrap;
+    margin-top: 4px;
+    align-self: flex-end;
+
     &__center {
       position: relative;
-      top: 25%;
+      height: 24px;
+      top: 30%;
     }
-  }
-
-  &--state {
-    font-size: 12px;
-    line-height: 1.25;
-    color: $pure-white;
-    background-color: $highlight-black;
-    border-radius: 16px;
-    padding: 4px 24px;
   }
 
   &--spinner-icon {

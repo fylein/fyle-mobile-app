@@ -6,7 +6,6 @@ import { Expense } from '../models/expense.model';
 import { ExpensesInfo } from './expenses-info.model';
 import { FileService } from './file.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
-import { OfflineService } from './offline.service';
 import * as moment from 'moment';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ProjectsService } from './projects.service';
@@ -16,6 +15,9 @@ import { FileResponse } from './file-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { FormControl } from '@angular/forms';
 import { DateService } from './date.service';
+import { AccountType } from '../enums/account-type.enum';
+import { TaxGroupService } from './tax-group.service';
+import { CustomInputsService } from './custom-inputs.service';
 
 type Option = Partial<{
   label: string;
@@ -53,11 +55,12 @@ export class MergeExpensesService {
     private apiService: ApiService,
     private fileService: FileService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private offlineService: OfflineService,
+    private customInputsService: CustomInputsService,
     private humanizeCurrency: HumanizeCurrencyPipe,
     private projectService: ProjectsService,
     private categoriesService: CategoriesService,
-    private dateService: DateService
+    private dateService: DateService,
+    private taxGroupService: TaxGroupService
   ) {}
 
   mergeExpenses(sourceTxnIds: string[], targetTxnId: string, targetTxnFields: mergeFormValues): Observable<string> {
@@ -69,11 +72,11 @@ export class MergeExpensesService {
   }
 
   isAllAdvanceExpenses(expenses: Expense[]): boolean {
-    return expenses.every((expense) => expense?.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT');
+    return expenses.every((expense) => expense?.source_account_type === AccountType.ADVANCE);
   }
 
   checkIfAdvanceExpensePresent(expenses: Expense[]): Expense[] {
-    return expenses.filter((expense) => expense?.source_account_type === 'PERSONAL_ADVANCE_ACCOUNT');
+    return expenses.filter((expense) => expense?.source_account_type === AccountType.ADVANCE);
   }
 
   setDefaultExpenseToKeep(expenses: Expense[]): ExpensesInfo {
@@ -169,7 +172,7 @@ export class MergeExpensesService {
   }
 
   getCardCardTransactions(expenses: Expense[]): Observable<CorporateCardExpense[]> {
-    return this.offlineService.getCustomInputs().pipe(
+    return this.customInputsService.getAll(true).pipe(
       switchMap(() => {
         const CCCGroupIds = expenses.map((expense) => expense?.tx_corporate_credit_card_expense_group_id);
 
@@ -210,7 +213,7 @@ export class MergeExpensesService {
         if (expense.tx_txn_dt) {
           date = moment(expense.tx_txn_dt).format('MMM DD');
         }
-        let amount = this.humanizeCurrency.transform(expense.tx_amount, expense.tx_currency, 2);
+        let amount = this.humanizeCurrency.transform(expense.tx_amount, expense.tx_currency);
         if (!date) {
           amount = '';
         }
@@ -601,7 +604,7 @@ export class MergeExpensesService {
   }
 
   formatTaxGroupOption(option: Option): Observable<OptionsData> {
-    const taxGroups$ = this.offlineService.getEnabledTaxGroups().pipe(shareReplay(1));
+    const taxGroups$ = this.taxGroupService.get().pipe(shareReplay(1));
     const taxGroupsOptions$ = taxGroups$.pipe(
       map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
     );
@@ -615,7 +618,7 @@ export class MergeExpensesService {
   }
 
   formatCategoryOption(option: Option): Observable<Option> {
-    const allCategories$ = this.offlineService.getAllEnabledCategories();
+    const allCategories$ = this.categoriesService.getAll();
 
     return allCategories$.pipe(
       map((catogories) => this.categoriesService.filterRequired(catogories)),
@@ -672,20 +675,20 @@ export class MergeExpensesService {
   }
 
   formatPaymentModeOptions(option: Option): Option {
-    if (option.value === 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT') {
+    if (option.value === AccountType.CCC) {
       option.label = 'Corporate Card';
-    } else if (option.value === 'PERSONAL_ACCOUNT') {
+    } else if (option.value === AccountType.PERSONAL) {
       option.label = 'Personal Card/Cash';
-    } else if (option.value === 'PERSONAL_ADVANCE_ACCOUNT') {
+    } else if (option.value === AccountType.ADVANCE) {
       option.label = 'Advance';
     }
     return option;
   }
 
   getCategoryName(categoryId: string): Observable<string> {
-    return this.offlineService.getAllEnabledCategories().pipe(
+    return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const category = categories.find((category) => category.id === categoryId);
+        const category = categories.find((category) => category?.id?.toString() === categoryId);
         return category?.name;
       })
     );

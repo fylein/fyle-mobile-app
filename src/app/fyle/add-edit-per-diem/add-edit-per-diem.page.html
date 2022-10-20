@@ -68,8 +68,9 @@
                 <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
                   <mat-icon class="capped-icon" svgIcon="fy-info"></mat-icon>
                   <div class="capped-message">
-                    Claimed amount {{etxn.tx.user_amount | number: '1.0-2'}} was capped to {{etxn.tx.amount | number:
-                    '1.0-2'}} due to policy <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
+                    Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: '' }} was capped to
+                    {{etxn.tx.amount | currency: etxn.tx.currency: '' }} due to policy
+                    <span *ngIf="isAmountDisabled$|async"> and cannot be edited.</span>
                   </div>
                 </div>
               </ng-container>
@@ -95,8 +96,8 @@
                 <div class="add-edit-per-diem--conversion">
                   <mat-icon class="add-edit-per-diem--conversion-icon" svgIcon="information"></mat-icon>
                   <div class="add-edit-per-diem--conversion-amount">
-                    {{fg.controls.currencyObj?.value?.currency}} {{fg.controls.currencyObj?.value?.amount | number:
-                    '1.0-2'}}
+                    {{ fg.controls.currencyObj?.value?.amount | currency: fg.controls.currencyObj?.value?.currency:
+                    'code' }}
                   </div>
                   <div class="add-edit-per-diem--conversion-rate">
                     at {{ (fg.controls.currencyObj?.value?.amount / fg.controls.currencyObj?.value?.orig_amount) |
@@ -129,7 +130,7 @@
                           <div class="add-edit-per-diem--type-name">{{label}}</div>
                           <ng-container *ngIf="perDiemType">
                             <ng-container>
-                              <div class="add-edit-per-diem--type-rate">{{perDiemType.readableRate}}</div>
+                              <div class="add-edit-per-diem--type-rate">{{perDiemType?.readableRate}}</div>
                             </ng-container>
                           </ng-container>
                         </div>
@@ -163,7 +164,7 @@
                               appFormatDate
                               [disabled]="isAmountDisabled || !txnFields?.from_dt.canEdit"
                               [min]="minDate"
-                              class="add-edit-per-diem--date-input date-input__format"
+                              class="add-edit-per-diem--date-input date-input__format smartlook-show"
                               [placeholder]="'Select ' + txnFields?.from_dt"
                               formControlName="from_dt"
                               [name]="txnFields.from_dt.placeholder || txnFields.from_dt.field_name"
@@ -198,7 +199,7 @@
                               appFormatDate
                               [disabled]="isAmountDisabled || !txnFields?.to_dt.canEdit"
                               [min]="minPerDiemDate"
-                              class="add-edit-per-diem--date-input date-input__format"
+                              class="add-edit-per-diem--date-input date-input__format smartlook-show"
                               formControlName="to_dt"
                               [placeholder]="'Select ' + txnFields?.to_dt"
                               [name]="txnFields.to_dt.placeholder || txnFields.to_dt.field_name"
@@ -247,7 +248,6 @@
 
                   <ng-container *ngIf="paymentModes$|async as paymentModes">
                     <div
-                      *ngIf="paymentModes.length > 0"
                       [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
                       class="add-edit-per-diem--internal-block"
                     >
@@ -291,6 +291,7 @@
                       Please select a payment mode.
                     </div>
                   </ng-container>
+
                   <ng-container *ngIf="isAdvancesEnabled$">
                     <ng-container
                       *ngIf="isBalanceAvailableInAnyAdvanceAccount$|async as isBalanceAvailableInAnyAdvanceAccount"
@@ -390,7 +391,7 @@
                           [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.costCenter.touched && !fg.controls.costCenter.valid}"
                           class="add-edit-per-diem--internal-block"
                         >
-                          <app-fy-select
+                          <app-virtual-select
                             [cacheName]="'perDiemCostCenterCache'"
                             [label]="txnFields.cost_center_id.field_name  | ellipsis: 30"
                             [mandatory]="txnFields.cost_center_id.is_mandatory"
@@ -400,7 +401,7 @@
                             formControlName="costCenter"
                             [placeholder]="txnFields.cost_center_id.placeholder | ellipsis: 30"
                           >
-                          </app-fy-select>
+                          </app-virtual-select>
                         </div>
                         <div
                           *ngIf="fg.controls.costCenter.touched && !fg.controls.costCenter.valid"
@@ -431,7 +432,7 @@
                               [placeholder]="txnFields.purpose.placeholder || 'Enter ' + txnFields.purpose.field_name | ellipsis: 30"
                               [required]="txnFields.purpose?.is_mandatory"
                               [title]="'Enter'+txnFields.purpose?.field_name"
-                              class="add-edit-per-diem--text-input"
+                              class="add-edit-per-diem--text-input smartlook-show"
                               formControlName="purpose"
                             />
                           </div>
@@ -480,7 +481,7 @@
                             </div>
                             <input
                               *ngIf="customInput.type === 'TEXT'"
-                              class="add-edit-per-diem--text-input"
+                              class="add-edit-per-diem--text-input smartlook-show"
                               formControlName="value"
                               [placeholder]="customInput.placeholder || 'Enter ' + customInput.name | ellipsis: 30"
                               type="text"
@@ -495,7 +496,7 @@
                             <input
                               appFormatDate
                               *ngIf="customInput.type === 'DATE'"
-                              class="add-edit-per-diem--date-input date-input__format"
+                              class="add-edit-per-diem--date-input date-input__format smartlook-show"
                               formControlName="value"
                               [placeholder]="'Select ' + customInput.name"
                               type="date"
@@ -567,6 +568,7 @@
                                 [label]="fg.controls.add_to_new_report.value ? 'Report' : 'Add to Report'"
                                 [options]="reports"
                                 formControlName="report"
+                                [autoSubmissionReportName]="autoSubmissionReportName$|async"
                               ></app-fy-add-to-report>
                             </div>
                           </ng-container>

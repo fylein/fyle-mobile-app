@@ -12,12 +12,12 @@ import { DashboardTask } from '../models/task.model';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { AdvanceRequestService } from './advance-request.service';
 import { AuthService } from './auth.service';
-import { OfflineService } from './offline.service';
 import { ReportService } from './report.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { HandleDuplicatesService } from './handle-duplicates.service';
 import { DuplicateSet } from '../models/v2/duplicate-sets.model';
+import { CurrencyService } from './currency.service';
 
 type TaskDict = {
   sentBackReports: DashboardTask[];
@@ -47,14 +47,17 @@ export class TasksService {
     private reportService: ReportService,
     private transactionService: TransactionService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    private offlineService: OfflineService,
     private userEventService: UserEventService,
     private authService: AuthService,
     private handleDuplicatesService: HandleDuplicatesService,
-    private advancesRequestService: AdvanceRequestService
+    private advancesRequestService: AdvanceRequestService,
+    private currencyService: CurrencyService
   ) {
     this.userEventService.onTaskCacheClear(() => {
-      this.getTasks().subscribe(noop);
+      this.reportService.getReportAutoSubmissionDetails().subscribe((autoSubmissionReportDetails) => {
+        const isReportAutoSubmissionScheduled = !!autoSubmissionReportDetails?.data?.next_at;
+        this.getTasks(isReportAutoSubmissionScheduled).subscribe(noop);
+      });
     });
   }
 
@@ -215,7 +218,7 @@ export class TasksService {
 
   getExpensePill(filters: TaskFilters): FilterPill {
     const expensePills = [];
-    const draftExpensesContent = filters.draftExpenses ? 'Draft' : '';
+    const draftExpensesContent = filters.draftExpenses ? 'Incomplete' : '';
     if (draftExpensesContent) {
       expensePills.push(draftExpensesContent);
     }
@@ -288,12 +291,12 @@ export class TasksService {
     return filterPills;
   }
 
-  getTasks(filters?: TaskFilters): Observable<DashboardTask[]> {
+  getTasks(isReportAutoSubmissionScheduled = false, filters?: TaskFilters): Observable<DashboardTask[]> {
     return forkJoin({
       potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackReports: this.getSentBackReportTasks(),
-      unreportedExpenses: this.getUnreportedExpensesTasks(),
-      unsubmittedReports: this.getUnsubmittedReportsTasks(),
+      unreportedExpenses: this.getUnreportedExpensesTasks(isReportAutoSubmissionScheduled),
+      unsubmittedReports: this.getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled),
       draftExpenses: this.getDraftExpensesTasks(),
       teamReports: this.getTeamReportsTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
@@ -408,7 +411,7 @@ export class TasksService {
   private getSentBackReportTasks(): Observable<DashboardTask[]> {
     return forkJoin({
       reportsStats: this.getSentBackReports(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
       map(({ reportsStats, homeCurrency }) =>
         this.mapSentBackReportsToTasks(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
@@ -436,7 +439,7 @@ export class TasksService {
   private getSentBackAdvanceTasks(): Observable<DashboardTask[]> {
     return forkJoin({
       advancesStats: this.getSentBackAdvancesStats(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
       map(({ advancesStats, homeCurrency }) =>
         this.mapSentBackAdvancesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
@@ -445,19 +448,14 @@ export class TasksService {
   }
 
   private getTeamReportsStats() {
-    return forkJoin({
-      eou: from(this.authService.getEou()),
-      sequentalApproversEnabled: this.offlineService
-        .getOrgSettings()
-        .pipe(map((orgSettings) => orgSettings.approval_settings.enable_sequential_approvers)),
-    }).pipe(
-      switchMap(({ eou, sequentalApproversEnabled }) =>
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) =>
         this.reportService.getReportStatsData(
           {
             approved_by: 'cs.{' + eou.ou.id + '}',
             rp_approval_state: ['in.(APPROVAL_PENDING)'],
             rp_state: ['in.(APPROVER_PENDING)'],
-            sequential_approval_turn: sequentalApproversEnabled ? ['in.(true)'] : ['in.(true)'],
+            sequential_approval_turn: ['in.(true)'],
             aggregates: 'count(rp_id),sum(rp_amount)',
             scalar: true,
           },
@@ -470,7 +468,7 @@ export class TasksService {
   private getTeamReportsTasks() {
     return forkJoin({
       reportsStats: this.getTeamReportsStats(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
       map(({ reportsStats, homeCurrency }) =>
         this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
@@ -510,10 +508,15 @@ export class TasksService {
     return [task];
   }
 
-  private getUnsubmittedReportsTasks() {
+  private getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled = false) {
+    //Unsubmitted reports task should not be shown if report auto-submission is scheduled
+    if (isReportAutoSubmissionScheduled) {
+      return of([]);
+    }
+
     return forkJoin({
       reportsStats: this.getUnsubmittedReportsStats(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
       map(({ reportsStats, homeCurrency }) =>
         this.mapAggregateToUnsubmittedReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
@@ -530,7 +533,12 @@ export class TasksService {
     });
   }
 
-  private getUnreportedExpensesTasks() {
+  private getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false) {
+    //Unreported expenses task should not be shown if report auto submission is scheduled
+    if (isReportAutoSubmissionScheduled) {
+      return of([]);
+    }
+
     const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' };
 
     const openReports$ = this.reportService.getAllExtendedReports({ queryParams }).pipe(
@@ -547,7 +555,7 @@ export class TasksService {
     );
     return forkJoin({
       transactionStats: this.getUnreportedExpensesStats(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
       openReports: openReports$,
     }).pipe(
       map(({ transactionStats, homeCurrency, openReports }) =>
@@ -571,7 +579,7 @@ export class TasksService {
   private getDraftExpensesTasks() {
     return forkJoin({
       transactionStats: this.getDraftExpensesStats(),
-      homeCurrency: this.offlineService.getHomeCurrency(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
       map(({ transactionStats, homeCurrency }) =>
         this.mapAggregateToDraftExpensesTask(this.mapScalarStatsResponse(transactionStats), homeCurrency)
@@ -580,7 +588,7 @@ export class TasksService {
   }
 
   private getAmountString(amount: number, currency: string): string {
-    return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency, 2)} ` : '';
+    return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency)} ` : '';
   }
 
   private mapSentBackReportsToTasks(
@@ -590,7 +598,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
           count: aggregate.totalCount,
           header: `Report${aggregate.totalCount === 1 ? '' : 's'} sent back!`,
           subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
@@ -624,7 +632,7 @@ export class TasksService {
       } sent back by your approver`;
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
           count: aggregate.totalCount,
           header: headerMessage,
           subheader: subheaderMessage,
@@ -649,7 +657,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
           count: aggregate.totalCount,
           header: `Unsubmitted report${aggregate.totalCount === 1 ? '' : 's'}`,
           subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
@@ -677,7 +685,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
           count: aggregate.totalCount,
           header: `Report${aggregate.totalCount === 1 ? '' : 's'} to be approved`,
           subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
@@ -705,7 +713,7 @@ export class TasksService {
     if (aggregate.totalCount > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
+          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
           count: aggregate.totalCount,
           header: `Incomplete expense${aggregate.totalCount === 1 ? '' : 's'}`,
           subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
@@ -733,7 +741,7 @@ export class TasksService {
   ): DashboardTask[] {
     if (aggregate.totalCount > 0) {
       const task = {
-        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, 2, true),
+        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
         count: aggregate.totalCount,
         header: `Unreported`,
         subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(
