@@ -54,6 +54,11 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   ) {}
 
   setUpAndStartCamera() {
+    if (Capacitor.getPlatform() === 'web') {
+      this.startCameraPreview();
+      return;
+    }
+
     from(Camera.requestPermissions()).subscribe((permissions) => {
       if (permissions?.camera === 'denied') {
         return this.showPermissionDeniedPopover('CAMERA');
@@ -67,25 +72,29 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
         return this.setUpAndStartCamera();
       }
 
-      if (!this.isCameraPreviewInitiated) {
-        this.isCameraPreviewInitiated = true;
-        const cameraPreviewOptions: CameraPreviewOptions = {
-          position: 'rear',
-          toBack: true,
-          width: window.innerWidth,
-          height: window.innerHeight,
-          parent: 'cameraPreview',
-          disableAudio: true,
-        };
-
-        this.loaderService.showLoader();
-        CameraPreview.start(cameraPreviewOptions).then((res) => {
-          this.isCameraPreviewStarted = true;
-          this.getFlashModes();
-          this.loaderService.hideLoader();
-        });
-      }
+      this.startCameraPreview();
     });
+  }
+
+  startCameraPreview() {
+    if (!this.isCameraPreviewInitiated) {
+      this.isCameraPreviewInitiated = true;
+      const cameraPreviewOptions: CameraPreviewOptions = {
+        position: 'rear',
+        toBack: true,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        parent: 'cameraPreview',
+        disableAudio: true,
+      };
+
+      this.loaderService.showLoader();
+      CameraPreview.start(cameraPreviewOptions).then((res) => {
+        this.isCameraPreviewStarted = true;
+        this.getFlashModes();
+        this.loaderService.hideLoader();
+      });
+    }
   }
 
   async stopCamera() {
