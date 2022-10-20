@@ -50,8 +50,6 @@ export class AppComponent implements OnInit {
 
   isUserLoggedIn = false;
 
-  isOnline: boolean;
-
   constructor(
     private platform: Platform,
     private router: Router,
@@ -175,8 +173,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.setupNetworkWatcher();
-
     if ((window as any) && (window as any).localStorage) {
       const lstorage = (window as any).localStorage;
       Object.keys(lstorage)
@@ -184,19 +180,10 @@ export class AppComponent implements OnInit {
         .forEach((key) => lstorage.removeItem(key));
     }
 
-    this.isConnected$.subscribe((isOnline) => {
-      this.isOnline = isOnline;
-    });
-
     from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
       this.isUserLoggedIn = loggedInStatus;
       if (loggedInStatus) {
-        if (this.isOnline) {
-          this.sidemenuRef.showSideMenuOnline();
-        } else {
-          this.sidemenuRef.showSideMenuOffline();
-        }
-
+        this.sidemenuRef.showSideMenu();
         this.pushNotificationService.initPush();
       }
 
@@ -208,11 +195,7 @@ export class AppComponent implements OnInit {
 
     this.userEventService.onSetToken(() => {
       setTimeout(() => {
-        if (this.isOnline) {
-          this.sidemenuRef.showSideMenuOnline();
-        } else {
-          this.sidemenuRef.showSideMenuOffline();
-        }
+        this.sidemenuRef.showSideMenu();
       }, 500);
     });
 
@@ -222,6 +205,8 @@ export class AppComponent implements OnInit {
       this.isSwitchedToDelegator = false;
       this.router.navigate(['/', 'auth', 'sign_in']);
     });
+
+    this.setupNetworkWatcher();
 
     this.router.events.subscribe((ev) => {
       // adding try catch because this may fail due to network issues

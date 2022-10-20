@@ -16,8 +16,6 @@ import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
@@ -30,7 +28,7 @@ export class SidemenuComponent implements OnInit {
 
   appVersion: string;
 
-  activeOrg: Org | { name: string };
+  activeOrg: Org;
 
   isConnected$: Observable<any>;
 
@@ -48,8 +46,6 @@ export class SidemenuComponent implements OnInit {
 
   primaryOptionsCount: number;
 
-  deviceInfo: Observable<ExtendedDeviceInfo>;
-
   constructor(
     private offlineService: OfflineService,
     private deviceService: DeviceService,
@@ -59,15 +55,11 @@ export class SidemenuComponent implements OnInit {
     private sidemenuService: SidemenuService,
     private launchDarklyService: LaunchDarklyService,
     private orgService: OrgService,
-    private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   ngOnInit(): void {
     this.setupNetworkWatcher();
-    this.authService.getEou().then((eou) => {
-      this.eou = eou;
-    });
   }
 
   setupNetworkWatcher() {
@@ -78,24 +70,7 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
-  showSideMenuOffline() {
-    const isLoggedIn = this.routerAuthService.isLoggedIn();
-    if (!isLoggedIn) {
-      return 0;
-    }
-    this.deviceService
-      .getDeviceInfo()
-      .pipe(shareReplay(1))
-      .subscribe((deviceInfo) => {
-        this.appVersion = (deviceInfo && deviceInfo.liveUpdateAppVersion) || '1.2.3';
-        this.activeOrg = {
-          name: this.eou.ou.org_name,
-        };
-        this.setupSideMenu();
-      });
-  }
-
-  async showSideMenuOnline() {
+  async showSideMenu() {
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
     if (!isLoggedIn) {
       return 0;
@@ -298,29 +273,6 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
-  getPrimarySidemenuOptionsOffline() {
-    return [
-      {
-        title: 'Dashboard',
-        isVisible: true,
-        icon: 'fy-dashboard-new',
-        route: ['/', 'enterprise', 'my_dashboard'],
-      },
-      {
-        title: 'Expenses',
-        isVisible: true,
-        icon: 'expense',
-        route: ['/', 'enterprise', 'my_expenses'],
-      },
-      {
-        title: 'Settings',
-        isVisible: true,
-        icon: 'fy-settings',
-        route: ['/', 'enterprise', 'my_profile'],
-      },
-    ];
-  }
-
   getSecondarySidemenuOptions(orgs: Org[], isDelegatee: boolean, isConnected: boolean) {
     return [
       {
@@ -371,14 +323,10 @@ export class SidemenuComponent implements OnInit {
     ].filter((sidemenuItem) => sidemenuItem.isVisible);
   }
 
-  setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean) {
-    if (isConnected) {
-      this.filteredSidemenuList = [
-        ...this.getPrimarySidemenuOptions(isConnected),
-        ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected),
-      ];
-    } else {
-      this.filteredSidemenuList = [...this.getPrimarySidemenuOptionsOffline()];
-    }
+  setupSideMenu(isConnected: boolean, orgs: Org[], isDelegatee: boolean) {
+    this.filteredSidemenuList = [
+      ...this.getPrimarySidemenuOptions(isConnected),
+      ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected),
+    ];
   }
 }
