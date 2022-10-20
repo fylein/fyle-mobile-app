@@ -11,6 +11,7 @@ import { OrgService } from 'src/app/core/services/org.service';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router } from '@angular/router';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -52,6 +53,7 @@ export class SetupAccountPage implements OnInit {
     private toastController: ToastController,
     private loaderService: LoaderService,
     private orgUserService: OrgUserService,
+    private offlineService: OfflineService,
     private orgSettingsService: OrgSettingsService,
     private router: Router,
     private trackingService: TrackingService
@@ -99,7 +101,7 @@ export class SetupAccountPage implements OnInit {
 
   saveGuessedMileage() {
     return forkJoin({
-      orgSettings: this.orgSettingsService.get(),
+      orgSettings: this.offlineService.getOrgSettings(),
       org: this.org$,
     }).pipe(
       concatMap(({ orgSettings, org }) => {

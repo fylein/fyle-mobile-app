@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
@@ -65,6 +66,7 @@ export class MyProfilePage implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private offlineService: OfflineService,
     private orgUserSettingsService: OrgUserSettingsService,
     private userEventService: UserEventService,
     private secureStorageService: SecureStorageService,
@@ -142,9 +144,9 @@ export class MyProfilePage implements OnInit {
 
   reset() {
     this.eou$ = from(this.authService.getEou());
-    const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
+    const orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
-    const orgSettings$ = this.orgSettingsService.get();
+    const orgSettings$ = this.offlineService.getOrgSettings();
 
     from(this.loaderService.showLoader())
       .pipe(

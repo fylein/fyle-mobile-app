@@ -5,6 +5,7 @@ import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, sw
 import { Platform, PopoverController } from '@ionic/angular';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
@@ -54,6 +55,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   constructor(
     private platform: Platform,
+    private offlineService: OfflineService,
     private loaderService: LoaderService,
     private userService: UserService,
     private activatedRoute: ActivatedRoute,

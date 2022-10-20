@@ -4,11 +4,11 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { map, tap, switchMap, mergeMap, finalize } from 'rxjs/operators';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-notifications',
@@ -49,7 +49,7 @@ export class NotificationsPage implements OnInit {
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private formBuilder: FormBuilder,
-    private orgSettingsService: OrgSettingsService,
+    private offlineService: OfflineService,
     private router: Router,
     private navController: NavController
   ) {}
@@ -150,7 +150,7 @@ export class NotificationsPage implements OnInit {
 
     this.orgUserSettingsService
       .post(this.orgUserSettings)
-      .pipe(() => this.orgUserSettingsService.clearOrgUserSettings())
+      .pipe(() => this.offlineService.clearOrgUserSettings())
       .pipe(finalize(() => (this.saveNotifLoading = false)))
       .subscribe(() => {
         this.navController.back();
@@ -278,7 +278,7 @@ export class NotificationsPage implements OnInit {
 
     this.isDelegateePresent$ = from(this.authService.getEou()).pipe(map((eou) => eou.ou.delegatee_id !== null));
 
-    this.orgSettings$ = this.orgSettingsService.get();
+    this.orgSettings$ = this.offlineService.getOrgSettings();
     this.notificationEvents$ = this.orgUserSettingsService.getNotificationEvents();
 
     const mergedData$ = zip(this.notificationEvents$, this.orgUserSettings$, this.orgSettings$)

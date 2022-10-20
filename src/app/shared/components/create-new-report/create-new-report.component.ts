@@ -5,6 +5,7 @@ import { noop, Observable, of } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
@@ -40,6 +41,7 @@ export class CreateNewReportComponent implements OnInit {
   showReportNameError: boolean;
 
   constructor(
+    private offlineService: OfflineService,
     private modalController: ModalController,
     private reportService: ReportService,
     private trackingService: TrackingService,

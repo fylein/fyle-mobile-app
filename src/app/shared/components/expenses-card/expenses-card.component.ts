@@ -4,6 +4,7 @@ import { concat } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { concatMap, finalize, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { isNumber, reduce } from 'lodash';
 import { FileService } from 'src/app/core/services/file.service';
@@ -24,8 +25,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -124,7 +123,7 @@ export class ExpensesCardComponent implements OnInit {
 
   constructor(
     private transactionService: TransactionService,
-    private orgUserSettingsService: OrgUserSettingsService,
+    private offlineService: OfflineService,
     private fileService: FileService,
     private popoverController: PopoverController,
     private networkService: NetworkService,
@@ -135,8 +134,7 @@ export class ExpensesCardComponent implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   get isSelected() {
@@ -240,7 +238,7 @@ export class ExpensesCardComponent implements OnInit {
     that.isScanCompleted = false;
 
     if (!that.isOutboxExpense) {
-      that.orgUserSettingsService.get().subscribe((orgUserSettings) => {
+      that.offlineService.getOrgUserSettings().subscribe((orgUserSettings) => {
         if (
           orgUserSettings.insta_fyle_settings.allowed &&
           orgUserSettings.insta_fyle_settings.enabled &&
@@ -279,7 +277,7 @@ export class ExpensesCardComponent implements OnInit {
 
   ngOnInit() {
     this.setupNetworkWatcher();
-    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
 
     this.isSycing$ = this.isConnected$.pipe(
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)

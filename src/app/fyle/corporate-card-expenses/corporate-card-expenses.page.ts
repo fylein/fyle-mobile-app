@@ -6,6 +6,7 @@ import { DateService } from '../../core/services/date.service';
 import { CurrencyService } from '../../core/services/currency.service';
 import { ActivatedRoute, Params, Router, NavigationEnd } from '@angular/router';
 import { TransactionsOutboxService } from '../../core/services/transactions-outbox.service';
+import { OfflineService } from '../../core/services/offline.service';
 import { PopupService } from '../../core/services/popup.service';
 import {
   debounceTime,

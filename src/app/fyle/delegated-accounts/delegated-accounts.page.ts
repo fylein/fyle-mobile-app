@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin, from, fromEvent, throwError } from 'rxjs';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import {
   concatMap,

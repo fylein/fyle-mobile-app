@@ -6,6 +6,7 @@ import { Expense } from '../models/expense.model';
 import { ExpensesInfo } from './expenses-info.model';
 import { FileService } from './file.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
+import { OfflineService } from './offline.service';
 import * as moment from 'moment';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ProjectsService } from './projects.service';

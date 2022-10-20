@@ -9,6 +9,7 @@ import { catchError, concatMap, finalize, map, mergeMap, switchMap, tap, toArray
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { FileService } from 'src/app/core/services/file.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -23,7 +24,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
@@ -84,6 +84,7 @@ export class SplitExpensePage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
+    private offlineService: OfflineService,
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private splitExpenseService: SplitExpenseService,
@@ -100,8 +101,7 @@ export class SplitExpensePage implements OnInit {
     private policyService: PolicyService,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private orgUserSettingsService: OrgUserSettingsService,
-    private orgSettingsService: OrgSettingsService
+    private orgUserSettingsService: OrgUserSettingsService
   ) {}
 
   ngOnInit() {}
@@ -467,7 +467,7 @@ export class SplitExpensePage implements OnInit {
   ionViewWillEnter() {
     this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj);
-      const orgSettings$ = this.orgSettingsService.get();
+      const orgSettings$ = this.offlineService.getOrgSettings();
       this.splitType = this.activatedRoute.snapshot.params.splitType;
       this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields);
       this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn);
@@ -481,8 +481,8 @@ export class SplitExpensePage implements OnInit {
       this.getCategoryList();
 
       if (this.splitType === 'cost centers') {
-        const orgSettings$ = this.orgSettingsService.get();
-        const orgUserSettings$ = this.orgUserSettingsService.get();
+        const orgSettings$ = this.offlineService.getOrgSettings();
+        const orgUserSettings$ = this.offlineService.getOrgUserSettings();
         this.costCenters$ = forkJoin({
           orgSettings: orgSettings$,
           orgUserSettings: orgUserSettings$,

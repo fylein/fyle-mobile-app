@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/angular';
 import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { DeviceService } from 'src/app/core/services/device.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
@@ -50,10 +51,10 @@ export class SidemenuComponent implements OnInit {
   deviceInfo: Observable<ExtendedDeviceInfo>;
 
   constructor(
+    private offlineService: OfflineService,
     private deviceService: DeviceService,
     private routerAuthService: RouterAuthService,
     private orgUserService: OrgUserService,
-    private orgSettingsService: OrgSettingsService,
     private networkService: NetworkService,
     private sidemenuService: SidemenuService,
     private launchDarklyService: LaunchDarklyService,
@@ -101,8 +102,8 @@ export class SidemenuComponent implements OnInit {
     }
     const orgs$ = this.orgService.getOrgs();
     const currentOrg$ = this.orgService.getCurrentOrg().pipe(shareReplay(1));
-    const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
-    const orgUserSettings$ = this.orgUserSettingsService.get();
+    const orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
+    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     const delegatedAccounts$ = this.orgUserService
       .findDelegatedAccounts()
       .pipe(map((res) => this.orgUserService.excludeByStatus(res, 'DISABLED')));

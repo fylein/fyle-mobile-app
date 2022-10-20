@@ -5,6 +5,7 @@ import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -22,7 +23,6 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -82,6 +82,7 @@ export class ViewPerDiemPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private transactionService: TransactionService,
     private loaderService: LoaderService,
+    private offlineService: OfflineService,
     private customInputsService: CustomInputsService,
     private perDiemService: PerDiemService,
     private policyService: PolicyService,
@@ -92,8 +93,7 @@ export class ViewPerDiemPage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   get ExpenseView() {
@@ -190,8 +190,8 @@ export class ViewPerDiemPage implements OnInit {
       )
       .subscribe(noop);
 
-    this.orgSettingsService
-      .get()
+    this.offlineService
+      .getOrgSettings()
       .pipe(shareReplay(1))
       .subscribe((orgSettings) => {
         this.orgSettings = orgSettings;

@@ -11,6 +11,7 @@ import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advanc
 import { AuthService } from 'src/app/core/services/auth.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
@@ -26,10 +27,8 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-add-edit-advance-request',
@@ -80,6 +79,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   isCameraPreviewStarted = false;
 
   constructor(
+    private offlineService: OfflineService,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private router: Router,
@@ -94,13 +94,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private popoverController: PopoverController,
     private transactionsOutboxService: TransactionsOutboxService,
     private fileService: FileService,
-    private orgSettingsService: OrgSettingsService,
+    private currencyService: CurrencyService,
     private networkService: NetworkService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private currencyService: CurrencyService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   @HostListener('keydown')
@@ -538,8 +536,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   ionViewWillEnter() {
     this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
-    const orgSettings$ = this.orgSettingsService.get();
-    const orgUserSettings$ = this.orgUserSettingsService.get();
+    const orgSettings$ = this.offlineService.getOrgSettings();
+    const orgUserSettings$ = this.offlineService.getOrgUserSettings();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const eou$ = from(this.authService.getEou());
     this.dataUrls = [];
@@ -614,11 +612,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
     this.projects$ = this.projectsService.getAllActive();
 
-    this.isProjectsVisible$ = this.orgSettingsService.get().pipe(
+    this.isProjectsVisible$ = this.offlineService.getOrgSettings().pipe(
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
-          this.orgUserSettingsService.get().pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
+          this.offlineService
+            .getOrgUserSettings()
+            .pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
           this.projects$
         )
       ),

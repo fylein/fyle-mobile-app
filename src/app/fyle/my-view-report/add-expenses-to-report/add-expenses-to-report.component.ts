@@ -3,6 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { getCurrencySymbol } from '@angular/common';
 
 @Component({
@@ -27,7 +28,11 @@ export class AddExpensesToReportComponent implements OnInit {
 
   homeCurrency: string;
 
-  constructor(private modalController: ModalController, private currencyService: CurrencyService) {}
+  constructor(
+    private modalController: ModalController,
+    private currencyService: CurrencyService,
+    private offlineService: OfflineService
+  ) {}
 
   close() {
     this.modalController.dismiss();

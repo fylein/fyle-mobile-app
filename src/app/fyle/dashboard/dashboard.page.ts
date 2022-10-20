@@ -1,4 +1,5 @@
 import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { concat, Observable, of, Subject } from 'rxjs';
 import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetController } from '@ionic/angular';
@@ -12,8 +13,6 @@ import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { SmartlookService } from 'src/app/core/services/smartlook.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 enum DashboardState {
   home,
@@ -47,6 +46,7 @@ export class DashboardPage implements OnInit {
   taskCount = 0;
 
   constructor(
+    private offlineService: OfflineService,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
     private activatedRoute: ActivatedRoute,
@@ -54,9 +54,7 @@ export class DashboardPage implements OnInit {
     private trackingService: TrackingService,
     private actionSheetController: ActionSheetController,
     private tasksService: TasksService,
-    private smartlookService: SmartlookService,
-    private orgUserSettingsService: OrgUserSettingsService,
-    private orgSettingsService: OrgSettingsService
+    private smartlookService: SmartlookService
   ) {}
 
   get displayedTaskCount() {
@@ -100,8 +98,8 @@ export class DashboardPage implements OnInit {
       this.currentStateIndex = 0;
     }
 
-    this.orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
-    this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    this.orgUserSettings$ = this.offlineService.getOrgUserSettings().pipe(shareReplay(1));
+    this.orgSettings$ = this.offlineService.getOrgSettings().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
     this.statsComponent.init();
@@ -129,7 +127,7 @@ export class DashboardPage implements OnInit {
 
   ngOnInit() {
     const that = this;
-    that.orgSettingsService.get().subscribe((orgSettings) => {
+    that.offlineService.getOrgSettings().subscribe((orgSettings) => {
       this.setupActionSheet(orgSettings);
     });
   }

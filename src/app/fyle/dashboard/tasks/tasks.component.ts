@@ -14,6 +14,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { OfflineService } from 'src/app/core/services/offline.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -67,7 +68,8 @@ export class TasksComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private offlineService: OfflineService
   ) {}
 
   ngOnInit() {
