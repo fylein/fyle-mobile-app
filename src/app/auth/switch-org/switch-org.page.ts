@@ -168,34 +168,35 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
   }
 
+  logoutIfSingleOrg() {
+    /*
+     * Case: When a user is added to an SSO org but hasn't verified their account through the link.
+     * After showing the alert, the user will be redirected to the sign-in page since there is no other org they are a part of.
+     * If the user has more than 1 org, the user will stay on the switch org page to choose another org.
+     */
+    this.orgs$.subscribe((orgs) => {
+      if (orgs.length === 1) {
+        this.signOut();
+      }
+    });
+  }
+
   handleDismissPopup(action: string, email: string, orgId: string) {
     if (action === 'resend') {
       // If user clicks on resend Button, Resend Invite to the user and then logout if user have only one org.
       this.resendInvite(email, orgId)
         .pipe(
-          switchMap(() => this.orgs$),
           catchError((error) => {
             this.showToastNotification('Verification link could not be sent. Please try again!');
             return throwError(() => error);
           })
         )
-        .subscribe((orgs) => {
-          if (orgs.length === 1) {
-            this.signOut();
-          }
+        .subscribe(() => {
           this.showToastNotification('Verification Email Sent');
+          this.logoutIfSingleOrg();
         });
     } else {
-      /*
-       * Case: When a user is added to an SSO org but hasn't verified their account through the link.
-       * After showing the alert, the user will be redirected to the sign-in page since there is no other org they are a part of.
-       * If the user has more than 1 org, the user will stay on the switch org page to choose another org.
-       */
-      this.orgs$.subscribe((orgs) => {
-        if (orgs.length === 1) {
-          this.signOut();
-        }
-      });
+      this.logoutIfSingleOrg();
     }
   }
 
