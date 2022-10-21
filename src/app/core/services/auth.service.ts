@@ -8,7 +8,7 @@ import { forkJoin, Observable, from, iif } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { JwtHelperService } from './jwt-helper.service';
 import { Cacheable } from 'ts-cacheable';
-import { ResendEmailVerificationResponse } from '../models/resend-email-verification-response.model';
+import { ResendEmailVerification } from '../models/resend-email-verification.model';
 
 @Injectable({
   providedIn: 'root',
@@ -58,7 +58,7 @@ export class AuthService {
     );
   }
 
-  resendVerification(email: string, orgId?: string): Observable<ResendEmailVerificationResponse> {
+  resendEmailVerification(email: string, orgId?: string): Observable<ResendEmailVerification> {
     return this.apiService.post('/auth/resend_email_verification', { email, org_id: orgId });
   }
 
