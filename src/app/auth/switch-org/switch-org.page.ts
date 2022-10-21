@@ -56,6 +56,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   isIos = false;
 
+  orgs: Org[];
+
   constructor(
     private platform: Platform,
     private loaderService: LoaderService,
@@ -95,6 +97,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
     that.orgs$.subscribe((orgs) => {
+      this.orgs = orgs;
       that.cdRef.detectChanges();
     });
 
@@ -174,11 +177,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
      * After showing the alert, the user will be redirected to the sign-in page since there is no other org they are a part of.
      * If the user has more than 1 org, the user will stay on the switch org page to choose another org.
      */
-    this.orgs$.subscribe((orgs) => {
-      if (orgs.length === 1) {
-        this.signOut();
-      }
-    });
+    if (this.orgs.length === 1) {
+      this.signOut();
+    }
   }
 
   handleDismissPopup(action: string, email: string, orgId: string) {
