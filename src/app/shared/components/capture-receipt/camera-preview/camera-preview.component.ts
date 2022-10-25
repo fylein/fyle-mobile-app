@@ -163,7 +163,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     }
   }
 
-  showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
+  setupPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
     const isIos = this.platform.is('ios');
 
     const galleryPermissionName = isIos ? 'Photos' : 'Storage';
@@ -177,7 +177,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
     const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
 
-    const permissionDeniedPopover = this.popoverController.create({
+    return this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
         title,
@@ -194,8 +194,10 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
       cssClass: 'pop-up-in-center',
       backdropDismiss: false,
     });
+  }
 
-    from(permissionDeniedPopover)
+  showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
+    from(this.setupPermissionDeniedPopover(permissionType))
       .pipe(
         tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
         switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss())
