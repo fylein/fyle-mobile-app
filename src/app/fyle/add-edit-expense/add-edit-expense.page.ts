@@ -2305,10 +2305,10 @@ export class AddEditExpensePage implements OnInit {
 
   getEditExpenseObservable() {
     return this.transactionService.getETxn(this.activatedRoute.snapshot.params.id).pipe(
+      tap((etxn) => (this.isIncompleteExpense = etxn.tx.state === 'DRAFT')),
       switchMap((etxn) => {
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
-          this.isIncompleteExpense = true;
           return forkJoin({
             allCategories: this.categoriesService.getAll(),
           }).pipe(
@@ -2676,21 +2676,8 @@ export class AddEditExpensePage implements OnInit {
 
     this.paymentModes$ = this.getPaymentModes();
 
-    forkJoin({
-      paymentModes: this.paymentModes$,
-      isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
-    }).subscribe(({ paymentModes, isPaymentModeConfigurationsEnabled }) => {
-      // Hide payment mode if Unify CCC is enabled and it is a CCC expense
-      const hidePaymentModeForCCCExpense = this.isUnifyCcceExpensesSettingsEnabled && this.isCccExpense;
-
-      /*
-       * Show payment mode if payment_mode_configurations LD flag is disabled
-       * or if it is enabled and there is more than one payment mode
-       * and hidePaymentModeForCCCExpense is false
-       */
-      this.showPaymentMode =
-        (!isPaymentModeConfigurationsEnabled || paymentModes?.length > 1) && !hidePaymentModeForCCCExpense;
-    });
+    // Show payment mode if it is not a CCC expense
+    this.showPaymentMode = !this.isCccExpense;
 
     orgSettings$
       .pipe(
@@ -3878,7 +3865,11 @@ export class AddEditExpensePage implements OnInit {
 
         // If category is auto-filled and there exists extracted category, priority is given to extracted category
         const isExtractedCategoryValid = extractedData.category && extractedData.category !== 'Unspecified';
-        if ((!this.fg.controls.category.value || this.presetCategoryId) && isExtractedCategoryValid) {
+        if (
+          (!this.fg.controls.category.value || this.presetCategoryId) &&
+          !this.fg.controls.category.dirty &&
+          isExtractedCategoryValid
+        ) {
           const categoryName = extractedData.category || 'Unspecified';
           const category = filteredCategories.find((orgCategory) => orgCategory.value.fyle_category === categoryName);
           this.fg.patchValue({

@@ -246,57 +246,50 @@
                     </ng-container>
                   </ng-container>
 
-                  <ng-container *ngIf="showPaymentMode">
-                    <ng-container *ngIf="paymentModes$|async as paymentModes">
-                      <div
-                        [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
-                        class="add-edit-per-diem--internal-block"
+                  <ng-container *ngIf="paymentModes$|async as paymentModes">
+                    <div
+                      [ngClass]="{'add-edit-per-diem--internal-block__invalid': fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid}"
+                      class="add-edit-per-diem--internal-block"
+                    >
+                      <app-fy-select
+                        [enableSearch]="false"
+                        [label]="'Payment Mode'"
+                        [mandatory]="true"
+                        [mandatory]="true"
+                        [nullOption]="false"
+                        [options]="paymentModes"
+                        [selectModalHeader]="'Select Payment Mode'"
+                        [selectionElement]="paymentMode"
+                        formControlName="paymentMode"
                       >
-                        <app-fy-select
-                          [enableSearch]="false"
-                          [label]="'Payment Mode'"
-                          [mandatory]="true"
-                          [mandatory]="true"
-                          [nullOption]="false"
-                          [options]="paymentModes"
-                          [selectModalHeader]="'Select Payment Mode'"
-                          [selectionElement]="paymentMode"
-                          formControlName="paymentMode"
-                        >
-                        </app-fy-select>
-                        <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
-                          <div>
-                            <div class="add-edit-per-diem--payment-mode-header">{{label}}</div>
-                            <ng-container *ngIf="paymentMode">
-                              <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
-                                <div class="add-edit-per-diem--payment-mode-section">
-                                  {{paymentMode.advance.purpose}}
-                                </div>
-                              </ng-container>
-                              <div
-                                *ngIf="paymentMode.acc.isReimbursable"
-                                class="add-edit-per-diem--payment-mode-section"
-                              >
-                                (Reimbursable)
-                              </div>
-                              <div
-                                *ngIf="!paymentMode.acc.isReimbursable"
-                                class="add-edit-per-diem--payment-mode-section"
-                              >
-                                (Non Reimbursable)
-                              </div>
+                      </app-fy-select>
+                      <ng-template #paymentMode let-label="label" let-paymentMode="value" let-selected="selected">
+                        <div>
+                          <div class="add-edit-per-diem--payment-mode-header">{{label}}</div>
+                          <ng-container *ngIf="paymentMode">
+                            <ng-container *ngIf="paymentMode.acc.type === 'PERSONAL_ADVANCE_ACCOUNT'">
+                              <div class="add-edit-per-diem--payment-mode-section">{{paymentMode.advance.purpose}}</div>
                             </ng-container>
-                          </div>
-                          <mat-icon *ngIf="selected" class="add-edit-per-diem--check"> check </mat-icon>
-                        </ng-template>
-                      </div>
-                      <div
-                        *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
-                        class="add-edit-per-diem--error"
-                      >
-                        Please select a payment mode.
-                      </div>
-                    </ng-container>
+                            <div *ngIf="paymentMode.acc.isReimbursable" class="add-edit-per-diem--payment-mode-section">
+                              (Reimbursable)
+                            </div>
+                            <div
+                              *ngIf="!paymentMode.acc.isReimbursable"
+                              class="add-edit-per-diem--payment-mode-section"
+                            >
+                              (Non Reimbursable)
+                            </div>
+                          </ng-container>
+                        </div>
+                        <mat-icon *ngIf="selected" class="add-edit-per-diem--check"> check </mat-icon>
+                      </ng-template>
+                    </div>
+                    <div
+                      *ngIf="fg.controls.paymentMode.touched && !fg.controls.paymentMode.valid"
+                      class="add-edit-per-diem--error"
+                    >
+                      Please select a payment mode.
+                    </div>
                   </ng-container>
 
                   <ng-container *ngIf="isAdvancesEnabled$">

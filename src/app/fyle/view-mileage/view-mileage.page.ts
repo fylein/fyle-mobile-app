@@ -21,8 +21,6 @@ import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
@@ -84,8 +82,6 @@ export class ViewMileagePage implements OnInit {
 
   projectFieldName: string;
 
-  showPaymentMode = true;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -100,7 +96,6 @@ export class ViewMileagePage implements OnInit {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private paymentModesService: PaymentModesService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService
   ) {}
@@ -364,18 +359,6 @@ export class ViewMileagePage implements OnInit {
     });
 
     this.updateFlag$.next(null);
-
-    if (this.view === ExpenseView.team) {
-      this.showPaymentMode = true;
-    } else {
-      this.extendedMileage$
-        .pipe(
-          switchMap((extendedMileage) =>
-            this.paymentModesService.shouldPaymentModeBeShown(extendedMileage, ExpenseType.MILEAGE)
-          )
-        )
-        .subscribe((shouldPaymentModeBeShown) => (this.showPaymentMode = shouldPaymentModeBeShown));
-    }
 
     const etxnIds =
       this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
