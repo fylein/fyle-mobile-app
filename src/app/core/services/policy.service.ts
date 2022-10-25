@@ -3,8 +3,9 @@ import { map, Observable } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
 import { IndividualExpensePolicyState } from '../models/platform/platform-individual-expense-policy-state.model';
-import { PolicyExpense } from '../models/platform/platform-policy-expense.model';
+import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { PolicyViolation } from '../models/policy-violation.model';
+import { PublicPolicyTransaction } from '../models/public-policy-transaction.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 
@@ -17,8 +18,8 @@ export class PolicyService {
     private approverPlatformApiService: ApproverPlatformApiService
   ) {}
 
-  transformTo(transaction): PolicyExpense {
-    const policyExpense: PolicyExpense = {
+  transformTo(transaction: PublicPolicyTransaction): PlatformPolicyExpense {
+    const platformPolicyExpense: PlatformPolicyExpense = {
       spent_at: transaction?.txn_dt,
       merchant: transaction?.vendor,
       foreign_currency: transaction?.orig_currency,
@@ -52,17 +53,17 @@ export class PolicyService {
       transaction?.fyle_category?.toLowerCase() === 'flight' ||
       transaction?.fyle_category?.toLowerCase() === 'airlines'
     ) {
-      policyExpense.travel_classes = [
+      platformPolicyExpense.travel_classes = [
         transaction?.flight_journey_travel_class,
         transaction?.flight_return_travel_class,
       ];
     } else if (transaction?.fyle_category?.toLowerCase() === 'bus') {
-      policyExpense.travel_classes = [transaction?.bus_travel_class];
+      platformPolicyExpense.travel_classes = [transaction?.bus_travel_class];
     } else if (transaction?.fyle_category?.toLowerCase() === 'train') {
-      policyExpense.travel_classes = [transaction?.train_travel_class];
+      platformPolicyExpense.travel_classes = [transaction?.train_travel_class];
     }
 
-    return policyExpense;
+    return platformPolicyExpense;
   }
 
   getCriticalPolicyRules(result) {
