@@ -1,4 +1,3 @@
-import { Value } from './../../core/models/v2/stats-response.model';
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
@@ -121,8 +120,6 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
-  displayValue;
-
   etxn$: Observable<any>;
 
   paymentModes$: Observable<AccountOption[]>;
@@ -226,8 +223,6 @@ export class AddEditExpensePage implements OnInit {
   isLoadingSuggestions = false;
 
   matchingCCCTransactions = [];
-
-  listofreports = [];
 
   matchedCCCTransaction;
 
@@ -354,7 +349,7 @@ export class AddEditExpensePage implements OnInit {
 
   breakfastSystemCategories: string[];
 
-  autoSubmissionReportEnabled;
+  autoSubmissionReportEnabled: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2836,8 +2831,8 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
-    this.autoSubmissionReportName$.subscribe((res) => {
-      this.autoSubmissionReportEnabled = res;
+    this.autoSubmissionReportName$.subscribe((autoSubmissionReportEnabled) => {
+      this.autoSubmissionReportEnabled = autoSubmissionReportEnabled;
     });
     this.getPolicyDetails();
     this.getDuplicateExpenses();
