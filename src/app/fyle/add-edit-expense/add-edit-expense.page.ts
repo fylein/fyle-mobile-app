@@ -105,7 +105,7 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
-import { CheckExpensePolicies } from 'src/app/core/models/platform/platform-check-expense-policy.model';
+import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 
 @Component({
@@ -2940,19 +2940,24 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn): Observable<CheckExpensePolicies> {
-    const tx = cloneDeep(etxn.tx);
+  checkPolicyViolation(etxn): Observable<ExpensePolicy> {
+    const transactionCopy = cloneDeep(etxn.tx);
     if (etxn.tx) {
-      tx.num_files = etxn.tx.num_files;
+      transactionCopy.num_files = etxn.tx.num_files;
 
       // Check for receipts uploaded from mobile
       if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-        tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
+        transactionCopy.num_files = etxn.tx.num_files + etxn.dataUrls.length;
       }
     }
 
-    tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
-    const policyExpense = this.policyService.transformTo(tx);
+    transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
+
+    // Expense creation has not moved to platform yet and since policy is moved to platform,
+    // it expects the expense object in terms of platform world. Until then, the method
+    // `transformTo` act as a bridge by translating the public expense object to platform
+    // expense.
+    const policyExpense = this.policyService.transformTo(transactionCopy);
     return this.transactionService.checkPolicy(policyExpense);
   }
 
@@ -3265,12 +3270,11 @@ export class AddEditExpensePage implements OnInit {
               return policyViolations$;
             }
           }),
-          // any is needed here because params in switchMap throws error if some type is defined on it
-          map((policyViolations: any) => [
+          map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
             this.policyService.getPolicyRules(policyViolations),
-            policyViolations && policyViolations.data && policyViolations.data.final_desired_state,
+            policyViolations?.data?.final_desired_state,
           ]),
-          switchMap(([policyViolations, policyAction]) => {
+          switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
             if (policyViolations.length > 0) {
               return throwError({
                 type: 'policyViolations',
@@ -3526,12 +3530,11 @@ export class AddEditExpensePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                // any is needed here because params in switchMap throws error if some type is defined on it
-                map((policyViolations: any) => [
+                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations && policyViolations.data && policyViolations.data.final_desired_state,
+                  policyViolations?.data?.final_desired_state,
                 ]),
-                switchMap(([policyViolations, policyAction]) => {
+                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
@@ -4187,12 +4190,11 @@ export class AddEditExpensePage implements OnInit {
                       return policyViolations$;
                     }
                   }),
-                  // any is needed here because params in switchMap throws error if some type is defined on it
-                  map((policyViolations: any) => [
+                  map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
                     this.policyService.getPolicyRules(policyViolations),
-                    policyViolations && policyViolations.data && policyViolations.data.final_desired_state,
+                    policyViolations?.data?.final_desired_state,
                   ]),
-                  switchMap(([policyViolations, policyAction]) => {
+                  switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
                     if (policyViolations.length > 0) {
                       return throwError({
                         type: 'policyViolations',
