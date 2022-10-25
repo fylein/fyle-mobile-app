@@ -26,8 +26,8 @@ import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
 import { AccountsService } from './accounts.service';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
-import { PolicyExpense } from '../models/platform/platform-policy-expense.model';
-import { CheckExpensePolicies } from '../models/platform/platform-check-expense-policy.model';
+import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model.ts';
+import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -488,46 +488,46 @@ export class TransactionService {
     return data;
   }
 
-  checkPolicy(policyExpense: PolicyExpense): Observable<CheckExpensePolicies> {
+  checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         // setting txn_dt time to T10:00:00:000 in local time zone
-        if (policyExpense.spent_at) {
-          policyExpense.spent_at.setHours(12);
-          policyExpense.spent_at.setMinutes(0);
-          policyExpense.spent_at.setSeconds(0);
-          policyExpense.spent_at.setMilliseconds(0);
-          policyExpense.spent_at = this.timezoneService.convertToUtc(
-            policyExpense.spent_at,
+        if (platformPolicyExpense.spent_at) {
+          platformPolicyExpense.spent_at.setHours(12);
+          platformPolicyExpense.spent_at.setMinutes(0);
+          platformPolicyExpense.spent_at.setSeconds(0);
+          platformPolicyExpense.spent_at.setMilliseconds(0);
+          platformPolicyExpense.spent_at = this.timezoneService.convertToUtc(
+            platformPolicyExpense.spent_at,
             orgUserSettings.locale.offset
           );
         }
 
-        if (policyExpense.started_at) {
-          policyExpense.started_at.setHours(12);
-          policyExpense.started_at.setMinutes(0);
-          policyExpense.started_at.setSeconds(0);
-          policyExpense.started_at.setMilliseconds(0);
-          policyExpense.started_at = this.timezoneService.convertToUtc(
-            policyExpense.started_at,
+        if (platformPolicyExpense.started_at) {
+          platformPolicyExpense.started_at.setHours(12);
+          platformPolicyExpense.started_at.setMinutes(0);
+          platformPolicyExpense.started_at.setSeconds(0);
+          platformPolicyExpense.started_at.setMilliseconds(0);
+          platformPolicyExpense.started_at = this.timezoneService.convertToUtc(
+            platformPolicyExpense.started_at,
             orgUserSettings.locale.offset
           );
         }
 
-        if (policyExpense.ended_at) {
-          policyExpense.ended_at.setHours(12);
-          policyExpense.ended_at.setMinutes(0);
-          policyExpense.ended_at.setSeconds(0);
-          policyExpense.ended_at.setMilliseconds(0);
-          policyExpense.ended_at = this.timezoneService.convertToUtc(
-            policyExpense.ended_at,
+        if (platformPolicyExpense.ended_at) {
+          platformPolicyExpense.ended_at.setHours(12);
+          platformPolicyExpense.ended_at.setMinutes(0);
+          platformPolicyExpense.ended_at.setSeconds(0);
+          platformPolicyExpense.ended_at.setMilliseconds(0);
+          platformPolicyExpense.ended_at = this.timezoneService.convertToUtc(
+            platformPolicyExpense.ended_at,
             orgUserSettings.locale.offset
           );
         }
         const payload = {
-          data: policyExpense,
+          data: platformPolicyExpense,
         };
-        return this.spenderPlatformApiService.post<CheckExpensePolicies>('/expenses/check_policies', payload);
+        return this.spenderPlatformApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
       })
     );
   }
