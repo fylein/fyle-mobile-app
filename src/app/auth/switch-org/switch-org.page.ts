@@ -27,6 +27,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ResendEmailVerification } from 'src/app/core/models/resend-email-verification.model';
+import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -78,7 +79,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private orgUserService: OrgUserService,
     private appVersionService: AppVersionService,
     private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService
+    private snackbarProperties: SnackbarPropertiesService,
+    private routerAuthService: RouterAuthService
   ) {}
 
   ngOnInit() {
@@ -156,7 +158,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   resendInvite(email: string, orgId: string): Observable<ResendEmailVerification> {
-    return this.authService.resendEmailVerification(email, orgId);
+    return this.routerAuthService.resendVerificationLink(email, orgId);
   }
 
   showToastNotification(msg: string) {
