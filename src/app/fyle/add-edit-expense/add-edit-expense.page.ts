@@ -1,3 +1,4 @@
+import { Value } from './../../core/models/v2/stats-response.model';
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
@@ -120,6 +121,8 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('fileUpload', { static: false }) fileUpload: any;
 
+  displayValue;
+
   etxn$: Observable<any>;
 
   paymentModes$: Observable<AccountOption[]>;
@@ -223,6 +226,8 @@ export class AddEditExpensePage implements OnInit {
   isLoadingSuggestions = false;
 
   matchingCCCTransactions = [];
+
+  listofreports = [];
 
   matchedCCCTransaction;
 
@@ -348,6 +353,8 @@ export class AddEditExpensePage implements OnInit {
   systemCategories: string[];
 
   breakfastSystemCategories: string[];
+
+  autoSubmissionReportEnabled;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -1396,12 +1403,25 @@ export class AddEditExpensePage implements OnInit {
                 .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
             )
           );
+        } else if (!this.autoSubmissionReportEnabled) {
+          return this.reports$.pipe(
+            map((reportOptions) => {
+              if (
+                reportOptions.length === 1 &&
+                reportOptions[0].value.rp.state === 'DRAFT' &&
+                reportOptions[0].value.rp.num_transactions === 0
+              ) {
+                return reportOptions[0].value;
+              } else {
+                return of(null);
+              }
+            })
+          );
         } else {
           return of(null);
         }
       })
     );
-
     const selectedPaymentMode$ = forkJoin({
       etxn: this.etxn$,
       paymentModes: this.paymentModes$,
@@ -2829,7 +2849,9 @@ export class AddEditExpensePage implements OnInit {
     });
 
     this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
-
+    this.autoSubmissionReportName$.subscribe((res) => {
+      this.autoSubmissionReportEnabled = res;
+    });
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
