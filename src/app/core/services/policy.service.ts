@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { CheckExpensePolicies } from '../models/platform/platform-check-expense-policy.model';
 import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
 import { IndividualExpensePolicyState } from '../models/platform/platform-individual-expense-policy-state.model';
 import { PolicyViolation } from '../models/policy-violation.model';
@@ -16,24 +17,24 @@ export class PolicyService {
     private approverPlatformApiService: ApproverPlatformApiService
   ) {}
 
-  getCriticalPolicyRules(result) {
+  getCriticalPolicyRules(result: CheckExpensePolicies): string[] {
     const criticalPopupRules = [];
 
-    result.transaction_policy_rule_desired_states.forEach((desiredState) => {
-      if (typeof desiredState.policy_amount === 'number' && desiredState.policy_amount < 0.0001) {
-        criticalPopupRules.push(desiredState.description);
+    result.data.individual_desired_states.forEach((desiredState) => {
+      if (typeof desiredState.amount === 'number' && desiredState.amount < 0.0001) {
+        criticalPopupRules.push(desiredState.expense_policy_rule.description);
       }
     });
 
     return criticalPopupRules;
   }
 
-  getPolicyRules(result) {
+  getPolicyRules(result: CheckExpensePolicies): string[] {
     const popupRules = [];
 
-    result.transaction_policy_rule_desired_states.forEach((desiredState) => {
-      if (desiredState.popup) {
-        popupRules.push(desiredState.description);
+    result.data.individual_desired_states.forEach((desiredState) => {
+      if (desiredState.expense_policy_rule.action_show_warning) {
+        popupRules.push(desiredState.expense_policy_rule.description);
       }
     });
 
