@@ -105,6 +105,8 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
+import { CheckExpensePolicies } from 'src/app/core/models/platform/platform-check-expense-policy.model';
+import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -2938,52 +2940,20 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn) {
-    // Prepare etxn object with just tx and ou object required for test call
-    return from(this.authService.getEou()).pipe(
-      switchMap((currentEou) => {
-        const policyETxn = {
-          tx: cloneDeep(etxn.tx),
-          ou: cloneDeep(etxn.ou),
-        };
+  checkPolicyViolation(etxn): Observable<CheckExpensePolicies> {
+    const tx = cloneDeep(etxn.tx);
+    if (etxn.tx) {
+      tx.num_files = etxn.tx.num_files;
 
-        if (!etxn.tx.id) {
-          policyETxn.ou = currentEou.ou;
-        }
-        /* Adding number of attachements and sending in test call as tx_num_files
-         * If editing an expense with receipts, check for already uploaded receipts
-         */
-        if (etxn.tx) {
-          policyETxn.tx.num_files = etxn.tx.num_files;
+      // Check for receipts uploaded from mobile
+      if (etxn.dataUrls && etxn.dataUrls.length > 0) {
+        tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
+      }
+    }
 
-          // Check for receipts uploaded from mobile
-          if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-            policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
-          }
-        }
-
-        policyETxn.tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
-
-        return this.categoriesService.getAll().pipe(
-          map((categories: any[]) => {
-            // policy engine expects org_category and sub_category fields
-            if (policyETxn.tx.org_category_id) {
-              const orgCategory = categories.find((cat) => cat.id === policyETxn.tx.org_category_id);
-              policyETxn.tx.org_category = orgCategory && orgCategory.name;
-              policyETxn.tx.sub_category = orgCategory && orgCategory.sub_category;
-            } else {
-              policyETxn.tx.org_category_id = null;
-              policyETxn.tx.sub_category = null;
-              policyETxn.tx.org_category = null;
-            }
-
-            // Flatten the etxn obj
-            return this.dataTransformService.etxnRaw(policyETxn);
-          })
-        );
-      }),
-      switchMap((policyETxn) => this.transactionService.testPolicy(policyETxn))
-    );
+    tx.is_matching_ccc_expense = !!this.selectedCCCTransaction;
+    const policyExpense = this.policyService.transformTo(tx);
+    return this.transactionService.checkPolicy(policyExpense);
   }
 
   getCustomFields() {
@@ -3233,12 +3203,12 @@ export class AddEditExpensePage implements OnInit {
     return !!data;
   }
 
-  async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
+  async continueWithPolicyViolations(policyViolations: string[], policyAction: FinalExpensePolicyState) {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
-        policyActionDescription,
+        policyAction: policyAction,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -3295,18 +3265,17 @@ export class AddEditExpensePage implements OnInit {
               return policyViolations$;
             }
           }),
+          // any is needed here because params in switchMap throws error if some type is defined on it
           map((policyViolations: any) => [
             this.policyService.getPolicyRules(policyViolations),
-            policyViolations &&
-              policyViolations.transaction_desired_state &&
-              policyViolations.transaction_desired_state.action_description,
+            policyViolations && policyViolations.data && policyViolations.data.final_desired_state,
           ]),
-          switchMap(([policyViolations, policyActionDescription]) => {
+          switchMap(([policyViolations, policyAction]) => {
             if (policyViolations.length > 0) {
               return throwError({
                 type: 'policyViolations',
                 policyViolations,
-                policyActionDescription,
+                policyAction,
                 etxn,
               });
             } else {
@@ -3342,7 +3311,7 @@ export class AddEditExpensePage implements OnInit {
           );
         } else if (err.type === 'policyViolations') {
           return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
+            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -3557,18 +3526,17 @@ export class AddEditExpensePage implements OnInit {
                     return policyViolations$;
                   }
                 }),
+                // any is needed here because params in switchMap throws error if some type is defined on it
                 map((policyViolations: any) => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations &&
-                    policyViolations.transaction_desired_state &&
-                    policyViolations.transaction_desired_state.action_description,
+                  policyViolations && policyViolations.data && policyViolations.data.final_desired_state,
                 ]),
-                switchMap(([policyViolations, policyActionDescription]) => {
+                switchMap(([policyViolations, policyAction]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
                       policyViolations,
-                      policyActionDescription,
+                      policyAction,
                       etxn,
                     });
                   } else {
@@ -3610,7 +3578,7 @@ export class AddEditExpensePage implements OnInit {
           );
         } else if (err.type === 'policyViolations') {
           return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
+            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -4219,18 +4187,17 @@ export class AddEditExpensePage implements OnInit {
                       return policyViolations$;
                     }
                   }),
+                  // any is needed here because params in switchMap throws error if some type is defined on it
                   map((policyViolations: any) => [
                     this.policyService.getPolicyRules(policyViolations),
-                    policyViolations &&
-                      policyViolations.transaction_desired_state &&
-                      policyViolations.transaction_desired_state.action_description,
+                    policyViolations && policyViolations.data && policyViolations.data.final_desired_state,
                   ]),
-                  switchMap(([policyViolations, policyActionDescription]) => {
+                  switchMap(([policyViolations, policyAction]) => {
                     if (policyViolations.length > 0) {
                       return throwError({
                         type: 'policyViolations',
                         policyViolations,
-                        policyActionDescription,
+                        policyAction,
                         etxn,
                       });
                     } else {
@@ -4272,7 +4239,7 @@ export class AddEditExpensePage implements OnInit {
             );
           } else if (err.type === 'policyViolations') {
             return from(this.loaderService.hideLoader()).pipe(
-              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
+              switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
               switchMap((continueWithTransaction) => {
                 if (continueWithTransaction) {
                   return from(this.loaderService.showLoader()).pipe(
