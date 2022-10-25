@@ -63,7 +63,6 @@ export class FyPolicyViolationComponent implements OnInit {
 
   constructCappingAction() {
     if (this.isExpenseCapped) {
-      console.log('here in capping');
       let cappedAmountMatches = [];
       this.policyAction.run_summary.forEach((summary: string) => {
         if (summary.startsWith('expense will be capped to')) {
