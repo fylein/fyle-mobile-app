@@ -349,6 +349,8 @@ export class AddEditExpensePage implements OnInit {
 
   breakfastSystemCategories: string[];
 
+  canAutofillCategory: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1628,15 +1630,6 @@ export class AddEditExpensePage implements OnInit {
             orgUserSettings.expense_form_autofills.allowed &&
             orgUserSettings.expense_form_autofills.enabled;
 
-          // Check if recent categories exist
-          category = this.getAutofillCategory({
-            isAutofillsEnabled,
-            recentValue,
-            recentCategories,
-            etxn,
-            category,
-          });
-
           // Check if recent projects exist
           const doRecentProjectIdsExist =
             isAutofillsEnabled &&
@@ -1665,7 +1658,34 @@ export class AddEditExpensePage implements OnInit {
             if (autoFillProject) {
               project = autoFillProject;
               this.presetProjectId = project.project_id;
+
+              // Check if the recent categories are allowed for the project auto-filled
+              const isAllowedRecentCategories = recentCategories.map((category) =>
+                project.project_org_category_ids.indexOf(category.value.id) > -1 ? true : false
+              );
+
+              // Set the updated allowed recent categories
+              this.recentCategories = recentCategories.filter(
+                (category) => project.project_org_category_ids.indexOf(category.value.id) > -1
+              );
+
+              // Only if the most recent category is allowed for the auto-filled project, category field can be auto-filled
+              this.canAutofillCategory = isAllowedRecentCategories[0];
+
+              // Set the project preset value to the formGroup to trigger filtering of all allowed categories
+              this.fg.patchValue({ project });
             }
+          }
+
+          if (this.canAutofillCategory) {
+            // Check if recent categories exist
+            category = this.getAutofillCategory({
+              isAutofillsEnabled,
+              recentValue,
+              recentCategories,
+              etxn,
+              category,
+            });
           }
 
           // Check if recent cost centers exist
@@ -2247,6 +2267,8 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
           return this.projectsService.getbyId(etxn.tx.project_id);
+        } else if (this.fg.controls.project?.value?.project_id) {
+          return this.projectsService.getbyId(this.fg.controls.project.value.project_id);
         } else {
           return of(null);
         }
@@ -2766,9 +2788,9 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
-    this.setupCustomFields();
-
     this.setupFormInit(allCategories$);
+
+    this.setupCustomFields();
 
     this.transactionInReport$ = this.etxn$.pipe(
       map((etxn) => ['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx.state) > -1)
