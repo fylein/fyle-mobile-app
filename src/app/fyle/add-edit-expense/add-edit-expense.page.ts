@@ -349,8 +349,6 @@ export class AddEditExpensePage implements OnInit {
 
   breakfastSystemCategories: string[];
 
-  canAutofillCategory: boolean;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1643,6 +1641,7 @@ export class AddEditExpensePage implements OnInit {
 
           this.recentCurrencies = recentCurrencies;
 
+          let canAutofillCategory: boolean;
           /* Autofill project during these cases:
            * 1. Autofills is allowed and enabled
            * 2. During add expense - When project field is empty
@@ -1661,23 +1660,23 @@ export class AddEditExpensePage implements OnInit {
 
               // Check if the recent categories are allowed for the project auto-filled
               const isAllowedRecentCategories = recentCategories.map((category) =>
-                project.project_org_category_ids.indexOf(category.value.id) > -1 ? true : false
+                project.project_org_category_ids.includes(category.value.id)
               );
 
               // Set the updated allowed recent categories
-              this.recentCategories = recentCategories.filter(
-                (category) => project.project_org_category_ids.indexOf(category.value.id) > -1
+              this.recentCategories = recentCategories.filter((category) =>
+                project.project_org_category_ids.includes(category.value.id)
               );
 
               // Only if the most recent category is allowed for the auto-filled project, category field can be auto-filled
-              this.canAutofillCategory = isAllowedRecentCategories[0];
+              canAutofillCategory = isAllowedRecentCategories[0];
 
               // Set the project preset value to the formGroup to trigger filtering of all allowed categories
               this.fg.patchValue({ project });
             }
           }
 
-          if (this.canAutofillCategory) {
+          if (canAutofillCategory) {
             // Check if recent categories exist
             category = this.getAutofillCategory({
               isAutofillsEnabled,
