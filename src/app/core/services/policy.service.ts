@@ -5,7 +5,7 @@ import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-
 import { IndividualExpensePolicyState } from '../models/platform/platform-individual-expense-policy-state.model';
 import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { PublicPolicyTransaction } from '../models/public-policy-transaction.model';
+import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
 
@@ -18,7 +18,7 @@ export class PolicyService {
     private approverPlatformApiService: ApproverPlatformApiService
   ) {}
 
-  transformTo(transaction: PublicPolicyTransaction): PlatformPolicyExpense {
+  transformTo(transaction: PublicPolicyExpense): PlatformPolicyExpense {
     const platformPolicyExpense: PlatformPolicyExpense = {
       spent_at: transaction?.txn_dt,
       merchant: transaction?.vendor,

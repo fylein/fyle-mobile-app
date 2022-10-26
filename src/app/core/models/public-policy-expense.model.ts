@@ -1,4 +1,4 @@
-export interface PublicPolicyTransaction {
+export interface PublicPolicyExpense {
   activity_details: string;
   activity_policy_pending: boolean;
   admin_amount: number;
