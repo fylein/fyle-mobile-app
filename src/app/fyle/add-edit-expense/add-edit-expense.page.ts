@@ -2830,10 +2830,6 @@ export class AddEditExpensePage implements OnInit {
         });
       }
     });
-
-    this.autoSubmissionReportName$.subscribe((autoSubmissionReportEnabled) => {
-      this.autoSubmissionReportEnabled = autoSubmissionReportEnabled;
-    });
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
