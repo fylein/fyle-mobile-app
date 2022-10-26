@@ -1813,41 +1813,17 @@ export class AddEditMileagePage implements OnInit {
   }
 
   checkPolicyViolation(etxn) {
-    // Prepare etxn object with just tx and ou object required for test call
-    this.mileageRates$.subscribe((rates) =>
-      console.log(this.getMileageByVehicleType(rates, etxn.tx.mileage_vehicle_type))
-    );
     return from(this.mileageRates$).pipe(
       switchMap((rates) => {
         const transactionCopy = cloneDeep(etxn.tx);
-
-        const policyETxn = {
-          tx: cloneDeep(etxn.tx),
-          ou: cloneDeep(etxn.ou),
-        };
-
-        if (etxn.tx) {
-          transactionCopy.num_files = etxn.tx.num_files;
-
-          // Check for receipts uploaded from mobile
-          if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-            transactionCopy.num_files = etxn.tx.num_files + etxn.dataUrls.length;
-          }
-          transactionCopy.num_files = etxn.tx.num_files;
-
-          // Check for receipts uploaded from mobile
-          if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-            transactionCopy.num_files = etxn.tx.num_files + etxn.dataUrls.length;
-          }
-        }
-
         const selectedMileageRate = this.getMileageByVehicleType(rates, etxn.tx.mileage_vehicle_type);
         transactionCopy.mileage_rate_id = selectedMileageRate.id;
 
-        // Expense creation has not moved to platform yet and since policy is moved to platform,
-        // it expects the expense object in terms of platform world. Until then, the method
-        // `transformTo` act as a bridge by translating the public expense object to platform
-        // expense.
+        /* Expense creation has not moved to platform yet and since policy is moved to platform,
+         * it expects the expense object in terms of platform world. Until then, the method
+         * `transformTo` act as a bridge by translating the public expense object to platform
+         * expense.
+         */
         const policyExpense = this.policyService.transformTo(transactionCopy);
         return this.transactionService.checkPolicy(policyExpense);
       })
