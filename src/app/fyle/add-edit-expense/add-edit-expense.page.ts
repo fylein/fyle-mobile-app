@@ -522,6 +522,15 @@ export class AddEditExpensePage implements OnInit {
               (this.fg.value.currencyObj && this.fg.value.currencyObj.amount);
           }
         }
+        if (isPaymentModeInvalid) {
+          const message =
+            'Expense greater than balance in selected Payment Mode. Please select a different Payment Mode.';
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+            panelClass: ['msb-failure-with-report-btn'],
+          });
+          this.trackingService.showToastMessage({ ToastContent: message });
+        }
         return isPaymentModeInvalid;
       })
     );
