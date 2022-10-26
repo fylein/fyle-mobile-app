@@ -19,7 +19,7 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button (click)="addExpense()">
+      <ion-button (click)="addNewExpense()">
         <ion-icon class="report-list--add-icon" src="../../../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -53,12 +53,12 @@
       </app-expense-card>
     </div>
   </div>
-  <ng-container *ngIf="!unReportedEtxns || unReportedEtxns.length === 0">
+  <ng-container *ngIf="unReportedEtxns.length === 0">
     <div class="add-expenses-to-report--zero-state-header">
       <div class="text-center">
         <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
-        <div class="view-reports--zero-state-header">Looks like this report is empty.</div>
-        <p>Click on + to add new expenses</p>
+        <div class="view-reports--zero-state-header">Looks like there are no complete/unreported expenses</div>
+        <p>Click on + to add a new expense to this report</p>
       </div>
     </div>
   </ng-container>
