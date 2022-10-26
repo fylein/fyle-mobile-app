@@ -2629,6 +2629,10 @@ export class AddEditExpensePage implements OnInit {
 
     const editExpensePipe$ = this.getEditExpenseObservable();
 
+    this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
+      shareReplay(1)
+    );
+
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
@@ -2648,10 +2652,6 @@ export class AddEditExpensePage implements OnInit {
           reduce((acc, curr) => acc.concat(curr), [])
         )
       )
-    );
-
-    this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
-      shareReplay(1)
     );
 
     this.paymentModes$ = this.getPaymentModes();
