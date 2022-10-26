@@ -584,11 +584,16 @@ export class MyViewReportPage implements OnInit {
   }
 
   async showAddExpensesToReportModal() {
+    console.log(this.activatedRoute.snapshot.params.id);
     const AddExpensesToReportModal = await this.modalController.create({
       component: AddExpensesToReportComponent,
       componentProps: {
         unReportedEtxns: this.unReportedEtxns,
+        rp_id: this.activatedRoute.snapshot.params.id,
       },
+      cssClass: 'fy-modal',
+      mode: 'ios',
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await AddExpensesToReportModal.present();

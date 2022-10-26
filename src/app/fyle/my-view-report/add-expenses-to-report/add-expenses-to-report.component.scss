@@ -21,10 +21,26 @@
     margin-left: 16px;
   }
 
+  &--container {
+    padding: 0 16px;
+    position: absolute;
+    height: 75%;
+  }
+
   &--select-all-checkbox {
     font-size: 14px;
     padding: 16px 16px;
     background-color: $pure-white;
+  }
+
+  &--zero-state-header {
+    font-size: 14px;
+    display: block;
+    margin-bottom: 16px;
+    color: $blue-black;
+    line-height: 1.5;
+    font-weight: 500;
+    margin-top: 20%;
   }
 
   &--footer {

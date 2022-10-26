@@ -301,7 +301,7 @@
 >
   <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
     <div class="view-reports--cta-container">
-      <div *ngIf="unReportedEtxns && unReportedEtxns.length > 0" class="view-reports--add-expenses-container">
+      <div class="view-reports--add-expenses-container">
         <mat-icon
           *ngIf="(canResubmitReport$ | async) || (erpt$|async)?.rp_state === 'DRAFT'"
           (click)="showAddExpensesToReportModal()"
