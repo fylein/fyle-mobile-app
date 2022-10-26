@@ -107,6 +107,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -2940,8 +2941,11 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn): Observable<ExpensePolicy> {
+  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: [] }): Observable<ExpensePolicy> {
     const transactionCopy = cloneDeep(etxn.tx);
+    /* Adding number of attachements and sending in test call as tx_num_files
+     * If editing an expense with receipts, check for already uploaded receipts
+     */
     if (etxn.tx) {
       transactionCopy.num_files = etxn.tx.num_files;
 
@@ -2953,10 +2957,11 @@ export class AddEditExpensePage implements OnInit {
 
     transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
 
-    // Expense creation has not moved to platform yet and since policy is moved to platform,
-    // it expects the expense object in terms of platform world. Until then, the method
-    // `transformTo` act as a bridge by translating the public expense object to platform
-    // expense.
+    /* Expense creation has not moved to platform yet and since policy is moved to platform,
+     * it expects the expense object in terms of platform world. Until then, the method
+     * `transformTo` act as a bridge by translating the public expense object to platform
+     * expense.
+     */
     const policyExpense = this.policyService.transformTo(transactionCopy);
     return this.transactionService.checkPolicy(policyExpense);
   }
