@@ -6,7 +6,7 @@ import { FileObject } from '../models/file_obj.model';
 import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { PublicPolicyTransaction } from '../models/public-policy-transaction.model';
+import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { CategoriesService } from './categories.service';
@@ -74,7 +74,7 @@ export class SplitExpenseService {
     );
   }
 
-  checkPolicyForTransaction(etxn: PublicPolicyTransaction): Observable<{ [transactionID: string]: PolicyViolation }> {
+  checkPolicyForTransaction(etxn: PublicPolicyExpense): Observable<{ [transactionID: string]: PolicyViolation }> {
     const policyResponse = {};
 
     /* 
@@ -194,9 +194,7 @@ export class SplitExpenseService {
     );
   }
 
-  checkPolicyForTransactions(
-    etxns: PublicPolicyTransaction[]
-  ): Observable<{ [transactionID: string]: PolicyViolation }> {
+  checkPolicyForTransactions(etxns: PublicPolicyExpense[]): Observable<{ [transactionID: string]: PolicyViolation }> {
     return from(etxns).pipe(
       concatMap((etxn) => this.checkPolicyForTransaction(etxn)),
       reduce((accumulator, violation) => {
