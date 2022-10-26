@@ -67,6 +67,7 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -1515,19 +1516,14 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn): Observable<ExpensePolicy> {
+  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: [] }): Observable<ExpensePolicy> {
     const transactionCopy = cloneDeep(etxn.tx);
-    if (etxn.tx) {
-      transactionCopy.num_files = etxn.tx.num_files;
-      if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-        transactionCopy.num_files = etxn.tx.num_files + etxn.dataUrls.length;
-      }
-    }
 
-    // Expense creation has not moved to platform yet and since policy is moved to platform,
-    // it expects the expense object in terms of platform world. Until then, the method
-    // `transformTo` act as a bridge by translating the public expense object to platform
-    // expense.
+    /* Expense creation has not moved to platform yet and since policy is moved to platform,
+     * it expects the expense object in terms of platform world. Until then, the method
+     * `transformTo` act as a bridge by translating the public expense object to platform
+     * expense.
+     */
     const policyExpense = this.policyService.transformTo(transactionCopy);
     return this.transactionService.checkPolicy(policyExpense);
   }
