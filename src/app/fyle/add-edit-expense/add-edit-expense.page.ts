@@ -1382,8 +1382,11 @@ export class AddEditExpensePage implements OnInit {
         )
       )
     );
-    const selectedReport$ = this.etxn$.pipe(
-      switchMap((etxn) => {
+    const selectedReport$ = forkJoin({
+      autoSubmissionReportName: this.autoSubmissionReportName$,
+      etxn: this.etxn$,
+    }).pipe(
+      switchMap(({ autoSubmissionReportName, etxn }) => {
         if (etxn.tx.report_id) {
           return this.reports$.pipe(
             map((reportOptions) =>
@@ -1398,14 +1401,10 @@ export class AddEditExpensePage implements OnInit {
                 .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
             )
           );
-        } else if (!this.autoSubmissionReportEnabled) {
+        } else if (!autoSubmissionReportName) {
           return this.reports$.pipe(
             map((reportOptions) => {
-              if (
-                reportOptions.length === 1 &&
-                reportOptions[0].value.rp.state === 'DRAFT' &&
-                reportOptions[0].value.rp.num_transactions === 0
-              ) {
+              if (reportOptions.length === 1 && reportOptions[0].value.rp.state === 'DRAFT') {
                 return reportOptions[0].value;
               } else {
                 return of(null);
@@ -1417,6 +1416,7 @@ export class AddEditExpensePage implements OnInit {
         }
       })
     );
+
     const selectedPaymentMode$ = forkJoin({
       etxn: this.etxn$,
       paymentModes: this.paymentModes$,
@@ -2482,6 +2482,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
@@ -2830,7 +2831,6 @@ export class AddEditExpensePage implements OnInit {
       }
     });
 
-    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
     this.autoSubmissionReportName$.subscribe((autoSubmissionReportEnabled) => {
       this.autoSubmissionReportEnabled = autoSubmissionReportEnabled;
     });
