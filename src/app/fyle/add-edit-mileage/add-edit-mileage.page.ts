@@ -68,6 +68,7 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -1812,7 +1813,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn) {
+  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: [] }): Observable<ExpensePolicy> {
     return from(this.mileageRates$).pipe(
       switchMap((rates) => {
         const transactionCopy = cloneDeep(etxn.tx);
