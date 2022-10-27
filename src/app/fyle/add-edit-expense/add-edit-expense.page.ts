@@ -349,8 +349,6 @@ export class AddEditExpensePage implements OnInit {
 
   breakfastSystemCategories: string[];
 
-  autoSubmissionReportEnabled: string;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
