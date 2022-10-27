@@ -7,12 +7,12 @@ export interface IndividualExpensePolicyState {
   // In check policies call, the object key is returned with different name than in expense_policies_states call
   expense_policy_rule?: {
     id: string;
-    description: number;
+    description: string;
     action_show_warning: boolean;
   };
   rule?: {
     id: string;
-    description: number;
+    description: string;
     action_show_warning: boolean;
   };
   amount: number;
