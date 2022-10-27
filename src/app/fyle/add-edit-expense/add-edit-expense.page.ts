@@ -1805,12 +1805,12 @@ export class AddEditExpensePage implements OnInit {
 
     const isCategoryEmpty = !etxn.tx.org_category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
 
-    /* Autofill category during these cases:
-     * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
-     * 2. When there exists recently used category ids to auto-fill - mandatory
-     * 3. During add expense - When category field is empty - optional
-     * 4. During edit expense - When the expense is in draft state and
-     * there is no category extracted or no category already added - optional
+    /*
+     * Autofill should be applied iff:
+     * - Autofilled is allowed and enabled for the user
+     * - The user has some recently used categories present
+     * - The transaction category is empty or 'unspecified'
+     * - The user is on creating a new expense or editing a DRAFT expense
      */
     if (doRecentOrgCategoryIdsExist && isCategoryEmpty && (!etxn.tx.id || etxn.tx.state === 'DRAFT')) {
       const autoFillCategory = recentCategories.length && recentCategories[0];
