@@ -33,14 +33,38 @@
     background-color: $pure-white;
   }
 
-  &--zero-state-header {
+  &--zero-state {
     font-size: 14px;
-    display: block;
-    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     color: $blue-black;
     line-height: 1.5;
     font-weight: 500;
-    margin-top: 20%;
+    margin: 20% 20px 16px;
+
+    &--header {
+      margin-top: 12px;
+      font-size: 18px;
+      color: $black;
+      font-weight: 500;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    &--sub-header {
+      font-size: 12px;
+      text-align: center;
+      color: $dark-grey;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: -1px;
+      &--icon {
+        height: 14px;
+        color: $dark-grey;
+      }
+    }
   }
 
   &--footer {

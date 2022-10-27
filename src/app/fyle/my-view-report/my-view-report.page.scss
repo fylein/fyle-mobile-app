@@ -287,6 +287,11 @@
     border-radius: 4px;
     height: 50px;
 
+    &__icon-container {
+      color: $brand-primary;
+      margin-bottom: -1px;
+    }
+
     &__icon {
       color: $pink-gradient;
     }
@@ -315,6 +320,11 @@
     display: flex;
     justify-content: center;
     margin-top: 12px;
+  }
+
+  &--add-more-icon-container {
+    color: $brand-primary;
+    margin-bottom: -3px;
   }
 
   &--add-more-icon {

@@ -178,7 +178,9 @@
                 Add unreported expenses
               </button>
               <div class="view-reports--add-more-container" (click)="addExpense()">
-                <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
+                <div class="view-reports--add-more-icon-container">
+                  <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
+                </div>
                 <div class="view-reports--add-more-text">Add Expenses</div>
               </div>
             </div>
@@ -302,13 +304,15 @@
   <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
     <div class="view-reports--cta-container">
       <div class="view-reports--add-expenses-container">
-        <mat-icon
-          *ngIf="(canResubmitReport$ | async) || (erpt$|async)?.rp_state === 'DRAFT'"
-          (click)="showAddExpensesToReportModal()"
-          class="view-reports--add-expenses-container__icon"
-          svgIcon="plus"
-        >
-        </mat-icon>
+        <div class="view-reports--add-expenses-container__icon_container">
+          <mat-icon
+            *ngIf="(canResubmitReport$ | async) || (erpt$|async)?.rp_state === 'DRAFT'"
+            (click)="showAddExpensesToReportModal()"
+            class="view-reports--add-expenses-container__icon"
+            svgIcon="plus"
+          >
+          </mat-icon>
+        </div>
       </div>
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
@@ -334,7 +338,9 @@
 >
   <div class="view-reports--add-expense-footer__block">
     <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">
-      <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
+      <div class="view-reports--add-more-icon-container">
+        <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
+      </div>
       <div class="view-reports--add-more-text">Add expenses to report</div>
     </div>
   </div>
