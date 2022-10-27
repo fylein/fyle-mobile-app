@@ -523,7 +523,8 @@ export class AddEditExpensePage implements OnInit {
           }
         }
         if (isPaymentModeInvalid) {
-          const message = 'Insufficient balance in the selected account. Please choose a different payment mode.';
+          const message =
+            'Expense greater than balance in selected Payment Mode. Please select a different Payment Mode.';
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
             panelClass: ['msb-failure-with-report-btn'],
@@ -1388,22 +1389,26 @@ export class AddEditExpensePage implements OnInit {
         )
       )
     );
-    const selectedReport$ = this.etxn$.pipe(
-      switchMap((etxn) => {
+    const selectedReport$ = forkJoin({
+      autoSubmissionReportName: this.autoSubmissionReportName$,
+      etxn: this.etxn$,
+      reportOptions: this.reports$,
+    }).pipe(
+      switchMap(({ autoSubmissionReportName, etxn, reportOptions }) => {
         if (etxn.tx.report_id) {
-          return this.reports$.pipe(
-            map((reportOptions) =>
-              reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
-            )
-          );
+          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
         } else if (!etxn.tx.report_id && this.activatedRoute.snapshot.params.rp_id) {
-          return this.reports$.pipe(
-            map((reportOptions) =>
-              reportOptions
-                .map((res) => res.value)
-                .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
-            )
-          );
+          return reportOptions
+            .map((res) => res.value)
+            .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id);
+        } else if (!autoSubmissionReportName) {
+          return reportOptions.map((res) => {
+            if (reportOptions.length === 1 && reportOptions[0].value.rp.state === 'DRAFT') {
+              return reportOptions[0].value;
+            } else {
+              return of(null);
+            }
+          });
         } else {
           return of(null);
         }
@@ -1636,15 +1641,6 @@ export class AddEditExpensePage implements OnInit {
             orgUserSettings.expense_form_autofills.allowed &&
             orgUserSettings.expense_form_autofills.enabled;
 
-          // Check if recent categories exist
-          category = this.getAutofillCategory({
-            isAutofillsEnabled,
-            recentValue,
-            recentCategories,
-            etxn,
-            category,
-          });
-
           // Check if recent projects exist
           const doRecentProjectIdsExist =
             isAutofillsEnabled &&
@@ -1658,6 +1654,7 @@ export class AddEditExpensePage implements OnInit {
 
           this.recentCurrencies = recentCurrencies;
 
+          let canAutofillCategory: boolean;
           /* Autofill project during these cases:
            * 1. Autofills is allowed and enabled
            * 2. During add expense - When project field is empty
@@ -1673,7 +1670,34 @@ export class AddEditExpensePage implements OnInit {
             if (autoFillProject) {
               project = autoFillProject;
               this.presetProjectId = project.project_id;
+
+              // Check if the recent categories are allowed for the project auto-filled
+              const isAllowedRecentCategories = recentCategories.map((category) =>
+                project.project_org_category_ids.includes(category.value.id)
+              );
+
+              // Set the updated allowed recent categories
+              this.recentCategories = recentCategories.filter((category) =>
+                project.project_org_category_ids.includes(category.value.id)
+              );
+
+              // Only if the most recent category is allowed for the auto-filled project, category field can be auto-filled
+              canAutofillCategory = isAllowedRecentCategories[0];
+
+              // Set the project preset value to the formGroup to trigger filtering of all allowed categories
+              this.fg.patchValue({ project });
             }
+          }
+
+          if (canAutofillCategory) {
+            // Check if recent categories exist
+            category = this.getAutofillCategory({
+              isAutofillsEnabled,
+              recentValue,
+              recentCategories,
+              etxn,
+              category,
+            });
           }
 
           // Check if recent cost centers exist
@@ -2255,6 +2279,8 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
           return this.projectsService.getbyId(etxn.tx.project_id);
+        } else if (this.fg.controls.project?.value?.project_id) {
+          return this.projectsService.getbyId(this.fg.controls.project.value.project_id);
         } else {
           return of(null);
         }
@@ -2475,6 +2501,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
@@ -2778,9 +2805,9 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
-    this.setupCustomFields();
-
     this.setupFormInit(allCategories$);
+
+    this.setupCustomFields();
 
     this.transactionInReport$ = this.etxn$.pipe(
       map((etxn) => ['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx.state) > -1)
@@ -2826,9 +2853,6 @@ export class AddEditExpensePage implements OnInit {
         });
       }
     });
-
-    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
-
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
