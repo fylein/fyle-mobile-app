@@ -1641,7 +1641,7 @@ export class AddEditExpensePage implements OnInit {
 
           this.recentCurrencies = recentCurrencies;
 
-          let canAutofillCategory: boolean;
+          let canAutofillCategory = true;
           /* Autofill project during these cases:
            * 1. Autofills is allowed and enabled
            * 2. During add expense - When project field is empty
