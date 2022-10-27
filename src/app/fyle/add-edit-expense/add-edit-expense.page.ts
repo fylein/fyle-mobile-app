@@ -1797,18 +1797,13 @@ export class AddEditExpensePage implements OnInit {
 
     let category = config.category;
 
-    const doRecentOrgCategoryIdsExist =
-      isAutofillsEnabled &&
-      recentValue &&
-      recentValue.recent_org_category_ids &&
-      recentValue.recent_org_category_ids.length > 0;
+    const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue?.recent_org_category_ids?.length;
 
-    if (recentCategories && recentCategories.length > 0) {
+    if (recentCategories?.length) {
       this.recentCategories = recentCategories;
     }
 
-    // Check if category is extracted from instaFyle/autoFyle
-    const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
+    const isCategoryEmpty = !etxn.tx.org_category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
 
     /* Autofill category during these cases:
      * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
@@ -1817,16 +1812,8 @@ export class AddEditExpensePage implements OnInit {
      * 4. During edit expense - When the expense is in draft state and
      * there is no category extracted or no category already added - optional
      */
-    if (
-      doRecentOrgCategoryIdsExist &&
-      !isCategoryExtracted &&
-      (!etxn.tx.id ||
-        (etxn.tx.id &&
-          etxn.tx.state === 'DRAFT' &&
-          (!etxn.tx.org_category_id ||
-            (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))))
-    ) {
-      const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
+    if (doRecentOrgCategoryIdsExist && isCategoryEmpty && (!etxn.tx.id || etxn.tx.state === 'DRAFT')) {
+      const autoFillCategory = recentCategories.length && recentCategories[0];
 
       if (autoFillCategory) {
         category = autoFillCategory.value;
