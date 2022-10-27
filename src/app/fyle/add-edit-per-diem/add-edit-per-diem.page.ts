@@ -408,6 +408,14 @@ export class AddEditPerDiemPage implements OnInit {
               (this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount);
           }
         }
+        if (isPaymentModeInvalid) {
+          const message = 'Insufficient balance in the selected account. Please choose a different payment mode.';
+          this.matSnackBar.openFromComponent(ToastMessageComponent, {
+            ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+            panelClass: ['msb-failure-with-report-btn'],
+          });
+          this.trackingService.showToastMessage({ ToastContent: message });
+        }
         return isPaymentModeInvalid;
       })
     );
