@@ -1307,6 +1307,7 @@ export class AddEditExpensePage implements OnInit {
             const categoryName = extractedData.category || 'unspecified';
             const category = categories.find((orgCategory) => orgCategory.name === categoryName);
             etxn.tx.org_category_id = category && category.id;
+            etxn.tx.fyle_category = category.fyle_category;
           }
         }
 
