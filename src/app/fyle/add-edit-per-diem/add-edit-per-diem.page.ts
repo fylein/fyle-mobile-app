@@ -1516,7 +1516,7 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: [] }): Observable<ExpensePolicy> {
+  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
     const transactionCopy = cloneDeep(etxn.tx);
 
     /* Expense creation has not moved to platform yet and since policy is moved to platform,

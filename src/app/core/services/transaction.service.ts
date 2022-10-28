@@ -26,7 +26,7 @@ import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
 import { AccountsService } from './accounts.service';
 import { SpenderPlatformApiService } from './spender-platform-api.service';
-import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model.ts';
+import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 
 enum FilterState {

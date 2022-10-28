@@ -1813,7 +1813,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: [] }): Observable<ExpensePolicy> {
+  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
     return from(this.mileageRates$).pipe(
       switchMap((rates) => {
         const transactionCopy = cloneDeep(etxn.tx);

@@ -2941,7 +2941,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: [] }): Observable<ExpensePolicy> {
+  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
     const transactionCopy = cloneDeep(etxn.tx);
     /* Adding number of attachements and sending in test call as tx_num_files
      * If editing an expense with receipts, check for already uploaded receipts
