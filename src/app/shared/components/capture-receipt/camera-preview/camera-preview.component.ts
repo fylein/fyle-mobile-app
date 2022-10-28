@@ -97,7 +97,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     }
   }
 
-  async stopCamera() {
+  stopCamera() {
     if (this.isCameraPreviewInitiated) {
       this.isCameraPreviewInitiated = false;
       from(CameraPreview.stop()).subscribe((_) => (this.isCameraPreviewStarted = false));
