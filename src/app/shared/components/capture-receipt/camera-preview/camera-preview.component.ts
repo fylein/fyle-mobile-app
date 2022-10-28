@@ -50,24 +50,22 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   setUpAndStartCamera() {
     if (Capacitor.getPlatform() === 'web') {
       this.startCameraPreview();
-      return;
+    } else {
+      from(Camera.requestPermissions()).subscribe((permissions) => {
+        if (permissions?.camera === 'denied') {
+          this.permissionDenied.emit('CAMERA');
+        } else if (permissions?.camera === 'prompt-with-rationale') {
+
+        /*
+         * 'prompt-with-rationale' means that the user has denied permission, but has not disabled the permission prompt.
+         * So, we can use the native dialog to ask the user for camera permission.
+         */
+          this.setUpAndStartCamera();
+        } else {
+          this.startCameraPreview();
+        }
+      });
     }
-
-    from(Camera.requestPermissions()).subscribe((permissions) => {
-      if (permissions?.camera === 'denied') {
-        return this.permissionDenied.emit('CAMERA');
-      }
-
-      /*
-       * 'prompt-with-rationale' means that the user has denied permission, but has not disabled the permission prompt.
-       * So, we can use the native dialog to ask the user for camera permission.
-       */
-      if (permissions?.camera === 'prompt-with-rationale') {
-        return this.setUpAndStartCamera();
-      }
-
-      this.startCameraPreview();
-    });
   }
 
   startCameraPreview() {
