@@ -43,9 +43,9 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   isCameraPreviewStarted = false;
 
-  flashMode: string;
+  flashMode: 'on' | 'off';
 
-  hasModeChanged = false;
+  showModeChangedMessage = false;
 
   constructor(
     private loaderService: LoaderService,
@@ -108,7 +108,8 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   getFlashModes() {
     if (Capacitor.getPlatform() !== 'web') {
       CameraPreview.getSupportedFlashModes().then((flashModes) => {
-        if (flashModes.result && flashModes.result.includes('on') && flashModes.result.includes('off')) {
+        const requiredFlashModesPresent = flashModes.result?.includes('on') && flashModes.result?.includes('off');
+        if (requiredFlashModesPresent) {
           this.flashMode = this.flashMode || 'off';
           CameraPreview.setFlashMode({ flashMode: this.flashMode });
         }
@@ -118,7 +119,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   onToggleFlashMode() {
     if (Capacitor.getPlatform() !== 'web') {
-      let nextActiveFlashMode = 'on';
+      let nextActiveFlashMode: 'on' | 'off' = 'on';
       if (this.flashMode === 'on') {
         nextActiveFlashMode = 'off';
       }
@@ -156,9 +157,9 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.isBulkMode?.previousValue !== undefined) {
-      this.hasModeChanged = true;
+      this.showModeChangedMessage = true;
       setTimeout(() => {
-        this.hasModeChanged = false;
+        this.showModeChangedMessage = false;
       }, 1000);
     }
   }
