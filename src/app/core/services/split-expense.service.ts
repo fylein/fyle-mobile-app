@@ -206,14 +206,14 @@ export class SplitExpenseService {
 
   runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<{ [transactionID: string]: PolicyViolation }> {
     if (etxns?.length > 0) {
-      const platformExpenses = [];
+      const platformExpensesList = [];
       etxns.forEach((etxn) => {
         // transformTo method requires unflattend transaction object
         const platformExpense = this.dataTransformService.unflatten(etxn).tx;
         platformExpense.num_files = fileObjs ? fileObjs.length : 0;
-        platformExpenses.push(platformExpense);
+        platformExpensesList.push(platformExpense);
       });
-      return this.checkPolicyForTransactions(platformExpenses);
+      return this.checkPolicyForTransactions(platformExpensesList);
     } else {
       return of({});
     }
