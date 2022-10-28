@@ -5,6 +5,13 @@ import { Capacitor } from '@capacitor/core';
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 
+enum CameraState {
+  STARTING,
+  RUNNING,
+  STOPPING,
+  STOPPED,
+}
+
 @Component({
   selector: 'app-camera-preview',
   templateUrl: './camera-preview.component.html',
@@ -37,15 +44,17 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   @Output() permissionDenied = new EventEmitter<'CAMERA' | 'GALLERY'>();
 
-  isCameraPreviewInitiated = false;
-
-  isCameraPreviewStarted = false;
+  cameraState: CameraState = CameraState.STOPPED;
 
   flashMode: 'on' | 'off';
 
   showModeChangedMessage = false;
 
   constructor(private loaderService: LoaderService) {}
+
+  get CameraState() {
+    return CameraState;
+  }
 
   setUpAndStartCamera() {
     if (Capacitor.getPlatform() === 'web') {
@@ -55,11 +64,10 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
         if (permissions?.camera === 'denied') {
           this.permissionDenied.emit('CAMERA');
         } else if (permissions?.camera === 'prompt-with-rationale') {
-
-        /*
-         * 'prompt-with-rationale' means that the user has denied permission, but has not disabled the permission prompt.
-         * So, we can use the native dialog to ask the user for camera permission.
-         */
+          /*
+           * 'prompt-with-rationale' means that the user has denied permission, but has not disabled the permission prompt.
+           * So, we can use the native dialog to ask the user for camera permission.
+           */
           this.setUpAndStartCamera();
         } else {
           this.startCameraPreview();
@@ -69,8 +77,8 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   startCameraPreview() {
-    if (!this.isCameraPreviewInitiated) {
-      this.isCameraPreviewInitiated = true;
+    if (this.cameraState !== CameraState.STARTING) {
+      this.cameraState = CameraState.STARTING;
       const cameraPreviewOptions: CameraPreviewOptions = {
         position: 'rear',
         toBack: true,
@@ -82,7 +90,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
       this.loaderService.showLoader();
       from(CameraPreview.start(cameraPreviewOptions)).subscribe((_) => {
-        this.isCameraPreviewStarted = true;
+        this.cameraState = CameraState.RUNNING;
         this.getFlashModes();
         this.loaderService.hideLoader();
       });
@@ -90,9 +98,9 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   stopCamera() {
-    if (this.isCameraPreviewInitiated) {
-      this.isCameraPreviewInitiated = false;
-      from(CameraPreview.stop()).subscribe((_) => (this.isCameraPreviewStarted = false));
+    if (this.cameraState !== CameraState.STOPPING) {
+      this.cameraState = CameraState.STOPPING;
+      from(CameraPreview.stop()).subscribe((_) => (this.cameraState = CameraState.STOPPED));
     }
   }
 

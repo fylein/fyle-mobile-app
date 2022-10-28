@@ -1,4 +1,4 @@
-<ion-content class="camera-preview" [ngClass]="{ 'camera-preview--active': isCameraPreviewStarted }">
+<ion-content class="camera-preview" [ngClass]="{ 'camera-preview--active': cameraState === CameraState.RUNNING }">
   <div id="cameraPreview"></div>
   <div *ngIf="showModeChangedMessage" class="camera-preview__flash-msg text-center">
     <div class="camera-preview__flash-msg__content">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode' }}</div>
