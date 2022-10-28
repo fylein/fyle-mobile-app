@@ -90,12 +90,18 @@
 
   &--add-more-icon-container {
     color: $brand-primary !important;
+    svg {
+      fill: $brand-primary !important;
+    }
   }
 
   &--add-more-icon {
     font-size: 20px;
     height: 20px;
     width: 20px;
+    svg {
+      fill: $brand-primary !important;
+    }
   }
 
   &--add-more-text {
