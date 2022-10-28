@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild } from '@angular/core';
 import { CameraPreview, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Camera } from '@capacitor/camera';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -10,13 +10,14 @@ import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
+import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 
 type Image = Partial<{
   source: string;
@@ -73,7 +74,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private popoverController: PopoverController,
     private loaderService: LoaderService,
     private orgService: OrgService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private platform: Platform
   ) {}
 
   setupNetworkWatcher() {
@@ -356,6 +358,56 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  setupPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
+    const isIos = this.platform.is('ios');
+
+    const galleryPermissionName = isIos ? 'Photos' : 'Storage';
+    let title = 'Camera Permission';
+    if (permissionType === 'GALLERY') {
+      title = galleryPermissionName + ' Permission';
+    }
+
+    const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Settings and allow access to Camera and ${galleryPermissionName}`;
+    const galleryPermissionMessage = `Please allow Fyle to access device photos. Click Settings and allow ${galleryPermissionName} access`;
+
+    const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
+
+    return this.popoverController.create({
+      component: PopupAlertComponentComponent,
+      componentProps: {
+        title,
+        message,
+        primaryCta: {
+          text: 'Open Settings',
+          action: 'OPEN_SETTINGS',
+        },
+        secondaryCta: {
+          text: 'Cancel',
+          action: 'CANCEL',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+      backdropDismiss: false,
+    });
+  }
+
+  showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
+    from(this.setupPermissionDeniedPopover(permissionType))
+      .pipe(
+        tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
+        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss())
+      )
+      .subscribe(({ data }) => {
+        if (data?.action === 'OPEN_SETTINGS') {
+          NativeSettings.open({
+            optionAndroid: AndroidSettings.ApplicationDetails,
+            optionIOS: IOSSettings.App,
+          });
+        }
+        this.onDismissCameraPreview();
+      });
+  }
+
   onGalleryUpload() {
     this.trackingService.instafyleGalleryUploadOpened({});
 
@@ -404,7 +456,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       } else {
         from(Camera.requestPermissions({ permissions: ['photos'] })).subscribe((permissions) => {
           if (permissions?.photos === 'denied') {
-            return this.cameraPreview.showPermissionDeniedPopover('GALLERY');
+            return this.showPermissionDeniedPopover('GALLERY');
           }
           this.onGalleryUpload();
         });
