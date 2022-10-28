@@ -25,6 +25,9 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
 import { AccountsService } from './accounts.service';
+import { SpenderPlatformApiService } from './spender-platform-api.service';
+import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model.ts';
+import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -58,6 +61,7 @@ export class TransactionService {
     private utilityService: UtilityService,
     private fileService: FileService,
     private policyApiService: PolicyApiService,
+    private spenderPlatformApiService: SpenderPlatformApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
@@ -482,6 +486,50 @@ export class TransactionService {
 
     data.tx_updated_at = new Date(data.tx_updated_at);
     return data;
+  }
+
+  checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
+    return this.orgUserSettingsService.get().pipe(
+      switchMap((orgUserSettings) => {
+        // setting txn_dt time to T10:00:00:000 in local time zone
+        if (platformPolicyExpense.spent_at) {
+          platformPolicyExpense.spent_at.setHours(12);
+          platformPolicyExpense.spent_at.setMinutes(0);
+          platformPolicyExpense.spent_at.setSeconds(0);
+          platformPolicyExpense.spent_at.setMilliseconds(0);
+          platformPolicyExpense.spent_at = this.timezoneService.convertToUtc(
+            platformPolicyExpense.spent_at,
+            orgUserSettings.locale.offset
+          );
+        }
+
+        if (platformPolicyExpense.started_at) {
+          platformPolicyExpense.started_at.setHours(12);
+          platformPolicyExpense.started_at.setMinutes(0);
+          platformPolicyExpense.started_at.setSeconds(0);
+          platformPolicyExpense.started_at.setMilliseconds(0);
+          platformPolicyExpense.started_at = this.timezoneService.convertToUtc(
+            platformPolicyExpense.started_at,
+            orgUserSettings.locale.offset
+          );
+        }
+
+        if (platformPolicyExpense.ended_at) {
+          platformPolicyExpense.ended_at.setHours(12);
+          platformPolicyExpense.ended_at.setMinutes(0);
+          platformPolicyExpense.ended_at.setSeconds(0);
+          platformPolicyExpense.ended_at.setMilliseconds(0);
+          platformPolicyExpense.ended_at = this.timezoneService.convertToUtc(
+            platformPolicyExpense.ended_at,
+            orgUserSettings.locale.offset
+          );
+        }
+        const payload = {
+          data: platformPolicyExpense,
+        };
+        return this.spenderPlatformApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
+      })
+    );
   }
 
   testPolicy(etxn) {
