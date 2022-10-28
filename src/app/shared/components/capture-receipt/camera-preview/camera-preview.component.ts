@@ -89,7 +89,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
       };
 
       this.loaderService.showLoader();
-      CameraPreview.start(cameraPreviewOptions).then((res) => {
+      from(CameraPreview.start(cameraPreviewOptions)).subscribe((_) => {
         this.isCameraPreviewStarted = true;
         this.getFlashModes();
         this.loaderService.hideLoader();
@@ -100,14 +100,13 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   async stopCamera() {
     if (this.isCameraPreviewInitiated) {
       this.isCameraPreviewInitiated = false;
-      await CameraPreview.stop();
-      this.isCameraPreviewStarted = false;
+      from(CameraPreview.stop()).subscribe((_) => (this.isCameraPreviewStarted = false));
     }
   }
 
   getFlashModes() {
     if (Capacitor.getPlatform() !== 'web') {
-      CameraPreview.getSupportedFlashModes().then((flashModes) => {
+      from(CameraPreview.getSupportedFlashModes()).subscribe((flashModes) => {
         const requiredFlashModesPresent = flashModes.result?.includes('on') && flashModes.result?.includes('off');
         if (requiredFlashModesPresent) {
           this.flashMode = this.flashMode || 'off';
