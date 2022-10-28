@@ -1304,9 +1304,9 @@ export class AddEditExpensePage implements OnInit {
           }
 
           if (extractedData.category) {
-            const categoryName = extractedData.category || 'unspecified';
-            const category = categories.find((orgCategory) => orgCategory.name === categoryName);
-            etxn.tx.org_category_id = category && category.id;
+            const category = categories.find((orgCategory) => orgCategory.name === extractedData.category);
+            etxn.tx.org_category_id = category?.id;
+            etxn.tx.fyle_category = category?.fyle_category;
           }
         }
 
@@ -1628,15 +1628,6 @@ export class AddEditExpensePage implements OnInit {
             orgUserSettings.expense_form_autofills.allowed &&
             orgUserSettings.expense_form_autofills.enabled;
 
-          // Check if recent categories exist
-          category = this.getAutofillCategory({
-            isAutofillsEnabled,
-            recentValue,
-            recentCategories,
-            etxn,
-            category,
-          });
-
           // Check if recent projects exist
           const doRecentProjectIdsExist =
             isAutofillsEnabled &&
@@ -1650,6 +1641,7 @@ export class AddEditExpensePage implements OnInit {
 
           this.recentCurrencies = recentCurrencies;
 
+          let canAutofillCategory = true;
           /* Autofill project during these cases:
            * 1. Autofills is allowed and enabled
            * 2. During add expense - When project field is empty
@@ -1665,7 +1657,34 @@ export class AddEditExpensePage implements OnInit {
             if (autoFillProject) {
               project = autoFillProject;
               this.presetProjectId = project.project_id;
+
+              // Check if the recent categories are allowed for the project auto-filled
+              const isAllowedRecentCategories = recentCategories.map((category) =>
+                project.project_org_category_ids.includes(category.value.id)
+              );
+
+              // Set the updated allowed recent categories
+              this.recentCategories = recentCategories.filter((category) =>
+                project.project_org_category_ids.includes(category.value.id)
+              );
+
+              // Only if the most recent category is allowed for the auto-filled project, category field can be auto-filled
+              canAutofillCategory = isAllowedRecentCategories[0];
+
+              // Set the project preset value to the formGroup to trigger filtering of all allowed categories
+              this.fg.patchValue({ project });
             }
+          }
+
+          if (canAutofillCategory) {
+            // Check if recent categories exist
+            category = this.getAutofillCategory({
+              isAutofillsEnabled,
+              recentValue,
+              recentCategories,
+              etxn,
+              category,
+            });
           }
 
           // Check if recent cost centers exist
@@ -1778,36 +1797,23 @@ export class AddEditExpensePage implements OnInit {
 
     let category = config.category;
 
-    const doRecentOrgCategoryIdsExist =
-      isAutofillsEnabled &&
-      recentValue &&
-      recentValue.recent_org_category_ids &&
-      recentValue.recent_org_category_ids.length > 0;
+    const doRecentOrgCategoryIdsExist = isAutofillsEnabled && recentValue?.recent_org_category_ids?.length;
 
-    if (recentCategories && recentCategories.length > 0) {
+    if (recentCategories?.length) {
       this.recentCategories = recentCategories;
     }
 
-    // Check if category is extracted from instaFyle/autoFyle
-    const isCategoryExtracted = etxn.tx && etxn.tx.extracted_data && etxn.tx.extracted_data.category;
+    const isCategoryEmpty = !etxn.tx.org_category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
 
-    /* Autofill category during these cases:
-     * 1. vm.canAutofill - Autofills is allowed and enabled - mandatory
-     * 2. When there exists recently used category ids to auto-fill - mandatory
-     * 3. During add expense - When category field is empty - optional
-     * 4. During edit expense - When the expense is in draft state and
-     * there is no category extracted or no category already added - optional
+    /*
+     * Autofill should be applied iff:
+     * - Autofilled is allowed and enabled for the user
+     * - The user has some recently used categories present
+     * - The transaction category is empty or 'unspecified'
+     * - The user is on creating a new expense or editing a DRAFT expense
      */
-    if (
-      doRecentOrgCategoryIdsExist &&
-      !isCategoryExtracted &&
-      (!etxn.tx.id ||
-        (etxn.tx.id &&
-          etxn.tx.state === 'DRAFT' &&
-          (!etxn.tx.org_category_id ||
-            (etxn.tx.fyle_category && etxn.tx.fyle_category.toLowerCase() === 'unspecified'))))
-    ) {
-      const autoFillCategory = recentCategories && recentCategories.length > 0 && recentCategories[0];
+    if (doRecentOrgCategoryIdsExist && isCategoryEmpty && (!etxn.tx.id || etxn.tx.state === 'DRAFT')) {
+      const autoFillCategory = recentCategories.length && recentCategories[0];
 
       if (autoFillCategory) {
         category = autoFillCategory.value;
@@ -2247,6 +2253,8 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
           return this.projectsService.getbyId(etxn.tx.project_id);
+        } else if (this.fg.controls.project?.value?.project_id) {
+          return this.projectsService.getbyId(this.fg.controls.project.value.project_id);
         } else {
           return of(null);
         }
@@ -2509,6 +2517,20 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
+    this.taxGroups$ = orgSettings$.pipe(
+      switchMap((orgSettings) => {
+        if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
+          return this.taxGroupService.get().pipe(shareReplay(1));
+        } else {
+          return of(null);
+        }
+      })
+    );
+
+    this.taxGroupsOptions$ = this.taxGroups$.pipe(
+      map((taxGroupsOptions) => taxGroupsOptions?.map((tg) => ({ label: tg.name, value: tg })))
+    );
+
     orgSettings$.subscribe((orgSettings) => {
       this.isUnifyCcceExpensesSettingsEnabled =
         orgSettings.unify_ccce_expenses_settings &&
@@ -2522,16 +2544,6 @@ export class AddEditExpensePage implements OnInit {
         orgSettings.ccc_draft_expense_settings &&
         orgSettings.ccc_draft_expense_settings.allowed &&
         orgSettings.ccc_draft_expense_settings.enabled;
-
-      if (orgSettings && orgSettings.tax_settings && orgSettings.tax_settings.enabled) {
-        this.taxGroups$ = this.taxGroupService.get().pipe(shareReplay(1));
-        this.taxGroupsOptions$ = this.taxGroups$.pipe(
-          map((taxGroupsOptions) => taxGroupsOptions?.map((tg) => ({ label: tg.name, value: tg })))
-        );
-      } else {
-        this.taxGroups$ = of(null);
-        this.taxGroupsOptions$ = of(null);
-      }
     });
 
     this.setupNetworkWatcher();
@@ -2629,6 +2641,10 @@ export class AddEditExpensePage implements OnInit {
 
     const editExpensePipe$ = this.getEditExpenseObservable();
 
+    this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
+      shareReplay(1)
+    );
+
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
@@ -2648,10 +2664,6 @@ export class AddEditExpensePage implements OnInit {
           reduce((acc, curr) => acc.concat(curr), [])
         )
       )
-    );
-
-    this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id, editExpensePipe$, newExpensePipe$).pipe(
-      shareReplay(1)
     );
 
     this.paymentModes$ = this.getPaymentModes();
@@ -2766,9 +2778,9 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
-    this.setupCustomFields();
-
     this.setupFormInit(allCategories$);
+
+    this.setupCustomFields();
 
     this.transactionInReport$ = this.etxn$.pipe(
       map((etxn) => ['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx.state) > -1)
