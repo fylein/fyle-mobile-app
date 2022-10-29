@@ -1393,11 +1393,11 @@ export class AddEditExpensePage implements OnInit {
             .map((res) => res.value)
             .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id);
         } else if (!autoSubmissionReportName) {
-          return reportOptions.map((res) => {
-            if (res.length === 1 && res[0].value.rp.state === 'DRAFT') {
-              return res[0].value;
+          return reportOptions.map((res: any) => {
+            if (reportOptions.length === 1 && reportOptions[0].value.rp.state === 'DRAFT') {
+              return reportOptions[0].value;
             } else {
-              return of(null);
+              this.addToNewReport(res.id);
             }
           });
         } else {
