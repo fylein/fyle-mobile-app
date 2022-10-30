@@ -6,7 +6,7 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./fy-alert.component.scss'],
 })
 export class FyAlertComponent implements OnInit {
-  @Input() type: string;
+  @Input() type: 'information' | 'warning' | 'card';
 
   @Input() message: string;
 

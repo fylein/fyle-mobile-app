@@ -171,6 +171,7 @@ export class IconModule {
     'utility.svg',
     'warning-inverted.svg',
     'warning.svg',
+    'warning-new.svg',
     'fy-merge.svg',
   ];
 
