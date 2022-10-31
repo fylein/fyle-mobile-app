@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild, Inject } from '@angular/core';
 import { CameraPreview, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Camera } from '@capacitor/camera';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { IonModal, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -186,7 +186,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async onSingleCapture() {
-    const modal = await this.modalController.create({
+    const receiptPreviewModal = this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
         base64ImagesWithSource: this.base64ImagesWithSource,
@@ -194,36 +194,36 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       },
     });
 
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss();
-    if (data) {
-      if (data.base64ImagesWithSource.length === 0) {
-        this.base64ImagesWithSource = [];
-        this.setUpAndStartCamera();
-      } else {
-        if (data.continueCaptureReceipt) {
-          this.noOfReceipts = 0;
-          this.lastCapturedReceipt = null;
-          this.isBulkMode = false;
-          this.setUpAndStartCamera();
-        } else {
-          this.addPerformanceTrackers();
-          this.loaderService.showLoader();
-          if (this.isModal) {
-            await modal.onDidDismiss();
-            setTimeout(() => {
-              this.modalController.dismiss({
-                dataUrl: this.base64ImagesWithSource[0]?.base64Image,
-              });
-            }, 0);
+    from(receiptPreviewModal)
+      .pipe(
+        tap((receiptPreviewModal) => receiptPreviewModal.present()),
+        switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss())
+      )
+      .subscribe(({ data }) => {
+        if (data) {
+          if (data.base64ImagesWithSource.length === 0 || data.continueCaptureReceipt) {
+            this.base64ImagesWithSource = [];
+            this.setUpAndStartCamera();
           } else {
-            this.saveSingleCapture();
+            this.addPerformanceTrackers();
+            this.loaderService.showLoader();
+            if (this.isModal) {
+              from(receiptPreviewModal)
+                .pipe(switchMap((receiptPreviewModal) => receiptPreviewModal.onDidDismiss()))
+                .subscribe((_) => {
+                  setTimeout(() => {
+                    this.modalController.dismiss({
+                      dataUrl: this.base64ImagesWithSource[0]?.base64Image,
+                    });
+                  }, 0);
+                });
+            } else {
+              this.saveSingleCapture();
+            }
+            this.loaderService.hideLoader();
           }
-          this.loaderService.hideLoader();
         }
-      }
-    }
+      });
   }
 
   addPerformanceTrackers() {
