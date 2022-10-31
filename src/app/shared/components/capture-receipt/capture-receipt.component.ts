@@ -208,34 +208,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
-          this.orgService.getOrgs().subscribe((orgs) => {
-            const isMultiOrg = orgs.length > 1;
-
-            if (
-              performance.getEntriesByName(PerfTrackers.captureSingleReceiptTime).length < 1 &&
-              performance.getEntriesByName(PerfTrackers.appLaunchTime).length < 2
-            ) {
-              // Time taken for capturing single receipt for the first time
-              performance.mark(PerfTrackers.captureSingleReceiptTime);
-
-              // Measure total time taken from launching the app to capturing first single receipt
-              performance.measure(PerfTrackers.captureSingleReceiptTime, PerfTrackers.appLaunchStartTime);
-
-              const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
-
-              // eslint-disable-next-line @typescript-eslint/dot-notation
-              const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
-
-              // Converting the duration to seconds and fix it to 3 decimal places
-              const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
-
-              this.trackingService.captureSingleReceiptTime({
-                'Capture receipt time': launchTimeDuration,
-                'Is logged in': isLoggedIn,
-                'Is multi org': isMultiOrg,
-              });
-            }
-          });
+          this.addPerformanceTrackers();
           this.loaderService.showLoader();
           if (this.isModal) {
             await modal.onDidDismiss();
@@ -251,6 +224,37 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         }
       }
     }
+  }
+
+  addPerformanceTrackers() {
+    this.orgService.getOrgs().subscribe((orgs) => {
+      const isMultiOrg = orgs.length > 1;
+
+      if (
+        performance.getEntriesByName(PerfTrackers.captureSingleReceiptTime).length < 1 &&
+        performance.getEntriesByName(PerfTrackers.appLaunchTime).length < 2
+      ) {
+        // Time taken for capturing single receipt for the first time
+        performance.mark(PerfTrackers.captureSingleReceiptTime);
+
+        // Measure total time taken from launching the app to capturing first single receipt
+        performance.measure(PerfTrackers.captureSingleReceiptTime, PerfTrackers.appLaunchStartTime);
+
+        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
+
+        // eslint-disable-next-line @typescript-eslint/dot-notation
+        const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
+
+        // Converting the duration to seconds and fix it to 3 decimal places
+        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
+
+        this.trackingService.captureSingleReceiptTime({
+          'Capture receipt time': launchTimeDuration,
+          'Is logged in': isLoggedIn,
+          'Is multi org': isMultiOrg,
+        });
+      }
+    });
   }
 
   async openReceiptPreviewModal() {
