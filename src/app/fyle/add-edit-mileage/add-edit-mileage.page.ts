@@ -1586,6 +1586,9 @@ export class AddEditMileagePage implements OnInit {
             isPaymentModeInvalid = paymentAccount.acc.tentative_balance_amount + etxn.tx.amount < amount;
           }
         }
+        if (isPaymentModeInvalid) {
+          this.paymentModesService.showInvalidPaymentModeToast();
+        }
         return isPaymentModeInvalid;
       })
     );

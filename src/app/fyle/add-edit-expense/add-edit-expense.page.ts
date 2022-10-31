@@ -522,6 +522,9 @@ export class AddEditExpensePage implements OnInit {
               (this.fg.value.currencyObj && this.fg.value.currencyObj.amount);
           }
         }
+        if (isPaymentModeInvalid) {
+          this.paymentModesService.showInvalidPaymentModeToast();
+        }
         return isPaymentModeInvalid;
       })
     );
