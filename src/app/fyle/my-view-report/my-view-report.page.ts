@@ -156,9 +156,6 @@ export class MyViewReportPage implements OnInit {
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
       finalize(() => from(this.loaderService.hideLoader()))
     );
-
-    this.erpt$.subscribe((erpt) => console.log(erpt));
-
     const eou$ = from(this.authService.getEou());
 
     this.estatuses$ = this.refreshEstatuses$.pipe(
