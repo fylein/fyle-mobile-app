@@ -45,7 +45,8 @@
 
     &--header {
       margin-top: 12px;
-      font-size: 18px;
+      margin-bottom: 10px;
+      font-size: 20px;
       color: $black;
       font-weight: 500;
       display: flex;
@@ -53,7 +54,7 @@
       align-items: center;
     }
     &--sub-header {
-      font-size: 12px;
+      font-size: 14px;
       text-align: center;
       color: $dark-grey;
       display: flex;
