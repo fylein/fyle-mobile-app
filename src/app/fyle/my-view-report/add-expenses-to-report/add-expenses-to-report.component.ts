@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
 export class AddExpensesToReportComponent implements OnInit {
   @Input() unReportedEtxns: Expense[];
 
-  @Input() reportID: string;
+  @Input() reportId: string;
 
   homeCurrency$: Observable<string>;
 
@@ -95,7 +95,7 @@ export class AddExpensesToReportComponent implements OnInit {
   }
 
   addNewExpense() {
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.reportID }]);
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.reportId }]);
     this.modalController.dismiss();
   }
 

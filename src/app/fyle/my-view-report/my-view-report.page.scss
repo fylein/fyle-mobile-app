@@ -290,9 +290,6 @@
     &__icon_container {
       color: $brand-primary;
       margin-bottom: -1px;
-      svg {
-        fill: $brand-primary;
-      }
     }
 
     &__icon {
@@ -328,9 +325,6 @@
   &--add-more-icon-container {
     color: $brand-primary;
     margin-bottom: -3px;
-    svg {
-      fill: $brand-primary;
-    }
   }
 
   &--add-more-icon {
