@@ -185,7 +185,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  async onSingleCapture() {
+  onSingleCapture() {
     const receiptPreviewModal = this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
@@ -295,8 +295,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.noOfReceipts += 1;
   }
 
-  async showLimitMessage() {
-    const limitPopover = await this.popoverController.create({
+  showLimitReachedPopover() {
+    const limitReachedPopover = this.popoverController.create({
       component: PopupAlertComponentComponent,
       componentProps: {
         title: 'Limit Reached',
@@ -309,12 +309,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       cssClass: 'pop-up-in-center',
     });
 
-    await limitPopover.present();
+    return from(limitReachedPopover).pipe(tap((limitReachedPopover) => limitReachedPopover.present()));
   }
 
   onCaptureReceipt() {
     if (this.noOfReceipts >= 20) {
-      this.showLimitMessage();
+      this.showLimitReachedPopover().subscribe(noop);
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
         quality: 70,
