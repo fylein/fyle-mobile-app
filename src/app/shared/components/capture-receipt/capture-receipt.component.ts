@@ -1,7 +1,7 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild, Inject } from '@angular/core';
 import { CameraPreview, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Camera } from '@capacitor/camera';
-import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -18,6 +18,7 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { CameraPreviewComponent } from './camera-preview/camera-preview.component';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
+import { DEVICE_PLATFORM } from 'src/app/constants';
 
 type Image = Partial<{
   source: string;
@@ -75,7 +76,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private loaderService: LoaderService,
     private orgService: OrgService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private platform: Platform
+    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
   ) {}
 
   setupNetworkWatcher() {
@@ -359,7 +360,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   setupPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
-    const isIos = this.platform.is('ios');
+    const isIos = this.devicePlatform === 'ios';
 
     const galleryPermissionName = isIos ? 'Photos' : 'Storage';
     let title = 'Camera Permission';
