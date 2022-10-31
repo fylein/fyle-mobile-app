@@ -126,7 +126,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
       CameraPreview.setFlashMode({ flashMode: nextActiveFlashMode });
       this.flashMode = nextActiveFlashMode;
     }
-    this.toggleFlashMode.emit();
+    this.toggleFlashMode.emit(this.flashMode);
   }
 
   onGalleryUpload() {

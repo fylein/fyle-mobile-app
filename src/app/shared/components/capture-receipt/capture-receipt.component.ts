@@ -7,7 +7,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
-import { concat, from, noop, Observable } from 'rxjs';
+import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -39,25 +39,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   @Input() allowBulkFyle = true;
 
-  //isCameraPreviewInitiated denotes that a camera preview has been initiated, but may or may not have started yet.
-  isCameraPreviewInitiated = false;
-
-  //isCameraPreviewStarted tracks if the camera preview has started.
-  isCameraPreviewStarted = false;
-
   isBulkMode: boolean;
 
-  hasModeChanged = false;
-
-  captureCount = 0;
+  noOfReceipts = 0;
 
   base64ImagesWithSource: Image[];
 
-  lastImage: string;
-
-  flashMode: string;
-
-  homeCurrency: string;
+  lastCapturedReceipt: string;
 
   isInstafyleEnabled: boolean;
 
@@ -90,15 +78,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   ngOnInit() {
     this.setupNetworkWatcher();
-    this.isCameraPreviewStarted = false;
-    this.isCameraPreviewInitiated = false;
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
-    this.flashMode = null;
-    this.currencyService.getHomeCurrency().subscribe((res) => {
-      this.homeCurrency = res;
-    });
-    this.captureCount = 0;
+    this.noOfReceipts = 0;
 
     this.orgUserSettingsService.get().subscribe((orgUserSettings) => {
       this.isInstafyleEnabled =
@@ -116,15 +98,18 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   addExpenseToQueue(base64ImagesWithSource: Image, syncImmediately = false) {
     let source = base64ImagesWithSource.source;
 
-    return this.networkService.isOnline().pipe(
-      switchMap((isConnected) => {
+    return forkJoin({
+      isConnected: this.networkService.isOnline(),
+      homeCurrency: this.currencyService.getHomeCurrency(),
+    }).pipe(
+      switchMap(({ homeCurrency, isConnected }) => {
         if (!isConnected) {
           source += '_OFFLINE';
         }
         const transaction = {
           source,
           txn_dt: new Date(),
-          currency: this.homeCurrency,
+          currency: homeCurrency,
         };
 
         const attachmentUrls = [
@@ -157,9 +142,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  onToggleFlashMode() {
+  onToggleFlashMode(flashMode: 'on' | 'off') {
     this.trackingService.flashModeSet({
-      FlashMode: this.flashMode,
+      FlashMode: flashMode,
     });
   }
 
@@ -224,8 +209,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.setUpAndStartCamera();
       } else {
         if (data.continueCaptureReceipt) {
-          this.captureCount = 0;
-          this.lastImage = null;
+          this.noOfReceipts = 0;
+          this.lastCapturedReceipt = null;
           this.isBulkMode = false;
           this.setUpAndStartCamera();
         } else {
@@ -289,13 +274,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     if (data) {
       if (data.base64ImagesWithSource.length === 0) {
         this.base64ImagesWithSource = [];
-        this.captureCount = 0;
-        this.lastImage = null;
+        this.noOfReceipts = 0;
+        this.lastCapturedReceipt = null;
         this.setUpAndStartCamera();
       } else {
         if (data.continueCaptureReceipt) {
           this.base64ImagesWithSource = data.base64ImagesWithSource;
-          this.captureCount = data.base64ImagesWithSource.length;
+          this.noOfReceipts = data.base64ImagesWithSource.length;
           this.isBulkMode = true;
           this.setUpAndStartCamera();
         } else {
@@ -311,7 +296,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   onBulkCapture() {
-    this.captureCount += 1;
+    this.noOfReceipts += 1;
   }
 
   async showLimitMessage() {
@@ -332,7 +317,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async onCaptureReceipt() {
-    if (this.captureCount >= 20) {
+    if (this.noOfReceipts >= 20) {
       await this.showLimitMessage();
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
@@ -341,7 +326,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
       const result = await CameraPreview.capture(cameraPreviewPictureOptions);
       const base64PictureData = 'data:image/jpeg;base64,' + result.value;
-      this.lastImage = base64PictureData;
+      this.lastCapturedReceipt = base64PictureData;
       if (!this.isBulkMode) {
         this.stopCamera();
         this.base64ImagesWithSource.push({
