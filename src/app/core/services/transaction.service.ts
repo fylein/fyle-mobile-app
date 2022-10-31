@@ -12,7 +12,6 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { PolicyApiService } from './policy-api.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
@@ -60,7 +59,6 @@ export class TransactionService {
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
     private fileService: FileService,
-    private policyApiService: PolicyApiService,
     private spenderPlatformApiService: SpenderPlatformApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
@@ -528,45 +526,6 @@ export class TransactionService {
           data: platformPolicyExpense,
         };
         return this.spenderPlatformApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
-      })
-    );
-  }
-
-  testPolicy(etxn) {
-    return this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
-        if (etxn.tx_tax) {
-          delete etxn.tx_tax;
-        }
-        // setting txn_dt time to T10:00:00:000 in local time zone
-        if (etxn.tx_txn_dt) {
-          etxn.tx_txn_dt.setHours(12);
-          etxn.tx_txn_dt.setMinutes(0);
-          etxn.tx_txn_dt.setSeconds(0);
-          etxn.tx_txn_dt.setMilliseconds(0);
-          etxn.tx_txn_dt = this.timezoneService.convertToUtc(etxn.tx_txn_dt, orgUserSettings.locale.offset);
-        }
-
-        if (etxn.tx_from_dt) {
-          etxn.tx_from_dt.setHours(12);
-          etxn.tx_from_dt.setMinutes(0);
-          etxn.tx_from_dt.setSeconds(0);
-          etxn.tx_from_dt.setMilliseconds(0);
-          etxn.tx_from_dt = this.timezoneService.convertToUtc(etxn.tx_from_dt, orgUserSettings.locale.offset);
-        }
-
-        if (etxn.tx_to_dt) {
-          etxn.tx_to_dt.setHours(12);
-          etxn.tx_to_dt.setMinutes(0);
-          etxn.tx_to_dt.setSeconds(0);
-          etxn.tx_to_dt.setMilliseconds(0);
-          etxn.tx_to_dt = this.timezoneService.convertToUtc(etxn.tx_to_dt, orgUserSettings.locale.offset);
-        }
-
-        // FYLE-6148. Don't send custom_attributes.
-        etxn.tx_custom_attributes = null;
-
-        return this.policyApiService.post('/policy/test', etxn);
       })
     );
   }

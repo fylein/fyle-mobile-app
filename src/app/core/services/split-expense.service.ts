@@ -6,9 +6,11 @@ import { FileObject } from '../models/file_obj.model';
 import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 import { PolicyViolation } from '../models/policy-violation.model';
+import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { CategoriesService } from './categories.service';
+import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
 import { PolicyService } from './policy.service';
 import { StatusService } from './status.service';
@@ -27,7 +29,8 @@ export class SplitExpenseService {
     private fileService: FileService,
     private policyService: PolicyService,
     private statusService: StatusService,
-    private categoriesService: CategoriesService
+    private categoriesService: CategoriesService,
+    private dataTransformService: DataTransformService
   ) {}
 
   linkTxnWithFiles(data) {
@@ -71,11 +74,19 @@ export class SplitExpenseService {
     );
   }
 
-  testPolicyForTransaction(etxn: Expense): Observable<{ [transactionID: string]: PolicyViolation }> {
+  checkPolicyForTransaction(etxn: PublicPolicyExpense): Observable<{ [transactionID: string]: PolicyViolation }> {
     const policyResponse = {};
-    return this.transactionService.testPolicy(etxn).pipe(
+
+    /* 
+    Expense creation has not moved to platform yet and since policy is moved to platform,
+    it expects the expense object in terms of platform world. Until then, the method
+    `transformTo` act as a bridge by translating the public expense object to platform
+    expense.
+    */
+    const platformPolicyExpense = this.policyService.transformTo(etxn);
+    return this.transactionService.checkPolicy(platformPolicyExpense).pipe(
       map((policyViolationresponse) => {
-        policyResponse[etxn.tx_id] = policyViolationresponse;
+        policyResponse[etxn.id] = policyViolationresponse;
         return policyResponse;
       })
     );
@@ -124,7 +135,7 @@ export class SplitExpenseService {
 
         formattedViolations[key] = {
           rules,
-          action: violations[key].transaction_desired_state.action_description,
+          action: violations[key].data,
           type: violations[key].type,
           name: violations[key].name,
           currency: violations[key].currency,
@@ -183,9 +194,9 @@ export class SplitExpenseService {
     );
   }
 
-  checkPolicyForTransactions(etxns: Expense[]): Observable<{ [transactionID: string]: PolicyViolation }> {
+  checkPolicyForTransactions(etxns: PublicPolicyExpense[]): Observable<{ [transactionID: string]: PolicyViolation }> {
     return from(etxns).pipe(
-      concatMap((etxn) => this.testPolicyForTransaction(etxn)),
+      concatMap((etxn) => this.checkPolicyForTransaction(etxn)),
       reduce((accumulator, violation) => {
         accumulator = { ...accumulator, ...violation };
         return accumulator;
@@ -195,10 +206,14 @@ export class SplitExpenseService {
 
   runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<{ [transactionID: string]: PolicyViolation }> {
     if (etxns?.length > 0) {
+      const platformExpensesList = [];
       etxns.forEach((etxn) => {
-        etxn.tx_num_files = fileObjs ? fileObjs.length : 0;
+        // transformTo method requires unflattend transaction object
+        const platformExpense = this.dataTransformService.unflatten(etxn).tx;
+        platformExpense.num_files = fileObjs ? fileObjs.length : 0;
+        platformExpensesList.push(platformExpense);
       });
-      return this.checkPolicyForTransactions(etxns);
+      return this.checkPolicyForTransactions(platformExpensesList);
     } else {
       return of({});
     }
