@@ -1587,7 +1587,7 @@ export class AddEditMileagePage implements OnInit {
           }
         }
         if (isPaymentModeInvalid) {
-          this.paymentModesService.showInvalidPaymentMode();
+          this.paymentModesService.showInvalidPaymentModeToast();
         }
         return isPaymentModeInvalid;
       })

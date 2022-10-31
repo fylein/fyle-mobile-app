@@ -409,7 +409,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         }
         if (isPaymentModeInvalid) {
-          this.paymentModesService.showInvalidPaymentMode();
+          this.paymentModesService.showInvalidPaymentModeToast();
         }
         return isPaymentModeInvalid;
       })

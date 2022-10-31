@@ -83,7 +83,7 @@ export class PaymentModesService {
     );
   }
 
-  showInvalidPaymentMode() {
+  showInvalidPaymentModeToast() {
     const message = 'Insufficient balance in the selected account. Please choose a different payment mode.';
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
