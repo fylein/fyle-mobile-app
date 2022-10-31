@@ -523,12 +523,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
         if (isPaymentModeInvalid) {
-          const message = 'Insufficient balance in the selected account. Please choose a different payment mode.';
-          this.matSnackBar.openFromComponent(ToastMessageComponent, {
-            ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
-            panelClass: ['msb-failure-with-report-btn'],
-          });
-          this.trackingService.showToastMessage({ ToastContent: message });
+          this.paymentModesService.showInvalidPaymentMode();
         }
         return isPaymentModeInvalid;
       })
