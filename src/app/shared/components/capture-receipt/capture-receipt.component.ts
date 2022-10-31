@@ -47,7 +47,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   lastCapturedReceipt: string;
 
-  isInstafyleEnabled: boolean;
+  isInstafyleEnabled$: Observable<boolean>;
 
   isOffline$: Observable<boolean>;
 
@@ -81,11 +81,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
     this.noOfReceipts = 0;
-
-    this.orgUserSettingsService.get().subscribe((orgUserSettings) => {
-      this.isInstafyleEnabled =
-        orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled;
-    });
+    this.isInstafyleEnabled$ = this.orgUserSettingsService
+      .get()
+      .pipe(
+        map(
+          (orgUserSettings) =>
+            orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
+        )
+      );
   }
 
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
@@ -99,11 +102,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     let source = base64ImagesWithSource.source;
 
     return forkJoin({
-      isConnected: this.networkService.isOnline(),
+      isOffline: this.isOffline$,
       homeCurrency: this.currencyService.getHomeCurrency(),
+      isInstafyleEnabled: this.isInstafyleEnabled$,
     }).pipe(
-      switchMap(({ homeCurrency, isConnected }) => {
-        if (!isConnected) {
+      switchMap(({ homeCurrency, isOffline, isInstafyleEnabled }) => {
+        if (isOffline) {
           source += '_OFFLINE';
         }
         const transaction = {
@@ -120,13 +124,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           },
         ];
         if (!syncImmediately) {
-          return this.transactionsOutboxService.addEntry(
-            transaction,
-            attachmentUrls,
-            null,
-            null,
-            this.isInstafyleEnabled
-          );
+          return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, isInstafyleEnabled);
         } else {
           return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
         }
@@ -168,22 +166,22 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   navigateToExpenseForm() {
-    this.router.navigate([
-      '/',
-      'enterprise',
-      'add_edit_expense',
-      {
-        dataUrl: this.base64ImagesWithSource[0]?.base64Image,
-        canExtractData: this.isInstafyleEnabled,
-      },
-    ]);
+    this.isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
+      this.router.navigate([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        {
+          dataUrl: this.base64ImagesWithSource[0]?.base64Image,
+          canExtractData: isInstafyleEnabled,
+        },
+      ]);
+    });
   }
 
   saveSingleCapture() {
-    let isOnline: boolean;
-    this.networkService.isOnline().subscribe((res) => {
-      isOnline = res;
-      if (!isOnline) {
+    this.isOffline$.subscribe((isOffline) => {
+      if (isOffline) {
         this.onSingleCaptureOffline();
       } else {
         this.navigateToExpenseForm();
