@@ -408,6 +408,9 @@ export class AddEditPerDiemPage implements OnInit {
               (this.fg.controls.currencyObj.value && this.fg.controls.currencyObj.value.amount);
           }
         }
+        if (isPaymentModeInvalid) {
+          this.paymentModesService.showInvalidPaymentMode();
+        }
         return isPaymentModeInvalid;
       })
     );

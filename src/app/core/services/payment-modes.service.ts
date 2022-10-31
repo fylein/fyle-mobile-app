@@ -7,7 +7,10 @@ import { AccountType } from '../enums/account-type.enum';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 import { OrgUserSettingsService } from './org-user-settings.service';
-
+import { TrackingService } from '../../core/services/tracking.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 @Injectable({
   providedIn: 'root',
 })
@@ -15,7 +18,10 @@ export class PaymentModesService {
   constructor(
     private accountsService: AccountsService,
     private launchDarklyService: LaunchDarklyService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
+    private trackingService: TrackingService
   ) {}
 
   checkIfPaymentModeConfigurationsIsEnabled() {
@@ -75,5 +81,14 @@ export class PaymentModesService {
         return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
       })
     );
+  }
+
+  showInvalidPaymentMode() {
+    const message = 'Insufficient balance in the selected account. Please choose a different payment mode.';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
+      panelClass: ['msb-failure-with-report-btn'],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
   }
 }
