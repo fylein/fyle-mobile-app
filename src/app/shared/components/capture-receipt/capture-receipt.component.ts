@@ -275,20 +275,18 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.noOfReceipts = 0;
         this.lastCapturedReceipt = null;
         this.setUpAndStartCamera();
+      } else if (data.continueCaptureReceipt) {
+        this.base64ImagesWithSource = data.base64ImagesWithSource;
+        this.noOfReceipts = data.base64ImagesWithSource.length;
+        this.isBulkMode = true;
+        this.setUpAndStartCamera();
       } else {
-        if (data.continueCaptureReceipt) {
-          this.base64ImagesWithSource = data.base64ImagesWithSource;
-          this.noOfReceipts = data.base64ImagesWithSource.length;
-          this.isBulkMode = true;
-          this.setUpAndStartCamera();
-        } else {
-          this.loaderService.showLoader('Please wait...', 10000);
-          this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
-            .pipe(finalize(() => this.loaderService.hideLoader()))
-            .subscribe(() => {
-              this.router.navigate(['/', 'enterprise', 'my_expenses']);
-            });
-        }
+        this.loaderService.showLoader('Please wait...', 10000);
+        this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+          .pipe(finalize(() => this.loaderService.hideLoader()))
+          .subscribe(() => {
+            this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          });
       }
     }
   }
@@ -314,31 +312,32 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     await limitPopover.present();
   }
 
-  async onCaptureReceipt() {
+  onCaptureReceipt() {
     if (this.noOfReceipts >= 20) {
-      await this.showLimitMessage();
+      this.showLimitMessage();
     } else {
       const cameraPreviewPictureOptions: CameraPreviewPictureOptions = {
         quality: 70,
       };
 
-      const result = await CameraPreview.capture(cameraPreviewPictureOptions);
-      const base64PictureData = 'data:image/jpeg;base64,' + result.value;
-      this.lastCapturedReceipt = base64PictureData;
-      if (!this.isBulkMode) {
-        this.stopCamera();
-        this.base64ImagesWithSource.push({
-          source: 'MOBILE_DASHCAM_SINGLE',
-          base64Image: base64PictureData,
-        });
-        this.onSingleCapture();
-      } else {
-        this.base64ImagesWithSource.push({
-          source: 'MOBILE_DASHCAM_BULK',
-          base64Image: base64PictureData,
-        });
-        this.onBulkCapture();
-      }
+      from(CameraPreview.capture(cameraPreviewPictureOptions)).subscribe((receiptData) => {
+        const base64PictureData = 'data:image/jpeg;base64,' + receiptData.value;
+        this.lastCapturedReceipt = base64PictureData;
+        if (!this.isBulkMode) {
+          this.stopCamera();
+          this.base64ImagesWithSource.push({
+            source: 'MOBILE_DASHCAM_SINGLE',
+            base64Image: base64PictureData,
+          });
+          this.onSingleCapture();
+        } else {
+          this.base64ImagesWithSource.push({
+            source: 'MOBILE_DASHCAM_BULK',
+            base64Image: base64PictureData,
+          });
+          this.onBulkCapture();
+        }
+      });
     }
   }
 
