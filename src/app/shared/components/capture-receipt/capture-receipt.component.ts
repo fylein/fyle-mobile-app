@@ -98,7 +98,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     );
   }
 
-  addExpenseToQueue(base64ImagesWithSource: Image, syncImmediately = false) {
+  addExpenseToQueue(base64ImagesWithSource: Image) {
     let source = base64ImagesWithSource.source;
 
     return forkJoin({
@@ -123,11 +123,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             url: base64ImagesWithSource.base64Image,
           },
         ];
-        if (!syncImmediately) {
-          return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, isInstafyleEnabled);
-        } else {
-          return this.transactionsOutboxService.addEntryAndSync(transaction, attachmentUrls, null, null);
-        }
+        return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, isInstafyleEnabled);
       })
     );
   }
