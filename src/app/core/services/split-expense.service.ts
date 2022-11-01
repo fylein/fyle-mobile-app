@@ -77,7 +77,7 @@ export class SplitExpenseService {
   checkPolicyForTransaction(etxn: PublicPolicyExpense): Observable<{ [transactionID: string]: PolicyViolation }> {
     const policyResponse = {};
 
-    /* 
+    /*
     Expense creation has not moved to platform yet and since policy is moved to platform,
     it expects the expense object in terms of platform world. Until then, the method
     `transformTo` act as a bridge by translating the public expense object to platform

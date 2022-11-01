@@ -3218,7 +3218,7 @@ export class AddEditExpensePage implements OnInit {
       component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
-        policyAction: policyAction,
+        policyAction,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
