@@ -51,8 +51,6 @@ export class StatsComponent implements OnInit {
 
   isCCCStatsLoading: boolean;
 
-  cardTransactionsAndDetails$: Observable<{ totalTxns: number; totalAmount: number; cardDetails: CardAggregateStat[] }>;
-
   cardTransactionsAndDetails: CardDetail[];
 
   isUnifyCCCExpensesSettings: boolean;
@@ -158,7 +156,7 @@ export class StatsComponent implements OnInit {
         that.isCCCStatsLoading = true;
         that.initializeCCCStats();
       } else {
-        this.cardTransactionsAndDetails$ = of(null);
+        this.cardTransactionsAndDetails = [];
       }
     });
 
