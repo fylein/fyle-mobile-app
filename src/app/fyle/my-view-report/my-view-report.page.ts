@@ -588,7 +588,10 @@ export class MyViewReportPage implements OnInit {
       component: AddExpensesToReportComponent,
       componentProps: {
         unReportedEtxns: this.unReportedEtxns,
+        reportId: this.activatedRoute.snapshot.params.id,
       },
+      mode: 'ios',
+      ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await AddExpensesToReportModal.present();

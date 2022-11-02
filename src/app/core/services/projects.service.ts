@@ -70,11 +70,12 @@ export class ProjectsService {
 
   @Cacheable()
   getProjectCount(params: { categoryIds: string[] } = { categoryIds: [] }) {
+    const categoryIds = params.categoryIds?.map((categoryId) => parseInt(categoryId, 10));
     return this.getAllActive().pipe(
       map((projects) => {
         const filterdProjects = projects.filter((project) => {
-          if (params.categoryIds.length) {
-            return intersection(params.categoryIds, project.org_category_ids).length > 0;
+          if (categoryIds?.length) {
+            return intersection(categoryIds, project.org_category_ids).length > 0;
           } else {
             return true;
           }
