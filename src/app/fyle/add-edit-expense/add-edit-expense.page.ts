@@ -1397,7 +1397,7 @@ export class AddEditExpensePage implements OnInit {
             if (reportOptions.length === 1 && reportOptions[0].value.rp.state === 'DRAFT') {
               return reportOptions[0].value;
             } else {
-              this.addToNewReport(res.id);
+              return of(null);
             }
           });
         } else {
