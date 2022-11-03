@@ -257,7 +257,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  async openReceiptPreviewModal() {
+  openReceiptPreviewModal() {
     const receiptPreviewDetails$ = this.showReceiptPreview().pipe(filter((data) => !!data));
 
     receiptPreviewDetails$
