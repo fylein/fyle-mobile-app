@@ -1,3 +1,4 @@
+import { Value } from './../../core/models/v2/stats-response.model';
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
@@ -1391,7 +1392,7 @@ export class AddEditExpensePage implements OnInit {
       etxn: this.etxn$,
       reportOptions: this.reports$,
     }).pipe(
-      switchMap(({ autoSubmissionReportName, etxn, reportOptions }) => {
+      map(({ autoSubmissionReportName, etxn, reportOptions }) => {
         if (etxn.tx.report_id) {
           return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
         } else if (!etxn.tx.report_id && this.activatedRoute.snapshot.params.rp_id) {
@@ -1403,9 +1404,9 @@ export class AddEditExpensePage implements OnInit {
           reportOptions.length === 1 &&
           reportOptions[0].value.rp.state === 'DRAFT'
         ) {
-          return reportOptions.map((res) => res.value);
+          return reportOptions[0].value;
         } else {
-          return of(null);
+          return null;
         }
       })
     );
