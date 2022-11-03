@@ -1401,7 +1401,7 @@ export class AddEditExpensePage implements OnInit {
         } else if (!autoSubmissionReportName) {
           return reportOptions.map((res) => {
             if (reportOptions.length === 1 && reportOptions[0].value.rp.state === 'DRAFT') {
-              return reportOptions[0].value;
+              return of(reportOptions[0].value);
             } else {
               return null;
             }
