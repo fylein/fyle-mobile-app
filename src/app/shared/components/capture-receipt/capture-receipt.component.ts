@@ -268,11 +268,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         )
       )
       .subscribe((receiptPreviewDetails) => {
+        this.isBulkMode = true;
         this.base64ImagesWithSource = receiptPreviewDetails.base64ImagesWithSource;
         this.noOfReceipts = receiptPreviewDetails.base64ImagesWithSource.length;
-        if (this.noOfReceipts === 0) {
-          this.lastCapturedReceipt = null;
-        }
+        this.lastCapturedReceipt = this.noOfReceipts
+          ? this.base64ImagesWithSource[this.noOfReceipts - 1]?.base64Image
+          : null;
         this.setUpAndStartCamera();
       });
 
@@ -439,9 +440,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.onGalleryUpload();
       });
 
-    const receiptPreviewDetails$ = receiptsFromGallery$.pipe(
-      filter((receiptsFromGallery) => receiptsFromGallery.length > 0),
-      switchMap((receiptsFromGallery) => {
+    receiptsFromGallery$
+      .pipe(filter((receiptsFromGallery) => receiptsFromGallery.length > 0))
+      .subscribe((receiptsFromGallery) => {
         receiptsFromGallery.forEach((receiptBase64) => {
           const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
           this.base64ImagesWithSource.push({
@@ -449,29 +450,12 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
             base64Image: receiptBase64Data,
           });
         });
-
-        return this.showReceiptPreview();
-      }),
-      shareReplay(1)
-    );
+        this.openReceiptPreviewModal();
+      });
 
     receiptsFromGallery$
       .pipe(filter((receiptsFromGallery) => !receiptsFromGallery.length))
       .subscribe((_) => this.setUpAndStartCamera());
-
-    receiptPreviewDetails$
-      .pipe(
-        filter((receiptPreviewDetails) => !!receiptPreviewDetails.base64ImagesWithSource.length),
-        switchMap((_) => this.addMultipleExpensesToQueue(this.base64ImagesWithSource))
-      )
-      .subscribe((_) => this.router.navigate(['/', 'enterprise', 'my_expenses']));
-
-    receiptPreviewDetails$
-      .pipe(filter((receiptPreviewDetails) => !receiptPreviewDetails.base64ImagesWithSource.length))
-      .subscribe((_) => {
-        this.base64ImagesWithSource = [];
-        this.setUpAndStartCamera();
-      });
   }
 
   ngAfterViewInit() {
