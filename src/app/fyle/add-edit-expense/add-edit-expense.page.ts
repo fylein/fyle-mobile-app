@@ -426,6 +426,16 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
+  getIdFromParam() {
+    if (this.activatedRoute.snapshot.params.rp_id) {
+      return this.activatedRoute.snapshot.params.rp_id;
+    }
+  }
+
+  redirectToReport(reportId: string) {
+    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
+  }
+
   async showClosePopup() {
     const isAutofilled =
       this.presetCategoryId || this.presetProjectId || this.presetCostCenterId || this.presetCurrency;
@@ -971,10 +981,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ngOnInit() {
-    if (this.activatedRoute.snapshot.params.rp_id) {
-      this.reportId = this.activatedRoute.snapshot.params.rp_id;
-    }
-
+    this.reportId = this.getIdFromParam();
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
   }
