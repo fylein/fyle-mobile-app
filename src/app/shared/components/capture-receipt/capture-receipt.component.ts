@@ -176,7 +176,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   saveSingleCapture() {
-    this.isOffline$.subscribe((isOffline) => {
+    this.isOffline$.pipe(take(1)).subscribe((isOffline) => {
       if (isOffline) {
         this.onSingleCaptureOffline();
       } else {
@@ -258,7 +258,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async openReceiptPreviewModal() {
-    const receiptPreviewDetails$ = this.getReceiptPreviewDetails().pipe(filter((data) => !!data));
+    const receiptPreviewDetails$ = this.showReceiptPreview().pipe(filter((data) => !!data));
 
     receiptPreviewDetails$
       .pipe(
@@ -281,23 +281,19 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         filter(
           (receiptPreviewDetails) =>
             !receiptPreviewDetails.continueCaptureReceipt && receiptPreviewDetails.base64ImagesWithSource.length
-        )
+        ),
+        switchMap((_) => {
+          this.loaderService.showLoader('Please wait...', 10000);
+          return this.addMultipleExpensesToQueue(this.base64ImagesWithSource);
+        }),
+        finalize(() => this.loaderService.hideLoader())
       )
       .subscribe((_) => {
-        this.loaderService.showLoader('Please wait...', 10000);
-        this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
-          .pipe(
-            finalize(() => {
-              this.loaderService.hideLoader();
-            })
-          )
-          .subscribe(() => {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          });
+        this.router.navigate(['/', 'enterprise', 'my_expenses']);
       });
   }
 
-  getReceiptPreviewDetails() {
+  showReceiptPreview() {
     const receiptPreviewModal = this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
@@ -416,57 +412,66 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   onGalleryUpload() {
     this.trackingService.instafyleGalleryUploadOpened({});
 
-    this.imagePicker.hasReadPermission().then((permission) => {
-      if (permission) {
-        const options = {
+    const checkPermission$ = from(this.imagePicker.hasReadPermission()).pipe(shareReplay(1));
+
+    const receiptsFromGallery$ = checkPermission$.pipe(
+      filter((permission) => !!permission),
+      switchMap((_) => {
+        const galleryUploadOptions = {
           maximumImagesCount: 10,
           outputType: 1,
           quality: 70,
         };
-        // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
-        from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
-          if (imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String, key) => {
-              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-              this.base64ImagesWithSource.push({
-                source: 'MOBILE_DASHCAM_GALLERY',
-                base64Image: base64PictureData,
-              });
-            });
+        return from(this.imagePicker.getPictures(galleryUploadOptions));
+      }),
+      shareReplay(1)
+    );
 
-            const modal = await this.modalController.create({
-              component: ReceiptPreviewComponent,
-              componentProps: {
-                base64ImagesWithSource: this.base64ImagesWithSource,
-                mode: 'bulk',
-              },
-            });
-            await modal.present();
+    checkPermission$
+      .pipe(
+        filter((permission) => !permission),
+        switchMap((_) => from(Camera.requestPermissions({ permissions: ['photos'] })))
+      )
+      .subscribe((permissions) => {
+        if (permissions?.photos === 'denied') {
+          return this.showPermissionDeniedPopover('GALLERY');
+        }
+        this.onGalleryUpload();
+      });
 
-            const { data } = await modal.onWillDismiss();
-            if (data) {
-              if (data.base64ImagesWithSource.length === 0) {
-                this.base64ImagesWithSource = [];
-                this.setUpAndStartCamera();
-              } else {
-                this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
-                  .pipe(finalize(() => this.router.navigate(['/', 'enterprise', 'my_expenses'])))
-                  .subscribe(noop);
-              }
-            }
-          } else {
-            this.setUpAndStartCamera();
-          }
+    const receiptPreviewDetails$ = receiptsFromGallery$.pipe(
+      filter((receiptsFromGallery) => receiptsFromGallery.length > 0),
+      switchMap((receiptsFromGallery) => {
+        receiptsFromGallery.forEach((receiptBase64) => {
+          const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
+          this.base64ImagesWithSource.push({
+            source: 'MOBILE_DASHCAM_GALLERY',
+            base64Image: receiptBase64Data,
+          });
         });
-      } else {
-        from(Camera.requestPermissions({ permissions: ['photos'] })).subscribe((permissions) => {
-          if (permissions?.photos === 'denied') {
-            return this.showPermissionDeniedPopover('GALLERY');
-          }
-          this.onGalleryUpload();
-        });
-      }
-    });
+
+        return this.showReceiptPreview();
+      }),
+      shareReplay(1)
+    );
+
+    receiptsFromGallery$
+      .pipe(filter((receiptsFromGallery) => !receiptsFromGallery.length))
+      .subscribe((_) => this.setUpAndStartCamera());
+
+    receiptPreviewDetails$
+      .pipe(
+        filter((receiptPreviewDetails) => !!receiptPreviewDetails.base64ImagesWithSource.length),
+        switchMap((_) => this.addMultipleExpensesToQueue(this.base64ImagesWithSource))
+      )
+      .subscribe((_) => this.router.navigate(['/', 'enterprise', 'my_expenses']));
+
+    receiptPreviewDetails$
+      .pipe(filter((receiptPreviewDetails) => !receiptPreviewDetails.base64ImagesWithSource.length))
+      .subscribe((_) => {
+        this.base64ImagesWithSource = [];
+        this.setUpAndStartCamera();
+      });
   }
 
   ngAfterViewInit() {
