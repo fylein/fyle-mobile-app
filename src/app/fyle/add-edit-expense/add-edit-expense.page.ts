@@ -1,4 +1,3 @@
-import { Value } from './../../core/models/v2/stats-response.model';
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
