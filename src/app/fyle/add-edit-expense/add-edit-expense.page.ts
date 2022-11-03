@@ -349,6 +349,8 @@ export class AddEditExpensePage implements OnInit {
 
   breakfastSystemCategories: string[];
 
+  reportId: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -419,6 +421,16 @@ export class AddEditExpensePage implements OnInit {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
     }
+  }
+
+  getIdFromParam() {
+    if (this.activatedRoute.snapshot.params.rp_id) {
+      return this.activatedRoute.snapshot.params.rp_id;
+    }
+  }
+
+  redirectToReport(reportId: string) {
+    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
   }
 
   async showClosePopup() {
@@ -966,6 +978,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ngOnInit() {
+    this.reportId = this.getIdFromParam();
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
   }
@@ -3081,7 +3094,8 @@ export class AddEditExpensePage implements OnInit {
                 if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
                   this.addToNewReport(res.transaction.id);
                 } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                  that.goBack();
+                  this.reportId = that.fg.value.report.rp.id;
+                  // that.goBack();
                   this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
                 } else {
                   that.goBack();
@@ -3753,6 +3767,8 @@ export class AddEditExpensePage implements OnInit {
         this.saveAndNewExpenseLoader = false;
         this.saveAndNextExpenseLoader = false;
         this.saveAndPrevExpenseLoader = false;
+
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
       })
     );
   }
