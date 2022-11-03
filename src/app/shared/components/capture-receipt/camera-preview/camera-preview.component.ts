@@ -1,9 +1,9 @@
-import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges, Inject } from '@angular/core';
 import { CameraPreview, CameraPreviewOptions } from '@capacitor-community/camera-preview';
 import { Camera } from '@capacitor/camera';
-import { Capacitor } from '@capacitor/core';
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { DEVICE_PLATFORM } from 'src/app/constants';
 
 enum CameraState {
   STARTING,
@@ -50,14 +50,17 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   showModeChangedMessage = false;
 
-  constructor(private loaderService: LoaderService) {}
+  constructor(
+    private loaderService: LoaderService,
+    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
+  ) {}
 
   get CameraState() {
     return CameraState;
   }
 
   setUpAndStartCamera() {
-    if (Capacitor.getPlatform() === 'web') {
+    if (this.devicePlatform === 'web') {
       this.startCameraPreview();
     } else {
       from(Camera.requestPermissions()).subscribe((permissions) => {
@@ -105,7 +108,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   getFlashModes() {
-    if (Capacitor.getPlatform() !== 'web') {
+    if (this.devicePlatform !== 'web') {
       from(CameraPreview.getSupportedFlashModes()).subscribe((flashModes) => {
         const requiredFlashModesPresent = flashModes.result?.includes('on') && flashModes.result?.includes('off');
         if (requiredFlashModesPresent) {
@@ -117,7 +120,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   }
 
   onToggleFlashMode() {
-    if (Capacitor.getPlatform() !== 'web') {
+    if (this.devicePlatform !== 'web') {
       let nextActiveFlashMode: 'on' | 'off' = 'on';
       if (this.flashMode === 'on') {
         nextActiveFlashMode = 'off';
@@ -125,8 +128,8 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
       CameraPreview.setFlashMode({ flashMode: nextActiveFlashMode });
       this.flashMode = nextActiveFlashMode;
+      this.toggleFlashMode.emit(this.flashMode);
     }
-    this.toggleFlashMode.emit(this.flashMode);
   }
 
   onGalleryUpload() {
