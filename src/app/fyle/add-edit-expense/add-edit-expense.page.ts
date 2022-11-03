@@ -1403,7 +1403,7 @@ export class AddEditExpensePage implements OnInit {
           reportOptions.length === 1 &&
           reportOptions[0].value.rp.state === 'DRAFT'
         ) {
-          return of(reportOptions[0].value);
+          return reportOptions.map((res) => res.value);
         } else {
           return of(null);
         }
