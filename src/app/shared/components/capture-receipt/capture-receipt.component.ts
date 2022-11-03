@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild, Inject } from '@angular/core';
 import { CameraPreview, CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
 import { Camera } from '@capacitor/camera';
-import { IonModal, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -102,7 +102,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     let source = base64ImagesWithSource.source;
 
     return forkJoin({
-      isOffline: this.isOffline$,
+      isOffline: this.isOffline$.pipe(take(1)),
       homeCurrency: this.currencyService.getHomeCurrency(),
       isInstafyleEnabled: this.isInstafyleEnabled$,
     }).pipe(
@@ -201,7 +201,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       )
       .subscribe(({ data }) => {
         if (data) {
-          if (data.base64ImagesWithSource.length === 0 || data.continueCaptureReceipt) {
+          if (data.base64ImagesWithSource.length === 0) {
             this.base64ImagesWithSource = [];
             this.setUpAndStartCamera();
           } else {
@@ -258,7 +258,47 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async openReceiptPreviewModal() {
-    const modal = await this.modalController.create({
+    const receiptPreviewDetails$ = this.getReceiptPreviewDetails().pipe(filter((data) => !!data));
+
+    receiptPreviewDetails$
+      .pipe(
+        filter(
+          (receiptPreviewDetails) =>
+            receiptPreviewDetails.continueCaptureReceipt || receiptPreviewDetails.base64ImagesWithSource.length === 0
+        )
+      )
+      .subscribe((receiptPreviewDetails) => {
+        this.base64ImagesWithSource = receiptPreviewDetails.base64ImagesWithSource;
+        this.noOfReceipts = receiptPreviewDetails.base64ImagesWithSource.length;
+        if (this.noOfReceipts === 0) {
+          this.lastCapturedReceipt = null;
+        }
+        this.setUpAndStartCamera();
+      });
+
+    receiptPreviewDetails$
+      .pipe(
+        filter(
+          (receiptPreviewDetails) =>
+            !receiptPreviewDetails.continueCaptureReceipt && receiptPreviewDetails.base64ImagesWithSource.length
+        )
+      )
+      .subscribe((_) => {
+        this.loaderService.showLoader('Please wait...', 10000);
+        this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
+          .pipe(
+            finalize(() => {
+              this.loaderService.hideLoader();
+            })
+          )
+          .subscribe(() => {
+            this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          });
+      });
+  }
+
+  getReceiptPreviewDetails() {
+    const receiptPreviewModal = this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
         base64ImagesWithSource: this.base64ImagesWithSource,
@@ -266,29 +306,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       },
     });
 
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss();
-    if (data) {
-      if (data.base64ImagesWithSource.length === 0) {
-        this.base64ImagesWithSource = [];
-        this.noOfReceipts = 0;
-        this.lastCapturedReceipt = null;
-        this.setUpAndStartCamera();
-      } else if (data.continueCaptureReceipt) {
-        this.base64ImagesWithSource = data.base64ImagesWithSource;
-        this.noOfReceipts = data.base64ImagesWithSource.length;
-        this.isBulkMode = true;
-        this.setUpAndStartCamera();
-      } else {
-        this.loaderService.showLoader('Please wait...', 10000);
-        this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
-          .pipe(finalize(() => this.loaderService.hideLoader()))
-          .subscribe(() => {
-            this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          });
-      }
-    }
+    return from(receiptPreviewModal).pipe(
+      tap((receiptPreviewModal) => receiptPreviewModal.present()),
+      switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss()),
+      map((receiptPreviewDetails) => receiptPreviewDetails?.data)
+    );
   }
 
   onBulkCapture() {
