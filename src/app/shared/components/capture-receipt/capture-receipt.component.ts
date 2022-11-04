@@ -186,44 +186,48 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   onSingleCapture() {
-    const receiptPreviewModal = this.modalController.create({
-      component: ReceiptPreviewComponent,
-      componentProps: {
-        base64ImagesWithSource: this.base64ImagesWithSource,
-        mode: 'single',
-      },
-    });
+    const receiptPreviewModal = this.createReceiptPreviewModal('single');
 
-    from(receiptPreviewModal)
-      .pipe(
-        tap((receiptPreviewModal) => receiptPreviewModal.present()),
-        switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss())
-      )
-      .subscribe(({ data }) => {
-        if (data) {
-          if (data.base64ImagesWithSource.length === 0) {
-            this.base64ImagesWithSource = [];
-            this.setUpAndStartCamera();
-          } else {
-            this.addPerformanceTrackers();
-            this.loaderService.showLoader();
-            if (this.isModal) {
-              from(receiptPreviewModal)
-                .pipe(switchMap((receiptPreviewModal) => receiptPreviewModal.onDidDismiss()))
-                .subscribe((_) => {
-                  setTimeout(() => {
-                    this.modalController.dismiss({
-                      dataUrl: this.base64ImagesWithSource[0]?.base64Image,
-                    });
-                  }, 0);
-                });
-            } else {
-              this.saveSingleCapture();
-            }
-            this.loaderService.hideLoader();
-          }
-        }
+    const receiptPreviewDetails$ = from(receiptPreviewModal).pipe(
+      shareReplay(1),
+      tap((receiptPreviewModal) => receiptPreviewModal.present()),
+      switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss()),
+      map((receiptPreviewData) => receiptPreviewData?.data),
+      filter((receiptPreviewDetails) => !!receiptPreviewDetails)
+    );
+
+    receiptPreviewDetails$
+      .pipe(filter((receiptPreviewDetails) => !receiptPreviewDetails.base64ImagesWithSource.length))
+      .subscribe(() => {
+        this.base64ImagesWithSource = [];
+        this.setUpAndStartCamera();
       });
+
+    const saveReceipt$ = receiptPreviewDetails$.pipe(
+      filter((receiptPreviewDetails) => !!receiptPreviewDetails.base64ImagesWithSource.length),
+      map(() => {
+        this.addPerformanceTrackers();
+        this.loaderService.showLoader();
+        return this.isModal;
+      }),
+      shareReplay(1)
+    );
+
+    saveReceipt$
+      .pipe(
+        filter((isModal) => !!isModal),
+        switchMap(() => from(receiptPreviewModal)),
+        switchMap((receiptPreviewModal) => receiptPreviewModal.onDidDismiss())
+      )
+      .subscribe(() => {
+        setTimeout(() => {
+          this.modalController.dismiss({
+            dataUrl: this.base64ImagesWithSource[0]?.base64Image,
+          });
+        }, 0);
+      });
+
+    saveReceipt$.pipe(filter((isModal) => !isModal)).subscribe(() => this.saveSingleCapture());
   }
 
   addPerformanceTrackers() {
@@ -283,27 +287,29 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           (receiptPreviewDetails) =>
             !receiptPreviewDetails.continueCaptureReceipt && receiptPreviewDetails.base64ImagesWithSource.length
         ),
-        switchMap((_) => {
+        switchMap(() => {
           this.loaderService.showLoader('Please wait...', 10000);
           return this.addMultipleExpensesToQueue(this.base64ImagesWithSource);
         }),
         finalize(() => this.loaderService.hideLoader())
       )
-      .subscribe((_) => {
+      .subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       });
   }
 
-  showReceiptPreview() {
-    const receiptPreviewModal = this.modalController.create({
+  createReceiptPreviewModal(mode: 'single' | 'bulk') {
+    return this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
         base64ImagesWithSource: this.base64ImagesWithSource,
-        mode: 'bulk',
+        mode,
       },
     });
+  }
 
-    return from(receiptPreviewModal).pipe(
+  showReceiptPreview() {
+    return from(this.createReceiptPreviewModal('bulk')).pipe(
       tap((receiptPreviewModal) => receiptPreviewModal.present()),
       switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss()),
       map((receiptPreviewDetails) => receiptPreviewDetails?.data)
@@ -417,7 +423,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     const receiptsFromGallery$ = checkPermission$.pipe(
       filter((permission) => !!permission),
-      switchMap((_) => {
+      switchMap(() => {
         const galleryUploadOptions = {
           maximumImagesCount: 10,
           outputType: 1,
@@ -431,7 +437,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     checkPermission$
       .pipe(
         filter((permission) => !permission),
-        switchMap((_) => from(Camera.requestPermissions({ permissions: ['photos'] })))
+        switchMap(() => from(Camera.requestPermissions({ permissions: ['photos'] })))
       )
       .subscribe((permissions) => {
         if (permissions?.photos === 'denied') {
@@ -455,7 +461,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
     receiptsFromGallery$
       .pipe(filter((receiptsFromGallery) => !receiptsFromGallery.length))
-      .subscribe((_) => this.setUpAndStartCamera());
+      .subscribe(() => this.setUpAndStartCamera());
   }
 
   ngAfterViewInit() {
