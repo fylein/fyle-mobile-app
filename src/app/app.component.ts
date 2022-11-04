@@ -104,8 +104,7 @@ export class AppComponent implements OnInit {
   registerBackButtonAction() {
     this.platform.backButton.subscribeWithPriority(10, () => {
       if (
-        this.router.url.includes('my_dashboard') ||
-        this.router.url.includes('tasks') ||
+        (this.router.url.includes('my_dashboard') && !this.router.url.includes('tasks')) ||
         this.router.url.includes('sign_in')
       ) {
         this.showAppCloseAlert();
