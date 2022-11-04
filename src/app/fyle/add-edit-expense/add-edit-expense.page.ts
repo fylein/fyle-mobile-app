@@ -13,6 +13,7 @@ import {
   of,
   BehaviorSubject,
   throwError,
+  Subscription,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
@@ -348,6 +349,8 @@ export class AddEditExpensePage implements OnInit {
   systemCategories: string[];
 
   breakfastSystemCategories: string[];
+
+  hardwareBackButtonAction: Subscription;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2441,7 +2444,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.platform.backButton.subscribeWithPriority(10, () => {
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(20, () => {
       this.showClosePopup();
     });
 
@@ -4428,5 +4431,9 @@ export class AddEditExpensePage implements OnInit {
     if (data?.action === 'dismissed') {
       this.getDuplicateExpenses();
     }
+  }
+
+  ionViewWillLeave() {
+    this.hardwareBackButtonAction.unsubscribe();
   }
 }
