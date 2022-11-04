@@ -2441,6 +2441,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.platform.backButton.subscribeWithPriority(10, () => {
+      this.showClosePopup();
+    });
+
     this.newExpenseDataUrls = [];
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
