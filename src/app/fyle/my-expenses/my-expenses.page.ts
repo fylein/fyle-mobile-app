@@ -160,8 +160,6 @@ export class MyExpensesPage implements OnInit {
 
   cccExpenses: number;
 
-  allCardTransactionsAndDetailsNonUnifyCCC$: Observable<BankAccountsAssigned[]>;
-
   isMergeAllowed: boolean;
 
   constructor(
@@ -432,11 +430,6 @@ export class MyExpensesPage implements OnInit {
     this.orgSettingsService.get().subscribe((orgSettings) => {
       this.setupActionSheet(orgSettings);
     });
-
-    this.allCardTransactionsAndDetailsNonUnifyCCC$ = this.getNonUnifyCCCDetails().pipe(
-      map((res) => res),
-      shareReplay(1)
-    );
 
     forkJoin({
       isConnected: this.isConnected$.pipe(take(1)),
