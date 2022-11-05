@@ -152,13 +152,9 @@ export class MyExpensesPage implements OnInit {
 
   isCameraPreviewStarted = false;
 
-  isUnifyCCCEnabled$: Observable<boolean>;
-
   cardNumbers: { label: string; value: string }[] = [];
 
   maskNumber = new MaskNumber();
-
-  isUnifyCCCExpensesSettings: boolean;
 
   expensesToBeDeleted: Expense[];
 
@@ -434,10 +430,6 @@ export class MyExpensesPage implements OnInit {
     this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.per_diem.enabled));
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
-      this.isUnifyCCCExpensesSettings =
-        orgSettings.unify_ccce_expenses_settings &&
-        orgSettings.unify_ccce_expenses_settings.allowed &&
-        orgSettings.unify_ccce_expenses_settings.enabled;
       this.setupActionSheet(orgSettings);
     });
 
@@ -446,21 +438,11 @@ export class MyExpensesPage implements OnInit {
       shareReplay(1)
     );
 
-    this.isUnifyCCCEnabled$ = this.orgSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgSettings) =>
-            orgSettings.unify_ccce_expenses_settings?.allowed && orgSettings.unify_ccce_expenses_settings?.enabled
-        )
-      );
-
     forkJoin({
       isConnected: this.isConnected$.pipe(take(1)),
-      isUnifyCCCEnabled: this.isUnifyCCCEnabled$.pipe(take(1)),
     })
       .pipe(
-        filter(({ isConnected, isUnifyCCCEnabled }) => isConnected && isUnifyCCCEnabled),
+        filter(({ isConnected }) => isConnected),
         switchMap(() => this.corporateCreditCardService.getAssignedCards()),
         switchMap((unifyCards) => this.getNonUnifyCCCDetails().pipe(map((allCards) => ({ unifyCards, allCards }))))
       )
@@ -814,15 +796,14 @@ export class MyExpensesPage implements OnInit {
 
   async openFilters(activeFilterInitialName?: string) {
     const filterMain = this.myExpensesService.getFilters();
-    this.isUnifyCCCEnabled$.subscribe((isEnabled) => {
-      if (isEnabled && this.cardNumbers?.length > 0) {
-        filterMain.push({
-          name: 'Cards',
-          optionType: FilterOptionType.multiselect,
-          options: this.cardNumbers,
-        } as FilterOptions<string>);
-      }
-    });
+
+    if (this.cardNumbers?.length > 0) {
+      filterMain.push({
+        name: 'Cards',
+        optionType: FilterOptionType.multiselect,
+        options: this.cardNumbers,
+      } as FilterOptions<string>);
+    }
 
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
@@ -925,9 +906,8 @@ export class MyExpensesPage implements OnInit {
     if (this.selectedElements?.length > 0) {
       this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
 
-      if (this.isUnifyCCCExpensesSettings) {
-        this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
-      }
+      this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
+
       this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
     }
 
@@ -1409,9 +1389,8 @@ export class MyExpensesPage implements OnInit {
           if (this.selectedElements?.length > 0) {
             this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
 
-            if (this.isUnifyCCCExpensesSettings) {
-              this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
-            }
+            this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
+
             this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
           }
           this.allExpensesCount = this.selectedElements.length;
