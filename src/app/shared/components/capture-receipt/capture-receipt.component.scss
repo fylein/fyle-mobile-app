@@ -83,6 +83,11 @@
   &--bulk-mode-icon {
     height: 52px;
     width: 52px;
+
+    &--highlight {
+      border: 1px solid $lighter-grey;
+      border-radius: 8px;
+    }
   }
 
   &--footer-text {

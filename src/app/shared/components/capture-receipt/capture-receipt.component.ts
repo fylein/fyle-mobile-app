@@ -63,6 +63,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
+  showBulkModePrompt = false;
+
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -283,14 +285,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.isCameraPreviewStarted = true;
         this.getFlashModes();
         this.loaderService.hideLoader();
-        if (this.transactionsOutboxService.singleCaptureCount === 3) {
-          this.showUseBulkModePrompt();
+        if (this.showBulkModePrompt) {
+          this.showBulkModeToastMessage();
         }
       });
     }
   }
 
-  showUseBulkModePrompt() {
+  showBulkModeToastMessage() {
     const toastMessage = 'If you have multiple receipts to upload, please use BULK MODE to upload all at one time.';
     const toastMessageData = {
       message: toastMessage,
@@ -301,6 +303,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       duration: 10000,
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+    this.showBulkModePrompt = false;
   }
 
   switchMode() {
@@ -349,6 +352,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       }
     });
     this.transactionsOutboxService.singleCaptureCount++;
+    if (this.transactionsOutboxService.singleCaptureCount === 3) {
+      this.showBulkModePrompt = true;
+    }
   }
 
   async onSingleCapture() {
