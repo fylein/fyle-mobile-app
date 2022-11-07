@@ -32,6 +32,9 @@ export class TransactionsOutboxService {
 
   ROOT_ENDPOINT: string;
 
+  //Used for showing bulk mode prompt when count > 3
+  singleCaptureCount = 0;
+
   constructor(
     private storageService: StorageService,
     private dateService: DateService,

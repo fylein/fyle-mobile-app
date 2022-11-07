@@ -283,7 +283,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.isCameraPreviewStarted = true;
         this.getFlashModes();
         this.loaderService.hideLoader();
-        this.showUseBulkModePrompt();
+        if (this.transactionsOutboxService.singleCaptureCount === 3) {
+          this.showUseBulkModePrompt();
+        }
       });
     }
   }
@@ -346,6 +348,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.navigateToExpenseForm();
       }
     });
+    this.transactionsOutboxService.singleCaptureCount++;
   }
 
   async onSingleCapture() {
