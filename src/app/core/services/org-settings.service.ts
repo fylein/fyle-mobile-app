@@ -193,7 +193,6 @@ export class OrgSettingsService {
       ach_settings: incoming.ach_settings,
       per_diem: incoming.per_diem_settings,
       access_delegation: incoming.org_access_delegation_settings,
-      activity: incoming.activity_settings,
       tax_settings: incoming.tax_settings,
       integrations_settings: incoming.integrations_settings,
       taxi_settings: incoming.taxi_settings,

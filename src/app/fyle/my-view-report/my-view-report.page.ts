@@ -427,17 +427,6 @@ export class MyViewReportPage implements OnInit {
       category = etxn.tx_org_category.toLowerCase();
     }
 
-    if (category === 'activity') {
-      const action = canEdit ? 'Edit' : 'View';
-      return this.popupService.showPopup({
-        header: `Cannot ${action} Activity`,
-        message: `${action}ing activity is not supported in mobile app.`,
-        primaryCta: {
-          text: 'Cancel',
-        },
-      });
-    }
-
     let route: string;
 
     if (category === 'mileage') {

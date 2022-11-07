@@ -420,15 +420,6 @@ export class ViewTeamReportPage implements OnInit {
 
   goToTransaction({ etxn, etxnIndex }) {
     const category = etxn && etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
-    if (category === 'activity') {
-      return this.popupService.showPopup({
-        header: 'Cannot View Activity',
-        message: 'Viewing activity is not supported in mobile app.',
-        primaryCta: {
-          text: 'Cancel',
-        },
-      });
-    }
 
     let route: string;
     if (category === 'mileage') {
