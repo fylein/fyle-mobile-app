@@ -24,7 +24,8 @@ npm-debug.log*
 /.sourcemaps
 /.versions
 /.vscode
-/coverage
+/coverage/report-html
+/coverage/report-lcov
 /dist
 /node_modules
 /platforms
