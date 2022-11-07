@@ -296,17 +296,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   showBulkModeToastMessage() {
-    const toastMessage = 'If you have multiple receipts to upload, please use BULK MODE to upload all at one time.';
-    const toastMessageData = {
-      message: toastMessage,
-    };
+    const message = 'If you have multiple receipts to upload, please use BULK MODE to upload all at one time.';
     this.bulkModeToastMessageRef = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
+      ...this.snackbarProperties.setSnackbarProperties('information', { message }),
       panelClass: ['msb-info'],
       duration: 10000,
     });
     this.bulkModeToastMessageRef.afterDismissed().subscribe(() => (this.isBulkModePromptShown = false));
-    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+    this.trackingService.showToastMessage({ ToastContent: message });
   }
 
   switchMode() {
