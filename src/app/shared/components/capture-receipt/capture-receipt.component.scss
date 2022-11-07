@@ -7,6 +7,18 @@
     &__is-active {
       --background: transparent;
     }
+
+    &--overlay {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 2;
+    }
   }
 
   &--close-flash-container {
@@ -68,6 +80,8 @@
     display: flex;
     justify-content: space-between;
     width: 100%;
+    z-index: 3;
+
     &__offline {
       bottom: calc(env(safe-area-inset-bottom) + 45px);
     }
@@ -77,6 +91,10 @@
   &--bulk-mode-icon-block {
     align-self: flex-end;
     min-width: 82px;
+
+    &--overlay {
+      opacity: 0.5;
+    }
   }
 
   &--gallery-icon,
@@ -106,6 +124,10 @@
   &--capture-icon-block {
     min-width: 84px;
     margin: auto;
+
+    &--overlay {
+      opacity: 0.5;
+    }
   }
 
   &--capture-icon {
