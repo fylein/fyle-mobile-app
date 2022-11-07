@@ -66,7 +66,7 @@
         <div (click)="switchMode()">
           <img
             class="capture-receipt--bulk-mode-icon"
-            [ngClass]="{ 'capture-receipt--bulk-mode-icon--highlight': showBulkModePrompt }"
+            [ngClass]="{ 'capture-receipt--bulk-mode-icon--highlight': isBulkModePromptShown }"
             [src]="isBulkMode ? '../../../../assets/images/single-mode.png' : '../../../../assets/images/bulk-mode.png'"
             alt="Mode"
           />

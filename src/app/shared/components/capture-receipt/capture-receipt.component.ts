@@ -18,7 +18,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
@@ -63,7 +63,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
-  showBulkModePrompt = false;
+  isBulkModePromptShown = false;
+
+  bulkModeToastMessageRef: MatSnackBarRef<ToastMessageComponent>;
 
   constructor(
     private modalController: ModalController,
@@ -285,8 +287,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.isCameraPreviewStarted = true;
         this.getFlashModes();
         this.loaderService.hideLoader();
-        if (this.showBulkModePrompt) {
+        if (this.transactionsOutboxService.singleCaptureCount === 3) {
           this.showBulkModeToastMessage();
+          this.isBulkModePromptShown = true;
         }
       });
     }
@@ -297,13 +300,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     const toastMessageData = {
       message: toastMessage,
     };
-    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+    this.bulkModeToastMessageRef = this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
       panelClass: ['msb-info'],
       duration: 10000,
     });
+    this.bulkModeToastMessageRef.afterDismissed().subscribe(() => (this.isBulkModePromptShown = false));
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
-    this.showBulkModePrompt = false;
   }
 
   switchMode() {
@@ -352,9 +355,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       }
     });
     this.transactionsOutboxService.singleCaptureCount++;
-    if (this.transactionsOutboxService.singleCaptureCount === 3) {
-      this.showBulkModePrompt = true;
-    }
   }
 
   async onSingleCapture() {
@@ -578,5 +578,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     if (this.isModal) {
       this.stopCamera();
     }
+    this.bulkModeToastMessageRef?.dismiss();
   }
 }
