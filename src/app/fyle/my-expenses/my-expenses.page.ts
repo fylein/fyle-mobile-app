@@ -941,18 +941,6 @@ export class MyExpensesPage implements OnInit {
     this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedElements);
   }
 
-  async showCannotEditActivityDialog() {
-    const popupResult = await this.popupService.showPopup({
-      header: 'Cannot Edit Activity Expense!',
-      // eslint-disable-next-line max-len
-      message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.ROUTER_API_ENDPOINT}">${this.ROUTER_API_ENDPOINT}</a>`,
-      primaryCta: {
-        text: 'Close',
-      },
-      showCancelButton: false,
-    });
-  }
-
   goToTransaction({ etxn: expense, etxnIndex }) {
     let category;
 
@@ -960,10 +948,6 @@ export class MyExpensesPage implements OnInit {
       category = expense.tx_org_category.toLowerCase();
     }
 
-    if (category === 'activity') {
-      this.showCannotEditActivityDialog();
-      return;
-    }
     if (category === 'mileage') {
       this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.tx_id, persist_filters: true }]);
     } else if (category === 'per diem') {
