@@ -18,6 +18,9 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 type Image = Partial<{
   source: string;
@@ -73,7 +76,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private loaderService: LoaderService,
     private orgService: OrgService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private platform: Platform
+    private platform: Platform,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService
   ) {}
 
   setupNetworkWatcher() {
@@ -278,8 +283,22 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.isCameraPreviewStarted = true;
         this.getFlashModes();
         this.loaderService.hideLoader();
+        this.showUseBulkModePrompt();
       });
     }
+  }
+
+  showUseBulkModePrompt() {
+    const toastMessage = 'If you have multiple receipts to upload, please use BULK MODE to upload all at one time.';
+    const toastMessageData = {
+      message: toastMessage,
+    };
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('information', toastMessageData),
+      panelClass: ['msb-info'],
+      duration: 10000,
+    });
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
   }
 
   switchMode() {
