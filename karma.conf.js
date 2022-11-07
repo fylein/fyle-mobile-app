@@ -22,7 +22,7 @@ module.exports = function (config) {
     //},
     // coverReporter NEWLY ADDED
     coverageReporter: {
-      dir: 'coverage',
+      dir: require('path').join(__dirname, './coverage'),
       reporters: [
         { type: 'html', subdir: 'report-html' },
         { type: 'lcov', subdir: 'report-lcov' },
