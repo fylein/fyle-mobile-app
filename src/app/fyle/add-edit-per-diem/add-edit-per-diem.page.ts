@@ -772,6 +772,7 @@ export class AddEditPerDiemPage implements OnInit {
     const orgSettings$ = this.orgSettingsService.get();
     const perDiemRates$ = this.perDiemService.getRates();
     const orgUserSettings$ = this.orgUserSettingsService.get();
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
@@ -1209,18 +1210,24 @@ export class AddEditPerDiemPage implements OnInit {
       )
     );
 
-    const selectedReport$ = this.etxn$.pipe(
-      switchMap((etxn) =>
-        iif(
-          () => etxn.tx.report_id,
-          this.reports$.pipe(
-            map((reportOptions) =>
-              reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
-            )
-          ),
-          of(null)
-        )
-      )
+    const selectedReport$ = forkJoin({
+      autoSubmissionReportName: this.autoSubmissionReportName$,
+      etxn: this.etxn$,
+      reportOptions: this.reports$,
+    }).pipe(
+      map(({ autoSubmissionReportName, etxn, reportOptions }) => {
+        if (etxn.tx.report_id) {
+          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
+        } else if (
+          !autoSubmissionReportName &&
+          reportOptions.length === 1 &&
+          reportOptions[0].value.rp.state === 'DRAFT'
+        ) {
+          return reportOptions[0].value;
+        } else {
+          return null;
+        }
+      })
     );
 
     const selectedCostCenter$ = this.etxn$.pipe(
@@ -1438,8 +1445,6 @@ export class AddEditPerDiemPage implements OnInit {
         }
       })
     );
-
-    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
