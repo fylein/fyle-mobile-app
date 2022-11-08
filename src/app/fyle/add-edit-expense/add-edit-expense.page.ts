@@ -3060,29 +3060,33 @@ export class AddEditExpensePage implements OnInit {
                 this.trackingService.saveReceiptWithInvalidForm();
               }
 
-              that.addExpense('SAVE_EXPENSE').subscribe((res: any) => {
-                if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
-                  this.addToNewReport(res.transaction.id);
+              that
+                .addExpense('SAVE_EXPENSE')
+                .pipe(switchMap((txnData: Promise<any>) => from(txnData)))
+                .subscribe((res: any) => {
+                  if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
+                    this.addToNewReport(res.transaction.id);
+                  } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
+                  } else {
+                    that.goBack();
+                  }
+                });
+            }
+          } else {
+            // to do edit
+            that
+              .editExpense('SAVE_EXPENSE')
+              .pipe(switchMap((txnData: Promise<any>) => from(txnData)))
+              .subscribe((res) => {
+                if (that.fg.controls.add_to_new_report.value && res && res.id) {
+                  this.addToNewReport(res.id);
                 } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                  that.goBack();
-                  this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+                  this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
                 } else {
                   that.goBack();
                 }
               });
-            }
-          } else {
-            // to do edit
-            that.editExpense('SAVE_EXPENSE').subscribe((res) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.id) {
-                this.addToNewReport(res.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                that.goBack();
-                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
-              } else {
-                that.goBack();
-              }
-            });
           }
         } else {
           that.fg.markAllAsTouched();
@@ -3716,7 +3720,7 @@ export class AddEditExpensePage implements OnInit {
                   }
 
                   return of(
-                    this.transactionOutboxService.addEntry(
+                    this.transactionOutboxService.addEntryAndSync(
                       etxn.tx,
                       etxn.dataUrls,
                       comments,
