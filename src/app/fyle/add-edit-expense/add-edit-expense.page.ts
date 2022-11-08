@@ -3075,18 +3075,15 @@ export class AddEditExpensePage implements OnInit {
             }
           } else {
             // to do edit
-            that
-              .editExpense('SAVE_EXPENSE')
-              .pipe(switchMap((txnData: Promise<any>) => from(txnData)))
-              .subscribe((res) => {
-                if (that.fg.controls.add_to_new_report.value && res && res.id) {
-                  this.addToNewReport(res.id);
-                } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                  this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
-                } else {
-                  that.goBack();
-                }
-              });
+            that.editExpense('SAVE_EXPENSE').subscribe((res) => {
+              if (that.fg.controls.add_to_new_report.value && res && res.id) {
+                this.addToNewReport(res.id);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
+              } else {
+                that.goBack();
+              }
+            });
           }
         } else {
           that.fg.markAllAsTouched();
