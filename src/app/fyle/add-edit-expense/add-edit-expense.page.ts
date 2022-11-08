@@ -3064,9 +3064,9 @@ export class AddEditExpensePage implements OnInit {
                 .addExpense('SAVE_EXPENSE')
                 .pipe(switchMap((txnData: Promise<any>) => from(txnData)))
                 .subscribe((res: any) => {
-                  if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
+                  if (that.fg.controls.add_to_new_report.value && res?.transaction) {
                     this.addToNewReport(res.transaction.id);
-                  } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                  } else if (that.fg.value.report?.rp?.id) {
                     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
                   } else {
                     that.goBack();
@@ -3076,9 +3076,9 @@ export class AddEditExpensePage implements OnInit {
           } else {
             // to do edit
             that.editExpense('SAVE_EXPENSE').subscribe((res) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.id) {
+              if (that.fg.controls.add_to_new_report.value && res?.id) {
                 this.addToNewReport(res.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+              } else if (that.fg.value.report?.rp?.id) {
                 this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.goBack();
