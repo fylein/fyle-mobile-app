@@ -3062,7 +3062,12 @@ export class AddEditExpensePage implements OnInit {
 
               that
                 .addExpense('SAVE_EXPENSE')
-                .pipe(switchMap((txnData: Promise<any>) => from(txnData)))
+                .pipe(
+                  switchMap((txnData: Promise<any>) => from(txnData)),
+                  finalize(() => {
+                    this.saveExpenseLoader = false;
+                  })
+                )
                 .subscribe((res: any) => {
                   if (that.fg.controls.add_to_new_report.value && res?.transaction) {
                     this.addToNewReport(res.transaction.id);
@@ -3733,7 +3738,6 @@ export class AddEditExpensePage implements OnInit {
         )
       ),
       finalize(() => {
-        this.saveExpenseLoader = false;
         this.saveAndNewExpenseLoader = false;
         this.saveAndNextExpenseLoader = false;
         this.saveAndPrevExpenseLoader = false;
