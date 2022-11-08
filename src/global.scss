@@ -119,6 +119,25 @@ ion-popover.error-popover {
   margin: 0 16px 30px !important;
 }
 
+.msb-bulkfyle-prompt {
+  color: $pure-white;
+  background-color: $dark-blue;
+  border-radius: 8px !important;
+  margin: 0 16px 124px !important;
+
+  &::after {
+    content: '';
+    width: 0;
+    height: 0;
+    position: absolute;
+    right: 30px;
+    bottom: -6px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid $dark-blue;
+  }
+}
+
 .msb-success-with-camera-icon {
   color: $pure-white;
   background-color: $green;
@@ -1222,7 +1241,7 @@ ion-toggle.toggle-checked::before {
 }
 
 .mat-snack-bar-handset .mat-snack-bar-container {
-  margin-bottom: 133px !important;
+  margin-bottom: 133px;
 }
 
 .hide-modal {
