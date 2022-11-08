@@ -33,7 +33,7 @@ export class TransactionsOutboxService {
   ROOT_ENDPOINT: string;
 
   //Used for showing bulk mode prompt when instafyle is used more than thrice in the same session
-  singleCaptureCount = 0;
+  private singleCaptureCountInSession = 0;
 
   constructor(
     private storageService: StorageService,
@@ -49,6 +49,14 @@ export class TransactionsOutboxService {
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
+  }
+
+  get singleCaptureCount() {
+    return this.singleCaptureCountInSession;
+  }
+
+  incrementSingleCaptureCount() {
+    this.singleCaptureCountInSession++;
   }
 
   setRoot(rootUrl: string) {

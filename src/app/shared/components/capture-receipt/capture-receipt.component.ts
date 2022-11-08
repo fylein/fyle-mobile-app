@@ -351,7 +351,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.navigateToExpenseForm();
       }
     });
-    this.transactionsOutboxService.singleCaptureCount++;
+    this.transactionsOutboxService.incrementSingleCaptureCount();
   }
 
   async onSingleCapture() {
