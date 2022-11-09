@@ -1,8 +1,21 @@
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { BehaviorSubject, concat, EMPTY, forkJoin, from, fromEvent, iif, noop, Observable, of, Subject } from 'rxjs';
+import {
+  BehaviorSubject,
+  concat,
+  EMPTY,
+  forkJoin,
+  from,
+  fromEvent,
+  iif,
+  noop,
+  Observable,
+  of,
+  Subject,
+  Subscription,
+} from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, PopoverController, Platform } from '@ionic/angular';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   catchError,
@@ -53,6 +66,7 @@ import { Filters } from './my-expenses-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
@@ -168,6 +182,8 @@ export class MyExpensesPage implements OnInit {
 
   isMergeAllowed: boolean;
 
+  hardwareBackButton: Subscription;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -193,7 +209,8 @@ export class MyExpensesPage implements OnInit {
     private myExpensesService: MyExpensesService,
     private orgSettingsService: OrgSettingsService,
     private currencyService: CurrencyService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private platform: Platform
   ) {}
 
   get HeaderState() {
@@ -405,6 +422,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillLeave() {
+    this.hardwareBackButton.unsubscribe();
     this.onPageExit$.next(null);
   }
 
@@ -413,6 +431,14 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.hardwareBackButton = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.MEDIUM, () => {
+      if (this.headerState === HeaderState.multiselect) {
+        this.switchSelectionMode();
+      } else if (this.headerState === HeaderState.simpleSearch) {
+        this.onSimpleSearchCancel();
+      }
+    });
+
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
     });

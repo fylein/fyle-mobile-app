@@ -13,6 +13,7 @@ import {
   of,
   BehaviorSubject,
   throwError,
+  Subscription,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
@@ -105,6 +106,7 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -348,6 +350,8 @@ export class AddEditExpensePage implements OnInit {
   systemCategories: string[];
 
   breakfastSystemCategories: string[];
+
+  hardwareBackButtonAction: Subscription;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2424,6 +2428,13 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.MEDIUM,
+      () => {
+        this.showClosePopup();
+      }
+    );
+
     this.newExpenseDataUrls = [];
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
@@ -4407,5 +4418,9 @@ export class AddEditExpensePage implements OnInit {
     if (data?.action === 'dismissed') {
       this.getDuplicateExpenses();
     }
+  }
+
+  ionViewWillLeave() {
+    this.hardwareBackButtonAction.unsubscribe();
   }
 }
