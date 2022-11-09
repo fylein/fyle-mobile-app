@@ -1626,8 +1626,9 @@ export class AddEditMileagePage implements OnInit {
             that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
               if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id) {
                 this.addToNewReport(etxn.tx.id);
-              } else if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.close();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.close();
               }
@@ -1637,8 +1638,9 @@ export class AddEditMileagePage implements OnInit {
             that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
               if (that.fg.controls.add_to_new_report.value && tx && tx.id) {
                 this.addToNewReport(tx.id);
-              } else if (that.fg.value.report?.rp?.id) {
-                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
+              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
+                that.close();
+                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
               } else {
                 that.close();
               }
@@ -2353,7 +2355,7 @@ export class AddEditMileagePage implements OnInit {
               ).pipe(map(() => etxn));
             } else {
               return of(
-                this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
+                this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
               ).pipe(map(() => etxn));
             }
           })
