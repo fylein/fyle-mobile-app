@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { getCurrencySymbol } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-expenses-to-report',
@@ -12,6 +13,8 @@ import { getCurrencySymbol } from '@angular/common';
 })
 export class AddExpensesToReportComponent implements OnInit {
   @Input() unReportedEtxns: Expense[];
+
+  @Input() reportId: string;
 
   homeCurrency$: Observable<string>;
 
@@ -27,7 +30,11 @@ export class AddExpensesToReportComponent implements OnInit {
 
   homeCurrency: string;
 
-  constructor(private modalController: ModalController, private currencyService: CurrencyService) {}
+  constructor(
+    private modalController: ModalController,
+    private currencyService: CurrencyService,
+    private router: Router
+  ) {}
 
   close() {
     this.modalController.dismiss();
@@ -85,6 +92,11 @@ export class AddExpensesToReportComponent implements OnInit {
     });
     this.selectedElements = selectedTxns;
     this.updateSelectedTxns();
+  }
+
+  addNewExpense() {
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.reportId }]);
+    this.modalController.dismiss();
   }
 
   ngOnInit() {
