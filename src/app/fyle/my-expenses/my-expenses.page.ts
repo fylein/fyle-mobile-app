@@ -66,6 +66,7 @@ import { Filters } from './my-expenses-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
@@ -430,7 +431,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.hardwareBackButton = this.platform.backButton.subscribeWithPriority(20, () => {
+    this.hardwareBackButton = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.MEDIUM, () => {
       if (this.headerState === HeaderState.multiselect) {
         this.switchSelectionMode();
       } else if (this.headerState === HeaderState.simpleSearch) {
