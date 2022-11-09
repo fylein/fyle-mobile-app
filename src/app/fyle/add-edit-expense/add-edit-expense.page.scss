@@ -322,6 +322,8 @@
     margin-left: 20px;
 
     &__with-border {
+      margin-top: 8px;
+      margin-bottom: 8px;
       border: 1px solid $grey-lighter;
       margin-left: 0;
       border-radius: 4px;
