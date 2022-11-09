@@ -4,7 +4,7 @@ import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { combineLatest, concat, forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
+import { combineLatest, concat, forkJoin, from, iif, Observable, of, Subscription, throwError } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -32,7 +32,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -69,6 +69,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -214,6 +215,8 @@ export class AddEditMileagePage implements OnInit {
 
   autoSubmissionReportName$: Observable<string>;
 
+  hardwareBackButtonAction: Subscription;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -252,7 +255,8 @@ export class AddEditMileagePage implements OnInit {
     private mileageRateService: MileageRatesService,
     private orgUserSettingsService: OrgUserSettingsService,
     private categoriesService: CategoriesService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private platform: Platform
   ) {}
 
   get showSaveAndNext() {
@@ -869,6 +873,13 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.MEDIUM,
+      () => {
+        this.showClosePopup();
+      }
+    );
+
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
     });
@@ -2455,5 +2466,9 @@ export class AddEditMileagePage implements OnInit {
           this.policyDetails = policyDetails;
         });
     }
+  }
+
+  ionViewWillLeave() {
+    this.hardwareBackButtonAction.unsubscribe();
   }
 }
