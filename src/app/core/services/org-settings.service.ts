@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { OrgSettings, OrgSettingsResponse } from '../models/org-settings.model';
