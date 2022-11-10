@@ -2900,6 +2900,12 @@ export class AddEditExpensePage implements OnInit {
           etxn.tx.extracted_data = this.inpageExtractedData;
         }
 
+        // If user has not edited the amount, then send user_amount to check_policies
+        let amount = this.fg.value?.currencyObj?.amount;
+        if (isPolicyEtxn && this.fg.value?.currencyObj?.amount === etxn.tx.amount && etxn.tx.user_amount) {
+          amount = etxn.tx.user_amount;
+        }
+
         return {
           tx: {
             ...etxn.tx,
@@ -2911,7 +2917,7 @@ export class AddEditExpensePage implements OnInit {
               !this.fg.value?.paymentMode?.acc?.isReimbursable,
             txn_dt: this.fg.value?.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value?.dateOfSpend)),
             currency: this.fg.value?.currencyObj?.currency,
-            amount: this.fg.value?.currencyObj?.amount,
+            amount: amount,
             orig_currency: this.fg.value?.currencyObj?.orig_currency,
             orig_amount: this.fg.value?.currencyObj?.orig_amount,
             project_id: this.fg.value?.project?.project_id,

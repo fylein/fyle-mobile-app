@@ -21,6 +21,7 @@ export class PolicyService {
 
   transformTo(transaction: PublicPolicyExpense): PlatformPolicyExpense {
     const platformPolicyExpense: PlatformPolicyExpense = {
+      id: transaction?.id,
       spent_at: transaction?.txn_dt,
       merchant: transaction?.vendor,
       foreign_currency: transaction?.orig_currency,
@@ -70,11 +71,17 @@ export class PolicyService {
   getCriticalPolicyRules(expensePolicy: ExpensePolicy): string[] {
     const criticalPopupRules = [];
 
-    expensePolicy.data.individual_desired_states.forEach((desiredState) => {
-      if (typeof desiredState.amount === 'number' && desiredState.amount < 0.0001) {
-        criticalPopupRules.push(desiredState.expense_policy_rule.description);
-      }
-    });
+    if (expensePolicy.data.final_desired_state.run_status === 'SUCCESS') {
+      expensePolicy.data.individual_desired_states.forEach((desiredState) => {
+        if (
+          desiredState.run_status === 'VIOLATED_ACTION_SUCCESS' &&
+          typeof desiredState.amount === 'number' &&
+          desiredState.amount < 0.0001
+        ) {
+          criticalPopupRules.push(desiredState.expense_policy_rule.description);
+        }
+      });
+    }
 
     return criticalPopupRules;
   }
@@ -82,11 +89,16 @@ export class PolicyService {
   getPolicyRules(expensePolicy: ExpensePolicy): string[] {
     const popupRules = [];
 
-    expensePolicy.data.individual_desired_states.forEach((desiredState) => {
-      if (desiredState.expense_policy_rule.action_show_warning) {
-        popupRules.push(desiredState.expense_policy_rule.description);
-      }
-    });
+    if (expensePolicy.data.final_desired_state.run_status === 'SUCCESS') {
+      expensePolicy.data.individual_desired_states.forEach((desiredState) => {
+        if (
+          desiredState.run_status === 'VIOLATED_ACTION_SUCCESS' &&
+          desiredState.expense_policy_rule.action_show_warning
+        ) {
+          popupRules.push(desiredState.expense_policy_rule.description);
+        }
+      });
+    }
 
     return popupRules;
   }

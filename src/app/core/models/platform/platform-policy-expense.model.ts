@@ -1,4 +1,5 @@
 export interface PlatformPolicyExpense {
+  id: string;
   spent_at: Date;
   merchant?: string;
   foreign_currency?: string;
