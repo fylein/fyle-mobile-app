@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { concat, Observable, of, Subject } from 'rxjs';
+import { concat, Observable, of, Subject, Subscription } from 'rxjs';
 import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
-import { ActionSheetController } from '@ionic/angular';
+import { ActionSheetController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
@@ -14,6 +14,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 enum DashboardState {
   home,
@@ -46,6 +47,8 @@ export class DashboardPage implements OnInit {
 
   taskCount = 0;
 
+  hardwareBackButtonAction: Subscription;
+
   constructor(
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -56,7 +59,8 @@ export class DashboardPage implements OnInit {
     private tasksService: TasksService,
     private smartlookService: SmartlookService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private platform: Platform
   ) {}
 
   get displayedTaskCount() {
@@ -77,6 +81,7 @@ export class DashboardPage implements OnInit {
 
   ionViewWillLeave() {
     this.onPageExit$.next(null);
+    this.hardwareBackButtonAction?.unsubscribe();
   }
 
   setupNetworkWatcher() {
@@ -96,6 +101,7 @@ export class DashboardPage implements OnInit {
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
     if (currentState === DashboardState.tasks) {
       this.currentStateIndex = 1;
+      this.setBackButtonAction();
     } else {
       this.currentStateIndex = 0;
     }
@@ -127,6 +133,17 @@ export class DashboardPage implements OnInit {
     });
   }
 
+  setBackButtonAction() {
+    if (!this.activatedRoute.snapshot.params.tasksFilters) {
+      this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+        BackButtonActionPriority.LOW,
+        () => {
+          this.onHomeClicked();
+        }
+      );
+    }
+  }
+
   ngOnInit() {
     const that = this;
     that.orgSettingsService.get().subscribe((orgSettings) => {
@@ -141,6 +158,7 @@ export class DashboardPage implements OnInit {
       relativeTo: this.activatedRoute,
       queryParams,
     });
+    this.setBackButtonAction();
     this.trackingService.tasksPageOpened({
       Asset: 'Mobile',
       from: 'Dashboard',
@@ -169,6 +187,7 @@ export class DashboardPage implements OnInit {
       relativeTo: this.activatedRoute,
       queryParams,
     });
+    this.hardwareBackButtonAction?.unsubscribe();
   }
 
   setupActionSheet(orgSettings) {
