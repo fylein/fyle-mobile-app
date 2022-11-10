@@ -134,7 +134,7 @@ export class DashboardPage implements OnInit {
   }
 
   setBackButtonAction() {
-    if (!this.activatedRoute.snapshot.params.tasksFilters) {
+    if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
       this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
         BackButtonActionPriority.LOW,
         () => {
