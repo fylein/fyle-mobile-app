@@ -2350,11 +2350,17 @@ export class AddEditMileagePage implements OnInit {
             if (entry) {
               return from(
                 this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId)
-              ).pipe(map(() => etxn));
+              ).pipe(
+                switchMap((txnData: Promise<any>) => from(txnData)),
+                map(() => etxn)
+              );
             } else {
               return of(
                 this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
-              ).pipe(map(() => etxn));
+              ).pipe(
+                switchMap((txnData: Promise<any>) => from(txnData)),
+                map(() => etxn)
+              );
             }
           })
         )

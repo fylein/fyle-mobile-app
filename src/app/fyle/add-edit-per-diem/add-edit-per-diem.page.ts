@@ -1718,11 +1718,11 @@ export class AddEditPerDiemPage implements OnInit {
             if (entry) {
               return from(
                 this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId)
-              );
+              ).pipe(switchMap((txnData: Promise<any>) => from(txnData)));
             } else {
               return of(
                 this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
-              );
+              ).pipe(switchMap((txnData: Promise<any>) => from(txnData)));
             }
           })
         )
