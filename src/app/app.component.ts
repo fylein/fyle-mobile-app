@@ -24,7 +24,6 @@ import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { PerfTrackers } from './core/models/perf-trackers.enum';
 import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
-import { MobileAccessibility } from '@ionic-native/mobile-accessibility/ngx';
 import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
 
 @Component({
@@ -70,12 +69,10 @@ export class AppComponent implements OnInit {
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private navController: NavController,
-    private popoverController: PopoverController,
-    private mobileAccessibility: MobileAccessibility
+    private popoverController: PopoverController
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
-    this.mobileAccessibility.usePreferredTextZoom(false);
   }
 
   async showAppCloseAlert() {
