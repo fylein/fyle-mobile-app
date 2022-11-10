@@ -132,7 +132,7 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  setBackButtonAction() {
+  registerBackButtonAction() {
     //If 'tasksFilters' query param is not present then it means that the user navigated to
     //tasks page from dashboard and he should be redirected to dashboard.
     if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
@@ -159,7 +159,7 @@ export class DashboardPage implements OnInit {
       relativeTo: this.activatedRoute,
       queryParams,
     });
-    this.setBackButtonAction();
+    this.registerBackButtonAction();
     this.trackingService.tasksPageOpened({
       Asset: 'Mobile',
       from: 'Dashboard',
