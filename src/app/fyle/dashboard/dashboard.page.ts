@@ -133,8 +133,7 @@ export class DashboardPage implements OnInit {
   }
 
   registerBackButtonAction() {
-    //If 'tasksFilters' query param is not present then it means that the user navigated to
-    //tasks page from dashboard and he should be redirected to dashboard.
+    //tasksFilters queryparam is not present when user navigates to tasks page from dashboard.
     if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
       this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
         BackButtonActionPriority.LOW,
