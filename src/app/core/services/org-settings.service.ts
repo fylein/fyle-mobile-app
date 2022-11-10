@@ -16,7 +16,7 @@ export class OrgSettingsService {
   @Cacheable({
     cacheBusterObserver: orgSettingsCacheBuster$,
   })
-  get(): Observable<OrgSettings> {
+  get(): Observable<Partial<OrgSettings>> {
     return this.apiService.get('/org/settings').pipe(map((incoming) => this.processIncoming(incoming)));
   }
 
@@ -69,7 +69,7 @@ export class OrgSettingsService {
       }
     }
 
-    accounting.integration_exports_enabled = incomingAccountExport.integration_exports_enabled;
+    accounting.integration_exports_enabled = incomingAccountExport?.integration_exports_enabled;
 
     return accounting;
   }
@@ -90,15 +90,15 @@ export class OrgSettingsService {
       accountingSettings.accounting_settings = accounting.settings;
     }
 
-    accountingSettings.integration_exports_enabled = accounting.integration_exports_enabled;
+    accountingSettings.integration_exports_enabled = accounting?.integration_exports_enabled;
 
     return accountingSettings;
   }
 
   // unavoidable here
   // eslint-disable-next-line complexity
-  processIncoming(incoming: OrgSettingsResponse): OrgSettings {
-    const orgSettings: OrgSettings = {
+  processIncoming(incoming: Partial<OrgSettingsResponse>): Partial<OrgSettings> {
+    const orgSettings: Partial<OrgSettings> = {
       org_id: incoming.org_id,
       mileage: {
         allowed: incoming.org_mileage_settings?.allowed,
@@ -155,14 +155,10 @@ export class OrgSettingsService {
         allowed: incoming.policy_settings?.allowed,
         enabled: incoming.policy_settings?.is_enabled,
         self_serve_enabled: incoming.policy_settings?.allowed && incoming.policy_settings?.is_self_serve_enabled,
-        trip_request_policy_enabled:
-          incoming.policy_settings?.allowed && incoming.policy_settings?.is_trip_request_policy_enabled,
         advance_request_policy_enabled:
           incoming.policy_settings?.allowed && incoming.policy_settings?.is_advance_request_policy_enabled,
         duplicate_detection_enabled:
           incoming.duplicate_detection_settings?.allowed && incoming.duplicate_detection_settings?.enabled,
-        policy_approval_workflow:
-          incoming.policy_settings?.allowed && incoming.policy_settings?.policy_approval_workflow,
       },
       org_creation: {
         allowed: incoming.multi_org_settings?.allowed,
@@ -178,19 +174,22 @@ export class OrgSettingsService {
       corporate_credit_card_settings: {
         allowed: incoming.corporate_credit_card_settings?.allowed,
         enabled: incoming.corporate_credit_card_settings?.enabled,
-        auto_match_allowed: incoming.auto_match_settings?.allowed,
-        enable_auto_match: incoming.auto_match_settings?.enabled,
+        auto_match_allowed: incoming.corporate_credit_card_settings?.auto_match_allowed,
+        enable_auto_match: incoming.corporate_credit_card_settings?.enable_auto_match,
         bank_data_aggregation_settings: {
           enabled: incoming.corporate_credit_card_settings?.bank_data_aggregation_settings?.enabled,
           aggregator: incoming.corporate_credit_card_settings?.bank_data_aggregation_settings?.aggregator,
+          auto_assign: incoming.corporate_credit_card_settings?.bank_data_aggregation_settings?.auto_assign,
         },
         bank_statement_upload_settings: {
           enabled: incoming.corporate_credit_card_settings?.bank_statement_upload_settings?.enabled,
-          generic_statement_parser_enabled: incoming.universal_statement_parser_settings?.enabled,
+          generic_statement_parser_enabled:
+            incoming.corporate_credit_card_settings?.bank_statement_upload_settings?.generic_statement_parser_enabled,
           bank_statement_parser_endpoint_settings:
             incoming.corporate_credit_card_settings?.bank_statement_upload_settings
               ?.bank_statement_parser_endpoint_settings,
         },
+        allow_approved_plus_states: incoming.corporate_credit_card_settings?.allow_approved_plus_states,
       },
       bank_feed_request_settings: incoming.bank_feed_request_settings,
       ach_settings: incoming.ach_settings,
@@ -209,14 +208,11 @@ export class OrgSettingsService {
           incoming.approval_settings?.allowed && incoming.approval_settings?.enable_secondary_approvers,
         enable_sequential_approvers:
           incoming.approval_settings?.allowed && incoming.approval_settings?.enable_sequential_approvers,
-        allow_user_add_trip_request_approvers:
-          incoming.approval_settings?.allowed && incoming.approval_settings?.allow_user_add_trip_request_approvers,
       },
       accounting: this.getIncomingAccountingObject(incoming.accounting_export_settings),
       transaction_fields_settings: incoming.transaction_fields_settings,
       org_user_fields_settings: incoming.org_user_fields_settings,
       advance_request_fields_settings: incoming.advance_request_fields_settings,
-      trip_request_fields_settings: incoming.trip_request_fields_settings,
       org_logo_settings: incoming.org_logo_settings,
       org_branding_settings: {
         allowed: incoming.org_branding_settings?.allowed,
@@ -227,7 +223,6 @@ export class OrgSettingsService {
         mandatory: incoming.verification_settings?.allowed && incoming.verification_settings?.mandatory,
         late_mode_enabled: incoming.verification_settings?.allowed && incoming.verification_settings?.late_mode_enabled,
       },
-      data_extraction_settings: incoming.data_extraction_settings,
       advance_account_settings: incoming.advance_account_settings,
       settlements_excel_settings: incoming.settlements_excel_settings,
       gmail_addon_settings: incoming.gmail_addon_settings,
@@ -297,28 +292,6 @@ export class OrgSettingsService {
       workflow_settings: {
         allowed: incoming.workflow_settings?.allowed,
         enabled: incoming.workflow_settings?.enabled,
-        report_workflow_settings:
-          incoming.workflow_settings?.allowed && incoming.workflow_settings?.report_workflow_settings, // FYI: orgSettings.workflow_settings.report_workflow_settings is a boolean value
-      },
-      card_assignment_settings: {
-        allowed: incoming.card_assignment_settings?.allowed,
-        enabled: incoming.card_assignment_settings?.enabled,
-      },
-      transaction_reversal_settings: {
-        allowed: incoming.transaction_reversal_settings?.allowed,
-        enabled: incoming.transaction_reversal_settings?.enabled,
-      },
-      auto_match_settings: {
-        allowed: incoming.auto_match_settings?.allowed,
-        enabled: incoming.auto_match_settings?.enabled,
-      },
-      universal_statement_parser_settings: {
-        allowed: incoming.universal_statement_parser_settings?.allowed,
-        enabled: incoming.universal_statement_parser_settings?.enabled,
-      },
-      in_app_chat_settings: {
-        allowed: incoming.org_in_app_chat_settings?.allowed,
-        enabled: incoming.org_in_app_chat_settings?.enabled,
       },
       ccc_draft_expense_settings: {
         allowed: incoming.ccc_draft_expense_settings?.allowed,
@@ -348,8 +321,28 @@ export class OrgSettingsService {
       },
       expense_settings: {
         allowed: incoming.expense_settings?.allowed,
-        enabled: incoming.expense_settings?.enabled,
         split_expense_settings: incoming.expense_settings?.split_expense_settings,
+      },
+      admin_email_settings: {
+        allowed: incoming.admin_email_settings?.allowed,
+        enabled: incoming.admin_email_settings?.enabled,
+        unsubscribed_events: incoming.admin_email_settings?.unsubscribed_events,
+      },
+      data_extractor_settings: {
+        allowed: incoming.data_extractor_settings?.allowed,
+        enabled: incoming.data_extractor_settings?.enabled,
+        web_app_pdf: incoming.data_extractor_settings?.web_app_pdf,
+      },
+      exchange_rate_settings: {
+        allowed: incoming.exchange_rate_settings.allowed,
+        enabled: incoming.exchange_rate_settings.enabled,
+      },
+      bank_payment_file_settings: incoming.bank_payment_file_settings,
+      currencylayer_provider_settings: {
+        allowed: incoming.currencylayer_provider_settings.allowed,
+        enabled: incoming.currencylayer_provider_settings.enabled,
+        id: incoming.currencylayer_provider_settings?.id,
+        name: incoming.currencylayer_provider_settings?.name,
       },
     };
 

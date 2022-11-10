@@ -8,8 +8,8 @@ export interface OrgUserMandatoryFields {
   mobile: boolean;
   location: boolean;
   bank_details: boolean;
-  approver_1: boolean;
-  approver_2: boolean;
-  approver_3: boolean;
+  approver1: boolean;
+  approver2: boolean;
+  approver3: boolean;
   joining_dt: boolean;
 }

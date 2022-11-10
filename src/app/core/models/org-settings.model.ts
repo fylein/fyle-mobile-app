@@ -66,7 +66,7 @@ export interface AdvanceAccountSettings {
 }
 
 export interface OrgLogoSettings extends CommonOrgSettings {
-  fileId: string;
+  file_id: string;
 }
 
 export interface AdminAllowedIpSettings extends CommonOrgSettings {
@@ -81,7 +81,7 @@ export interface ReceiptSettings extends CommonOrgSettings {
   enable_magnifier: boolean;
 }
 
-export interface TaxiSettings extends CommonOrgSettings {
+export interface TaxiSettings {
   allowed: boolean;
   distance_mandatory: boolean;
 }
@@ -99,6 +99,7 @@ export interface AchSettings extends CommonOrgSettings {
   provider: string;
   expedite_source: boolean;
   expedite_destination: boolean;
+  pipeline_amount_limit: number;
 }
 
 export interface BankStatementParserEndpointSettings {
@@ -116,6 +117,7 @@ export interface BankStatementUploadSettings {
 export interface BankDataAggregationSettings {
   enabled: boolean;
   aggregator: string;
+  auto_assign: boolean;
 }
 
 export interface BankFeedRequestSettings extends CommonOrgSettings {
@@ -132,7 +134,7 @@ export interface OrgBankDataAggregationSettings extends CommonOrgSettings {
 }
 
 export interface OrgUserFieldsSettings extends CommonOrgSettings {
-  orgUserMandatoryFields: OrgUserMandatoryFields;
+  org_user_mandatory_fields: OrgUserMandatoryFields;
 }
 
 export interface AutoFyleSettings extends CommonOrgSettings {
@@ -148,7 +150,6 @@ export interface ApprovalSettings {
   admin_approve_own_report: boolean;
   enable_secondary_approvers: boolean;
   enable_sequential_approvers: boolean;
-  allow_user_add_trip_request_approvers: boolean;
 }
 
 export interface EnableAccessDelegation {
@@ -188,12 +189,13 @@ export interface AmpEmailSettings extends CommonOrgSettings {
   submit_expense_reports_beta: boolean;
 }
 
-export interface ExpenseLimitSettings extends CommonOrgSettings {
-  policyIds: string[];
+export interface ExpenseLimitSettings {
+  policy_ids: string[];
 }
 
-export interface WorkflowSettings extends CommonOrgSettings {
-  report_workflow_settings: boolean;
+export interface WorkflowSettings {
+  allowed: boolean;
+  enabled: boolean;
 }
 
 export interface OrgFylerCccFlowSettings extends CommonOrgSettings {
@@ -215,6 +217,7 @@ export interface CCCSettings extends CommonOrgSettings {
   bank_data_aggregation_settings: BankDataAggregationSettings;
   auto_match_allowed: boolean;
   enable_auto_match: boolean;
+  allow_approved_plus_states: boolean;
 }
 
 export interface ActivityKey {
@@ -234,7 +237,8 @@ export interface SplitExpenseSettings {
   enabled: boolean;
 }
 
-export interface ExpenseSettings extends CommonOrgSettings {
+export interface ExpenseSettings {
+  allowed: boolean;
   split_expense_settings: SplitExpenseSettings;
 }
 
@@ -325,6 +329,11 @@ export interface ExpenseSettings {
   };
 }
 
+export interface CurrencylayerProviderSettings extends CommonOrgSettings {
+  id: string;
+  name: string;
+}
+
 export interface OrgSettingsResponse {
   id: string;
   created_at: string;
@@ -361,12 +370,10 @@ export interface OrgSettingsResponse {
   verification_settings: VerificationSettings;
   transaction_fields_settings: TransactionFieldsSettings;
   org_user_fields_settings: OrgUserFieldsSettings;
-  trip_request_fields_settings: CommonOrgSettings;
   advance_request_fields_settings: AdvanceRequestFieldsSettings;
   org_logo_settings: OrgLogoSettings;
   org_branding_settings: CommonOrgSettings;
-  data_extraction_settings: DataExtractionSettings;
-  data_extractor_settings: CommonOrgSettings;
+  data_extractor_settings: DataExtractorSettings;
   settlements_excel_settings: SettlementsExcelSettings;
   advance_account_settings: AdvanceAccountSettings;
   expense_settings: ExpenseSettings;
@@ -374,7 +381,7 @@ export interface OrgSettingsResponse {
   integrations_settings: IntegrationsSettings;
   transaction_field_configurations: [];
   exchange_rate_settings: CommonOrgSettings;
-  currencylayer_provider_settings: CommonOrgSettings;
+  currencylayer_provider_settings: CurrencylayerProviderSettings;
   fixer_provider_settings: CommonOrgSettings;
   openexchangerates_provider_settings: CommonOrgSettings;
   oanda_provider_settings: CommonOrgSettings;
@@ -411,10 +418,6 @@ export interface OrgSettingsResponse {
   mis_reporting_settings: CommonOrgSettings;
   risk_score_settings: CommonOrgSettings;
   workflow_settings: WorkflowSettings;
-  card_assignment_settings: CommonOrgSettings;
-  transaction_reversal_settings: CommonOrgSettings;
-  auto_match_settings: CommonOrgSettings;
-  universal_statement_parser_settings: CommonOrgSettings;
   org_in_app_chat_settings: CommonOrgSettings;
   org_fyler_ccc_flow_settings: OrgFylerCccFlowSettings;
   org_hotjar_settings: CommonOrgSettings;
@@ -431,10 +434,12 @@ export interface UiPolicySettings {
   allowed: boolean;
   enabled: boolean;
   self_serve_enabled: boolean;
-  trip_request_policy_enabled: boolean;
   advance_request_policy_enabled: boolean;
   duplicate_detection_enabled: boolean;
-  policy_approval_workflow: boolean;
+}
+
+export interface DataExtractorSettings extends CommonOrgSettings {
+  web_app_pdf: string;
 }
 
 export interface OrgSettings {
@@ -465,11 +470,9 @@ export interface OrgSettings {
   transaction_fields_settings: TransactionFieldsSettings;
   org_user_fields_settings: OrgUserFieldsSettings;
   advance_request_fields_settings: AdvanceRequestFieldsSettings;
-  trip_request_fields_settings: CommonOrgSettings;
   org_logo_settings: OrgLogoSettings;
   org_branding_settings: CommonOrgSettings;
   verification: VerificationSettings;
-  data_extraction_settings: DataExtractionSettings;
   advance_account_settings: AdvanceAccountSettings;
   settlements_excel_settings: SettlementsExcelSettings;
   gmail_addon_settings: CommonOrgSettings;
@@ -489,10 +492,6 @@ export interface OrgSettings {
   mis_reporting_settings: CommonOrgSettings;
   risk_score_settings: CommonOrgSettings;
   workflow_settings: WorkflowSettings;
-  card_assignment_settings: CommonOrgSettings;
-  transaction_reversal_settings: CommonOrgSettings;
-  auto_match_settings: CommonOrgSettings;
-  universal_statement_parser_settings: CommonOrgSettings;
   in_app_chat_settings: CommonOrgSettings;
   ccc_draft_expense_settings: CommonOrgSettings;
   expense_widget_settings: CommonOrgSettings;
@@ -501,4 +500,9 @@ export interface OrgSettings {
   payment_mode_settings: PaymentmodeSettings;
   advanced_project_settings: AdvancedProjectSettings;
   expense_settings: ExpenseSettings;
+  admin_email_settings: AdminEmailSettings;
+  data_extractor_settings: DataExtractorSettings;
+  bank_payment_file_settings: CommonOrgSettings;
+  exchange_rate_settings: CommonOrgSettings;
+  currencylayer_provider_settings: CurrencylayerProviderSettings;
 }
