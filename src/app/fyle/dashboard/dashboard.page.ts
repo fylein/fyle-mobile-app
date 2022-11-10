@@ -101,7 +101,6 @@ export class DashboardPage implements OnInit {
       this.activatedRoute.snapshot.queryParams.state === 'tasks' ? DashboardState.tasks : DashboardState.home;
     if (currentState === DashboardState.tasks) {
       this.currentStateIndex = 1;
-      this.setBackButtonAction();
     } else {
       this.currentStateIndex = 0;
     }
@@ -134,6 +133,8 @@ export class DashboardPage implements OnInit {
   }
 
   setBackButtonAction() {
+    //If 'tasksFilters' query param is not present then it means that the user navigated to
+    //tasks page from dashboard and he should be redirected to dashboard.
     if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
       this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
         BackButtonActionPriority.LOW,
