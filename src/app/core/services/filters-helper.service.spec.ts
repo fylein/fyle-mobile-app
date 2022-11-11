@@ -183,4 +183,44 @@ describe('FiltersHelperService', () => {
     expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
     expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
   });
+
+  it('should generate selected filters using Sort Param - PROJECT | ASCENDING', () => {
+    const testFilters: Filters = {
+      sortParam: SortingParam.project,
+      sortDir: SortingDirection.ascending,
+    };
+
+    const testSelectedFilter: SelectedFilters<any>[] = [
+      {
+        name: 'Sort By',
+        value: 'projectAToZ',
+      },
+    ];
+
+    expect(service.generateSelectedFilters(testFilters)).toBeTruthy();
+    expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
+    expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
+  });
+
+  it('should generate selected filters using Sort Param - PROJECT | DESCENDING', () => {
+    const testFilters: Filters = {
+      sortParam: SortingParam.project,
+      sortDir: SortingDirection.descending,
+    };
+
+    const testSelectedFilter: SelectedFilters<any>[] = [
+      {
+        name: 'Sort By',
+        value: 'projectZToA',
+      },
+      {
+        name: 'Sort Direction',
+        value: 1,
+      },
+    ];
+
+    expect(service.generateSelectedFilters(testFilters)).toBeTruthy();
+    expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
+    expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
+  });
 });
