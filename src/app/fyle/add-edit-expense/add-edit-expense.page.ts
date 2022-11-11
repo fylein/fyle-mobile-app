@@ -2917,7 +2917,7 @@ export class AddEditExpensePage implements OnInit {
               !this.fg.value?.paymentMode?.acc?.isReimbursable,
             txn_dt: this.fg.value?.dateOfSpend && this.dateService.getUTCDate(new Date(this.fg.value?.dateOfSpend)),
             currency: this.fg.value?.currencyObj?.currency,
-            amount: amount,
+            amount,
             orig_currency: this.fg.value?.currencyObj?.orig_currency,
             orig_amount: this.fg.value?.currencyObj?.orig_amount,
             project_id: this.fg.value?.project?.project_id,
