@@ -141,12 +141,11 @@ export class DashboardPage implements OnInit {
       //If the user is on home page, show app close popup
       if (!this.router.url.includes('tasks')) {
         this.sharedService.showAppCloseAlert();
-      } else if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
+      }
 
-      /*
-       * tasksFilters queryparam is not present when user navigates to tasks page from dashboard.
-       * Calling onHomeClicked() because angular does not reload the page if the query params changes.
-       */
+      // tasksFilters queryparam is not present when user navigates to tasks page from dashboard.
+      else if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
+        //Calling onHomeClicked() because angular does not reload the page if the query params changes.
         this.onHomeClicked();
       }
 
