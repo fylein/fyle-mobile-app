@@ -1,0 +1,85 @@
+<ion-content class="camera-preview" [ngClass]="{ 'camera-preview--active': cameraState === CameraState.RUNNING }">
+  <div id="cameraPreview"></div>
+  <div *ngIf="isBulkModePromptShown" class="camera-preview--overlay"></div>
+  <div *ngIf="showModeChangedMessage" class="camera-preview__flash-msg text-center">
+    <div class="camera-preview__flash-msg__content">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode' }}</div>
+  </div>
+
+  <div class="camera-preview__top-container">
+    <div (click)="onDismissCameraPreview()">
+      <img class="camera-preview__top-container__icon" src="../../../assets/images/close.png" />
+    </div>
+    <div *ngIf="flashMode" (click)="onToggleFlashMode()">
+      <mat-icon
+        class="camera-preview__top-container__icon"
+        svgIcon="{{ flashMode === 'on' ? 'flash-on' : 'flash-off' }}"
+      ></mat-icon>
+    </div>
+  </div>
+
+  <div>
+    <div class="camera-preview__middle-container--top-section">
+      <img src="../../../assets/images/pointer-top-left.png" />
+      <img src="../../../assets/images/pointer-top-right.png" />
+    </div>
+
+    <div class="camera-preview__middle-container--bottom-section">
+      <img src="../../../assets/images/pointer-bottom-left.png" />
+      <img src="../../../assets/images/pointer-bottom-right.png" />
+    </div>
+  </div>
+
+  <div class="camera-preview__bottom-container" [ngClass]="{ 'camera-preview__bottom-container--offline': isOffline }">
+    <div
+      *ngIf="allowGalleryUploads"
+      class="camera-preview__bottom-container__icon-block text-center"
+      [ngClass]="{ 'camera-preview__bottom-container__icon-block--overlay': isBulkModePromptShown }"
+    >
+      <img
+        class="camera-preview__bottom-container__icon-block__icon"
+        src="../../../../assets/images/gallery.png"
+        alt="Gallery"
+        (click)="onGalleryUpload()"
+      />
+      <div class="camera-preview__bottom-container__text--secondary">Gallery</div>
+    </div>
+    <div
+      class="camera-preview__bottom-container__icon-block--primary text-center"
+      [ngClass]="{ 'camera-preview__bottom-container__icon-block--overlay': isBulkModePromptShown }"
+    >
+      <img
+        class="camera-preview__bottom-container__icon-block__icon--primary"
+        src="../../../../assets/images/capture.png"
+        alt="Capture"
+        (click)="onCaptureReceipt()"
+      />
+      <div class="camera-preview__bottom-container__text--primary">
+        {{ isBulkMode ? 'Bulk Mode' : 'Single Mode' }}
+      </div>
+    </div>
+    <div *ngIf="allowBulkFyle" class="camera-preview__bottom-container__icon-block text-center">
+      <ng-container *ngIf="noOfReceipts === 0; else receiptPreviewIcon">
+        <div (click)="onSwitchMode()">
+          <img
+            class="camera-preview__bottom-container__icon-block__icon"
+            [ngClass]="{ 'camera-preview__bottom-container__icon-block--highlight': isBulkModePromptShown }"
+            [src]="isBulkMode ? '../../../../assets/images/single-mode.png' : '../../../../assets/images/bulk-mode.png'"
+            alt="Mode"
+          />
+          <div class="camera-preview__bottom-container__text--secondary">
+            {{ !isBulkMode ? 'Bulk Mode' : 'Single Mode' }}
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #receiptPreviewIcon>
+        <div (click)="openReceiptPreview()">
+          <div class="camera-preview__bottom-container__thumbnail__count text-center">{{ noOfReceipts }}</div>
+          <div class="camera-preview__bottom-container__thumbnail">
+            <ion-img [src]="lastCapturedReceipt"></ion-img>
+          </div>
+          <div class="camera-preview__bottom-container__text--secondary">Review</div>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</ion-content>
