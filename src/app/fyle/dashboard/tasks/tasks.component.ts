@@ -13,6 +13,7 @@ import { DashboardTask } from 'src/app/core/models/task.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -59,6 +60,7 @@ export class TasksComponent implements OnInit {
     private reportService: ReportService,
     private advanceRequestService: AdvanceRequestService,
     private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
     private loaderService: LoaderService,
     private matBottomSheet: MatBottomSheet,
