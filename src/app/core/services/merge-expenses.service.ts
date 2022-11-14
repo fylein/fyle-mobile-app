@@ -99,37 +99,6 @@ export class MergeExpensesService {
     return expensesInfo;
   }
 
-  getReceiptDetails(file: FileObject): FileResponse {
-    const extension = this.getReceiptExtension(file.name);
-    const fileResponse = {
-      type: 'unknown',
-      thumbnail: 'img/fy-receipt.svg',
-    };
-
-    if (extension.endsWith('pdf')) {
-      fileResponse.type = 'pdf';
-      fileResponse.thumbnail = 'img/fy-pdf.svg';
-    } else if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
-      fileResponse.type = 'image';
-      fileResponse.thumbnail = file.url;
-    }
-    return fileResponse;
-  }
-
-  getReceiptExtension(name: string): string {
-    let extension = null;
-
-    if (name) {
-      const filename = name.toLowerCase();
-      const index = filename.lastIndexOf('.');
-
-      if (index > -1) {
-        extension = filename.substring(index + 1, filename.length);
-      }
-    }
-    return extension;
-  }
-
   isApprovedAndAbove(expenses: Expense[]): Expense[] {
     const approvedAndAboveExpenses = expenses.filter((expense) =>
       ['APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
@@ -243,10 +212,6 @@ export class MergeExpensesService {
     );
   }
 
-  checkOptionsAreSame(options): boolean {
-    return options.some((field, index) => options.indexOf(field) !== index);
-  }
-
   generateAmountOptions(expenses: Expense[]): Observable<OptionsData> {
     return from(expenses).pipe(
       map((expense) => {
@@ -306,14 +271,6 @@ export class MergeExpensesService {
         };
       })
     );
-  }
-
-  formatOptions(options: Option[]): OptionsData {
-    const optionValues = options.map((option) => option.value);
-    return {
-      options,
-      areSameValues: this.checkOptionsAreSame(optionValues),
-    };
   }
 
   generatePaymentModeOptions(expenses: Expense[]): Observable<OptionsData> {
@@ -597,52 +554,6 @@ export class MergeExpensesService {
     );
   }
 
-  removeUnspecified(options: Option[]): Option[] {
-    return options.filter(
-      (option, index, options) => options.findIndex((currentOption) => currentOption.label === option.label) === index
-    );
-  }
-
-  formatTaxGroupOption(option: Option): Observable<OptionsData> {
-    const taxGroups$ = this.taxGroupService.get().pipe(shareReplay(1));
-    const taxGroupsOptions$ = taxGroups$.pipe(
-      map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
-    );
-
-    return taxGroups$.pipe(
-      map((taxGroups) => {
-        option.label = taxGroups[taxGroups.map((taxGroup) => taxGroup.id).indexOf(option.value)]?.name;
-        return option;
-      })
-    );
-  }
-
-  formatCategoryOption(option: Option): Observable<Option> {
-    const allCategories$ = this.categoriesService.getAll();
-
-    return allCategories$.pipe(
-      map((catogories) => this.categoriesService.filterRequired(catogories)),
-      map((categories) => {
-        option.label = categories[categories.map((category) => category.id).indexOf(option.value)]?.displayName;
-        if (!option.label) {
-          option.label = 'Unspecified';
-        }
-        return option;
-      })
-    );
-  }
-
-  formatProjectOptions(option: Option): Observable<Option> {
-    const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
-    return projects$.pipe(
-      map((projects) => {
-        const index = projects.map((project) => project?.id).indexOf(option?.value);
-        option.label = projects[index]?.name;
-        return option;
-      })
-    );
-  }
-
   generateBillableOptions(expenses: Expense[]): Observable<OptionsData> {
     return from(expenses).pipe(
       map((expense) => ({
@@ -656,33 +567,6 @@ export class MergeExpensesService {
       }, []),
       map((options: Option[]) => this.formatOptions(options))
     );
-  }
-
-  formatDateOptions(options: Option[]): Option[] {
-    return options.map((option) => {
-      option.label = moment(option.label).format('MMM DD, YYYY');
-      return option;
-    });
-  }
-
-  formatBillableOptions(option: Option): Option {
-    if (option.value === true) {
-      option.label = 'Yes';
-    } else {
-      option.label = 'No';
-    }
-    return option;
-  }
-
-  formatPaymentModeOptions(option: Option): Option {
-    if (option.value === AccountType.CCC) {
-      option.label = 'Corporate Card';
-    } else if (option.value === AccountType.PERSONAL) {
-      option.label = 'Personal Card/Cash';
-    } else if (option.value === AccountType.ADVANCE) {
-      option.label = 'Advance';
-    }
-    return option;
   }
 
   getCategoryName(categoryId: string): Observable<string> {
@@ -728,7 +612,23 @@ export class MergeExpensesService {
       }, {});
   }
 
-  formatCustomInputOptionsByType(combinedCustomProperties: OptionsData[]) {
+  getFieldValue(optionsData: OptionsData) {
+    if (optionsData?.areSameValues) {
+      return optionsData?.options[0]?.value;
+    } else {
+      return null;
+    }
+  }
+
+  getFieldValueOnChange(optionsData: OptionsData, isTouched: boolean, selectedExpenseValue: any, formValue: any) {
+    if (!optionsData?.areSameValues && !isTouched) {
+      return selectedExpenseValue;
+    } else {
+      return formValue;
+    }
+  }
+
+  private formatCustomInputOptionsByType(combinedCustomProperties: OptionsData[]) {
     const customProperty = [];
 
     combinedCustomProperties.forEach((field) => {
@@ -760,19 +660,112 @@ export class MergeExpensesService {
     return customProperty;
   }
 
-  getFieldValue(optionsData: OptionsData) {
-    if (optionsData?.areSameValues) {
-      return optionsData?.options[0]?.value;
-    } else {
-      return null;
-    }
+  private removeUnspecified(options: Option[]): Option[] {
+    return options.filter(
+      (option, index, options) => options.findIndex((currentOption) => currentOption.label === option.label) === index
+    );
   }
 
-  getFieldValueOnChange(optionsData: OptionsData, isTouched: boolean, selectedExpenseValue: any, formValue: any) {
-    if (!optionsData?.areSameValues && !isTouched) {
-      return selectedExpenseValue;
-    } else {
-      return formValue;
+  private getReceiptExtension(name: string): string {
+    let extension = null;
+
+    if (name) {
+      const filename = name.toLowerCase();
+      const index = filename.lastIndexOf('.');
+
+      if (index > -1) {
+        extension = filename.substring(index + 1, filename.length);
+      }
     }
+    return extension;
+  }
+
+  private getReceiptDetails(file: FileObject): FileResponse {
+    const extension = this.getReceiptExtension(file.name);
+    const fileResponse = {
+      type: 'unknown',
+      thumbnail: 'img/fy-receipt.svg',
+    };
+
+    if (extension.endsWith('pdf')) {
+      fileResponse.type = 'pdf';
+      fileResponse.thumbnail = 'img/fy-pdf.svg';
+    } else if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
+      fileResponse.type = 'image';
+      fileResponse.thumbnail = file.url;
+    }
+    return fileResponse;
+  }
+
+  private checkOptionsAreSame(options): boolean {
+    return options.some((field, index) => options.indexOf(field) !== index);
+  }
+
+  private formatOptions(options: Option[]): OptionsData {
+    const optionValues = options.map((option) => option.value);
+    return {
+      options,
+      areSameValues: this.checkOptionsAreSame(optionValues),
+    };
+  }
+
+  private formatTaxGroupOption(option: Option): Observable<OptionsData> {
+    const taxGroups$ = this.taxGroupService.get().pipe(shareReplay(1));
+    const taxGroupsOptions$ = taxGroups$.pipe(
+      map((taxGroupsOptions) => taxGroupsOptions.map((tg) => ({ label: tg.name, value: tg })))
+    );
+
+    return taxGroups$.pipe(
+      map((taxGroups) => {
+        option.label = taxGroups[taxGroups.map((taxGroup) => taxGroup.id).indexOf(option.value)]?.name;
+        return option;
+      })
+    );
+  }
+
+  private formatCategoryOption(option: Option): Observable<Option> {
+    const allCategories$ = this.categoriesService.getAll();
+
+    return allCategories$.pipe(
+      map((catogories) => this.categoriesService.filterRequired(catogories)),
+      map((categories) => {
+        option.label = categories[categories.map((category) => category.id).indexOf(option.value)]?.displayName;
+        if (!option.label) {
+          option.label = 'Unspecified';
+        }
+        return option;
+      })
+    );
+  }
+
+  private formatProjectOptions(option: Option): Observable<Option> {
+    const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
+    return projects$.pipe(
+      map((projects) => {
+        const index = projects.map((project) => project?.id).indexOf(option?.value);
+        option.label = projects[index]?.name;
+        return option;
+      })
+    );
+  }
+
+  private formatBillableOptions(option: Option): Option {
+    if (option.value === true) {
+      option.label = 'Yes';
+    } else {
+      option.label = 'No';
+    }
+    return option;
+  }
+
+  private formatPaymentModeOptions(option: Option): Option {
+    if (option.value === AccountType.CCC) {
+      option.label = 'Corporate Card';
+    } else if (option.value === AccountType.PERSONAL) {
+      option.label = 'Personal Card/Cash';
+    } else if (option.value === AccountType.ADVANCE) {
+      option.label = 'Advance';
+    }
+    return option;
   }
 }
