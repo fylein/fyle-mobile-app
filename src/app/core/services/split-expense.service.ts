@@ -211,6 +211,10 @@ export class SplitExpenseService {
         // transformTo method requires unflattend transaction object
         const platformExpense = this.dataTransformService.unflatten(etxn).tx;
         platformExpense.num_files = fileObjs ? fileObjs.length : 0;
+
+        // Since expense has already been created in split expense flow, taking user_amount here.
+        platformExpense.amount =
+          typeof platformExpense.user_amount === 'number' ? platformExpense.user_amount : platformExpense.amount;
         platformExpensesList.push(platformExpense);
       });
       return this.checkPolicyForTransactions(platformExpensesList);
