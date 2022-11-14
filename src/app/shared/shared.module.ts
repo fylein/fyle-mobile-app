@@ -132,6 +132,7 @@ import { SingularPipe } from './pipes/singular.pipe';
 import { VirtualSelectComponent } from './components/virtual-select/virtual-select.component';
 import { VirtualSelectModalComponent } from './components/virtual-select/virtual-select-modal/virtual-select-modal.component';
 import { AutoSubmissionInfoCardComponent } from '../fyle/dashboard/tasks/auto-submission-info-card/auto-submission-info-card.component';
+import { CameraPreviewComponent } from './components/capture-receipt/camera-preview/camera-preview.component';
 
 @NgModule({
   declarations: [
@@ -242,6 +243,7 @@ import { AutoSubmissionInfoCardComponent } from '../fyle/dashboard/tasks/auto-su
     VirtualSelectComponent,
     VirtualSelectModalComponent,
     AutoSubmissionInfoCardComponent,
+    CameraPreviewComponent,
   ],
   imports: [
     CommonModule,
@@ -358,6 +360,7 @@ import { AutoSubmissionInfoCardComponent } from '../fyle/dashboard/tasks/auto-su
     SingularPipe,
     VirtualSelectComponent,
     AutoSubmissionInfoCardComponent,
+    CameraPreviewComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe],
 })
