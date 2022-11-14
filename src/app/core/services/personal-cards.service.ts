@@ -343,75 +343,7 @@ export class PersonalCardsService {
     return filterPills;
   }
 
-  private generateUpdatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
-    const startDate = filters.updatedOn.customDateStart && moment(filters.updatedOn.customDateStart).format('y-MM-D');
-    const endDate = filters.updatedOn.customDateEnd && moment(filters.updatedOn.customDateEnd).format('y-MM-D');
-
-    if (startDate && endDate) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: `${startDate} to ${endDate}`,
-      });
-    } else if (startDate) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: `>= ${startDate}`,
-      });
-    } else if (endDate) {
-      filterPills.push({
-        label: 'Updated On',
-        type: 'date',
-        value: `<= ${endDate}`,
-      });
-    }
-  }
-
-  private generateCreditTrasactionsFilterPills(filters, filterPills: FilterPill[]) {
-    if (filters.transactionType === 'Credit') {
-      filterPills.push({
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Credit',
-      });
-    }
-
-    if (filters.transactionType === 'Debit') {
-      filterPills.push({
-        label: 'Transactions Type',
-        type: 'string',
-        value: 'Debit',
-      });
-    }
-  }
-
-  private generateCreatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
-    const startDate = filters.createdOn.customDateStart && moment(filters.createdOn.customDateStart).format('y-MM-D');
-    const endDate = filters.createdOn.customDateEnd && moment(filters.createdOn.customDateEnd).format('y-MM-D');
-
-    if (startDate && endDate) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: `${startDate} to ${endDate}`,
-      });
-    } else if (startDate) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: `>= ${startDate}`,
-      });
-    } else if (endDate) {
-      filterPills.push({
-        label: 'Created On',
-        type: 'date',
-        value: `<= ${endDate}`,
-      });
-    }
-  }
-
-  private generateDateFilterPills(type, filters, filterPills: FilterPill[]) {
+  generateDateFilterPills(type, filters, filterPills: FilterPill[]) {
     if (filters[type].name === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Created On',
@@ -451,6 +383,74 @@ export class PersonalCardsService {
       if (type === 'updatedOn') {
         this.generateUpdatedOnCustomDatePill(filters, filterPills);
       }
+    }
+  }
+
+  generateCreatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
+    const startDate = filters.createdOn.customDateStart && moment(filters.createdOn.customDateStart).format('y-MM-D');
+    const endDate = filters.createdOn.customDateEnd && moment(filters.createdOn.customDateEnd).format('y-MM-D');
+
+    if (startDate && endDate) {
+      filterPills.push({
+        label: 'Created On',
+        type: 'date',
+        value: `${startDate} to ${endDate}`,
+      });
+    } else if (startDate) {
+      filterPills.push({
+        label: 'Created On',
+        type: 'date',
+        value: `>= ${startDate}`,
+      });
+    } else if (endDate) {
+      filterPills.push({
+        label: 'Created On',
+        type: 'date',
+        value: `<= ${endDate}`,
+      });
+    }
+  }
+
+  generateUpdatedOnCustomDatePill(filters: any, filterPills: FilterPill[]) {
+    const startDate = filters.updatedOn.customDateStart && moment(filters.updatedOn.customDateStart).format('y-MM-D');
+    const endDate = filters.updatedOn.customDateEnd && moment(filters.updatedOn.customDateEnd).format('y-MM-D');
+
+    if (startDate && endDate) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: `${startDate} to ${endDate}`,
+      });
+    } else if (startDate) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: `>= ${startDate}`,
+      });
+    } else if (endDate) {
+      filterPills.push({
+        label: 'Updated On',
+        type: 'date',
+        value: `<= ${endDate}`,
+      });
+    }
+  }
+
+  generateCreditTrasactionsFilterPills(filters, filterPills: FilterPill[]) {
+    if (filters.transactionType === 'Credit') {
+      filterPills.push({
+        label: 'Transactions Type',
+        type: 'string',
+        value: 'Credit',
+      });
+    }
+
+    if (filters.transactionType === 'Debit') {
+      filterPills.push({
+        label: 'Transactions Type',
+        type: 'string',
+        value: 'Debit',
+      });
     }
   }
 }
