@@ -15,7 +15,7 @@ import {
 } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { ActionSheetController, ModalController, PopoverController, Platform, NavController } from '@ionic/angular';
+import { ActionSheetController, ModalController, PopoverController, Platform } from '@ionic/angular';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   catchError,
@@ -210,8 +210,7 @@ export class MyExpensesPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private currencyService: CurrencyService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private platform: Platform,
-    private navController: NavController
+    private platform: Platform
   ) {}
 
   get HeaderState() {
@@ -437,8 +436,6 @@ export class MyExpensesPage implements OnInit {
         this.switchSelectionMode();
       } else if (this.headerState === HeaderState.simpleSearch) {
         this.onSimpleSearchCancel();
-      } else {
-        this.navController.back();
       }
     });
 
