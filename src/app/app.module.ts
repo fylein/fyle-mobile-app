@@ -19,9 +19,8 @@ import { SecureStorageService } from './core/services/secure-storage.service';
 import { StorageService } from './core/services/storage.service';
 import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import { GoogleMapsModule } from '@angular/google-maps';
-import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
+import { PAGINATION_SIZE } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
-import { Capacitor } from '@capacitor/core';
 import { MobileAccessibility } from '@ionic-native/mobile-accessibility/ngx';
 
 export class MyHammerConfig extends HammerGestureConfig {
@@ -92,10 +91,6 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     {
       provide: PAGINATION_SIZE,
       useValue: 200,
-    },
-    {
-      provide: DEVICE_PLATFORM,
-      useValue: Capacitor.getPlatform(),
     },
     TitleCasePipe,
     MobileAccessibility,
