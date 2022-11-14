@@ -27,12 +27,7 @@ export class OrgSettingsService {
     return this.apiService.post('/org/settings', data);
   }
 
-  getDefaultLimitAmount() {
-    const defaultLimitAmount = 75;
-    return defaultLimitAmount;
-  }
-
-  getIncomingAccountingObject(incomingAccountExport) {
+  private getIncomingAccountingObject(incomingAccountExport) {
     // setting allowed to true here as this field will be removed within a month
     // TODO: Remove this hack latest by end of April 2020 - If you find this code after the deadline, @arun will buy you petrol
     // Petrol claimed by @Dhar - bike trip to himachal pradesh once corona ends
@@ -73,7 +68,7 @@ export class OrgSettingsService {
     return accounting;
   }
 
-  setOutgoingAccountingObject(accounting) {
+  private setOutgoingAccountingObject(accounting) {
     const accountingSettings: any = {};
 
     accountingSettings.allowed = accounting && accounting.allowed;
@@ -96,7 +91,7 @@ export class OrgSettingsService {
 
   // unavoidable here
   // eslint-disable-next-line complexity
-  processIncoming(incoming) {
+  private processIncoming(incoming) {
     const orgSettings = {
       org_id: incoming.org_id,
       mileage: {
@@ -338,7 +333,7 @@ export class OrgSettingsService {
     return orgSettings;
   }
 
-  processOutgoing(outgoing) {
+  private processOutgoing(outgoing) {
     return {
       project_settings: {
         allowed: outgoing.projects.allowed,
