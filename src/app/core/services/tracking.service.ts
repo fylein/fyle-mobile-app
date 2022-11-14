@@ -232,6 +232,11 @@ export class TrackingService {
     this.eventTrack('Click Create Report', properties);
   }
 
+  // categoryFailure in activity
+  categoryFailure(properties) {
+    this.eventTrack('Category Failure', properties);
+  }
+
   /*** Events related to reports ***/
 
   // click download report
