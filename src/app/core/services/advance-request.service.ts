@@ -266,8 +266,34 @@ export class AdvanceRequestService {
     );
   }
 
+  getPaginatedEAdvanceRequestsStats(params) {
+    return this.apiService.get('/eadvance_requests/stats', { params });
+  }
+
+  getPaginatedMyEAdvanceRequestsCount(params) {
+    return this.networkService.isOnline().pipe(
+      switchMap((isOnline) => {
+        if (isOnline) {
+          return this.apiService.get('/eadvance_requests/count', { params }).pipe(
+            tap((res) => {
+              this.storageService.set('eadvanceRequestsCount' + JSON.stringify(params), res);
+            })
+          );
+        } else {
+          return from(this.storageService.get('eadvanceRequestsCount' + JSON.stringify(params)));
+        }
+      })
+    );
+  }
+
   getActions(advanceRequestId: string) {
     return this.apiService.get('/advance_requests/' + advanceRequestId + '/actions');
+  }
+
+  getApproversByAdvanceRequestId(advanceRequestId: string) {
+    return this.apiService
+      .get('/eadvance_requests/' + advanceRequestId + '/approvals')
+      .pipe(map((res) => res as Approval[]));
   }
 
   getActiveApproversByAdvanceRequestId(advanceRequestId: string) {
@@ -310,6 +336,22 @@ export class AdvanceRequestService {
     return customFields;
   }
 
+  fixDates(data: ExtendedAdvanceRequest) {
+    if (data?.areq_created_at) {
+      data.areq_created_at = new Date(data?.areq_created_at);
+    }
+
+    if (data.areq_updated_at) {
+      data.areq_updated_at = new Date(data?.areq_updated_at);
+    }
+
+    if (data.areq_approved_at) {
+      data.areq_approved_at = new Date(data?.areq_approved_at);
+    }
+
+    return data;
+  }
+
   getInternalStateAndDisplayName(advanceRequest: ExtendedAdvanceRequest): { state: string; name: string } {
     let internalRepresentation: { state: string; name: string } = {
       state: null,
@@ -344,6 +386,24 @@ export class AdvanceRequestService {
       };
     }
 
+    return internalRepresentation;
+  }
+
+  getStateIfDraft(advanceRequest: ExtendedAdvanceRequest) {
+    const internalRepresentation: { state: string; name: string } = {
+      state: null,
+      name: null,
+    };
+    if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
+      internalRepresentation.state = 'draft';
+      internalRepresentation.name = 'Draft';
+    } else if (advanceRequest.areq_is_pulled_back) {
+      internalRepresentation.state = 'pulledBack';
+      internalRepresentation.name = 'Pulled Back';
+    } else if (advanceRequest.areq_is_sent_back) {
+      internalRepresentation.state = 'inquiry';
+      internalRepresentation.name = 'Sent Back';
+    }
     return internalRepresentation;
   }
 
@@ -424,45 +484,5 @@ export class AdvanceRequestService {
         ...params,
       },
     });
-  }
-
-  private getApproversByAdvanceRequestId(advanceRequestId: string) {
-    return this.apiService
-      .get('/eadvance_requests/' + advanceRequestId + '/approvals')
-      .pipe(map((res) => res as Approval[]));
-  }
-
-  private fixDates(data: ExtendedAdvanceRequest) {
-    if (data?.areq_created_at) {
-      data.areq_created_at = new Date(data?.areq_created_at);
-    }
-
-    if (data.areq_updated_at) {
-      data.areq_updated_at = new Date(data?.areq_updated_at);
-    }
-
-    if (data.areq_approved_at) {
-      data.areq_approved_at = new Date(data?.areq_approved_at);
-    }
-
-    return data;
-  }
-
-  private getStateIfDraft(advanceRequest: ExtendedAdvanceRequest) {
-    const internalRepresentation: { state: string; name: string } = {
-      state: null,
-      name: null,
-    };
-    if (!advanceRequest.areq_is_pulled_back && !advanceRequest.areq_is_sent_back) {
-      internalRepresentation.state = 'draft';
-      internalRepresentation.name = 'Draft';
-    } else if (advanceRequest.areq_is_pulled_back) {
-      internalRepresentation.state = 'pulledBack';
-      internalRepresentation.name = 'Pulled Back';
-    } else if (advanceRequest.areq_is_sent_back) {
-      internalRepresentation.state = 'inquiry';
-      internalRepresentation.name = 'Sent Back';
-    }
-    return internalRepresentation;
   }
 }
