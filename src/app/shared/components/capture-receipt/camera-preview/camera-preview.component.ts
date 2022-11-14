@@ -30,6 +30,8 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   @Input() noOfReceipts = 0;
 
+  @Input() isBulkModePromptShown = false;
+
   @Output() galleryUpload = new EventEmitter();
 
   @Output() switchMode = new EventEmitter();

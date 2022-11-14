@@ -19,6 +19,9 @@ import { CameraPreviewComponent } from './camera-preview/camera-preview.componen
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-alert-component/popup-alert-component.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 
 type Image = Partial<{
   source: string;
@@ -68,6 +71,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private loaderService: LoaderService,
     private orgService: OrgService,
     private orgUserSettingsService: OrgUserSettingsService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
   ) {}
 
@@ -144,6 +149,18 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.trackingService.flashModeSet({
       FlashMode: flashMode,
     });
+  }
+
+  showBulkModeToastMessage() {
+    const message =
+      'If you have multiple receipts to upload, please use <b>BULK MODE</b> to upload all the receipts at once.';
+    this.bulkModeToastMessageRef = this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('information', { message }),
+      panelClass: ['msb-bulkfyle-prompt'],
+      duration: 10000,
+    });
+    this.bulkModeToastMessageRef.afterDismissed().subscribe(() => (this.isBulkModePromptShown = false));
+    this.trackingService.showToastMessage({ ToastContent: message });
   }
 
   onSwitchMode() {
@@ -479,10 +496,15 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     if (this.isModal) {
       this.stopCamera();
     }
+    this.bulkModeToastMessageRef?.dismiss();
   }
 
   setUpAndStartCamera() {
     this.cameraPreview.setUpAndStartCamera();
+    if (this.transactionsOutboxService.singleCaptureCount === 0) {
+      this.showBulkModeToastMessage();
+      this.isBulkModePromptShown = true;
+    }
   }
 
   stopCamera() {
