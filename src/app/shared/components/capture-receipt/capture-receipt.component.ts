@@ -501,7 +501,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   setUpAndStartCamera() {
     this.cameraPreview.setUpAndStartCamera();
-    if (this.transactionsOutboxService.singleCaptureCount === 0) {
+    if (this.transactionsOutboxService.singleCaptureCount === 3) {
       this.showBulkModeToastMessage();
       this.isBulkModePromptShown = true;
     }
