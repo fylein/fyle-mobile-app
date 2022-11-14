@@ -51,6 +51,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isOffline$: Observable<boolean>;
 
+  isBulkModePromptShown = false;
+
+  bulkModeToastMessageRef: MatSnackBarRef<ToastMessageComponent>;
+
   constructor(
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -183,6 +187,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.navigateToExpenseForm();
       }
     });
+    this.transactionsOutboxService.incrementSingleCaptureCount();
   }
 
   onSingleCapture() {

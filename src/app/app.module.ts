@@ -22,6 +22,7 @@ import { GoogleMapsModule } from '@angular/google-maps';
 import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { Capacitor } from '@capacitor/core';
+import { MobileAccessibility } from '@ionic-native/mobile-accessibility/ngx';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -97,6 +98,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
       useValue: Capacitor.getPlatform(),
     },
     TitleCasePipe,
+    MobileAccessibility,
   ],
   bootstrap: [AppComponent],
 })

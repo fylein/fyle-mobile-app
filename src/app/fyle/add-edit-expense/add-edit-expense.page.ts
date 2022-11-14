@@ -13,6 +13,7 @@ import {
   of,
   BehaviorSubject,
   throwError,
+  Subscription,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
@@ -105,6 +106,7 @@ import { PaymentModesService } from 'src/app/core/services/payment-modes.service
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TaxGroupService } from 'src/app/core/services/tax-group.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -349,6 +351,8 @@ export class AddEditExpensePage implements OnInit {
 
   breakfastSystemCategories: string[];
 
+  hardwareBackButtonAction: Subscription;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -521,6 +525,9 @@ export class AddEditExpensePage implements OnInit {
               paymentAccount.acc.tentative_balance_amount + etxn.tx.amount <
               (this.fg.value.currencyObj && this.fg.value.currencyObj.amount);
           }
+        }
+        if (isPaymentModeInvalid) {
+          this.paymentModesService.showInvalidPaymentModeToast();
         }
         return isPaymentModeInvalid;
       })
@@ -1380,24 +1387,26 @@ export class AddEditExpensePage implements OnInit {
         )
       )
     );
-    const selectedReport$ = this.etxn$.pipe(
-      switchMap((etxn) => {
+    const selectedReport$ = forkJoin({
+      autoSubmissionReportName: this.autoSubmissionReportName$,
+      etxn: this.etxn$,
+      reportOptions: this.reports$,
+    }).pipe(
+      map(({ autoSubmissionReportName, etxn, reportOptions }) => {
         if (etxn.tx.report_id) {
-          return this.reports$.pipe(
-            map((reportOptions) =>
-              reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
-            )
-          );
+          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
         } else if (!etxn.tx.report_id && this.activatedRoute.snapshot.params.rp_id) {
-          return this.reports$.pipe(
-            map((reportOptions) =>
-              reportOptions
-                .map((res) => res.value)
-                .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id)
-            )
-          );
+          return reportOptions
+            .map((res) => res.value)
+            .find((reportOption) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id);
+        } else if (
+          !autoSubmissionReportName &&
+          reportOptions.length === 1 &&
+          reportOptions[0].value.rp.state === 'DRAFT'
+        ) {
+          return reportOptions[0].value;
         } else {
-          return of(null);
+          return null;
         }
       })
     );
@@ -2361,28 +2370,11 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  async showCannotEditActivityDialog() {
-    const popupResult = await this.popupService.showPopup({
-      header: 'Cannot Edit Activity Expense!',
-      // eslint-disable-next-line max-len
-      message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.clusterDomain}">${this.clusterDomain}</a>`,
-      primaryCta: {
-        text: 'Close',
-      },
-      showCancelButton: false,
-    });
-  }
-
   goToTransaction(expense, reviewList, activeIndex) {
     let category;
 
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
-    }
-
-    if (category === 'activity') {
-      this.showCannotEditActivityDialog();
-      return;
     }
 
     if (category === 'mileage') {
@@ -2436,6 +2428,13 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.MEDIUM,
+      () => {
+        this.showClosePopup();
+      }
+    );
+
     this.newExpenseDataUrls = [];
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
@@ -2475,6 +2474,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     if (this.activatedRoute.snapshot.params.bankTxn) {
       const bankTxn =
@@ -2826,9 +2826,6 @@ export class AddEditExpensePage implements OnInit {
         });
       }
     });
-
-    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
-
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
@@ -4421,5 +4418,9 @@ export class AddEditExpensePage implements OnInit {
     if (data?.action === 'dismissed') {
       this.getDuplicateExpenses();
     }
+  }
+
+  ionViewWillLeave() {
+    this.hardwareBackButtonAction.unsubscribe();
   }
 }
