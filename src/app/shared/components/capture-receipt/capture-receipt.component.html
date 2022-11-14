@@ -3,7 +3,6 @@
   [ngClass]="{ 'capture-receipt--camera-preview__is-active': isCameraPreviewStarted }"
 >
   <div id="cameraPreview"></div>
-  <div *ngIf="isBulkModePromptShown" class="capture-receipt--camera-preview--overlay"></div>
   <div *ngIf="hasModeChanged" class="capture-receipt--switch-mode-info text-center">
     <div class="capture-receipt--switch-mode-text">{{ isBulkMode ? 'Bulk Mode' : 'Single Mode' }}</div>
   </div>
@@ -42,11 +41,7 @@
     class="capture-receipt--single-bulk-gallery-container"
     [ngClass]="{ 'capture-receipt--single-bulk-gallery-container__offline': isOffline$ | async }"
   >
-    <div
-      *ngIf="allowGalleryUploads"
-      class="capture-receipt--gallery-icon-block text-center"
-      [ngClass]="{ 'capture-receipt--gallery-icon-block--overlay': isBulkModePromptShown }"
-    >
+    <div *ngIf="allowGalleryUploads" class="capture-receipt--gallery-icon-block text-center">
       <img
         class="capture-receipt--gallery-icon"
         src="../../../../assets/images/gallery.png"
@@ -55,10 +50,7 @@
       />
       <div class="text-center capture-receipt--footer-text capture-receipt--gallery-icon-text">Gallery</div>
     </div>
-    <div
-      class="capture-receipt--capture-icon-block text-center"
-      [ngClass]="{ 'capture-receipt--capture-icon-block--overlay': isBulkModePromptShown }"
-    >
+    <div class="capture-receipt--capture-icon-block text-center">
       <img
         class="capture-receipt--capture-icon"
         src="../../../../assets/images/capture.png"
@@ -74,7 +66,6 @@
         <div (click)="switchMode()">
           <img
             class="capture-receipt--bulk-mode-icon"
-            [ngClass]="{ 'capture-receipt--bulk-mode-icon--highlight': isBulkModePromptShown }"
             [src]="isBulkMode ? '../../../../assets/images/single-mode.png' : '../../../../assets/images/bulk-mode.png'"
             alt="Mode"
           />

@@ -22,12 +22,10 @@ module.exports = function (config) {
     //},
     // coverReporter NEWLY ADDED
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage'),
-      subdir: '.',
+      dir: 'coverage',
       reporters: [
-        { type: 'html' },
-        { type: 'lcov' },
-        { type: 'json-summary' }
+        { type: 'html', subdir: 'report-html' },
+        { type: 'lcov', subdir: 'report-lcov' }
       ],
       fixWebpackSourcePaths: true
     },

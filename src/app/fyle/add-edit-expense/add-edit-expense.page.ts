@@ -13,7 +13,6 @@ import {
   of,
   BehaviorSubject,
   throwError,
-  Subscription,
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
@@ -109,7 +108,6 @@ import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -353,8 +351,6 @@ export class AddEditExpensePage implements OnInit {
   systemCategories: string[];
 
   breakfastSystemCategories: string[];
-
-  hardwareBackButtonAction: Subscription;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2373,11 +2369,28 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
+  async showCannotEditActivityDialog() {
+    const popupResult = await this.popupService.showPopup({
+      header: 'Cannot Edit Activity Expense!',
+      // eslint-disable-next-line max-len
+      message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.clusterDomain}">${this.clusterDomain}</a>`,
+      primaryCta: {
+        text: 'Close',
+      },
+      showCancelButton: false,
+    });
+  }
+
   goToTransaction(expense, reviewList, activeIndex) {
     let category;
 
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
+    }
+
+    if (category === 'activity') {
+      this.showCannotEditActivityDialog();
+      return;
     }
 
     if (category === 'mileage') {
@@ -2431,13 +2444,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-      BackButtonActionPriority.MEDIUM,
-      () => {
-        this.showClosePopup();
-      }
-    );
-
     this.newExpenseDataUrls = [];
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
@@ -4398,9 +4404,5 @@ export class AddEditExpensePage implements OnInit {
     if (data?.action === 'dismissed') {
       this.getDuplicateExpenses();
     }
-  }
-
-  ionViewWillLeave() {
-    this.hardwareBackButtonAction.unsubscribe();
   }
 }

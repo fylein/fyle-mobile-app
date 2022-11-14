@@ -31,6 +31,8 @@ export interface Expense {
   source_account_id: string;
   source_account_type: string;
   transaction_approvals: any;
+  tx_activity_details?: any;
+  tx_activity_policy_pending?: any;
   tx_admin_amount?: any;
   tx_amount?: any;
   tx_billable: boolean;
