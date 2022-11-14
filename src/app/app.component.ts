@@ -24,7 +24,6 @@ import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PopupAlertComponentComponent } from './shared/components/popup-alert-component/popup-alert-component.component';
 import { PerfTrackers } from './core/models/perf-trackers.enum';
 import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
-import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
 
 @Component({
   selector: 'app-root',
@@ -103,9 +102,10 @@ export class AppComponent implements OnInit {
   }
 
   registerBackButtonAction() {
-    this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
+    this.platform.backButton.subscribeWithPriority(10, () => {
       if (
-        (this.router.url.includes('my_dashboard') && !this.router.url.includes('tasks')) ||
+        this.router.url.includes('my_dashboard') ||
+        this.router.url.includes('tasks') ||
         this.router.url.includes('sign_in')
       ) {
         this.showAppCloseAlert();

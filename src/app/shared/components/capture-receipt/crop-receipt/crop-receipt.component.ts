@@ -3,7 +3,6 @@ import { ImageCropperComponent } from 'ngx-image-cropper';
 import { ModalController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Subscription } from 'rxjs';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 type Image = Partial<{
   source: string;
@@ -50,7 +49,7 @@ export class CropReceiptComponent implements OnInit {
   ionViewWillEnter() {
     // Assigned a higher priority here so it will overwrite the backButtonAction in receipt-preview component
     // Ref - https://ionicframework.com/docs/developing/hardware-back-button#basic-usage
-    this.backButtonAction = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.VERY_HIGH, () => {
+    this.backButtonAction = this.platform.backButton.subscribeWithPriority(300, () => {
       this.closeModal();
     });
   }

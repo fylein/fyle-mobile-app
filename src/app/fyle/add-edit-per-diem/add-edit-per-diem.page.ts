@@ -3,7 +3,7 @@
 
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, concat, forkJoin, from, iif, noop, Observable, of, Subscription, throwError } from 'rxjs';
+import { combineLatest, concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -35,7 +35,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -65,7 +65,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -189,8 +188,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   autoSubmissionReportName$: Observable<string>;
 
-  hardwareBackButtonAction: Subscription;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private fb: FormBuilder,
@@ -227,8 +224,7 @@ export class AddEditPerDiemPage implements OnInit {
     private perDiemService: PerDiemService,
     private categoriesService: CategoriesService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private orgSettingsService: OrgSettingsService,
-    private platform: Platform
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get minPerDiemDate() {
@@ -725,13 +721,6 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-      BackButtonActionPriority.MEDIUM,
-      () => {
-        this.showClosePopup();
-      }
-    );
-
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
     const today = new Date();
@@ -2258,9 +2247,5 @@ export class AddEditPerDiemPage implements OnInit {
           this.policyDetails = policyDetails;
         });
     }
-  }
-
-  ionViewWillLeave() {
-    this.hardwareBackButtonAction.unsubscribe();
   }
 }
