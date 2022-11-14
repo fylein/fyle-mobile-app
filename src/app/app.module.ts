@@ -21,6 +21,7 @@ import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-br
 import { GoogleMapsModule } from '@angular/google-maps';
 import { PAGINATION_SIZE } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
+import { MobileAccessibility } from '@ionic-native/mobile-accessibility/ngx';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -92,6 +93,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
       useValue: 200,
     },
     TitleCasePipe,
+    MobileAccessibility,
   ],
   bootstrap: [AppComponent],
 })
