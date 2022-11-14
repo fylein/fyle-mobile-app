@@ -890,7 +890,6 @@ export class AddEditMileagePage implements OnInit {
 
     const today = new Date();
     this.maxDate = moment(this.dateService.addDaysToDate(today, 1)).format('y-MM-D');
-    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     this.fg.reset();
     this.title = 'Add Mileage';
@@ -1264,24 +1263,18 @@ export class AddEditMileagePage implements OnInit {
       )
     );
 
-    const selectedReport$ = forkJoin({
-      autoSubmissionReportName: this.autoSubmissionReportName$,
-      etxn: this.etxn$,
-      reportOptions: this.reports$,
-    }).pipe(
-      map(({ autoSubmissionReportName, etxn, reportOptions }) => {
-        if (etxn.tx.report_id) {
-          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
-        } else if (
-          !autoSubmissionReportName &&
-          reportOptions.length === 1 &&
-          reportOptions[0].value.rp.state === 'DRAFT'
-        ) {
-          return reportOptions[0].value;
-        } else {
-          return null;
-        }
-      })
+    const selectedReport$ = this.etxn$.pipe(
+      switchMap((etxn) =>
+        iif(
+          () => etxn.tx.report_id,
+          this.reports$.pipe(
+            map((reportOptions) =>
+              reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
+            )
+          ),
+          of(null)
+        )
+      )
     );
 
     const selectedCostCenter$ = this.etxn$.pipe(
@@ -1315,6 +1308,8 @@ export class AddEditMileagePage implements OnInit {
         }
       })
     );
+
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     const selectedCustomInputs$ = this.etxn$.pipe(
       switchMap((etxn) =>
