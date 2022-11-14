@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { concat, Observable, of, Subject, Subscription } from 'rxjs';
 import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
-import { ActionSheetController, Platform } from '@ionic/angular';
+import { ActionSheetController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { StatsComponent } from './stats/stats.component';
@@ -15,6 +15,7 @@ import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { SharedService } from 'src/app/core/services/shared.service';
 
 enum DashboardState {
   home,
@@ -60,7 +61,9 @@ export class DashboardPage implements OnInit {
     private smartlookService: SmartlookService,
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
-    private platform: Platform
+    private platform: Platform,
+    private sharedService: SharedService,
+    private navController: NavController
   ) {}
 
   get displayedTaskCount() {
@@ -95,6 +98,7 @@ export class DashboardPage implements OnInit {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
+    this.registerBackButtonAction();
     this.smartlookService.init();
     this.taskCount = 0;
     const currentState =
@@ -133,15 +137,24 @@ export class DashboardPage implements OnInit {
   }
 
   registerBackButtonAction() {
-    //tasksFilters queryparam is not present when user navigates to tasks page from dashboard.
-    if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
-      this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-        BackButtonActionPriority.LOW,
-        () => {
-          this.onHomeClicked();
-        }
-      );
-    }
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
+      //If the user is on home page, show app close popup
+      if (!this.router.url.includes('tasks')) {
+        this.sharedService.showAppCloseAlert();
+      } else if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
+
+      /*
+       * tasksFilters queryparam is not present when user navigates to tasks page from dashboard.
+       * Calling onHomeClicked() because angular does not reload the page if the query params changes.
+       */
+        this.onHomeClicked();
+      }
+
+      //Else take the user back to the previous page
+      else {
+        this.navController.back();
+      }
+    });
   }
 
   ngOnInit() {
@@ -158,7 +171,6 @@ export class DashboardPage implements OnInit {
       relativeTo: this.activatedRoute,
       queryParams,
     });
-    this.registerBackButtonAction();
     this.trackingService.tasksPageOpened({
       Asset: 'Mobile',
       from: 'Dashboard',
@@ -187,7 +199,6 @@ export class DashboardPage implements OnInit {
       relativeTo: this.activatedRoute,
       queryParams,
     });
-    this.hardwareBackButtonAction?.unsubscribe();
   }
 
   setupActionSheet(orgSettings) {
