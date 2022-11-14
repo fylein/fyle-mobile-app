@@ -148,6 +148,32 @@ export class TasksService {
     return selectedFilters;
   }
 
+  generatePotentialDuplicatesFilter(selectedFilters: SelectedFilters<any>[]) {
+    const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
+    if (existingFilter) {
+      existingFilter.value.push('DUPLICATE');
+    } else {
+      selectedFilters.push({
+        name: 'Expenses',
+        value: ['DUPLICATE'],
+      });
+    }
+    return selectedFilters;
+  }
+
+  generateSentBackFilter(selectedFilters: SelectedFilters<any>[]) {
+    const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
+    if (existingFilter) {
+      existingFilter.value.push('SENT_BACK');
+    } else {
+      selectedFilters.push({
+        name: 'Reports',
+        value: ['SENT_BACK'],
+      });
+    }
+    return selectedFilters;
+  }
+
   convertFilters(selectedFilters: SelectedFilters<any>[]): TaskFilters {
     const generatedFilters: TaskFilters = {
       draftExpenses: false,
@@ -188,6 +214,63 @@ export class TasksService {
     }
 
     return generatedFilters;
+  }
+
+  getExpensePill(filters: TaskFilters): FilterPill {
+    const expensePills = [];
+    const draftExpensesContent = filters.draftExpenses ? 'Incomplete' : '';
+    if (draftExpensesContent) {
+      expensePills.push(draftExpensesContent);
+    }
+    const unreportedExpensesContent = filters.unreportedExpenses ? 'Unreported' : '';
+    if (unreportedExpensesContent) {
+      expensePills.push(unreportedExpensesContent);
+    }
+    const potentialDuplicatesContent = filters.potentialDuplicates ? 'Duplicate' : '';
+    if (potentialDuplicatesContent) {
+      expensePills.push(potentialDuplicatesContent);
+    }
+    return {
+      label: 'Expenses',
+      type: 'Expenses',
+      value: expensePills.join(', '),
+    };
+  }
+
+  getReportsPill(filters: TaskFilters): FilterPill {
+    const reportPills = [];
+    const draftReportsContent = filters.draftReports && 'Draft';
+    if (draftReportsContent) {
+      reportPills.push(draftReportsContent);
+    }
+    const sentBackReportsContent = filters.sentBackReports && 'Sent Back';
+    if (sentBackReportsContent) {
+      reportPills.push(sentBackReportsContent);
+    }
+    const teamReportsContents = filters.teamReports && 'Unapproved';
+    if (teamReportsContents) {
+      reportPills.push(teamReportsContents);
+    }
+
+    return {
+      label: 'Reports',
+      type: 'Reports',
+      value: reportPills.join(', '),
+    };
+  }
+
+  getAdvancesPill(filters: TaskFilters): FilterPill {
+    const advancePill = [];
+    const sentBackAdvancesContent = filters.sentBackAdvances && 'Sent Back';
+    if (sentBackAdvancesContent) {
+      advancePill.push(sentBackAdvancesContent);
+    }
+
+    return {
+      label: 'Advances',
+      type: 'Advances',
+      value: advancePill.join(', '),
+    };
   }
 
   generateFilterPills(filters: TaskFilters): FilterPill[] {
@@ -272,89 +355,6 @@ export class TasksService {
         }
       )
     );
-  }
-
-  private getReportsPill(filters: TaskFilters): FilterPill {
-    const reportPills = [];
-    const draftReportsContent = filters.draftReports && 'Draft';
-    if (draftReportsContent) {
-      reportPills.push(draftReportsContent);
-    }
-    const sentBackReportsContent = filters.sentBackReports && 'Sent Back';
-    if (sentBackReportsContent) {
-      reportPills.push(sentBackReportsContent);
-    }
-    const teamReportsContents = filters.teamReports && 'Unapproved';
-    if (teamReportsContents) {
-      reportPills.push(teamReportsContents);
-    }
-
-    return {
-      label: 'Reports',
-      type: 'Reports',
-      value: reportPills.join(', '),
-    };
-  }
-
-  private getAdvancesPill(filters: TaskFilters): FilterPill {
-    const advancePill = [];
-    const sentBackAdvancesContent = filters.sentBackAdvances && 'Sent Back';
-    if (sentBackAdvancesContent) {
-      advancePill.push(sentBackAdvancesContent);
-    }
-
-    return {
-      label: 'Advances',
-      type: 'Advances',
-      value: advancePill.join(', '),
-    };
-  }
-
-  private getExpensePill(filters: TaskFilters): FilterPill {
-    const expensePills = [];
-    const draftExpensesContent = filters.draftExpenses ? 'Incomplete' : '';
-    if (draftExpensesContent) {
-      expensePills.push(draftExpensesContent);
-    }
-    const unreportedExpensesContent = filters.unreportedExpenses ? 'Unreported' : '';
-    if (unreportedExpensesContent) {
-      expensePills.push(unreportedExpensesContent);
-    }
-    const potentialDuplicatesContent = filters.potentialDuplicates ? 'Duplicate' : '';
-    if (potentialDuplicatesContent) {
-      expensePills.push(potentialDuplicatesContent);
-    }
-    return {
-      label: 'Expenses',
-      type: 'Expenses',
-      value: expensePills.join(', '),
-    };
-  }
-
-  private generatePotentialDuplicatesFilter(selectedFilters: SelectedFilters<any>[]) {
-    const existingFilter = selectedFilters.find((filter) => filter.name === 'Expenses');
-    if (existingFilter) {
-      existingFilter.value.push('DUPLICATE');
-    } else {
-      selectedFilters.push({
-        name: 'Expenses',
-        value: ['DUPLICATE'],
-      });
-    }
-    return selectedFilters;
-  }
-
-  private generateSentBackFilter(selectedFilters: SelectedFilters<any>[]) {
-    const existingFilter = selectedFilters.find((filter) => filter.name === 'Reports');
-    if (existingFilter) {
-      existingFilter.value.push('SENT_BACK');
-    } else {
-      selectedFilters.push({
-        name: 'Reports',
-        value: ['SENT_BACK'],
-      });
-    }
-    return selectedFilters;
   }
 
   private getFilteredTaskList(filters: TaskFilters, tasksDict: TaskDict) {

@@ -4,8 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Browser } from '@capacitor/browser';
 import { Platform } from '@ionic/angular';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { noop } from 'rxjs';
 
 @Component({
   selector: 'app-app-version',
@@ -23,9 +21,7 @@ export class AppVersionPage implements OnInit {
 
   ngOnInit() {
     this.message = this.activatedRoute.snapshot.params.message;
-
-    //User should not be able to navigate from this page using the hardware back button.
-    this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.ABSOLUTE, noop);
+    this.platform.backButton.subscribeWithPriority(9999, () => {});
   }
 
   updateApp() {

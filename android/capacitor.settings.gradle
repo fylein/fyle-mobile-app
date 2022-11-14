@@ -41,8 +41,5 @@ project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacit
 include ':capacitor-storage'
 project(':capacitor-storage').projectDir = new File('../node_modules/@capacitor/storage/android')
 
-include ':capacitor-native-settings'
-project(':capacitor-native-settings').projectDir = new File('../node_modules/capacitor-native-settings/android')
-
 include ':capacitor-secure-storage-plugin'
 project(':capacitor-secure-storage-plugin').projectDir = new File('../node_modules/capacitor-secure-storage-plugin/android')

@@ -294,7 +294,7 @@ export class TeamAdvancePage implements AfterViewChecked {
   }
 
   onTaskClicked() {
-    const queryParams: Params = { state: 'tasks', tasksFilters: 'none' };
+    const queryParams: Params = { state: 'tasks' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
