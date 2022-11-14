@@ -3,6 +3,9 @@ import { FiltersHelperService } from './filters-helper.service';
 import { Filters } from '../models/filters.model';
 import { AdvancesStates } from '../models/advances-states.model';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
+import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
+import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
+import { SortingValue } from '../models/sorting-value.model';
 import { ModalController } from '@ionic/angular';
 import { TitleCasePipe } from '@angular/common';
 import { SortingDirection } from '../models/sorting-direction.model';
@@ -43,6 +46,16 @@ describe('FiltersHelperService', () => {
    * Testing Function: generateFilterPills
    */
 
+  it('should generated pill using project name and states', () => {
+    const testFilters: Filters = {
+      state: [AdvancesStates.approved, AdvancesStates.cancelled],
+      sortParam: SortingParam.approvalDate,
+    };
+
+    const result = service.generateFilterPills(testFilters, 'some project');
+    expect(result).toBeTruthy();
+  });
+
   it('should generate pill using only Sorting Params - Approved At New To Old', () => {
     const testFilters: Filters = {
       sortParam: SortingParam.approvalDate,
@@ -50,7 +63,7 @@ describe('FiltersHelperService', () => {
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved at - new to old' }];
 
-    expect(service.generateFilterPills(testFilters)).toBeTruthy();
+    expect(service.generateFilterPills(testFilters, 'some project')).toBeTruthy();
     expect(service.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
@@ -62,7 +75,7 @@ describe('FiltersHelperService', () => {
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved at - old to new' }];
 
-    expect(service.generateFilterPills(testFilters)).toBeTruthy();
+    expect(service.generateFilterPills(testFilters, 'some project')).toBeTruthy();
     expect(service.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
@@ -73,7 +86,7 @@ describe('FiltersHelperService', () => {
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created at - new to old' }];
 
-    expect(service.generateFilterPills(testFilters)).toBeTruthy();
+    expect(service.generateFilterPills(testFilters, 'some project')).toBeTruthy();
     expect(service.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
@@ -85,7 +98,7 @@ describe('FiltersHelperService', () => {
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created at - old to new' }];
 
-    expect(service.generateFilterPills(testFilters)).toBeTruthy();
+    expect(service.generateFilterPills(testFilters, 'some project')).toBeTruthy();
     expect(service.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
@@ -222,5 +235,57 @@ describe('FiltersHelperService', () => {
     expect(service.generateSelectedFilters(testFilters)).toBeTruthy();
     expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
     expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
+  });
+
+  /**
+   * Testing modal controller
+   */
+
+  it('should open the modal and save date', () => {
+    const testFilters: Filters = {
+      sortParam: SortingParam.approvalDate,
+      sortDir: SortingDirection.ascending,
+    };
+
+    const filterOptions = [
+      {
+        name: 'State',
+        optionType: FilterOptionType.multiselect,
+        options: [
+          {
+            label: 'Draft',
+            value: AdvancesStates.draft,
+          },
+
+          {
+            label: 'Sent Back',
+            value: AdvancesStates.sentBack,
+          },
+        ],
+      } as FilterOptions<string>,
+      {
+        name: 'Sort By',
+        optionType: FilterOptionType.singleselect,
+        options: [
+          {
+            label: 'Created At - New to Old',
+            value: SortingValue.creationDateAsc,
+          },
+          {
+            label: 'Created At - Old to New',
+            value: SortingValue.creationDateDesc,
+          },
+          {
+            label: 'Approved At - New to Old',
+            value: SortingValue.approvalDateAsc,
+          },
+          {
+            label: 'Approved At - Old to New',
+            value: SortingValue.approvalDateDesc,
+          },
+        ],
+      },
+    ];
+    const result = service.openFilterModal(testFilters, filterOptions);
   });
 });
