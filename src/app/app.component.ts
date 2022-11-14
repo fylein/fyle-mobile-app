@@ -73,7 +73,6 @@ export class AppComponent implements OnInit {
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
-    this.mobileAccessibility.usePreferredTextZoom(false);
   }
 
   registerBackButtonAction() {
