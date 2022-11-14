@@ -15,7 +15,7 @@ import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { SharedService } from 'src/app/core/services/shared.service';
+import { BackButtonService } from 'src/app/core/services/back-button.service';
 
 enum DashboardState {
   home,
@@ -62,7 +62,7 @@ export class DashboardPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
-    private sharedService: SharedService,
+    private backButtonService: BackButtonService,
     private navController: NavController
   ) {}
 
@@ -140,7 +140,7 @@ export class DashboardPage implements OnInit {
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
       //If the user is on home page, show app close popup
       if (!this.router.url.includes('tasks')) {
-        this.sharedService.showAppCloseAlert();
+        this.backButtonService.showAppCloseAlert();
       }
 
       // tasksFilters queryparam is not present when user navigates to tasks page from dashboard.

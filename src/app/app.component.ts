@@ -25,7 +25,7 @@ import { PerfTrackers } from './core/models/perf-trackers.enum';
 import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
 import { MobileAccessibility } from '@ionic-native/mobile-accessibility/ngx';
 import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
-import { SharedService } from './core/services/shared.service';
+import { BackButtonService } from './core/services/back-button.service';
 
 @Component({
   selector: 'app-root',
@@ -71,7 +71,7 @@ export class AppComponent implements OnInit {
     private loginInfoService: LoginInfoService,
     private navController: NavController,
     private mobileAccessibility: MobileAccessibility,
-    private sharedService: SharedService
+    private backButtonService: BackButtonService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -81,7 +81,7 @@ export class AppComponent implements OnInit {
   registerBackButtonAction() {
     this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
       if (this.router.url.includes('sign_in')) {
-        this.sharedService.showAppCloseAlert();
+        this.backButtonService.showAppCloseAlert();
       } else if (this.router.url.includes('switch_org') || this.router.url.includes('delegated_accounts')) {
         if (this.previousUrl && this.previousUrl.includes('enterprise')) {
           this.navController.back();

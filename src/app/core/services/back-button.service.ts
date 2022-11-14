@@ -8,7 +8,7 @@ import { PopupAlertComponentComponent } from 'src/app/shared/components/popup-al
 @Injectable({
   providedIn: 'root',
 })
-export class SharedService {
+export class BackButtonService {
   constructor(private popoverController: PopoverController) {}
 
   showAppCloseAlert() {
