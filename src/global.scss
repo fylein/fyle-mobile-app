@@ -123,7 +123,7 @@ ion-popover.error-popover {
   color: $pure-white;
   background-color: $dark-blue;
   border-radius: 8px !important;
-  margin: 0 16px calc(124px + env(safe-area-inset-bottom)) !important;
+  margin: 0 16px 124px !important;
 
   &::after {
     content: '';
