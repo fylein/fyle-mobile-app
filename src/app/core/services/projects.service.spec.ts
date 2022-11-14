@@ -369,4 +369,19 @@ describe('ProjectsService', () => {
       done();
     });
   });
+
+  it('should create filter by id', () => {
+    const result = projectService.filterById(apiResponseActiveOnly[0].id, apiResponseActiveOnly);
+    expect(result).toBeTruthy();
+    expect(result).toEqual(apiResponseActiveOnly[0]);
+  });
+
+  it('should add org category to filter', () => {
+    const result = projectService.addOrgCategoryIdsFilter(apiResponseActiveOnly[0].org_category_ids, {});
+  });
+
+  it('should add name filter', () => {
+    const result = projectService.addNameSearchFilter('some text', {});
+    console.log(result);
+  });
 });
