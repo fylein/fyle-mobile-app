@@ -901,7 +901,6 @@ export class AddEditMileagePage implements OnInit {
       sub_category: [, Validators.required],
       custom_inputs: new FormArray([]),
       costCenter: [],
-      add_to_new_report: [],
       report: [],
       duplicate_detection_reason: [],
     });
@@ -1594,23 +1593,6 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  addToNewReport(txnId: string) {
-    const that = this;
-    from(this.loaderService.showLoader())
-      .pipe(
-        switchMap(() => this.transactionService.getEtxn(txnId)),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
-      .subscribe((etxn) => {
-        const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-        if (!criticalPolicyViolated) {
-          that.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify([txnId]) }]);
-        } else {
-          that.close();
-        }
-      });
-  }
-
   showAddToReportSuccessToast(reportId: string) {
     const toastMessageData = {
       message: 'Mileage expense added to report successfully',
@@ -1637,11 +1619,8 @@ export class AddEditMileagePage implements OnInit {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
             that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
-              if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id) {
-                this.addToNewReport(etxn.tx.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                that.close();
-                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+              if (that.fg.value.report?.rp?.id) {
+                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.close();
               }
@@ -1649,11 +1628,8 @@ export class AddEditMileagePage implements OnInit {
           } else {
             // to do edit
             that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
-              if (that.fg.controls.add_to_new_report.value && tx && tx.id) {
-                this.addToNewReport(tx.id);
-              } else if (that.fg.value.report && that.fg.value.report.rp && that.fg.value.report.rp.id) {
-                that.close();
-                this.showAddToReportSuccessToast(that.fg.value.report.rp.id);
+              if (that.fg.value.report?.rp?.id) {
+                this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.close();
               }
@@ -2355,22 +2331,12 @@ export class AddEditMileagePage implements OnInit {
             ) {
               reportId = this.fg.value.report.rp.id;
             }
-            let entry;
-            if (this.fg.value.add_to_new_report) {
-              entry = {
-                comments,
-                reportId,
-              };
-            }
-            if (entry) {
-              return from(
-                this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId)
-              ).pipe(map(() => etxn));
-            } else {
-              return of(
-                this.transactionsOutboxService.addEntry(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
-              ).pipe(map(() => etxn));
-            }
+            return of(
+              this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
+            ).pipe(
+              switchMap((txnData: Promise<any>) => from(txnData)),
+              map(() => etxn)
+            );
           })
         )
       ),
