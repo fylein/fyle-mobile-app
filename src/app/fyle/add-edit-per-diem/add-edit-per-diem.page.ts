@@ -748,7 +748,6 @@ export class AddEditPerDiemPage implements OnInit {
       from_dt: [],
       to_dt: [, this.customDateValidator.bind(this)],
       custom_inputs: new FormArray([]),
-      add_to_new_report: [],
       duplicate_detection_reason: [],
       billable: [],
       costCenter: [],
@@ -1708,22 +1707,9 @@ export class AddEditPerDiemPage implements OnInit {
             ) {
               reportId = this.fg.value.report.rp.id;
             }
-            let entry;
-            if (this.fg.value.add_to_new_report) {
-              entry = {
-                comments,
-                reportId,
-              };
-            }
-            if (entry) {
-              return from(
-                this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId)
-              ).pipe(switchMap((txnData: Promise<any>) => from(txnData)));
-            } else {
-              return of(
-                this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
-              ).pipe(switchMap((txnData: Promise<any>) => from(txnData)));
-            }
+            return of(
+              this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
+            ).pipe(switchMap((txnData: Promise<any>) => from(txnData)));
           })
         )
       ),
@@ -1976,9 +1962,7 @@ export class AddEditPerDiemPage implements OnInit {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
             that.addExpense('SAVE_PER_DIEM').subscribe((res: any) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.transaction) {
-                this.addToNewReport(res.transaction.id);
-              } else if (that.fg.value.report?.rp?.id) {
+              if (that.fg.value.report?.rp?.id) {
                 this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.goBack();
@@ -1986,9 +1970,7 @@ export class AddEditPerDiemPage implements OnInit {
             });
           } else {
             that.editExpense('SAVE_PER_DIEM').subscribe((res) => {
-              if (that.fg.controls.add_to_new_report.value && res && res.id) {
-                this.addToNewReport(res.id);
-              } else if (that.fg.value.report?.rp?.id) {
+              if (that.fg.value.report?.rp?.id) {
                 this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.goBack();

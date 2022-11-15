@@ -883,7 +883,6 @@ export class AddEditMileagePage implements OnInit {
       sub_category: [, Validators.required],
       custom_inputs: new FormArray([]),
       costCenter: [],
-      add_to_new_report: [],
       report: [],
       duplicate_detection_reason: [],
     });
@@ -1624,9 +1623,7 @@ export class AddEditMileagePage implements OnInit {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
             that.addExpense('SAVE_MILEAGE').subscribe((etxn) => {
-              if (that.fg.controls.add_to_new_report.value && etxn && etxn.tx && etxn.tx.id) {
-                this.addToNewReport(etxn.tx.id);
-              } else if (that.fg.value.report?.rp?.id) {
+              if (that.fg.value.report?.rp?.id) {
                 this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.close();
@@ -1635,9 +1632,7 @@ export class AddEditMileagePage implements OnInit {
           } else {
             // to do edit
             that.editExpense('SAVE_MILEAGE').subscribe((tx) => {
-              if (that.fg.controls.add_to_new_report.value && tx && tx.id) {
-                this.addToNewReport(tx.id);
-              } else if (that.fg.value.report?.rp?.id) {
+              if (that.fg.value.report?.rp?.id) {
                 this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.close();
@@ -2340,28 +2335,12 @@ export class AddEditMileagePage implements OnInit {
             ) {
               reportId = this.fg.value.report.rp.id;
             }
-            let entry;
-            if (this.fg.value.add_to_new_report) {
-              entry = {
-                comments,
-                reportId,
-              };
-            }
-            if (entry) {
-              return from(
-                this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId)
-              ).pipe(
-                switchMap((txnData: Promise<any>) => from(txnData)),
-                map(() => etxn)
-              );
-            } else {
-              return of(
-                this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
-              ).pipe(
-                switchMap((txnData: Promise<any>) => from(txnData)),
-                map(() => etxn)
-              );
-            }
+            return of(
+              this.transactionsOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId, null, null)
+            ).pipe(
+              switchMap((txnData: Promise<any>) => from(txnData)),
+              map(() => etxn)
+            );
           })
         )
       ),
