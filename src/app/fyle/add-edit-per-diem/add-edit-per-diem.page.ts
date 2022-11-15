@@ -1919,23 +1919,6 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  addToNewReport(txnId: string) {
-    const that = this;
-    from(this.loaderService.showLoader())
-      .pipe(
-        switchMap(() => this.transactionService.getEtxn(txnId)),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
-      .subscribe((etxn) => {
-        const criticalPolicyViolated = isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
-        if (!criticalPolicyViolated) {
-          that.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: JSON.stringify([txnId]) }]);
-        } else {
-          that.goBack();
-        }
-      });
-  }
-
   showAddToReportSuccessToast(reportId: string) {
     const toastMessageData = {
       message: 'Per diem expense added to report successfully',
