@@ -23,7 +23,6 @@ import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.compone
 import { ExtendedOrgUser } from './core/models/extended-org-user.model';
 import { PerfTrackers } from './core/models/perf-trackers.enum';
 import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
-import { MobileAccessibility } from '@ionic-native/mobile-accessibility/ngx';
 import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
 import { BackButtonService } from './core/services/back-button.service';
 
@@ -70,12 +69,10 @@ export class AppComponent implements OnInit {
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private navController: NavController,
-    private mobileAccessibility: MobileAccessibility,
     private backButtonService: BackButtonService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
-    this.mobileAccessibility.usePreferredTextZoom(false);
   }
 
   registerBackButtonAction() {
