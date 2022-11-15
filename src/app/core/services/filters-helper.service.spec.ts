@@ -53,7 +53,6 @@ describe('FiltersHelperService', () => {
     };
 
     const result = service.generateFilterPills(testFilters, 'some project');
-    expect(result).toBeTruthy();
   });
 
   it('should generate pill using only Sorting Params - Approved At New To Old', () => {
@@ -63,7 +62,6 @@ describe('FiltersHelperService', () => {
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved at - new to old' }];
 
-    expect(service.generateFilterPills(testFilters, 'some project')).toBeTruthy();
     expect(service.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
@@ -75,7 +73,6 @@ describe('FiltersHelperService', () => {
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved at - old to new' }];
 
-    expect(service.generateFilterPills(testFilters, 'some project')).toBeTruthy();
     expect(service.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
@@ -86,7 +83,6 @@ describe('FiltersHelperService', () => {
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created at - new to old' }];
 
-    expect(service.generateFilterPills(testFilters, 'some project')).toBeTruthy();
     expect(service.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
@@ -97,13 +93,11 @@ describe('FiltersHelperService', () => {
     };
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created at - old to new' }];
-
-    expect(service.generateFilterPills(testFilters, 'some project')).toBeTruthy();
     expect(service.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
   /**
-   * Testing Function: generateSelectedFilters and convertDataToFilters
+   * Testing Function: generateSelectedFilters
    */
 
   it('should generate selected filters using only State - APPROVED,DRAFT', () => {
@@ -118,9 +112,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toBeTruthy();
     expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
-    expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
   });
 
   it('should generate selected filters using only State - PAID,CANCELLED', () => {
@@ -135,9 +127,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toBeTruthy();
     expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
-    expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
   });
 
   it('should generate selected filters using only State - SENT_BACK,APPROVAL_PENDING', () => {
@@ -152,9 +142,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toBeTruthy();
     expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
-    expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
   });
 
   it('should generate selected filters using Sort Param - APPROVAL DATE | DESCENDING', () => {
@@ -174,9 +162,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toBeTruthy();
     expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
-    expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
   });
 
   it('should generate selected filters using Sort Param - CREATED DATE | ASCENDING', () => {
@@ -192,9 +178,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toBeTruthy();
     expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
-    expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
   });
 
   it('should generate selected filters using Sort Param - PROJECT | ASCENDING', () => {
@@ -210,9 +194,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toBeTruthy();
     expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
-    expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
   });
 
   it('should generate selected filters using Sort Param - PROJECT | DESCENDING', () => {
@@ -232,19 +214,140 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toBeTruthy();
     expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
-    expect(service.convertDataToFilters(testSelectedFilter)).toEqual(testFilters);
+  });
+
+  /**
+   * Testing function convertDatatoFilters
+   */
+
+  it('should convert data to selected filters | Sort By - A to Z, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
+    const testSelectedFilters: SelectedFilters<any>[] = [
+      {
+        name: 'Sort By',
+        value: 'projectZToA',
+      },
+      {
+        name: 'Sort Direction',
+        value: 1,
+      },
+      {
+        name: 'State',
+        value: ['APPROVED', 'DRAFT'],
+      },
+    ];
+
+    const testFilters: Filters = {
+      state: [AdvancesStates.approved, AdvancesStates.draft],
+      sortParam: SortingParam.project,
+      sortDir: SortingDirection.descending,
+    };
+
+    expect(service.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
+  });
+
+  it('should convert data to selected filters | Sort By - Z to A, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
+    const testSelectedFilters: SelectedFilters<any>[] = [
+      {
+        name: 'Sort By',
+        value: 'projectZToA',
+      },
+      {
+        name: 'Sort Direction',
+        value: 1,
+      },
+      {
+        name: 'State',
+        value: ['APPROVED', 'DRAFT'],
+      },
+    ];
+
+    const testFilters: Filters = {
+      state: [AdvancesStates.approved, AdvancesStates.draft],
+      sortParam: SortingParam.project,
+      sortDir: SortingDirection.descending,
+    };
+
+    expect(service.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
+  });
+
+  it('should convert data to selected filters | Sort By - A to Z, Sort Direction - ASC', () => {
+    const testSelectedFilters: SelectedFilters<any>[] = [
+      {
+        name: 'Sort By',
+        value: 'projectAToZ',
+      },
+    ];
+
+    const testFilters: Filters = {
+      sortParam: SortingParam.project,
+      sortDir: SortingDirection.ascending,
+    };
+
+    expect(service.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
+  });
+
+  it('should convert data to selected filters | APPROVAL DATE - DESC', () => {
+    const testSelectedFilters: SelectedFilters<any>[] = [
+      {
+        name: 'Sort By',
+        value: 'appDateNewToOld',
+      },
+    ];
+
+    const testFilters: Filters = {
+      sortParam: SortingParam.approvalDate,
+      sortDir: SortingDirection.descending,
+    };
+
+    expect(service.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
+  });
+
+  it('should convert data to selected filters | CREATION DATE - ASC', () => {
+    const testSelectedFilters: SelectedFilters<any>[] = [
+      {
+        name: 'Sort By',
+        value: 'crDateOldToNew',
+      },
+    ];
+
+    const testFilters: Filters = {
+      sortParam: SortingParam.creationDate,
+      sortDir: SortingDirection.ascending,
+    };
+
+    expect(service.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
   });
 
   /**
    * Testing modal controller
    */
 
-  it('should open the modal and save date', () => {
+  it('should open the modal and save date', async () => {
     const testFilters: Filters = {
       sortParam: SortingParam.approvalDate,
       sortDir: SortingDirection.ascending,
+    };
+
+    const selectedFilters: SelectedFilters<any>[] = [
+      {
+        name: 'Sort By',
+        value: 'projectZToA',
+      },
+      {
+        name: 'Sort Direction',
+        value: 1,
+      },
+      {
+        name: 'State',
+        value: ['APPROVED', 'DRAFT'],
+      },
+    ];
+
+    const resFilters: Filters = {
+      state: [AdvancesStates.approved, AdvancesStates.draft],
+      sortParam: SortingParam.project,
+      sortDir: 1,
     };
 
     const filterOptions = [
@@ -286,6 +389,21 @@ describe('FiltersHelperService', () => {
         ],
       },
     ];
-    const result = service.openFilterModal(testFilters, filterOptions);
+
+    controller.create.and.returnValue(
+      new Promise((resolve) => {
+        const filterPopoverSpy = jasmine.createSpyObj('filterPopover', ['onWillDismiss', 'present']) as any;
+        filterPopoverSpy.onWillDismiss.and.returnValue(
+          new Promise((resInt) => {
+            resInt({
+              data: selectedFilters,
+            });
+          })
+        );
+        resolve(filterPopoverSpy);
+      })
+    );
+    const result = await service.openFilterModal(testFilters, filterOptions);
+    expect(result).toEqual(resFilters);
   });
 });
