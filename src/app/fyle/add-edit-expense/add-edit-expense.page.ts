@@ -4063,13 +4063,13 @@ export class AddEditExpensePage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
-    const header = reportId && this.isRedirectedFromReport ? 'Remove Expense' : 'Delete Expense';
-    const body =
-      reportId && this.isRedirectedFromReport
-        ? 'Are you sure you want to remove this expense from this report?'
-        : 'Are you sure you want to delete this expense?';
-    const ctaText = reportId && this.isRedirectedFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = reportId && this.isRedirectedFromReport ? 'Removing' : 'Deleting';
+    const removeExpenseFromReport = reportId && this.isRedirectedFromReport;
+    const header = removeExpenseFromReport ? 'Remove Expense' : 'Delete Expense';
+    const body = removeExpenseFromReport
+      ? 'Are you sure you want to remove this expense from this report?'
+      : 'Are you sure you want to delete this expense?';
+    const ctaText = removeExpenseFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = removeExpenseFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -4081,7 +4081,7 @@ export class AddEditExpensePage implements OnInit {
         ctaText,
         ctaLoadingText,
         deleteMethod: () => {
-          if (reportId && this.isRedirectedFromReport) {
+          if (removeExpenseFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
@@ -4098,6 +4098,8 @@ export class AddEditExpensePage implements OnInit {
         this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else if (removeExpenseFromReport) {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId }]);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }

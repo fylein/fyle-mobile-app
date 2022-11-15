@@ -2339,14 +2339,14 @@ export class AddEditMileagePage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
+    const removeMileageFromReport = reportId && this.isRedirectedFromReport;
 
-    const header = reportId && this.isRedirectedFromReport ? 'Remove Mileage' : 'Delete Mileage';
-    const body =
-      reportId && this.isRedirectedFromReport
-        ? 'Are you sure you want to remove this mileage expense from this report?'
-        : 'Are you sure you want to delete this mileage expense?';
-    const ctaText = reportId && this.isRedirectedFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = reportId && this.isRedirectedFromReport ? 'Removing' : 'Deleting';
+    const header = removeMileageFromReport ? 'Remove Mileage' : 'Delete Mileage';
+    const body = removeMileageFromReport
+      ? 'Are you sure you want to remove this mileage expense from this report?'
+      : 'Are you sure you want to delete this mileage expense?';
+    const ctaText = removeMileageFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = removeMileageFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -2358,7 +2358,7 @@ export class AddEditMileagePage implements OnInit {
         ctaText,
         ctaLoadingText,
         deleteMethod: () => {
-          if (reportId && this.isRedirectedFromReport) {
+          if (removeMileageFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
@@ -2375,6 +2375,8 @@ export class AddEditMileagePage implements OnInit {
         this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else if (removeMileageFromReport) {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId }]);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }

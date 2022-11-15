@@ -2104,13 +2104,14 @@ export class AddEditPerDiemPage implements OnInit {
 
   async deleteExpense(reportId?: string) {
     const id = this.activatedRoute.snapshot.params.id;
-    const header = reportId && this.isRedirectedFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
-    const body =
-      reportId && this.isRedirectedFromReport
-        ? 'Are you sure you want to remove this Per Diem expense from this report?'
-        : 'Are you sure you want to delete this Per Diem expense?';
-    const ctaText = reportId && this.isRedirectedFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = reportId && this.isRedirectedFromReport ? 'Removing' : 'Deleting';
+    const removePerDiemFromReport = reportId && this.isRedirectedFromReport;
+
+    const header = removePerDiemFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
+    const body = removePerDiemFromReport
+      ? 'Are you sure you want to remove this Per Diem expense from this report?'
+      : 'Are you sure you want to delete this Per Diem expense?';
+    const ctaText = removePerDiemFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = removePerDiemFromReport ? 'Removing' : 'Deleting';
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -2122,7 +2123,7 @@ export class AddEditPerDiemPage implements OnInit {
         ctaText,
         ctaLoadingText,
         deleteMethod: () => {
-          if (reportId && this.isRedirectedFromReport) {
+          if (removePerDiemFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
@@ -2139,6 +2140,8 @@ export class AddEditPerDiemPage implements OnInit {
         this.transactionService.getETxn(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
+      } else if (removePerDiemFromReport) {
+        this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId }]);
       } else {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
       }
