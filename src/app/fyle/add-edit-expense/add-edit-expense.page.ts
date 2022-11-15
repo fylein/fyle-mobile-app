@@ -2454,7 +2454,6 @@ export class AddEditExpensePage implements OnInit {
       distance: [],
       distance_unit: [],
       custom_inputs: new FormArray([]),
-      add_to_new_report: [],
       duplicate_detection_reason: [],
       billable: [],
       costCenter: [],
@@ -3047,10 +3046,7 @@ export class AddEditExpensePage implements OnInit {
       .checkIfInvalidPaymentMode()
       .pipe(take(1))
       .subscribe((invalidPaymentMode) => {
-        const saveIncompleteExpense =
-          that.activatedRoute.snapshot.params.dataUrl &&
-          !that.fg.controls.add_to_new_report.value &&
-          !that.fg.value.report?.rp?.id;
+        const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !that.fg.value.report?.rp?.id;
         if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode)) {
           if (that.mode === 'add') {
             if (that.isCreatedFromPersonalCard) {
@@ -3069,9 +3065,7 @@ export class AddEditExpensePage implements OnInit {
                   })
                 )
                 .subscribe((res: any) => {
-                  if (that.fg.controls.add_to_new_report.value && res?.transaction) {
-                    this.addToNewReport(res.transaction.id);
-                  } else if (that.fg.value.report?.rp?.id) {
+                  if (that.fg.value.report?.rp?.id) {
                     this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
                   } else {
                     that.goBack();
@@ -3081,9 +3075,7 @@ export class AddEditExpensePage implements OnInit {
           } else {
             // to do edit
             that.editExpense('SAVE_EXPENSE').subscribe((res) => {
-              if (that.fg.controls.add_to_new_report.value && res?.id) {
-                this.addToNewReport(res.id);
-              } else if (that.fg.value.report?.rp?.id) {
+              if (that.fg.value.report?.rp?.id) {
                 this.router.navigate(['/', 'enterprise', 'my_view_report', { id: that.fg.value.report.rp.id }]);
               } else {
                 that.goBack();
@@ -3671,13 +3663,6 @@ export class AddEditExpensePage implements OnInit {
             ) {
               reportId = this.fg.value.report.rp.id;
             }
-            let entry;
-            if (this.fg.value.add_to_new_report) {
-              entry = {
-                comments,
-                reportId,
-              };
-            }
 
             etxn.dataUrls = etxn.dataUrls.map((data) => {
               let attachmentType = 'image';
@@ -3691,19 +3676,7 @@ export class AddEditExpensePage implements OnInit {
               return data;
             });
 
-            /**
-             * NOTE: expense will be sync only if we are redirected to expense page, or else it will be in the outbox (storage service)
-             * if (this.fg.value.add_to_new_report i.e entry) is present we will sync to the expense page list
-             * else if (if the expense is created from ccc page) we need to sync expense than only
-             *        the count on ccc page for classified and unclassified expense will be updated
-             * else (this will be the case of normal expense) we are adding entry but not syncing as it will be
-             *        redirected to expense page at the end and sync will take place
-             */
-            if (entry) {
-              return from(
-                this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, entry.comments, entry.reportId)
-              );
-            } else if (this.activatedRoute.snapshot.params.bankTxn) {
+            if (this.activatedRoute.snapshot.params.bankTxn) {
               return from(this.transactionOutboxService.addEntryAndSync(etxn.tx, etxn.dataUrls, comments, reportId));
             } else {
               let receiptsData = null;

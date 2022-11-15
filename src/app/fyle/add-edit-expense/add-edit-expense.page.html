@@ -1162,7 +1162,7 @@
           <ion-button
             (click)="saveAndNewExpense()"
             *ngIf="mode === 'add' && !navigateBack"
-            [disabled]="fg.controls.add_to_new_report.value || (saveExpenseLoader || saveAndNewExpenseLoader)"
+            [disabled]="saveExpenseLoader || saveAndNewExpenseLoader"
             [loadingText]="'Saving'"
             [loading]="saveAndNewExpenseLoader"
             appFormButtonValidation
