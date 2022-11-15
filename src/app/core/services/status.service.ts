@@ -219,6 +219,7 @@ export class StatusService {
   }
 
   findLatestComment(id, type, orgUserId) {
+    console.log(id, type, orgUserId);
     return this.find(type, id).pipe(
       map((estatuses) => {
         const nonSystemEStatuses = estatuses.filter((eStatus) => eStatus.us_full_name);
@@ -243,17 +244,5 @@ export class StatusService {
     });
 
     return estatus;
-  }
-
-  filterNonSystemEStatuses(eStatus) {
-    return eStatus.us.full_name;
-  }
-
-  filterSystemStatuses(status) {
-    return ['SYSTEM', 'POLICY'].indexOf(status.st.org_user_id) > -1;
-  }
-
-  filterSystemEStatuses(eStatus) {
-    return eStatus.st.org_user_id !== 'SYSTEM';
   }
 }
