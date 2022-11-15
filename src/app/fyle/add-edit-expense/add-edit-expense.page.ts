@@ -884,7 +884,7 @@ export class AddEditExpensePage implements OnInit {
       projects: this.projectsService.getAllActive(),
       txnFields: this.txnFields$.pipe(take(1)),
     }).pipe(
-      switchMap(({ orgSettings, costCenters, projects, txnFields }) => {
+      map(({ orgSettings, costCenters, projects, txnFields }) => {
         const isSplitExpenseAllowed = orgSettings.expense_settings.split_expense_settings.enabled;
 
         const actionSheetOptions = [];
