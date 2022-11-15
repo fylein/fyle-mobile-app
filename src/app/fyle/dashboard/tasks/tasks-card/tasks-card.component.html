@@ -36,8 +36,11 @@
             </ion-col>
           </ion-row>
           <ion-row class="ion-justify-content-between task--cta-row">
-            <ion-col size="6" *ngFor="let cta of task.ctas" class="task--cta">
+            <ion-col size="11" *ngFor="let cta of task.ctas" class="task--cta">
               {{ cta.content }}
+            </ion-col>
+            <ion-col size="1">
+              <ion-icon src="../../../../../assets/svg/arrow-right-nav.svg"></ion-icon>
             </ion-col>
           </ion-row>
         </ion-col>
