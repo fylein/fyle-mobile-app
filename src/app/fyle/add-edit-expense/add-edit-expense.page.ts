@@ -2849,7 +2849,6 @@ export class AddEditExpensePage implements OnInit {
       }
     });
 
-    //Need to fix this condition, the variables are assigned values inside subscribe and will cause more issues.
     this.actionSheetOptions$ = this.getActionSheetOptions();
 
     this.getPolicyDetails();
