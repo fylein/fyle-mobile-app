@@ -21,6 +21,7 @@ import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-br
 import { GoogleMapsModule } from '@angular/google-maps';
 import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
+import { Capacitor } from '@capacitor/core';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
