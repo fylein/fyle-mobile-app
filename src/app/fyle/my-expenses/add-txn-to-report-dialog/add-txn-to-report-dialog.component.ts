@@ -3,7 +3,7 @@ import { getCurrencySymbol } from '@angular/common';
 import { MatBottomSheet, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-add-txn-to-report-dialog',
   templateUrl: './add-txn-to-report-dialog.component.html',
@@ -17,11 +17,17 @@ export class AddTxnToReportDialogComponent implements OnInit {
   constructor(
     private currencyService: CurrencyService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: { openReports: ExtendedReport[] },
-    private matBottomsheet: MatBottomSheet
+    private matBottomsheet: MatBottomSheet,
+    private router: Router
   ) {}
 
   closeAddToReportModal() {
     this.matBottomsheet.dismiss();
+  }
+
+  createReportTaskClick() {
+    this.matBottomsheet.dismiss();
+    this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
 
   addTransactionToReport(report: ExtendedReport) {
