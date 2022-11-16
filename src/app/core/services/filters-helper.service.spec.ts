@@ -15,11 +15,12 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 describe('FiltersHelperService', () => {
   let filterHelperService: FiltersHelperService;
   let modalController: jasmine.SpyObj<ModalController>;
-  let titlePipe: jasmine.SpyObj<TitleCasePipe>;
+
+  const SortDirAsc: number = SortingDirection.ascending;
+  const SortDirDesc: number = SortingDirection.descending;
 
   beforeEach(() => {
     const controllerSpy = jasmine.createSpyObj('ModalController', ['create']);
-    const titleSpy = jasmine.createSpyObj('TitleCasePipe', ['transform']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -27,41 +28,95 @@ describe('FiltersHelperService', () => {
           provide: ModalController,
           useValue: controllerSpy,
         },
-        {
-          provide: TitleCasePipe,
-          useValue: titleSpy,
-        },
+        TitleCasePipe,
       ],
     });
     filterHelperService = TestBed.inject(FiltersHelperService);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    titlePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
   });
 
   it('should be created', () => {
     expect(filterHelperService).toBeTruthy();
   });
 
-  it('should generated pill using project name, state and approval date', () => {
+  it('should generated pill using State - Approved and Draft', () => {
     const testFilters: Filters = {
       state: [AdvancesStates.approved, AdvancesStates.draft],
-      sortParam: SortingParam.approvalDate,
     };
 
     const filterResponse = [
       {
         label: 'State',
         type: 'state',
-        value: ', ',
-      },
-      {
-        label: 'Sort By',
-        type: 'sort',
-        value: 'approved at - new to old',
+        value: 'Approved, Draft',
       },
     ];
 
-    expect(filterHelperService.generateFilterPills(testFilters, 'some project')).toEqual(filterResponse);
+    expect(filterHelperService.generateFilterPills(testFilters)).toEqual(filterResponse);
+  });
+
+  it('should generated pill using State - Cancelled and Paid', () => {
+    const testFilters: Filters = {
+      state: [AdvancesStates.cancelled, AdvancesStates.paid],
+    };
+
+    const filterResponse = [
+      {
+        label: 'State',
+        type: 'state',
+        value: 'Cancelled, Paid',
+      },
+    ];
+
+    expect(filterHelperService.generateFilterPills(testFilters)).toEqual(filterResponse);
+  });
+
+  it('should generated pill using State - Approval Pending and Sent Back', () => {
+    const testFilters: Filters = {
+      state: [AdvancesStates.pending, AdvancesStates.sentBack],
+    };
+
+    const filterResponse = [
+      {
+        label: 'State',
+        type: 'state',
+        value: 'Approval Pending, Sent Back',
+      },
+    ];
+
+    expect(filterHelperService.generateFilterPills(testFilters)).toEqual(filterResponse);
+  });
+
+  it('should generate pill using only Sorting Params - Approved At New To Old', () => {
+    const testFilters: Filters = {
+      sortParam: SortingParam.approvalDate,
+    };
+
+    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved at - new to old' }];
+
+    expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
+  });
+
+  it('should generate pill using only Sorting Params With Project Name - Project A to Z | Ascending', () => {
+    const testFilters: Filters = {
+      sortParam: SortingParam.project,
+      sortDir: SortingDirection.ascending,
+    };
+
+    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'Some Project - A to Z' }];
+
+    expect(filterHelperService.generateFilterPills(testFilters, 'some project')).toEqual(testPill);
+  });
+
+  it('should generate pill using only Sorting Params With Project Name - Project Z to A | Descending', () => {
+    const testFilters: Filters = {
+      sortParam: SortingParam.project,
+      sortDir: SortingDirection.descending,
+    };
+
+    const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'Some Project - Z to A' }];
+
+    expect(filterHelperService.generateFilterPills(testFilters, 'some project')).toEqual(testPill);
   });
 
   it('should generate pill using only Sorting Params - Approved At New To Old', () => {
@@ -163,7 +218,7 @@ describe('FiltersHelperService', () => {
       },
       {
         name: 'Sort Direction',
-        value: 1,
+        value: SortDirDesc,
       },
     ];
 
@@ -215,7 +270,7 @@ describe('FiltersHelperService', () => {
       },
       {
         name: 'Sort Direction',
-        value: 1,
+        value: SortDirDesc,
       },
     ];
 
@@ -230,7 +285,7 @@ describe('FiltersHelperService', () => {
       },
       {
         name: 'Sort Direction',
-        value: 1,
+        value: SortDirDesc,
       },
       {
         name: 'State',
@@ -255,7 +310,7 @@ describe('FiltersHelperService', () => {
       },
       {
         name: 'Sort Direction',
-        value: 1,
+        value: SortDirDesc,
       },
       {
         name: 'State',
