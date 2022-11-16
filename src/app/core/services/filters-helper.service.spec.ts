@@ -42,7 +42,7 @@ describe('FiltersHelperService', () => {
     expect(filterHelperService).toBeTruthy();
   });
 
-  it('should generated pill using project name', () => {
+  it('should generated pill using project name, state and approval date', () => {
     const testFilters: Filters = {
       state: [AdvancesStates.approved, AdvancesStates.draft],
       sortParam: SortingParam.approvalDate,
