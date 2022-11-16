@@ -3,7 +3,7 @@
 
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, concat, forkJoin, from, iif, noop, Observable, of, Subscription, throwError } from 'rxjs';
+import { combineLatest, concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
 import {
   catchError,
   concatMap,
@@ -35,7 +35,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { DataTransformService } from 'src/app/core/services/data-transform.service';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -65,7 +65,9 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
+import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -189,8 +191,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   autoSubmissionReportName$: Observable<string>;
 
-  hardwareBackButtonAction: Subscription;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private fb: FormBuilder,
@@ -227,8 +227,7 @@ export class AddEditPerDiemPage implements OnInit {
     private perDiemService: PerDiemService,
     private categoriesService: CategoriesService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private orgSettingsService: OrgSettingsService,
-    private platform: Platform
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get minPerDiemDate() {
@@ -326,11 +325,29 @@ export class AddEditPerDiemPage implements OnInit {
     }
   }
 
+  async showCannotEditActivityDialog() {
+    const popupResult = await this.popupService.showPopup({
+      header: 'Cannot Edit Activity Expense!',
+      // eslint-disable-next-line max-len
+      message: `To edit this activity expense, you need to login to web version of Fyle app at <a href="${this.clusterDomain}">${this.clusterDomain}</a>`,
+      primaryCta: {
+        text: 'Close',
+      },
+      showCancelButton: false,
+    });
+  }
+
   goToTransaction(expense, reviewList, activeIndex) {
     let category;
 
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
+    }
+
+    if (category === 'activity') {
+      this.showCannotEditActivityDialog();
+
+      return;
     }
 
     if (category === 'mileage') {
@@ -725,13 +742,6 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-      BackButtonActionPriority.MEDIUM,
-      () => {
-        this.showClosePopup();
-      }
-    );
-
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
     this.expenseStartTime = new Date().getTime();
     const today = new Date();
@@ -780,7 +790,6 @@ export class AddEditPerDiemPage implements OnInit {
     const orgSettings$ = this.orgSettingsService.get();
     const perDiemRates$ = this.perDiemService.getRates();
     const orgUserSettings$ = this.orgUserSettingsService.get();
-    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
@@ -1218,24 +1227,18 @@ export class AddEditPerDiemPage implements OnInit {
       )
     );
 
-    const selectedReport$ = forkJoin({
-      autoSubmissionReportName: this.autoSubmissionReportName$,
-      etxn: this.etxn$,
-      reportOptions: this.reports$,
-    }).pipe(
-      map(({ autoSubmissionReportName, etxn, reportOptions }) => {
-        if (etxn.tx.report_id) {
-          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
-        } else if (
-          !autoSubmissionReportName &&
-          reportOptions.length === 1 &&
-          reportOptions[0].value.rp.state === 'DRAFT'
-        ) {
-          return reportOptions[0].value;
-        } else {
-          return null;
-        }
-      })
+    const selectedReport$ = this.etxn$.pipe(
+      switchMap((etxn) =>
+        iif(
+          () => etxn.tx.report_id,
+          this.reports$.pipe(
+            map((reportOptions) =>
+              reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id)
+            )
+          ),
+          of(null)
+        )
+      )
     );
 
     const selectedCostCenter$ = this.etxn$.pipe(
@@ -1453,6 +1456,8 @@ export class AddEditPerDiemPage implements OnInit {
         }
       })
     );
+
+    this.autoSubmissionReportName$ = this.reportService.getAutoSubmissionReportName();
   }
 
   generateEtxnFromFg(etxn$, standardisedCustomProperties$) {
@@ -1514,50 +1519,16 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  checkPolicyViolation(etxn) {
-    // Prepare etxn object with just tx and ou object required for test call
-    return from(this.authService.getEou()).pipe(
-      switchMap((currentEou) => {
-        const policyETxn = {
-          tx: cloneDeep(etxn.tx),
-          ou: cloneDeep(etxn.ou),
-        };
+  checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: any[] }): Observable<ExpensePolicy> {
+    const transactionCopy = cloneDeep(etxn.tx);
 
-        if (!etxn.tx.id) {
-          policyETxn.ou = currentEou.ou;
-        }
-        /* Adding number of attachements and sending in test call as tx_num_files
-         * If editing an expense with receipts, check for already uploaded receipts
-         */
-        if (etxn.tx) {
-          policyETxn.tx.num_files = etxn.tx.num_files;
-
-          // Check for receipts uploaded from mobile
-          if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-            policyETxn.tx.num_files = etxn.tx.num_files + etxn.dataUrls.length;
-          }
-        }
-
-        return this.categoriesService.getAll().pipe(
-          map((categories: any[]) => {
-            // policy engine expects org_category and sub_category fields
-            if (policyETxn.tx.org_category_id) {
-              const orgCategory = categories.find((cat) => cat.id === policyETxn.tx.org_category_id);
-              policyETxn.tx.org_category = orgCategory && orgCategory.name;
-              policyETxn.tx.sub_category = orgCategory && orgCategory.sub_category;
-            } else {
-              policyETxn.tx.org_category_id = null;
-              policyETxn.tx.sub_category = null;
-              policyETxn.tx.org_category = null;
-            }
-
-            // Flatten the etxn obj
-            return this.dataTransformService.etxnRaw(policyETxn);
-          })
-        );
-      }),
-      switchMap((policyETxn) => this.transactionService.testPolicy(policyETxn))
-    );
+    /* Expense creation has not moved to platform yet and since policy is moved to platform,
+     * it expects the expense object in terms of platform world. Until then, the method
+     * `transformTo` act as a bridge by translating the public expense object to platform
+     * expense.
+     */
+    const policyExpense = this.policyService.transformTo(transactionCopy);
+    return this.transactionService.checkPolicy(policyExpense);
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]) {
@@ -1577,12 +1548,12 @@ export class AddEditPerDiemPage implements OnInit {
     return !!data;
   }
 
-  async continueWithPolicyViolations(policyViolations: string[], policyActionDescription: string) {
+  async continueWithPolicyViolations(policyViolations: string[], policyAction: FinalExpensePolicyState) {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
       componentProps: {
         policyViolationMessages: policyViolations,
-        policyActionDescription,
+        policyAction,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -1635,18 +1606,16 @@ export class AddEditPerDiemPage implements OnInit {
                     return policyViolations$;
                   }
                 }),
-                map((policyViolations: any) => [
+                map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
                   this.policyService.getPolicyRules(policyViolations),
-                  policyViolations &&
-                    policyViolations.transaction_desired_state &&
-                    policyViolations.transaction_desired_state.action_description,
+                  policyViolations?.data?.final_desired_state,
                 ]),
-                switchMap(([policyViolations, policyActionDescription]) => {
+                switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
                   if (policyViolations.length > 0) {
                     return throwError({
                       type: 'policyViolations',
                       policyViolations,
-                      policyActionDescription,
+                      policyAction,
                       etxn,
                     });
                   } else {
@@ -1677,7 +1646,7 @@ export class AddEditPerDiemPage implements OnInit {
           );
         } else if (err.type === 'policyViolations') {
           return from(this.loaderService.hideLoader()).pipe(
-            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)),
+            switchMap(() => this.continueWithPolicyViolations(err.policyViolations, err.policyAction)),
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -1804,18 +1773,16 @@ export class AddEditPerDiemPage implements OnInit {
               return policyViolations$;
             }
           }),
-          map((policyViolations: any) => [
+          map((policyViolations: ExpensePolicy): [string[], FinalExpensePolicyState] => [
             this.policyService.getPolicyRules(policyViolations),
-            policyViolations &&
-              policyViolations.transaction_desired_state &&
-              policyViolations.transaction_desired_state.action_description,
+            policyViolations?.data?.final_desired_state,
           ]),
-          switchMap(([policyViolations, policyActionDescription]) => {
+          switchMap(([policyViolations, policyAction]: [string[], FinalExpensePolicyState]) => {
             if (policyViolations.length > 0) {
               return throwError({
                 type: 'policyViolations',
                 policyViolations,
-                policyActionDescription,
+                policyAction,
                 etxn,
               });
             } else {
@@ -1839,7 +1806,7 @@ export class AddEditPerDiemPage implements OnInit {
             })
           );
         } else if (err.type === 'policyViolations') {
-          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyActionDescription)).pipe(
+          return from(this.continueWithPolicyViolations(err.policyViolations, err.policyAction)).pipe(
             switchMap((continueWithTransaction) => {
               if (continueWithTransaction) {
                 return from(this.loaderService.showLoader()).pipe(
@@ -2258,9 +2225,5 @@ export class AddEditPerDiemPage implements OnInit {
           this.policyDetails = policyDetails;
         });
     }
-  }
-
-  ionViewWillLeave() {
-    this.hardwareBackButtonAction.unsubscribe();
   }
 }

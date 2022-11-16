@@ -1,4 +1,4 @@
-export interface Transaction {
+export interface PublicPolicyExpense {
   activity_details: string;
   activity_policy_pending: boolean;
   admin_amount: number;
@@ -10,7 +10,12 @@ export interface Transaction {
   created_at: Date;
   creator_id: string;
   currency: string;
-  custom_properties: [];
+  custom_properties: [
+    {
+      name?: string;
+      value?: string;
+    }
+  ];
   distance: number;
   distance_unit: string;
   exchange_rate: number;
@@ -24,8 +29,20 @@ export interface Transaction {
   fyle_category: string;
   hotel_is_breakfast_provided: boolean;
   id: string;
+  is_matching_ccc_expense: boolean;
+  mileage_rate_id: number;
   invoice_number: number;
-  locations: [];
+  locations: [
+    {
+      city?: string;
+      state?: string;
+      display_name?: string;
+      country?: string;
+      formatted_address?: string;
+      latitude?: number;
+      longitude?: number;
+    }
+  ];
   mandatory_fields_present: boolean;
   manual_flag: boolean;
   mileage_calculated_amount: number;
@@ -40,7 +57,7 @@ export interface Transaction {
   orig_amount: number;
   orig_currency: string;
   payment_id: string;
-  per_diem_rate_id: string;
+  per_diem_rate_id: number;
   physical_bill: boolean;
   physical_bill_at: Date;
   platform_vendor: string;
@@ -48,7 +65,7 @@ export interface Transaction {
   policy_amount: number;
   policy_flag: boolean;
   policy_state: string;
-  project_id: string;
+  project_id: number;
   proposed_exchange_rate: number;
   purpose: string;
   report_id: string;

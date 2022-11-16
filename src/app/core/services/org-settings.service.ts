@@ -229,6 +229,7 @@ export class OrgSettingsService {
       per_diem: incoming.per_diem_settings,
       payment_mode_settings: incoming.payment_mode_settings,
       access_delegation: incoming.org_access_delegation_settings,
+      activity: incoming.activity_settings,
       tax_settings: incoming.tax_settings,
       integrations_settings: incoming.integrations_settings,
       taxi_settings: incoming.taxi_settings,
@@ -284,6 +285,30 @@ export class OrgSettingsService {
         name: 'Currency Layer',
       },
       transaction_field_configurations: incoming.transaction_field_configurations,
+      fixer_provider_settings: {
+        allowed: incoming.fixer_provider_settings && incoming.fixer_provider_settings.allowed,
+        enabled: incoming.fixer_provider_settings && incoming.fixer_provider_settings.enabled,
+        id: 'FIXER',
+        name: 'Fixer',
+      },
+      openexchangerates_provider_settings: {
+        allowed: incoming.openexchangerates_provider_settings && incoming.openexchangerates_provider_settings.allowed,
+        enabled: incoming.openexchangerates_provider_settings && incoming.openexchangerates_provider_settings.enabled,
+        id: 'OPENEXCHANGERATES',
+        name: 'Open Exchange Rates',
+      },
+      oanda_provider_settings: {
+        allowed: incoming.oanda_provider_settings && incoming.oanda_provider_settings.allowed,
+        enabled: incoming.oanda_provider_settings && incoming.oanda_provider_settings.enabled,
+        id: 'OANDA',
+        name: 'Oanda',
+      },
+      xe_provider_settings: {
+        allowed: incoming.xe_provider_settings && incoming.xe_provider_settings.allowed,
+        enabled: incoming.xe_provider_settings && incoming.xe_provider_settings.enabled,
+        id: 'XE',
+        name: 'XE',
+      },
       gmail_addon_settings: incoming.gmail_addon_settings,
       duplicate_detection_settings: {
         allowed: incoming.duplicate_detection_settings && incoming.duplicate_detection_settings.allowed,
@@ -442,6 +467,22 @@ export class OrgSettingsService {
       currencylayer_provider_settings: {
         allowed: outgoing.currencylayer_provider_settings.allowed,
         enabled: outgoing.currencylayer_provider_settings.enabled,
+      },
+      fixer_provider_settings: {
+        allowed: outgoing.fixer_provider_settings.allowed,
+        enabled: outgoing.fixer_provider_settings.enabled,
+      },
+      openexchangerates_provider_settings: {
+        allowed: outgoing.openexchangerates_provider_settings.allowed,
+        enabled: outgoing.openexchangerates_provider_settings.enabled,
+      },
+      oanda_provider_settings: {
+        allowed: outgoing.oanda_provider_settings.allowed,
+        enabled: outgoing.oanda_provider_settings.enabled,
+      },
+      xe_provider_settings: {
+        allowed: outgoing.xe_provider_settings.allowed,
+        enabled: outgoing.xe_provider_settings.enabled,
       },
       advances_settings: {
         allowed: outgoing.advances.allowed,

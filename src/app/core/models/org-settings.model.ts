@@ -444,6 +444,7 @@ export interface OrgSettingsResponse {
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
   trip_request_settings?: CommonOrgSettings;
+  xe_provider_settings?: XeProviderSettings;
 }
 
 export interface UiPolicySettings {
@@ -458,6 +459,26 @@ export interface UiPolicySettings {
 
 export interface DataExtractorSettings extends CommonOrgSettings {
   web_app_pdf?: string;
+}
+
+export interface FixerProviderSettings extends CommonOrgSettings {
+  id?: string;
+  name?: string;
+}
+
+export interface OpenExchangeRatesProviderSettings extends CommonOrgSettings {
+  id?: string;
+  name?: string;
+}
+
+export interface OandaProviderSettings extends CommonOrgSettings {
+  id?: string;
+  name?: string;
+}
+
+export interface XeProviderSettings extends CommonOrgSettings {
+  id?: string;
+  name?: string;
 }
 
 export interface OrgSettings {
@@ -535,4 +556,8 @@ export interface OrgSettings {
   visa_enrollment_settings?: CommonOrgSettings;
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
+  fixer_provider_settings?: FixerProviderSettings;
+  openexchangerates_provider_settings?: OpenExchangeRatesProviderSettings;
+  oanda_provider_settings?: OandaProviderSettings;
+  xe_provider_settings?: XeProviderSettings;
 }
