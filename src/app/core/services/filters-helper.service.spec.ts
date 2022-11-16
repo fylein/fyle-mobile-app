@@ -44,10 +44,16 @@ describe('FiltersHelperService', () => {
 
   it('should generated pill using project name', () => {
     const testFilters: Filters = {
+      state: [AdvancesStates.approved, AdvancesStates.draft],
       sortParam: SortingParam.approvalDate,
     };
 
     const filterResponse = [
+      {
+        label: 'State',
+        type: 'state',
+        value: ', ',
+      },
       {
         label: 'Sort By',
         type: 'sort',
@@ -335,7 +341,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    const resFilters: Filters = {
+    const expectedFilters: Filters = {
       state: [AdvancesStates.approved, AdvancesStates.draft],
       sortParam: SortingParam.project,
       sortDir: 1,
@@ -395,6 +401,6 @@ describe('FiltersHelperService', () => {
       })
     );
     const result = await service.openFilterModal(testFilters, filterOptions);
-    expect(result).toEqual(resFilters);
+    expect(result).toEqual(expectedFilters);
   });
 });
