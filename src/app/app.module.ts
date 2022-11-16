@@ -94,7 +94,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     },
     {
       provide: DEVICE_PLATFORM,
-      useValue: Capacitor.getPlatform(),
+      useValue: 'ios',
     },
     TitleCasePipe,
   ],
