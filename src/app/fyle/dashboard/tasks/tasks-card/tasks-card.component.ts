@@ -26,7 +26,7 @@ export class TasksCardComponent implements OnInit {
 
   showReportAutoSubmissionInfo = false;
 
-  ctaEvent: any;
+  ctaEvent: TaskCta;
 
   constructor(private currencyService: CurrencyService) {}
 

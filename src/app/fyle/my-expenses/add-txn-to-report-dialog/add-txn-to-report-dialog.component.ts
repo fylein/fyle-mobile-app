@@ -25,7 +25,7 @@ export class AddTxnToReportDialogComponent implements OnInit {
     this.matBottomsheet.dismiss();
   }
 
-  createReportTaskClick() {
+  onClickCreateReportTask() {
     this.matBottomsheet.dismiss();
     this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
