@@ -16,7 +16,7 @@ export class OrgSettingsService {
   @Cacheable({
     cacheBusterObserver: orgSettingsCacheBuster$,
   })
-  get(): Observable<Partial<OrgSettings>> {
+  get(): Observable<OrgSettings> {
     return this.apiService.get('/org/settings').pipe(map((incoming) => this.processIncoming(incoming)));
   }
 
@@ -97,8 +97,8 @@ export class OrgSettingsService {
 
   // unavoidable here
   // eslint-disable-next-line complexity
-  processIncoming(incoming: Partial<OrgSettingsResponse>): Partial<OrgSettings> {
-    const orgSettings: Partial<OrgSettings> = {
+  processIncoming(incoming: OrgSettingsResponse): OrgSettings {
+    const orgSettings: OrgSettings = {
       org_id: incoming.org_id,
       mileage: {
         allowed: incoming.org_mileage_settings?.allowed,

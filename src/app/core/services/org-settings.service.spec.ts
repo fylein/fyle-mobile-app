@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
 
 import { OrgSettingsService } from './org-settings.service';
 
-const apiResponse: Partial<OrgSettings> = {
+const apiResponse: OrgSettings = {
   org_id: 'orNVthTo2Zyo',
   mileage: {
     allowed: true,
