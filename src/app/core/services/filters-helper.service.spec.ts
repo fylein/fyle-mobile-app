@@ -13,8 +13,8 @@ import { SortingParam } from '../models/sorting-param.model';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 
 describe('FiltersHelperService', () => {
-  let service: FiltersHelperService;
-  let controller: jasmine.SpyObj<ModalController>;
+  let filterHelperService: FiltersHelperService;
+  let modalController: jasmine.SpyObj<ModalController>;
   let titlePipe: jasmine.SpyObj<TitleCasePipe>;
 
   beforeEach(() => {
@@ -33,13 +33,13 @@ describe('FiltersHelperService', () => {
         },
       ],
     });
-    service = TestBed.inject(FiltersHelperService);
-    controller = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    filterHelperService = TestBed.inject(FiltersHelperService);
+    modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     titlePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(filterHelperService).toBeTruthy();
   });
 
   it('should generated pill using project name', () => {
@@ -61,7 +61,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateFilterPills(testFilters, 'some project')).toEqual(filterResponse);
+    expect(filterHelperService.generateFilterPills(testFilters, 'some project')).toEqual(filterResponse);
   });
 
   it('should generate pill using only Sorting Params - Approved At New To Old', () => {
@@ -71,7 +71,7 @@ describe('FiltersHelperService', () => {
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved at - new to old' }];
 
-    expect(service.generateFilterPills(testFilters)).toEqual(testPill);
+    expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
   it('should generate pill using only Sorting Params - Approved At Old To New', () => {
@@ -82,7 +82,7 @@ describe('FiltersHelperService', () => {
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'approved at - old to new' }];
 
-    expect(service.generateFilterPills(testFilters)).toEqual(testPill);
+    expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
   it('should generate pill using only Sorting Params - Created At New to Old', () => {
@@ -92,7 +92,7 @@ describe('FiltersHelperService', () => {
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created at - new to old' }];
 
-    expect(service.generateFilterPills(testFilters)).toEqual(testPill);
+    expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
   it('should generate pill using only Sorting Params - Created At Old to New', () => {
@@ -102,7 +102,7 @@ describe('FiltersHelperService', () => {
     };
 
     const testPill: FilterPill[] = [{ label: 'Sort By', type: 'sort', value: 'created at - old to new' }];
-    expect(service.generateFilterPills(testFilters)).toEqual(testPill);
+    expect(filterHelperService.generateFilterPills(testFilters)).toEqual(testPill);
   });
 
   it('should generate selected filters using only State - APPROVED,DRAFT', () => {
@@ -117,7 +117,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
+    expect(filterHelperService.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
   });
 
   it('should generate selected filters using only State - PAID,CANCELLED', () => {
@@ -132,7 +132,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
+    expect(filterHelperService.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
   });
 
   it('should generate selected filters using only State - SENT_BACK,APPROVAL_PENDING', () => {
@@ -147,7 +147,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
+    expect(filterHelperService.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
   });
 
   it('should generate selected filters using Sort Param - APPROVAL DATE | DESCENDING', () => {
@@ -167,7 +167,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
+    expect(filterHelperService.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
   });
 
   it('should generate selected filters using Sort Param - CREATED DATE | ASCENDING', () => {
@@ -183,7 +183,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
+    expect(filterHelperService.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
   });
 
   it('should generate selected filters using Sort Param - PROJECT | ASCENDING', () => {
@@ -199,7 +199,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
+    expect(filterHelperService.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
   });
 
   it('should generate selected filters using Sort Param - PROJECT | DESCENDING', () => {
@@ -219,7 +219,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    expect(service.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
+    expect(filterHelperService.generateSelectedFilters(testFilters)).toEqual(testSelectedFilter);
   });
 
   it('should convert data to selected filters | Sort By - A to Z, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
@@ -244,7 +244,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.descending,
     };
 
-    expect(service.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
+    expect(filterHelperService.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
   });
 
   it('should convert data to selected filters | Sort By - Z to A, Sort Direction - DESC, State - DRAFT,CANCELLED', () => {
@@ -269,7 +269,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.descending,
     };
 
-    expect(service.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
+    expect(filterHelperService.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
   });
 
   it('should convert data to selected filters | Sort By - A to Z, Sort Direction - ASC', () => {
@@ -285,7 +285,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.ascending,
     };
 
-    expect(service.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
+    expect(filterHelperService.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
   });
 
   it('should convert data to selected filters | APPROVAL DATE - DESC', () => {
@@ -301,7 +301,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.descending,
     };
 
-    expect(service.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
+    expect(filterHelperService.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
   });
 
   it('should convert data to selected filters | CREATION DATE - ASC', () => {
@@ -317,7 +317,7 @@ describe('FiltersHelperService', () => {
       sortDir: SortingDirection.ascending,
     };
 
-    expect(service.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
+    expect(filterHelperService.convertDataToFilters(testSelectedFilters)).toEqual(testFilters);
   });
 
   it('should open the modal and save date', async () => {
@@ -387,7 +387,7 @@ describe('FiltersHelperService', () => {
       },
     ];
 
-    controller.create.and.returnValue(
+    modalController.create.and.returnValue(
       new Promise((resolve) => {
         const filterPopoverSpy = jasmine.createSpyObj('filterPopover', ['onWillDismiss', 'present']) as any;
         filterPopoverSpy.onWillDismiss.and.returnValue(
@@ -400,7 +400,7 @@ describe('FiltersHelperService', () => {
         resolve(filterPopoverSpy);
       })
     );
-    const result = await service.openFilterModal(testFilters, filterOptions);
+    const result = await filterHelperService.openFilterModal(testFilters, filterOptions);
     expect(result).toEqual(expectedFilters);
   });
 });
