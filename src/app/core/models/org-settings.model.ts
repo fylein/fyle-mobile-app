@@ -387,9 +387,6 @@ export interface OrgSettingsResponse {
   transaction_field_configurations?: [];
   exchange_rate_settings?: CommonOrgSettings;
   currencylayer_provider_settings?: CurrencylayerProviderSettings;
-  fixer_provider_settings?: CommonOrgSettings;
-  openexchangerates_provider_settings?: CommonOrgSettings;
-  oanda_provider_settings?: CommonOrgSettings;
   gmail_addon_settings?: CommonOrgSettings;
   admin_allowed_ip_settings?: AdminAllowedIpSettings;
   fmr_settings?: CommonOrgSettings;
@@ -556,8 +553,4 @@ export interface OrgSettings {
   visa_enrollment_settings?: CommonOrgSettings;
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
-  fixer_provider_settings?: FixerProviderSettings;
-  openexchangerates_provider_settings?: OpenExchangeRatesProviderSettings;
-  oanda_provider_settings?: OandaProviderSettings;
-  xe_provider_settings?: XeProviderSettings;
 }

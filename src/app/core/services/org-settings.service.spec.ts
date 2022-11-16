@@ -19,8 +19,8 @@ import {
 
 import { OrgSettingsService } from './org-settings.service';
 
-const getApiResponse: OrgSettings = orgSettingsGetData;
-const postApiPayload: OrgSettingsResponse = orgSettingsPostData;
+const getApiData: OrgSettings = orgSettingsGetData;
+const postApiData: OrgSettingsResponse = orgSettingsPostData;
 const incomingTallyAccountObject: IncomingAccountObject = incomingTallyAccoutingObj;
 const incomingQuickBooksAccountObject: IncomingAccountObject = incomingQuickbooksAccoutingObj;
 const incomingAccountSettingsObject: IncomingAccountObject = incomingAccountSettingsObj;
@@ -52,17 +52,17 @@ describe('OrgSettingsService', () => {
   });
 
   it('should be able to get the org settings properly', (done) => {
-    apiService.get.and.returnValue(of(getApiResponse));
+    apiService.get.and.returnValue(of(getApiData));
     orgSettingsService.get().subscribe((res) => {
-      expect(res).toBeTruthy(getApiResponse);
+      expect(res).toBeTruthy(getApiData);
       done();
     });
   });
 
   it('should be able to update the org settings properly', (done) => {
-    apiService.post.and.returnValue(of(postApiPayload));
-    orgSettingsService.post(getApiResponse).subscribe((res) => {
-      expect(res).toBeTruthy(postApiPayload);
+    apiService.post.and.returnValue(of(postApiData));
+    orgSettingsService.post(getApiData).subscribe((res) => {
+      expect(res).toBeTruthy(postApiData);
       done();
     });
   });
