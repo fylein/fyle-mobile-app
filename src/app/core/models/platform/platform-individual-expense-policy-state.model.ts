@@ -2,11 +2,17 @@ export interface IndividualExpensePolicyState {
   add_approver_user_ids: string[];
   run_status: string;
   run_result: string[];
-  expense_id: string;
+  expense_id?: string; // This key is absent in case of check policies call
   expense_policy_rule_id: string;
-  rule: {
+  // In check policies call, the object key is returned with different name than in expense_policies_states call
+  expense_policy_rule?: {
     id: string;
-    description: number;
+    description: string;
+    action_show_warning: boolean;
+  };
+  rule?: {
+    id: string;
+    description: string;
     action_show_warning: boolean;
   };
   amount: number;
