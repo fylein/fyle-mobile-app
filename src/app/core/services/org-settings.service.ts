@@ -3,7 +3,15 @@ import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
-import { OrgSettings, OrgSettingsResponse } from '../models/org-settings.model';
+import {
+  AccountingExportSettings,
+  AccountingSettings,
+  IncomingAccountObject,
+  OrgSettings,
+  OrgSettingsResponse,
+  QuickBooksSettings,
+  TallySettings,
+} from '../models/org-settings.model';
 
 const orgSettingsCacheBuster$ = new Subject<void>();
 
@@ -28,26 +36,17 @@ export class OrgSettingsService {
     return this.apiService.post('/org/settings', data);
   }
 
-  getDefaultLimitAmount() {
-    const defaultLimitAmount = 75;
-    return defaultLimitAmount;
-  }
-
-  getIncomingAccountingObject(incomingAccountExport) {
-    // setting allowed to true here as this field will be removed within a month
-    // TODO: Remove this hack latest by end of April 2020 - If you find this code after the deadline, @arun will buy you petrol
-    // Petrol claimed by @Dhar - bike trip to himachal pradesh once corona ends
-    const accounting: any = {
-      allowed: true,
+  getIncomingAccountingObject(incomingAccountExport: AccountingExportSettings): IncomingAccountObject {
+    const accounting: IncomingAccountObject = {
       enabled: false,
       type: null,
       settings: null,
     };
 
     if (incomingAccountExport) {
-      const quickBooks = incomingAccountExport.quick_books_settings;
-      const tally = incomingAccountExport.tally_settings;
-      const accountingSettings = incomingAccountExport.accounting_settings;
+      const quickBooks: QuickBooksSettings = incomingAccountExport.quick_books_settings;
+      const tally: TallySettings = incomingAccountExport.tally_settings;
+      const accountingSettings: AccountingSettings = incomingAccountExport.accounting_settings;
 
       if (quickBooks && quickBooks.enabled) {
         accounting.enabled = true;
@@ -74,8 +73,8 @@ export class OrgSettingsService {
     return accounting;
   }
 
-  setOutgoingAccountingObject(accounting) {
-    const accountingSettings: any = {};
+  setOutgoingAccountingObject(accounting: IncomingAccountObject): AccountingExportSettings {
+    const accountingSettings: AccountingExportSettings = {};
 
     accountingSettings.allowed = accounting && accounting.allowed;
 

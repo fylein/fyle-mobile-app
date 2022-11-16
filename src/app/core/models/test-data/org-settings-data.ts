@@ -1,4 +1,10 @@
-import { EmailEvents, OrgSettings, OrgSettingsResponse } from '../org-settings.model';
+import {
+  AccountingExportSettings,
+  EmailEvents,
+  IncomingAccountObject,
+  OrgSettings,
+  OrgSettingsResponse,
+} from '../org-settings.model';
 
 export const orgSettingsGetData: OrgSettings = {
   org_id: 'orNVthTo2Zyo',
@@ -741,4 +747,122 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: false,
     enabled: false,
   },
+};
+
+export const outgoingTallyAccountObj: AccountingExportSettings = {
+  allowed: true,
+  tally_settings: {
+    enabled: true,
+    default_org_category_ledger_name: null,
+    default_org_user_personal_ledger_name: null,
+    separate_org_user_advance_ledger: false,
+    default_org_user_advance_ledger_name: null,
+    expense_dt: null,
+    advance_dt: null,
+    reimbursement_dt: null,
+    refund_dt: null,
+    cost_center: null,
+    cost_category: null,
+    collapse_expenses: false,
+    blocked_payment_types: [],
+  },
+  quick_books_settings: null,
+  accounting_settings: null,
+  integration_exports_enabled: false,
+};
+
+export const incomingTallyAccoutingObj: IncomingAccountObject = {
+  allowed: true,
+  enabled: true,
+  type: 'TALLY',
+  settings: {
+    enabled: true,
+    default_org_category_ledger_name: null,
+    default_org_user_personal_ledger_name: null,
+    separate_org_user_advance_ledger: false,
+    default_org_user_advance_ledger_name: null,
+    expense_dt: null,
+    advance_dt: null,
+    reimbursement_dt: null,
+    refund_dt: null,
+    cost_center: null,
+    cost_category: null,
+    collapse_expenses: false,
+    blocked_payment_types: [],
+  },
+  integration_exports_enabled: false,
+};
+
+export const outgoingQuickbooksAccountObj: AccountingExportSettings = {
+  allowed: true,
+  quick_books_settings: {
+    enabled: false,
+    expense_dt: null,
+    advance_dt: null,
+    expense_type: null,
+    advance_type: null,
+    collapse_expenses: false,
+    enable_departments: false,
+    enable_classes: false,
+    debit_ledger_calculation_key: null,
+    account_mappings: null,
+    separate_org_user_advance_ledger: false,
+  },
+  tally_settings: null,
+  accounting_settings: null,
+  integration_exports_enabled: false,
+};
+
+export const incomingQuickbooksAccoutingObj: IncomingAccountObject = {
+  allowed: true,
+  enabled: true,
+  type: 'QUICKBOOKS',
+  settings: {
+    enabled: false,
+    expense_dt: null,
+    advance_dt: null,
+    expense_type: null,
+    advance_type: null,
+    collapse_expenses: false,
+    enable_departments: false,
+    enable_classes: false,
+    debit_ledger_calculation_key: null,
+    account_mappings: null,
+    separate_org_user_advance_ledger: false,
+  },
+  integration_exports_enabled: false,
+};
+
+export const outgoingAccountSettingsObj: AccountingExportSettings = {
+  allowed: true,
+  accounting_settings: {
+    enabled: false,
+    export_name: null,
+    export_type: null,
+    entries_generator_info: null,
+    entries_exporter_info: null,
+    custom_fields: null,
+    separate_org_user_advance_ledger: false,
+    collapse_expenses: false,
+  },
+  tally_settings: null,
+  quick_books_settings: null,
+  integration_exports_enabled: false,
+};
+
+export const incomingAccountSettingsObj: IncomingAccountObject = {
+  allowed: true,
+  enabled: true,
+  type: null,
+  settings: {
+    enabled: false,
+    export_name: null,
+    export_type: null,
+    entries_generator_info: null,
+    entries_exporter_info: null,
+    custom_fields: null,
+    separate_org_user_advance_ledger: false,
+    collapse_expenses: false,
+  },
+  integration_exports_enabled: false,
 };

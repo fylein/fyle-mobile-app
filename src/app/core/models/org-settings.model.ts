@@ -264,6 +264,7 @@ export interface QuickBooksSettings {
   enable_classes?: boolean;
   debit_ledger_calculation_key?: string;
   account_mappings?: Map<string, string>;
+  separate_org_user_advance_ledger?: boolean;
 }
 
 export interface LineEntriesGeneratorInfo {
@@ -286,6 +287,8 @@ export interface AccountingSettings {
   entries_generator_info?: LineEntriesGeneratorInfo;
   entries_exporter_info?: LineEntriesExporterInfo;
   custom_fields?: Map<string, Record<string, any>>;
+  separate_org_user_advance_ledger?: boolean;
+  collapse_expenses?: boolean;
 }
 
 export interface TallySettings {
@@ -301,7 +304,7 @@ export interface TallySettings {
   cost_center?: string;
   cost_category?: string;
   collapse_expenses?: boolean;
-  blocked_payment_types?: Set<PaymentType>;
+  blocked_payment_types?: [] | Set<PaymentType>;
 }
 
 export interface AccountingExportSettings {
