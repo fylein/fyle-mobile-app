@@ -23,7 +23,7 @@ export class OrgSettingsService {
   @CacheBuster({
     cacheBusterNotifier: orgSettingsCacheBuster$,
   })
-  post(settings) {
+  post(settings: OrgSettings): Observable<OrgSettingsResponse> {
     const data = this.processOutgoing(settings);
     return this.apiService.post('/org/settings', data);
   }
@@ -101,248 +101,312 @@ export class OrgSettingsService {
     const orgSettings: OrgSettings = {
       org_id: incoming.org_id,
       mileage: {
-        allowed: incoming.org_mileage_settings?.allowed,
-        enabled: incoming.org_mileage_settings?.enabled,
-        location_mandatory: incoming.org_mileage_settings?.mileage_location_enabled,
-        unit: incoming.mileage_details?.unit,
-        fiscal_year_start_date: incoming.mileage_details?.fiscal_year_start_date,
-        fiscal_year_end_date: incoming.mileage_details?.fiscal_year_end_date,
-        two_wheeler: incoming.mileage_details?.two_wheeler,
-        four_wheeler: incoming.mileage_details?.four_wheeler,
-        four_wheeler1: incoming.mileage_details?.four_wheeler1,
-        four_wheeler3: incoming.mileage_details?.four_wheeler3,
-        four_wheeler4: incoming.mileage_details?.four_wheeler4,
-        bicycle: incoming.mileage_details?.bicycle,
-        electric_car: incoming.mileage_details?.electric_car,
-        two_wheeler_slabbed_rate: incoming.mileage_details?.two_wheeler_slabbed_rate,
-        four_wheeler_slabbed_rate: incoming.mileage_details?.four_wheeler_slabbed_rate,
-        four_wheeler1_slabbed_rate: incoming.mileage_details?.four_wheeler1_slabbed_rate,
-        four_wheeler3_slabbed_rate: incoming.mileage_details?.four_wheeler3_slabbed_rate,
-        four_wheeler4_slabbed_rate: incoming.mileage_details?.four_wheeler4_slabbed_rate,
-        bicycle_slabbed_rate: incoming.mileage_details?.bicycle_slabbed_rate,
-        electric_car_slabbed_rate: incoming.mileage_details?.electric_car_slabbed_rate,
-        two_wheeler_distance_limit: incoming.mileage_details?.two_wheeler_distance_limit,
-        four_wheeler_distance_limit: incoming.mileage_details?.four_wheeler_distance_limit,
-        four_wheeler1_distance_limit: incoming.mileage_details?.four_wheeler1_distance_limit,
-        four_wheeler3_distance_limit: incoming.mileage_details?.four_wheeler3_distance_limit,
-        four_wheeler4_distance_limit: incoming.mileage_details?.four_wheeler4_distance_limit,
-        bicycle_distance_limit: incoming.mileage_details?.bicycle_distance_limit,
-        electric_car_distance_limit: incoming.mileage_details?.electric_car_distance_limit,
-        enable_individual_mileage_rates: incoming.mileage_details?.enable_individual_mileage_rates,
+        allowed: incoming.org_mileage_settings && incoming.org_mileage_settings.allowed,
+        enabled: incoming.org_mileage_settings && incoming.org_mileage_settings.enabled,
+        location_mandatory: incoming.org_mileage_settings && incoming.org_mileage_settings.mileage_location_enabled,
+        unit: incoming.mileage_details && incoming.mileage_details.unit,
+        fiscal_year_start_date: incoming.mileage_details && incoming.mileage_details.fiscal_year_start_date,
+        fiscal_year_end_date: incoming.mileage_details && incoming.mileage_details.fiscal_year_end_date,
+        two_wheeler: incoming.mileage_details && incoming.mileage_details.two_wheeler,
+        four_wheeler: incoming.mileage_details && incoming.mileage_details.four_wheeler,
+        four_wheeler1: incoming.mileage_details && incoming.mileage_details.four_wheeler1,
+        four_wheeler3: incoming.mileage_details && incoming.mileage_details.four_wheeler3,
+        four_wheeler4: incoming.mileage_details && incoming.mileage_details.four_wheeler4,
+        bicycle: incoming.mileage_details && incoming.mileage_details.bicycle,
+        electric_car: incoming.mileage_details && incoming.mileage_details.electric_car,
+        two_wheeler_slabbed_rate: incoming.mileage_details && incoming.mileage_details.two_wheeler_slabbed_rate,
+        four_wheeler_slabbed_rate: incoming.mileage_details && incoming.mileage_details.four_wheeler_slabbed_rate,
+        four_wheeler1_slabbed_rate: incoming.mileage_details && incoming.mileage_details.four_wheeler1_slabbed_rate,
+        four_wheeler3_slabbed_rate: incoming.mileage_details && incoming.mileage_details.four_wheeler3_slabbed_rate,
+        four_wheeler4_slabbed_rate: incoming.mileage_details && incoming.mileage_details.four_wheeler4_slabbed_rate,
+        bicycle_slabbed_rate: incoming.mileage_details && incoming.mileage_details.bicycle_slabbed_rate,
+        electric_car_slabbed_rate: incoming.mileage_details && incoming.mileage_details.electric_car_slabbed_rate,
+        two_wheeler_distance_limit: incoming.mileage_details && incoming.mileage_details.two_wheeler_distance_limit,
+        four_wheeler_distance_limit: incoming.mileage_details && incoming.mileage_details.four_wheeler_distance_limit,
+        four_wheeler1_distance_limit: incoming.mileage_details && incoming.mileage_details.four_wheeler1_distance_limit,
+        four_wheeler3_distance_limit: incoming.mileage_details && incoming.mileage_details.four_wheeler3_distance_limit,
+        four_wheeler4_distance_limit: incoming.mileage_details && incoming.mileage_details.four_wheeler4_distance_limit,
+        bicycle_distance_limit: incoming.mileage_details && incoming.mileage_details.bicycle_distance_limit,
+        electric_car_distance_limit: incoming.mileage_details && incoming.mileage_details.electric_car_distance_limit,
+        enable_individual_mileage_rates:
+          incoming.mileage_details && incoming.mileage_details.enable_individual_mileage_rates,
       },
       advances: {
-        allowed: incoming.advances_settings?.allowed,
-        enabled: incoming.advances_settings?.enabled,
+        allowed: incoming.advances_settings && incoming.advances_settings.allowed,
+        enabled: incoming.advances_settings && incoming.advances_settings.enabled,
       },
       projects: {
-        allowed: incoming.project_settings?.allowed,
-        enabled: incoming.project_settings?.enabled,
+        allowed: incoming.project_settings && incoming.project_settings.allowed,
+        enabled: incoming.project_settings && incoming.project_settings.enabled,
       },
       advanced_projects: {
-        allowed: incoming.advanced_project_settings?.allowed,
-        enabled: incoming.advanced_project_settings?.enabled,
-        enable_individual_projects: incoming.advanced_project_settings?.enable_individual_projects,
+        allowed: incoming.advanced_project_settings && incoming.advanced_project_settings.allowed,
+        enabled: incoming.advanced_project_settings && incoming.advanced_project_settings.enabled,
+        enable_individual_projects:
+          incoming.advanced_project_settings && incoming.advanced_project_settings.enable_individual_projects,
       },
       advance_requests: {
-        allowed: incoming.advances_settings?.allowed,
-        enabled: incoming.advances_settings?.advance_requests_enabled || incoming.advances_settings?.enabled,
+        allowed: incoming.advances_settings && incoming.advances_settings.allowed,
+        enabled: incoming.advances_settings && incoming.advances_settings.advance_requests_enabled,
       },
       cost_centers: {
-        allowed: incoming.org_cost_center_settings?.allowed,
-        enabled: incoming.org_cost_center_settings?.enabled,
+        allowed: incoming.org_cost_center_settings && incoming.org_cost_center_settings.allowed,
+        enabled: incoming.org_cost_center_settings && incoming.org_cost_center_settings.enabled,
       },
       policies: {
-        allowed: incoming.policy_settings?.allowed,
-        enabled: incoming.policy_settings?.is_enabled,
-        self_serve_enabled: incoming.policy_settings?.allowed && incoming.policy_settings?.is_self_serve_enabled,
+        allowed: incoming.policy_settings && incoming.policy_settings.allowed,
+        enabled: incoming.policy_settings && incoming.policy_settings.is_enabled,
+        self_serve_enabled:
+          incoming.policy_settings &&
+          incoming.policy_settings.allowed &&
+          incoming.policy_settings.is_self_serve_enabled,
+        trip_request_policy_enabled:
+          incoming.policy_settings &&
+          incoming.policy_settings.allowed &&
+          incoming.policy_settings.is_trip_request_policy_enabled,
         advance_request_policy_enabled:
-          incoming.policy_settings?.allowed && incoming.policy_settings?.is_advance_request_policy_enabled,
+          incoming.policy_settings &&
+          incoming.policy_settings.allowed &&
+          incoming.policy_settings.is_advance_request_policy_enabled,
         duplicate_detection_enabled:
-          incoming.duplicate_detection_settings?.allowed && incoming.duplicate_detection_settings?.enabled,
+          incoming.duplicate_detection_settings &&
+          incoming.duplicate_detection_settings.allowed &&
+          incoming.duplicate_detection_settings.enabled,
+        policyApprovalWorkflow:
+          incoming.policy_settings &&
+          incoming.policy_settings.allowed &&
+          incoming.policy_settings.policy_approval_workflow,
       },
       org_creation: {
-        allowed: incoming.multi_org_settings?.allowed,
-        enabled: incoming.multi_org_settings?.enabled,
+        allowed: incoming.multi_org_settings && incoming.multi_org_settings.allowed,
+        enabled: incoming.multi_org_settings && incoming.multi_org_settings.enabled,
       },
       admin_allowed_ip_settings: {
-        allowed: incoming.admin_allowed_ip_settings?.allowed,
-        enabled: incoming.admin_allowed_ip_settings?.enabled,
-        allowed_cidrs: incoming.admin_allowed_ip_settings?.allowed_cidrs,
+        allowed: incoming.admin_allowed_ip_settings && incoming.admin_allowed_ip_settings.allowed,
+        enabled: incoming.admin_allowed_ip_settings && incoming.admin_allowed_ip_settings.enabled,
+        allowed_cidrs: incoming.admin_allowed_ip_settings && incoming.admin_allowed_ip_settings.allowed_cidrs,
+      },
+      admin_email_settings: {
+        allowed: incoming.admin_email_settings && incoming.admin_email_settings.allowed,
+        enabled: incoming.admin_email_settings && incoming.admin_email_settings.enabled,
+        unsubscribed_events: incoming.admin_email_settings && incoming.admin_email_settings.unsubscribed_events,
       },
       org_personal_cards_settings: incoming.org_personal_cards_settings,
       receipt_settings: incoming.receipt_settings,
       corporate_credit_card_settings: {
-        allowed: incoming.corporate_credit_card_settings?.allowed,
-        enabled: incoming.corporate_credit_card_settings?.enabled,
-        auto_match_allowed: incoming.corporate_credit_card_settings?.auto_match_allowed,
-        enable_auto_match: incoming.corporate_credit_card_settings?.enable_auto_match,
+        allowed: incoming.corporate_credit_card_settings && incoming.corporate_credit_card_settings.allowed,
+        allow_approved_plus_states:
+          incoming.corporate_credit_card_settings && incoming.corporate_credit_card_settings.allow_approved_plus_states,
+        enabled: incoming.corporate_credit_card_settings && incoming.corporate_credit_card_settings.enabled,
+        auto_match_allowed: incoming.auto_match_settings && incoming.auto_match_settings.allowed,
+        enable_auto_match: incoming.auto_match_settings && incoming.auto_match_settings.enabled,
         bank_data_aggregation_settings: {
-          enabled: incoming.corporate_credit_card_settings?.bank_data_aggregation_settings?.enabled,
-          aggregator: incoming.corporate_credit_card_settings?.bank_data_aggregation_settings?.aggregator,
-          auto_assign: incoming.corporate_credit_card_settings?.bank_data_aggregation_settings?.auto_assign,
+          enabled:
+            incoming.corporate_credit_card_settings &&
+            incoming.corporate_credit_card_settings.bank_data_aggregation_settings &&
+            incoming.corporate_credit_card_settings.bank_data_aggregation_settings.enabled,
+          aggregator:
+            incoming.corporate_credit_card_settings &&
+            incoming.corporate_credit_card_settings.bank_data_aggregation_settings &&
+            incoming.corporate_credit_card_settings.bank_data_aggregation_settings.aggregator,
         },
         bank_statement_upload_settings: {
-          enabled: incoming.corporate_credit_card_settings?.bank_statement_upload_settings?.enabled,
+          enabled:
+            incoming.corporate_credit_card_settings &&
+            incoming.corporate_credit_card_settings.bank_statement_upload_settings &&
+            incoming.corporate_credit_card_settings.bank_statement_upload_settings.enabled,
           generic_statement_parser_enabled:
-            incoming.corporate_credit_card_settings?.bank_statement_upload_settings?.generic_statement_parser_enabled,
+            incoming.universal_statement_parser_settings && incoming.universal_statement_parser_settings.enabled,
           bank_statement_parser_endpoint_settings:
-            incoming.corporate_credit_card_settings?.bank_statement_upload_settings
-              ?.bank_statement_parser_endpoint_settings,
+            incoming.corporate_credit_card_settings &&
+            incoming.corporate_credit_card_settings.bank_statement_upload_settings &&
+            incoming.corporate_credit_card_settings.bank_statement_upload_settings
+              .bank_statement_parser_endpoint_settings,
         },
-        allow_approved_plus_states: incoming.corporate_credit_card_settings?.allow_approved_plus_states,
       },
+      bank_data_aggregation_settings: incoming.bank_data_aggregation_settings,
       bank_feed_request_settings: incoming.bank_feed_request_settings,
       ach_settings: incoming.ach_settings,
       per_diem: incoming.per_diem_settings,
+      payment_mode_settings: incoming.payment_mode_settings,
       access_delegation: incoming.org_access_delegation_settings,
-      activity: incoming.activity_settings,
       tax_settings: incoming.tax_settings,
       integrations_settings: incoming.integrations_settings,
       taxi_settings: incoming.taxi_settings,
       expense_limit_settings: incoming.expense_limit_settings,
       approval_settings: {
-        allowed: incoming.approval_settings?.allowed,
-        admin_approve_own_report:
-          incoming.approval_settings?.allowed && incoming.approval_settings?.admin_approve_own_report,
+        allowed: incoming.approval_settings && incoming.approval_settings.allowed,
+        admin_approve_own_report: incoming.approval_settings && incoming.approval_settings.admin_approve_own_report,
         enable_secondary_approvers:
-          incoming.approval_settings?.allowed && incoming.approval_settings?.enable_secondary_approvers,
+          incoming.approval_settings &&
+          incoming.approval_settings.allowed &&
+          incoming.approval_settings.enable_secondary_approvers,
         enable_sequential_approvers:
-          incoming.approval_settings?.allowed && incoming.approval_settings?.enable_sequential_approvers,
+          incoming.approval_settings &&
+          incoming.approval_settings.allowed &&
+          incoming.approval_settings.enable_sequential_approvers,
+        allow_user_add_trip_request_approvers:
+          incoming.approval_settings &&
+          incoming.approval_settings.allowed &&
+          incoming.approval_settings.allow_user_add_trip_request_approvers,
       },
       accounting: this.getIncomingAccountingObject(incoming.accounting_export_settings),
       transaction_fields_settings: incoming.transaction_fields_settings,
       org_user_fields_settings: incoming.org_user_fields_settings,
       advance_request_fields_settings: incoming.advance_request_fields_settings,
+      trip_request_fields_settings: incoming.trip_request_fields_settings,
       org_logo_settings: incoming.org_logo_settings,
       org_branding_settings: {
-        allowed: incoming.org_branding_settings?.allowed,
-        enabled: incoming.org_branding_settings?.enabled,
+        allowed: incoming.org_branding_settings && incoming.org_branding_settings.allowed,
+        enabled: incoming.org_branding_settings && incoming.org_branding_settings.enabled,
       },
       verification: {
-        allowed: incoming.verification_settings?.allowed,
-        mandatory: incoming.verification_settings?.allowed && incoming.verification_settings?.mandatory,
-        late_mode_enabled: incoming.verification_settings?.allowed && incoming.verification_settings?.late_mode_enabled,
+        allowed: incoming.verification_settings && incoming.verification_settings.allowed,
+        mandatory:
+          incoming.verification_settings &&
+          incoming.verification_settings.allowed &&
+          incoming.verification_settings.mandatory,
+        late_mode_enabled:
+          incoming.verification_settings &&
+          incoming.verification_settings.allowed &&
+          incoming.verification_settings.late_mode_enabled,
       },
+      data_extraction_settings: incoming.data_extraction_settings,
+      data_extractor_settings: incoming.data_extractor_settings,
       advance_account_settings: incoming.advance_account_settings,
       settlements_excel_settings: incoming.settlements_excel_settings,
+      bank_payment_file_settings: incoming.bank_payment_file_settings,
+      expense_settings: incoming.expense_settings,
+      exchange_rate_settings: incoming.exchange_rate_settings,
+      currencylayer_provider_settings: {
+        allowed: incoming.currencylayer_provider_settings && incoming.currencylayer_provider_settings.allowed,
+        enabled: incoming.currencylayer_provider_settings && incoming.currencylayer_provider_settings.enabled,
+        id: 'CURRENCYLAYER',
+        name: 'Currency Layer',
+      },
+      transaction_field_configurations: incoming.transaction_field_configurations,
       gmail_addon_settings: incoming.gmail_addon_settings,
       duplicate_detection_settings: {
-        allowed: incoming.duplicate_detection_settings?.allowed,
-        enabled: incoming.duplicate_detection_settings?.enabled,
+        allowed: incoming.duplicate_detection_settings && incoming.duplicate_detection_settings.allowed,
+        enabled: incoming.duplicate_detection_settings && incoming.duplicate_detection_settings.enabled,
       },
       custom_category_settings: {
-        allowed: incoming.custom_category_settings?.allowed,
-        enabled: incoming.custom_category_settings?.enabled,
+        allowed: incoming.custom_category_settings && incoming.custom_category_settings.allowed,
+        enabled: incoming.custom_category_settings && incoming.custom_category_settings.enabled,
       },
       bulk_fyle_settings: {
-        allowed: incoming.org_bulk_fyle_settings?.allowed,
-        enabled: incoming.org_bulk_fyle_settings?.enabled,
+        allowed: incoming.org_bulk_fyle_settings && incoming.org_bulk_fyle_settings.allowed,
+        enabled: incoming.org_bulk_fyle_settings && incoming.org_bulk_fyle_settings.enabled,
       },
       auto_reminder_settings: {
-        allowed: incoming.auto_reminder_settings?.allowed,
-        enabled: incoming.auto_reminder_settings?.enabled,
+        allowed: incoming.auto_reminder_settings && incoming.auto_reminder_settings.allowed,
+        enabled: incoming.auto_reminder_settings && incoming.auto_reminder_settings.enabled,
       },
       analytics_settings: {
-        allowed: incoming.analytics_settings?.allowed,
-        enabled: incoming.analytics_settings?.enabled,
+        allowed: incoming.analytics_settings && incoming.analytics_settings.allowed,
+        enabled: incoming.analytics_settings && incoming.analytics_settings.enabled,
       },
       advanced_rbac_settings: {
-        allowed: incoming.advanced_rbac_settings?.allowed,
-        enabled: incoming.advanced_rbac_settings?.enabled,
+        allowed: incoming.advanced_rbac_settings && incoming.advanced_rbac_settings.allowed,
+        enabled: incoming.advanced_rbac_settings && incoming.advanced_rbac_settings.enabled,
       },
       sso_integration_settings: {
-        allowed: incoming.sso_integration_settings?.allowed,
-        enabled: incoming.sso_integration_settings?.enabled,
-        idp_name: incoming.sso_integration_settings?.idp_name,
-        meta_data_file_id: incoming.sso_integration_settings?.meta_data_file_id,
-        email_regex: incoming.sso_integration_settings?.email_regex,
+        allowed: incoming.sso_integration_settings && incoming.sso_integration_settings.allowed,
+        enabled: incoming.sso_integration_settings && incoming.sso_integration_settings.enabled,
+        idp_name: incoming.sso_integration_settings && incoming.sso_integration_settings.idp_name,
+        meta_data_file_id: incoming.sso_integration_settings && incoming.sso_integration_settings.meta_data_file_id,
       },
       advanced_access_delegation_settings: {
-        allowed: incoming.advanced_access_delegation_settings?.allowed,
-        enabled: incoming.advanced_access_delegation_settings?.enabled,
+        allowed: incoming.advanced_access_delegation_settings && incoming.advanced_access_delegation_settings.allowed,
+        enabled: incoming.advanced_access_delegation_settings && incoming.advanced_access_delegation_settings.enabled,
       },
       dynamic_form_settings: {
-        allowed: incoming.dynamic_form_settings?.allowed,
-        enabled: incoming.dynamic_form_settings?.enabled,
+        allowed: incoming.dynamic_form_settings && incoming.dynamic_form_settings.allowed,
+        enabled: incoming.dynamic_form_settings && incoming.dynamic_form_settings.enabled,
       },
       budget_settings: {
-        allowed: incoming.budget_settings?.allowed,
-        enabled: incoming.budget_settings?.enabled,
+        allowed: incoming.budget_settings && incoming.budget_settings.allowed,
+        enabled: incoming.budget_settings && incoming.budget_settings.enabled,
       },
       saved_filters_settings: {
-        allowed: incoming.saved_filters_settings?.allowed,
-        enabled: incoming.saved_filters_settings?.enabled,
+        allowed: incoming.saved_filters_settings && incoming.saved_filters_settings.allowed,
+        enabled: incoming.saved_filters_settings && incoming.saved_filters_settings.enabled,
       },
       org_currency_settings: {
-        allowed: incoming.org_currency_settings?.allowed,
-        enabled: incoming.org_currency_settings?.enabled,
+        allowed: incoming.org_currency_settings && incoming.org_currency_settings.allowed,
+        enabled: incoming.org_currency_settings && incoming.org_currency_settings.enabled,
       },
       recurrences_settings: {
-        allowed: incoming.recurrences_settings?.allowed,
-        enabled: incoming.recurrences_settings?.enabled,
+        allowed: incoming.recurrences_settings && incoming.recurrences_settings.allowed,
+        enabled: incoming.recurrences_settings && incoming.recurrences_settings.enabled,
       },
       mis_reporting_settings: {
-        allowed: incoming.mis_reporting_settings?.allowed,
-        enabled: incoming.mis_reporting_settings?.enabled,
+        allowed: incoming.mis_reporting_settings && incoming.mis_reporting_settings.allowed,
+        enabled: incoming.mis_reporting_settings && incoming.mis_reporting_settings.enabled,
       },
       risk_score_settings: {
-        allowed: incoming.risk_score_settings?.allowed,
-        enabled: incoming.risk_score_settings?.enabled,
+        allowed: incoming.risk_score_settings && incoming.risk_score_settings.allowed,
+        enabled: incoming.risk_score_settings && incoming.risk_score_settings.enabled,
       },
       workflow_settings: {
-        allowed: incoming.workflow_settings?.allowed,
-        enabled: incoming.workflow_settings?.enabled,
+        allowed: incoming.workflow_settings && incoming.workflow_settings.allowed,
+        enabled: incoming.workflow_settings && incoming.workflow_settings.enabled,
+        report_workflow_settings:
+          incoming.workflow_settings &&
+          incoming.workflow_settings.allowed &&
+          incoming.workflow_settings.report_workflow_settings, // FYI: orgSettings.workflow_settings.report_workflow_settings is a boolean value
+      },
+      card_assignment_settings: {
+        allowed: incoming.card_assignment_settings && incoming.card_assignment_settings.allowed,
+        enabled: incoming.card_assignment_settings && incoming.card_assignment_settings.enabled,
+      },
+      transaction_reversal_settings: {
+        allowed: incoming.transaction_reversal_settings && incoming.transaction_reversal_settings.allowed,
+        enabled: incoming.transaction_reversal_settings && incoming.transaction_reversal_settings.enabled,
+      },
+      auto_match_settings: {
+        allowed: incoming.auto_match_settings && incoming.auto_match_settings.allowed,
+        enabled: incoming.auto_match_settings && incoming.auto_match_settings.enabled,
+      },
+      universal_statement_parser_settings: {
+        allowed: incoming.universal_statement_parser_settings && incoming.universal_statement_parser_settings.allowed,
+        enabled: incoming.universal_statement_parser_settings && incoming.universal_statement_parser_settings.enabled,
+      },
+      in_app_chat_settings: {
+        allowed: incoming.org_in_app_chat_settings && incoming.org_in_app_chat_settings.allowed,
+        enabled: incoming.org_in_app_chat_settings && incoming.org_in_app_chat_settings.enabled,
       },
       ccc_draft_expense_settings: {
-        allowed: incoming.ccc_draft_expense_settings?.allowed,
-        enabled: incoming.ccc_draft_expense_settings?.enabled,
+        allowed: incoming.ccc_draft_expense_settings && incoming.ccc_draft_expense_settings.allowed,
+        enabled: incoming.ccc_draft_expense_settings && incoming.ccc_draft_expense_settings.enabled,
       },
       expense_widget_settings: {
-        allowed: incoming.expense_widget_settings?.allowed,
-        enabled: incoming.expense_widget_settings?.enabled,
+        allowed: incoming.expense_widget_settings && incoming.expense_widget_settings.allowed,
+        enabled: incoming.expense_widget_settings && incoming.expense_widget_settings.enabled,
+      },
+      suggested_expense_merge_settings: {
+        allowed: incoming.suggested_expense_merge_settings && incoming.suggested_expense_merge_settings.allowed,
+        enabled: incoming.suggested_expense_merge_settings && incoming.suggested_expense_merge_settings.enabled,
       },
       org_expense_form_autofills: {
-        allowed: incoming.org_expense_form_autofills?.allowed,
-        enabled: incoming.org_expense_form_autofills?.enabled,
+        allowed: incoming.org_expense_form_autofills && incoming.org_expense_form_autofills.allowed,
+        enabled: incoming.org_expense_form_autofills && incoming.org_expense_form_autofills.enabled,
+      },
+      visa_enrollment_settings: {
+        allowed: incoming.visa_enrollment_settings && incoming.visa_enrollment_settings.allowed,
+        enabled: incoming.visa_enrollment_settings && incoming.visa_enrollment_settings.enabled,
+      },
+      mastercard_enrollment_settings: {
+        allowed: incoming.mastercard_enrollment_settings && incoming.mastercard_enrollment_settings.allowed,
+        enabled: incoming.mastercard_enrollment_settings && incoming.mastercard_enrollment_settings.enabled,
+      },
+      company_expenses_beta_settings: {
+        allowed: incoming.company_expenses_beta_settings && incoming.company_expenses_beta_settings.allowed,
+        enabled: incoming.company_expenses_beta_settings && incoming.company_expenses_beta_settings.enabled,
       },
       unify_ccce_expenses_settings: {
-        allowed: incoming.unify_ccce_expenses_settings?.allowed,
-        enabled: incoming.unify_ccce_expenses_settings?.enabled,
-      },
-      payment_mode_settings: {
-        allowed: incoming.payment_mode_settings?.allowed,
-        enabled: incoming.payment_mode_settings?.enabled,
-        payment_modes_order: incoming.payment_mode_settings?.payment_modes_order,
-      },
-      advanced_project_settings: {
-        allowed: incoming.advanced_project_settings?.allowed,
-        enabled: incoming.advanced_project_settings?.enabled,
-        enable_individual_projects: incoming.advanced_project_settings?.enable_individual_projects,
-      },
-      expense_settings: {
-        allowed: incoming.expense_settings?.allowed,
-        split_expense_settings: incoming.expense_settings?.split_expense_settings,
-      },
-      admin_email_settings: {
-        allowed: incoming.admin_email_settings?.allowed,
-        enabled: incoming.admin_email_settings?.enabled,
-        unsubscribed_events: incoming.admin_email_settings?.unsubscribed_events,
-      },
-      data_extractor_settings: {
-        allowed: incoming.data_extractor_settings?.allowed,
-        enabled: incoming.data_extractor_settings?.enabled,
-        web_app_pdf: incoming.data_extractor_settings?.web_app_pdf,
-      },
-      exchange_rate_settings: {
-        allowed: incoming.exchange_rate_settings.allowed,
-        enabled: incoming.exchange_rate_settings.enabled,
-      },
-      bank_payment_file_settings: incoming.bank_payment_file_settings,
-      currencylayer_provider_settings: {
-        allowed: incoming.currencylayer_provider_settings.allowed,
-        enabled: incoming.currencylayer_provider_settings.enabled,
-        id: incoming.currencylayer_provider_settings?.id,
-        name: incoming.currencylayer_provider_settings?.name,
+        allowed: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.allowed,
+        enabled: incoming.unify_ccce_expenses_settings && incoming.unify_ccce_expenses_settings.enabled,
       },
     };
 
@@ -357,7 +421,7 @@ export class OrgSettingsService {
     return orgSettings;
   }
 
-  processOutgoing(outgoing) {
+  processOutgoing(outgoing: OrgSettings): OrgSettingsResponse {
     return {
       project_settings: {
         allowed: outgoing.projects.allowed,
@@ -390,10 +454,6 @@ export class OrgSettingsService {
         enabled: outgoing.mileage.enabled,
         mileage_location_enabled: outgoing.mileage.location_mandatory,
       },
-      org_expense_form_autofills: {
-        allowed: outgoing.org_expense_form_autofills.allowed,
-        enabled: outgoing.org_expense_form_autofills.enabled,
-      },
       multi_org_settings: {
         allowed: outgoing.org_creation.allowed,
         enabled: outgoing.org_creation.enabled,
@@ -409,7 +469,7 @@ export class OrgSettingsService {
         unsubscribed_events: outgoing.admin_email_settings.unsubscribed_events,
       },
       org_access_delegation_settings: outgoing.access_delegation,
-      bank_account_settings: outgoing.bank_accounts,
+      org_personal_cards_settings: outgoing.org_personal_cards_settings,
       per_diem_settings: outgoing.per_diem,
       mileage_details: {
         unit: outgoing.mileage.unit,
@@ -439,6 +499,15 @@ export class OrgSettingsService {
         location_mandatory: outgoing.mileage.location_mandatory,
         enable_individual_mileage_rates: outgoing.mileage.enable_individual_mileage_rates,
       },
+      policy_settings: {
+        is_advance_request_policy_enabled: outgoing.policies.advance_request_policy_enabled,
+        allowed: outgoing.policies.allowed,
+        is_duplicate_detection_enabled: outgoing.policies.duplicate_detection_enabled,
+        is_enabled: outgoing.policies.enabled,
+        policy_approval_workflow: outgoing.policies.policyApprovalWorkflow,
+        is_self_serve_enabled: outgoing.policies.self_serve_enabled,
+        is_trip_request_policy_enabled: outgoing.policies.trip_request_policy_enabled,
+      },
       tax_settings: outgoing.tax_settings,
       receipt_settings: outgoing.receipt_settings,
       corporate_credit_card_settings: outgoing.corporate_credit_card_settings,
@@ -451,12 +520,14 @@ export class OrgSettingsService {
       transaction_fields_settings: outgoing.transaction_fields_settings,
       org_user_fields_settings: outgoing.org_user_fields_settings,
       advance_request_fields_settings: outgoing.advance_request_fields_settings,
+      trip_request_fields_settings: outgoing.trip_request_fields_settings,
       org_logo_settings: outgoing.org_logo_settings,
       org_branding_settings: outgoing.org_branding_settings,
       advance_account_settings: outgoing.advance_account_settings,
       verification_settings: outgoing.verification,
       bank_payment_file_settings: outgoing.bank_payment_file_settings,
       expense_settings: outgoing.expense_settings,
+      transaction_field_configurations: outgoing.transaction_field_configurations,
       gmail_addon_settings: outgoing.gmail_addon_settings,
       duplicate_detection_settings: outgoing.duplicate_detection_settings,
       custom_category_settings: outgoing.custom_category_settings,
@@ -472,8 +543,19 @@ export class OrgSettingsService {
       expense_limit_settings: outgoing.expense_limit_settings,
       recurrences_settings: outgoing.recurrences_settings,
       workflow_settings: outgoing.workflow_settings,
-      unify_ccce_expenses_settings: outgoing.unify_ccce_expenses_settings,
+      card_assignment_settings: outgoing.card_assignment_settings,
+      transaction_reversal_settings: outgoing.transaction_reversal_settings,
+      auto_match_settings: outgoing.auto_match_settings,
+      universal_statement_parser_settings: outgoing.universal_statement_parser_settings,
+      org_in_app_chat_settings: outgoing.in_app_chat_settings,
       ccc_draft_expense_settings: outgoing.ccc_draft_expense_settings,
+      unify_ccce_expenses_settings: outgoing.unify_ccce_expenses_settings,
+      expense_widget_settings: outgoing.expense_widget_settings,
+      suggested_expense_merge_settings: outgoing.suggested_expense_merge_settings,
+      org_expense_form_autofills: outgoing.org_expense_form_autofills,
+      company_expenses_beta_settings: outgoing.company_expenses_beta_settings,
+      visa_enrollment_settings: outgoing.visa_enrollment_settings,
+      mastercard_enrollment_settings: outgoing.mastercard_enrollment_settings,
     };
   }
 }

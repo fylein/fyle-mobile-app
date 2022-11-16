@@ -150,6 +150,7 @@ export interface ApprovalSettings {
   admin_approve_own_report?: boolean;
   enable_secondary_approvers?: boolean;
   enable_sequential_approvers?: boolean;
+  allow_user_add_trip_request_approvers?: boolean;
 }
 
 export interface EnableAccessDelegation {
@@ -196,6 +197,7 @@ export interface ExpenseLimitSettings {
 export interface WorkflowSettings {
   allowed?: boolean;
   enabled?: boolean;
+  report_workflow_settings?: boolean;
 }
 
 export interface OrgFylerCccFlowSettings extends CommonOrgSettings {
@@ -428,6 +430,17 @@ export interface OrgSettingsResponse {
   payment_mode_settings?: PaymentmodeSettings;
   last_updated_by?: User;
   activity?: ActivitySettings;
+  auto_match_settings?: CommonOrgSettings;
+  universal_statement_parser_settings?: CommonOrgSettings;
+  trip_request_fields_settings?: CommonOrgSettings;
+  data_extraction_settings?: DataExtractionSettings;
+  card_assignment_settings?: CommonOrgSettings;
+  transaction_reversal_settings?: CommonOrgSettings;
+  suggested_expense_merge_settings?: CommonOrgSettings;
+  visa_enrollment_settings?: CommonOrgSettings;
+  mastercard_enrollment_settings?: CommonOrgSettings;
+  company_expenses_beta_settings?: CommonOrgSettings;
+  trip_request_settings?: CommonOrgSettings;
 }
 
 export interface UiPolicySettings {
@@ -436,6 +449,8 @@ export interface UiPolicySettings {
   self_serve_enabled?: boolean;
   advance_request_policy_enabled?: boolean;
   duplicate_detection_enabled?: boolean;
+  trip_request_policy_enabled?: boolean;
+  policyApprovalWorkflow?: boolean;
 }
 
 export interface DataExtractorSettings extends CommonOrgSettings {
@@ -504,4 +519,17 @@ export interface OrgSettings {
   bank_payment_file_settings?: CommonOrgSettings;
   exchange_rate_settings?: CommonOrgSettings;
   currencylayer_provider_settings?: CurrencylayerProviderSettings;
+  bank_data_aggregation_settings?: CommonOrgSettings;
+  trip_request_fields_settings?: CommonOrgSettings;
+  data_extraction_settings?: DataExtractionSettings;
+  transaction_field_configurations?: [];
+  card_assignment_settings?: CommonOrgSettings;
+  transaction_reversal_settings?: CommonOrgSettings;
+  auto_match_settings?: CommonOrgSettings;
+  universal_statement_parser_settings?: CommonOrgSettings;
+  in_app_chat_settings?: CommonOrgSettings;
+  suggested_expense_merge_settings?: CommonOrgSettings;
+  visa_enrollment_settings?: CommonOrgSettings;
+  mastercard_enrollment_settings?: CommonOrgSettings;
+  company_expenses_beta_settings?: CommonOrgSettings;
 }
