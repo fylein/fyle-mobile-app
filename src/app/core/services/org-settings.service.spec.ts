@@ -15,18 +15,23 @@ import {
   outgoingTallyAccountObj,
   orgSettingsPostData,
   incomingAccountSettingsObj,
+  orgSettingsGetDataWithoutMileage,
+  orgSettingsPostDataWithoutMileage,
+  outgoingAccountSettingsObj,
 } from '../models/test-data/org-settings-data';
 
 import { OrgSettingsService } from './org-settings.service';
 
 const getApiData: OrgSettings = orgSettingsGetData;
+const getApiDataWithoutMileage: OrgSettings = orgSettingsGetDataWithoutMileage;
 const postApiData: OrgSettingsResponse = orgSettingsPostData;
+const postApiDataWithoutMileage: OrgSettingsResponse = orgSettingsPostDataWithoutMileage;
 const incomingTallyAccountObject: IncomingAccountObject = incomingTallyAccoutingObj;
 const incomingQuickBooksAccountObject: IncomingAccountObject = incomingQuickbooksAccoutingObj;
 const incomingAccountSettingsObject: IncomingAccountObject = incomingAccountSettingsObj;
 const outgoingTallyAccountObject: AccountingExportSettings = outgoingTallyAccountObj;
 const outgoingQuickbooksAccountObject: AccountingExportSettings = outgoingQuickbooksAccountObj;
-const outgoingAccountSettingsObject: AccountingExportSettings = outgoingQuickbooksAccountObj;
+const outgoingAccountSettingsObject: AccountingExportSettings = outgoingAccountSettingsObj;
 
 describe('OrgSettingsService', () => {
   let orgSettingsService: OrgSettingsService;
@@ -59,10 +64,26 @@ describe('OrgSettingsService', () => {
     });
   });
 
+  it('should be able to get the org settings properly without mileage', (done) => {
+    apiService.get.and.returnValue(of(getApiDataWithoutMileage));
+    orgSettingsService.get().subscribe((res) => {
+      expect(res).toBeTruthy(getApiDataWithoutMileage);
+      done();
+    });
+  });
+
   it('should be able to update the org settings properly', (done) => {
     apiService.post.and.returnValue(of(postApiData));
     orgSettingsService.post(getApiData).subscribe((res) => {
       expect(res).toBeTruthy(postApiData);
+      done();
+    });
+  });
+
+  it('should be able to update the org settings properly without mileage', (done) => {
+    apiService.post.and.returnValue(of(postApiDataWithoutMileage));
+    orgSettingsService.post(getApiDataWithoutMileage).subscribe((res) => {
+      expect(res).toBeTruthy(postApiDataWithoutMileage);
       done();
     });
   });

@@ -11,7 +11,7 @@ export const orgSettingsGetData: OrgSettings = {
   mileage: {
     allowed: true,
     enabled: true,
-    location_mandatory: false,
+    location_mandatory: true,
     unit: 'KM',
     fiscal_year_start_date: '05-2',
     fiscal_year_end_date: '05-1',
@@ -36,20 +36,20 @@ export const orgSettingsGetData: OrgSettings = {
     four_wheeler4_distance_limit: 22,
     bicycle_distance_limit: null,
     electric_car_distance_limit: null,
-    enable_individual_mileage_rates: false,
+    enable_individual_mileage_rates: true,
   },
   advances: {
     allowed: true,
-    enabled: false,
+    enabled: true,
   },
   projects: {
     allowed: true,
-    enabled: false,
+    enabled: true,
   },
   advanced_projects: {
-    allowed: true,
-    enabled: true,
-    enable_individual_projects: false,
+    allowed: null,
+    enabled: null,
+    enable_individual_projects: null,
   },
   advance_requests: {
     allowed: true,
@@ -76,7 +76,7 @@ export const orgSettingsGetData: OrgSettings = {
   },
   admin_allowed_ip_settings: {
     allowed: true,
-    enabled: false,
+    enabled: true,
     allowed_cidrs: [],
   },
   admin_email_settings: {
@@ -85,7 +85,7 @@ export const orgSettingsGetData: OrgSettings = {
     unsubscribed_events: [EmailEvents.ERPTS_SUBMITTED],
   },
   receipt_settings: {
-    enabled: false,
+    enabled: true,
     allowed: true,
     enable_magnifier: true,
   },
@@ -98,7 +98,7 @@ export const orgSettingsGetData: OrgSettings = {
       bank_statement_parser_endpoint_settings: [],
     },
     bank_data_aggregation_settings: {
-      enabled: false,
+      enabled: true,
       aggregator: null,
       auto_assign: null,
     },
@@ -120,8 +120,8 @@ export const orgSettingsGetData: OrgSettings = {
     enabled: true,
     allowed: true,
     provider: 'dwolla',
-    expedite_source: false,
-    expedite_destination: false,
+    expedite_source: true,
+    expedite_destination: true,
     pipeline_amount_limit: null,
   },
   per_diem: {
@@ -165,13 +165,13 @@ export const orgSettingsGetData: OrgSettings = {
     ],
   },
   integrations_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
     integrations: [],
   },
   taxi_settings: {
     allowed: true,
-    distance_mandatory: false,
+    distance_mandatory: true,
   },
   expense_limit_settings: {
     policy_ids: ['tpr0QmbaymHDz', 'tprG2mAS2ec16', 'tprdM5DcCNsZD'],
@@ -184,10 +184,19 @@ export const orgSettingsGetData: OrgSettings = {
   },
   accounting: {
     allowed: true,
-    enabled: false,
+    enabled: true,
     type: null,
-    settings: null,
-    integration_exports_enabled: false,
+    settings: {
+      enabled: true,
+      export_name: null,
+      export_type: null,
+      entries_generator_info: null,
+      entries_exporter_info: null,
+      custom_fields: null,
+      separate_org_user_advance_ledger: false,
+      collapse_expenses: false,
+    },
+    integration_exports_enabled: true,
   },
   transaction_fields_settings: {
     allowed: true,
@@ -196,7 +205,7 @@ export const orgSettingsGetData: OrgSettings = {
       category: true,
       purpose: null,
       vendor: null,
-      project: false,
+      project: true,
       cost_center: null,
       flight_travel_class: null,
       train_travel_class: null,
@@ -209,18 +218,18 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: true,
     enabled: true,
     org_user_mandatory_fields: {
-      employee_id: false,
-      title: false,
+      employee_id: true,
+      title: true,
       level: null,
-      business_unit: false,
+      business_unit: true,
       department: null,
       sub_department: null,
       mobile: null,
       location: null,
       bank_details: true,
-      approver1: false,
-      approver2: false,
-      approver3: false,
+      approver1: true,
+      approver2: true,
+      approver3: true,
       joining_dt: true,
     },
   },
@@ -241,7 +250,7 @@ export const orgSettingsGetData: OrgSettings = {
   verification: {
     allowed: true,
     mandatory: true,
-    late_mode_enabled: false,
+    late_mode_enabled: true,
   },
   data_extractor_settings: {
     allowed: true,
@@ -254,16 +263,16 @@ export const orgSettingsGetData: OrgSettings = {
   },
   settlements_excel_settings: {
     allowed: true,
-    cost_center_wise_split: false,
+    cost_center_wise_split: true,
   },
   bank_payment_file_settings: {
     allowed: true,
-    enabled: false,
+    enabled: true,
   },
   expense_settings: {
     allowed: true,
     split_expense_settings: {
-      enabled: false,
+      enabled: true,
     },
   },
   exchange_rate_settings: {
@@ -277,8 +286,8 @@ export const orgSettingsGetData: OrgSettings = {
     name: 'Currency Layer',
   },
   gmail_addon_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
   },
   duplicate_detection_settings: {
     allowed: true,
@@ -305,8 +314,8 @@ export const orgSettingsGetData: OrgSettings = {
     enabled: true,
   },
   sso_integration_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
     idp_name: null,
     meta_data_file_id: null,
     email_regex: null,
@@ -340,8 +349,8 @@ export const orgSettingsGetData: OrgSettings = {
     enabled: true,
   },
   risk_score_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
   },
   workflow_settings: {
     allowed: true,
@@ -349,7 +358,410 @@ export const orgSettingsGetData: OrgSettings = {
   },
   org_personal_cards_settings: {
     allowed: true,
-    enabled: false,
+    enabled: true,
+  },
+  unify_ccce_expenses_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  ccc_draft_expense_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  expense_widget_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  payment_mode_settings: {
+    allowed: null,
+    enabled: null,
+    payment_modes_order: null,
+  },
+  activity: {
+    allowed: null,
+    enabled: null,
+    keys: null,
+  },
+  advanced_project_settings: {
+    allowed: null,
+    enabled: null,
+    enable_individual_projects: null,
+  },
+  company_expenses_beta_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  visa_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  mastercard_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  suggested_expense_merge_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  card_assignment_settings: {
+    allowed: true,
+    enabled: true,
+  },
+};
+
+export const orgSettingsGetDataWithoutMileage: OrgSettings = {
+  org_id: 'orNVthTo2Zyo',
+  mileage: {
+    allowed: null,
+    enabled: null,
+    location_mandatory: null,
+    unit: null,
+    fiscal_year_start_date: null,
+    fiscal_year_end_date: null,
+    two_wheeler: null,
+    four_wheeler: null,
+    four_wheeler1: null,
+    four_wheeler3: null,
+    four_wheeler4: null,
+    bicycle: null,
+    electric_car: null,
+    two_wheeler_slabbed_rate: null,
+    four_wheeler_slabbed_rate: null,
+    four_wheeler1_slabbed_rate: null,
+    four_wheeler3_slabbed_rate: null,
+    four_wheeler4_slabbed_rate: null,
+    bicycle_slabbed_rate: null,
+    electric_car_slabbed_rate: null,
+    two_wheeler_distance_limit: null,
+    four_wheeler_distance_limit: null,
+    four_wheeler1_distance_limit: null,
+    four_wheeler3_distance_limit: null,
+    four_wheeler4_distance_limit: null,
+    bicycle_distance_limit: null,
+    electric_car_distance_limit: null,
+    enable_individual_mileage_rates: null,
+  },
+  advances: {
+    allowed: true,
+    enabled: true,
+  },
+  projects: {
+    allowed: true,
+    enabled: true,
+  },
+  advanced_projects: {
+    allowed: true,
+    enabled: true,
+    enable_individual_projects: true,
+  },
+  advance_requests: {
+    allowed: true,
+    enabled: true,
+  },
+  cost_centers: {
+    allowed: true,
+    enabled: true,
+  },
+  policies: {
+    allowed: true,
+    enabled: true,
+    self_serve_enabled: true,
+    advance_request_policy_enabled: true,
+    duplicate_detection_enabled: true,
+  },
+  org_creation: {
+    allowed: true,
+    enabled: true,
+  },
+  org_expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+  admin_allowed_ip_settings: {
+    allowed: true,
+    enabled: true,
+    allowed_cidrs: [],
+  },
+  admin_email_settings: {
+    allowed: true,
+    enabled: true,
+    unsubscribed_events: [EmailEvents.ERPTS_SUBMITTED],
+  },
+  receipt_settings: {
+    enabled: true,
+    allowed: true,
+    enable_magnifier: true,
+  },
+  corporate_credit_card_settings: {
+    allowed: true,
+    enabled: true,
+    bank_statement_upload_settings: {
+      enabled: true,
+      generic_statement_parser_enabled: true,
+      bank_statement_parser_endpoint_settings: [],
+    },
+    bank_data_aggregation_settings: {
+      enabled: true,
+      aggregator: null,
+      auto_assign: null,
+    },
+    auto_match_allowed: true,
+    enable_auto_match: true,
+    allow_approved_plus_states: true,
+  },
+  bank_feed_request_settings: {
+    allowed: true,
+    enabled: true,
+    bank_name: 'asdf',
+    card_provider: 'asdfasdf',
+    number_of_cards: 32,
+    status: 'SUCCESS',
+    last_updated_at: '2022-04-04T00:00:00.000Z',
+    secret_key: 'bank-feed-request22XwcjgnSH',
+  },
+  ach_settings: {
+    enabled: true,
+    allowed: true,
+    provider: 'dwolla',
+    expedite_source: true,
+    expedite_destination: true,
+    pipeline_amount_limit: null,
+  },
+  per_diem: {
+    allowed: true,
+    enabled: true,
+    enable_individual_per_diem_rates: true,
+  },
+  access_delegation: {
+    allowed: true,
+    enabled: true,
+  },
+  tax_settings: {
+    allowed: true,
+    enabled: true,
+    name: 'Tax Amount',
+    groups: [
+      {
+        name: 'sdds',
+        percentage: 0.01,
+      },
+      {
+        name: 'Services Standard Purchase',
+        percentage: 0.2,
+      },
+      {
+        name: 'GST',
+        percentage: 0.05,
+      },
+      {
+        name: 'Services Standard Purchase (20%)',
+        percentage: 0.2,
+      },
+      {
+        name: 'This is a very long tax group',
+        percentage: 0.01,
+      },
+      {
+        name: 'Tax group name',
+        percentage: 0.02,
+      },
+    ],
+  },
+  integrations_settings: {
+    allowed: true,
+    enabled: true,
+    integrations: [],
+  },
+  taxi_settings: {
+    allowed: true,
+    distance_mandatory: true,
+  },
+  expense_limit_settings: {
+    policy_ids: ['tpr0QmbaymHDz', 'tprG2mAS2ec16', 'tprdM5DcCNsZD'],
+  },
+  approval_settings: {
+    allowed: true,
+    admin_approve_own_report: true,
+    enable_secondary_approvers: true,
+    enable_sequential_approvers: true,
+  },
+  accounting: {
+    allowed: true,
+    enabled: true,
+    type: null,
+    settings: {
+      enabled: true,
+      export_name: null,
+      export_type: null,
+      entries_generator_info: null,
+      entries_exporter_info: null,
+      custom_fields: null,
+      separate_org_user_advance_ledger: false,
+      collapse_expenses: false,
+    },
+    integration_exports_enabled: true,
+  },
+  transaction_fields_settings: {
+    allowed: true,
+    enabled: true,
+    transaction_mandatory_fields: {
+      category: true,
+      purpose: null,
+      vendor: null,
+      project: true,
+      cost_center: null,
+      flight_travel_class: null,
+      train_travel_class: null,
+      hotel_city: null,
+      hotel_check_in: null,
+      hotel_check_out: null,
+    },
+  },
+  org_user_fields_settings: {
+    allowed: true,
+    enabled: true,
+    org_user_mandatory_fields: {
+      employee_id: true,
+      title: true,
+      level: null,
+      business_unit: true,
+      department: null,
+      sub_department: null,
+      mobile: null,
+      location: null,
+      bank_details: true,
+      approver1: true,
+      approver2: true,
+      approver3: true,
+      joining_dt: true,
+    },
+  },
+  advance_request_fields_settings: {
+    allowed: true,
+    enabled: true,
+    advance_request_mandatory_fields: null,
+  },
+  org_logo_settings: {
+    allowed: true,
+    enabled: true,
+    file_id: null,
+  },
+  org_branding_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  verification: {
+    allowed: true,
+    mandatory: true,
+    late_mode_enabled: true,
+  },
+  data_extractor_settings: {
+    allowed: true,
+    enabled: true,
+    web_app_pdf: null,
+  },
+  advance_account_settings: {
+    allowed: true,
+    multiple_accounts: true,
+  },
+  settlements_excel_settings: {
+    allowed: true,
+    cost_center_wise_split: true,
+  },
+  bank_payment_file_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  expense_settings: {
+    allowed: true,
+    split_expense_settings: {
+      enabled: true,
+    },
+  },
+  exchange_rate_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  currencylayer_provider_settings: {
+    allowed: true,
+    enabled: true,
+    id: 'CURRENCYLAYER',
+    name: 'Currency Layer',
+  },
+  gmail_addon_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  duplicate_detection_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  custom_category_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  bulk_fyle_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  auto_reminder_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  analytics_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  advanced_rbac_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  sso_integration_settings: {
+    allowed: true,
+    enabled: true,
+    idp_name: null,
+    meta_data_file_id: null,
+    email_regex: null,
+  },
+  advanced_access_delegation_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  dynamic_form_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  budget_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  saved_filters_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  org_currency_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  recurrences_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  mis_reporting_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  risk_score_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  workflow_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  org_personal_cards_settings: {
+    allowed: true,
+    enabled: true,
   },
   unify_ccce_expenses_settings: {
     allowed: true,
@@ -388,7 +800,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
   advanced_project_settings: {
     allowed: true,
     enabled: true,
-    enable_individual_projects: false,
+    enable_individual_projects: true,
   },
   org_cost_center_settings: {
     allowed: true,
@@ -411,7 +823,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
   org_mileage_settings: {
     allowed: true,
     enabled: true,
-    mileage_location_enabled: false,
+    mileage_location_enabled: true,
   },
   multi_org_settings: {
     allowed: true,
@@ -419,7 +831,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
   },
   admin_allowed_ip_settings: {
     allowed: true,
-    enabled: false,
+    enabled: true,
     allowed_cidrs: [],
   },
   admin_email_settings: {
@@ -438,7 +850,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
   per_diem_settings: {
     allowed: true,
     enabled: true,
-    enable_individual_per_diem_rates: false,
+    enable_individual_per_diem_rates: true,
   },
   mileage_details: {
     unit: 'MILES',
@@ -465,7 +877,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     four_wheeler4_distance_limit: null,
     bicycle_distance_limit: 10,
     electric_car_distance_limit: null,
-    location_mandatory: false,
+    location_mandatory: true,
     enable_individual_mileage_rates: true,
   },
   policy_settings: {
@@ -473,7 +885,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: true,
     is_duplicate_detection_enabled: true,
     is_enabled: true,
-    policy_approval_workflow: false,
+    policy_approval_workflow: true,
     is_self_serve_enabled: true,
     is_trip_request_policy_enabled: true,
   },
@@ -501,7 +913,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     ],
   },
   receipt_settings: {
-    enabled: false,
+    enabled: true,
     allowed: true,
     enable_magnifier: null,
   },
@@ -512,7 +924,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     auto_match_allowed: true,
     enable_auto_match: true,
     bank_data_aggregation_settings: {
-      enabled: false,
+      enabled: true,
       aggregator: null,
     },
     bank_statement_upload_settings: {
@@ -551,39 +963,48 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
     allowed: true,
     provider: 'dwolla',
-    expedite_source: false,
-    expedite_destination: false,
+    expedite_source: true,
+    expedite_destination: true,
     pipeline_amount_limit: null,
   },
   taxi_settings: {
     allowed: true,
-    distance_mandatory: false,
+    distance_mandatory: true,
   },
   integrations_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
     integrations: [],
   },
   approval_settings: {
     allowed: true,
     admin_approve_own_report: true,
-    enable_secondary_approvers: false,
-    enable_sequential_approvers: false,
+    enable_secondary_approvers: true,
+    enable_sequential_approvers: true,
     allow_user_add_trip_request_approvers: null,
   },
   accounting_export_settings: {
     allowed: true,
-    accounting_settings: null,
-    integration_exports_enabled: false,
+    accounting_settings: {
+      enabled: true,
+      export_name: null,
+      export_type: null,
+      entries_generator_info: null,
+      entries_exporter_info: null,
+      custom_fields: null,
+      separate_org_user_advance_ledger: true,
+      collapse_expenses: true,
+    },
+    integration_exports_enabled: true,
   },
   transaction_fields_settings: {
     allowed: true,
     enabled: true,
     transaction_mandatory_fields: {
-      category: false,
-      purpose: false,
+      category: true,
+      purpose: true,
       vendor: null,
-      project: false,
+      project: true,
       cost_center: null,
       flight_travel_class: null,
       train_travel_class: null,
@@ -601,7 +1022,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: true,
     enabled: true,
     advance_request_mandatory_fields: {
-      activity: false,
+      activity: true,
     },
   },
   org_logo_settings: {
@@ -610,12 +1031,12 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     file_id: 'fiZU3RFPLaFK',
   },
   org_branding_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
   },
   advance_account_settings: {
     allowed: true,
-    multiple_accounts: false,
+    multiple_accounts: true,
   },
   verification_settings: {
     allowed: true,
@@ -627,15 +1048,15 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
   },
   expense_settings: {
-    allowed: false,
+    allowed: true,
     split_expense_settings: {
-      enabled: false,
+      enabled: true,
     },
   },
   transaction_field_configurations: [],
   gmail_addon_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
   },
   duplicate_detection_settings: {
     allowed: true,
@@ -662,8 +1083,8 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
   },
   sso_integration_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
     idp_name: null,
     meta_data_file_id: null,
   },
@@ -680,15 +1101,15 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
   },
   org_currency_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
   },
   expense_limit_settings: {
     policy_ids: ['tprIXMh8y1WXN', 'tpr1iLLz3JkLT', 'tprxZJGW71PvH'],
   },
   recurrences_settings: {
     allowed: true,
-    enabled: false,
+    enabled: true,
   },
   workflow_settings: {
     allowed: true,
@@ -712,8 +1133,8 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
   },
   org_in_app_chat_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
   },
   ccc_draft_expense_settings: {
     allowed: true,
@@ -744,8 +1165,355 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
   },
   mastercard_enrollment_settings: {
-    allowed: false,
-    enabled: false,
+    allowed: true,
+    enabled: true,
+  },
+};
+
+export const orgSettingsPostDataWithoutMileage: OrgSettingsResponse = {
+  project_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  advanced_project_settings: {
+    allowed: true,
+    enabled: true,
+    enable_individual_projects: true,
+  },
+  org_cost_center_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  exchange_rate_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  currencylayer_provider_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  trip_request_settings: {},
+  advances_settings: {
+    allowed: true,
+    enabled: true,
+    advance_requests_enabled: true,
+  },
+  org_mileage_settings: null,
+  multi_org_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  admin_allowed_ip_settings: {
+    allowed: true,
+    enabled: true,
+    allowed_cidrs: [],
+  },
+  admin_email_settings: {
+    allowed: true,
+    enabled: true,
+    unsubscribed_events: [],
+  },
+  org_access_delegation_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  org_personal_cards_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  per_diem_settings: {
+    allowed: true,
+    enabled: true,
+    enable_individual_per_diem_rates: true,
+  },
+  mileage_details: null,
+  policy_settings: {
+    is_advance_request_policy_enabled: true,
+    allowed: true,
+    is_duplicate_detection_enabled: true,
+    is_enabled: true,
+    policy_approval_workflow: true,
+    is_self_serve_enabled: true,
+    is_trip_request_policy_enabled: true,
+  },
+  tax_settings: {
+    allowed: true,
+    enabled: true,
+    name: null,
+    groups: [
+      {
+        name: 'Nilesh Tax @10%',
+        percentage: 0.1,
+      },
+      {
+        name: 'Pant Tax @20%',
+        percentage: 0.2,
+      },
+      {
+        name: 'GST',
+        percentage: 0.23,
+      },
+      {
+        name: 'CGST',
+        percentage: 0.05,
+      },
+    ],
+  },
+  receipt_settings: {
+    enabled: true,
+    allowed: true,
+    enable_magnifier: null,
+  },
+  corporate_credit_card_settings: {
+    allowed: true,
+    allow_approved_plus_states: true,
+    enabled: true,
+    auto_match_allowed: true,
+    enable_auto_match: true,
+    bank_data_aggregation_settings: {
+      enabled: true,
+      aggregator: null,
+    },
+    bank_statement_upload_settings: {
+      enabled: true,
+      generic_statement_parser_enabled: true,
+      bank_statement_parser_endpoint_settings: [
+        {
+          bank_name: 'AMerican Express - Excel statement - LT',
+          file_type: '.xls',
+          parser_url: '/laguna_tools_amex_ccc',
+        },
+        {
+          bank_name: 'American Express - Excel Statement - SP',
+          file_type: '.xls',
+          parser_url: '/structure_properties_amex_ccc',
+        },
+        {
+          bank_name: 'Bank of America',
+          file_type: '.pdf',
+          parser_url: '/pipeline_solutions_bofa_ccc',
+        },
+      ],
+    },
+  },
+  bank_feed_request_settings: {
+    allowed: true,
+    enabled: true,
+    bank_name: 'afd',
+    card_provider: 'asdf',
+    number_of_cards: 3,
+    status: 'IN_PROGRESS',
+    last_updated_at: null,
+    secret_key: 'bank-feed-request6iR9g13ks9',
+  },
+  ach_settings: {
+    enabled: true,
+    allowed: true,
+    provider: 'dwolla',
+    expedite_source: true,
+    expedite_destination: true,
+    pipeline_amount_limit: null,
+  },
+  taxi_settings: {
+    allowed: true,
+    distance_mandatory: true,
+  },
+  integrations_settings: {
+    allowed: true,
+    enabled: true,
+    integrations: [],
+  },
+  approval_settings: {
+    allowed: true,
+    admin_approve_own_report: true,
+    enable_secondary_approvers: true,
+    enable_sequential_approvers: true,
+    allow_user_add_trip_request_approvers: null,
+  },
+  accounting_export_settings: {
+    allowed: true,
+    accounting_settings: {
+      enabled: true,
+      export_name: null,
+      export_type: null,
+      entries_generator_info: null,
+      entries_exporter_info: null,
+      custom_fields: null,
+      separate_org_user_advance_ledger: true,
+      collapse_expenses: true,
+    },
+    integration_exports_enabled: true,
+  },
+  transaction_fields_settings: {
+    allowed: true,
+    enabled: true,
+    transaction_mandatory_fields: {
+      category: true,
+      purpose: true,
+      vendor: null,
+      project: true,
+      cost_center: null,
+      flight_travel_class: null,
+      train_travel_class: null,
+      hotel_city: null,
+      hotel_check_in: null,
+      hotel_check_out: null,
+    },
+  },
+  org_user_fields_settings: {
+    allowed: true,
+    enabled: true,
+    org_user_mandatory_fields: null,
+  },
+  advance_request_fields_settings: {
+    allowed: true,
+    enabled: true,
+    advance_request_mandatory_fields: {
+      activity: true,
+    },
+  },
+  org_logo_settings: {
+    allowed: true,
+    enabled: true,
+    file_id: 'fiZU3RFPLaFK',
+  },
+  org_branding_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  advance_account_settings: {
+    allowed: true,
+    multiple_accounts: true,
+  },
+  verification_settings: {
+    allowed: true,
+    mandatory: true,
+    late_mode_enabled: null,
+  },
+  bank_payment_file_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  expense_settings: {
+    allowed: true,
+    split_expense_settings: {
+      enabled: true,
+    },
+  },
+  transaction_field_configurations: [],
+  gmail_addon_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  duplicate_detection_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  custom_category_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  org_bulk_fyle_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  auto_reminder_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  analytics_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  advanced_rbac_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  sso_integration_settings: {
+    allowed: true,
+    enabled: true,
+    idp_name: null,
+    meta_data_file_id: null,
+  },
+  advanced_access_delegation_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  dynamic_form_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  budget_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  org_currency_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  expense_limit_settings: {
+    policy_ids: ['tprIXMh8y1WXN', 'tpr1iLLz3JkLT', 'tprxZJGW71PvH'],
+  },
+  recurrences_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  workflow_settings: {
+    allowed: true,
+    enabled: true,
+    report_workflow_settings: true,
+  },
+  card_assignment_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  transaction_reversal_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  auto_match_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  universal_statement_parser_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  org_in_app_chat_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  ccc_draft_expense_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  unify_ccce_expenses_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  expense_widget_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  suggested_expense_merge_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  org_expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+  company_expenses_beta_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  visa_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  mastercard_enrollment_settings: {
+    allowed: true,
+    enabled: true,
   },
 };
 
@@ -755,7 +1523,7 @@ export const outgoingTallyAccountObj: AccountingExportSettings = {
     enabled: true,
     default_org_category_ledger_name: null,
     default_org_user_personal_ledger_name: null,
-    separate_org_user_advance_ledger: false,
+    separate_org_user_advance_ledger: true,
     default_org_user_advance_ledger_name: null,
     expense_dt: null,
     advance_dt: null,
@@ -763,12 +1531,12 @@ export const outgoingTallyAccountObj: AccountingExportSettings = {
     refund_dt: null,
     cost_center: null,
     cost_category: null,
-    collapse_expenses: false,
+    collapse_expenses: true,
     blocked_payment_types: [],
   },
   quick_books_settings: null,
   accounting_settings: null,
-  integration_exports_enabled: false,
+  integration_exports_enabled: true,
 };
 
 export const incomingTallyAccoutingObj: IncomingAccountObject = {
@@ -779,7 +1547,7 @@ export const incomingTallyAccoutingObj: IncomingAccountObject = {
     enabled: true,
     default_org_category_ledger_name: null,
     default_org_user_personal_ledger_name: null,
-    separate_org_user_advance_ledger: false,
+    separate_org_user_advance_ledger: true,
     default_org_user_advance_ledger_name: null,
     expense_dt: null,
     advance_dt: null,
@@ -787,30 +1555,30 @@ export const incomingTallyAccoutingObj: IncomingAccountObject = {
     refund_dt: null,
     cost_center: null,
     cost_category: null,
-    collapse_expenses: false,
+    collapse_expenses: true,
     blocked_payment_types: [],
   },
-  integration_exports_enabled: false,
+  integration_exports_enabled: true,
 };
 
 export const outgoingQuickbooksAccountObj: AccountingExportSettings = {
   allowed: true,
   quick_books_settings: {
-    enabled: false,
+    enabled: true,
     expense_dt: null,
     advance_dt: null,
     expense_type: null,
     advance_type: null,
-    collapse_expenses: false,
-    enable_departments: false,
-    enable_classes: false,
+    collapse_expenses: true,
+    enable_departments: true,
+    enable_classes: true,
     debit_ledger_calculation_key: null,
     account_mappings: null,
-    separate_org_user_advance_ledger: false,
+    separate_org_user_advance_ledger: true,
   },
   tally_settings: null,
   accounting_settings: null,
-  integration_exports_enabled: false,
+  integration_exports_enabled: true,
 };
 
 export const incomingQuickbooksAccoutingObj: IncomingAccountObject = {
@@ -818,36 +1586,36 @@ export const incomingQuickbooksAccoutingObj: IncomingAccountObject = {
   enabled: true,
   type: 'QUICKBOOKS',
   settings: {
-    enabled: false,
+    enabled: true,
     expense_dt: null,
     advance_dt: null,
     expense_type: null,
     advance_type: null,
-    collapse_expenses: false,
-    enable_departments: false,
-    enable_classes: false,
+    collapse_expenses: true,
+    enable_departments: true,
+    enable_classes: true,
     debit_ledger_calculation_key: null,
     account_mappings: null,
-    separate_org_user_advance_ledger: false,
+    separate_org_user_advance_ledger: true,
   },
-  integration_exports_enabled: false,
+  integration_exports_enabled: true,
 };
 
 export const outgoingAccountSettingsObj: AccountingExportSettings = {
   allowed: true,
   accounting_settings: {
-    enabled: false,
+    enabled: true,
     export_name: null,
     export_type: null,
     entries_generator_info: null,
     entries_exporter_info: null,
     custom_fields: null,
-    separate_org_user_advance_ledger: false,
-    collapse_expenses: false,
+    separate_org_user_advance_ledger: true,
+    collapse_expenses: true,
   },
   tally_settings: null,
   quick_books_settings: null,
-  integration_exports_enabled: false,
+  integration_exports_enabled: true,
 };
 
 export const incomingAccountSettingsObj: IncomingAccountObject = {
@@ -855,14 +1623,14 @@ export const incomingAccountSettingsObj: IncomingAccountObject = {
   enabled: true,
   type: null,
   settings: {
-    enabled: false,
+    enabled: true,
     export_name: null,
     export_type: null,
     entries_generator_info: null,
     entries_exporter_info: null,
     custom_fields: null,
-    separate_org_user_advance_ledger: false,
-    collapse_expenses: false,
+    separate_org_user_advance_ledger: true,
+    collapse_expenses: true,
   },
-  integration_exports_enabled: false,
+  integration_exports_enabled: true,
 };
