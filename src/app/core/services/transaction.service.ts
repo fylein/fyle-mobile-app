@@ -70,6 +70,7 @@ export class TransactionService {
 
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
+    isInstant: true,
   })
   clearCache() {
     return of(null);
