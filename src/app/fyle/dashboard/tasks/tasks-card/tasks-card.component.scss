@@ -26,6 +26,10 @@
 
   &--cta-row {
     padding-top: 17px;
+
+    &-icon {
+      fill: $black;
+    }
   }
 
   &--amount-currency {

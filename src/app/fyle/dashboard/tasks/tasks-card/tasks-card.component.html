@@ -1,7 +1,11 @@
 <div class="task">
   <div class="task--card">
     <ion-grid>
-      <ion-row class="task--row" (click)="taskCtaClicked()" [ngClass]="{ 'pb-0': showReportAutoSubmissionInfo }">
+      <ion-row
+        class="task--row"
+        (click)="taskCtaClicked(task.ctas[0])"
+        [ngClass]="{ 'pb-0': showReportAutoSubmissionInfo }"
+      >
         <ion-col size="1" class="task--icon-col">
           <ion-row>
             <ion-col class="task--icon-col">
@@ -40,7 +44,9 @@
               {{ cta.content }}
             </ion-col>
             <ion-col size="1">
-              <ion-icon src="../../../../../assets/svg/arrow-right-nav.svg"></ion-icon>
+              <div>
+                <ion-icon class="task--cta-row-icon" src="../../../../../assets/svg/right-arrow.svg"></ion-icon>
+              </div>
             </ion-col>
           </ion-row>
         </ion-col>

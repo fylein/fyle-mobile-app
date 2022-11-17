@@ -26,23 +26,20 @@ export class TasksCardComponent implements OnInit {
 
   showReportAutoSubmissionInfo = false;
 
-  ctaEvent: TaskCta;
-
   constructor(private currencyService: CurrencyService) {}
 
   ngOnInit(): void {
+    console.log(this.task);
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.currencySymbol$ = this.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
     );
     this.showReportAutoSubmissionInfo =
       this.task.header.includes('Incomplete expense') && !!this.autoSubmissionReportDate;
-
-    this.ctaEvent = this.task.ctas[0];
   }
 
-  taskCtaClicked() {
-    this.ctaClicked.emit(this.ctaEvent);
+  taskCtaClicked(event) {
+    this.ctaClicked.emit(event);
   }
 
   onInfoCardClicked() {
