@@ -219,7 +219,6 @@ export class StatusService {
   }
 
   findLatestComment(id, type, orgUserId) {
-    console.log(id, type, orgUserId);
     return this.find(type, id).pipe(
       map((estatuses) => {
         const nonSystemEStatuses = estatuses.filter((eStatus) => eStatus.us_full_name);
