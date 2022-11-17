@@ -12,7 +12,6 @@ export interface File {
   receipt_coordinates: any;
   s3url: string;
   transaction_id?: string;
-  transportation_booking_id?: string;
   file_download_url?: string;
   file_type?: string;
   url?: string;
