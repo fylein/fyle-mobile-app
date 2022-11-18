@@ -105,12 +105,6 @@ export class MyViewReportPage {
 
   deleteExpensesIdList = [];
 
-  isReportEdited: any;
-
-  selectedTotalAmount: any;
-
-  selectedTotalTxns: any;
-
   reportEtxnIds: string[];
 
   isExpensesLoading: boolean;
@@ -566,10 +560,6 @@ export class MyViewReportPage {
     this.router.navigate(['/', 'enterprise', 'add_edit_expense', { rp_id: this.activatedRoute.snapshot.params.id }]);
   }
 
-  checkReportEdited() {
-    this.isReportEdited = this.deleteExpensesIdList.length > 0 || this.addedExpensesIdList.length > 0;
-  }
-
   async showAddExpensesToReportModal() {
     const AddExpensesToReportModal = await this.modalController.create({
       component: AddExpensesToReportComponent,
@@ -586,9 +576,6 @@ export class MyViewReportPage {
     const { data } = await AddExpensesToReportModal.onWillDismiss();
     if (data && data.selectedTxnIds) {
       this.addedExpensesIdList = data.selectedTxnIds;
-      this.selectedTotalAmount = data.selectedTotalAmount;
-      this.selectedTotalTxns = data.selectedTotalTxns;
-      this.checkReportEdited();
       this.saveReport();
     }
   }
