@@ -222,7 +222,7 @@ export class ReportService {
     cacheBusterObserver: reportsCacheBuster$,
   })
   getReportAutoSubmissionDetails(): Observable<ReportAutoSubmissionDetails> {
-    const reportAutoSubmissionDetails$ = this.spenderPlatformApiService
+    return this.spenderPlatformApiService
       .post<ReportAutoSubmissionDetails>('/automations/report_submissions/next_at', {
         data: null,
       })
@@ -235,14 +235,6 @@ export class ReportService {
           }
           return res;
         })
-      );
-
-    return this.launchDarklyService
-      .checkIfAutomateReportSubmissionIsEnabled()
-      .pipe(
-        switchMap((isAutomateReportSubmissionEnabled) =>
-          iif(() => isAutomateReportSubmissionEnabled, reportAutoSubmissionDetails$, of(null))
-        )
       );
   }
 
