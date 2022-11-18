@@ -29,7 +29,6 @@ export class TasksCardComponent implements OnInit {
   constructor(private currencyService: CurrencyService) {}
 
   ngOnInit(): void {
-    console.log(this.task);
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.currencySymbol$ = this.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
