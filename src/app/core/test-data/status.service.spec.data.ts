@@ -91,10 +91,10 @@ export const apiResponse: ExtendedStatus[] = [
   },
 ];
 
-export const apiCommentsResponse = [
+export const apiCommentsResponse: ExtendedStatus[] = [
   {
     st_id: 'stB3NqJuL3eE',
-    st_created_at: '2022-10-28T05:54:01.537Z',
+    st_created_at: new Date('2022-10-28T05:54:01.537Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'created',
     st_diff: null,
@@ -108,14 +108,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Others',
-      icon: 'circle',
-    },
   },
   {
     st_id: 'styGA9jgFCgn',
-    st_created_at: '2022-10-28T05:54:42.948Z',
+    st_created_at: new Date('2022-10-28T05:54:42.948Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'updated',
     st_diff: null,
@@ -129,14 +125,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Others',
-      icon: 'circle',
-    },
   },
   {
     st_id: 'stPMOqmnwgOy',
-    st_created_at: '2022-10-28T05:58:03.433Z',
+    st_created_at: new Date('2022-10-28T05:58:03.433Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'hotel request transportation request',
     st_diff: null,
@@ -150,14 +142,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'automatically merged',
     st_diff: null,
@@ -171,14 +159,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'merged 2 expenses',
     st_diff: null,
@@ -192,14 +176,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'merged expenses',
     st_diff: null,
@@ -213,14 +193,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'created reversal',
     st_diff: null,
@@ -234,14 +210,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'policy violation will trigger the following action',
     st_diff: null,
@@ -255,14 +227,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'deleted',
     st_diff: null,
@@ -276,14 +244,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'removed from the report',
     st_diff: null,
@@ -297,14 +261,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'added',
     st_diff: null,
@@ -318,14 +278,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'flagged',
     st_diff: null,
@@ -339,14 +295,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'unflagged',
     st_diff: null,
@@ -360,14 +312,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'additional approvers are not present',
     st_diff: null,
@@ -381,14 +329,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'verified',
     st_diff: null,
@@ -402,14 +346,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'un-approved',
     st_diff: null,
@@ -423,14 +363,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'approved',
     st_diff: null,
@@ -444,14 +380,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'payment_processing',
     st_diff: null,
@@ -465,14 +397,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'to paid',
     st_diff: null,
@@ -486,14 +414,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'report',
     st_diff: null,
@@ -507,14 +431,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'expense issues',
     st_diff: null,
@@ -528,14 +448,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'policies ran successfully',
     st_diff: null,
@@ -549,14 +465,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'auto-matched by',
     st_diff: null,
@@ -570,14 +482,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'unmatched by',
     st_diff: null,
@@ -591,14 +499,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'matched by',
     st_diff: null,
@@ -612,14 +516,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'expense is a possible duplicate',
     st_diff: null,
@@ -633,14 +533,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'duplicate expense(s) with similar details',
     st_diff: null,
@@ -654,14 +550,10 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'some comment',
     st_diff: null,
@@ -675,17 +567,13 @@ export const apiCommentsResponse = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: {
-      category: 'Receipt Attached',
-      icon: 'attachment',
-    },
   },
 ];
 
-export const apiUpdatedCommentsReponse = [
+export const updateResponseWithSt: ExtendedStatus[] = [
   {
     st_id: 'stB3NqJuL3eE',
-    st_created_at: '2022-10-28T05:54:01.537Z',
+    st_created_at: new Date('2022-10-28T05:54:01.537Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'created',
     st_diff: null,
@@ -706,7 +594,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'styGA9jgFCgn',
-    st_created_at: '2022-10-28T05:54:42.948Z',
+    st_created_at: new Date('2022-10-28T05:54:42.948Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'updated',
     st_diff: null,
@@ -727,7 +615,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'stPMOqmnwgOy',
-    st_created_at: '2022-10-28T05:58:03.433Z',
+    st_created_at: new Date('2022-10-28T05:58:03.433Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'hotel request transportation request',
     st_diff: null,
@@ -748,7 +636,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'automatically merged',
     st_diff: null,
@@ -769,7 +657,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'merged 2 expenses',
     st_diff: null,
@@ -790,7 +678,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'merged expenses',
     st_diff: null,
@@ -811,7 +699,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'created reversal',
     st_diff: null,
@@ -832,7 +720,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'policy violation will trigger the following action',
     st_diff: null,
@@ -853,7 +741,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'deleted',
     st_diff: null,
@@ -874,7 +762,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'removed from the report',
     st_diff: null,
@@ -895,7 +783,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'added',
     st_diff: null,
@@ -916,7 +804,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'flagged',
     st_diff: null,
@@ -937,7 +825,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'unflagged',
     st_diff: null,
@@ -958,7 +846,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'additional approvers are not present',
     st_diff: null,
@@ -979,7 +867,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'verified',
     st_diff: null,
@@ -1000,7 +888,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'un-approved',
     st_diff: null,
@@ -1021,7 +909,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'approved',
     st_diff: null,
@@ -1042,7 +930,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'payment_processing',
     st_diff: null,
@@ -1063,7 +951,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'to paid',
     st_diff: null,
@@ -1084,7 +972,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'report',
     st_diff: null,
@@ -1105,7 +993,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'expense issues',
     st_diff: null,
@@ -1126,7 +1014,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'policies ran successfully',
     st_diff: null,
@@ -1147,7 +1035,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'auto-matched by',
     st_diff: null,
@@ -1168,7 +1056,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'unmatched by',
     st_diff: null,
@@ -1189,7 +1077,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'matched by',
     st_diff: null,
@@ -1210,7 +1098,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'expense is a possible duplicate',
     st_diff: null,
@@ -1231,7 +1119,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'duplicate expense(s) with similar details',
     st_diff: null,
@@ -1252,7 +1140,7 @@ export const apiUpdatedCommentsReponse = [
   },
   {
     st_id: 'st3xjYhJBfIu',
-    st_created_at: '2022-10-31T10:26:57.846Z',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
     st_comment: 'some comment',
     st_diff: null,

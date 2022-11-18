@@ -2,8 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ApiService } from './api.service';
 import { of } from 'rxjs';
 import { StatusService } from './status.service';
-
-import { apiResponse, apiCommentsResponse, apiUpdatedCommentsReponse } from '../test-data/status.service.spec.data';
+import { apiResponse, apiCommentsResponse, updateResponseWithSt } from '../test-data/status.service.spec.data';
 
 describe('StatusService', () => {
   let service: StatusService;
@@ -43,7 +42,7 @@ describe('StatusService', () => {
 
   it('should use status map and update the comments accordingly by adding statuses', () => {
     const result = service.createStatusMap(apiCommentsResponse, 'reports');
-    expect(result).toEqual(apiUpdatedCommentsReponse);
+    expect(result).toEqual(updateResponseWithSt);
   });
 
   it('should find and return the latest comment', (done) => {

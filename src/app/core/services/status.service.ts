@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
 import { ExtendedStatus } from '../models/extended_status.model';
+import { StatusCategory } from '../models/status-category.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +11,7 @@ import { ExtendedStatus } from '../models/extended_status.model';
 export class StatusService {
   constructor(private apiService: ApiService) {}
 
-  find(objectType, objectId) {
+  find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
       map((estatuses: ExtendedStatus[]) =>
         estatuses?.map((estatus) => {
@@ -20,7 +22,7 @@ export class StatusService {
     );
   }
 
-  post(objectType, objectId, status, notify = false) {
+  post(objectType: string, objectId: string, status, notify: boolean = false) {
     return this.apiService.post('/' + objectType + '/' + objectId + '/statuses', {
       status,
       notify,
@@ -29,8 +31,8 @@ export class StatusService {
 
   // TODO: This needs dedicated effort to be fixed
   // eslint-disable-next-line complexity
-  getStatusCategory(comment, type) {
-    let statusCategory = {};
+  getStatusCategory(comment: string, type: string): StatusCategory {
+    let statusCategory: StatusCategory;
     const lowerCaseComment = comment && comment.toLowerCase();
 
     switch (true) {
@@ -208,7 +210,7 @@ export class StatusService {
     return statusCategory;
   }
 
-  createStatusMap(statuses, type) {
+  createStatusMap(statuses: ExtendedStatus[], type: string): ExtendedStatus[] {
     const modifiedStatuses = statuses.map((status) => {
       const statusCategoryAndIcon = this.getStatusCategory(status.st_comment, type);
       status.st = Object.assign({}, status.st, statusCategoryAndIcon);
@@ -218,7 +220,7 @@ export class StatusService {
     return modifiedStatuses;
   }
 
-  findLatestComment(id, type, orgUserId) {
+  findLatestComment(id: string, type: string, orgUserId: string): Observable<string> {
     return this.find(type, id).pipe(
       map((estatuses) => {
         const nonSystemEStatuses = estatuses.filter((eStatus) => eStatus.us_full_name);
@@ -231,7 +233,7 @@ export class StatusService {
     );
   }
 
-  sortStatusByDate(estatus) {
+  sortStatusByDate(estatus: ExtendedStatus[]): ExtendedStatus[] {
     estatus.sort((a, b) => {
       const dateA = a.st_created_at;
       const dateB = b.st_created_at;
