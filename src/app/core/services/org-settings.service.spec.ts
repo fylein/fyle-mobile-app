@@ -15,23 +15,28 @@ import {
   outgoingTallyAccountObj,
   orgSettingsPostData,
   incomingAccountSettingsObj,
-  orgSettingsGetDataWithoutMileage,
-  orgSettingsPostDataWithoutMileage,
   outgoingAccountSettingsObj,
+  incomingAccountingObj,
+  outgoingAccountingObj,
+  incomingTallyAccountingObjWithoutSettings,
+  incomingQuickbooksAccountingObjWithoutSettings,
 } from '../models/test-data/org-settings-data';
 
 import { OrgSettingsService } from './org-settings.service';
 
 const getApiData: OrgSettings = orgSettingsGetData;
-const getApiDataWithoutMileage: OrgSettings = orgSettingsGetDataWithoutMileage;
 const postApiData: OrgSettingsResponse = orgSettingsPostData;
-const postApiDataWithoutMileage: OrgSettingsResponse = orgSettingsPostDataWithoutMileage;
 const incomingTallyAccountObject: IncomingAccountObject = incomingTallyAccoutingObj;
 const incomingQuickBooksAccountObject: IncomingAccountObject = incomingQuickbooksAccoutingObj;
 const incomingAccountSettingsObject: IncomingAccountObject = incomingAccountSettingsObj;
 const outgoingTallyAccountObject: AccountingExportSettings = outgoingTallyAccountObj;
 const outgoingQuickbooksAccountObject: AccountingExportSettings = outgoingQuickbooksAccountObj;
 const outgoingAccountSettingsObject: AccountingExportSettings = outgoingAccountSettingsObj;
+const incomingAccountingObject: IncomingAccountObject = incomingAccountingObj;
+const outgoingAccountingObject: AccountingExportSettings = outgoingAccountingObj;
+const incomingTallyAccountingObjectWithoutSettings: IncomingAccountObject = incomingTallyAccountingObjWithoutSettings;
+const incomingQuickbooksAccountingObjectWithoutSettings: IncomingAccountObject =
+  incomingQuickbooksAccountingObjWithoutSettings;
 
 describe('OrgSettingsService', () => {
   let orgSettingsService: OrgSettingsService;
@@ -57,17 +62,9 @@ describe('OrgSettingsService', () => {
   });
 
   it('should be able to get the org settings properly', (done) => {
-    apiService.get.and.returnValue(of(getApiData));
+    apiService.get.and.returnValue(of(postApiData));
     orgSettingsService.get().subscribe((res) => {
-      expect(res).toBeTruthy(getApiData);
-      done();
-    });
-  });
-
-  it('should be able to get the org settings properly without mileage', (done) => {
-    apiService.get.and.returnValue(of(getApiDataWithoutMileage));
-    orgSettingsService.get().subscribe((res) => {
-      expect(res).toBeTruthy(getApiDataWithoutMileage);
+      expect(res).toBeTruthy(postApiData);
       done();
     });
   });
@@ -76,14 +73,6 @@ describe('OrgSettingsService', () => {
     apiService.post.and.returnValue(of(postApiData));
     orgSettingsService.post(getApiData).subscribe((res) => {
       expect(res).toBeTruthy(postApiData);
-      done();
-    });
-  });
-
-  it('should be able to update the org settings properly without mileage', (done) => {
-    apiService.post.and.returnValue(of(postApiDataWithoutMileage));
-    orgSettingsService.post(getApiDataWithoutMileage).subscribe((res) => {
-      expect(res).toBeTruthy(postApiDataWithoutMileage);
       done();
     });
   });
@@ -122,5 +111,21 @@ describe('OrgSettingsService', () => {
     expect(orgSettingsService.setOutgoingAccountingObject(incomingAccountSettingsObject)).toBeTruthy(
       outgoingAccountSettingsObject
     );
+  });
+
+  it('should be able to get incoming accounting object when accounting export is passed as null', () => {
+    expect(orgSettingsService.getIncomingAccountingObject(null)).toBeTruthy(incomingAccountingObject);
+  });
+
+  it('should be able to set outgoing taly accounting object with empty settings', () => {
+    expect(orgSettingsService.setOutgoingAccountingObject(incomingTallyAccountingObjectWithoutSettings)).toBeTruthy(
+      outgoingAccountingObject
+    );
+  });
+
+  it('should be able to set outgoing quickbooks accounting object with empty settings', () => {
+    expect(
+      orgSettingsService.setOutgoingAccountingObject(incomingQuickbooksAccountingObjectWithoutSettings)
+    ).toBeTruthy(outgoingAccountingObject);
   });
 });

@@ -89,7 +89,7 @@ export class OrgSettingsService {
       accountingSettings.accounting_settings = accounting.settings;
     }
 
-    accountingSettings.integration_exports_enabled = accounting?.integration_exports_enabled;
+    accountingSettings.integration_exports_enabled = accounting && accounting.integration_exports_enabled;
 
     return accountingSettings;
   }
