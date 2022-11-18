@@ -68,6 +68,11 @@ export class TransactionService {
     });
   }
 
+  /*
+    'isInstant' clears the cache before the method returns a value.
+    If we don't pass that property, then the cache is not cleared in our case.
+    Ref: https://www.npmjs.com/package/ts-cacheable#:~:text=need%20to%20set-,isInstant%3A%20true,-on%20CacheBuster%20configuration
+  */
   @CacheBuster({
     cacheBusterNotifier: transactionsCacheBuster$,
     isInstant: true,
