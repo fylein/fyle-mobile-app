@@ -3,7 +3,7 @@ import { ExtendedStatus } from '../models/extended_status.model';
 export const apiResponse: ExtendedStatus[] = [
   {
     st_id: 'st7ak7UoeTDH',
-    st_created_at: new Date('2022-09-21T15:33:52.696Z'),
+    st_created_at: new Date('2022-09-23T15:33:52.696Z'),
     st_org_user_id: 'POLICY',
     st_comment: 'food expenses are limited to rs 200 only',
     st_diff: {
@@ -23,7 +23,7 @@ export const apiResponse: ExtendedStatus[] = [
   {
     st_id: 'st8dHUhDzXxr',
     st_created_at: new Date('2022-09-21T15:33:51.727Z'),
-    st_org_user_id: 'SYSTEM',
+    st_org_user_id: 'POLICY',
     st_comment: 'Flagged as per policy',
     st_diff: null,
     st_state: null,
@@ -31,12 +31,12 @@ export const apiResponse: ExtendedStatus[] = [
     st_report_id: null,
     st_advance_request_id: null,
     st_trip_request_id: null,
-    us_full_name: null,
+    us_full_name: 'some',
     us_email: null,
   },
   {
     st_id: 'stFl71WSazpD',
-    st_created_at: new Date('2022-09-21T15:33:51.761Z'),
+    st_created_at: new Date('2022-09-22T15:33:51.761Z'),
     st_org_user_id: 'POLICY',
     st_comment: 'food expenses are limited to rs 200 only',
     st_diff: null,
