@@ -213,6 +213,7 @@ export class ReportService {
   })
   updateReportDetails(erpt) {
     const reportData = this.dataTransformService.unflatten(erpt);
+    console.log('UPADTED DETAILs', reportData);
     return this.apiService
       .post('/reports', reportData.rp)
       .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));

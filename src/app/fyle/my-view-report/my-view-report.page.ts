@@ -1,9 +1,9 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { Observable, from, noop, concat, Subject, iif, of, forkJoin } from 'rxjs';
+import { Observable, from, noop, concat, Subject, iif, of, forkJoin, BehaviorSubject } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, switchMap, finalize, shareReplay, takeUntil, tap, startWith } from 'rxjs/operators';
+import { map, switchMap, finalize, shareReplay, takeUntil, tap, startWith, take } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -111,6 +111,8 @@ export class MyViewReportPage {
 
   reportId: string;
 
+  loadReport$ = new BehaviorSubject<void>(null);
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -174,12 +176,13 @@ export class MyViewReportPage {
 
   ionViewWillEnter() {
     this.setupNetworkWatcher();
-    this.isExpensesLoading = true;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
-    this.erpt$ = from(this.loaderService.showLoader()).pipe(
+    this.erpt$ = this.loadReport$.pipe(
+      switchMap(() => this.loaderService.showLoader()),
       switchMap(() => this.reportService.getReport(this.activatedRoute.snapshot.params.id)),
-      finalize(() => from(this.loaderService.hideLoader()))
+      tap(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
     );
     const eou$ = from(this.authService.getEou());
 
@@ -252,7 +255,9 @@ export class MyViewReportPage {
       .getApproversByReportId(this.activatedRoute.snapshot.params.id)
       .pipe(map((reportApprovals) => reportApprovals));
 
-    this.etxns$ = from(this.authService.getEou()).pipe(
+    this.etxns$ = this.loadReport$.pipe(
+      tap(() => (this.isExpensesLoading = true)),
+      switchMap(() => this.authService.getEou()),
       switchMap((eou) =>
         this.transactionService.getAllETxnc({
           tx_org_user_id: 'eq.' + eou.ou.id,
@@ -268,7 +273,7 @@ export class MyViewReportPage {
         })
       ),
       shareReplay(1),
-      finalize(() => (this.isExpensesLoading = false))
+      tap(() => (this.isExpensesLoading = false))
     );
 
     const actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
@@ -305,13 +310,14 @@ export class MyViewReportPage {
       .subscribe(noop);
   }
 
-  updateReportName(erpt: ExtendedReport, reportName: string) {
-    erpt.rp_purpose = reportName;
-    from(this.loaderService.showLoader())
+  //This method needs to be fixed
+  updateReportName(reportName: string) {
+    this.erpt$
       .pipe(
-        switchMap(() => this.reportService.updateReportDetails(erpt)),
-        finalize(() => this.loaderService.hideLoader()),
-        shareReplay(1)
+        take(1),
+        tap(() => this.loaderService.showLoader()),
+        switchMap((erpt) => this.reportService.updateReportDetails(erpt)),
+        finalize(() => this.loaderService.hideLoader())
       )
       .subscribe(() => {
         this.reportName = reportName;
@@ -319,21 +325,27 @@ export class MyViewReportPage {
   }
 
   async editReportName() {
-    const erpt = await this.erpt$.toPromise();
-    const editReportNamePopover = await this.popoverController.create({
-      component: EditReportNamePopoverComponent,
-      componentProps: {
-        reportName: erpt.rp_purpose,
-      },
-      cssClass: 'fy-dialog-popover',
-    });
-
-    await editReportNamePopover.present();
-    const { data } = await editReportNamePopover.onWillDismiss();
-
-    if (data && data.reportName) {
-      this.updateReportName(erpt, data.reportName);
-    }
+    this.erpt$
+      .pipe(take(1))
+      .pipe(
+        switchMap((erpt) => {
+          const editReportNamePopover = this.popoverController.create({
+            component: EditReportNamePopoverComponent,
+            componentProps: {
+              reportName: erpt.rp_purpose,
+            },
+            cssClass: 'fy-dialog-popover',
+          });
+          return editReportNamePopover;
+        }),
+        tap((editReportNamePopover) => editReportNamePopover.present()),
+        switchMap((editReportNamePopover) => editReportNamePopover.onWillDismiss())
+      )
+      .subscribe((editReportNamePopoverDetails) => {
+        if (editReportNamePopoverDetails?.data?.reportName) {
+          this.updateReportName(editReportNamePopoverDetails?.data?.reportName);
+        }
+      });
   }
 
   deleteReport() {
@@ -368,50 +380,34 @@ export class MyViewReportPage {
     }
   }
 
-  async showResubmitReportSummaryPopover() {
-    const erpt = await this.erpt$.toPromise();
-    const etxns = await this.etxns$.toPromise();
-    const popover = await this.popoverController.create({
-      componentProps: {
-        erpt,
-        etxns,
-      },
-      component: ResubmitReportPopoverComponent,
-      cssClass: 'dialog-popover',
-    });
-
-    await popover.present();
-
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'my_reports']);
-    }
-  }
-
-  async showSubmitReportSummaryPopover() {
-    const erpt = await this.erpt$.toPromise();
-    const etxns = await this.etxns$.toPromise();
-    const popover = await this.popoverController.create({
-      componentProps: {
-        erpt,
-        etxns,
-      },
-      component: SubmitReportPopoverComponent,
-      cssClass: 'dialog-popover',
-    });
-
-    await popover.present();
-
-    const { data } = await popover.onWillDismiss();
-
-    if (data && data.goBack) {
-      this.router.navigate(['/', 'enterprise', 'my_reports']);
-    }
+  showReportSummaryPopover(mode: 'SUBMIT' | 'RESUBMIT') {
+    forkJoin({
+      erpt: this.erpt$.pipe(take(1)),
+      etxns: this.etxns$.pipe(take(1)),
+    })
+      .pipe(
+        switchMap(({ erpt, etxns }) => {
+          const resubmitReportPopover = this.popoverController.create({
+            componentProps: {
+              erpt,
+              etxns,
+            },
+            component: mode === 'SUBMIT' ? SubmitReportPopoverComponent : ResubmitReportPopoverComponent,
+            cssClass: 'dialog-popover',
+          });
+          return resubmitReportPopover;
+        }),
+        tap((resubmitReportPopover) => resubmitReportPopover.present()),
+        switchMap((resubmitReportPopover) => resubmitReportPopover.onWillDismiss())
+      )
+      .subscribe((resubmitReportPopoverDetails) => {
+        if (resubmitReportPopoverDetails?.data?.goBack) {
+          this.router.navigate(['/', 'enterprise', 'my_reports']);
+        }
+      });
   }
 
   async goToTransaction({ etxn, etxnIndex }) {
-    const erpt = await this.erpt$.toPromise();
     const canEdit = this.canEditTxn(etxn.tx_state);
     let category;
 
@@ -438,14 +434,16 @@ export class MyViewReportPage {
       }
     }
     if (canEdit) {
-      this.router.navigate([
-        route,
-        {
-          id: etxn.tx_id,
-          navigate_back: true,
-          remove_from_report: erpt.rp_num_transactions > 1,
-        },
-      ]);
+      this.erpt$.subscribe((erpt) =>
+        this.router.navigate([
+          route,
+          {
+            id: etxn.tx_id,
+            navigate_back: true,
+            remove_from_report: erpt.rp_num_transactions > 1,
+          },
+        ])
+      );
     } else {
       this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
       this.router.navigate([
@@ -580,6 +578,7 @@ export class MyViewReportPage {
     }
   }
 
+  //Not needed
   removeTxnFromReport() {
     const removeTxnList$ = [];
     this.deleteExpensesIdList.forEach((txnId) => {
@@ -589,6 +588,7 @@ export class MyViewReportPage {
     return forkJoin(removeTxnList$);
   }
 
+  //Can refactor this entire method to just make call to update report transactions
   saveReport() {
     const report = {
       purpose: this.reportName,
@@ -609,6 +609,7 @@ export class MyViewReportPage {
         ),
         switchMap((res) => iif(() => this.deleteExpensesIdList.length > 0, this.removeTxnFromReport(), of(false))),
         finalize(() => {
+          this.loadReport$.next();
           this.addedExpensesIdList = [];
           this.deleteExpensesIdList = [];
           this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
